@@ -15,7 +15,8 @@
     "next": "14.2.4",
     "react": "^18",
     "react-dom": "^18",
-    "sass": "^1.77.6"
+    "sass": "^1.77.6",
+    "sharp": "^0.33.4"
   },
   "devDependencies": {
     "@types/node": "^20",
