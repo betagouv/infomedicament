@@ -6,7 +6,6 @@ import { Header } from "@codegouvfr/react-dsfr/Header";
 
 import { defaultColorScheme } from "@/app/defaultColorScheme";
 import { StartDsfr } from "@/app/StartDsfr";
-import { fr } from "@codegouvfr/react-dsfr";
 
 export default function RootLayout({
   children,
@@ -39,11 +38,13 @@ export default function RootLayout({
               title:
                 "Accueil - Ministère du travail de la santé et des solidarités",
             }}
-            navigation={
-              <p className={fr.cx("fr-my-3v")}>
-                La référence officielle sur les données des médicaments
-              </p>
-            }
+            operatorLogo={{
+              alt: "Info Médicament",
+              imgUrl: "/logo.svg",
+              orientation: "horizontal",
+            }}
+            serviceTitle="" // hack pour que la tagline soit bien affichée
+            serviceTagline="La référence officielle sur les données des médicaments"
           />
           {children}
         </DsfrProvider>
