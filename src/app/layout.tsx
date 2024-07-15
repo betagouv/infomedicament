@@ -3,6 +3,7 @@ import { getHtmlAttributes } from "@codegouvfr/react-dsfr/next-appdir/getHtmlAtt
 import { DsfrHead } from "@codegouvfr/react-dsfr/next-appdir/DsfrHead";
 import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
 import { Header } from "@codegouvfr/react-dsfr/Header";
+import { fr } from "@codegouvfr/react-dsfr";
 
 import { defaultColorScheme } from "@/app/defaultColorScheme";
 import { StartDsfr } from "@/app/StartDsfr";
@@ -46,7 +47,7 @@ export default function RootLayout({
             serviceTitle="" // hack pour que la tagline soit bien affichée
             serviceTagline="La référence officielle sur les données des médicaments"
           />
-          {children}
+          <main className={fr.cx("fr-container", "fr-py-2w")}>{children}</main>
         </DsfrProvider>
       </body>
     </html>
