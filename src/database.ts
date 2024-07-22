@@ -96,9 +96,7 @@ export type SpecDelivrance = Selectable<SpecDelivranceTable> &
 export const db = new Kysely<Database>({
   dialect: new MysqlDialect({
     pool: process.env.DATABASE_URL
-      ? createPool(process.env.DATABASE_URL, {
-          connectionLimit: 10,
-        })
+      ? createPool(process.env.DATABASE_URL)
       : createPool({
           // .devcontainer config
           database: "pdbm_bdd",
