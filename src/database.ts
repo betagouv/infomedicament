@@ -100,7 +100,7 @@ export const db = new Kysely<Database>({
       : createPool({
           // .devcontainer config
           database: "pdbm_bdd",
-          host: "db",
+          host: "db-mysql",
           user: "root",
           password: "mysql",
           port: 3306,

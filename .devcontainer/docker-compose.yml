@@ -10,17 +10,17 @@ services:
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
 
-    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
-    network_mode: service:db
+    # Runs app on the same network as the mysql container, allows "forwardPorts" in devcontainer.json function.
+    network_mode: service:db-mysql
 
     # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
 
-  db:
+  db-mysql:
     image: mysql:9
     restart: unless-stopped
     volumes:
-      - db-data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: mysql
       MYSQL_DATABASE: mysql
@@ -32,4 +32,4 @@ services:
       - "3000:3000"
 
 volumes:
-  db-data:
+  mysql-data:
