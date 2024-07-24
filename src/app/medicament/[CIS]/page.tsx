@@ -13,6 +13,9 @@ import {
 
 import liste_CIS_MVP from "./liste_CIS_MVP.json";
 import Tag from "@codegouvfr/react-dsfr/Tag";
+import fs from "node:fs/promises";
+import path from "node:path";
+import JSZIP from "jszip";
 
 export async function generateStaticParams(): Promise<{ CIS: string }[]> {
   return liste_CIS_MVP.map((CIS) => ({
@@ -78,12 +81,39 @@ const getSpecialite = cache(async (CIS: string) => {
   };
 });
 
+async function getNotice(CIS: string): Promise<string | undefined> {
+  let zipData;
+  if (process.env.NOTICES_URL) {
+    const response = await fetch(process.env.NOTICES_URL);
+    zipData = await response.arrayBuffer();
+  } else {
+    zipData = await fs.readFile(
+      path.join(
+        process.cwd(),
+        "src",
+        "app",
+        "medicament",
+        "[CIS]",
+        "Notices_RCP_html.zip",
+      ),
+    );
+  }
+
+  const zip = new JSZIP();
+  await zip.loadAsync(zipData);
+  const data = await zip
+    .file(`Notices_RCP_html/${CIS}_notice.htm`)
+    ?.async("nodebuffer");
+  return data?.toString("latin1");
+}
+
 export default async function Home({
   params: { CIS },
 }: {
   params: { CIS: string };
 }) {
   const { specialite, composants, prix, delivrance } = await getSpecialite(CIS);
+  const notice = await getNotice(CIS);
 
   const denom = specialite.SpecDenom01.split(" ")
     .map((word) =>
@@ -127,6 +157,14 @@ export default async function Home({
       <p>
         <b>Substance active</b> {composants.map((c) => c.NomLib).join(", ")}
       </p>
+      <h2 className={fr.cx("fr-h2")}>Notice</h2>
+      {notice ? (
+        <div
+          dangerouslySetInnerHTML={{
+            __html: notice,
+          }}
+        />
+      ) : null}
     </>
   );
 }
