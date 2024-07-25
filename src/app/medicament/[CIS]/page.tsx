@@ -1,5 +1,13 @@
 import { cache } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
+import Badge from "@codegouvfr/react-dsfr/Badge";
+import Tag from "@codegouvfr/react-dsfr/Tag";
+import fs from "node:fs/promises";
+import path from "node:path";
+import JSZIP from "jszip";
+import * as htmlparser2 from "htmlparser2";
+import { findOne, innerText } from "domutils";
+import { render as domRender } from "dom-serializer";
 
 import {
   db,
@@ -12,10 +20,6 @@ import {
 } from "@/database";
 
 import liste_CIS_MVP from "./liste_CIS_MVP.json";
-import Tag from "@codegouvfr/react-dsfr/Tag";
-import fs from "node:fs/promises";
-import path from "node:path";
-import JSZIP from "jszip";
 
 export async function generateStaticParams(): Promise<{ CIS: string }[]> {
   return liste_CIS_MVP.map((CIS) => ({
@@ -81,7 +85,7 @@ const getSpecialite = cache(async (CIS: string) => {
   };
 });
 
-async function getNotice(CIS: string): Promise<string | undefined> {
+const getNotice = cache(async (CIS: string) => {
   let zipData;
   if (process.env.NOTICES_URL) {
     const response = await fetch(process.env.NOTICES_URL);
@@ -104,8 +108,29 @@ async function getNotice(CIS: string): Promise<string | undefined> {
   const data = await zip
     .file(`Notices_RCP_html/${CIS}_notice.htm`)
     ?.async("nodebuffer");
-  return data?.toString("latin1");
-}
+
+  if (!data) return;
+
+  const html = data?.toString("latin1");
+  // Parse the html to get the sections we want
+  const dom = htmlparser2.parseDocument(html);
+
+  const majNode = findOne(
+    (el) => {
+      return !!el.attributes.find((a) => {
+        return a.name === "class" && a.value === "DateNotif";
+      });
+    },
+    dom.childNodes,
+    true,
+  )?.children[0];
+
+  const bodyNode = findOne((el) => el.tagName === "body", dom.childNodes, true);
+
+  if (!majNode || !bodyNode) return;
+
+  return { maj: innerText(majNode), content: domRender(bodyNode) };
+});
 
 export default async function Home({
   params: { CIS },
@@ -114,6 +139,11 @@ export default async function Home({
 }) {
   const { specialite, composants, prix, delivrance } = await getSpecialite(CIS);
   const notice = await getNotice(CIS);
+  if (!notice) {
+    throw new Error(`No notice for ${CIS}`);
+  }
+
+  const { maj, content } = notice;
 
   const denom = specialite.SpecDenom01.split(" ")
     .map((word) =>
@@ -158,13 +188,13 @@ export default async function Home({
         <b>Substance active</b> {composants.map((c) => c.NomLib).join(", ")}
       </p>
       <h2 className={fr.cx("fr-h2")}>Notice</h2>
-      {notice ? (
-        <div
-          dangerouslySetInnerHTML={{
-            __html: notice,
-          }}
-        />
-      ) : null}
+      <Badge severity={"info"}>{maj}</Badge>
+
+      <div
+        dangerouslySetInnerHTML={{
+          __html: content,
+        }}
+      />
     </>
   );
 }
