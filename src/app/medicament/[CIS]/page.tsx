@@ -6,7 +6,8 @@ import Accordion from "@codegouvfr/react-dsfr/Accordion";
 import fs from "node:fs/promises";
 import path from "node:path";
 import JSZIP from "jszip";
-import HTMLParser, { HTMLElement, Node, NodeType } from "node-html-parser";
+import * as windows1252 from "windows-1252";
+import HTMLParser, { HTMLElement } from "node-html-parser";
 
 import {
   db,
@@ -19,6 +20,9 @@ import {
 } from "@/database";
 
 import liste_CIS_MVP from "./liste_CIS_MVP.json";
+import DsfrLeafletSection, {
+  isHtmlElement,
+} from "@/app/medicament/[CIS]/DsfrLeafletSection";
 
 export async function generateStaticParams(): Promise<{ CIS: string }[]> {
   return liste_CIS_MVP.map((CIS) => ({
@@ -130,7 +134,7 @@ const getLeaflet = cache(async (CIS: string) => {
 
   if (!data) return;
 
-  const html = data?.toString("latin1");
+  const html = windows1252.decode(data);
   // Parse the html to get the sections we want
   const dom = HTMLParser.parse(html);
 
