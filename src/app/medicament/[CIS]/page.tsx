@@ -247,8 +247,10 @@ export default async function Home({
       </p>
       {leaflet ? (
         <>
-          <h2 className={fr.cx("fr-h2")}>Notice</h2>
-          <Badge severity={"info"}>{leaflet.maj}</Badge>
+          <div className={fr.cx("fr-mb-4w")}>
+            <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice</h2>
+            <Badge severity={"info"}>{leaflet.maj}</Badge>
+          </div>
 
           <Accordion label={"Généralités"}>
             <div
