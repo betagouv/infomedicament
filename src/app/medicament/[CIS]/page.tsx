@@ -2,10 +2,12 @@ import { cache } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import Tag from "@codegouvfr/react-dsfr/Tag";
+import Accordion from "@codegouvfr/react-dsfr/Accordion";
 import fs from "node:fs/promises";
 import path from "node:path";
 import JSZIP from "jszip";
 import * as htmlparser2 from "htmlparser2";
+import { Element } from "domhandler";
 import { findOne, innerText } from "domutils";
 import { render as domRender } from "dom-serializer";
 
@@ -85,23 +87,43 @@ const getSpecialite = cache(async (CIS: string) => {
   };
 });
 
-const getNotice = cache(async (CIS: string) => {
-  let zipData;
-  if (process.env.NOTICES_URL) {
-    const response = await fetch(process.env.NOTICES_URL);
-    zipData = await response.arrayBuffer();
-  } else {
-    zipData = await fs.readFile(
-      path.join(
-        process.cwd(),
-        "src",
-        "app",
-        "medicament",
-        "[CIS]",
-        "Notices_RCP_html.zip",
-      ),
-    );
-  }
+function getLeafletSections(topLevelPTags: Element[], sectionsNames: string[]) {
+  let i = 0;
+  const sections = sectionsNames.map((name) => {
+    // Section names are in <a name="Ann3bDenomination"> tags inside top level <p> tags
+    const nextSection = topLevelPTags
+      .slice(i)
+      .findIndex((el) =>
+        findOne(
+          (el) =>
+            !!el.attributes?.find((a) => a.name === "name" && a.value === name),
+          [el],
+          true,
+        ),
+      );
+
+    if (nextSection === -1) {
+      throw new Error(`No tag found with name ${name}`);
+    }
+
+    return topLevelPTags.slice(i, (i += nextSection));
+  });
+
+  // The first element is the content before the first section class name
+  return [...sections, topLevelPTags.slice(i)];
+}
+
+const getLeaflet = cache(async (CIS: string) => {
+  let zipData = await fs.readFile(
+    path.join(
+      process.cwd(),
+      "src",
+      "app",
+      "medicament",
+      "[CIS]",
+      "Notices_RCP_html.zip",
+    ),
+  );
 
   const zip = new JSZIP();
   await zip.loadAsync(zipData);
@@ -125,11 +147,52 @@ const getNotice = cache(async (CIS: string) => {
     true,
   )?.children[0];
 
+  if (!majNode) {
+    console.warn(`${CIS} : could not find leaflet update node`);
+    return;
+  }
+
   const bodyNode = findOne((el) => el.tagName === "body", dom.childNodes, true);
 
-  if (!majNode || !bodyNode) return;
+  if (!bodyNode) {
+    console.warn(`${CIS} : could not find body node`);
+    return;
+  }
 
-  return { maj: innerText(majNode), content: domRender(bodyNode) };
+  try {
+    const [
+      ,
+      generalities,
+      usage,
+      warnings,
+      howTo,
+      sideEffects,
+      storage,
+      composition,
+    ] = getLeafletSections(bodyNode.children as Element[], [
+      "Ann3bDenomination",
+      "Ann3bQuestceque",
+      "Ann3bInfoNecessaires",
+      "Ann3bCommentPrendre",
+      "Ann3bEffetsIndesirables",
+      "Ann3bConservation",
+      "Ann3bEmballage",
+    ]);
+
+    return {
+      maj: innerText(majNode),
+      generalities,
+      usage,
+      warnings,
+      howTo,
+      sideEffects,
+      storage,
+      composition,
+    };
+  } catch {
+    console.warn(`${CIS}: could not parse leaflet`);
+    return;
+  }
 });
 
 export default async function Home({
@@ -138,12 +201,7 @@ export default async function Home({
   params: { CIS: string };
 }) {
   const { specialite, composants, prix, delivrance } = await getSpecialite(CIS);
-  const notice = await getNotice(CIS);
-  if (!notice) {
-    throw new Error(`No notice for ${CIS}`);
-  }
-
-  const { maj, content } = notice;
+  const leaflet = await getLeaflet(CIS);
 
   const denom = specialite.SpecDenom01.split(" ")
     .map((word) =>
@@ -187,14 +245,60 @@ export default async function Home({
       <p>
         <b>Substance active</b> {composants.map((c) => c.NomLib).join(", ")}
       </p>
-      <h2 className={fr.cx("fr-h2")}>Notice</h2>
-      <Badge severity={"info"}>{maj}</Badge>
+      {leaflet ? (
+        <>
+          <h2 className={fr.cx("fr-h2")}>Notice</h2>
+          <Badge severity={"info"}>{leaflet.maj}</Badge>
 
-      <div
-        dangerouslySetInnerHTML={{
-          __html: content,
-        }}
-      />
+          <Accordion label={"Généralités"}>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: domRender(leaflet.generalities),
+              }}
+            />
+          </Accordion>
+
+          <Accordion label={"A quoi sert-il"}>
+            <div
+              dangerouslySetInnerHTML={{ __html: domRender(leaflet.usage) }}
+            />
+          </Accordion>
+
+          <Accordion label={"Précautions"}>
+            <div
+              dangerouslySetInnerHTML={{ __html: domRender(leaflet.warnings) }}
+            />
+          </Accordion>
+
+          <Accordion label={"Comment le prendre ?"}>
+            <div
+              dangerouslySetInnerHTML={{ __html: domRender(leaflet.howTo) }}
+            />
+          </Accordion>
+
+          <Accordion label={"Effets indésirables"}>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: domRender(leaflet.sideEffects),
+              }}
+            />
+          </Accordion>
+
+          <Accordion label={"Conservation"}>
+            <div
+              dangerouslySetInnerHTML={{ __html: domRender(leaflet.storage) }}
+            />
+          </Accordion>
+
+          <Accordion label={"Composition"}>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: domRender(leaflet.composition),
+              }}
+            />
+          </Accordion>
+        </>
+      ) : null}
     </>
   );
 }
