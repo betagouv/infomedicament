@@ -6,10 +6,7 @@ import Accordion from "@codegouvfr/react-dsfr/Accordion";
 import fs from "node:fs/promises";
 import path from "node:path";
 import JSZIP from "jszip";
-import * as htmlparser2 from "htmlparser2";
-import { Element } from "domhandler";
-import { findOne, innerText } from "domutils";
-import { render as domRender } from "dom-serializer";
+import HTMLParser, { HTMLElement, Node, NodeType } from "node-html-parser";
 
 import {
   db,
@@ -87,19 +84,19 @@ const getSpecialite = cache(async (CIS: string) => {
   };
 });
 
-function getLeafletSections(topLevelPTags: Element[], sectionsNames: string[]) {
+const isHtmlElement = (node: Node): node is HTMLElement =>
+  node.nodeType === NodeType.ELEMENT_NODE;
+
+function getLeafletSections(body: HTMLElement, sectionsNames: string[]) {
+  const topLevelPTags = Array.from(body.childNodes);
+
   let i = 0;
   const sections = sectionsNames.map((name) => {
     // Section names are in <a name="Ann3bDenomination"> tags inside top level <p> tags
     const nextSection = topLevelPTags
       .slice(i)
-      .findIndex((el) =>
-        findOne(
-          (el) =>
-            !!el.attributes?.find((a) => a.name === "name" && a.value === name),
-          [el],
-          true,
-        ),
+      .findIndex(
+        (el) => isHtmlElement(el) && el.querySelector(`[name=${name}]`),
       );
 
     if (nextSection === -1) {
@@ -135,24 +132,16 @@ const getLeaflet = cache(async (CIS: string) => {
 
   const html = data?.toString("latin1");
   // Parse the html to get the sections we want
-  const dom = htmlparser2.parseDocument(html);
+  const dom = HTMLParser.parse(html);
 
-  const majNode = findOne(
-    (el) => {
-      return !!el.attributes.find((a) => {
-        return a.name === "class" && a.value === "DateNotif";
-      });
-    },
-    dom.childNodes,
-    true,
-  )?.children[0];
+  const majNode = dom.querySelector(".DateNotif");
 
   if (!majNode) {
     console.warn(`${CIS} : could not find leaflet update node`);
     return;
   }
 
-  const bodyNode = findOne((el) => el.tagName === "body", dom.childNodes, true);
+  const bodyNode = dom.getElementsByTagName("body")[0];
 
   if (!bodyNode) {
     console.warn(`${CIS} : could not find body node`);
@@ -169,7 +158,7 @@ const getLeaflet = cache(async (CIS: string) => {
       sideEffects,
       storage,
       composition,
-    ] = getLeafletSections(bodyNode.children as Element[], [
+    ] = getLeafletSections(bodyNode, [
       "Ann3bDenomination",
       "Ann3bQuestceque",
       "Ann3bInfoNecessaires",
@@ -180,7 +169,7 @@ const getLeaflet = cache(async (CIS: string) => {
     ]);
 
     return {
-      maj: innerText(majNode),
+      maj: majNode.innerText,
       generalities,
       usage,
       warnings,
@@ -189,8 +178,8 @@ const getLeaflet = cache(async (CIS: string) => {
       storage,
       composition,
     };
-  } catch {
-    console.warn(`${CIS}: could not parse leaflet`);
+  } catch (error) {
+    console.warn(`${CIS}: could not parse leaflet`, error);
     return;
   }
 });
@@ -255,47 +244,57 @@ export default async function Home({
           <Accordion label={"Généralités"}>
             <div
               dangerouslySetInnerHTML={{
-                __html: domRender(leaflet.generalities),
+                __html: leaflet.generalities
+                  .map((el) => el.toString())
+                  .join(""),
               }}
             />
           </Accordion>
 
           <Accordion label={"A quoi sert-il"}>
             <div
-              dangerouslySetInnerHTML={{ __html: domRender(leaflet.usage) }}
+              dangerouslySetInnerHTML={{
+                __html: leaflet.usage.map((el) => el.toString()).join(""),
+              }}
             />
           </Accordion>
 
           <Accordion label={"Précautions"}>
             <div
-              dangerouslySetInnerHTML={{ __html: domRender(leaflet.warnings) }}
+              dangerouslySetInnerHTML={{
+                __html: leaflet.warnings.map((el) => el.toString()).join(""),
+              }}
             />
           </Accordion>
 
           <Accordion label={"Comment le prendre ?"}>
             <div
-              dangerouslySetInnerHTML={{ __html: domRender(leaflet.howTo) }}
+              dangerouslySetInnerHTML={{
+                __html: leaflet.howTo.map((el) => el.toString()).join(""),
+              }}
             />
           </Accordion>
 
           <Accordion label={"Effets indésirables"}>
             <div
               dangerouslySetInnerHTML={{
-                __html: domRender(leaflet.sideEffects),
+                __html: leaflet.sideEffects.map((el) => el.toString()).join(""),
               }}
             />
           </Accordion>
 
           <Accordion label={"Conservation"}>
             <div
-              dangerouslySetInnerHTML={{ __html: domRender(leaflet.storage) }}
+              dangerouslySetInnerHTML={{
+                __html: leaflet.storage.map((el) => el.toString()).join(""),
+              }}
             />
           </Accordion>
 
           <Accordion label={"Composition"}>
             <div
               dangerouslySetInnerHTML={{
-                __html: domRender(leaflet.composition),
+                __html: leaflet.composition.map((el) => el.toString()).join(""),
               }}
             />
           </Accordion>
