@@ -88,9 +88,6 @@ const getSpecialite = cache(async (CIS: string) => {
   };
 });
 
-const isHtmlElement = (node: Node): node is HTMLElement =>
-  node.nodeType === NodeType.ELEMENT_NODE;
-
 function getLeafletSections(body: HTMLElement, sectionsNames: string[]) {
   const topLevelPTags = Array.from(body.childNodes);
 
@@ -246,61 +243,31 @@ export default async function Home({
           </div>
 
           <Accordion label={"Généralités"}>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: leaflet.generalities
-                  .map((el) => el.toString())
-                  .join(""),
-              }}
-            />
+            <DsfrLeafletSection data={leaflet.generalities} />
           </Accordion>
 
           <Accordion label={"A quoi sert-il"}>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: leaflet.usage.map((el) => el.toString()).join(""),
-              }}
-            />
+            <DsfrLeafletSection data={leaflet.usage} />
           </Accordion>
 
           <Accordion label={"Précautions"}>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: leaflet.warnings.map((el) => el.toString()).join(""),
-              }}
-            />
+            <DsfrLeafletSection data={leaflet.warnings} />
           </Accordion>
 
           <Accordion label={"Comment le prendre ?"}>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: leaflet.howTo.map((el) => el.toString()).join(""),
-              }}
-            />
+            <DsfrLeafletSection data={leaflet.howTo} />
           </Accordion>
 
           <Accordion label={"Effets indésirables"}>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: leaflet.sideEffects.map((el) => el.toString()).join(""),
-              }}
-            />
+            <DsfrLeafletSection data={leaflet.sideEffects} />
           </Accordion>
 
           <Accordion label={"Conservation"}>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: leaflet.storage.map((el) => el.toString()).join(""),
-              }}
-            />
+            <DsfrLeafletSection data={leaflet.storage} />
           </Accordion>
 
           <Accordion label={"Composition"}>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: leaflet.composition.map((el) => el.toString()).join(""),
-              }}
-            />
+            <DsfrLeafletSection data={leaflet.composition} />
           </Accordion>
         </>
       ) : null}
