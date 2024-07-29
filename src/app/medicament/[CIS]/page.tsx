@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import Tag from "@codegouvfr/react-dsfr/Tag";
@@ -23,6 +24,19 @@ import {
 import liste_CIS_MVP from "./liste_CIS_MVP.json";
 import DsfrLeafletSection from "@/app/medicament/[CIS]/DsfrLeafletSection";
 import { isHtmlElement } from "@/app/medicament/[CIS]/leafletUtils";
+import { formatSpecName } from "@/formatUtils";
+
+export async function generateMetadata(
+  { params: { CIS } }: { params: { CIS: string } },
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const name = formatSpecName(
+    (await getSpecialite(CIS)).specialite.SpecDenom01,
+  );
+  return {
+    title: `${name} - ${(await parent).title?.absolute}`,
+  };
+}
 
 export async function generateStaticParams(): Promise<{ CIS: string }[]> {
   return liste_CIS_MVP.map((CIS) => ({
@@ -204,15 +218,11 @@ export default async function Home({
   const { specialite, composants, prix, delivrance } = await getSpecialite(CIS);
   const leaflet = await getLeaflet(CIS);
 
-  const denom = specialite.SpecDenom01.split(" ")
-    .map((word) =>
-      /[A-Z]/.test(word[0]) ? word[0] + word.slice(1).toLowerCase() : word,
-    )
-    .join(" ");
-
   return (
     <>
-      <h1 className={fr.cx("fr-h2")}>{denom}</h1>
+      <h1 className={fr.cx("fr-h2")}>
+        {formatSpecName(specialite.SpecDenom01)}
+      </h1>
       <p>
         {specialite.SpecGeneId ? (
           <Tag

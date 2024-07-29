@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Metadata } from "next";
 import { getHtmlAttributes } from "@codegouvfr/react-dsfr/next-appdir/getHtmlAttributes";
 import { DsfrHead } from "@codegouvfr/react-dsfr/next-appdir/DsfrHead";
 import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
@@ -8,6 +9,10 @@ import { fr } from "@codegouvfr/react-dsfr";
 
 import { defaultColorScheme } from "@/app/defaultColorScheme";
 import { StartDsfr } from "@/app/StartDsfr";
+
+export const metadata: Metadata = {
+  title: "Infomédicament",
+};
 
 export default function RootLayout({
   children,
