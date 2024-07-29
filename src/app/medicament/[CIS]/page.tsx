@@ -142,11 +142,22 @@ const getLeaflet = cache(async (CIS: string) => {
     return;
   }
 
-  const bodyNode = dom.getElementsByTagName("body")[0];
+  let bodyNode = dom.getElementsByTagName("body")[0];
 
   if (!bodyNode) {
-    console.warn(`${CIS} : could not find body node`);
-    return;
+    if (
+      dom
+        .getElementsByTagName("html")[0]
+        .childNodes.find(
+          (el) => isHtmlElement(el) && el.classList.contains("AmmAnnexeTitre"),
+        )
+    ) {
+      // body element is not buddy but the content is there at top level
+      bodyNode = dom.getElementsByTagName("html")[0];
+    } else {
+      console.warn(`${CIS} : could not find body node`);
+      return;
+    }
   }
 
   try {
