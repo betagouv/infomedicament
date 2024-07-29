@@ -1,5 +1,6 @@
 import { HTMLElement, Node, NodeType } from "node-html-parser";
 import { JSX } from "react";
+import Image from "next/image";
 import { fr } from "@codegouvfr/react-dsfr";
 import {
   isEmptyTextNode,
@@ -31,7 +32,23 @@ function DsfrLeafletElement({ node }: { node: HTMLElement }) {
     return <DsfrLeafletSection data={node.childNodes} />;
   }
 
+  if (node.rawTagName === "img") {
+    return (
+      <Image
+        src={node.getAttribute("src") as string}
+        width={+(node.getAttribute("width") as string)}
+        height={+(node.getAttribute("height") as string)}
+        alt={node.getAttribute("alt") as string}
+      />
+    );
+  }
+
   const Tag = node.rawTagName as keyof JSX.IntrinsicElements;
+
+  if (["br", "hr"].includes(node.rawTagName)) {
+    return <Tag />;
+  }
+
   return (
     <Tag>
       <DsfrLeafletSection data={node.childNodes} />
@@ -58,11 +75,9 @@ export function DsfrListItems({
     <>
       {cleanedData.map((node, index) => {
         // Remove original bullet points
-        node.childNodes.map((childNode, childIndex) => {
-          if ([".", "o", "·"].includes(childNode.text.trim())) {
-            node.childNodes[childIndex].remove();
-          }
-        });
+        node.childNodes = node.childNodes.filter(
+          (childNode) => ![".", "o", "·"].includes(childNode.text.trim()),
+        );
 
         if (
           node.classList.contains(`AmmListePuces${level}`) &&
