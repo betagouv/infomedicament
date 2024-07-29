@@ -225,7 +225,7 @@ export default async function Home({
             Générique
           </Tag>
         ) : null}{" "}
-        {delivrance.find((d) => d.DelivCourt.startsWith("liste")) ? (
+        {delivrance.length ? (
           <Tag
             small
             iconId="fr-icon-file-text-fill"
