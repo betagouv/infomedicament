@@ -6,6 +6,7 @@ import Accordion from "@codegouvfr/react-dsfr/Accordion";
 import fs from "node:fs/promises";
 import path from "node:path";
 import JSZIP from "jszip";
+// @ts-ignore
 import * as windows1252 from "windows-1252";
 import HTMLParser, { HTMLElement } from "node-html-parser";
 
@@ -20,9 +21,8 @@ import {
 } from "@/database";
 
 import liste_CIS_MVP from "./liste_CIS_MVP.json";
-import DsfrLeafletSection, {
-  isHtmlElement,
-} from "@/app/medicament/[CIS]/DsfrLeafletSection";
+import DsfrLeafletSection from "@/app/medicament/[CIS]/DsfrLeafletSection";
+import { isHtmlElement } from "@/app/medicament/[CIS]/leafletUtils";
 
 export async function generateStaticParams(): Promise<{ CIS: string }[]> {
   return liste_CIS_MVP.map((CIS) => ({
