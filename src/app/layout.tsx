@@ -28,7 +28,7 @@ export default function RootLayout({
         <DsfrHead Link={Link} />
       </head>
       <body>
-        {!!process.env.NEXT_PUBLIC_DISABLE_WARNING && (
+        {!process.env.NEXT_PUBLIC_DISABLE_WARNING && (
           <Notice
             title={
               <>
