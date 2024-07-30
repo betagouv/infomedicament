@@ -128,7 +128,7 @@ const getSpecialite = cache(async (CIS: string) => {
  */
 function getLeafletSections(
   bodyNode: HTMLElement,
-  sectionsSelectors: string[],
+  sectionsSelectors: Array<string | ((el: HTMLElement) => boolean)>,
 ) {
   const topLevelPTags = Array.from(bodyNode.childNodes);
 
@@ -136,10 +136,16 @@ function getLeafletSections(
   const sections = sectionsSelectors.map((selector) => {
     const nextSection = topLevelPTags
       .slice(i)
-      .findIndex((el) => isHtmlElement(el) && el.querySelector(selector));
+      .findIndex(
+        (el) =>
+          isHtmlElement(el) &&
+          (typeof selector === "string"
+            ? el.querySelector(selector)
+            : selector(el)),
+      );
 
     if (nextSection === -1) {
-      throw new Error(`No tag found with name ${name}`);
+      throw new Error(`No tag found with selector ${selector}`);
     }
 
     return topLevelPTags.slice(i, (i += nextSection));
@@ -176,8 +182,7 @@ const getLeaflet = cache(async (CIS: string) => {
   const majNode = dom.querySelector(".DateNotif");
 
   if (!majNode) {
-    console.warn(`${CIS} : could not find leaflet update node`);
-    return;
+    throw new Error(`${CIS} : could not find leaflet update node`);
   }
 
   let bodyNode = dom.getElementsByTagName("body")[0];
@@ -193,45 +198,47 @@ const getLeaflet = cache(async (CIS: string) => {
       // body element is not buddy but the content is there at top level
       bodyNode = dom.getElementsByTagName("html")[0];
     } else {
-      console.warn(`${CIS} : could not find body node`);
-      return;
+      throw new Error(`${CIS} : could not find body node`);
     }
   }
 
-  try {
-    const [
-      ,
-      generalities,
-      usage,
-      warnings,
-      howTo,
-      sideEffects,
-      storage,
-      composition,
-    ] = getLeafletSections(bodyNode, [
-      "[name=Ann3bDenomination]",
-      "[name=Ann3bQuestceque]",
-      "[name=Ann3bInfoNecessaires]",
-      "[name=Ann3bCommentPrendre]",
-      "[name=Ann3bEffetsIndesirables]",
-      "[name=Ann3bConservation]",
-      "[name=Ann3bEmballage]",
-    ]);
+  const [
+    ,
+    generalities,
+    usage,
+    warnings,
+    howTo,
+    sideEffects,
+    storage,
+    composition,
+  ] = getLeafletSections(bodyNode, [
+    (el) =>
+      !!el.querySelector("[name=Ann3bDenomination]") ||
+      el.text.trim() === "Dénomination du médicament",
+    (el) =>
+      !!el.querySelector("[name=Ann3bQuestceque]") ||
+      el.text.trim().startsWith("1. QU’EST-CE QU’"),
+    (el) =>
+      !!el.querySelector("[name=Ann3bInfoNecessaires]") ||
+      el.text.trim().startsWith("2. QUELLES SONT LES INFORMATIONS"),
+    (el) =>
+      !!el.querySelector("[name=Ann3bCommentPrendre]") ||
+      el.text.trim().startsWith("3. COMMENT UTILISER"),
+    "[name=Ann3bEffetsIndesirables]",
+    "[name=Ann3bConservation]",
+    "[name=Ann3bEmballage],[name=Ann3bContenu],[name=Ann3bInfoSupp]",
+  ]);
 
-    return {
-      maj: majNode.innerText,
-      generalities,
-      usage,
-      warnings,
-      howTo,
-      sideEffects,
-      storage,
-      composition,
-    };
-  } catch (error) {
-    console.warn(`${CIS}: could not parse leaflet`, error);
-    return;
-  }
+  return {
+    maj: majNode.innerText,
+    generalities,
+    usage,
+    warnings,
+    howTo,
+    sideEffects,
+    storage,
+    composition,
+  };
 });
 
 export default async function Home({
