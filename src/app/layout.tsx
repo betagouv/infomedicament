@@ -5,6 +5,7 @@ import { DsfrHead } from "@codegouvfr/react-dsfr/next-appdir/DsfrHead";
 import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
 import { Header } from "@codegouvfr/react-dsfr/Header";
 import { Footer } from "@codegouvfr/react-dsfr/Footer";
+import { Notice } from "@codegouvfr/react-dsfr/Notice";
 import { fr } from "@codegouvfr/react-dsfr";
 
 import { defaultColorScheme } from "@/app/defaultColorScheme";
@@ -27,6 +28,19 @@ export default function RootLayout({
         <DsfrHead Link={Link} />
       </head>
       <body>
+        {!!process.env.NEXT_PUBLIC_DISABLE_WARNING && (
+          <Notice
+            title={
+              <>
+                Ceci est un environnement de test. Consultez{" "}
+                <a href={"https://base-donnees-publique.medicaments.gouv.fr/"}>
+                  la base de données publique des médicaments
+                </a>{" "}
+                pour les informations officielles.
+              </>
+            }
+          />
+        )}
         <DsfrProvider lang={lang}>
           <Header
             brandTop={
