@@ -212,20 +212,27 @@ const getLeaflet = cache(async (CIS: string) => {
     storage,
     composition,
   ] = getLeafletSections(bodyNode, [
+    // Généralités
     (el) =>
       !!el.querySelector("[name=Ann3bDenomination]") ||
       el.text.trim() === "Dénomination du médicament",
+    // À quoi sert-il
     (el) =>
       !!el.querySelector("[name=Ann3bQuestceque]") ||
       el.text.trim().startsWith("1. QU’EST-CE QU’"),
+    // Précautions
     (el) =>
       !!el.querySelector("[name=Ann3bInfoNecessaires]") ||
       el.text.trim().startsWith("2. QUELLES SONT LES INFORMATIONS"),
+    // Comment le prendre
     (el) =>
       !!el.querySelector("[name=Ann3bCommentPrendre]") ||
       el.text.trim().startsWith("3. COMMENT UTILISER"),
+    // Effets indésirables
     "[name=Ann3bEffetsIndesirables]",
+    // Conservation
     "[name=Ann3bConservation]",
+    // Composition
     "[name=Ann3bEmballage],[name=Ann3bContenu],[name=Ann3bInfoSupp]",
   ]);
 
