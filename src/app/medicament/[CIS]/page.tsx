@@ -102,17 +102,41 @@ const getSpecialite = cache(async (CIS: string) => {
   };
 });
 
-function getLeafletSections(body: HTMLElement, sectionsNames: string[]) {
-  const topLevelPTags = Array.from(body.childNodes);
+/**
+ * Returns the sections from leaflets based on a list of CSS selector
+ *
+ * A leaflet is a long series of p tags at the top level of the body.
+ * Most of the time sections are separate <a name="Ann3bDenomination">
+ * tags inside one of top level <p> tags
+ *
+ * @param bodyNode
+ * @param sectionsSelectors - list of CSS selectors applied to each <p> tag to find sections limits
+ *
+ * @example
+ ```ts
+ * const bodyNode = HTMLParser.parse(`<body>
+ *     <p>Content before section 1</p>
+ *     <p><a name="Section1"></a>Section 1</p>
+ *     <p>Content before section 2</p>
+ *     <p><a name="Section2"></a>Section 2</p>
+ *     <p>Content of section 2</p>
+ *     <p>Content of section 2</p>
+ * </body>`).getElementsByTagName("body")[0]
+ *
+ * const [section1, section2] = getLeafletSections(bodyNode, ["[name=Section1]", "[name=Section2]"])
+ * ```
+ */
+function getLeafletSections(
+  bodyNode: HTMLElement,
+  sectionsSelectors: string[],
+) {
+  const topLevelPTags = Array.from(bodyNode.childNodes);
 
   let i = 0;
-  const sections = sectionsNames.map((name) => {
-    // Section names are in <a name="Ann3bDenomination"> tags inside top level <p> tags
+  const sections = sectionsSelectors.map((selector) => {
     const nextSection = topLevelPTags
       .slice(i)
-      .findIndex(
-        (el) => isHtmlElement(el) && el.querySelector(`[name=${name}]`),
-      );
+      .findIndex((el) => isHtmlElement(el) && el.querySelector(selector));
 
     if (nextSection === -1) {
       throw new Error(`No tag found with name ${name}`);
@@ -185,13 +209,13 @@ const getLeaflet = cache(async (CIS: string) => {
       storage,
       composition,
     ] = getLeafletSections(bodyNode, [
-      "Ann3bDenomination",
-      "Ann3bQuestceque",
-      "Ann3bInfoNecessaires",
-      "Ann3bCommentPrendre",
-      "Ann3bEffetsIndesirables",
-      "Ann3bConservation",
-      "Ann3bEmballage",
+      "[name=Ann3bDenomination]",
+      "[name=Ann3bQuestceque]",
+      "[name=Ann3bInfoNecessaires]",
+      "[name=Ann3bCommentPrendre]",
+      "[name=Ann3bEffetsIndesirables]",
+      "[name=Ann3bConservation]",
+      "[name=Ann3bEmballage]",
     ]);
 
     return {
