@@ -1,4 +1,4 @@
-import "server-only";
+import "server-cli-only";
 
 import { Kysely, MysqlDialect, Selectable } from "kysely";
 import { createPool } from "mysql2";

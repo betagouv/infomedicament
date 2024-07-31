@@ -1,3 +1,5 @@
+import "server-cli-only";
+
 import { Kysely, PostgresDialect, Selectable } from "kysely";
 import { Pool } from "pg";
 

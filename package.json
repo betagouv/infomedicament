@@ -21,6 +21,7 @@
     "react": "^18",
     "react-dom": "^18",
     "sass": "^1.77.6",
+    "server-cli-only": "^0.3.2",
     "server-only": "^0.0.1",
     "sharp": "^0.33.4",
     "windows-1252": "^3.0.4"
