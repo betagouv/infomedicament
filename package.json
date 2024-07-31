@@ -17,6 +17,7 @@
     "mysql2": "^3.10.2",
     "next": "^14.2.4",
     "node-html-parser": "^6.1.13",
+    "pg": "^8.12.0",
     "react": "^18",
     "react-dom": "^18",
     "sass": "^1.77.6",
@@ -26,11 +27,13 @@
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/pg": "^8.11.6",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.4",
     "eslint-config-prettier": "^9.1.0",
+    "kysely-ctl": "^0.9.0",
     "prettier": "^3.3.2",
     "typescript": "^5"
   }

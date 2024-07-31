@@ -12,14 +12,14 @@ import * as windows1252 from "windows-1252";
 import HTMLParser, { HTMLElement } from "node-html-parser";
 
 import {
-  db,
+  pdbmMySQL,
   PresInfoTarif,
   SpecComposant,
   SpecDelivrance,
   SpecElement,
   Specialite,
   SubstanceNom,
-} from "@/database";
+} from "@/db/pdbmMySQL";
 
 import liste_CIS_MVP from "./liste_CIS_MVP.json";
 import DsfrLeafletSection from "@/app/medicament/[CIS]/DsfrLeafletSection";
@@ -45,13 +45,13 @@ export async function generateStaticParams(): Promise<{ CIS: string }[]> {
 }
 
 const getSpecialite = cache(async (CIS: string) => {
-  const specialite: Specialite = await db
+  const specialite: Specialite = await pdbmMySQL
     .selectFrom("Specialite")
     .where("SpecId", "=", CIS)
     .selectAll()
     .executeTakeFirstOrThrow();
 
-  const elements: SpecElement[] = await db
+  const elements: SpecElement[] = await pdbmMySQL
     .selectFrom("Element")
     .where("SpecId", "=", CIS)
     .selectAll()
@@ -60,7 +60,7 @@ const getSpecialite = cache(async (CIS: string) => {
   const composants: Array<SpecComposant & SubstanceNom> = (
     await Promise.all(
       elements.map((el) =>
-        db
+        pdbmMySQL
           .selectFrom("Composant")
           .where((eb) =>
             eb.and([eb("SpecId", "=", CIS), eb("ElmtNum", "=", el.ElmtNum)]),
@@ -72,7 +72,7 @@ const getSpecialite = cache(async (CIS: string) => {
     )
   ).flat();
 
-  const prix: PresInfoTarif[] = await db
+  const prix: PresInfoTarif[] = await pdbmMySQL
     .selectFrom("Presentation")
     .where("SpecId", "=", CIS)
     .innerJoin(
@@ -83,7 +83,7 @@ const getSpecialite = cache(async (CIS: string) => {
     .selectAll("CNAM_InfoTarif")
     .execute();
 
-  const delivrance: SpecDelivrance[] = await db
+  const delivrance: SpecDelivrance[] = await pdbmMySQL
     .selectFrom("Spec_Delivrance")
     .where("SpecId", "=", CIS)
     .innerJoin(

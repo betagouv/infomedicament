@@ -3,7 +3,7 @@ import "server-only";
 import { Kysely, MysqlDialect, Selectable } from "kysely";
 import { createPool } from "mysql2";
 
-interface Database {
+interface PdbmMySQL {
   Specialite: SpecialiteTable;
   Element: SpecElementTable;
   Composant: SpecComposantTable;
@@ -95,10 +95,10 @@ export type PresInfoTarif = Selectable<InfoTarifTable>;
 export type SpecDelivrance = Selectable<SpecDelivranceTable> &
   Selectable<DicoDelivranceTable>;
 
-export const db = new Kysely<Database>({
+export const pdbmMySQL = new Kysely<PdbmMySQL>({
   dialect: new MysqlDialect({
-    pool: process.env.DATABASE_URL
-      ? createPool(process.env.DATABASE_URL)
+    pool: process.env.PDBM_URL
+      ? createPool(process.env.PDBM_URL)
       : createPool({
           // .devcontainer config
           database: "pdbm_bdd",

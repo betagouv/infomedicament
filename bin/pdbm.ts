@@ -1,4 +1,4 @@
-import { db } from "@/database";
+import { pdbmMySQL } from "@/db/pdbmMySQL";
 
 /**
  * ANSM's PDBM export does not have primary keys on all tables
@@ -23,7 +23,7 @@ async function upgradePdbm() {
     "VUEvnts",
   ];
 
-  await db.transaction().execute(async (transaction) => {
+  await pdbmMySQL.transaction().execute(async (transaction) => {
     // Loop over tables
     for (let i = 0; i < missingPkTables.length; i++) {
       console.log(`Migrate ${missingPkTables[i]}`);
