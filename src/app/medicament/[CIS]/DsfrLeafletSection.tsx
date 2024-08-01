@@ -29,6 +29,49 @@ async function DsfrLeafletElement({ node }: { node: HTMLElement }) {
     );
   }
 
+  if (
+    node.rawTagName === "p" &&
+    node.getElementsByTagName("table").length > 0
+  ) {
+    const tableIndex = node.childNodes.findIndex(
+      (el) =>
+        isHtmlElement(el) &&
+        (el.rawTagName == "table" ||
+          el.getElementsByTagName("table").length > 0),
+    );
+    return (
+      <>
+        <p>
+          <DsfrLeafletSection data={node.childNodes.slice(0, tableIndex)} />
+        </p>
+        <DsfrLeafletElement node={node.childNodes[tableIndex] as HTMLElement} />
+        <p>
+          <DsfrLeafletSection data={node.childNodes.slice(tableIndex + 1)} />
+        </p>
+      </>
+    );
+  }
+
+  if (
+    node.rawTagName === "table" &&
+    !(
+      isHtmlElement(node.childNodes[0]) &&
+      ["tbody", "thead"].includes(node.childNodes[0].rawTagName)
+    )
+  ) {
+    return (
+      <table className={fr.cx("fr-table")}>
+        <tbody>
+          <DsfrLeafletSection data={node.childNodes} />
+        </tbody>
+      </table>
+    );
+  }
+
+  if (node.rawTagName === "span") {
+    return <DsfrLeafletSection data={node.childNodes} />;
+  }
+
   if (node.rawTagName === "a") {
     return <DsfrLeafletSection data={node.childNodes} />;
   }
@@ -45,9 +88,9 @@ async function DsfrLeafletElement({ node }: { node: HTMLElement }) {
         alt={node.getAttribute("alt") as string}
       />
     ) : (
-      <p className={fr.cx("fr-error-text")}>
+      <span className={fr.cx("fr-error-text")}>
         Image originale manquante{node.getAttribute("alt")}
-      </p>
+      </span>
     );
   }
 
