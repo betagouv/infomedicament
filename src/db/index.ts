@@ -28,6 +28,8 @@ export const getLeafletImage = async ({ src }: { src: string }) => {
       console.warn("Image not found in database:", src);
       return;
     }
+
+    throw e;
   }
 };
 
