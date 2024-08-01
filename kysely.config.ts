@@ -7,4 +7,7 @@ export default defineConfig({
     migrationFolder: "src/db/migrations",
     getMigrationPrefix: getKnexTimestampPrefix,
   },
+  seeds: {
+    seedFolder: "src/db/seeds",
+  },
 });

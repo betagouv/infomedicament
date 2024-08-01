@@ -7,8 +7,9 @@ import {
   isHtmlElement,
   isListItem,
 } from "@/app/medicament/[CIS]/leafletUtils";
+import { getLeafletImage } from "@/db";
 
-function DsfrLeafletElement({ node }: { node: HTMLElement }) {
+async function DsfrLeafletElement({ node }: { node: HTMLElement }) {
   if (
     node.classList.contains("AmmNoticeTitre1") ||
     node.classList.contains("AmmAnnexeTitre1")
@@ -33,13 +34,20 @@ function DsfrLeafletElement({ node }: { node: HTMLElement }) {
   }
 
   if (node.rawTagName === "img") {
-    return (
+    const dataUrl = await getLeafletImage({
+      src: node.getAttribute("src") as string,
+    });
+    return dataUrl ? (
       <Image
-        src={node.getAttribute("src") as string}
+        src={dataUrl}
         width={+(node.getAttribute("width") as string)}
         height={+(node.getAttribute("height") as string)}
         alt={node.getAttribute("alt") as string}
       />
+    ) : (
+      <p className={fr.cx("fr-error-text")}>
+        Image originale manquante{node.getAttribute("alt")}
+      </p>
     );
   }
 

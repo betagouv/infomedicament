@@ -1,6 +1,6 @@
 import "server-cli-only";
 
-import { Kysely, PostgresDialect, Selectable } from "kysely";
+import { Kysely, NoResultError, PostgresDialect, Selectable } from "kysely";
 import { Pool } from "pg";
 
 interface Database {
@@ -13,13 +13,22 @@ interface LeafletImagesTable {
 }
 
 export const getLeafletImage = async ({ src }: { src: string }) => {
+  src = src.replace("../images/", "");
+
   const extension = src.split(".").pop();
-  const { image } = await db
-    .selectFrom("leaflet_images")
-    .where("path", "=", src)
-    .select("image")
-    .executeTakeFirstOrThrow();
-  return `data:image/${extension};base64,${image.toString("base64")}`;
+  try {
+    const { image } = await db
+      .selectFrom("leaflet_images")
+      .where("path", "=", src)
+      .select("image")
+      .executeTakeFirstOrThrow();
+    return `data:image/${extension};base64,${image.toString("base64")}`;
+  } catch (e) {
+    if (e instanceof NoResultError) {
+      console.warn("Image not found in database:", src);
+      return;
+    }
+  }
 };
 
 export type LeafletImage = Selectable<LeafletImagesTable>;
@@ -35,6 +44,8 @@ const db = new Kysely<Database>({
           user: "postgres",
           password: "postgres",
           port: 5432,
+          max: 5,
+          connectionTimeoutMillis: 5000,
         }),
   }),
 });
