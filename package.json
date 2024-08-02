@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "predev": "only-include-used-icons",
-    "prebuild": "only-include-used-icons"
+    "prebuild": "only-include-used-icons",
+    "test": "vitest"
   },
   "dependencies": {
     "@codegouvfr/react-dsfr": "^1.9.22",
@@ -27,15 +28,19 @@
     "windows-1252": "^3.0.4"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.0.0",
     "@types/node": "^20",
     "@types/pg": "^8.11.6",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.4",
     "eslint-config-prettier": "^9.1.0",
+    "jsdom": "^24.1.1",
     "kysely-ctl": "^0.9.0",
     "prettier": "^3.3.2",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^2.0.5"
   }
 }
