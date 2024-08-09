@@ -295,13 +295,13 @@ export default async function Home({
         <b>Substance active</b> {composants.map((c) => c.NomLib).join(", ")}
       </p>
       {leaflet ? (
-        <>
+        <article>
           <div className={fr.cx("fr-mb-4w")}>
-            <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice</h2>
+            <h1 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice</h1>
             <Badge severity={"info"}>{leaflet.maj}</Badge>
           </div>
 
-          <Accordion label={"Généralités"}>
+          <Accordion label={"Généralités"} titleAs={"h2"}>
             <DsfrLeafletSection data={leaflet.generalities} />
           </Accordion>
 
@@ -328,7 +328,7 @@ export default async function Home({
           <Accordion label={"Composition"}>
             <DsfrLeafletSection data={leaflet.composition} />
           </Accordion>
-        </>
+        </article>
       ) : null}
     </>
   );

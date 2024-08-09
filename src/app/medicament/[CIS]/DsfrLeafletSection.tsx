@@ -15,9 +15,9 @@ async function DsfrLeafletElement({ node }: { node: HTMLElement }) {
     node.classList.contains("AmmAnnexeTitre1")
   ) {
     return (
-      <h1 className={fr.cx("fr-h4")}>
+      <h3 className={fr.cx("fr-h4")}>
         <DsfrLeafletSection data={node.childNodes} />
-      </h1>
+      </h3>
     );
   }
 
