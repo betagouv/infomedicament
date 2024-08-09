@@ -248,7 +248,7 @@ const getLeaflet = cache(async (CIS: string) => {
   };
 });
 
-export default async function Home({
+export default async function Page({
   params: { CIS },
 }: {
   params: { CIS: string };
