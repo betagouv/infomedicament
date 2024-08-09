@@ -50,7 +50,7 @@ const db = new Kysely<Database>({
             password: "postgres",
             port: 5432,
           }),
-      max: 5,
+      max: 3,
       connectionTimeoutMillis: 5000,
     }),
   }),
