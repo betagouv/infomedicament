@@ -37,18 +37,22 @@ export type LeafletImage = Selectable<LeafletImagesTable>;
 
 const db = new Kysely<Database>({
   dialect: new PostgresDialect({
-    pool: process.env.DATABASE_URL
-      ? new Pool({ connectionString: process.env.DATABASE_URL })
-      : new Pool({
-          // .devcontainer config
-          database: "postgres",
-          host: "db-postgres",
-          user: "postgres",
-          password: "postgres",
-          port: 5432,
-          max: 5,
-          connectionTimeoutMillis: 5000,
-        }),
+    pool: new Pool({
+      ...(process.env.DATABASE_URL
+        ? {
+            connectionString: process.env.DATABASE_URL,
+          }
+        : {
+            // .devcontainer config
+            database: "postgres",
+            host: "db-postgres",
+            user: "postgres",
+            password: "postgres",
+            port: 5432,
+          }),
+      max: 5,
+      connectionTimeoutMillis: 5000,
+    }),
   }),
 });
 
