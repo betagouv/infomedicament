@@ -20,6 +20,7 @@ export default async function Page() {
           nativeInputProps={{
             placeholder: "Rechercher",
             name: "s",
+            type: "search",
           }}
         />
       </form>

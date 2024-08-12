@@ -56,6 +56,7 @@ export default async function Page({
             name: "s",
             placeholder: "Rechercher",
             ...(search ? { defaultValue: search } : {}),
+            type: "search",
           }}
         />
       </form>
