@@ -1,11 +1,13 @@
+import Link from "next/link";
+import { sql } from "kysely";
 import Button from "@codegouvfr/react-dsfr/Button";
 import Input from "@codegouvfr/react-dsfr/Input";
-import { pdbmMySQL, Specialite } from "@/db/pdbmMySQL";
+import { pdbmMySQL, Specialite, SubstanceNom } from "@/db/pdbmMySQL";
 import { fr } from "@codegouvfr/react-dsfr";
+import Badge from "@codegouvfr/react-dsfr/Badge";
 
 import { formatSpecName } from "@/formatUtils";
 import liste_CIS_MVP from "../medicament/[CIS]/liste_CIS_MVP.json";
-import Link from "next/link";
 
 async function getResults(query: string) {
   const specialites: Specialite[] = (
@@ -16,8 +18,35 @@ async function getResults(query: string) {
       .execute()
   ).filter((specialite) => liste_CIS_MVP.includes(specialite.SpecId));
 
+  const substances: SubstanceNom[] = await pdbmMySQL
+    .selectFrom("Subs_Nom")
+    .where(({ eb, selectFrom }) =>
+      eb(
+        "NomId",
+        "=",
+        selectFrom("Subs_Nom as subquery")
+          .select("NomId")
+          .whereRef("subquery.SubsId", "=", "Subs_Nom.SubsId")
+          .orderBy(sql`LENGTH(Subs_Nom.NomLib)`)
+          .limit(1),
+      ),
+    )
+    .where(({ eb, selectFrom }) =>
+      eb(
+        "SubsId",
+        "in",
+        selectFrom("Composant")
+          .select("SubsId")
+          .where("SpecId", "in", liste_CIS_MVP),
+      ),
+    )
+    .where("NomLib", "like", `%${query}%`)
+    .selectAll()
+    .execute();
+
   return {
     specialites,
+    substances,
   };
 }
 
@@ -64,10 +93,27 @@ export default async function Page({
         <>
           <p>{results.specialites.length} RÉSULTATS</p>
           <ul>
+            {results.substances.map((substance: SubstanceNom) => (
+              <li key={substance.NomId} className={"fr-mb-2w"}>
+                <Link href={`/substance/${substance.NomId}`}>
+                  {formatSpecName(substance.NomLib)}
+                </Link>
+                <Badge
+                  className={fr.cx("fr-ml-2w", "fr-badge--purple-glycine")}
+                >
+                  Substance
+                </Badge>
+              </li>
+            ))}
             {Array.from(groupSpecialites(results.specialites).entries()).map(
               ([groupName, specialites]: [string, Specialite[]]) => (
                 <li key={groupName} className={"fr-mb-2w"}>
                   {formatSpecName(groupName)}
+                  <Badge
+                    className={fr.cx("fr-ml-2w", "fr-badge--green-emeraude")}
+                  >
+                    Médicament
+                  </Badge>
                   <ul>
                     {specialites?.map((specialite) => (
                       <li key={specialite.SpecId}>
