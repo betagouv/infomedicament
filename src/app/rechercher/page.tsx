@@ -96,7 +96,7 @@ export default async function Page({
             {results.substances.map((substance: SubstanceNom) => (
               <li key={substance.NomId} className={"fr-mb-2w"}>
                 <Link href={`/substance/${substance.NomId}`}>
-                  {formatSpecName(substance.NomLib)}
+                  <b>{formatSpecName(substance.NomLib)}</b>
                 </Link>
                 <Badge
                   className={fr.cx("fr-ml-2w", "fr-badge--purple-glycine")}
@@ -108,7 +108,7 @@ export default async function Page({
             {Array.from(groupSpecialites(results.specialites).entries()).map(
               ([groupName, specialites]: [string, Specialite[]]) => (
                 <li key={groupName} className={"fr-mb-2w"}>
-                  {formatSpecName(groupName)}
+                  <b>{formatSpecName(groupName)}</b>
                   <Badge
                     className={fr.cx("fr-ml-2w", "fr-badge--green-emeraude")}
                   >
