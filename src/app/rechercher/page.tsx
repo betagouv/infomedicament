@@ -6,7 +6,7 @@ import { pdbmMySQL, Specialite, SubstanceNom } from "@/db/pdbmMySQL";
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 
-import { formatSpecName } from "@/formatUtils";
+import { formatSpecName, groupSpecialites } from "@/displayUtils";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 
 async function getResults(query: string) {
@@ -50,22 +50,6 @@ async function getResults(query: string) {
   };
 }
 
-function groupSpecialites(
-  specialites: Specialite[],
-): Map<string, Specialite[]> {
-  const groups = new Map<string, Specialite[]>();
-  for (const specialite of specialites) {
-    const regexMatch = specialite.SpecDenom01.match(/^[^0-9]+/);
-    const groupName = regexMatch ? regexMatch[0] : specialite.SpecDenom01;
-    if (groups.has(groupName)) {
-      groups.get(groupName)?.push(specialite);
-    } else {
-      groups.set(groupName, [specialite]);
-    }
-  }
-  return groups;
-}
-
 export default async function Page({
   searchParams,
 }: {
@@ -95,7 +79,7 @@ export default async function Page({
           <ul>
             {results.substances.map((substance: SubstanceNom) => (
               <li key={substance.NomId} className={"fr-mb-2w"}>
-                <Link href={`/substance/${substance.NomId}`}>
+                <Link href={`/substance/${substance.SubsId}`}>
                   <b>{formatSpecName(substance.NomLib)}</b>
                 </Link>
                 <Badge

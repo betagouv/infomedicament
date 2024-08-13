@@ -49,7 +49,7 @@ interface SpecComposantTable {
   ElmtNum: string;
   NatuId: string;
   CompNum: number;
-  SubstId: string;
+  SubsId: string;
   NomId: string;
   CompDosage: string;
   CompRem: string;

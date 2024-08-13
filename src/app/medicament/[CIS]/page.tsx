@@ -24,7 +24,7 @@ import {
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import DsfrLeafletSection from "@/app/medicament/[CIS]/DsfrLeafletSection";
 import { isHtmlElement } from "@/app/medicament/[CIS]/leafletUtils";
-import { formatSpecName } from "@/formatUtils";
+import { formatSpecName } from "@/displayUtils";
 import { Nullable } from "kysely";
 
 export async function generateMetadata(
