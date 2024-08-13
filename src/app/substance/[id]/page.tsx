@@ -1,9 +1,11 @@
-import { pdbmMySQL, Specialite, SubstanceNom } from "@/db/pdbmMySQL";
 import { sql } from "kysely";
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import Link from "next/link";
+
+import { pdbmMySQL, Specialite, SubstanceNom } from "@/db/pdbmMySQL";
 import { formatSpecName, groupSpecialites } from "@/displayUtils";
+import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 
 async function getSubstance(id: string) {
   const substance: SubstanceNom = await pdbmMySQL
@@ -27,6 +29,7 @@ async function getSubstance(id: string) {
     .selectFrom("Specialite")
     .innerJoin("Composant", "Specialite.SpecId", "Composant.SpecId")
     .where("Composant.SubsId", "=", id)
+    .where("Specialite.SpecId", "in", liste_CIS_MVP)
     .selectAll()
     .execute();
 
