@@ -1,0 +1,9 @@
+.fr-icon--custom-molecule::before,
+.fr-icon--custom-molecule::after {
+    mask-image:url('molecule.svg')
+}
+
+.fr-icon--custom-box::before,
+.fr-icon--custom-box::after {
+    mask-image:url('box.svg')
+}

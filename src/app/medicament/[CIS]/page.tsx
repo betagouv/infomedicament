@@ -13,6 +13,7 @@ import HTMLParser, { HTMLElement } from "node-html-parser";
 
 import {
   pdbmMySQL,
+  Presentation,
   PresInfoTarif,
   SpecComposant,
   SpecDelivrance,
@@ -20,11 +21,11 @@ import {
   Specialite,
   SubstanceNom,
 } from "@/db/pdbmMySQL";
-
-import liste_CIS_MVP from "./liste_CIS_MVP.json";
+import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import DsfrLeafletSection from "@/app/medicament/[CIS]/DsfrLeafletSection";
 import { isHtmlElement } from "@/app/medicament/[CIS]/leafletUtils";
 import { formatSpecName } from "@/formatUtils";
+import { Nullable } from "kysely";
 
 export async function generateMetadata(
   { params: { CIS } }: { params: { CIS: string } },
@@ -72,16 +73,27 @@ const getSpecialite = cache(async (CIS: string) => {
     )
   ).flat();
 
-  const prix: PresInfoTarif[] = await pdbmMySQL
-    .selectFrom("Presentation")
-    .where("SpecId", "=", CIS)
-    .innerJoin(
-      "CNAM_InfoTarif",
-      "Presentation.codeCIP13",
-      "CNAM_InfoTarif.Cip13",
-    )
-    .selectAll("CNAM_InfoTarif")
-    .execute();
+  const presentations: (Presentation & Nullable<PresInfoTarif>)[] = (
+    await pdbmMySQL
+      .selectFrom("Presentation")
+      .where("SpecId", "=", CIS)
+      .leftJoin(
+        "CNAM_InfoTarif",
+        "Presentation.codeCIP13",
+        "CNAM_InfoTarif.Cip13",
+      )
+      .selectAll()
+      .execute()
+  ).sort((a, b) =>
+    a.Prix && b.Prix
+      ? parseFloat(a.Prix.replace(",", ".")) -
+        parseFloat(b.Prix.replace(",", "."))
+      : a.Prix
+        ? -1
+        : b.Prix
+          ? 1
+          : 0,
+  );
 
   const delivrance: SpecDelivrance[] = await pdbmMySQL
     .selectFrom("Spec_Delivrance")
@@ -97,7 +109,7 @@ const getSpecialite = cache(async (CIS: string) => {
   return {
     specialite,
     composants,
-    prix,
+    presentations,
     delivrance,
   };
 });
@@ -157,14 +169,7 @@ function getLeafletSections(
 
 const getLeaflet = cache(async (CIS: string) => {
   let zipData = await fs.readFile(
-    path.join(
-      process.cwd(),
-      "src",
-      "app",
-      "medicament",
-      "[CIS]",
-      "Notices_RCP_html.zip",
-    ),
+    path.join(process.cwd(), "src", "Notices_RCP_html.zip"),
   );
 
   const zip = new JSZIP();
@@ -253,7 +258,8 @@ export default async function Page({
 }: {
   params: { CIS: string };
 }) {
-  const { specialite, composants, prix, delivrance } = await getSpecialite(CIS);
+  const { specialite, composants, presentations, delivrance } =
+    await getSpecialite(CIS);
   const leaflet = await getLeaflet(CIS);
 
   return (
@@ -261,39 +267,57 @@ export default async function Page({
       <h1 className={fr.cx("fr-h2")}>
         {formatSpecName(specialite.SpecDenom01)}
       </h1>
-      <p>
-        {specialite.SpecGeneId ? (
-          <Tag
-            small
-            iconId="fr-icon-capsule-fill"
-            nativeButtonProps={{
-              className: fr.cx("fr-tag--green-emeraude"),
-            }}
-          >
-            Générique
-          </Tag>
-        ) : null}{" "}
-        {delivrance.length ? (
-          <Tag
-            small
-            iconId="fr-icon-file-text-fill"
-            nativeButtonProps={{
-              className: fr.cx("fr-tag--green-archipel"),
-            }}
-          >
-            Sur ordonnance
-          </Tag>
-        ) : null}
-      </p>
-      {prix.length ? (
-        <p>
-          <b>Prix</b> <Tag small>{prix[0]?.Prix} €</Tag>{" "}
-          <Tag small>{prix[0].Taux}</Tag>
-        </p>
-      ) : null}
-      <p>
-        <b>Substance active</b> {composants.map((c) => c.NomLib).join(", ")}
-      </p>
+      <section className={"fr-mb-4w"}>
+        <div className={"fr-mb-1w"}>
+          {specialite.SpecGeneId ? (
+            <Tag
+              small
+              iconId="fr-icon-capsule-fill"
+              nativeButtonProps={{
+                className: fr.cx("fr-tag--green-emeraude"),
+              }}
+            >
+              Générique
+            </Tag>
+          ) : null}{" "}
+          {delivrance.length ? (
+            <Tag
+              small
+              iconId="fr-icon-file-text-fill"
+              nativeButtonProps={{
+                className: fr.cx("fr-tag--green-archipel"),
+              }}
+            >
+              Sur ordonnance
+            </Tag>
+          ) : null}
+        </div>
+        <div className={"fr-mb-1w"}>
+          <span
+            className={["fr-icon--custom-molecule", fr.cx("fr-mr-1w")].join(
+              " ",
+            )}
+          />
+          <b>Substance active</b> {composants.map((c) => c.NomLib).join(", ")}
+        </div>
+        <ul className={fr.cx("fr-raw-list")}>
+          {presentations.map((p) => (
+            <li key={p.Cip13} className={fr.cx("fr-mb-1w")}>
+              <span
+                className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
+              />
+              <b>{p.PresNom01}</b> -{" "}
+              {p.Prix && p.Taux ? (
+                <>
+                  Prix {p.Prix} € - remboursé à {p.Taux}
+                </>
+              ) : (
+                <>Prix libre - non remboursable</>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
       {leaflet ? (
         <article>
           <div className={fr.cx("fr-mb-4w")}>

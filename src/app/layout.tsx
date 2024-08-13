@@ -11,6 +11,8 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { defaultColorScheme } from "@/app/defaultColorScheme";
 import { StartDsfr } from "@/app/StartDsfr";
 
+import "@/customIcons/customIcons.css";
+
 export const metadata: Metadata = {
   title: "Infomédicament",
 };

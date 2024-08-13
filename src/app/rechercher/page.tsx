@@ -7,7 +7,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 
 import { formatSpecName } from "@/formatUtils";
-import liste_CIS_MVP from "../medicament/[CIS]/liste_CIS_MVP.json";
+import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 
 async function getResults(query: string) {
   const specialites: Specialite[] = (
