@@ -29,8 +29,18 @@ async function getSubstance(id: string) {
     .selectFrom("Specialite")
     .innerJoin("Composant", "Specialite.SpecId", "Composant.SpecId")
     .where("Composant.SubsId", "=", id)
+    .where(({ eb, selectFrom }) =>
+      eb(
+        "Specialite.SpecId",
+        "not in",
+        selectFrom("Composant as subquery")
+          .select("SpecId")
+          .where("subquery.SubsId", "!=", id)
+          .whereRef("subquery.CompNum", "!=", "Composant.CompNum"),
+      ),
+    )
     .where("Specialite.SpecId", "in", liste_CIS_MVP)
-    .selectAll()
+    .selectAll("Specialite")
     .execute();
 
   return {
@@ -57,7 +67,7 @@ export default async function Page({
           Médicament
         </Badge>
         <h2 className={fr.cx("fr-h3")}>
-          Médicaments contenant « {substance.NomLib} »
+          Médicaments contenant uniquement « {substance.NomLib} »
         </h2>
         <ul>
           {Array.from(groupSpecialites(specialites).entries()).map(
