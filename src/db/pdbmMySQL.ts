@@ -44,11 +44,16 @@ interface SpecElementTable {
   ElmtRefDosage: string;
 }
 
+export enum ComposantNatureId {
+  Substance = "3",
+  Fraction = "5",
+}
+
 interface SpecComposantTable {
   SpecId: string;
   ElmtNum: string;
-  NatuId: string;
-  CompNum: number;
+  NatuId: ComposantNatureId;
+  CompNum: number; // One component can be split into multiple rows with same CompNum
   SubsId: string;
   NomId: string;
   CompDosage: string;

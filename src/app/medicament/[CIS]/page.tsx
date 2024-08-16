@@ -24,7 +24,7 @@ import {
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import DsfrLeafletSection from "@/app/medicament/[CIS]/DsfrLeafletSection";
 import { isHtmlElement } from "@/app/medicament/[CIS]/leafletUtils";
-import { formatSpecName } from "@/displayUtils";
+import { displayComposants, formatSpecName } from "@/displayUtils";
 import { Nullable } from "kysely";
 
 export async function generateMetadata(
@@ -298,7 +298,7 @@ export default async function Page({
               " ",
             )}
           />
-          <b>Substance active</b> {composants.map((c) => c.NomLib).join(", ")}
+          <b>Substance active</b> {displayComposants(composants)}
         </div>
         <ul className={fr.cx("fr-raw-list")}>
           {presentations.map((p) => (
