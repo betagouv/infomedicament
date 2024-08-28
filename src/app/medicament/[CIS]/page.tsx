@@ -319,40 +319,44 @@ export default async function Page({
         </ul>
       </section>
       {leaflet ? (
-        <article>
-          <div className={fr.cx("fr-mb-4w")}>
-            <h1 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice</h1>
-            <Badge severity={"info"}>{leaflet.maj}</Badge>
-          </div>
+        <div className={fr.cx("fr-grid-row")}>
+          <article
+            className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}
+          >
+            <div className={fr.cx("fr-mb-4w")}>
+              <h1 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice</h1>
+              <Badge severity={"info"}>{leaflet.maj}</Badge>
+            </div>
 
-          <Accordion label={"Généralités"} titleAs={"h2"}>
-            <DsfrLeafletSection data={leaflet.generalities} />
-          </Accordion>
+            <Accordion label={"Généralités"} titleAs={"h2"}>
+              <DsfrLeafletSection data={leaflet.generalities} />
+            </Accordion>
 
-          <Accordion label={"A quoi sert-il"}>
-            <DsfrLeafletSection data={leaflet.usage} />
-          </Accordion>
+            <Accordion label={"A quoi sert-il"}>
+              <DsfrLeafletSection data={leaflet.usage} />
+            </Accordion>
 
-          <Accordion label={"Précautions"}>
-            <DsfrLeafletSection data={leaflet.warnings} />
-          </Accordion>
+            <Accordion label={"Précautions"}>
+              <DsfrLeafletSection data={leaflet.warnings} />
+            </Accordion>
 
-          <Accordion label={"Comment le prendre ?"}>
-            <DsfrLeafletSection data={leaflet.howTo} />
-          </Accordion>
+            <Accordion label={"Comment le prendre ?"}>
+              <DsfrLeafletSection data={leaflet.howTo} />
+            </Accordion>
 
-          <Accordion label={"Effets indésirables"}>
-            <DsfrLeafletSection data={leaflet.sideEffects} />
-          </Accordion>
+            <Accordion label={"Effets indésirables"}>
+              <DsfrLeafletSection data={leaflet.sideEffects} />
+            </Accordion>
 
-          <Accordion label={"Conservation"}>
-            <DsfrLeafletSection data={leaflet.storage} />
-          </Accordion>
+            <Accordion label={"Conservation"}>
+              <DsfrLeafletSection data={leaflet.storage} />
+            </Accordion>
 
-          <Accordion label={"Composition"}>
-            <DsfrLeafletSection data={leaflet.composition} />
-          </Accordion>
-        </article>
+            <Accordion label={"Composition"}>
+              <DsfrLeafletSection data={leaflet.composition} />
+            </Accordion>
+          </article>
+        </div>
       ) : null}
     </>
   );

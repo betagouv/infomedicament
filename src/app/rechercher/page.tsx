@@ -60,19 +60,26 @@ export default async function Page({
 
   return (
     <>
-      <form action="/rechercher" className={fr.cx("fr-my-4w")}>
-        <Input
-          label={"Quel médicament cherchez-vous&nbsp;?"}
-          hideLabel={true}
-          addon={<Button iconId={"fr-icon-search-line"} title="Recherche" />}
-          nativeInputProps={{
-            name: "s",
-            placeholder: "Rechercher",
-            ...(search ? { defaultValue: search } : {}),
-            type: "search",
-          }}
-        />
-      </form>
+      <div className={fr.cx("fr-grid-row")}>
+        <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
+          {" "}
+          <form action="/rechercher" className={fr.cx("fr-my-4w")}>
+            <Input
+              label={"Quel médicament cherchez-vous&nbsp;?"}
+              hideLabel={true}
+              addon={
+                <Button iconId={"fr-icon-search-line"} title="Recherche" />
+              }
+              nativeInputProps={{
+                name: "s",
+                placeholder: "Rechercher",
+                ...(search ? { defaultValue: search } : {}),
+                type: "search",
+              }}
+            />
+          </form>
+        </div>
+      </div>
       {results && (
         <>
           <p>{results.specialites.length} RÉSULTATS</p>
