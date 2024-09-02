@@ -82,7 +82,9 @@ export default async function Page({
       </div>
       {results && (
         <>
-          <p>{results.specialites.length} RÉSULTATS</p>
+          <p>
+            {results.substances.length + results.specialites.length} RÉSULTATS
+          </p>
           <ul>
             {results.substances.map((substance: SubstanceNom) => (
               <li key={substance.NomId} className={"fr-mb-2w"}>
