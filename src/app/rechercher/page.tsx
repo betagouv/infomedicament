@@ -111,7 +111,10 @@ export default async function Page({
                     {specialites?.map((specialite) => (
                       <li key={specialite.SpecId}>
                         <Link href={`/medicament/${specialite.SpecId}`}>
-                          {formatSpecName(specialite.SpecDenom01)}
+                          {formatSpecName(specialite.SpecDenom01).replace(
+                            formatSpecName(groupName),
+                            "",
+                          )}
                         </Link>
                       </li>
                     ))}
