@@ -1,4 +1,4 @@
-import { cache } from "react";
+import React, { cache } from "react";
 import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
@@ -10,6 +10,8 @@ import JSZIP from "jszip";
 // @ts-ignore
 import * as windows1252 from "windows-1252";
 import HTMLParser, { HTMLElement } from "node-html-parser";
+import { Nullable } from "kysely";
+import xlsx from "node-xlsx";
 
 import {
   pdbmMySQL,
@@ -24,8 +26,13 @@ import {
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import DsfrLeafletSection from "@/app/medicament/[CIS]/DsfrLeafletSection";
 import { isHtmlElement } from "@/app/medicament/[CIS]/leafletUtils";
-import { displayComposants, formatSpecName } from "@/displayUtils";
-import { Nullable } from "kysely";
+import {
+  atcToBreadcrumbs,
+  displayComposants,
+  formatSpecName,
+  getSpecialiteGroupName,
+} from "@/displayUtils";
+import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 
 export async function generateMetadata(
   { params: { CIS } }: { params: { CIS: string } },
@@ -114,6 +121,20 @@ const getSpecialite = cache(async (CIS: string) => {
   };
 });
 
+const getAtcData = cache(async () => {
+  return xlsx.parse(
+    await fs.readFile(
+      path.join(process.cwd(), "src", "data", "CIS-ATC_2024-04-07.xlsx"),
+    ),
+  )[0].data;
+});
+
+async function getAtc(CIS: string) {
+  const atcData = await getAtcData();
+  const atc = atcData.find((row) => row[0] === CIS);
+  return atc ? atc[1] : null;
+}
+
 /**
  * Returns the sections from leaflets based on a list of CSS selector
  *
@@ -169,7 +190,7 @@ function getLeafletSections(
 
 const getLeaflet = cache(async (CIS: string) => {
   let zipData = await fs.readFile(
-    path.join(process.cwd(), "src", "Notices_RCP_html.zip"),
+    path.join(process.cwd(), "src", "data", "Notices_RCP_html.zip"),
   );
 
   const zip = new JSZIP();
@@ -261,9 +282,26 @@ export default async function Page({
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);
   const leaflet = await getLeaflet(CIS);
+  const atc = await getAtc(CIS);
+  const atcBreadcrumbs = atc ? await atcToBreadcrumbs(atc) : null;
 
   return (
     <>
+      {atcBreadcrumbs && (
+        <Breadcrumb
+          segments={[
+            ...atcBreadcrumbs,
+            formatSpecName(getSpecialiteGroupName(specialite)),
+          ].map((label) => ({
+            label,
+            linkProps: { href: `/rechercher?s=${label}` },
+          }))}
+          currentPageLabel={formatSpecName(specialite.SpecDenom01).replace(
+            formatSpecName(getSpecialiteGroupName(specialite)),
+            "",
+          )}
+        />
+      )}
       <h1 className={fr.cx("fr-h2")}>
         {formatSpecName(specialite.SpecDenom01)}
       </h1>

@@ -1,9 +1,13 @@
+import xlsx from "node-xlsx";
+import fs from "node:fs/promises";
 import {
   ComposantNatureId,
   SpecComposant,
   Specialite,
   SubstanceNom,
 } from "@/db/pdbmMySQL";
+import { cache } from "react";
+import path from "node:path";
 
 export const formatSpecName = (name: string): string =>
   name
@@ -13,13 +17,17 @@ export const formatSpecName = (name: string): string =>
     )
     .join(" ");
 
+export function getSpecialiteGroupName(specialite: Specialite): string {
+  const regexMatch = specialite.SpecDenom01.match(/^[^0-9]+/);
+  return regexMatch ? regexMatch[0] : specialite.SpecDenom01;
+}
+
 export function groupSpecialites(
   specialites: Specialite[],
 ): Map<string, Specialite[]> {
   const groups = new Map<string, Specialite[]>();
   for (const specialite of specialites) {
-    const regexMatch = specialite.SpecDenom01.match(/^[^0-9]+/);
-    const groupName = regexMatch ? regexMatch[0] : specialite.SpecDenom01;
+    const groupName = getSpecialiteGroupName(specialite);
     if (groups.has(groupName)) {
       groups.get(groupName)?.push(specialite);
     } else {
@@ -107,4 +115,26 @@ export function displayComposants(
     )
     .flat()
     .join("; ");
+}
+
+const getAtcData = cache(
+  async () =>
+    xlsx.parse(
+      await fs.readFile(
+        path.join(process.cwd(), "src", "data", "ATC 2024 02 15.xlsx"),
+      ),
+    )[0].data,
+);
+export async function atcToBreadcrumbs(atc: string): Promise<string[]> {
+  return Promise.all(
+    [1, 7].map(async (i) => {
+      const row = (await getAtcData()).find(
+        (row) => row[1] === atc.slice(0, i),
+      );
+      if (!row) {
+        throw new Error(`ATC code not found: ${atc.slice(0, i)}`);
+      }
+      return row[4];
+    }),
+  );
 }
