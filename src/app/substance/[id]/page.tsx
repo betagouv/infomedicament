@@ -1,4 +1,3 @@
-import { sql } from "kysely";
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import Link from "next/link";
@@ -22,32 +21,21 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
 async function getSubstance(id: string) {
   const substance: SubstanceNom = await pdbmMySQL
     .selectFrom("Subs_Nom")
-    .where(({ eb, selectFrom }) =>
-      eb(
-        "NomId",
-        "=",
-        selectFrom("Subs_Nom as subquery")
-          .select("NomId")
-          .whereRef("subquery.SubsId", "=", "Subs_Nom.SubsId")
-          .orderBy(sql`LENGTH(subquery.NomLib)`)
-          .limit(1),
-      ),
-    )
-    .where("SubsId", "=", id)
+    .where("NomId", "=", id)
     .selectAll()
     .executeTakeFirstOrThrow();
 
   const specialites: Specialite[] = await pdbmMySQL
     .selectFrom("Specialite")
     .innerJoin("Composant", "Specialite.SpecId", "Composant.SpecId")
-    .where("Composant.SubsId", "=", id)
+    .where("Composant.NomId", "=", id)
     .where(({ eb, selectFrom }) =>
       eb(
         "Specialite.SpecId",
         "not in",
         selectFrom("Composant as subquery")
           .select("SpecId")
-          .where("subquery.SubsId", "!=", id)
+          .where("subquery.NomId", "!=", id)
           .whereRef("subquery.CompNum", "!=", "Composant.CompNum"),
       ),
     )

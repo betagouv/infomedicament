@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { sql } from "kysely";
 import Button from "@codegouvfr/react-dsfr/Button";
 import Input from "@codegouvfr/react-dsfr/Input";
 import { pdbmMySQL, Specialite, SubstanceNom } from "@/db/pdbmMySQL";
@@ -23,20 +22,9 @@ async function getResults(query: string) {
     .where(({ eb, selectFrom }) =>
       eb(
         "NomId",
-        "=",
-        selectFrom("Subs_Nom as subquery")
-          .select("NomId")
-          .whereRef("subquery.SubsId", "=", "Subs_Nom.SubsId")
-          .orderBy(sql`LENGTH(Subs_Nom.NomLib)`)
-          .limit(1),
-      ),
-    )
-    .where(({ eb, selectFrom }) =>
-      eb(
-        "SubsId",
         "in",
         selectFrom("Composant")
-          .select("SubsId")
+          .select("NomId")
           .where("SpecId", "in", liste_CIS_MVP),
       ),
     )
@@ -88,7 +76,7 @@ export default async function Page({
           <ul>
             {results.substances.map((substance: SubstanceNom) => (
               <li key={substance.NomId} className={"fr-mb-2w"}>
-                <Link href={`/substance/${substance.SubsId}`}>
+                <Link href={`/substance/${substance.NomId}`}>
                   <b>{formatSpecName(substance.NomLib)}</b>
                 </Link>
                 <Badge
