@@ -12,7 +12,7 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
       .selectFrom("Subs_Nom")
       .leftJoin("Composant", "Subs_Nom.SubsId", "Composant.SubsId")
       .where("Composant.SpecId", "in", liste_CIS_MVP)
-      .select("Subs_Nom.SubsId as id")
+      .select("Subs_Nom.NomId as id")
       .distinct()
       .execute()
   ).map(({ id }) => ({ id: id.trim() }));
