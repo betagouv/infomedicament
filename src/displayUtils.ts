@@ -1,13 +1,13 @@
-import xlsx from "node-xlsx";
-import fs from "node:fs/promises";
+import { parse as csvParse } from "csv-parse/sync";
+import path from "node:path";
+import { readFileSync } from "node:fs";
+
 import {
   ComposantNatureId,
   SpecComposant,
   Specialite,
   SubstanceNom,
 } from "@/db/pdbmMySQL";
-import { cache } from "react";
-import path from "node:path";
 
 export const formatSpecName = (name: string): string =>
   name
@@ -117,24 +117,16 @@ export function displayComposants(
     .join("; ");
 }
 
-const getAtcData = cache(
-  async () =>
-    xlsx.parse(
-      await fs.readFile(
-        path.join(process.cwd(), "src", "data", "ATC 2024 02 15.xlsx"),
-      ),
-    )[0].data,
-);
-export async function atcToBreadcrumbs(atc: string): Promise<string[]> {
-  return Promise.all(
-    [1, 7].map(async (i) => {
-      const row = (await getAtcData()).find(
-        (row) => row[1] === atc.slice(0, i),
-      );
-      if (!row) {
-        throw new Error(`ATC code not found: ${atc.slice(0, i)}`);
-      }
-      return row[4];
-    }),
-  );
+const atcData = csvParse(
+  readFileSync(path.join(process.cwd(), "src", "data", "ATC 2024 02 15.csv")),
+) as string[][];
+
+export function atcToBreadcrumbs(atc: string): string[] {
+  return [1, 7].map((i) => {
+    const row = atcData.find((row) => row[1] === atc.slice(0, i));
+    if (!row) {
+      throw new Error(`ATC code not found: ${atc.slice(0, i)}`);
+    }
+    return row[4];
+  });
 }

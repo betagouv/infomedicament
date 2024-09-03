@@ -11,7 +11,7 @@ import JSZIP from "jszip";
 import * as windows1252 from "windows-1252";
 import HTMLParser, { HTMLElement } from "node-html-parser";
 import { Nullable } from "kysely";
-import xlsx from "node-xlsx";
+import { parse as csvParse } from "csv-parse/sync";
 
 import {
   pdbmMySQL,
@@ -33,6 +33,7 @@ import {
   getSpecialiteGroupName,
 } from "@/displayUtils";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import { readFileSync } from "node:fs";
 
 export async function generateMetadata(
   { params: { CIS } }: { params: { CIS: string } },
@@ -121,16 +122,12 @@ const getSpecialite = cache(async (CIS: string) => {
   };
 });
 
-const getAtcData = cache(async () => {
-  return xlsx.parse(
-    await fs.readFile(
-      path.join(process.cwd(), "src", "data", "CIS-ATC_2024-04-07.xlsx"),
-    ),
-  )[0].data;
-});
-
-async function getAtc(CIS: string) {
-  const atcData = await getAtcData();
+const atcData = csvParse(
+  readFileSync(
+    path.join(process.cwd(), "src", "data", "CIS-ATC_2024-04-07.csv"),
+  ),
+) as string[][];
+function getAtc(CIS: string) {
   const atc = atcData.find((row) => row[0] === CIS);
   return atc ? atc[1] : null;
 }
@@ -283,7 +280,7 @@ export default async function Page({
     await getSpecialite(CIS);
   const leaflet = await getLeaflet(CIS);
   const atc = await getAtc(CIS);
-  const atcBreadcrumbs = atc ? await atcToBreadcrumbs(atc) : null;
+  const atcBreadcrumbs = atc ? atcToBreadcrumbs(atc) : null;
 
   return (
     <>
