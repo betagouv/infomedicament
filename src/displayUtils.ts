@@ -18,14 +18,14 @@ export const formatSpecName = (name: string): string =>
     .join(" ");
 
 export function getSpecialiteGroupName(specialite: Specialite): string {
-  const regexMatch = specialite.SpecDenom01.match(/^[^0-9]+/);
+  const regexMatch = specialite.SpecDenom01.match(/^[^0-9,]+/);
   return regexMatch ? regexMatch[0] : specialite.SpecDenom01;
 }
 
-export function groupSpecialites(
-  specialites: Specialite[],
-): Map<string, Specialite[]> {
-  const groups = new Map<string, Specialite[]>();
+export function groupSpecialites<T extends Specialite>(
+  specialites: T[],
+): Map<string, T[]> {
+  const groups = new Map<string, T[]>();
   for (const specialite of specialites) {
     const groupName = getSpecialiteGroupName(specialite);
     if (groups.has(groupName)) {

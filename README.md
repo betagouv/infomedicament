@@ -35,13 +35,27 @@ de la base de données publique des médicaments.
 Celles-ci sont transmises sous la forme d'un dump
 `.sql` et d'un dossier contenant les images.
 
-La base MySQL doit être restaurée depuis le dump.
+Ces données sont stockées par MySQL, et doivent être restaurée
+depuis le dump transmis par l'ANSM. La base de données MySQL
+ne doit pas être modifiée, et doit rester un simple clone
+de la base de données publique des médicaments.
 
-Les images sont stockées dans la base de données
-PostgreSQL, de l'application et peuvent
-être chargée avec et doivent être copiées
-avec [le module `seed` de Kysely](https://sillon.incubateur.net/docs/database-for-everything/file-storage/).
+### Données spécifiques à l'application
+
+Info Médicament utilise une base de données PostgreSQL
+pour stocker les données spécifiques à l'application :
+* les images des notices (pour éviter d'avoir à les stocker dans un système de fichiers)
+* les index de recherche plein texte
+
+Vous devez d'abord jouer les migrations pour créer les tables,
+puis charger les données. La base MySQL doit être accessible préalablement.
 
 ```bash
+# Créer les tables
+kysele migrate:latest
+
+# Charger les images et les index de recherche
+# Le chemin vers le dossier contenant les images des notices doit être spécifié
+# avec la variable d'environnement LEAFLET_IMAGES
 LEAFLET_IMAGES=/path/to/folder kysely seed run
 ```

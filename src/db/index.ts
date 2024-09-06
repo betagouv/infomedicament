@@ -4,7 +4,14 @@ import { Kysely, NoResultError, PostgresDialect, Selectable } from "kysely";
 import { Pool } from "pg";
 
 interface Database {
+  search_index: SearchIndexTable;
   leaflet_images: LeafletImagesTable;
+}
+
+interface SearchIndexTable {
+  token: string;
+  table_name: "Specialite" | "Subs_Nom";
+  id: string;
 }
 
 interface LeafletImagesTable {
@@ -34,6 +41,7 @@ export const getLeafletImage = async ({ src }: { src: string }) => {
 };
 
 export type LeafletImage = Selectable<LeafletImagesTable>;
+export type SearchResult = Selectable<SearchIndexTable>;
 
 const db = new Kysely<Database>({
   dialect: new PostgresDialect({
