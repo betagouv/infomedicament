@@ -20,10 +20,12 @@ async function getSpecialites(specialitesId: string[], substancesId: string[]) {
         .selectFrom("Specialite")
         .leftJoin("Composant", "Specialite.SpecId", "Composant.SpecId")
         .where(({ eb }) =>
-          eb.or([
-            eb("Specialite.SpecId", "in", specialitesId),
-            eb("Composant.NomId", "in", substancesId),
-          ]),
+          substancesId.length
+            ? eb.or([
+                eb("Specialite.SpecId", "in", specialitesId),
+                eb("Composant.NomId", "in", substancesId),
+              ])
+            : eb("Specialite.SpecId", "in", specialitesId),
         )
         .where("Specialite.SpecId", "in", liste_CIS_MVP)
         .selectAll("Specialite")
