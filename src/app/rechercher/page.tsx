@@ -133,7 +133,8 @@ async function getResults(query: string): Promise<SearchResultItem[]> {
         if (
           specialiteGroup &&
           !acc.find(
-            (a) => "groupName" in a && a.groupName === specialiteGroup[0],
+            ({ item }) =>
+              "groupName" in item && item.groupName === specialiteGroup[0],
           )
         ) {
           const [groupName, specialites] = specialiteGroup;
