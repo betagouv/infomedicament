@@ -70,9 +70,9 @@ async function getResults(query: string): Promise<SearchResultItem[]> {
     .selectFrom("search_index")
     .selectAll()
     .select(({ fn, val }) => [
-      fn("word_similarity", [val(query), "token"]).as("sml"),
+      fn("word_similarity", [fn("unaccent", [val(query)]), "token"]).as("sml"),
     ])
-    .where("token", sql`%>`, query)
+    .where(sql<boolean>`token %> unaccent(${query})`)
     .orderBy("sml", "desc")
     .orderBy(({ fn }) => fn("length", ["token"]));
 
