@@ -12,12 +12,14 @@ interface PdbmMySQL {
   CNAM_InfoTarif: InfoTarifTable;
   Spec_Delivrance: SpecDelivranceTable;
   DicoDelivrance: DicoDelivranceTable;
+  StatutComm: StatutCommTable;
+  StatutAdm: StatutAdmTable;
 }
 
 interface SpecialiteTable {
   SpecId: string;
-  StatId: string;
-  CommId: string;
+  StatId: SpecialiteStat | null;
+  CommId: SpecialiteComm | null;
   ProcId: string;
   SpecGeneId: string;
   SpecDenom01: string;
@@ -70,6 +72,10 @@ interface PresentationTable {
   SpecId: string;
   PresNum: string;
   PresNom01: string;
+  CommId: PresentationComm;
+  StatId: PresentationStat | null;
+  PresCommDate: Date | null;
+  PresStatDate: Date | null;
   codeCIP13: string;
 }
 
@@ -92,6 +98,20 @@ interface DicoDelivranceTable {
   DelivLong: string;
 }
 
+interface StatutAdmTable {
+  StatId: number;
+  StatLibCourt: string;
+  StatLibLong: string;
+  StatDomaine: "P" | "S";
+}
+
+interface StatutCommTable {
+  CommId: number;
+  CommLibCourt: string;
+  CommLibLong: string;
+  CommDomaine: "P" | "S";
+}
+
 export type Specialite = Selectable<SpecialiteTable>;
 export type SpecElement = Selectable<SpecElementTable>;
 export type SpecComposant = Selectable<SpecComposantTable>;
@@ -100,6 +120,39 @@ export type Presentation = Selectable<PresentationTable>;
 export type PresInfoTarif = Selectable<InfoTarifTable>;
 export type SpecDelivrance = Selectable<SpecDelivranceTable> &
   Selectable<DicoDelivranceTable>;
+
+// Those enums are store as small dictionary tables in the database
+// but to benefit from TypeScript type checking
+// we define them here as well and check that they match the database
+// at runtime
+
+// Should match StatutAdm table
+
+export enum SpecialiteStat {
+  "Valide" = 10,
+  "Abrogée" = 20,
+  "Suspendue" = 30,
+  "Retirée" = 40,
+  "Archivée" = 60,
+}
+
+export enum PresentationStat {
+  Abrogation = 50,
+}
+
+// Should match StatutComm table
+
+export enum SpecialiteComm {
+  "Commercialisée" = 50,
+}
+
+export enum PresentationComm {
+  "Commercialisation" = 10,
+  "Arrêt" = 20,
+  "Suspension" = 30,
+  "Non communiquée" = 40,
+  "Plus d'autorisation" = 45,
+}
 
 export const pdbmMySQL = new Kysely<PdbmMySQL>({
   dialect: new MysqlDialect({
@@ -116,3 +169,37 @@ export const pdbmMySQL = new Kysely<PdbmMySQL>({
         }),
   }),
 });
+
+(async () => {
+  const StatutComm = await pdbmMySQL
+    .selectFrom("StatutComm")
+    .selectAll()
+    .execute();
+
+  const StatutAdm = await pdbmMySQL
+    .selectFrom("StatutAdm")
+    .selectAll()
+    .execute();
+
+  // Check that enums matches the database
+  Object.values(StatutComm).forEach(({ CommId, CommLibCourt, CommDomaine }) => {
+    if (
+      (CommDomaine === "S" ? SpecialiteComm : PresentationComm)[CommId] !==
+      CommLibCourt
+    ) {
+      throw new Error(
+        `Enum does not match database: ${CommId} ${CommLibCourt} ${CommDomaine}`,
+      );
+    }
+  });
+  Object.values(StatutAdm).forEach(({ StatId, StatLibCourt, StatDomaine }) => {
+    if (
+      (StatDomaine === "S" ? SpecialiteStat : PresentationStat)[StatId] !==
+      StatLibCourt
+    ) {
+      throw new Error(
+        `Enum does not match database: ${StatId} ${StatLibCourt} ${StatDomaine}`,
+      );
+    }
+  });
+})();

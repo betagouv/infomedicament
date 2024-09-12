@@ -10,12 +10,14 @@ import JSZIP from "jszip";
 // @ts-ignore
 import * as windows1252 from "windows-1252";
 import HTMLParser, { HTMLElement } from "node-html-parser";
-import { Nullable } from "kysely";
+import { Nullable, sql } from "kysely";
 import { parse as csvParse } from "csv-parse/sync";
 
 import {
   pdbmMySQL,
   Presentation,
+  PresentationComm,
+  PresentationStat,
   PresInfoTarif,
   SpecComposant,
   SpecDelivrance,
@@ -28,6 +30,7 @@ import DsfrLeafletSection from "@/app/medicament/[CIS]/DsfrLeafletSection";
 import { isHtmlElement } from "@/app/medicament/[CIS]/leafletUtils";
 import {
   atcToBreadcrumbs,
+  dateShortFormat,
   displayComposants,
   formatSpecName,
   getSpecialiteGroupName,
@@ -85,6 +88,34 @@ const getSpecialite = cache(async (CIS: string) => {
     await pdbmMySQL
       .selectFrom("Presentation")
       .where("SpecId", "=", CIS)
+      .where(({ eb }) =>
+        eb.or([
+          eb("CommId", "=", PresentationComm.Commercialisation),
+          eb.and([
+            eb("CommId", "in", [
+              PresentationComm["Arrêt"],
+              PresentationComm.Suspension,
+              PresentationComm["Plus d'autorisation"],
+            ]),
+            eb(
+              "PresCommDate",
+              ">=",
+              sql<Date>`DATE_ADD(NOW(),INTERVAL -730 DAY)`,
+            ),
+          ]),
+        ]),
+      )
+      .where(({ eb }) =>
+        eb.or([
+          eb("StatId", "is", null),
+          eb("StatId", "!=", PresentationStat.Abrogation),
+          eb(
+            "PresStatDate",
+            ">=",
+            sql<Date>`DATE_ADD(NOW(),INTERVAL -730 DAY)`,
+          ),
+        ]),
+      )
       .leftJoin(
         "CNAM_InfoTarif",
         "Presentation.codeCIP13",
@@ -348,6 +379,18 @@ export default async function Page({
                 </>
               ) : (
                 <>Prix libre - non remboursable</>
+              )}
+              {p.CommId !== PresentationComm.Commercialisation && (
+                <Badge severity="warning" className={fr.cx("fr-ml-1v")}>
+                  {PresentationComm[p.CommId]}
+                  {p.PresCommDate && ` (${dateShortFormat(p.PresCommDate)})`}
+                </Badge>
+              )}
+              {p.StatId && p.StatId === PresentationStat.Abrogation && (
+                <Badge severity="error" className={fr.cx("fr-ml-1v")}>
+                  {PresentationStat[p.StatId]}
+                  {p.PresStatDate && ` (${dateShortFormat(p.PresStatDate)})`}
+                </Badge>
               )}
             </li>
           ))}
