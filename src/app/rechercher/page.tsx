@@ -29,7 +29,10 @@ async function getSpecialites(specialitesId: string[], substancesId: string[]) {
         )
         .where("Specialite.SpecId", "in", liste_CIS_MVP)
         .selectAll("Specialite")
-        .select("NomId")
+        .select(({ fn }) => [
+          fn<Array<string>>("json_arrayagg", ["NomId"]).as("SubsNomId"),
+        ])
+        .groupBy("Specialite.SpecId")
         .execute()
     : [];
 }
@@ -105,7 +108,8 @@ async function getResults(query: string): Promise<SearchResultItem[]> {
           specialiteGroups
             .filter(([, specialites]) =>
               specialites.find(
-                (s) => s.NomId && s.NomId.trim() === substance.NomId.trim(),
+                (s) =>
+                  s.SubsNomId && s.SubsNomId.includes(substance.NomId.trim()),
               ),
             )
             .forEach(([groupName, specialites]) => {
@@ -133,7 +137,8 @@ async function getResults(query: string): Promise<SearchResultItem[]> {
         if (
           specialiteGroup &&
           !acc.find(
-            (a) => "groupName" in a && a.groupName === specialiteGroup[0],
+            ({ item }) =>
+              "groupName" in item && item.groupName === specialiteGroup[0],
           )
         ) {
           const [groupName, specialites] = specialiteGroup;
