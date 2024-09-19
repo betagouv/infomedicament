@@ -109,7 +109,10 @@ async function getResults(query: string): Promise<SearchResultItem[]> {
             .filter(([, specialites]) =>
               specialites.find(
                 (s) =>
-                  s.SubsNomId && s.SubsNomId.includes(substance.NomId.trim()),
+                  s.SubsNomId &&
+                  s.SubsNomId.map((id) => id.trim()).includes(
+                    substance.NomId.trim(),
+                  ),
               ),
             )
             .forEach(([groupName, specialites]) => {
