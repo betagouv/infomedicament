@@ -380,13 +380,13 @@ export default async function Page({
               ) : (
                 <>Prix libre - non remboursable</>
               )}
-              {p.CommId !== PresentationComm.Commercialisation && (
+              {Number(p.CommId) !== PresentationComm.Commercialisation && (
                 <Badge severity="warning" className={fr.cx("fr-ml-1v")}>
                   {PresentationComm[p.CommId]}
                   {p.PresCommDate && ` (${dateShortFormat(p.PresCommDate)})`}
                 </Badge>
               )}
-              {p.StatId && p.StatId === PresentationStat.Abrogation && (
+              {p.StatId && Number(p.StatId) === PresentationStat.Abrogation && (
                 <Badge severity="error" className={fr.cx("fr-ml-1v")}>
                   {PresentationStat[p.StatId]}
                   {p.PresStatDate && ` (${dateShortFormat(p.PresStatDate)})`}
