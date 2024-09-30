@@ -117,7 +117,10 @@ async function getResults(query: string): Promise<SearchResultItem[]> {
             )
             .forEach(([groupName, specialites]) => {
               if (
-                !acc.find((a) => "groupName" in a && a.groupName === groupName)
+                !acc.find(
+                  ({ item }) =>
+                    "groupName" in item && item.groupName === groupName,
+                )
               ) {
                 let directMatch = matches.find(
                   (m) =>
