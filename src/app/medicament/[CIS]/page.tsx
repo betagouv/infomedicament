@@ -310,7 +310,7 @@ export default async function Page({
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);
   const leaflet = await getLeaflet(CIS);
-  const atc = await getAtc(CIS);
+  const atc = getAtc(CIS);
   const atcBreadcrumbs = atc ? atcToBreadcrumbs(atc) : null;
 
   return (
