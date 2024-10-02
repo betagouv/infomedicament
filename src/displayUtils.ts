@@ -117,17 +117,28 @@ export function displayComposants(
     .join("; ");
 }
 
-const atcData = csvParse(
+const atcLabels1 = csvParse(
+  readFileSync(path.join(process.cwd(), "src", "data", "ATC-labels-1.csv")),
+) as string[][];
+const atcLabels2 = csvParse(
+  readFileSync(path.join(process.cwd(), "src", "data", "ATC-labels-2.csv")),
+) as string[][];
+
+const atcOfficialLabels = csvParse(
   readFileSync(path.join(process.cwd(), "src", "data", "ATC 2024 02 15.csv")),
 ) as string[][];
 
 export function atcToBreadcrumbs(atc: string): string[] {
-  return [1, 7].map((i) => {
-    const row = atcData.find((row) => row[1] === atc.slice(0, i));
+  return [
+    [1, atcLabels1] as [number, string[][]],
+    [3, atcLabels2] as [number, string[][]],
+    [7, atcOfficialLabels] as [number, string[][]],
+  ].map(([i, labels]) => {
+    const row = labels.find((row) => row[0] === atc.slice(0, i));
     if (!row) {
       throw new Error(`ATC code not found: ${atc.slice(0, i)}`);
     }
-    return row[4];
+    return row[1];
   });
 }
 
