@@ -10,15 +10,24 @@ import { SearchResultItem } from "@/db/search";
 import { useRouter } from "next/navigation";
 
 type SearchInputProps = {
+  name: string;
+  initialValue?: string;
   className?: string;
   id: string;
   placeholder: string;
   type: "search";
 };
 
-function SearchInput({ className, id, placeholder, type }: SearchInputProps) {
+function SearchInput({
+  name,
+  initialValue,
+  className,
+  id,
+  placeholder,
+  type,
+}: SearchInputProps) {
   const router = useRouter();
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(initialValue ?? "");
   const [search, setSearch] = useState("");
 
   const { data: searchResults } = useSWR(
@@ -47,6 +56,7 @@ function SearchInput({ className, id, placeholder, type }: SearchInputProps) {
       options={options}
       filterOptions={(x) => x}
       autoComplete
+      inputValue={inputValue}
       onInputChange={(_, value) => {
         setInputValue(value);
         setTimeout(
@@ -64,6 +74,7 @@ function SearchInput({ className, id, placeholder, type }: SearchInputProps) {
         <div ref={params.InputProps.ref}>
           <input
             {...params.inputProps}
+            name={name}
             className={cx(params.InputProps.className, className)}
             placeholder={placeholder}
             type={type}
@@ -74,13 +85,21 @@ function SearchInput({ className, id, placeholder, type }: SearchInputProps) {
   );
 }
 
-export default function AutocompleteSearch() {
+export default function AutocompleteSearch({
+  inputName,
+  initialValue,
+}: {
+  inputName: string;
+  initialValue?: string;
+}) {
   const router = useRouter();
   return (
     <SearchBar
       label={"Quel médicament cherchez-vous ?"}
       onButtonClick={(search: string) => router.push(`/rechercher?s=${search}`)}
-      renderInput={(props: SearchInputProps) => <SearchInput {...props} />}
+      renderInput={(props) => (
+        <SearchInput {...props} name={inputName} initialValue={initialValue} />
+      )}
     />
   );
 }

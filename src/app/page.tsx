@@ -9,7 +9,7 @@ export default async function Page() {
           <h1 className={fr.cx("fr-h5")}>
             Quel médicament cherchez-vous&nbsp;?
           </h1>
-          <AutocompleteSearch />
+          <AutocompleteSearch inputName="s" />
         </form>
       </div>
     </div>

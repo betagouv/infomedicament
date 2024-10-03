@@ -20,7 +20,10 @@ export default async function Page({
         <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
           {" "}
           <form action="/rechercher" className={fr.cx("fr-my-4w")}>
-            <AutocompleteSearch />
+            <AutocompleteSearch
+              inputName="s"
+              initialValue={search || undefined}
+            />
           </form>
         </div>
       </div>
