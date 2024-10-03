@@ -13,18 +13,7 @@ import HTMLParser, { HTMLElement } from "node-html-parser";
 import { Nullable, sql } from "kysely";
 import { parse as csvParse } from "csv-parse/sync";
 
-import {
-  pdbmMySQL,
-  Presentation,
-  PresentationComm,
-  PresentationStat,
-  PresInfoTarif,
-  SpecComposant,
-  SpecDelivrance,
-  SpecElement,
-  Specialite,
-  SubstanceNom,
-} from "@/db/pdbmMySQL";
+import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import DsfrLeafletSection from "@/app/medicament/[CIS]/DsfrLeafletSection";
 import { isHtmlElement } from "@/app/medicament/[CIS]/leafletUtils";
@@ -37,6 +26,17 @@ import {
 } from "@/displayUtils";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { readFileSync } from "node:fs";
+import {
+  Presentation,
+  PresentationComm,
+  PresentationStat,
+  PresInfoTarif,
+  SpecComposant,
+  SpecDelivrance,
+  SpecElement,
+  Specialite,
+  SubstanceNom,
+} from "@/db/pdbmMySQL/types";
 
 export async function generateMetadata(
   { params: { CIS } }: { params: { CIS: string } },
