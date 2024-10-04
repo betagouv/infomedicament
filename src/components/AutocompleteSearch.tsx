@@ -28,15 +28,15 @@ function SearchInput({
 }: SearchInputProps) {
   const router = useRouter();
   const [inputValue, setInputValue] = useState(initialValue ?? "");
-  const [search, setSearch] = useState("");
 
   const { data: searchResults } = useSWR(
-    search === inputValue ? search : null, // if search then input value has changed
+    inputValue ?? null,
     async (search) =>
       fetch(`/rechercher/results?s=${encodeURIComponent(search)}`).then((res) =>
         res.json(),
       ),
     {
+      keepPreviousData: true,
       revalidateOnMount: false,
       revalidateOnReconnect: false,
       fallbackData: [],
@@ -59,10 +59,6 @@ function SearchInput({
       inputValue={inputValue}
       onInputChange={(_, value) => {
         setInputValue(value);
-        setTimeout(
-          () => setSearch(value),
-          200, // Wait for user to stop typing to launch search
-        );
       }}
       onChange={(_, value, reason) => {
         if (reason === "selectOption") {
