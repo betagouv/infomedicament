@@ -72,6 +72,7 @@ const getSubstances = unstable_cache(async function getSubstances(
  */
 export const getResults = unstable_cache(async function (
   query: string,
+  { onlyDirectMatches = false } = {},
 ): Promise<SearchResultItem[]> {
   const dbQuery = db
     .selectFrom("search_index")
@@ -108,6 +109,8 @@ export const getResults = unstable_cache(async function (
         ); // if undefined, the substance is not in one of the 500 CIS list
         if (substance) {
           acc.push({ score: match.sml, item: substance });
+
+          if (onlyDirectMatches) return acc;
 
           specialiteGroups
             .filter(([, specialites]) =>

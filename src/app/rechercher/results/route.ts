@@ -10,6 +10,6 @@ export async function GET(req: NextRequest) {
       { status: 400 },
     );
   }
-  const results = await getResults(search);
+  const results = await getResults(search, { onlyDirectMatches: true });
   return NextResponse.json(results.slice(0, 10));
 }
