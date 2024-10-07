@@ -7,3 +7,8 @@
 .fr-icon--custom-box::after {
     mask-image:url('box.svg')
 }
+
+.fr-icon--custom-pill::before,
+.fr-icon--custom-pill::after {
+    mask-image:url('pill.svg')
+}
