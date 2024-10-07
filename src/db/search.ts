@@ -80,7 +80,15 @@ export const getResults = unstable_cache(async function (
     .select(({ fn, val }) => [
       fn("word_similarity", [fn("unaccent", [val(query)]), "token"]).as("sml"),
     ])
-    .where(sql<boolean>`token %> unaccent(${query})`)
+    .where(
+      query.length > 2 // if the query is too short, we don't do ilike search to avoid too many results
+        ? ({ eb }) =>
+            eb.or([
+              sql<boolean>`token %> unaccent(${query})`,
+              eb("token", "ilike", `%${query}%`),
+            ])
+        : sql<boolean>`token %> unaccent(${query})`,
+    )
     .orderBy("sml", "desc")
     .orderBy(({ fn }) => fn("length", ["token"]));
 
