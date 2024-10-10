@@ -13,6 +13,9 @@
   },
   "dependencies": {
     "@codegouvfr/react-dsfr": "^1.9.22",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/material": "^6.1.1",
     "@sentry/nextjs": "^8.28.0",
     "csv-parse": "^5.5.6",
     "jszip": "^3.10.1",
@@ -27,6 +30,7 @@
     "server-cli-only": "^0.3.2",
     "server-only": "^0.0.1",
     "sharp": "^0.33.4",
+    "swr": "^2.2.5",
     "windows-1252": "^3.0.4"
   },
   "devDependencies": {

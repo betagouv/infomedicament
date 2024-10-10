@@ -1,13 +1,12 @@
-import { parse as csvParse } from "csv-parse/sync";
-import path from "node:path";
-import { readFileSync } from "node:fs";
-
 import {
   ComposantNatureId,
   SpecComposant,
   Specialite,
   SubstanceNom,
-} from "@/db/pdbmMySQL";
+} from "@/db/pdbmMySQL/types";
+import atcLabels1 from "@/data/ATC-labels-1.json";
+import atcLabels2 from "@/data/ATC-labels-2.json";
+import atcOfficialLabels from "@/data/ATC 2024 02 15.json";
 
 export const formatSpecName = (name: string): string =>
   name
@@ -117,28 +116,16 @@ export function displayComposants(
     .join("; ");
 }
 
-const atcLabels1 = csvParse(
-  readFileSync(path.join(process.cwd(), "src", "data", "ATC-labels-1.csv")),
-) as string[][];
-const atcLabels2 = csvParse(
-  readFileSync(path.join(process.cwd(), "src", "data", "ATC-labels-2.csv")),
-) as string[][];
-
-const atcOfficialLabels = csvParse(
-  readFileSync(path.join(process.cwd(), "src", "data", "ATC 2024 02 15.csv")),
-) as string[][];
-
 export function atcToBreadcrumbs(atc: string): string[] {
   return [
-    [1, atcLabels1] as [number, string[][]],
-    [3, atcLabels2] as [number, string[][]],
-    [7, atcOfficialLabels] as [number, string[][]],
+    [1, atcLabels1] as [number, Record<string, string>],
+    [3, atcLabels2] as [number, Record<string, string>],
+    [7, atcOfficialLabels] as [number, Record<string, string>],
   ].map(([i, labels]) => {
-    const row = labels.find((row) => row[0] === atc.slice(0, i));
-    if (!row) {
+    if (!(atc.slice(0, i) in labels)) {
       throw new Error(`ATC code not found: ${atc.slice(0, i)}`);
     }
-    return row[1];
+    return labels[atc.slice(0, i)];
   });
 }
 

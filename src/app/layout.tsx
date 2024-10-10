@@ -12,6 +12,7 @@ import { defaultColorScheme } from "@/app/defaultColorScheme";
 import { StartDsfr } from "@/app/StartDsfr";
 
 import "@/customIcons/customIcons.css";
+import MuiDsfrThemeProvider from "@codegouvfr/react-dsfr/mui";
 
 export const metadata: Metadata = {
   title: "Infomédicament",
@@ -44,35 +45,37 @@ export default function RootLayout({
           />
         )}
         <DsfrProvider lang={lang}>
-          <Header
-            brandTop={
-              <>
-                MINISTÈRE
-                <br />
-                DU TRAVAIL
-                <br />
-                DE LA SANTÉ
-                <br />
-                ET DES SOLIDARITÉS
-              </>
-            }
-            homeLinkProps={{
-              href: "/",
-              title:
-                "Accueil - Ministère du travail de la santé et des solidarités",
-            }}
-            operatorLogo={{
-              alt: "Info Médicament",
-              imgUrl: "/logo.svg",
-              orientation: "horizontal",
-            }}
-            serviceTitle="" // hack pour que la tagline soit bien affichée
-            serviceTagline="La référence officielle sur les données des médicaments"
-          />
-          <main className={fr.cx("fr-container", "fr-pt-2w", "fr-pb-8w")}>
-            {children}
-          </main>
-          <Footer accessibility={"non compliant"} />
+          <MuiDsfrThemeProvider>
+            <Header
+              brandTop={
+                <>
+                  MINISTÈRE
+                  <br />
+                  DU TRAVAIL
+                  <br />
+                  DE LA SANTÉ
+                  <br />
+                  ET DES SOLIDARITÉS
+                </>
+              }
+              homeLinkProps={{
+                href: "/",
+                title:
+                  "Accueil - Ministère du travail de la santé et des solidarités",
+              }}
+              operatorLogo={{
+                alt: "Info Médicament",
+                imgUrl: "/logo.svg",
+                orientation: "horizontal",
+              }}
+              serviceTitle="" // hack pour que la tagline soit bien affichée
+              serviceTagline="La référence officielle sur les données des médicaments"
+            />
+            <main className={fr.cx("fr-container", "fr-pt-2w", "fr-pb-8w")}>
+              {children}
+            </main>
+            <Footer accessibility={"non compliant"} />
+          </MuiDsfrThemeProvider>
         </DsfrProvider>
       </body>
     </html>

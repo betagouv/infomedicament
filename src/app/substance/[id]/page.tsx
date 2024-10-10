@@ -2,9 +2,10 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import Link from "next/link";
 
-import { pdbmMySQL, Specialite, SubstanceNom } from "@/db/pdbmMySQL";
+import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { formatSpecName, groupSpecialites } from "@/displayUtils";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
+import { Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
   return (
