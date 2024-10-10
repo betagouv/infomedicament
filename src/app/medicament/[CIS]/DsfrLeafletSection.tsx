@@ -177,7 +177,7 @@ export function DsfrListItems({
   );
 }
 
-export default function DsfrLeafletSection({ data }: { data: Node[] }) {
+export default async function DsfrLeafletSection({ data }: { data: Node[] }) {
   const cleanedData = data.filter((el) => !isEmptyTextNode(el));
 
   return (
