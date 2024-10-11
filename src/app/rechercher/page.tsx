@@ -12,9 +12,10 @@ import ListItemText from "@mui/material/ListItemText";
 import ListItemButton from "@mui/material/ListItemButton";
 import Divider from "@mui/material/Divider";
 
-import { atcToBreadcrumbs, formatSpecName } from "@/displayUtils";
 import { Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { getAtcLabels } from "@/data/atc";
 import { getResults } from "@/db/search";
+import { formatSpecName } from "@/displayUtils";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 
 const atcData = csvParse(
@@ -53,16 +54,14 @@ const SubstanceResult = ({ item }: { item: SubstanceNom }) => (
   </li>
 );
 
-const MedicamentGroupResult = ({
+const MedicamentGroupResult = async ({
   item,
 }: {
   item: { groupName: string; specialites: Specialite[] };
 }) => {
   const atc = getAtc(item.specialites[0].SpecId);
-  const atcBreadcrumbs = atc ? atcToBreadcrumbs(atc) : null;
-  const [, subClass, substance] = atcBreadcrumbs
-    ? atcBreadcrumbs
-    : [null, null, null];
+  const atcLabels = atc ? await getAtcLabels(atc) : null;
+  const [, subClass, substance] = atcLabels ? atcLabels : [null, null, null];
   return (
     <li className={fr.cx("fr-mb-3w")}>
       <ListItem component="div" sx={{ py: "0.125rem" }}>
