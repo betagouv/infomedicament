@@ -4,9 +4,6 @@ import {
   Specialite,
   SubstanceNom,
 } from "@/db/pdbmMySQL/types";
-import atcLabels1 from "@/data/ATC-labels-1.json";
-import atcLabels2 from "@/data/ATC-labels-2.json";
-import atcOfficialLabels from "@/data/ATC 2024 02 15.json";
 
 export const formatSpecName = (name: string): string =>
   name
@@ -114,19 +111,6 @@ export function displayComposants(
     )
     .flat()
     .join("; ");
-}
-
-export function atcToBreadcrumbs(atc: string): string[] {
-  return [
-    [1, atcLabels1] as [number, Record<string, string>],
-    [3, atcLabels2] as [number, Record<string, string>],
-    [7, atcOfficialLabels] as [number, Record<string, string>],
-  ].map(([i, labels]) => {
-    if (!(atc.slice(0, i) in labels)) {
-      throw new Error(`ATC code not found: ${atc.slice(0, i)}`);
-    }
-    return labels[atc.slice(0, i)];
-  });
 }
 
 export function dateShortFormat(date: Date): string {
