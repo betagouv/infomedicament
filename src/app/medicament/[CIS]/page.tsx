@@ -18,7 +18,6 @@ import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import DsfrLeafletSection from "@/app/medicament/[CIS]/DsfrLeafletSection";
 import { isHtmlElement } from "@/app/medicament/[CIS]/leafletUtils";
 import {
-  atcToBreadcrumbs,
   dateShortFormat,
   displayComposants,
   formatSpecName,
@@ -37,6 +36,7 @@ import {
   Specialite,
   SubstanceNom,
 } from "@/db/pdbmMySQL/types";
+import { getAtcLabels } from "@/data/atc";
 
 export async function generateMetadata(
   { params: { CIS } }: { params: { CIS: string } },
@@ -311,7 +311,7 @@ export default async function Page({
     await getSpecialite(CIS);
   const leaflet = await getLeaflet(CIS);
   const atc = getAtc(CIS);
-  const atcBreadcrumbs = atc ? atcToBreadcrumbs(atc) : null;
+  const atcBreadcrumbs = atc ? await getAtcLabels(atc) : null;
 
   return (
     <>
