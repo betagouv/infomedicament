@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test } from "vitest";
 import { cleanup, screen, within } from "@testing-library/react";
 import HTMLParser from "node-html-parser";
 
-import DsfrLeafletSection from "@/app/medicament/[CIS]/DsfrLeafletSection";
+import DsfrLeafletSection from "@/app/(container)/medicament/[CIS]/DsfrLeafletSection";
 import { renderServerComponent } from "@/testsUtils/renderServerComponent";
 
 describe("DsfrLeafletSection", () => {
