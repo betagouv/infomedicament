@@ -84,17 +84,24 @@ function SearchInput({
 export default function AutocompleteSearch({
   inputName,
   initialValue,
+  className: parentClassName,
 }: {
   inputName: string;
   initialValue?: string;
+  className?: string;
 }) {
   const router = useRouter();
   return (
     <SearchBar
       label={"Quel médicament cherchez-vous ?"}
       onButtonClick={(search: string) => router.push(`/rechercher?s=${search}`)}
-      renderInput={(props) => (
-        <SearchInput {...props} name={inputName} initialValue={initialValue} />
+      renderInput={({ className, ...props }) => (
+        <SearchInput
+          {...props}
+          className={cx(className, parentClassName)}
+          name={inputName}
+          initialValue={initialValue}
+        />
       )}
     />
   );

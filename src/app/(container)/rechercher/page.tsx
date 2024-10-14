@@ -30,7 +30,7 @@ function getAtc(CIS: string) {
 
 const SubstanceResult = ({ item }: { item: SubstanceNom }) => (
   <li className={fr.cx("fr-mb-3w")}>
-    <Link href={`/substance/${item.NomId}`}>
+    <Link href={`substance/${item.NomId}`}>
       <ListItemButton sx={{ py: "0.125rem" }}>
         <ListItemText
           disableTypography

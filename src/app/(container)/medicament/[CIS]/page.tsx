@@ -15,8 +15,8 @@ import { parse as csvParse } from "csv-parse/sync";
 
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
-import DsfrLeafletSection from "@/app/medicament/[CIS]/DsfrLeafletSection";
-import { isHtmlElement } from "@/app/medicament/[CIS]/leafletUtils";
+import DsfrLeafletSection from "@/app/(container)/medicament/[CIS]/DsfrLeafletSection";
+import { isHtmlElement } from "@/app/(container)/medicament/[CIS]/leafletUtils";
 import {
   dateShortFormat,
   displayComposants,

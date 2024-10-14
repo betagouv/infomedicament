@@ -6,16 +6,16 @@ import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
 import { Header } from "@codegouvfr/react-dsfr/Header";
 import { Footer } from "@codegouvfr/react-dsfr/Footer";
 import { Notice } from "@codegouvfr/react-dsfr/Notice";
-import { fr } from "@codegouvfr/react-dsfr";
 
 import { defaultColorScheme } from "@/app/defaultColorScheme";
 import { StartDsfr } from "@/app/StartDsfr";
 
 import "@/customIcons/customIcons.css";
 import MuiDsfrThemeProvider from "@codegouvfr/react-dsfr/mui";
+import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
 
 export const metadata: Metadata = {
-  title: "Infomédicament",
+  title: "Info Médicament",
 };
 
 export default function RootLayout({
@@ -70,11 +70,13 @@ export default function RootLayout({
               }}
               serviceTitle="" // hack pour que la tagline soit bien affichée
               serviceTagline="La référence officielle sur les données des médicaments"
+              quickAccessItems={[headerFooterDisplayItem]}
             />
-            <main className={fr.cx("fr-container", "fr-pt-2w", "fr-pb-8w")}>
-              {children}
-            </main>
-            <Footer accessibility={"non compliant"} />
+            {children}
+            <Footer
+              accessibility={"non compliant"}
+              bottomItems={[headerFooterDisplayItem]}
+            />
           </MuiDsfrThemeProvider>
         </DsfrProvider>
       </body>

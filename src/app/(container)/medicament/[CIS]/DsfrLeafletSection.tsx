@@ -6,7 +6,7 @@ import {
   isEmptyTextNode,
   isHtmlElement,
   isListItem,
-} from "@/app/medicament/[CIS]/leafletUtils";
+} from "@/app/(container)/medicament/[CIS]/leafletUtils";
 import { getLeafletImage } from "@/db";
 
 async function DsfrLeafletElement({ node }: { node: HTMLElement }) {
