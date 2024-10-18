@@ -5,6 +5,8 @@ import {
   SubstanceNom,
 } from "@/db/pdbmMySQL/types";
 
+export type MedicamentGroup<T extends Specialite = Specialite> = [string, T[]];
+
 export const formatSpecName = (name: string): string =>
   name
     .split(" ")
@@ -20,7 +22,7 @@ export function getSpecialiteGroupName(specialite: Specialite): string {
 
 export function groupSpecialites<T extends Specialite>(
   specialites: T[],
-): Map<string, T[]> {
+): MedicamentGroup<T>[] {
   const groups = new Map<string, T[]>();
   for (const specialite of specialites) {
     const groupName = getSpecialiteGroupName(specialite);
@@ -30,7 +32,7 @@ export function groupSpecialites<T extends Specialite>(
       groups.set(groupName, [specialite]);
     }
   }
-  return groups;
+  return Array.from(groups.entries());
 }
 
 export function displayComposants(
