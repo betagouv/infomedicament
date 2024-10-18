@@ -318,12 +318,15 @@ export default async function Page({
       {atcBreadcrumbs && (
         <Breadcrumb
           segments={[
-            ...atcBreadcrumbs,
-            formatSpecName(getSpecialiteGroupName(specialite)),
-          ].map((label) => ({
-            label,
-            linkProps: { href: `/rechercher?s=${label}` },
-          }))}
+            { label: "Accueil", linkProps: { href: "/" } },
+            ...[
+              ...atcBreadcrumbs,
+              formatSpecName(getSpecialiteGroupName(specialite)),
+            ].map((label) => ({
+              label,
+              linkProps: { href: `/rechercher?s=${label}` },
+            })),
+          ]}
           currentPageLabel={formatSpecName(specialite.SpecDenom01).replace(
             formatSpecName(getSpecialiteGroupName(specialite)),
             "",
