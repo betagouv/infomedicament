@@ -71,6 +71,17 @@ export default function RootLayout({
               serviceTitle="" // hack pour que la tagline soit bien affichée
               serviceTagline="La référence officielle sur les données des médicaments"
               quickAccessItems={[headerFooterDisplayItem]}
+              navigation={[
+                {
+                  text: "Par ordre alphabétique",
+                  menuLinks: [
+                    {
+                      text: "Toutes les pathologies",
+                      linkProps: { href: "/parcourir/pathologies/A" },
+                    },
+                  ],
+                },
+              ]}
             />
             {children}
             <Footer

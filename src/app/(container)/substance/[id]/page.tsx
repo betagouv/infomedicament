@@ -71,7 +71,7 @@ export default async function Page({
           Médicaments contenant uniquement « {substance.NomLib} »
         </h2>
         <ul>
-          {Array.from(groupSpecialites(specialites).entries()).map(
+          {groupSpecialites(specialites).map(
             ([groupName, specialites]: [string, Specialite[]]) => (
               <li key={groupName} className={"fr-mb-2w"}>
                 <b>{formatSpecName(groupName)}</b>

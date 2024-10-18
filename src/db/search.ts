@@ -106,7 +106,7 @@ export const getResults = unstable_cache(async function (
     .map((r) => r.id);
 
   const specialites = await getSpecialites(specialitesId, substancesId);
-  const specialiteGroups = Array.from(groupSpecialites(specialites).entries());
+  const specialiteGroups = groupSpecialites(specialites);
   const substances = await getSubstances(substancesId);
 
   return matches

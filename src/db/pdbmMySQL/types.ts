@@ -11,6 +11,8 @@ export interface PdbmMySQL {
   DicoDelivrance: DicoDelivranceTable;
   StatutComm: StatutCommTable;
   StatutAdm: StatutAdmTable;
+  Patho: PathoTable;
+  Spec_Patho: Spec_PathoTable;
 }
 
 interface SpecialiteTable {
@@ -109,6 +111,20 @@ interface StatutCommTable {
   CommDomaine: "P" | "S";
 }
 
+interface PathoTable {
+  codePatho: string;
+  NomPatho: string;
+  FlagSelection: boolean;
+  Niveau: boolean;
+  NumOrdre: number;
+  InfoPatho: string;
+}
+
+interface Spec_PathoTable {
+  SpecId: string;
+  codePatho: string;
+}
+
 export type Specialite = Selectable<SpecialiteTable>;
 export type SpecElement = Selectable<SpecElementTable>;
 export type SpecComposant = Selectable<SpecComposantTable>;
@@ -117,6 +133,7 @@ export type Presentation = Selectable<PresentationTable>;
 export type PresInfoTarif = Selectable<InfoTarifTable>;
 export type SpecDelivrance = Selectable<SpecDelivranceTable> &
   Selectable<DicoDelivranceTable>;
+export type Patho = Selectable<PathoTable>;
 
 // Those enums are store as small dictionary tables in the database
 // but to benefit from TypeScript type checking
