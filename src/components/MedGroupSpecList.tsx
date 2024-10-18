@@ -72,9 +72,7 @@ export default async function MedGroupSpecList({
               href={`/medicament/${specialite.SpecId}`}
               className={fr.cx("fr-text--sm", "fr-link")}
             >
-              {formatSpecName(specialite.SpecDenom01)
-                .replace(`${formatSpecName(groupName)}, `, "")
-                .replace(formatSpecName(groupName), "")}
+              {formatSpecName(specialite.SpecDenom01)}
             </Link>
           </li>
         ))}
