@@ -63,7 +63,8 @@ export default async function Page({
       />
 
       <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
-        {medicaments.length} médicaments traitant la pathologie « anxiété »
+        {medicaments.length} médicaments traitant la pathologie «&nbsp;
+        {patho.NomPatho}&nbsp;»
       </h2>
       <MedGroupSpecListList items={medicaments} />
     </>
