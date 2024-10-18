@@ -81,6 +81,10 @@ export default function RootLayout({
                     },
                   ],
                 },
+                {
+                  text: "Articles",
+                  linkProps: { href: "/parcourir/articles" },
+                },
               ]}
             />
             {children}
