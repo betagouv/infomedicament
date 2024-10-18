@@ -6,6 +6,7 @@ type ArticleRecord = {
   Titre: string;
   Source: string;
   Contenu: string;
+  Theme: string;
 };
 
 export async function getArticles() {
@@ -20,6 +21,7 @@ export async function getArticles() {
       title: fields.Titre,
       source: fields.Source,
       content: fields.Contenu,
+      category: fields.Theme,
     };
   });
 }
