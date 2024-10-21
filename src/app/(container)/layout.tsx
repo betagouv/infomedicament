@@ -6,7 +6,7 @@ export default function ContainerLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main className={fr.cx("fr-container", "fr-pt-2w", "fr-pb-8w")}>
+    <main className={fr.cx("fr-container", "fr-pt-4w", "fr-pb-8w")}>
       {children}
     </main>
   );
