@@ -1,4 +1,7 @@
-export async function getGristTableData(
+import "server-only";
+import { unstable_cache } from "next/cache";
+
+export const getGristTableData = unstable_cache(async function (
   tableId: string,
 ): Promise<{ id: number; fields: Record<string, string | number> }[]> {
   const response = await fetch(
@@ -10,4 +13,4 @@ export async function getGristTableData(
     },
   );
   return (await response.json()).records;
-}
+});
