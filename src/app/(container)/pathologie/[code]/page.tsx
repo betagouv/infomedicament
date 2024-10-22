@@ -7,6 +7,7 @@ import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { fr } from "@codegouvfr/react-dsfr";
 import { MedGroupSpecListList } from "@/components/MedGroupSpecList";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import { getPathologyDefinition } from "@/data/pathologies";
 
 export async function generateStaticParams(): Promise<{ code: string }[]> {
   return pdbmMySQL.selectFrom("Patho").select("codePatho as code").execute();
@@ -24,7 +25,7 @@ async function getPatho(code: string): Promise<Patho> {
   return patho;
 }
 
-async function getSpecialite(code: string): Promise<Specialite[]> {
+async function getPathoSpecialites(code: `${number}`): Promise<Specialite[]> {
   return pdbmMySQL
     .selectFrom("Specialite")
     .selectAll("Specialite")
@@ -37,10 +38,11 @@ async function getSpecialite(code: string): Promise<Specialite[]> {
 export default async function Page({
   params: { code },
 }: {
-  params: { code: string };
+  params: { code: `${number}` };
 }) {
   const patho = await getPatho(code);
-  const specialites = await getSpecialite(code);
+  const definition = await getPathologyDefinition(code);
+  const specialites = await getPathoSpecialites(code);
   const medicaments = groupSpecialites(specialites);
   return (
     <>
@@ -59,7 +61,7 @@ export default async function Page({
       <DefinitionBanner
         type="Pathologie"
         title={patho.NomPatho}
-        definition="Définition de la pathologie"
+        definition={definition}
       />
 
       <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
