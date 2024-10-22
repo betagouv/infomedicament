@@ -46,7 +46,7 @@ export default async function MedGroupSpecList({
               <Tag
                 small
                 nativeButtonProps={{
-                  className: fr.cx("fr-tag--yellow-tournesol"),
+                  className: cx("fr-tag--custom-alt-class"),
                 }}
               >
                 {subClass}
@@ -56,7 +56,7 @@ export default async function MedGroupSpecList({
               <Tag
                 small
                 nativeButtonProps={{
-                  className: fr.cx("fr-tag--purple-glycine"),
+                  className: cx("fr-tag--custom-alt-substance"),
                 }}
               >
                 {substance}

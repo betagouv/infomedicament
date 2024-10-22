@@ -11,6 +11,7 @@ import { defaultColorScheme } from "@/app/defaultColorScheme";
 import { StartDsfr } from "@/app/StartDsfr";
 
 import "@/customIcons/customIcons.css";
+import "@/components/dsfr-custom-alt.css";
 import MuiDsfrThemeProvider from "@codegouvfr/react-dsfr/mui";
 import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
 

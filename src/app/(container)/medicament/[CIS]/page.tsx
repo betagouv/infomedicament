@@ -4,6 +4,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import Accordion from "@codegouvfr/react-dsfr/Accordion";
+import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import fs from "node:fs/promises";
 import path from "node:path";
 import JSZIP from "jszip";
@@ -311,16 +312,17 @@ export default async function Page({
     await getSpecialite(CIS);
   const leaflet = await getLeaflet(CIS);
   const atc = getAtc(CIS);
-  const atcBreadcrumbs = atc ? await getAtcLabels(atc) : null;
+  const atcLabels = atc ? await getAtcLabels(atc) : null;
+  const [, subClass, substance] = atcLabels ? atcLabels : [null, null, null];
 
   return (
     <>
-      {atcBreadcrumbs && (
+      {atcLabels && (
         <Breadcrumb
           segments={[
             { label: "Accueil", linkProps: { href: "/" } },
             ...[
-              ...atcBreadcrumbs,
+              ...atcLabels,
               formatSpecName(getSpecialiteGroupName(specialite)),
             ].map((label) => ({
               label,
@@ -338,28 +340,52 @@ export default async function Page({
       </h1>
       <section className={"fr-mb-4w"}>
         <div className={"fr-mb-1w"}>
-          {specialite.SpecGeneId ? (
-            <Tag
-              small
-              iconId="fr-icon-capsule-fill"
-              nativeButtonProps={{
-                className: fr.cx("fr-tag--green-emeraude"),
-              }}
-            >
-              Générique
-            </Tag>
-          ) : null}{" "}
-          {delivrance.length ? (
-            <Tag
-              small
-              iconId="fr-icon-file-text-fill"
-              nativeButtonProps={{
-                className: fr.cx("fr-tag--green-archipel"),
-              }}
-            >
-              Sur ordonnance
-            </Tag>
-          ) : null}
+          <ul className={fr.cx("fr-tags-group", "fr-mb-n1v")}>
+            {subClass && (
+              <Tag
+                small
+                linkProps={{
+                  href: `/rechercher?s=${subClass}`,
+                  className: cx("fr-tag--custom-alt-class"),
+                }}
+              >
+                {subClass}
+              </Tag>
+            )}
+            {substance && (
+              <Tag
+                small
+                linkProps={{
+                  href: `/rechercher?s=${substance}`,
+                  className: cx("fr-tag--custom-alt-substance"),
+                }}
+              >
+                {substance}
+              </Tag>
+            )}
+            {specialite.SpecGeneId ? (
+              <Tag
+                small
+                iconId="fr-icon-capsule-fill"
+                nativeButtonProps={{
+                  className: fr.cx("fr-tag--blue-ecume"),
+                }}
+              >
+                Générique
+              </Tag>
+            ) : null}{" "}
+            {delivrance.length ? (
+              <Tag
+                small
+                iconId="fr-icon-file-text-fill"
+                nativeButtonProps={{
+                  className: fr.cx("fr-tag--blue-ecume"),
+                }}
+              >
+                Sur ordonnance
+              </Tag>
+            ) : null}
+          </ul>
         </div>
         <div className={"fr-mb-1w"}>
           <span
