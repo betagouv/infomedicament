@@ -2,26 +2,21 @@ import "server-only";
 import { getGristTableData } from "@/data/grist";
 import slugify from "slugify";
 
-type ArticleRecord = {
-  Titre: string;
-  Source: string;
-  Contenu: string;
-  Theme: string;
-};
-
 export async function getArticles() {
-  const records = (await getGristTableData("Articles")) as {
-    id: number;
-    fields: ArticleRecord;
-  }[];
+  const records = await getGristTableData("Articles", [
+    "Titre",
+    "Source",
+    "Contenu",
+    "Theme",
+  ]);
 
   return records.map(({ fields }) => {
     return {
-      slug: slugify(fields.Titre, { lower: true, strict: true }),
-      title: fields.Titre,
-      source: fields.Source,
-      content: fields.Contenu,
-      category: fields.Theme,
+      slug: slugify(fields.Titre as string, { lower: true, strict: true }),
+      title: fields.Titre as string,
+      source: fields.Source as string,
+      content: fields.Contenu as string,
+      category: fields.Theme as string,
     };
   });
 }
