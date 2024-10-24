@@ -5,16 +5,8 @@ import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 
-export async function generateStaticParams(): Promise<{ letter: string }[]> {
-  return pdbmMySQL
-    .selectFrom("Patho")
-    .select(({ fn, val }) =>
-      fn<string>("substr", ["NomPatho", val(1), val(1)]).as("letter"),
-    )
-    .orderBy("letter")
-    .groupBy("letter")
-    .execute();
-}
+export const dynamic = "error";
+export const dynamicParams = true;
 
 async function getPathologyPage(letter: string): Promise<Patho[]> {
   return pdbmMySQL
@@ -25,7 +17,16 @@ async function getPathologyPage(letter: string): Promise<Patho[]> {
 }
 
 async function getLetters(): Promise<string[]> {
-  return (await generateStaticParams()).map((r) => r.letter);
+  return (
+    await pdbmMySQL
+      .selectFrom("Patho")
+      .select(({ fn, val }) =>
+        fn<string>("substr", ["NomPatho", val(1), val(1)]).as("letter"),
+      )
+      .orderBy("letter")
+      .groupBy("letter")
+      .execute()
+  ).map((r) => r.letter);
 }
 
 export default async function Page({

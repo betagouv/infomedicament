@@ -2,22 +2,16 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { fr } from "@codegouvfr/react-dsfr";
 import { getArticles } from "@/data/articles";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import { notFound } from "next/navigation";
 
-export async function generateStaticParams() {
-  const records = await getArticles();
-
-  return records.map(({ slug }) => ({
-    slug,
-  }));
-}
+export const dynamic = "error";
+export const dynamicParams = true;
 
 async function getArticle(slug: string) {
   const articles = await getArticles();
   const article = articles.find(({ slug: _slug }) => _slug === slug);
 
-  if (!article) {
-    throw new Error(`Article not found: ${slug}`);
-  }
+  if (!article) return notFound();
 
   return article;
 }

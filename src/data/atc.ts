@@ -3,9 +3,14 @@ import atcOfficialLabels from "@/data/ATC 2024 02 15.json";
 import { getGristTableData } from "@/data/grist";
 
 async function getAtcLabel1(code: string): Promise<string> {
-  const data = await getGristTableData("Table_Niveau_1");
+  const data = await getGristTableData("Table_Niveau_1", [
+    "Lettre_1_ATC_1",
+    "Libelles_niveau_1",
+    "Definition_Classe",
+  ]);
+  data[0].fields;
   const record = data.find(
-    (record: any) => record.fields.Lettre_1_ATC_1 === code.slice(0, 1),
+    (record) => record.fields.Lettre_1_ATC_1 === code.slice(0, 1),
   );
   if (!record) {
     throw new Error(`ATC code not found: ${code.slice(0, 1)}`);
@@ -15,17 +20,22 @@ async function getAtcLabel1(code: string): Promise<string> {
 }
 
 async function getAtcLabel2(code: string): Promise<string> {
-  const atcData = await getGristTableData("Table_Niveau_2");
+  const atcData = await getGristTableData("Table_Niveau_2", [
+    "Libelles_niveau_2",
+    "Lettre_2_ATC2",
+  ]);
   const record = atcData.find(
-    (record: any) => record.fields.Lettre_2_ATC2 === code.slice(0, 3),
+    (record) => record.fields.Lettre_2_ATC2 === code.slice(0, 3),
   );
   if (!record) {
     throw new Error(`ATC code not found: ${code.slice(0, 3)}`);
   }
 
   const libeleId = record.fields.Libelles_niveau_2;
-  const libeleData = await getGristTableData("Intitules_possibles");
-  const libeleRecord = libeleData.find((record: any) => record.id === libeleId);
+  const libeleData = await getGristTableData("Intitules_possibles", [
+    "Libelles_niveau_2",
+  ]);
+  const libeleRecord = libeleData.find((record) => record.id === libeleId);
 
   if (!libeleRecord) {
     throw new Error(`ATC code not found: ${code.slice(0, 3)}`);

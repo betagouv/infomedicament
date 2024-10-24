@@ -9,9 +9,8 @@ import { MedGroupSpecListList } from "@/components/MedGroupSpecList";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getPathologyDefinition } from "@/data/pathologies";
 
-export async function generateStaticParams(): Promise<{ code: string }[]> {
-  return pdbmMySQL.selectFrom("Patho").select("codePatho as code").execute();
-}
+export const dynamic = "error";
+export const dynamicParams = true;
 
 async function getPatho(code: string): Promise<Patho> {
   const patho = await pdbmMySQL
@@ -20,7 +19,7 @@ async function getPatho(code: string): Promise<Patho> {
     .where("codePatho", "=", code)
     .executeTakeFirst();
 
-  if (!patho) notFound();
+  if (!patho) return notFound();
 
   return patho;
 }

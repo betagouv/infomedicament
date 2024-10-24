@@ -37,6 +37,10 @@ import {
   SubstanceNom,
 } from "@/db/pdbmMySQL/types";
 import { getAtcLabels } from "@/data/atc";
+import { notFound } from "next/navigation";
+
+export const dynamic = "error";
+export const dynamicParams = true;
 
 export async function generateMetadata(
   { params: { CIS } }: { params: { CIS: string } },
@@ -50,18 +54,16 @@ export async function generateMetadata(
   };
 }
 
-export async function generateStaticParams(): Promise<{ CIS: string }[]> {
-  return liste_CIS_MVP.map((CIS) => ({
-    CIS,
-  }));
-}
-
 const getSpecialite = cache(async (CIS: string) => {
-  const specialite: Specialite = await pdbmMySQL
+  if (!liste_CIS_MVP.includes(CIS)) notFound();
+
+  const specialite: Specialite | undefined = await pdbmMySQL
     .selectFrom("Specialite")
     .where("SpecId", "=", CIS)
     .selectAll()
-    .executeTakeFirstOrThrow();
+    .executeTakeFirst();
+
+  if (!specialite) return notFound();
 
   const elements: SpecElement[] = await pdbmMySQL
     .selectFrom("Element")
