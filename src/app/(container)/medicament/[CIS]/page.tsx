@@ -313,16 +313,17 @@ export default async function Page({
     await getSpecialite(CIS);
   const leaflet = await getLeaflet(CIS);
   const atc = getAtc(CIS);
-  const atcBreadcrumbs = atc ? await getAtcLabels(atc) : null;
+  const atcLabels = atc ? await getAtcLabels(atc) : null;
+  const [, subClass, substance] = atcLabels ? atcLabels : [null, null, null];
 
   return (
     <>
-      {atcBreadcrumbs && (
+      {atcLabels && (
         <Breadcrumb
           segments={[
             { label: "Accueil", linkProps: { href: "/" } },
             ...[
-              ...atcBreadcrumbs,
+              ...atcLabels,
               formatSpecName(getSpecialiteGroupName(specialite)),
             ].map((label) => ({
               label,
@@ -340,28 +341,52 @@ export default async function Page({
       </h1>
       <section className={"fr-mb-4w"}>
         <div className={"fr-mb-1w"}>
-          {specialite.SpecGeneId ? (
-            <Tag
-              small
-              iconId="fr-icon-capsule-fill"
-              nativeButtonProps={{
-                className: fr.cx("fr-tag--green-emeraude"),
-              }}
-            >
-              Générique
-            </Tag>
-          ) : null}{" "}
-          {delivrance.length ? (
-            <Tag
-              small
-              iconId="fr-icon-file-text-fill"
-              nativeButtonProps={{
-                className: fr.cx("fr-tag--green-archipel"),
-              }}
-            >
-              Sur ordonnance
-            </Tag>
-          ) : null}
+          <ul className={fr.cx("fr-tags-group", "fr-mb-n1v")}>
+            {subClass && (
+              <Tag
+                small
+                linkProps={{
+                  href: `/rechercher?s=${subClass}`,
+                  className: fr.cx("fr-tag--yellow-tournesol"),
+                }}
+              >
+                {subClass}
+              </Tag>
+            )}
+            {substance && (
+              <Tag
+                small
+                linkProps={{
+                  href: `/rechercher?s=${substance}`,
+                  className: fr.cx("fr-tag--purple-glycine"),
+                }}
+              >
+                {substance}
+              </Tag>
+            )}
+            {specialite.SpecGeneId ? (
+              <Tag
+                small
+                iconId="fr-icon-capsule-fill"
+                nativeButtonProps={{
+                  className: fr.cx("fr-tag--blue-ecume"),
+                }}
+              >
+                Générique
+              </Tag>
+            ) : null}{" "}
+            {delivrance.length ? (
+              <Tag
+                small
+                iconId="fr-icon-file-text-fill"
+                nativeButtonProps={{
+                  className: fr.cx("fr-tag--blue-ecume"),
+                }}
+              >
+                Sur ordonnance
+              </Tag>
+            ) : null}
+          </ul>
         </div>
         <div className={"fr-mb-1w"}>
           <span
