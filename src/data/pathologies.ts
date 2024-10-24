@@ -8,7 +8,7 @@ export async function getPathologyDefinition(
     "Definition_pathologie",
   ]);
   const record = data.find(
-    (record: any) => record.fields.codePatho === Number(code),
+    (record) => record.fields.codePatho === Number(code),
   );
   if (!record) {
     throw new Error(`Pathology code not found: ${code}`);

@@ -6,25 +6,19 @@ import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { formatSpecName, groupSpecialites } from "@/displayUtils";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { notFound } from "next/navigation";
 
-export async function generateStaticParams(): Promise<{ id: string }[]> {
-  return (
-    await pdbmMySQL
-      .selectFrom("Subs_Nom")
-      .leftJoin("Composant", "Subs_Nom.SubsId", "Composant.SubsId")
-      .where("Composant.SpecId", "in", liste_CIS_MVP)
-      .select("Subs_Nom.NomId as id")
-      .distinct()
-      .execute()
-  ).map(({ id }) => ({ id: id.trim() }));
-}
+export const dynamic = "error";
+export const dynamicParams = true;
 
 async function getSubstance(id: string) {
-  const substance: SubstanceNom = await pdbmMySQL
+  const substance: SubstanceNom | undefined = await pdbmMySQL
     .selectFrom("Subs_Nom")
     .where("NomId", "=", id)
     .selectAll()
-    .executeTakeFirstOrThrow();
+    .executeTakeFirst();
+
+  if (!substance) return notFound();
 
   const specialites: Specialite[] = await pdbmMySQL
     .selectFrom("Specialite")

@@ -1,5 +1,4 @@
 import "server-only";
-import { unstable_cache } from "next/cache";
 
 function matchesFields<F extends string[]>(
   record: Record<string, string | number>,
@@ -8,9 +7,7 @@ function matchesFields<F extends string[]>(
   return fields.every((key) => key in record);
 }
 
-export const getGristTableData = unstable_cache(async function <
-  F extends string,
->(
+export const getGristTableData = async function <F extends string>(
   tableId: string,
   fields: F[],
 ): Promise<{ id: number; fields: Record<F, string | number> }[]> {
@@ -45,4 +42,4 @@ export const getGristTableData = unstable_cache(async function <
   }
 
   return data;
-});
+};
