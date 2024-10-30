@@ -13,6 +13,7 @@ import { StartDsfr } from "@/app/StartDsfr";
 import "@/customIcons/customIcons.css";
 import MuiDsfrThemeProvider from "@codegouvfr/react-dsfr/mui";
 import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
+import { StartHotjar } from "@/app/StartHotjar";
 
 export const metadata: Metadata = {
   title: "Info Médicament",
@@ -27,6 +28,7 @@ export default function RootLayout({
   return (
     <html {...getHtmlAttributes({ defaultColorScheme, lang })}>
       <head>
+        {process.env.NEXT_PUBLIC_HOTJAR_SITE_ID && <StartHotjar />}
         <StartDsfr />
         <DsfrHead Link={Link} />
       </head>
