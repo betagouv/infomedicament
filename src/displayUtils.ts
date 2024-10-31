@@ -35,7 +35,32 @@ export function groupSpecialites<T extends Specialite>(
   return Array.from(groups.entries());
 }
 
-export function displayComposants(
+export function displaySimpleComposants(
+  composants: (SpecComposant & SubstanceNom)[],
+): SubstanceNom[] {
+  const groups = new Map<number, (SpecComposant & SubstanceNom)[]>();
+  for (const composant of composants) {
+    if (groups.has(composant.CompNum)) {
+      groups.get(composant.CompNum)?.push(composant);
+    } else {
+      groups.set(composant.CompNum, [composant]);
+    }
+  }
+
+  return Array.from(groups.values())
+    .map((composants: (SpecComposant & SubstanceNom)[]) =>
+      composants.filter(
+        (composant) => composant.NatuId === ComposantNatureId.Fraction,
+      ).length
+        ? composants.filter(
+            (composant) => composant.NatuId === ComposantNatureId.Fraction,
+          )
+        : composants,
+    )
+    .flat();
+}
+
+export function displayCompleteComposants(
   composants: (SpecComposant & SubstanceNom)[],
 ): string {
   const groups = new Map<number, (SpecComposant & SubstanceNom)[]>();
