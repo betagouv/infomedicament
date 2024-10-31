@@ -11,20 +11,21 @@ import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { MedGroupSpecListList } from "@/components/MedGroupSpecList";
 import { groupSpecialites } from "@/displayUtils";
 
-export async function generateStaticParams(): Promise<{ letter: string }[]> {
-  return pdbmMySQL
-    .selectFrom("Specialite")
-    .select(({ fn, val }) =>
-      fn<string>("substr", ["SpecDenom01", val(1), val(1)]).as("letter"),
-    )
-    .where("Specialite.SpecId", "in", liste_CIS_MVP)
-    .orderBy("letter")
-    .groupBy("letter")
-    .execute();
-}
+export const dynamic = "error";
+export const dynamicParams = true;
 
 const getLetters = unstable_cache(async function () {
-  return (await generateStaticParams()).map((r) => r.letter);
+  return (
+    await pdbmMySQL
+      .selectFrom("Specialite")
+      .select(({ fn, val }) =>
+        fn<string>("substr", ["SpecDenom01", val(1), val(1)]).as("letter"),
+      )
+      .where("Specialite.SpecId", "in", liste_CIS_MVP)
+      .orderBy("letter")
+      .groupBy("letter")
+      .execute()
+  ).map((r) => r.letter);
 });
 
 const getSpecialites = unstable_cache(async function (letter: string) {
