@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import Link from "next/link";
 import { Patho } from "@/db/pdbmMySQL/types";
@@ -49,10 +50,9 @@ export default async function Page({
           <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>Liste des pathologies</h1>
           <p className={fr.cx("fr-text--lg")}>
             {letters.map((a) => (
-              <>
+              <Fragment key={a}>
                 <Link
                   href={`/parcourir/pathologies/${a}`}
-                  key={a}
                   className={fr.cx(
                     "fr-link",
                     "fr-link--lg",
@@ -62,7 +62,7 @@ export default async function Page({
                 >
                   {a}
                 </Link>{" "}
-              </>
+              </Fragment>
             ))}
           </p>
           <ul className={fr.cx("fr-raw-list")}>

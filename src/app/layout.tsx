@@ -78,6 +78,10 @@ export default function RootLayout({
                   text: "Par ordre alphabétique",
                   menuLinks: [
                     {
+                      text: "Tous les médicaments",
+                      linkProps: { href: "/parcourir/medicaments/A" },
+                    },
+                    {
                       text: "Toutes les pathologies",
                       linkProps: { href: "/parcourir/pathologies/A" },
                     },
