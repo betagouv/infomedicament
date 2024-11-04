@@ -12,7 +12,6 @@ import JSZIP from "jszip";
 import * as windows1252 from "windows-1252";
 import HTMLParser, { HTMLElement } from "node-html-parser";
 import { Nullable, sql } from "kysely";
-import { parse as csvParse } from "csv-parse/sync";
 
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
@@ -20,12 +19,12 @@ import DsfrLeafletSection from "@/app/(container)/medicament/[CIS]/DsfrLeafletSe
 import { isHtmlElement } from "@/app/(container)/medicament/[CIS]/leafletUtils";
 import {
   dateShortFormat,
-  displayComposants,
+  displayCompleteComposants,
+  displaySimpleComposants,
   formatSpecName,
   getSpecialiteGroupName,
 } from "@/displayUtils";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import { readFileSync } from "node:fs";
 import {
   Presentation,
   PresentationComm,
@@ -37,7 +36,7 @@ import {
   Specialite,
   SubstanceNom,
 } from "@/db/pdbmMySQL/types";
-import { getAtcLabels } from "@/data/atc";
+import { atcData, getAtc1, getAtc2 } from "@/data/atc";
 import { notFound } from "next/navigation";
 
 export const dynamic = "error";
@@ -156,14 +155,14 @@ const getSpecialite = cache(async (CIS: string) => {
   };
 });
 
-const atcData = csvParse(
-  readFileSync(
-    path.join(process.cwd(), "src", "data", "CIS-ATC_2024-04-07.csv"),
-  ),
-) as string[][];
-function getAtc(CIS: string) {
+function getAtcCode(CIS: string) {
   const atc = atcData.find((row) => row[0] === CIS);
-  return atc ? atc[1] : null;
+
+  if (!atc) {
+    throw new Error(`Could not find ATC code for CIS ${CIS}`);
+  }
+
+  return atc[1];
 }
 
 /**
@@ -313,57 +312,57 @@ export default async function Page({
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);
   const leaflet = await getLeaflet(CIS);
-  const atc = getAtc(CIS);
-  const atcLabels = atc ? await getAtcLabels(atc) : null;
-  const [, subClass, substance] = atcLabels ? atcLabels : [null, null, null];
+  const atcCode = getAtcCode(CIS);
+  const atc1 = await getAtc1(atcCode);
+  const atc2 = await getAtc2(atcCode);
 
   return (
     <>
-      {atcLabels && (
-        <Breadcrumb
-          segments={[
-            { label: "Accueil", linkProps: { href: "/" } },
-            ...[
-              ...atcLabels,
-              formatSpecName(getSpecialiteGroupName(specialite)),
-            ].map((label) => ({
-              label,
-              linkProps: { href: `/rechercher?s=${label}` },
-            })),
-          ]}
-          currentPageLabel={formatSpecName(specialite.SpecDenom01).replace(
-            formatSpecName(getSpecialiteGroupName(specialite)),
-            "",
-          )}
-        />
-      )}
+      <Breadcrumb
+        segments={[
+          { label: "Accueil", linkProps: { href: "/" } },
+          { label: atc1.label, linkProps: { href: `/atc/${atc1.code}` } },
+          { label: atc2.label, linkProps: { href: `/atc/${atc2.code}` } },
+          {
+            label: formatSpecName(getSpecialiteGroupName(specialite)),
+            linkProps: {
+              href: `/rechercher?s=${formatSpecName(getSpecialiteGroupName(specialite))}`,
+            },
+          },
+        ]}
+        currentPageLabel={formatSpecName(specialite.SpecDenom01).replace(
+          formatSpecName(getSpecialiteGroupName(specialite)),
+          "",
+        )}
+      />
       <h1 className={fr.cx("fr-h2")}>
         {formatSpecName(specialite.SpecDenom01)}
       </h1>
       <section className={"fr-mb-4w"}>
         <div className={"fr-mb-1w"}>
           <ul className={fr.cx("fr-tags-group", "fr-mb-n1v")}>
-            {subClass && (
-              <Tag
-                small
-                linkProps={{
-                  href: `/rechercher?s=${subClass}`,
-                  className: cx("fr-tag--custom-alt-class"),
-                }}
-              >
-                {subClass}
-              </Tag>
-            )}
-            {substance && (
-              <Tag
-                small
-                linkProps={{
-                  href: `/rechercher?s=${substance}`,
-                  className: cx("fr-tag--custom-alt-substance"),
-                }}
-              >
-                {substance}
-              </Tag>
+            <Tag
+              small
+              linkProps={{
+                href: `/atc/${atc2.code}`,
+                className: cx("fr-tag--custom-alt-class"),
+              }}
+            >
+              {atc2.label}
+            </Tag>
+            {displaySimpleComposants(composants).map(
+              (substance: SubstanceNom) => (
+                <Tag
+                  key={substance.NomId}
+                  small
+                  linkProps={{
+                    href: `/substance/${substance.NomId}`,
+                    className: cx("fr-tag--custom-alt-substance"),
+                  }}
+                >
+                  {substance.NomLib}
+                </Tag>
+              ),
             )}
             {specialite.SpecGeneId ? (
               <Tag
@@ -395,7 +394,7 @@ export default async function Page({
               " ",
             )}
           />
-          <b>Substance active</b> {displayComposants(composants)}
+          <b>Substance active</b> {displayCompleteComposants(composants)}
         </div>
         <ul className={fr.cx("fr-raw-list")}>
           {presentations.map((p) => (

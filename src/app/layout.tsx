@@ -14,17 +14,19 @@ import "@/customIcons/customIcons.css";
 import "@/components/dsfr-custom-alt.css";
 import MuiDsfrThemeProvider from "@codegouvfr/react-dsfr/mui";
 import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
+import { getAtc } from "@/data/atc";
 import { StartHotjar } from "@/app/StartHotjar";
 
 export const metadata: Metadata = {
   title: "Info Médicament",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const atcs = await getAtc();
   const lang = "fr";
   return (
     <html {...getHtmlAttributes({ defaultColorScheme, lang })}>
@@ -75,6 +77,13 @@ export default function RootLayout({
               serviceTagline="La référence officielle sur les données des médicaments"
               quickAccessItems={[headerFooterDisplayItem]}
               navigation={[
+                {
+                  text: "Parcourir",
+                  menuLinks: atcs.map((atc) => ({
+                    linkProps: { href: `/atc/${atc.code}` },
+                    text: atc.label,
+                  })),
+                },
                 {
                   text: "Par ordre alphabétique",
                   menuLinks: [
