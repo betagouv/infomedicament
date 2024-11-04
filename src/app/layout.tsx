@@ -80,7 +80,7 @@ export default function RootLayout({
                   menuLinks: [
                     {
                       text: "Tous les médicaments",
-                      linkProps: { href: "/parcourir/medicaments/A" },
+                      linkProps: { href: "/parcourir/medicaments/A/1" },
                     },
                     {
                       text: "Toutes les pathologies",

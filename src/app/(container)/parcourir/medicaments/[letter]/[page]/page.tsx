@@ -34,17 +34,17 @@ const getSpecialites = unstable_cache(async function (letter: string) {
     .selectAll("Specialite")
     .where("SpecDenom01", "like", `${letter}%`)
     .where("Specialite.SpecId", "in", liste_CIS_MVP)
+    .orderBy("SpecDenom01")
     .execute();
 });
 
 export default async function Page({
-  params: { letter },
-  searchParams,
+  params: { letter, page },
 }: {
-  params: { letter: string };
-  searchParams: { page?: `${number}` };
+  params: { letter: string; page: `${number}` };
 }) {
-  const page = Number(searchParams.page) || 1;
+  if (!Number.isInteger(Number(page))) return notFound();
+  const pageNumber = Number(page);
   const letters = await getLetters();
   const specialites = await getSpecialites(letter);
   const PAGE_LENGTH = 10;
@@ -55,6 +55,8 @@ export default async function Page({
   const pageCount =
     Math.trunc(medicaments.length / PAGE_LENGTH) +
     (medicaments.length % PAGE_LENGTH ? 1 : 0);
+
+  if (pageNumber < 1 || pageNumber > pageCount) return notFound();
 
   return (
     <>
@@ -69,7 +71,7 @@ export default async function Page({
             {letters.map((a) => (
               <Fragment key={a}>
                 <Link
-                  href={`/parcourir/medicaments/${a}`}
+                  href={`/parcourir/medicaments/${a}/1`}
                   className={fr.cx(
                     "fr-link",
                     "fr-link--lg",
@@ -84,16 +86,16 @@ export default async function Page({
           </p>
           <MedGroupSpecListList
             items={medicaments.slice(
-              (page - 1) * PAGE_LENGTH,
-              page * PAGE_LENGTH,
+              (pageNumber - 1) * PAGE_LENGTH,
+              pageNumber * PAGE_LENGTH,
             )}
           />
           {pageCount > 1 && (
             <Pagination
               count={pageCount}
-              defaultPage={page}
+              defaultPage={pageNumber}
               getPageLinkProps={(number: number) => ({
-                href: `?page=${number}`,
+                href: `/parcourir/medicaments/${letter}/${number}`,
               })}
             />
           )}
