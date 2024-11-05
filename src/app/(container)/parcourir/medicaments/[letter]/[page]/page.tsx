@@ -1,5 +1,4 @@
 import { Fragment } from "react";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { unstable_cache } from "next/cache";
 import { fr } from "@codegouvfr/react-dsfr";
@@ -10,6 +9,7 @@ import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { MedGroupSpecListList } from "@/components/MedGroupSpecList";
 import { groupSpecialites } from "@/displayUtils";
+import AlphabeticNav from "@/components/AlphabeticNav";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -67,23 +67,10 @@ export default async function Page({
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
           <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>Liste des médicaments</h1>
-          <p className={fr.cx("fr-text--lg")}>
-            {letters.map((a) => (
-              <Fragment key={a}>
-                <Link
-                  href={`/parcourir/medicaments/${a}/1`}
-                  className={fr.cx(
-                    "fr-link",
-                    "fr-link--lg",
-                    "fr-mr-3w",
-                    "fr-mb-3w",
-                  )}
-                >
-                  {a}
-                </Link>{" "}
-              </Fragment>
-            ))}
-          </p>
+          <AlphabeticNav
+            letters={letters}
+            url={(letter) => `/parcourir/medicaments/${letter}/1`}
+          />
           <MedGroupSpecListList
             items={medicaments.slice(
               (pageNumber - 1) * PAGE_LENGTH,

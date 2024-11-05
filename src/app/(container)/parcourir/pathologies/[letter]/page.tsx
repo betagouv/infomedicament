@@ -5,6 +5,7 @@ import { Patho } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import AlphabeticNav from "@/components/AlphabeticNav";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -48,23 +49,10 @@ export default async function Page({
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
           <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>Liste des pathologies</h1>
-          <p className={fr.cx("fr-text--lg")}>
-            {letters.map((a) => (
-              <Fragment key={a}>
-                <Link
-                  href={`/parcourir/pathologies/${a}`}
-                  className={fr.cx(
-                    "fr-link",
-                    "fr-link--lg",
-                    "fr-mr-3w",
-                    "fr-mb-3w",
-                  )}
-                >
-                  {a}
-                </Link>{" "}
-              </Fragment>
-            ))}
-          </p>
+          <AlphabeticNav
+            letters={letters}
+            url={(letter) => `/parcourir/pathologies/${letter}`}
+          />
           <ul className={fr.cx("fr-raw-list")}>
             {pathos.map((patho, i) => (
               <li key={i} className={fr.cx("fr-mb-1v")}>
