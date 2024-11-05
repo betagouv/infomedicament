@@ -8,6 +8,7 @@ export default function ContainerLayout({
   return (
     <main className={fr.cx("fr-container", "fr-pt-4w", "fr-pb-8w")}>
       {children}
+      <div className="hotjar-feedback" />
     </main>
   );
 }
