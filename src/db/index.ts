@@ -10,7 +10,7 @@ interface Database {
 
 interface SearchIndexTable {
   token: string;
-  table_name: "Specialite" | "Subs_Nom";
+  table_name: "Specialite" | "Subs_Nom" | "Patho";
   id: string;
 }
 

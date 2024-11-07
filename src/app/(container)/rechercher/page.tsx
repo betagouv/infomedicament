@@ -3,7 +3,7 @@ import Link from "next/link";
 import { fr } from "@codegouvfr/react-dsfr";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 
-import { SubstanceNom } from "@/db/pdbmMySQL/types";
+import { Patho, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { getResults } from "@/db/search";
 import { formatSpecName } from "@/displayUtils";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
@@ -22,6 +22,18 @@ const SubstanceResult = ({ item }: { item: SubstanceNom }) => (
       className={fr.cx("fr-text--md", "fr-text--bold", "fr-link")}
     >
       {formatSpecName(item.NomLib)}
+    </Link>
+  </li>
+);
+
+const PathoResult = ({ item }: { item: Patho }) => (
+  <li className={fr.cx("fr-mb-3w")}>
+    <i className={fr.cx("fr-icon--sm", "fr-mr-1w", "fr-icon-lungs-fill")} />
+    <Link
+      href={`/pathologie/${item.codePatho}`}
+      className={fr.cx("fr-text--md", "fr-text--bold", "fr-link")}
+    >
+      {formatSpecName(item.NomPatho)}
     </Link>
   </li>
 );
@@ -55,12 +67,13 @@ export default async function Page({
                 <Fragment key={index}>
                   {"NomLib" in result ? (
                     <SubstanceResult item={result} />
-                  ) : (
+                  ) : "groupName" in result ? (
                     <MedGroupSpecList
-                      key={index}
                       medGroup={[result.groupName, result.specialites]}
                       className={fr.cx("fr-mb-3w")}
                     />
+                  ) : (
+                    <PathoResult item={result} />
                   )}
                 </Fragment>
               ))}

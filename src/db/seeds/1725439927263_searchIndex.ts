@@ -60,5 +60,34 @@ export async function seed(db: Kysely<any>): Promise<void> {
     }
   });
 
+  // Get pathologies from PMDB
+  const pathologies = await pdbmMySQL
+    .selectFrom("Patho")
+    .select(["Patho.NomPatho", "Patho.codePatho"])
+    // Filter the 500
+    .leftJoin("Spec_Patho", "Patho.codePatho", "Spec_Patho.codePatho")
+    .leftJoin("Specialite", "Spec_Patho.SpecId", "Specialite.SpecId")
+    .where("Specialite.SpecId", "in", liste_CIS_MVP)
+    .groupBy(["Patho.NomPatho", "Patho.codePatho"])
+    .execute();
+
+  await db.transaction().execute(async (db) => {
+    await db
+      .deleteFrom("search_index")
+      .where("table_name", "=", "Patho")
+      .execute();
+
+    for (const pathology of pathologies) {
+      await db
+        .insertInto("search_index")
+        .values(({ fn, val }) => ({
+          token: fn("unaccent", [val(pathology.NomPatho)]),
+          table_name: "Patho",
+          id: pathology.codePatho,
+        }))
+        .execute();
+    }
+  });
+
   await pdbmMySQL.destroy();
 }

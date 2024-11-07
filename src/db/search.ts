@@ -4,12 +4,13 @@ import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import db, { SearchResult } from "@/db/index";
 import { sql } from "kysely";
 import { groupSpecialites } from "@/displayUtils";
-import { Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { Patho, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { unstable_cache } from "next/cache";
 
 export type SearchResultItem =
   | SubstanceNom
-  | { groupName: string; specialites: Specialite[] };
+  | { groupName: string; specialites: Specialite[] }
+  | Patho;
 
 const getSpecialites = unstable_cache(async function (
   specialitesId: string[],
@@ -48,6 +49,16 @@ const getSubstances = unstable_cache(async function getSubstances(
         .execute()
     : [];
   return substances;
+});
+
+const getPathologies = unstable_cache(async function (pathologiesId: string[]) {
+  return pathologiesId.length
+    ? await pdbmMySQL
+        .selectFrom("Patho")
+        .selectAll()
+        .where("codePatho", "in", pathologiesId)
+        .execute()
+    : [];
 });
 
 /**
@@ -95,10 +106,14 @@ export const getResults = unstable_cache(async function (
   const substancesId = matches
     .filter((r) => r.table_name === "Subs_Nom")
     .map((r) => r.id);
+  const pathologiesId = matches
+    .filter((r) => r.table_name === "Patho")
+    .map((r) => r.id);
 
   const specialites = await getSpecialites(specialitesId, substancesId);
   const specialiteGroups = groupSpecialites(specialites);
   const substances = await getSubstances(substancesId);
+  const pathologies = await getPathologies(pathologiesId);
 
   return matches
     .reduce((acc: { score: number; item: SearchResultItem }[], match) => {
@@ -155,6 +170,15 @@ export const getResults = unstable_cache(async function (
         ) {
           const [groupName, specialites] = specialiteGroup;
           acc.push({ score: match.sml, item: { groupName, specialites } });
+        }
+      }
+
+      if (match.table_name === "Patho") {
+        const patho = pathologies.find(
+          (p) => p.codePatho.trim() === match.id.trim(),
+        );
+        if (patho) {
+          acc.push({ score: match.sml, item: patho });
         }
       }
 
