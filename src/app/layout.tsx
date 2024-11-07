@@ -78,6 +78,10 @@ export default async function RootLayout({
               quickAccessItems={[headerFooterDisplayItem]}
               navigation={[
                 {
+                  text: "Glossaire",
+                  linkProps: { href: "/glossaire/A" },
+                },
+                {
                   text: "Parcourir",
                   menuLinks: atcs.map((atc) => ({
                     linkProps: { href: `/atc/${atc.code}` },
