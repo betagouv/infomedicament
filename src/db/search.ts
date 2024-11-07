@@ -44,15 +44,6 @@ const getSubstances = unstable_cache(async function getSubstances(
     ? await pdbmMySQL
         .selectFrom("Subs_Nom")
         .where("NomId", "in", substancesId)
-        .where(({ eb, selectFrom }) =>
-          eb(
-            "NomId",
-            "in",
-            selectFrom("Composant")
-              .select("NomId")
-              .where("SpecId", "in", liste_CIS_MVP),
-          ),
-        )
         .selectAll()
         .execute()
     : [];

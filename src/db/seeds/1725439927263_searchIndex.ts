@@ -1,11 +1,17 @@
 import type { Kysely } from "kysely";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
+import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 
 export async function seed(db: Kysely<any>): Promise<void> {
   // Get substances from PMDB
   const substances = await pdbmMySQL
     .selectFrom("Subs_Nom")
-    .select(["NomLib", "NomId"])
+    .select(["Subs_Nom.NomLib", "Subs_Nom.NomId"])
+    // Filter the 500 list
+    .leftJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
+    .leftJoin("Specialite", "Composant.SpecId", "Specialite.SpecId")
+    .where("Specialite.SpecId", "in", liste_CIS_MVP)
+    .groupBy(["Subs_Nom.NomLib", "Subs_Nom.NomId"])
     .execute();
 
   await db.transaction().execute(async (db) => {
@@ -31,6 +37,8 @@ export async function seed(db: Kysely<any>): Promise<void> {
   const specialities = await pdbmMySQL
     .selectFrom("Specialite")
     .select(["SpecDenom01", "SpecId"])
+    // Filter the 500 list
+    .where("Specialite.SpecId", "in", liste_CIS_MVP)
     .execute();
 
   await db.transaction().execute(async (db) => {
