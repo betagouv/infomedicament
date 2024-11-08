@@ -6,11 +6,13 @@ import { sql } from "kysely";
 import { groupSpecialites } from "@/displayUtils";
 import { Patho, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { unstable_cache } from "next/cache";
+import { ATC, ATC1, getAtc1, getAtc2 } from "@/data/atc";
 
 export type SearchResultItem =
   | SubstanceNom
   | { groupName: string; specialites: Specialite[] }
-  | Patho;
+  | Patho
+  | { class: ATC1; subclasses: ATC[] };
 
 const getSpecialites = unstable_cache(async function (
   specialitesId: string[],
@@ -109,81 +111,115 @@ export const getResults = unstable_cache(async function (
   const pathologiesId = matches
     .filter((r) => r.table_name === "Patho")
     .map((r) => r.id);
+  const ATCCodes = matches
+    .filter((r) => r.table_name === "ATC")
+    .map((r) => r.id);
 
   const specialites = await getSpecialites(specialitesId, substancesId);
   const specialiteGroups = groupSpecialites(specialites);
   const substances = await getSubstances(substancesId);
   const pathologies = await getPathologies(pathologiesId);
+  const ATCClasses = await Promise.all(
+    ATCCodes.map((code) => (code.length === 1 ? getAtc1(code) : getAtc2(code))),
+  );
 
-  return matches
-    .reduce((acc: { score: number; item: SearchResultItem }[], match) => {
-      if (match.table_name === "Subs_Nom") {
-        const substance = substances.find(
-          (s) => s.NomId.trim() === match.id.trim(),
-        ); // if undefined, the substance is not in one of the 500 CIS list
-        if (substance) {
-          acc.push({ score: match.sml, item: substance });
+  const acc: { score: number; item: SearchResultItem }[] = [];
+  for (const match of matches) {
+    if (match.table_name === "Subs_Nom") {
+      const substance = substances.find(
+        (s) => s.NomId.trim() === match.id.trim(),
+      ); // if undefined, the substance is not in one of the 500 CIS list
+      if (substance) {
+        acc.push({ score: match.sml, item: substance });
 
-          if (onlyDirectMatches) return acc;
+        if (onlyDirectMatches) continue;
 
-          specialiteGroups
-            .filter(([, specialites]) =>
-              specialites.find(
-                (s) =>
-                  s.SubsNomId &&
-                  s.SubsNomId.map((id) => id.trim()).includes(
-                    substance.NomId.trim(),
-                  ),
-              ),
-            )
-            .forEach(([groupName, specialites]) => {
-              if (
-                !acc.find(
-                  ({ item }) =>
-                    "groupName" in item && item.groupName === groupName,
-                )
-              ) {
-                let directMatch = matches.find(
-                  (m) =>
-                    m.table_name === "Specialite" &&
-                    specialites.find((s) => s.SpecId.trim() === m.id.trim()),
-                );
-                acc.push({
-                  score: directMatch ? directMatch.sml + match.sml : match.sml,
-                  item: { groupName, specialites },
-                });
-              }
-            });
-        }
-      }
-
-      if (match.table_name === "Specialite") {
-        const specialiteGroup = specialiteGroups.find(([, specialites]) =>
-          specialites.find((s) => s.SpecId.trim() === match.id.trim()),
-        ); // if undefined, the specialite is not in the 500 CIS list
-        if (
-          specialiteGroup &&
-          !acc.find(
-            ({ item }) =>
-              "groupName" in item && item.groupName === specialiteGroup[0],
+        specialiteGroups
+          .filter(([, specialites]) =>
+            specialites.find(
+              (s) =>
+                s.SubsNomId &&
+                s.SubsNomId.map((id) => id.trim()).includes(
+                  substance.NomId.trim(),
+                ),
+            ),
           )
-        ) {
-          const [groupName, specialites] = specialiteGroup;
-          acc.push({ score: match.sml, item: { groupName, specialites } });
-        }
+          .forEach(([groupName, specialites]) => {
+            if (
+              !acc.find(
+                ({ item }) =>
+                  "groupName" in item && item.groupName === groupName,
+              )
+            ) {
+              let directMatch = matches.find(
+                (m) =>
+                  m.table_name === "Specialite" &&
+                  specialites.find((s) => s.SpecId.trim() === m.id.trim()),
+              );
+              acc.push({
+                score: directMatch ? directMatch.sml + match.sml : match.sml,
+                item: { groupName, specialites },
+              });
+            }
+          });
       }
+    }
 
-      if (match.table_name === "Patho") {
-        const patho = pathologies.find(
-          (p) => p.codePatho.trim() === match.id.trim(),
+    if (match.table_name === "Specialite") {
+      const specialiteGroup = specialiteGroups.find(([, specialites]) =>
+        specialites.find((s) => s.SpecId.trim() === match.id.trim()),
+      ); // if undefined, the specialite is not in the 500 CIS list
+      if (
+        specialiteGroup &&
+        !acc.find(
+          ({ item }) =>
+            "groupName" in item && item.groupName === specialiteGroup[0],
+        )
+      ) {
+        const [groupName, specialites] = specialiteGroup;
+        acc.push({ score: match.sml, item: { groupName, specialites } });
+      }
+    }
+
+    if (match.table_name === "Patho") {
+      const patho = pathologies.find(
+        (p) => p.codePatho.trim() === match.id.trim(),
+      );
+      if (patho) {
+        acc.push({ score: match.sml, item: patho });
+      }
+    }
+
+    if (match.table_name === "ATC") {
+      const atc = ATCClasses.find((atc) => atc.code.trim() === match.id.trim());
+      if (atc) {
+        const sameClass = acc.find(
+          ({ item }) =>
+            "class" in item &&
+            item.class.code.slice(0, 1) === atc.code.slice(0, 1),
         );
-        if (patho) {
-          acc.push({ score: match.sml, item: patho });
+
+        if (sameClass && atc.code.length === 1) continue;
+
+        if (sameClass && "subclasses" in sameClass.item) {
+          sameClass.item.subclasses.push(atc);
+          sameClass.score = Math.max(match.sml, sameClass.score);
+        } else {
+          if (atc.code.length === 1) {
+            acc.push({
+              score: match.sml,
+              item: { class: atc as ATC1, subclasses: [] },
+            });
+          } else {
+            acc.push({
+              score: match.sml,
+              item: { class: await getAtc1(atc.code), subclasses: [atc] },
+            });
+          }
         }
       }
+    }
+  }
 
-      return acc;
-    }, [])
-    .sort((a, b) => b.score - a.score)
-    .map(({ item }) => item);
+  return acc.sort((a, b) => b.score - a.score).map(({ item }) => item);
 });
