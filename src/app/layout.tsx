@@ -96,6 +96,10 @@ export default async function RootLayout({
                       linkProps: { href: "/parcourir/medicaments/A/1" },
                     },
                     {
+                      text: "Toutes les substances",
+                      linkProps: { href: "/parcourir/substances/A" },
+                    },
+                    {
                       text: "Toutes les pathologies",
                       linkProps: { href: "/parcourir/pathologies/A" },
                     },
