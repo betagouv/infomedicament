@@ -29,7 +29,7 @@ export default async function Page({
           { label: "Acceuil", linkProps: { href: "/" } },
           {
             label: "Liste des articles",
-            linkProps: { href: "/parcourir/articles" },
+            linkProps: { href: "/articles" },
           },
         ]}
         currentPageLabel={title}

@@ -35,7 +35,7 @@ export default async function Page() {
                   .map(({ title, slug }) => (
                     <li key={slug} className={"fr-mb-1w"}>
                       <Link
-                        href={`/article/${slug}`}
+                        href={`/articles/${slug}`}
                         className={fr.cx(
                           "fr-link",
                           "fr-link--icon-left",

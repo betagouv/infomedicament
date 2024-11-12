@@ -72,7 +72,7 @@ export default async function Page({
                 <ul>
                   {specialites?.map((specialite) => (
                     <li key={specialite.SpecId}>
-                      <Link href={`/medicament/${specialite.SpecId}`}>
+                      <Link href={`/medicaments/${specialite.SpecId}`}>
                         {formatSpecName(specialite.SpecDenom01)}
                       </Link>
                     </li>

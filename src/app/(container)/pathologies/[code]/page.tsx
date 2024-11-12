@@ -51,7 +51,7 @@ export default async function Page({
           {
             label: "Listes des pathologies",
             linkProps: {
-              href: `/parcourir/pathologies/${patho.NomPatho.slice(0, 1)}`,
+              href: `/pathologies/${patho.NomPatho.slice(0, 1)}`,
             },
           },
         ]}
