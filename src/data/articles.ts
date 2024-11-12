@@ -8,6 +8,7 @@ export async function getArticles() {
     "Source",
     "Contenu",
     "Theme",
+    "Homepage",
   ]);
 
   return records.map(({ fields }) => {
@@ -17,6 +18,7 @@ export async function getArticles() {
       source: fields.Source as string,
       content: fields.Contenu as string,
       category: fields.Theme as string,
+      homepage: fields.Homepage as boolean,
     };
   });
 }
