@@ -1,11 +1,29 @@
 import type { Kysely } from "kysely";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
+import liste_CIS_MVP from "@/liste_CIS_MVP.json";
+import { getAtc } from "@/data/atc";
 
 export async function seed(db: Kysely<any>): Promise<void> {
+  async function addIndex(table: string, id: string, token: string) {
+    await db
+      .insertInto("search_index")
+      .values(({ fn, val }) => ({
+        token: fn("unaccent", [val(token)]),
+        table_name: table,
+        id,
+      }))
+      .execute();
+  }
+
   // Get substances from PMDB
   const substances = await pdbmMySQL
     .selectFrom("Subs_Nom")
-    .select(["NomLib", "NomId"])
+    .select(["Subs_Nom.NomLib", "Subs_Nom.NomId"])
+    // Filter the 500 list
+    .leftJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
+    .leftJoin("Specialite", "Composant.SpecId", "Specialite.SpecId")
+    .where("Specialite.SpecId", "in", liste_CIS_MVP)
+    .groupBy(["Subs_Nom.NomLib", "Subs_Nom.NomId"])
     .execute();
 
   await db.transaction().execute(async (db) => {
@@ -16,14 +34,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
 
     // Insert substances into search_index
     for (const substance of substances) {
-      await db
-        .insertInto("search_index")
-        .values(({ fn, val }) => ({
-          token: fn("unaccent", [val(substance.NomLib)]),
-          table_name: "Subs_Nom",
-          id: substance.NomId,
-        }))
-        .execute();
+      await addIndex("Subs_Nom", substance.NomId, substance.NomLib);
     }
   });
 
@@ -31,6 +42,8 @@ export async function seed(db: Kysely<any>): Promise<void> {
   const specialities = await pdbmMySQL
     .selectFrom("Specialite")
     .select(["SpecDenom01", "SpecId"])
+    // Filter the 500 list
+    .where("Specialite.SpecId", "in", liste_CIS_MVP)
     .execute();
 
   await db.transaction().execute(async (db) => {
@@ -41,14 +54,45 @@ export async function seed(db: Kysely<any>): Promise<void> {
 
     // Insert specialities into search_index
     for (const specialite of specialities) {
-      await db
-        .insertInto("search_index")
-        .values(({ fn, val }) => ({
-          token: fn("unaccent", [val(specialite.SpecDenom01)]),
-          table_name: "Specialite",
-          id: specialite.SpecId,
-        }))
-        .execute();
+      await addIndex("Specialite", specialite.SpecId, specialite.SpecDenom01);
+    }
+  });
+
+  // Get pathologies from PMDB
+  const pathologies = await pdbmMySQL
+    .selectFrom("Patho")
+    .select(["Patho.NomPatho", "Patho.codePatho"])
+    // Filter the 500
+    .leftJoin("Spec_Patho", "Patho.codePatho", "Spec_Patho.codePatho")
+    .leftJoin("Specialite", "Spec_Patho.SpecId", "Specialite.SpecId")
+    .where("Specialite.SpecId", "in", liste_CIS_MVP)
+    .groupBy(["Patho.NomPatho", "Patho.codePatho"])
+    .execute();
+
+  await db.transaction().execute(async (db) => {
+    await db
+      .deleteFrom("search_index")
+      .where("table_name", "=", "Patho")
+      .execute();
+
+    for (const pathology of pathologies) {
+      await addIndex("Patho", pathology.codePatho, pathology.NomPatho);
+    }
+  });
+
+  // Get ATC classes
+  const atc = await getAtc();
+  await db.transaction().execute(async (db) => {
+    await db
+      .deleteFrom("search_index")
+      .where("table_name", "=", "ATC")
+      .execute();
+
+    for (const atcClass of atc) {
+      await addIndex("ATC", atcClass.code, atcClass.label);
+      for (const atcSubClass of atcClass.children) {
+        await addIndex("ATC", atcSubClass.code, atcSubClass.label);
+      }
     }
   });
 

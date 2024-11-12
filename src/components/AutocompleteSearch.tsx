@@ -44,9 +44,21 @@ function SearchInput({
   ) as { data: SearchResultItem[] };
 
   const options = searchResults
-    ? searchResults.map((result) =>
-        formatSpecName("NomLib" in result ? result.NomLib : result.groupName),
-      )
+    ? searchResults
+        .map((result): string | string[] =>
+          "NomLib" in result
+            ? result.NomLib
+            : "groupName" in result
+              ? result.groupName
+              : "NomPatho" in result
+                ? result.NomPatho
+                : [
+                    result.class.label,
+                    ...result.subclasses.map((x) => x.label),
+                  ],
+        )
+        .flat()
+        .map(formatSpecName)
     : [];
 
   return (

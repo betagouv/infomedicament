@@ -1,4 +1,4 @@
-import "server-only";
+import "server-cli-only";
 
 function matchesFields<F extends string[]>(
   record: Record<string, string | number>,
@@ -7,7 +7,21 @@ function matchesFields<F extends string[]>(
   return fields.every((key) => key in record);
 }
 
-export const getGristTableData = async function <F extends string>(
+// Cache Grist data to avoid fetching it multiple times.
+const gristCache = new Map<string, Promise<any>>();
+export const getGristTableData = <F extends string>(
+  tableId: string,
+  fields: F[],
+): Promise<{ id: number; fields: Record<F, string | number> }[]> => {
+  if (!gristCache.has(tableId)) {
+    gristCache.set(tableId, uncachedGetGristTableData(tableId, fields));
+  }
+  return gristCache.get(tableId) as Promise<
+    { id: number; fields: Record<F, string | number> }[]
+  >;
+};
+
+async function uncachedGetGristTableData<F extends string>(
   tableId: string,
   fields: F[],
 ): Promise<{ id: number; fields: Record<F, string | number> }[]> {
@@ -18,6 +32,7 @@ export const getGristTableData = async function <F extends string>(
         Authorization: `Bearer ${process.env.GRIST_API_KEY}`,
         Accept: "application/json",
       },
+      cache: "force-cache",
     },
   );
 
@@ -42,4 +57,4 @@ export const getGristTableData = async function <F extends string>(
   }
 
   return data;
-};
+}
