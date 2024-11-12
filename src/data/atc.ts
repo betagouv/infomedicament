@@ -1,5 +1,4 @@
 import "server-cli-only";
-import { notFound } from "next/navigation";
 
 import atcOfficialLabels from "@/data/ATC 2024 02 15.json";
 import { getGristTableData } from "@/data/grist";
@@ -62,7 +61,9 @@ export const getAtc1 = async function (code: string): Promise<ATC1> {
   const record = data.find(
     (record) => record.fields.Lettre_1_ATC_1 === code.slice(0, 1),
   );
-  if (!record) notFound();
+  if (!record) {
+    throw new Error(`ATC code not found: ${code.slice(0, 3)}`);
+  }
 
   const childrenData = await getGristTableData("Table_Niveau_2", [
     "Libelles_niveau_2",
@@ -93,7 +94,9 @@ export const getAtc2 = async function (code: string): Promise<ATC> {
     (record) => record.fields.Lettre_2_ATC2 === code.slice(0, 3),
   );
 
-  if (!record) notFound();
+  if (!record) {
+    throw new Error(`ATC code not found: ${code.slice(0, 3)}`);
+  }
 
   const libeleId = record.fields.Libelles_niveau_2;
   const libeleData = await getGristTableData("Intitules_possibles", [
@@ -101,7 +104,9 @@ export const getAtc2 = async function (code: string): Promise<ATC> {
   ]);
   const libeleRecord = libeleData.find((record) => record.id === libeleId);
 
-  if (!libeleRecord) notFound();
+  if (!libeleRecord) {
+    throw new Error(`ATC code not found: ${code.slice(0, 3)}`);
+  }
 
   return {
     code: record.fields.Lettre_2_ATC2 as string,
