@@ -9,6 +9,26 @@ const nextConfig = {
     });
     return config;
   },
+  async rewrites() {
+    return [
+      {
+        source: "/articles/:letter([A-Za-z])",
+        destination: "/alpha_lists/articles/:letter",
+      },
+      {
+        source: "/medicaments/:letter([A-Za-z])/:page(\\d+)",
+        destination: "/alpha_lists/medicaments/:letter/:page",
+      },
+      {
+        source: "/pathologies/:letter([A-Za-z])",
+        destination: "/alpha_lists/pathologies/:letter",
+      },
+      {
+        source: "/substances/:letter([A-Za-z])",
+        destination: "/alpha_lists/substances/:letter",
+      },
+    ];
+  },
   experimental: {
     instrumentationHook: true,
   },

@@ -93,17 +93,21 @@ export default async function RootLayout({
                   menuLinks: [
                     {
                       text: "Tous les médicaments",
-                      linkProps: { href: "/parcourir/medicaments/A/1" },
+                      linkProps: { href: "/medicaments/A/1" },
+                    },
+                    {
+                      text: "Toutes les substances",
+                      linkProps: { href: "/substances/A" },
                     },
                     {
                       text: "Toutes les pathologies",
-                      linkProps: { href: "/parcourir/pathologies/A" },
+                      linkProps: { href: "/pathologies/A" },
                     },
                   ],
                 },
                 {
                   text: "Articles",
-                  linkProps: { href: "/parcourir/articles" },
+                  linkProps: { href: "/articles" },
                 },
               ]}
             />
