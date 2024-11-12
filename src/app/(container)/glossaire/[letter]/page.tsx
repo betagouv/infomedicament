@@ -3,6 +3,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { notFound } from "next/navigation";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import sanitizeHtml from "sanitize-html";
+import slugify from "slugify";
 
 async function getDefinitions(firstLetter: string) {
   const definitions = await getGristTableData("Glossaire", [
@@ -54,7 +55,13 @@ export default async function Page({
         />
         {definitions.map((definition) => (
           <>
-            <h2 className={fr.cx("fr-h6", "fr-mt-4w", "fr-mb-1w")}>
+            <h2
+              className={fr.cx("fr-h6", "fr-mt-4w", "fr-mb-1w")}
+              id={slugify(definition.Nom_glossaire as string, {
+                lower: true,
+                strict: true,
+              })}
+            >
               {definition.Nom_glossaire}
             </h2>
             <div

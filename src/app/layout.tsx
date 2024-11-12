@@ -16,6 +16,8 @@ import MuiDsfrThemeProvider from "@codegouvfr/react-dsfr/mui";
 import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
 import { getAtc } from "@/data/atc";
 import { StartHotjar } from "@/app/StartHotjar";
+import GlossaryModals from "@/components/GlossaryModals";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Info Médicament",
@@ -117,6 +119,9 @@ export default async function RootLayout({
               bottomItems={[headerFooterDisplayItem]}
             />
           </MuiDsfrThemeProvider>
+          <Suspense fallback={null}>
+            <GlossaryModals />
+          </Suspense>
         </DsfrProvider>
       </body>
     </html>

@@ -1,12 +1,35 @@
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { cleanup, screen, within } from "@testing-library/react";
 import HTMLParser from "node-html-parser";
 
 import DsfrLeafletSection from "./DsfrLeafletSection";
 import { renderServerComponent } from "@/testsUtils/renderServerComponent";
+import nock from "nock";
 
 describe("DsfrLeafletSection", () => {
-  afterEach(cleanup);
+  beforeEach(() => {
+    nock("https://grist.numerique.gouv.fr/")
+      .get(
+        `/api/docs/${process.env.GRIST_DOC_ID}/tables/Glossaire/records?sort=manualSort`,
+      )
+      .reply(200, {
+        records: [
+          {
+            id: 1,
+            fields: {
+              Nom_glossaire: "Glossary expression",
+              Definition_glossaire: "Definition",
+              Source: "",
+            },
+          },
+        ],
+      });
+  });
+
+  afterEach(() => {
+    cleanup();
+    nock.cleanAll();
+  });
 
   test("should render a paragraph", async () => {
     const dom = HTMLParser.parse(`
@@ -15,6 +38,14 @@ describe("DsfrLeafletSection", () => {
     expect(dom.childNodes.length).toBe(3);
     await renderServerComponent(<DsfrLeafletSection data={dom.childNodes} />);
     expect(await screen.findByRole("paragraph")).toBeDefined();
+  });
+
+  test("should render definitions with glossary", async () => {
+    const dom = HTMLParser.parse(`
+      <p>Text with glossary expression inside</p>
+    `);
+    await renderServerComponent(<DsfrLeafletSection data={dom.childNodes} />);
+    expect(await screen.findByRole("button")).toBeDefined();
   });
 
   test("should render headings and list and formatting", async () => {
