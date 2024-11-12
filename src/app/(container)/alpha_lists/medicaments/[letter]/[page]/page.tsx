@@ -69,7 +69,7 @@ export default async function Page({
           <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>Liste des médicaments</h1>
           <AlphabeticNav
             letters={letters}
-            url={(letter) => `/parcourir/medicaments/${letter}/1`}
+            url={(letter) => `/medicaments/${letter}/1`}
           />
           <MedGroupSpecListList
             items={medicaments.slice(
@@ -82,7 +82,7 @@ export default async function Page({
               count={pageCount}
               defaultPage={pageNumber}
               getPageLinkProps={(number: number) => ({
-                href: `/parcourir/medicaments/${letter}/${number}`,
+                href: `/medicaments/${letter}/${number}`,
               })}
             />
           )}

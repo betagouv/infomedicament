@@ -18,7 +18,7 @@ const SubstanceResult = ({ item }: { item: SubstanceNom }) => (
       )}
     />
     <Link
-      href={`/substance/${item.NomId}`}
+      href={`/substances/${item.NomId}`}
       className={fr.cx("fr-text--md", "fr-text--bold", "fr-link")}
     >
       {formatSpecName(item.NomLib)}

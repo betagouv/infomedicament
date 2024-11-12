@@ -65,13 +65,13 @@ export default async function Page({
           <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>Liste des substances</h1>
           <AlphabeticNav
             letters={letters}
-            url={(letter) => `/parcourir/substances/${letter}`}
+            url={(letter) => `/substances/${letter}`}
           />
           <ul className={fr.cx("fr-raw-list")}>
             {substances.map((substance, i) => (
               <li key={i} className={fr.cx("fr-mb-1v")}>
                 <Link
-                  href={`/substance/${substance.NomId}`}
+                  href={`/substances/${substance.NomId}`}
                   className={fr.cx("fr-link")}
                 >
                   {substance.NomLib}

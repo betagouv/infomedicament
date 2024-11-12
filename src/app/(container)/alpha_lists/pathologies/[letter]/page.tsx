@@ -51,13 +51,13 @@ export default async function Page({
           <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>Liste des pathologies</h1>
           <AlphabeticNav
             letters={letters}
-            url={(letter) => `/parcourir/pathologies/${letter}`}
+            url={(letter) => `/pathologies/${letter}`}
           />
           <ul className={fr.cx("fr-raw-list")}>
             {pathos.map((patho, i) => (
               <li key={i} className={fr.cx("fr-mb-1v")}>
                 <Link
-                  href={`/pathologie/${patho.codePatho}`}
+                  href={`/pathologies/${patho.codePatho}`}
                   className={fr.cx("fr-link")}
                 >
                   {patho.NomPatho}

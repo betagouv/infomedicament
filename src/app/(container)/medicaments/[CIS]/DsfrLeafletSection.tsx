@@ -2,11 +2,7 @@ import { HTMLElement, Node, NodeType } from "node-html-parser";
 import { JSX } from "react";
 import Image from "next/image";
 import { fr } from "@codegouvfr/react-dsfr";
-import {
-  isEmptyTextNode,
-  isHtmlElement,
-  isListItem,
-} from "@/app/(container)/medicament/[CIS]/leafletUtils";
+import { isEmptyTextNode, isHtmlElement, isListItem } from "./leafletUtils";
 import { getLeafletImage } from "@/db";
 
 async function DsfrLeafletElement({ node }: { node: HTMLElement }) {

@@ -69,7 +69,7 @@ export default async function MedGroupSpecList({
         {specialites?.map((specialite, i) => (
           <li key={i} className={fr.cx("fr-mb-1v")}>
             <Link
-              href={`/medicament/${specialite.SpecId}`}
+              href={`/medicaments/${specialite.SpecId}`}
               className={fr.cx("fr-text--sm", "fr-link")}
             >
               {formatSpecName(specialite.SpecDenom01)}

@@ -13,7 +13,7 @@ export const dynamicParams = true;
 
 const SubstanceItem = ({ item }: { item: SubstanceNom }) => (
   <li key={item.NomId} className={fr.cx("fr-mb-1w")}>
-    <Link className={fr.cx("fr-link")} href={`/substance/${item.NomId}`}>
+    <Link className={fr.cx("fr-link")} href={`/substances/${item.NomId}`}>
       {item.NomLib}
     </Link>
   </li>

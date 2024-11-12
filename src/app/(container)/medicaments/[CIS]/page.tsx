@@ -15,8 +15,8 @@ import { Nullable, sql } from "kysely";
 
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
-import DsfrLeafletSection from "@/app/(container)/medicament/[CIS]/DsfrLeafletSection";
-import { isHtmlElement } from "@/app/(container)/medicament/[CIS]/leafletUtils";
+import DsfrLeafletSection from "./DsfrLeafletSection";
+import { isHtmlElement } from "./leafletUtils";
 import {
   dateShortFormat,
   displayCompleteComposants,
@@ -356,7 +356,7 @@ export default async function Page({
                   key={substance.NomId}
                   small
                   linkProps={{
-                    href: `/substance/${substance.NomId}`,
+                    href: `/substances/${substance.NomId}`,
                     className: cx("fr-tag--custom-alt-substance"),
                   }}
                 >
