@@ -1,12 +1,19 @@
 import { getAtcLabels } from "@/data/atc";
 import { fr } from "@codegouvfr/react-dsfr";
-import { formatSpecName, MedicamentGroup } from "@/displayUtils";
+import {
+  displaySimpleComposants,
+  formatSpecName,
+  MedicamentGroup,
+} from "@/displayUtils";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import Link from "next/link";
 import { parse as csvParse } from "csv-parse/sync";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { SubstanceNom } from "@/db/pdbmMySQL/types";
+import React from "react";
+import { getSpecialite } from "@/db/pdbmMySQL/utils";
 
 const atcData = csvParse(
   readFileSync(
@@ -27,8 +34,9 @@ export default async function MedGroupSpecList({
 }) {
   const [groupName, specialites] = medGroup;
   const atc = getAtc(specialites[0].SpecId);
+  const { composants } = await getSpecialite(specialites[0].SpecId);
   const atcLabels = atc ? await getAtcLabels(atc) : null;
-  const [, subClass, substance] = atcLabels ? atcLabels : [null, null, null];
+  const [, subClass] = atcLabels ? atcLabels : [null, null];
   return (
     <li className={className}>
       <div>
@@ -52,15 +60,19 @@ export default async function MedGroupSpecList({
                 {subClass}
               </Tag>
             )}
-            {substance && (
-              <Tag
-                small
-                nativeButtonProps={{
-                  className: cx("fr-tag--custom-alt-substance"),
-                }}
-              >
-                {substance}
-              </Tag>
+            {displaySimpleComposants(composants).map(
+              (substance: SubstanceNom) => (
+                <Tag
+                  key={substance.NomId}
+                  small
+                  linkProps={{
+                    href: `/substances/${substance.NomId}`,
+                    className: cx("fr-tag--custom-alt-substance"),
+                  }}
+                >
+                  {substance.NomLib}
+                </Tag>
+              ),
             )}
           </ul>
         </div>
