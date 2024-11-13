@@ -3,8 +3,11 @@ import { fr } from "@codegouvfr/react-dsfr";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import Link from "next/link";
 import Card from "@codegouvfr/react-dsfr/Card";
+import { getArticles } from "@/data/articles";
 
 export default async function Page() {
+  const articles = (await getArticles()).filter(({ homepage }) => homepage);
+
   return (
     <>
       <div className={fr.cx("fr-container", "fr-pt-4w", "fr-pb-4w")}>
@@ -30,67 +33,22 @@ export default async function Page() {
             </h2>
           </div>
           <div className={fr.cx("fr-col-md-6")}>
-            <p>
-              <Link
-                href="#"
-                className={fr.cx(
-                  "fr-link",
-                  "fr-link--icon-left",
-                  "fr-icon-arrow-right-line",
-                )}
-              >
-                Je suis enceinte, quelles précautions prendre&nbsp;?
-              </Link>
-            </p>
-            <p>
-              <Link
-                href="#"
-                className={fr.cx(
-                  "fr-link",
-                  "fr-link--icon-left",
-                  "fr-icon-arrow-right-line",
-                )}
-              >
-                Je ne me sens plus malade, est ce que je peux arrêter mon
-                traitement&nbsp;?
-              </Link>
-            </p>
-            <p>
-              <Link
-                href="#"
-                className={fr.cx(
-                  "fr-link",
-                  "fr-link--icon-left",
-                  "fr-icon-arrow-right-line",
-                )}
-              >
-                Dois-je me faire vacciner contre la grippe saisonnière&nbsp;?
-              </Link>
-            </p>
-            <p>
-              <Link
-                href="#"
-                className={fr.cx(
-                  "fr-link",
-                  "fr-link--icon-left",
-                  "fr-icon-arrow-right-line",
-                )}
-              >
-                Que faire si j&apos;ai des effets indésirables&nbsp;?
-              </Link>
-            </p>
-            <p>
-              <Link
-                href="#"
-                className={fr.cx(
-                  "fr-link",
-                  "fr-link--icon-left",
-                  "fr-icon-arrow-right-line",
-                )}
-              >
-                Numéros d&apos;urgence
-              </Link>
-            </p>
+            <ul role="nav" className={fr.cx("fr-raw-list")}>
+              {articles.map(({ title, slug }) => (
+                <li key={slug} className={fr.cx("fr-mb-3w")}>
+                  <Link
+                    href={`/articles/${slug}`}
+                    className={fr.cx(
+                      "fr-link",
+                      "fr-link--icon-left",
+                      "fr-icon-arrow-right-line",
+                    )}
+                  >
+                    {title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
           <div
             className={fr.cx(

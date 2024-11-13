@@ -12,7 +12,7 @@ const gristCache = new Map<string, Promise<any>>();
 export const getGristTableData = <F extends string>(
   tableId: string,
   fields: F[],
-): Promise<{ id: number; fields: Record<F, string | number> }[]> => {
+): Promise<{ id: number; fields: Record<F, string | number | boolean> }[]> => {
   if (!gristCache.has(tableId)) {
     gristCache.set(tableId, uncachedGetGristTableData(tableId, fields));
   }
@@ -24,9 +24,9 @@ export const getGristTableData = <F extends string>(
 async function uncachedGetGristTableData<F extends string>(
   tableId: string,
   fields: F[],
-): Promise<{ id: number; fields: Record<F, string | number> }[]> {
+): Promise<{ id: number; fields: Record<F, string | number | boolean> }[]> {
   const response = await fetch(
-    `https://grist.numerique.gouv.fr/api/docs/${process.env.GRIST_DOC_ID}/tables/${tableId}/records`,
+    `https://grist.numerique.gouv.fr/api/docs/${process.env.GRIST_DOC_ID}/tables/${tableId}/records?sort=manualSort`,
     {
       headers: {
         Authorization: `Bearer ${process.env.GRIST_API_KEY}`,
