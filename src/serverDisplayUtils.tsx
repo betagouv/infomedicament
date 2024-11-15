@@ -13,14 +13,22 @@ interface Definition {
   };
 }
 
+function escapeRegExp(text: string) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function withDefinition(
   text: string,
   definition: Definition,
 ): (React.JSX.Element | string)[] {
-  const [before, after] = text.split(
-    definition.fields.Nom_glossaire.toLowerCase(),
+  const match = text.match(
+    new RegExp(
+      `(?<before>.* )(?<word>${escapeRegExp(definition.fields.Nom_glossaire.toLowerCase())}s?)(?<after> .*)`,
+      "i",
+    ),
   );
-  if (!after) return [text];
+  if (!match || !match.groups) return [text];
+  const { before, word, after } = match.groups;
 
   const definitionModal = createModal({
     isOpenedByDefault: false,
@@ -36,7 +44,7 @@ function withDefinition(
       role="button"
       {...definitionModal.buttonProps}
     >
-      {definition.fields.Nom_glossaire.toLowerCase()}
+      {word}
     </a>,
     ...withDefinition(after, definition),
   ];
