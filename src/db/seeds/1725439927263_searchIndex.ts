@@ -1,7 +1,7 @@
 import type { Kysely } from "kysely";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
-import { getAtc } from "@/data/atc";
+import { getAtc } from "@/data/grist/atc";
 
 export async function seed(db: Kysely<any>): Promise<void> {
   async function addIndex(table: string, id: string, token: string) {

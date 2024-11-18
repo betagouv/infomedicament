@@ -1,5 +1,5 @@
 import "server-only";
-import { getGristTableData } from "@/data/grist";
+import { getGristTableData } from "@/data/grist/index";
 import slugify from "slugify";
 
 export async function getArticles() {

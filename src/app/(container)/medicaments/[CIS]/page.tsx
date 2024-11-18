@@ -26,7 +26,7 @@ import {
   PresentationStat,
   SubstanceNom,
 } from "@/db/pdbmMySQL/types";
-import { atcData, getAtc1, getAtc2 } from "@/data/atc";
+import { atcData, getAtc1, getAtc2 } from "@/data/grist/atc";
 import { getSpecialite } from "@/db/pdbmMySQL/utils";
 
 export const dynamic = "error";

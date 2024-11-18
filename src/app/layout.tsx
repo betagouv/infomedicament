@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Metadata } from "next";
+import { Suspense } from "react";
 import { getHtmlAttributes } from "@codegouvfr/react-dsfr/next-appdir/getHtmlAttributes";
 import { DsfrHead } from "@codegouvfr/react-dsfr/next-appdir/DsfrHead";
 import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
@@ -14,10 +15,10 @@ import "@/customIcons/customIcons.css";
 import "@/components/dsfr-custom-alt.css";
 import MuiDsfrThemeProvider from "@codegouvfr/react-dsfr/mui";
 import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
-import { getAtc } from "@/data/atc";
+import { getAtc } from "@/data/grist/atc";
 import { StartHotjar } from "@/app/StartHotjar";
-import GlossaryModals from "@/components/GlossaryModals";
-import { Suspense } from "react";
+import GlossaryModals from "@/components/glossary/GlossaryModals";
+import GlossaryContextProvider from "@/components/glossary/GlossaryContextProvider";
 
 export const metadata: Metadata = {
   title: "Info Médicament",
@@ -53,75 +54,77 @@ export default async function RootLayout({
         )}
         <DsfrProvider lang={lang}>
           <MuiDsfrThemeProvider>
-            <Header
-              brandTop={
-                <>
-                  MINISTÈRE
-                  <br />
-                  DU TRAVAIL
-                  <br />
-                  DE LA SANTÉ
-                  <br />
-                  ET DES SOLIDARITÉS
-                </>
-              }
-              homeLinkProps={{
-                href: "/",
-                title:
-                  "Accueil - Ministère du travail de la santé et des solidarités",
-              }}
-              operatorLogo={{
-                alt: "Info Médicament",
-                imgUrl: "/logo.svg",
-                orientation: "horizontal",
-              }}
-              serviceTitle="" // hack pour que la tagline soit bien affichée
-              serviceTagline="La référence officielle sur les données des médicaments"
-              quickAccessItems={[headerFooterDisplayItem]}
-              navigation={[
-                {
-                  text: "Glossaire",
-                  linkProps: { href: "/glossaire/A" },
-                },
-                {
-                  text: "Parcourir",
-                  menuLinks: atcs.map((atc) => ({
-                    linkProps: { href: `/atc/${atc.code}` },
-                    text: atc.label,
-                  })),
-                },
-                {
-                  text: "Par ordre alphabétique",
-                  menuLinks: [
-                    {
-                      text: "Tous les médicaments",
-                      linkProps: { href: "/medicaments/A/1" },
-                    },
-                    {
-                      text: "Toutes les substances",
-                      linkProps: { href: "/substances/A" },
-                    },
-                    {
-                      text: "Toutes les pathologies",
-                      linkProps: { href: "/pathologies/A" },
-                    },
-                  ],
-                },
-                {
-                  text: "Articles",
-                  linkProps: { href: "/articles" },
-                },
-              ]}
-            />
-            {children}
-            <Footer
-              accessibility={"non compliant"}
-              bottomItems={[headerFooterDisplayItem]}
-            />
+            <GlossaryContextProvider>
+              <Header
+                brandTop={
+                  <>
+                    MINISTÈRE
+                    <br />
+                    DU TRAVAIL
+                    <br />
+                    DE LA SANTÉ
+                    <br />
+                    ET DES SOLIDARITÉS
+                  </>
+                }
+                homeLinkProps={{
+                  href: "/",
+                  title:
+                    "Accueil - Ministère du travail de la santé et des solidarités",
+                }}
+                operatorLogo={{
+                  alt: "Info Médicament",
+                  imgUrl: "/logo.svg",
+                  orientation: "horizontal",
+                }}
+                serviceTitle="" // hack pour que la tagline soit bien affichée
+                serviceTagline="La référence officielle sur les données des médicaments"
+                quickAccessItems={[headerFooterDisplayItem]}
+                navigation={[
+                  {
+                    text: "Glossaire",
+                    linkProps: { href: "/glossaire/A" },
+                  },
+                  {
+                    text: "Parcourir",
+                    menuLinks: atcs.map((atc) => ({
+                      linkProps: { href: `/atc/${atc.code}` },
+                      text: atc.label,
+                    })),
+                  },
+                  {
+                    text: "Par ordre alphabétique",
+                    menuLinks: [
+                      {
+                        text: "Tous les médicaments",
+                        linkProps: { href: "/medicaments/A/1" },
+                      },
+                      {
+                        text: "Toutes les substances",
+                        linkProps: { href: "/substances/A" },
+                      },
+                      {
+                        text: "Toutes les pathologies",
+                        linkProps: { href: "/pathologies/A" },
+                      },
+                    ],
+                  },
+                  {
+                    text: "Articles",
+                    linkProps: { href: "/articles" },
+                  },
+                ]}
+              />
+              {children}
+              <Footer
+                accessibility={"non compliant"}
+                bottomItems={[headerFooterDisplayItem]}
+              />
+              <Suspense fallback={null}>
+                <GlossaryModals />
+              </Suspense>
+            </GlossaryContextProvider>
           </MuiDsfrThemeProvider>
-          <Suspense fallback={null}>
-            <GlossaryModals />
-          </Suspense>
         </DsfrProvider>
       </body>
     </html>

@@ -1,17 +1,10 @@
 import "server-cli-only";
+
+import getGlossaryDefinitions, { Definition } from "@/data/grist/glossary";
 import { Fragment } from "react";
-import slugify from "slugify";
-
-import { getGristTableData } from "@/data/grist";
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
-
-interface Definition {
-  fields: {
-    Nom_glossaire: string;
-    Definition_glossaire: string;
-    Source: string;
-  };
-}
+import slugify from "slugify";
+import AddDefinition from "@/components/glossary/AddDefinition";
 
 function escapeRegExp(text: string) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -45,17 +38,14 @@ function withDefinition(
       {...definitionModal.buttonProps}
     >
       {word}
+      <AddDefinition definition={definition} />
     </a>,
     ...withDefinition(after, definition),
   ];
 }
 
 export async function withGlossary(text: string): Promise<React.JSX.Element> {
-  const definitions = (await getGristTableData("Glossaire", [
-    "Nom_glossaire",
-    "Definition_glossaire",
-    "Source",
-  ])) as Definition[];
+  const definitions = await getGlossaryDefinitions();
 
   let elements: (React.JSX.Element | string)[] = [text];
 
