@@ -6,7 +6,7 @@ import { sql } from "kysely";
 import { groupSpecialites } from "@/displayUtils";
 import { Patho, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { unstable_cache } from "next/cache";
-import { ATC, ATC1, getAtc1, getAtc2 } from "@/data/atc";
+import { ATC, ATC1, getAtc1, getAtc2 } from "@/data/grist/atc";
 
 export type SearchResultItem =
   | SubstanceNom

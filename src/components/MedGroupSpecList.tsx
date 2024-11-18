@@ -1,4 +1,4 @@
-import { getAtcLabels } from "@/data/atc";
+import { getAtcLabels } from "@/data/grist/atc";
 import { fr } from "@codegouvfr/react-dsfr";
 import {
   displaySimpleComposants,

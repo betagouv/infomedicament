@@ -1,6 +1,6 @@
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { fr } from "@codegouvfr/react-dsfr";
-import { ATC, getAtc1, getAtc2, getSubstancesByAtc } from "@/data/atc";
+import { ATC, getAtc1, getAtc2, getSubstancesByAtc } from "@/data/grist/atc";
 import Card from "@codegouvfr/react-dsfr/Card";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";

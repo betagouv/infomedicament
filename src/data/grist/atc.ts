@@ -1,7 +1,7 @@
 import "server-cli-only";
 
 import atcOfficialLabels from "@/data/ATC 2024 02 15.json";
-import { getGristTableData } from "@/data/grist";
+import { getGristTableData } from "@/data/grist/index";
 import { parse as csvParse } from "csv-parse/sync";
 import { readFileSync } from "node:fs";
 import path from "node:path";

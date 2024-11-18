@@ -1,9 +1,10 @@
 import { HTMLElement, Node, NodeType } from "node-html-parser";
-import { JSX } from "react";
+import { Fragment, JSX } from "react";
 import Image from "next/image";
 import { fr } from "@codegouvfr/react-dsfr";
 import { isEmptyTextNode, isHtmlElement, isListItem } from "./leafletUtils";
 import { getLeafletImage } from "@/db";
+import { withGlossary } from "@/components/glossary/withGlossary";
 
 async function DsfrLeafletElement({ node }: { node: HTMLElement }) {
   if (
@@ -96,6 +97,14 @@ async function DsfrLeafletElement({ node }: { node: HTMLElement }) {
     return <Tag />;
   }
 
+  if (node.rawTagName === "u") {
+    return (
+      <span style={{ fontWeight: 500 }}>
+        <DsfrLeafletSection data={node.childNodes} />
+      </span>
+    );
+  }
+
   return (
     <Tag>
       <DsfrLeafletSection data={node.childNodes} />
@@ -178,48 +187,52 @@ export default async function DsfrLeafletSection({ data }: { data: Node[] }) {
 
   return (
     <>
-      {cleanedData.map((node, index) => {
-        if (!isHtmlElement(node)) {
-          if (node.nodeType === NodeType.TEXT_NODE) {
-            return node.text;
-          }
+      {await Promise.all(
+        cleanedData.map(async (node, index) => {
+          if (!isHtmlElement(node)) {
+            if (node.nodeType === NodeType.TEXT_NODE) {
+              return (
+                <Fragment key={index}>{await withGlossary(node.text)}</Fragment>
+              );
+            }
 
-          return null;
-        }
-
-        // List items are not wrapped in a list element in the original HTML
-        // When meeting a list we find all the following list items
-        // and display them at once to wrap them in a list component
-        // Then we skip the next nodes to avoid displaying the list items again
-        if (isListItem(node)) {
-          const previousNode = index && cleanedData[index - 1];
-          if (
-            previousNode &&
-            isHtmlElement(previousNode) &&
-            isListItem(previousNode)
-          ) {
-            // Item is not the first of the list, skip it
             return null;
           }
 
-          const listLength = cleanedData
-            .slice(index)
-            .findIndex((el) => !isListItem(el));
+          // List items are not wrapped in a list element in the original HTML
+          // When meeting a list we find all the following list items
+          // and display them at once to wrap them in a list component
+          // Then we skip the next nodes to avoid displaying the list items again
+          if (isListItem(node)) {
+            const previousNode = index && cleanedData[index - 1];
+            if (
+              previousNode &&
+              isHtmlElement(previousNode) &&
+              isListItem(previousNode)
+            ) {
+              // Item is not the first of the list, skip it
+              return null;
+            }
 
-          return (
-            <ul className={fr.cx("fr-list")} key={index}>
-              <DsfrListItems
-                data={cleanedData.slice(
-                  index,
-                  listLength !== -1 ? index + listLength : cleanedData.length,
-                )}
-              />
-            </ul>
-          );
-        }
+            const listLength = cleanedData
+              .slice(index)
+              .findIndex((el) => !isListItem(el));
 
-        return <DsfrLeafletElement key={index} node={node} />;
-      })}
+            return (
+              <ul className={fr.cx("fr-list")} key={index}>
+                <DsfrListItems
+                  data={cleanedData.slice(
+                    index,
+                    listLength !== -1 ? index + listLength : cleanedData.length,
+                  )}
+                />
+              </ul>
+            );
+          }
+
+          return <DsfrLeafletElement key={index} node={node} />;
+        }),
+      )}
     </>
   );
 }

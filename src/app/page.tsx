@@ -3,7 +3,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import Link from "next/link";
 import Card from "@codegouvfr/react-dsfr/Card";
-import { getArticles } from "@/data/articles";
+import { getArticles } from "@/data/grist/articles";
 
 export default async function Page() {
   const articles = (await getArticles()).filter(({ homepage }) => homepage);

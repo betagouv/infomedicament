@@ -8,7 +8,7 @@ import { getResults } from "@/db/search";
 import { formatSpecName } from "@/displayUtils";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import MedGroupSpecList from "@/components/MedGroupSpecList";
-import { ATC, ATC1 } from "@/data/atc";
+import { ATC, ATC1 } from "@/data/grist/atc";
 
 const SubstanceResult = ({ item }: { item: SubstanceNom }) => (
   <li className={fr.cx("fr-mb-3w")}>

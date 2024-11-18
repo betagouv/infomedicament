@@ -12,7 +12,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@codegouvfr/react-dsfr": "^1.9.22",
+    "@codegouvfr/react-dsfr": "^1.14.5",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@hotjar/browser": "^1.0.9",
@@ -53,6 +53,7 @@
     "global-jsdom": "^25.0.0",
     "jsdom": "^25.0.1",
     "kysely-ctl": "^0.9.0",
+    "nock": "^14.0.0-beta.15",
     "prettier": "^3.3.2",
     "typescript": "^5",
     "vitest": "^2.0.5"

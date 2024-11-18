@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: "jsdom",
+    globalSetup: ["./src/testsUtils/globalSetup.ts"],
   },
   resolve: {
     alias: {
