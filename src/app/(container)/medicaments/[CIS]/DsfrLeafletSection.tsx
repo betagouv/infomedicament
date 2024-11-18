@@ -97,6 +97,14 @@ async function DsfrLeafletElement({ node }: { node: HTMLElement }) {
     return <Tag />;
   }
 
+  if (node.rawTagName === "u") {
+    return (
+      <span style={{ fontWeight: 500 }}>
+        <DsfrLeafletSection data={node.childNodes} />
+      </span>
+    );
+  }
+
   return (
     <Tag>
       <DsfrLeafletSection data={node.childNodes} />
