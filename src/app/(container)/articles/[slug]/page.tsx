@@ -3,6 +3,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { getArticles } from "@/data/grist/articles";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
+import { Metadata, ResolvingMetadata } from "next";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -14,6 +15,20 @@ async function getArticle(slug: string) {
   if (!article) return notFound();
 
   return article;
+}
+
+export async function generateMetadata(
+  { params: { slug } }: { params: { slug: string } },
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const { title, description, canonicalUrl } = await getArticle(slug);
+  return {
+    title: `${title} - ${(await parent).title?.absolute}`,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+  };
 }
 
 export default async function Page({
