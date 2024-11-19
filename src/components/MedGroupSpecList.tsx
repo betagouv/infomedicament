@@ -1,4 +1,4 @@
-import { getAtcLabels } from "@/data/grist/atc";
+import { getAtc2 } from "@/data/grist/atc";
 import { fr } from "@codegouvfr/react-dsfr";
 import {
   displaySimpleComposants,
@@ -35,8 +35,7 @@ export default async function MedGroupSpecList({
   const [groupName, specialites] = medGroup;
   const atc = getAtc(specialites[0].SpecId);
   const { composants } = await getSpecialite(specialites[0].SpecId);
-  const atcLabels = atc ? await getAtcLabels(atc) : null;
-  const [, subClass] = atcLabels ? atcLabels : [null, null];
+  const subClass = atc ? await getAtc2(atc) : null;
   return (
     <li className={className}>
       <div>
@@ -53,11 +52,12 @@ export default async function MedGroupSpecList({
             {subClass && (
               <Tag
                 small
-                nativeButtonProps={{
+                linkProps={{
+                  href: `/atc/${subClass.code}`,
                   className: cx("fr-tag--custom-alt-class"),
                 }}
               >
-                {subClass}
+                {subClass.label}
               </Tag>
             )}
             {displaySimpleComposants(composants).map(
