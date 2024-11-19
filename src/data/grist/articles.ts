@@ -8,6 +8,8 @@ export async function getArticles() {
     "Source",
     "Contenu",
     "Theme",
+    "Lien",
+    "Metadescription",
     "Homepage",
   ]);
 
@@ -19,6 +21,8 @@ export async function getArticles() {
       content: fields.Contenu as string,
       category: fields.Theme as string,
       homepage: fields.Homepage as boolean,
+      canonicalUrl: fields.Lien as string,
+      description: fields.Metadescription as string,
     };
   });
 }
