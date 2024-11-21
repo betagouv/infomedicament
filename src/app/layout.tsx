@@ -81,6 +81,7 @@ export default async function RootLayout({
                 serviceTagline="La référence officielle sur les données des médicaments"
                 quickAccessItems={[headerFooterDisplayItem]}
                 navigation={[
+                  { text: "Accueil", linkProps: { href: "/" } },
                   {
                     text: "Glossaire",
                     linkProps: { href: "/glossaire/A" },

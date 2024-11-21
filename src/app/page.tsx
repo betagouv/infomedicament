@@ -68,62 +68,27 @@ export default async function Page() {
             />
           </div>
           <div className={fr.cx("fr-col-md-12", "fr-mt-4w")}>
-            <h2 className={fr.cx("fr-h4")}>Dossiers</h2>
-          </div>
-          <div className={fr.cx("fr-col-md-6")}>
-            <Card
-              enlargeLink
-              detail="Publié le 13 avril 2025"
-              title="Pourquoi les antibiotiques ne sont-ils pas automatiques&nbsp;?"
-              titleAs="h3"
-              desc="C'est bien connu, les antibiotiques ça ne guérit pas tout. Pour tout savoir..."
-              linkProps={{ href: "#" }}
-            />
-          </div>
-          <div className={fr.cx("fr-col-md-6")}>
-            <Card
-              enlargeLink
-              detail="Publié le 13 avril 2025"
-              title="Que faire pour soulager la douleur&nbsp;?"
-              titleAs="h3"
-              desc="De nombreuses possibilités existent pour soulager la douleur&nbsp;: les antalgiques ou médicaments qui agissent directement sur la douleur."
-              linkProps={{ href: "#" }}
-            />
-          </div>
-          <div className={fr.cx("fr-col-md-12", "fr-mt-4w")}>
             <h2 className={fr.cx("fr-h4")}>Nos missions</h2>
           </div>
           <div className={fr.cx("fr-col-md-4")}>
             <Card
-              enlargeLink
-              imageUrl={"/placeholder.png"}
-              imageAlt="Placeholder"
               title="Rendre claires les notices"
               titleAs="h3"
               desc="Simplifier la compréhension des notices de médicaments"
-              linkProps={{ href: "#" }}
             />
           </div>
           <div className={fr.cx("fr-col-md-4")}>
             <Card
-              enlargeLink
-              imageUrl={"/placeholder.png"}
-              imageAlt="Placeholder"
               title="Mieux informer"
               titleAs="h3"
               desc="Informer sur les médicaments pour améliorer le suivi des traitements par les patient⋅es"
-              linkProps={{ href: "#" }}
             />
           </div>
           <div className={fr.cx("fr-col-md-4")}>
             <Card
-              enlargeLink
-              imageUrl={"/placeholder.png"}
-              imageAlt="Placeholder"
               title="Partager les données"
               titleAs="h3"
               desc="Faciliter l’accès à aux données sur les médicaments notamment via une API publique"
-              linkProps={{ href: "#" }}
             />
           </div>
         </div>
