@@ -31,7 +31,7 @@ const PathoResult = ({ item }: { item: Patho }) => (
   <li className={fr.cx("fr-mb-3w")}>
     <i className={fr.cx("fr-icon--sm", "fr-mr-1w", "fr-icon-lungs-fill")} />
     <Link
-      href={`/pathologie/${item.codePatho}`}
+      href={`/pathologies/${item.codePatho}`}
       className={fr.cx("fr-text--md", "fr-text--bold", "fr-link")}
     >
       {formatSpecName(item.NomPatho)}
