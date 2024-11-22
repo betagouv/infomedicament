@@ -44,23 +44,25 @@ export default function GreetingModal() {
       <p className={fr.cx("fr-text--bold")}>🔎 Important à savoir&nbsp;:</p>
       <ul>
         <li>
-          Cette version repose sur une base de 500 médicaments uniquement, qui
-          sera enrichie progressivement.
+          Cette version repose sur une base de <b>500 médicaments uniquement</b>
+          , qui sera enrichie progressivement.
         </li>
         <li>
           Les informations présentées, bien que vérifiées, peuvent contenir des
           erreurs. N’hésitez pas à nous signaler tout problème.
         </li>
         <li>
-          Ce site ne se substitue pas à la Base de Données Publique des
-          Médicaments.
+          Ce site ne se substitue pas à la{" "}
+          <a href="https://base-donnees-publique.medicaments.gouv.fr/">
+            Base de Données Publique des Médicaments.
+          </a>
         </li>
         <li>Les données datent de juillet 2024.</li>
       </ul>
       <p>
-        Pour nous aider à l’améliorer, pensez à activer les cookies : cela nous
-        permettra de vous poser des questions ciblées pendant votre navigation
-        et de recueillir votre avis.
+        Pour nous aider à l’améliorer, pensez à <b>activer les cookies</b>
+        &nbsp;: cela nous permettra de vous poser des questions ciblées pendant
+        votre navigation et de recueillir votre avis.
       </p>
       <p>
         Merci pour votre compréhension et votre contribution à ce projet en
