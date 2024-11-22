@@ -334,7 +334,7 @@ export default async function Page({
               <DsfrLeafletSection data={leaflet.generalities} />
             </Accordion>
 
-            <Accordion label={"A quoi sert-il"}>
+            <Accordion label={"A quoi sert-il ?"}>
               <DsfrLeafletSection data={leaflet.usage} />
             </Accordion>
 
