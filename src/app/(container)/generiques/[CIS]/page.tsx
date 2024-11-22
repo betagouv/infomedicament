@@ -3,6 +3,7 @@ import { getSpecialite } from "@/db/pdbmMySQL/utils";
 import { fr } from "@codegouvfr/react-dsfr";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
+import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import React, { Fragment } from "react";
 import Link from "next/link";
 
@@ -120,6 +121,16 @@ export default async function Page({
   return (
     <div className={fr.cx("fr-grid-row")}>
       <div className={fr.cx("fr-col-md-8")}>
+        <Breadcrumb
+          segments={[
+            { label: "Accueil", linkProps: { href: "/" } },
+            {
+              label: "Liste des groupes génériques",
+              linkProps: { href: "/generiques/A" },
+            },
+          ]}
+          currentPageLabel={formatSpecName(groupGeneNameToDCI(group.LibLong))}
+        />
         <Badge className="fr-badge--purple-glycine">Groupe générique</Badge>
         <h1 className={fr.cx("fr-h1", "fr-mt-1w", "fr-mb-6w")}>
           {formatSpecName(groupGeneNameToDCI(group.LibLong))}
