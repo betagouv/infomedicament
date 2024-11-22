@@ -19,6 +19,7 @@ import { getAtc } from "@/data/grist/atc";
 import { StartHotjar } from "@/app/StartHotjar";
 import GlossaryModals from "@/components/glossary/GlossaryModals";
 import GlossaryContextProvider from "@/components/glossary/GlossaryContextProvider";
+import GreetingModal from "@/components/GreetingModal";
 
 export const metadata: Metadata = {
   title: "Info Médicament",
@@ -124,6 +125,7 @@ export default async function RootLayout({
               <Suspense fallback={null}>
                 <GlossaryModals />
               </Suspense>
+              <GreetingModal />
             </GlossaryContextProvider>
           </MuiDsfrThemeProvider>
         </DsfrProvider>
