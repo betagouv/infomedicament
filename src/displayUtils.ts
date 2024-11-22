@@ -15,9 +15,18 @@ export const formatSpecName = (name: string): string =>
     )
     .join(" ");
 
-export function getSpecialiteGroupName(specialite: Specialite): string {
-  const regexMatch = specialite.SpecDenom01.match(/^[^0-9,]+/);
-  return regexMatch ? regexMatch[0] : specialite.SpecDenom01;
+export function getSpecialiteGroupName(
+  specialite: Specialite | string,
+): string {
+  const specName =
+    typeof specialite === "string" ? specialite : specialite.SpecDenom01;
+  const regexMatch = specName.match(/^[^0-9,]+/);
+  return regexMatch ? regexMatch[0] : specName;
+}
+
+export function groupGeneNameToDCI(name: string): string {
+  const regexMatch = name.match(/^[^\-]+/);
+  return regexMatch ? regexMatch[0].trim() : name;
 }
 
 export function groupSpecialites<T extends Specialite>(
