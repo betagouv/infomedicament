@@ -5,6 +5,7 @@ export interface Definition {
     Nom_glossaire: string;
     Definition_glossaire: string;
     Source: string;
+    A_publier: boolean;
   };
 }
 
@@ -13,6 +14,7 @@ export default async function getGlossaryDefinitions(): Promise<Definition[]> {
     "Nom_glossaire",
     "Definition_glossaire",
     "Source",
+    "A_publier",
   ])) as Definition[];
 
   // Deduplicates the definitions

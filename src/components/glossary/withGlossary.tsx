@@ -45,7 +45,9 @@ function withDefinition(
 }
 
 export async function withGlossary(text: string): Promise<React.JSX.Element> {
-  const definitions = await getGlossaryDefinitions();
+  const definitions = (await getGlossaryDefinitions()).filter(
+    (d) => d.fields.A_publier,
+  );
 
   let elements: (React.JSX.Element | string)[] = [text];
 

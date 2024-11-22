@@ -20,6 +20,7 @@ describe("DsfrLeafletSection", () => {
               Nom_glossaire: "Glossary expression",
               Definition_glossaire: "Definition",
               Source: "",
+              A_publier: true,
             },
           },
         ],
