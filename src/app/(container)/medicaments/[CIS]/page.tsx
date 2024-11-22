@@ -1,4 +1,5 @@
 import React, { cache } from "react";
+import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
@@ -24,6 +25,7 @@ import { getAtc1, getAtc2, getAtcCode } from "@/data/grist/atc";
 import { getSpecialite } from "@/db/pdbmMySQL/utils";
 import { PresentationsList } from "@/components/PresentationsList";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
+import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -184,6 +186,8 @@ export default async function Page({
 }: {
   params: { CIS: string };
 }) {
+  if (!liste_CIS_MVP.includes(CIS)) notFound();
+
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);
   const leaflet = await getLeaflet(CIS);

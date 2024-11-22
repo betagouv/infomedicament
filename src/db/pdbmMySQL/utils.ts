@@ -1,5 +1,4 @@
 import { cache } from "react";
-import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { notFound } from "next/navigation";
 import {
   Presentation,
@@ -16,8 +15,6 @@ import { pdbmMySQL } from "@/db/pdbmMySQL/index";
 import { Nullable, sql } from "kysely";
 
 export const getSpecialite = cache(async (CIS: string) => {
-  if (!liste_CIS_MVP.includes(CIS)) notFound();
-
   const specialite: Specialite | undefined = await pdbmMySQL
     .selectFrom("Specialite")
     .where("SpecId", "=", CIS)
