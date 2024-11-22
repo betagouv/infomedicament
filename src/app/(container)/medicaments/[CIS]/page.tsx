@@ -194,11 +194,17 @@ export default async function Page({
   const atcCode = getAtcCode(CIS);
   const atc1 = await getAtc1(atcCode);
   const atc2 = await getAtc2(atcCode);
-  const isPrinceps = !!(await pdbmMySQL
-    .selectFrom("Specialite")
-    .select("Specialite.SpecId")
-    .where("Specialite.SpecGeneId", "=", CIS)
-    .executeTakeFirst());
+  const isPrinceps =
+    !!(await pdbmMySQL
+      .selectFrom("Specialite")
+      .select("Specialite.SpecId")
+      .where("Specialite.SpecGeneId", "=", CIS)
+      .executeTakeFirst()) &&
+    !!(await pdbmMySQL
+      .selectFrom("GroupeGene")
+      .select("GroupeGene.SpecId")
+      .where("GroupeGene.SpecId", "=", CIS)
+      .executeTakeFirst());
 
   return (
     <>
