@@ -23,6 +23,7 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getAtc1, getAtc2, getAtcCode } from "@/data/grist/atc";
 import { getSpecialite } from "@/db/pdbmMySQL/utils";
 import { PresentationsList } from "@/components/PresentationsList";
+import { pdbmMySQL } from "@/db/pdbmMySQL";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -189,6 +190,11 @@ export default async function Page({
   const atcCode = getAtcCode(CIS);
   const atc1 = await getAtc1(atcCode);
   const atc2 = await getAtc2(atcCode);
+  const isPrinceps = !!(await pdbmMySQL
+    .selectFrom("Specialite")
+    .select("Specialite.SpecId")
+    .where("Specialite.SpecGeneId", "=", CIS)
+    .executeTakeFirst());
 
   return (
     <>
@@ -247,6 +253,18 @@ export default async function Page({
                 .map((s) => s.NomLib.trim())
                 .join(", ")}
             </Tag>
+            {isPrinceps && (
+              <Tag
+                small
+                iconId="fr-icon-capsule-fill"
+                linkProps={{
+                  className: fr.cx("fr-tag--blue-ecume"),
+                  href: `/generiques/${CIS}`,
+                }}
+              >
+                Princeps
+              </Tag>
+            )}
             {specialite.SpecGeneId ? (
               <Tag
                 small
