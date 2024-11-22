@@ -14,16 +14,15 @@ import HTMLParser, { HTMLElement } from "node-html-parser";
 import DsfrLeafletSection from "./DsfrLeafletSection";
 import { isHtmlElement } from "./leafletUtils";
 import {
-  dateShortFormat,
   displayCompleteComposants,
   displaySimpleComposants,
   formatSpecName,
   getSpecialiteGroupName,
 } from "@/displayUtils";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import { PresentationComm, PresentationStat } from "@/db/pdbmMySQL/types";
-import { atcData, getAtc1, getAtc2 } from "@/data/grist/atc";
+import { getAtc1, getAtc2, getAtcCode } from "@/data/grist/atc";
 import { getSpecialite } from "@/db/pdbmMySQL/utils";
+import { PresentationsList } from "@/components/PresentationsList";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -38,16 +37,6 @@ export async function generateMetadata(
   return {
     title: `${name} - ${(await parent).title?.absolute}`,
   };
-}
-
-function getAtcCode(CIS: string) {
-  const atc = atcData.find((row) => row[0] === CIS);
-
-  if (!atc) {
-    throw new Error(`Could not find ATC code for CIS ${CIS}`);
-  }
-
-  return atc[1];
 }
 
 /**
@@ -262,8 +251,9 @@ export default async function Page({
               <Tag
                 small
                 iconId="fr-icon-capsule-fill"
-                nativeButtonProps={{
+                linkProps={{
                   className: fr.cx("fr-tag--blue-ecume"),
+                  href: `/generiques/${specialite.SpecGeneId}`,
                 }}
               >
                 Générique
@@ -290,35 +280,7 @@ export default async function Page({
           />
           <b>Substance active</b> {displayCompleteComposants(composants)}
         </div>
-        <ul className={fr.cx("fr-raw-list")}>
-          {presentations.map((p) => (
-            <li key={p.Cip13} className={fr.cx("fr-mb-1w")}>
-              <span
-                className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
-              />
-              <b>{p.PresNom01}</b> -{" "}
-              {p.Prix && p.Taux ? (
-                <>
-                  Prix {p.Prix} € - remboursé à {p.Taux}
-                </>
-              ) : (
-                <>Prix libre - non remboursable</>
-              )}
-              {Number(p.CommId) !== PresentationComm.Commercialisation && (
-                <Badge severity="warning" className={fr.cx("fr-ml-1v")}>
-                  {PresentationComm[p.CommId]}
-                  {p.PresCommDate && ` (${dateShortFormat(p.PresCommDate)})`}
-                </Badge>
-              )}
-              {p.StatId && Number(p.StatId) === PresentationStat.Abrogation && (
-                <Badge severity="error" className={fr.cx("fr-ml-1v")}>
-                  {PresentationStat[p.StatId]}
-                  {p.PresStatDate && ` (${dateShortFormat(p.PresStatDate)})`}
-                </Badge>
-              )}
-            </li>
-          ))}
-        </ul>
+        <PresentationsList presentations={presentations} />
       </section>
       {leaflet ? (
         <div className={fr.cx("fr-grid-row")}>

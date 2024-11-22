@@ -157,3 +157,13 @@ export const getSubstancesByAtc = async function (
     .orderBy("Subs_Nom.NomLib")
     .execute();
 };
+
+export function getAtcCode(CIS: string) {
+  const atc = atcData.find((row) => row[0] === CIS);
+
+  if (!atc) {
+    throw new Error(`Could not find ATC code for CIS ${CIS}`);
+  }
+
+  return atc[1];
+}
