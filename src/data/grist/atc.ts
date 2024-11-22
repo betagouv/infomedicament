@@ -101,6 +101,7 @@ export const getAtc2 = async function (code: string): Promise<ATC> {
   const libeleId = record.fields.Libelles_niveau_2;
   const libeleData = await getGristTableData("Intitules_possibles", [
     "Libelles_niveau_2",
+    "Definition_sous_classe",
   ]);
   const libeleRecord = libeleData.find((record) => record.id === libeleId);
 
@@ -111,7 +112,7 @@ export const getAtc2 = async function (code: string): Promise<ATC> {
   return {
     code: record.fields.Lettre_2_ATC2 as string,
     label: libeleRecord.fields.Libelles_niveau_2 as string,
-    description: "",
+    description: libeleRecord.fields.Definition_sous_classe as string,
     children: Object.keys(atcOfficialLabels)
       .filter((key) => key.startsWith(code))
       .map((key) => ({
