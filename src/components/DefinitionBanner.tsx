@@ -20,7 +20,7 @@ export default async function DefinitionBanner({
         {typeof definition === "string" ? (
           <div className={fr.cx("fr-grid-row")}>
             <div className={fr.cx("fr-col")}>
-              <Card title="Définition" titleAs={"h6"} desc={definition} />)
+              <Card title="Définition" titleAs={"h6"} desc={definition} />
             </div>
           </div>
         ) : (
