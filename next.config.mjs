@@ -27,6 +27,10 @@ const nextConfig = {
         source: "/substances/:letter([A-Za-z])",
         destination: "/alpha_lists/substances/:letter",
       },
+      {
+        source: "/generiques/:letter([A-Za-z])",
+        destination: "/alpha_lists/generiques/:letter",
+      },
     ];
   },
   experimental: {

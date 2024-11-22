@@ -108,6 +108,10 @@ export default async function RootLayout({
                         text: "Toutes les pathologies",
                         linkProps: { href: "/pathologies/A" },
                       },
+                      {
+                        text: "Tous les groupes génériques",
+                        linkProps: { href: "/generiques/A" },
+                      },
                     ],
                   },
                   {

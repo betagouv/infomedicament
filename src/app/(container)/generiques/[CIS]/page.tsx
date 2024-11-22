@@ -4,7 +4,6 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import React, { Fragment } from "react";
-import Accordion from "@codegouvfr/react-dsfr/Accordion";
 import Link from "next/link";
 
 import { pdbmMySQL } from "@/db/pdbmMySQL";
@@ -26,6 +25,7 @@ import {
   PresInfoTarif,
 } from "@/db/pdbmMySQL/types";
 import { Nullable, sql } from "kysely";
+import GenericAccordion from "@/components/GenericAccordion";
 
 async function getGroupeGene(CIS: string) {
   return pdbmMySQL
@@ -165,27 +165,7 @@ export default async function Page({
             getSpecialiteGroupName(groupGeneNameToDCI(group.LibLong)),
           )}
         </div>
-        <Accordion
-          label={"Princeps et générique, qu’est-ce que c’est ?"}
-          titleAs={"h2"}
-        >
-          <p>
-            Un médicament <b>générique</b> est fabriqué à partir de la même
-            molécule qu&apos;un médicament déjà autorisé, dit médicament de
-            référence ou <b>princeps</b>. Le générique contient strictement la
-            même quantité de la même substance active que son princeps et est
-            équivalent sur le plan médical.
-          </p>
-          <p>
-            Le médicament de référence et les médicaments qui en sont génériques
-            constituent un <b>groupe générique</b>.
-          </p>
-          <p>
-            Sauf sur recommandation spécifique d&apos;un médecin, un médicament
-            générique peut être substitué par votre pharmacien·ne à un
-            médicament de référence.
-          </p>
-        </Accordion>
+        <GenericAccordion />
         <h2 className={fr.cx("fr-h6", "fr-mt-2w", "fr-mb-1w")}>
           Médicament princeps
         </h2>
