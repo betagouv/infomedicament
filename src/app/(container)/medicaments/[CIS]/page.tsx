@@ -21,11 +21,7 @@ import {
   getSpecialiteGroupName,
 } from "@/displayUtils";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import {
-  PresentationComm,
-  PresentationStat,
-  SubstanceNom,
-} from "@/db/pdbmMySQL/types";
+import { PresentationComm, PresentationStat } from "@/db/pdbmMySQL/types";
 import { atcData, getAtc1, getAtc2 } from "@/data/grist/atc";
 import { getSpecialite } from "@/db/pdbmMySQL/utils";
 
@@ -213,6 +209,16 @@ export default async function Page({
           { label: atc1.label, linkProps: { href: `/atc/${atc1.code}` } },
           { label: atc2.label, linkProps: { href: `/atc/${atc2.code}` } },
           {
+            label: displaySimpleComposants(composants)
+              .map((s) => s.NomLib.trim())
+              .join(", "),
+            linkProps: {
+              href: `/substances/${displaySimpleComposants(composants)
+                .map((s) => s.NomId.trim())
+                .join(",")}`,
+            },
+          },
+          {
             label: formatSpecName(getSpecialiteGroupName(specialite)),
             linkProps: {
               href: `/rechercher?s=${formatSpecName(getSpecialiteGroupName(specialite))}`,
@@ -239,20 +245,19 @@ export default async function Page({
             >
               {atc2.label}
             </Tag>
-            {displaySimpleComposants(composants).map(
-              (substance: SubstanceNom) => (
-                <Tag
-                  key={substance.NomId}
-                  small
-                  linkProps={{
-                    href: `/substances/${substance.NomId}`,
-                    className: cx("fr-tag--custom-alt-substance"),
-                  }}
-                >
-                  {substance.NomLib}
-                </Tag>
-              ),
-            )}
+            <Tag
+              small
+              linkProps={{
+                href: `/substances/${displaySimpleComposants(composants)
+                  .map((s) => s.NomId.trim())
+                  .join(",")}`,
+                className: cx("fr-tag--custom-alt-substance"),
+              }}
+            >
+              {displaySimpleComposants(composants)
+                .map((s) => s.NomLib.trim())
+                .join(", ")}
+            </Tag>
             {specialite.SpecGeneId ? (
               <Tag
                 small

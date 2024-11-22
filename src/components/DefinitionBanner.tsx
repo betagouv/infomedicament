@@ -9,18 +9,29 @@ export default async function DefinitionBanner({
 }: {
   type: string;
   title: string;
-  definition: string;
+  definition: string | { title: string; desc: string }[];
 }) {
   return (
     <div className={fr.cx("fr-grid-row")}>
       <div className={fr.cx("fr-col-md-8")}>
         <Badge className={fr.cx("fr-badge--purple-glycine")}>{type}</Badge>
         <h1 className={fr.cx("fr-h1", "fr-mt-1w", "fr-mb-6w")}>{title}</h1>
-        <div className={fr.cx("fr-grid-row")}>
-          <div className={fr.cx("fr-col")}>
-            <Card title="Définition" titleAs={"h6"} desc={definition} />
+
+        {typeof definition === "string" ? (
+          <div className={fr.cx("fr-grid-row")}>
+            <div className={fr.cx("fr-col")}>
+              <Card title="Définition" titleAs={"h6"} desc={definition} />)
+            </div>
           </div>
-        </div>
+        ) : (
+          definition.map(({ title, desc }) => (
+            <div key={title} className={fr.cx("fr-grid-row", "fr-mb-1w")}>
+              <div className={fr.cx("fr-col")}>
+                <Card title={title} titleAs={"h6"} desc={desc} />
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

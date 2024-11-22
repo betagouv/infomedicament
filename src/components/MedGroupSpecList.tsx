@@ -11,7 +11,6 @@ import Link from "next/link";
 import { parse as csvParse } from "csv-parse/sync";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import React from "react";
 import { getSpecialite } from "@/db/pdbmMySQL/utils";
 
@@ -60,20 +59,19 @@ export default async function MedGroupSpecList({
                 {subClass.label}
               </Tag>
             )}
-            {displaySimpleComposants(composants).map(
-              (substance: SubstanceNom) => (
-                <Tag
-                  key={substance.NomId}
-                  small
-                  linkProps={{
-                    href: `/substances/${substance.NomId}`,
-                    className: cx("fr-tag--custom-alt-substance"),
-                  }}
-                >
-                  {substance.NomLib}
-                </Tag>
-              ),
-            )}
+            <Tag
+              small
+              linkProps={{
+                href: `/substances/${displaySimpleComposants(composants)
+                  .map((s) => s.NomId.trim())
+                  .join(",")}`,
+                className: cx("fr-tag--custom-alt-substance"),
+              }}
+            >
+              {displaySimpleComposants(composants)
+                .map((s) => s.NomLib.trim())
+                .join(", ")}
+            </Tag>
           </ul>
         </div>
       </div>

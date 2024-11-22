@@ -1,46 +1,91 @@
+import React from "react";
 import { fr } from "@codegouvfr/react-dsfr";
-import Badge from "@codegouvfr/react-dsfr/Badge";
-import Link from "next/link";
 
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { formatSpecName, groupSpecialites } from "@/displayUtils";
+import { groupSpecialites } from "@/displayUtils";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
-import { Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { PdbmMySQL, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { notFound } from "next/navigation";
+import { MedGroupSpecListList } from "@/components/MedGroupSpecList";
+import { Expression, expressionBuilder, SqlBool } from "kysely";
+import { getGristTableData } from "@/data/grist";
+import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import DefinitionBanner from "@/components/DefinitionBanner";
 
 export const dynamic = "error";
 export const dynamicParams = true;
 
-async function getSubstance(id: string) {
-  const substance: SubstanceNom | undefined = await pdbmMySQL
-    .selectFrom("Subs_Nom")
-    .where("NomId", "=", id)
-    .selectAll()
-    .executeTakeFirst();
+function withSubstances(
+  specId: Expression<string>,
+  nomIds: string[],
+): Expression<SqlBool> {
+  const eb = expressionBuilder<PdbmMySQL, never>();
 
-  if (!substance) return notFound();
+  return eb.exists(
+    eb
+      .selectFrom("Composant")
+      .select("Composant.SpecId")
+      .where("Composant.NomId", "in", nomIds)
+      .where("Composant.SpecId", "=", specId)
+      .where(({ eb, selectFrom }) =>
+        eb(
+          "Composant.SpecId",
+          "not in",
+          selectFrom("Composant as subquery")
+            .select("SpecId")
+            .where("subquery.NomId", "not in", nomIds)
+            .whereRef(
+              "subquery.CompNum",
+              "not in",
+              selectFrom("Composant as subquery2")
+                .select("CompNum")
+                .where("subquery2.SpecId", "=", specId)
+                .where("subquery2.NomId", "in", nomIds),
+            ),
+        ),
+      )
+      .groupBy("Composant.SpecId")
+      .having((eb) =>
+        eb(
+          eb.fn.count("Composant.CompNum").distinct(),
+          "=",
+          eb.val(nomIds.length),
+        ),
+      ),
+  );
+}
+
+async function getSubstance(ids: string[]) {
+  const substances: SubstanceNom[] | undefined = await pdbmMySQL
+    .selectFrom("Subs_Nom")
+    .where("NomId", "in", ids)
+    .selectAll()
+    .execute();
+
+  if (!substances || substances.length < ids.length) return notFound();
 
   const specialites: Specialite[] = await pdbmMySQL
     .selectFrom("Specialite")
-    .innerJoin("Composant", "Specialite.SpecId", "Composant.SpecId")
-    .where("Composant.NomId", "=", id)
-    .where(({ eb, selectFrom }) =>
-      eb(
-        "Specialite.SpecId",
-        "not in",
-        selectFrom("Composant as subquery")
-          .select("SpecId")
-          .where("subquery.NomId", "!=", id)
-          .whereRef("subquery.CompNum", "!=", "Composant.CompNum"),
-      ),
-    )
-    .where("Specialite.SpecId", "in", liste_CIS_MVP)
     .selectAll("Specialite")
+    .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
+    .where("Specialite.SpecId", "in", liste_CIS_MVP)
+    .groupBy("Specialite.SpecId")
     .execute();
 
+  const definitions = (
+    await getGristTableData("Definitions_Substances_Actives", [
+      "NomId",
+      "SA",
+      "Definition",
+    ])
+  ).filter((d) => ids.includes(d.fields.NomId as string)) as {
+    fields: { NomId: string; SA: string; Definition: string };
+  }[];
+
   return {
-    substance,
+    substances,
     specialites,
+    definitions,
   };
 }
 
@@ -49,40 +94,42 @@ export default async function Page({
 }: {
   params: { id: string };
 }) {
-  const { substance, specialites } = await getSubstance(id);
+  const ids = decodeURIComponent(id).split(",");
+  const { substances, specialites, definitions } = await getSubstance(ids);
+  const specialitiesGroups = groupSpecialites(specialites);
 
   return (
-    <>
-      <Badge className={fr.cx("fr-badge--purple-glycine", "fr-mb-2w")}>
-        Page substance active
-      </Badge>
-      <h1 className={fr.cx("fr-h2", "fr-mb-8w")}>{substance.NomLib}</h1>
-      <section className={fr.cx("fr-card", "fr-p-3w")}>
-        <Badge className={fr.cx("fr-badge--green-emeraude", "fr-mb-2w")}>
-          Médicament
-        </Badge>
-        <h2 className={fr.cx("fr-h3")}>
-          Médicaments contenant uniquement « {substance.NomLib} »
+    <div className={fr.cx("fr-grid-row")}>
+      <div className={fr.cx("fr-col-md-8")}>
+        <Breadcrumb
+          segments={[
+            { label: "Accueil", linkProps: { href: "/" } },
+            {
+              label: "Listes des substances",
+              linkProps: {
+                href: `/substances/${substances[0].NomLib.slice(0, 1)}`,
+              },
+            },
+          ]}
+          currentPageLabel={substances.map((s) => s.NomLib).join(", ")}
+        />
+        <DefinitionBanner
+          type={`Substance${ids.length > 1 ? "s" : null} active${ids.length > 1 ? "s" : null}`}
+          title={substances.map((s) => s.NomLib).join(", ")}
+          definition={definitions.map((d) => ({
+            title: d.fields.SA,
+            desc: d.fields.Definition,
+          }))}
+        />
+
+        <h2 className={fr.cx("fr-h3", "fr-mt-4w")}>
+          {specialitiesGroups.length} médicaments contenant{" "}
+          {substances.length < 2
+            ? `uniquement la substance « ${substances[0].NomLib} »`
+            : `les substances « ${substances.map((s) => s.NomLib).join(", ")} »`}
         </h2>
-        <ul>
-          {groupSpecialites(specialites).map(
-            ([groupName, specialites]: [string, Specialite[]]) => (
-              <li key={groupName} className={"fr-mb-2w"}>
-                <b>{formatSpecName(groupName)}</b>
-                <ul>
-                  {specialites?.map((specialite) => (
-                    <li key={specialite.SpecId}>
-                      <Link href={`/medicaments/${specialite.SpecId}`}>
-                        {formatSpecName(specialite.SpecDenom01)}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ),
-          )}
-        </ul>
-      </section>
-    </>
+        <MedGroupSpecListList items={specialitiesGroups} />
+      </div>
+    </div>
   );
 }
