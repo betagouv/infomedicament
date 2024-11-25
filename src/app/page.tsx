@@ -27,12 +27,10 @@ export default async function Page() {
               </p>
             </form>
           </div>
-          <div className={fr.cx("fr-col-md-12", "fr-mt-4w")}>
+          <div className={fr.cx("fr-col-sm-9", "fr-col-md-6", "fr-mt-4w")}>
             <h2 className={fr.cx("fr-h4")}>
               Vos questions sur les médicaments
             </h2>
-          </div>
-          <div className={fr.cx("fr-col-md-6")}>
             <ul role="nav" className={fr.cx("fr-raw-list")}>
               {articles.map(({ title, slug }) => (
                 <li key={slug} className={fr.cx("fr-mb-3w")}>
@@ -52,39 +50,40 @@ export default async function Page() {
           </div>
           <div
             className={fr.cx(
-              "fr-col-md-6",
+              "fr-col-sm-3",
               "fr-hidden",
               "fr-unhidden-xl",
               "fr-unhidden-lg",
               "fr-unhidden-md",
+              "fr-unhidden-sm",
             )}
           >
             <Image
-              src="/placeholder.png"
-              alt="Placeholder"
+              src="/homepage_illu.svg"
+              alt="Un dessin d'unee personne regardant une boîte de médicaments."
               className={fr.cx("fr-responsive-img")}
-              width={3000}
-              height={1695}
+              width={2000}
+              height={2000}
             />
           </div>
-          <div className={fr.cx("fr-col-md-12", "fr-mt-4w")}>
+          <div className={fr.cx("fr-col-12", "fr-mt-4w")}>
             <h2 className={fr.cx("fr-h4")}>Nos missions</h2>
           </div>
-          <div className={fr.cx("fr-col-md-4")}>
+          <div className={fr.cx("fr-col-12", "fr-col-md-4")}>
             <Card
               title="Rendre claires les notices"
               titleAs="h3"
               desc="Simplifier la compréhension des notices de médicaments"
             />
           </div>
-          <div className={fr.cx("fr-col-md-4")}>
+          <div className={fr.cx("fr-col-12", "fr-col-md-4")}>
             <Card
               title="Mieux informer"
               titleAs="h3"
               desc="Informer sur les médicaments pour améliorer le suivi des traitements par les patient⋅es"
             />
           </div>
-          <div className={fr.cx("fr-col-md-4")}>
+          <div className={fr.cx("fr-col-12", "fr-col-md-4")}>
             <Card
               title="Partager les données"
               titleAs="h3"
