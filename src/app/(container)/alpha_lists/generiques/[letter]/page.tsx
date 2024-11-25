@@ -56,7 +56,7 @@ export default async function Page({
           <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>
             Liste des groupes génériques
           </h1>
-          <GenericAccordion />
+          <GenericAccordion className={fr.cx("fr-mb-4w")} />
           <AlphabeticNav
             letters={letters}
             url={(letter) => `/generiques/${letter}`}

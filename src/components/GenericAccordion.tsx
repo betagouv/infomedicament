@@ -1,11 +1,16 @@
 import Accordion from "@codegouvfr/react-dsfr/Accordion";
 import React from "react";
 
-export default function GenericAccordion() {
+export default function GenericAccordion({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <Accordion
       label={"Princeps et générique, qu’est-ce que c’est ?"}
       titleAs={"h2"}
+      className={className}
     >
       <p>
         Un médicament <b>générique</b> est fabriqué à partir de la même molécule
