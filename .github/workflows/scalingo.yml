@@ -18,6 +18,8 @@ jobs:
           ssh-private-key: ${{ secrets.SCALINGO_SSH_PRIVATE_KEY }}
       - name: Update known hosts
         run: ssh-keyscan -H ssh.osc-fr1.scalingo.com >> ~/.ssh/known_hosts
+      - name: Update known hosts
+        run: ssh-keyscan -H ssh.osc-secnum-fr1.scalingo.com >> ~/.ssh/known_hosts
       - name: Push to Scalingo
         run: |
           git push ${{ github.ref == 'refs/heads/production' && secrets.SCALINGO_PRODUCTION_REMOTE || secrets.SCALINGO_STAGING_REMOTE }} \
