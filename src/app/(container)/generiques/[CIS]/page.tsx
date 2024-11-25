@@ -109,9 +109,7 @@ export default async function Page({
   const group = await getGroupeGene(CIS);
   if (!group) notFound();
 
-  const { specialite, composants, presentations } = await getSpecialite(
-    group.SpecId,
-  );
+  const { specialite, composants } = await getSpecialite(group.SpecId);
   const atcCode = getAtcCode(CIS);
   const atc2 = await getAtc2(atcCode);
 
@@ -192,8 +190,8 @@ export default async function Page({
           )}
         </p>
         <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
-          {generiques.length} médicament{generiques.length > 1 && "s"}{" "}
-          génériques
+          {generiques.length} médicament{generiques.length > 1 && "s"} générique
+          {generiques.length > 1 && "s"}
         </h2>
         {generiques.map(({ specialite }) => (
           <Fragment key={specialite.SpecId}>
