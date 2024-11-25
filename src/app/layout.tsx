@@ -60,13 +60,9 @@ export default async function RootLayout({
               <Header
                 brandTop={
                   <>
-                    MINISTÈRE
+                    RÉPUBLIQUE
                     <br />
-                    DU TRAVAIL
-                    <br />
-                    DE LA SANTÉ
-                    <br />
-                    ET DES SOLIDARITÉS
+                    FRANÇAISE
                   </>
                 }
                 homeLinkProps={{
