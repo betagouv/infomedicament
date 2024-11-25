@@ -181,29 +181,36 @@ export default async function Page({
           Médicament princeps
         </h2>
         <p className={fr.cx("fr-mb-1v")}>
-          <Link
-            className={fr.cx("fr-link")}
-            href={`/medicaments/${specialite.SpecId}`}
-          >
-            {formatSpecName(specialite.SpecDenom01)}
-          </Link>
+          {liste_CIS_MVP.includes(specialite.SpecId.trim()) ? (
+            <Link
+              className={fr.cx("fr-link")}
+              href={`/medicaments/${specialite.SpecId}`}
+            >
+              {formatSpecName(specialite.SpecDenom01)}
+            </Link>
+          ) : (
+            <b>{formatSpecName(specialite.SpecDenom01)}</b>
+          )}
         </p>
         <PresentationsList presentations={presentations} />
         <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
           {generiques.length} médicament{generiques.length > 1 && "s"}{" "}
           génériques
         </h2>
-        {generiques.map(({ specialite, presentations }) => (
+        {generiques.map(({ specialite }) => (
           <Fragment key={specialite.SpecId}>
             <p className={fr.cx("fr-mb-1v")}>
-              <Link
-                className={fr.cx("fr-link")}
-                href={`/medicaments/${specialite.SpecId}`}
-              >
-                {formatSpecName(specialite.SpecDenom01)}
-              </Link>
+              {liste_CIS_MVP.includes(specialite.SpecId.trim()) ? (
+                <Link
+                  className={fr.cx("fr-link")}
+                  href={`/medicaments/${specialite.SpecId}`}
+                >
+                  {formatSpecName(specialite.SpecDenom01)}
+                </Link>
+              ) : (
+                <b>{formatSpecName(specialite.SpecDenom01)}</b>
+              )}
             </p>
-            <PresentationsList presentations={presentations} />
           </Fragment>
         ))}
       </div>
