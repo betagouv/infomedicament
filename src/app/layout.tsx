@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Metadata } from "next";
 import { Suspense } from "react";
 import { getHtmlAttributes } from "@codegouvfr/react-dsfr/next-appdir/getHtmlAttributes";
@@ -70,12 +71,15 @@ export default async function RootLayout({
                   title:
                     "Accueil - Ministère du travail de la santé et des solidarités",
                 }}
-                operatorLogo={{
-                  alt: "Info Médicament",
-                  imgUrl: "/logo.svg",
-                  orientation: "horizontal",
-                }}
-                serviceTitle="" // hack pour que la tagline soit bien affichée
+                serviceTitle={
+                  <Image
+                    src="/logo.svg"
+                    alt="Info Médicament"
+                    width={432}
+                    height={50}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  />
+                }
                 serviceTagline="La référence officielle sur les données des médicaments"
                 quickAccessItems={[headerFooterDisplayItem]}
                 navigation={[
