@@ -18,7 +18,6 @@ import {
 import { getAtc2, getAtcCode } from "@/data/grist/atc";
 import { notFound } from "next/navigation";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
-import { PresentationsList } from "@/components/PresentationsList";
 import {
   Presentation,
   PresentationComm,
@@ -192,7 +191,6 @@ export default async function Page({
             <b>{formatSpecName(specialite.SpecDenom01)}</b>
           )}
         </p>
-        <PresentationsList presentations={presentations} />
         <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
           {generiques.length} médicament{generiques.length > 1 && "s"}{" "}
           génériques
