@@ -114,7 +114,7 @@ export default async function Page({
           currentPageLabel={substances.map((s) => s.NomLib).join(", ")}
         />
         <DefinitionBanner
-          type={`Substance${ids.length > 1 ? "s" : null} active${ids.length > 1 ? "s" : null}`}
+          type={`Substance${ids.length > 1 ? "s" : ""} active${ids.length > 1 ? "s" : ""}`}
           title={substances.map((s) => s.NomLib).join(", ")}
           definition={definitions.map((d) => ({
             title: d.fields.SA,

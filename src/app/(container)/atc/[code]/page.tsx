@@ -78,7 +78,7 @@ export default async function Page({
         currentPageLabel={currentAtc.label}
       />
       <DefinitionBanner
-        type="Classe de médicament"
+        type={atc2 ? "Sous-classe" : "Classe"}
         title={currentAtc.label}
         definition={currentAtc.description}
       />
