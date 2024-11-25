@@ -75,8 +75,8 @@ export default async function RootLayout({
                   <Image
                     src="/logo.svg"
                     alt="Info Médicament"
-                    width={432}
-                    height={50}
+                    width={285}
+                    height={33}
                     style={{ maxWidth: "100%", height: "auto" }}
                   />
                 }
