@@ -30,7 +30,7 @@ export default async function Page() {
           <div
             className={fr.cx(
               "fr-col-12",
-              "fr-col-sm-9",
+              "fr-col-sm-8",
               "fr-col-md-6",
               "fr-mt-4w",
             )}
@@ -71,7 +71,8 @@ export default async function Page() {
           </div>
           <div
             className={fr.cx(
-              "fr-col-sm-3",
+              "fr-col-md-5",
+              "fr-col-sm-4",
               "fr-hidden",
               "fr-unhidden-xl",
               "fr-unhidden-lg",
