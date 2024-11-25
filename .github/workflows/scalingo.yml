@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - staging
+      - production
 jobs:
   scalingo:
     runs-on: ubuntu-latest
@@ -19,4 +20,5 @@ jobs:
         run: ssh-keyscan -H ssh.osc-fr1.scalingo.com >> ~/.ssh/known_hosts
       - name: Push to Scalingo
         run: |
-          git push ${{ secrets.SCALINGO_STAGING_REMOTE }} staging:master
+          git push ${{ github.ref == 'refs/heads/production' && secrets.SCALINGO_PRODUCTION_REMOTE || secrets.SCALINGO_STAGING_REMOTE }} \
+          ${{ github.ref == 'refs/heads/production' && 'production' || 'staging' }}:master
