@@ -20,6 +20,7 @@ import { StartHotjar } from "@/app/StartHotjar";
 import GlossaryModals from "@/components/glossary/GlossaryModals";
 import GlossaryContextProvider from "@/components/glossary/GlossaryContextProvider";
 import GreetingModal from "@/components/GreetingModal";
+import Matomo from "@/components/Matomo";
 
 export const metadata: Metadata = {
   title: "Info Médicament",
@@ -128,6 +129,9 @@ export default async function RootLayout({
               />
               <Suspense fallback={null}>
                 <GlossaryModals />
+              </Suspense>
+              <Suspense fallback={null}>
+                <Matomo />
               </Suspense>
               <GreetingModal />
             </GlossaryContextProvider>
