@@ -197,7 +197,7 @@ export default async function Page({
           {generiques.length} médicament{generiques.length > 1 && "s"}{" "}
           génériques
         </h2>
-        {generiques.map(({ specialite, presentations }) => (
+        {generiques.map(({ specialite }) => (
           <Fragment key={specialite.SpecId}>
             <p className={fr.cx("fr-mb-1v")}>
               {liste_CIS_MVP.includes(specialite.SpecId.trim()) ? (
@@ -211,7 +211,6 @@ export default async function Page({
                 <b>{formatSpecName(specialite.SpecDenom01)}</b>
               )}
             </p>
-            <PresentationsList presentations={presentations} />
           </Fragment>
         ))}
       </div>
