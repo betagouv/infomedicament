@@ -27,10 +27,31 @@ export default async function Page() {
               </p>
             </form>
           </div>
-          <div className={fr.cx("fr-col-sm-9", "fr-col-md-6", "fr-mt-4w")}>
+          <div
+            className={fr.cx(
+              "fr-col-12",
+              "fr-col-sm-9",
+              "fr-col-md-6",
+              "fr-mt-4w",
+            )}
+          >
             <h2 className={fr.cx("fr-h4")}>
               Vos questions sur les médicaments
             </h2>
+            <Image
+              src="/homepage_illu.svg"
+              alt="Un dessin d'une personne regardant une boîte de médicaments."
+              className={fr.cx(
+                "fr-responsive-img",
+                "fr-hidden-xl",
+                "fr-hidden-lg",
+                "fr-hidden-md",
+                "fr-hidden-sm",
+                "fr-mb-2w",
+              )}
+              width={2000}
+              height={2000}
+            />
             <ul role="nav" className={fr.cx("fr-raw-list")}>
               {articles.map(({ title, slug }) => (
                 <li key={slug} className={fr.cx("fr-mb-3w")}>
@@ -60,7 +81,7 @@ export default async function Page() {
           >
             <Image
               src="/homepage_illu.svg"
-              alt="Un dessin d'unee personne regardant une boîte de médicaments."
+              alt="Un dessin d'une personne regardant une boîte de médicaments."
               className={fr.cx("fr-responsive-img")}
               width={2000}
               height={2000}
