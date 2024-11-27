@@ -20,6 +20,12 @@ export interface ATC {
   children?: ATC[];
 }
 
+export class ATCError extends Error {
+  constructor(code: string) {
+    super(`ATC code not found: ${code}`);
+  }
+}
+
 export const getAtc = async function (): Promise<ATC1[]> {
   const data = await getGristTableData("Table_Niveau_1", [
     "Lettre_1_ATC_1",
@@ -62,7 +68,7 @@ export const getAtc1 = async function (code: string): Promise<ATC1> {
     (record) => record.fields.Lettre_1_ATC_1 === code.slice(0, 1),
   );
   if (!record) {
-    throw new Error(`ATC code not found: ${code.slice(0, 3)}`);
+    throw new ATCError(code.slice(0, 3));
   }
 
   const childrenData = await getGristTableData("Table_Niveau_2", [
@@ -95,7 +101,7 @@ export const getAtc2 = async function (code: string): Promise<ATC> {
   );
 
   if (!record) {
-    throw new Error(`ATC code not found: ${code.slice(0, 3)}`);
+    throw new ATCError(code.slice(0, 3));
   }
 
   const libeleId = record.fields.Libelles_niveau_2;
@@ -106,7 +112,7 @@ export const getAtc2 = async function (code: string): Promise<ATC> {
   const libeleRecord = libeleData.find((record) => record.id === libeleId);
 
   if (!libeleRecord) {
-    throw new Error(`ATC code not found: ${code.slice(0, 3)}`);
+    throw new ATCError(code.slice(0, 3));
   }
 
   return {
@@ -122,15 +128,6 @@ export const getAtc2 = async function (code: string): Promise<ATC> {
       })),
   };
 };
-
-export async function getAtcLabels(atc: string): Promise<string[]> {
-  return Promise.all(
-    [
-      async (code: string) => (await getAtc1(code)).label,
-      async (code: string) => (await getAtc2(code)).label,
-    ].map((f) => f(atc)),
-  );
-}
 
 export const atcData = csvParse(
   readFileSync(
@@ -163,7 +160,7 @@ export function getAtcCode(CIS: string) {
   const atc = atcData.find((row) => row[0] === CIS);
 
   if (!atc) {
-    throw new Error(`Could not find ATC code for CIS ${CIS}`);
+    throw new ATCError(CIS);
   }
 
   return atc[1];

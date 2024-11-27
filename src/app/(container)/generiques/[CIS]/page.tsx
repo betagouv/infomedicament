@@ -15,7 +15,7 @@ import {
   getSpecialiteGroupName,
   groupGeneNameToDCI,
 } from "@/displayUtils";
-import { getAtc2, getAtcCode } from "@/data/grist/atc";
+import { ATCError, getAtc2, getAtcCode } from "@/data/grist/atc";
 import { notFound } from "next/navigation";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import {
@@ -110,10 +110,25 @@ export default async function Page({
   if (!group) notFound();
 
   const { specialite, composants } = await getSpecialite(group.SpecId);
-  const atcCode = getAtcCode(CIS);
-  const atc2 = await getAtc2(atcCode);
 
   const generiques = await getGeneriques(CIS);
+
+  let atcCode;
+  try {
+    atcCode = getAtcCode(CIS);
+  } catch (e) {
+    if (!(e instanceof ATCError)) throw e;
+    for (const generic of generiques) {
+      try {
+        atcCode = getAtcCode(generic.specialite.SpecId);
+        break;
+      } catch (e) {
+        if (!(e instanceof ATCError)) throw e;
+      }
+    }
+  }
+  if (!atcCode) throw new ATCError(CIS);
+  const atc2 = await getAtc2(atcCode);
 
   return (
     <div className={fr.cx("fr-grid-row")}>
