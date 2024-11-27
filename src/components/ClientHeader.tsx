@@ -5,6 +5,7 @@ import Image from "next/image";
 import { AutocompleteSearchInput } from "@/components/AutocompleteSearch";
 import { useRouter } from "next/navigation";
 import { ATC1 } from "@/data/grist/atc";
+import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 
 export default function ClientHeader({
   atcs,
@@ -16,6 +17,7 @@ export default function ClientHeader({
   searchInitial?: string;
 }) {
   const router = useRouter();
+  const { isDark } = useIsDark();
 
   return (
     <Header
@@ -32,7 +34,7 @@ export default function ClientHeader({
       }}
       serviceTitle={
         <Image
-          src="/logo.svg"
+          src={isDark ? "/logo_white.svg" : "/logo.svg"}
           alt="Info Médicament"
           width={285}
           height={33}
