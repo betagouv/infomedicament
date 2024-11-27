@@ -77,6 +77,7 @@ export function AutocompleteSearchInput({
           router.push(`/rechercher?s=${value}`);
         }
       }}
+      disablePortal
       style={{ width: "100%" }}
       renderInput={(params) => (
         <div ref={params.InputProps.ref}>

@@ -14,13 +14,11 @@ import "@/customIcons/customIcons.css";
 import "@/components/dsfr-custom-alt.css";
 import MuiDsfrThemeProvider from "@codegouvfr/react-dsfr/mui";
 import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
-import { getAtc } from "@/data/grist/atc";
 import { StartHotjar } from "@/app/StartHotjar";
 import GlossaryModals from "@/components/glossary/GlossaryModals";
 import GlossaryContextProvider from "@/components/glossary/GlossaryContextProvider";
 import GreetingModal from "@/components/GreetingModal";
 import Matomo from "@/components/Matomo";
-import Header from "@/components/Header";
 
 export const metadata: Metadata = {
   title: "Info Médicament",
@@ -28,10 +26,11 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
+  header,
 }: Readonly<{
   children: React.ReactNode;
+  header: React.ReactNode;
 }>) {
-  const atcs = await getAtc();
   const lang = "fr";
   return (
     <html {...getHtmlAttributes({ defaultColorScheme, lang })}>
@@ -57,7 +56,7 @@ export default async function RootLayout({
         <DsfrProvider lang={lang}>
           <MuiDsfrThemeProvider>
             <GlossaryContextProvider>
-              <Header atcs={atcs} />
+              {header}
               {children}
               <Footer
                 brandTop={

@@ -2,13 +2,21 @@
 
 import { Header } from "@codegouvfr/react-dsfr/Header";
 import Image from "next/image";
-import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
 import { AutocompleteSearchInput } from "@/components/AutocompleteSearch";
 import { useRouter } from "next/navigation";
 import { ATC1 } from "@/data/grist/atc";
 
-export default function InfoMedicamentHeader({ atcs }: { atcs: ATC1[] }) {
+export default function ClientHeader({
+  atcs,
+  hasSearch = true,
+  searchInitial = "",
+}: {
+  atcs: ATC1[];
+  hasSearch?: boolean;
+  searchInitial?: string;
+}) {
   const router = useRouter();
+
   return (
     <Header
       brandTop={
@@ -32,17 +40,6 @@ export default function InfoMedicamentHeader({ atcs }: { atcs: ATC1[] }) {
         />
       }
       serviceTagline="La référence officielle sur les données des médicaments"
-      quickAccessItems={[headerFooterDisplayItem]}
-      renderSearchInput={(props) => (
-        <AutocompleteSearchInput
-          name="s"
-          {...props}
-          placeholder="Que cherchez-vous ?"
-        />
-      )}
-      onSearchButtonClick={(search: string) =>
-        router.push(`/rechercher?s=${search}`)
-      }
       navigation={[
         { text: "Accueil", linkProps: { href: "/" } },
         {
@@ -82,6 +79,23 @@ export default function InfoMedicamentHeader({ atcs }: { atcs: ATC1[] }) {
           linkProps: { href: "/articles" },
         },
       ]}
+      renderSearchInput={
+        hasSearch
+          ? (props) => (
+              <AutocompleteSearchInput
+                name="s"
+                {...props}
+                placeholder="Que cherchez-vous ?"
+                initialValue={searchInitial}
+              />
+            )
+          : undefined
+      }
+      onSearchButtonClick={
+        hasSearch
+          ? (search: string) => router.push(`/rechercher?s=${search}`)
+          : undefined
+      }
     />
   );
 }
