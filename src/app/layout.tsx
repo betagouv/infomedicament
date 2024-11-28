@@ -40,19 +40,19 @@ export default async function RootLayout({
         <DsfrHead Link={Link} />
       </head>
       <body>
-        {!process.env.NEXT_PUBLIC_DISABLE_WARNING && (
-          <Notice
-            title={
-              <>
-                Ceci est un environnement de test. Consultez{" "}
-                <a href={"https://base-donnees-publique.medicaments.gouv.fr/"}>
-                  la base de données publique des médicaments
-                </a>{" "}
-                pour les informations officielles.
-              </>
-            }
-          />
-        )}
+        <Notice
+          title={
+            <>
+              {process.env.NEXT_PUBLIC_ENVIRONMENT == "production"
+                ? "Ce site est actuellement en version bêta et contient les données de 500 médicaments."
+                : "Ceci est un environnement de test."}{" "}
+              Pour les informations officielles et complètes, consultez{" "}
+              <a href="https://base-donnees-publique.medicaments.gouv.fr/">
+                la Base de données publique des médicaments.
+              </a>
+            </>
+          }
+        />
         <DsfrProvider lang={lang}>
           <MuiDsfrThemeProvider>
             <GlossaryContextProvider>
