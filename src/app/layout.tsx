@@ -1,11 +1,9 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Metadata } from "next";
 import { Suspense } from "react";
 import { getHtmlAttributes } from "@codegouvfr/react-dsfr/next-appdir/getHtmlAttributes";
 import { DsfrHead } from "@codegouvfr/react-dsfr/next-appdir/DsfrHead";
 import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
-import { Header } from "@codegouvfr/react-dsfr/Header";
 import { Footer } from "@codegouvfr/react-dsfr/Footer";
 import { Notice } from "@codegouvfr/react-dsfr/Notice";
 
@@ -16,7 +14,6 @@ import "@/customIcons/customIcons.css";
 import "@/components/dsfr-custom-alt.css";
 import MuiDsfrThemeProvider from "@codegouvfr/react-dsfr/mui";
 import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
-import { getAtc } from "@/data/grist/atc";
 import { StartHotjar } from "@/app/StartHotjar";
 import GlossaryModals from "@/components/glossary/GlossaryModals";
 import GlossaryContextProvider from "@/components/glossary/GlossaryContextProvider";
@@ -29,10 +26,11 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
+  header,
 }: Readonly<{
   children: React.ReactNode;
+  header: React.ReactNode;
 }>) {
-  const atcs = await getAtc();
   const lang = "fr";
   return (
     <html {...getHtmlAttributes({ defaultColorScheme, lang })}>
@@ -58,7 +56,9 @@ export default async function RootLayout({
         <DsfrProvider lang={lang}>
           <MuiDsfrThemeProvider>
             <GlossaryContextProvider>
-              <Header
+              {header}
+              {children}
+              <Footer
                 brandTop={
                   <>
                     RÉPUBLIQUE
@@ -68,62 +68,8 @@ export default async function RootLayout({
                 }
                 homeLinkProps={{
                   href: "/",
-                  title:
-                    "Accueil - Ministère du travail de la santé et des solidarités",
+                  title: "Accueil",
                 }}
-                serviceTitle={
-                  <Image
-                    src="/logo.svg"
-                    alt="Info Médicament"
-                    width={285}
-                    height={33}
-                    style={{ maxWidth: "100%", height: "auto" }}
-                  />
-                }
-                serviceTagline="La référence officielle sur les données des médicaments"
-                quickAccessItems={[headerFooterDisplayItem]}
-                navigation={[
-                  { text: "Accueil", linkProps: { href: "/" } },
-                  {
-                    text: "Glossaire",
-                    linkProps: { href: "/glossaire/A" },
-                  },
-                  {
-                    text: "Parcourir",
-                    menuLinks: atcs.map((atc) => ({
-                      linkProps: { href: `/atc/${atc.code}` },
-                      text: atc.label,
-                    })),
-                  },
-                  {
-                    text: "Par ordre alphabétique",
-                    menuLinks: [
-                      {
-                        text: "Tous les médicaments",
-                        linkProps: { href: "/medicaments/A/1" },
-                      },
-                      {
-                        text: "Toutes les substances",
-                        linkProps: { href: "/substances/A" },
-                      },
-                      {
-                        text: "Toutes les pathologies",
-                        linkProps: { href: "/pathologies/A" },
-                      },
-                      {
-                        text: "Tous les groupes génériques",
-                        linkProps: { href: "/generiques/A" },
-                      },
-                    ],
-                  },
-                  {
-                    text: "Articles",
-                    linkProps: { href: "/articles" },
-                  },
-                ]}
-              />
-              {children}
-              <Footer
                 accessibility={"non compliant"}
                 bottomItems={[headerFooterDisplayItem]}
               />

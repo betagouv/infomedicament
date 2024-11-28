@@ -18,7 +18,7 @@ type SearchInputProps = {
   type: "search";
 };
 
-function SearchInput({
+export function AutocompleteSearchInput({
   name,
   initialValue,
   className,
@@ -77,6 +77,7 @@ function SearchInput({
           router.push(`/rechercher?s=${value}`);
         }
       }}
+      disablePortal
       style={{ width: "100%" }}
       renderInput={(params) => (
         <div ref={params.InputProps.ref}>
@@ -105,10 +106,10 @@ export default function AutocompleteSearch({
   const router = useRouter();
   return (
     <SearchBar
-      label={"Quel médicament cherchez-vous ?"}
+      label={"Que cherchez-vous ?"}
       onButtonClick={(search: string) => router.push(`/rechercher?s=${search}`)}
       renderInput={({ className, ...props }) => (
-        <SearchInput
+        <AutocompleteSearchInput
           {...props}
           className={cx(className, parentClassName)}
           name={inputName}
