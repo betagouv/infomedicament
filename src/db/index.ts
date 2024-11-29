@@ -6,6 +6,7 @@ import { Pool } from "pg";
 interface Database {
   search_index: SearchIndexTable;
   leaflet_images: LeafletImagesTable;
+  presentations: PresentationTable;
 }
 
 interface SearchIndexTable {
@@ -17,6 +18,16 @@ interface SearchIndexTable {
 interface LeafletImagesTable {
   path: string;
   image: Buffer;
+}
+
+interface PresentationTable {
+  codecip13: string;
+  nomelement: string;
+  nbrrecipient: number;
+  recipient: string;
+  caraccomplrecip: string;
+  qtecontenance: number;
+  unitecontenance: string;
 }
 
 export const getLeafletImage = async ({ src }: { src: string }) => {
@@ -42,6 +53,7 @@ export const getLeafletImage = async ({ src }: { src: string }) => {
 
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
+export type PresentationDetail = Selectable<PresentationTable>;
 
 const db = new Kysely<Database>({
   dialect: new PostgresDialect({

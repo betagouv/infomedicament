@@ -9,9 +9,55 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
 import React from "react";
+import { PresentationDetail } from "@/db";
+import { capitalize } from "tsafe";
+
+const unitesMesures = [
+  "cm2",
+  "g",
+  "GBq",
+  "GBq/ml",
+  "kg",
+  "l",
+  "MBq",
+  "MBq/ml",
+  "mg",
+  "microgrammes",
+  "ml",
+  "UI",
+];
+
+function totalDisplay(p: PresentationDetail): string {
+  return `${p.nbrrecipient * p.qtecontenance} ${p.unitecontenance.replaceAll("(s)", "s")}`;
+}
+
+function contentDisplay(p: PresentationDetail): string {
+  return `${p.qtecontenance} ${p.unitecontenance.replaceAll("(s)", p.qtecontenance && p.qtecontenance > 1 ? "s" : "")}`;
+}
+
+function caracCompDisplay(p: PresentationDetail): string {
+  return p.caraccomplrecip.startsWith("avec") ? ` ${p.caraccomplrecip}` : "";
+}
+
+function presentationDetailName(p: PresentationDetail): string {
+  const recipient = p.recipient.replaceAll("thermoformée", "");
+
+  if (p.nbrrecipient > 1) {
+    if (p.qtecontenance > 1 && !unitesMesures.includes(p.unitecontenance)) {
+      return `${totalDisplay(p)} - ${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)} de ${contentDisplay(p)}`;
+    }
+
+    return `${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)} de ${contentDisplay(p)}`;
+  }
+
+  return capitalize(
+    `${recipient.replaceAll("(s)", "")}${caracCompDisplay(p)} de ${contentDisplay(p)}`,
+  );
+}
 
 export function PresentationsList(props: {
-  presentations: (Presentation & Nullable<PresInfoTarif>)[];
+  presentations: (Presentation &
+    Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
 }) {
   return (
     <ul className={fr.cx("fr-raw-list")}>
@@ -20,7 +66,10 @@ export function PresentationsList(props: {
           <span
             className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
           />
-          <b>{p.PresNom01}</b> -{" "}
+          <b>
+            {(p.details && presentationDetailName(p.details)) || p.PresNom01}
+          </b>{" "}
+          -{" "}
           {p.Prix && p.Taux ? (
             <>
               Prix {p.Prix} € - remboursé à {p.Taux}

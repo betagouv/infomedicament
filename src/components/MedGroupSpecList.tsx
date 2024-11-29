@@ -12,7 +12,7 @@ import { parse as csvParse } from "csv-parse/sync";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import React from "react";
-import { getSpecialite } from "@/db/pdbmMySQL/utils";
+import { getSpecialite } from "@/db/utils";
 
 const atcData = csvParse(
   readFileSync(

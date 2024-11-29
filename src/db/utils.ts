@@ -11,8 +11,9 @@ import {
   Specialite,
   SubstanceNom,
 } from "@/db/pdbmMySQL/types";
-import { pdbmMySQL } from "@/db/pdbmMySQL/index";
+import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { Nullable, sql } from "kysely";
+import db, { PresentationDetail } from "@/db/index";
 
 export const getSpecialite = cache(async (CIS: string) => {
   const specialite: Specialite | undefined = await pdbmMySQL
@@ -44,7 +45,8 @@ export const getSpecialite = cache(async (CIS: string) => {
     )
   ).flat();
 
-  const presentations: (Presentation & Nullable<PresInfoTarif>)[] = (
+  const presentations: (Presentation &
+    Nullable<PresInfoTarif> & { details?: PresentationDetail })[] = (
     await pdbmMySQL
       .selectFrom("Presentation")
       .where("SpecId", "=", CIS)
@@ -93,6 +95,44 @@ export const getSpecialite = cache(async (CIS: string) => {
           ? 1
           : 0,
   );
+
+  const presentationsDetails = presentations.length
+    ? await db
+        .selectFrom("presentations")
+        .select([
+          "codecip13",
+          "nomelement",
+          "nbrrecipient",
+          "recipient",
+          "caraccomplrecip",
+          "qtecontenance",
+          "unitecontenance",
+        ])
+        .where(
+          "presentations.codecip13",
+          "in",
+          presentations.map((p) => p.codeCIP13),
+        )
+        .groupBy([
+          "codecip13",
+          "nomelement",
+          "nbrrecipient",
+          "recipient",
+          "caraccomplrecip",
+          "qtecontenance",
+          "unitecontenance",
+        ])
+        .execute()
+    : [];
+
+  presentations.map((p) => {
+    const details = presentationsDetails.find(
+      (d) => d.codecip13.trim() === p.codeCIP13.trim(),
+    );
+    if (details) {
+      p.details = details;
+    }
+  });
 
   const delivrance: SpecDelivrance[] = await pdbmMySQL
     .selectFrom("Spec_Delivrance")
