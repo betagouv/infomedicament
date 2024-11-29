@@ -70,9 +70,14 @@ export function PresentationsList(props: {
             {(p.details && presentationDetailName(p.details)) || p.PresNom01}
           </b>{" "}
           -{" "}
-          {p.Prix && p.Taux ? (
+          {p.PPF && p.TauxPriseEnCharge ? (
             <>
-              Prix {p.Prix} € - remboursé à {p.Taux}
+              Prix{" "}
+              {Intl.NumberFormat("fr-FR", {
+                style: "currency",
+                currency: "EUR",
+              }).format(p.PPF)}{" "}
+              - remboursé à {p.TauxPriseEnCharge}
             </>
           ) : (
             <>Prix libre - non remboursable</>
