@@ -38,11 +38,11 @@ const getSpecialites = unstable_cache(async function (letter: string) {
     .execute();
 });
 
-export default async function Page({
-  params: { letter, page },
-}: {
-  params: { letter: string; page: `${number}` };
+export default async function Page(props: {
+  params: Promise<{ letter: string; page: `${number}` }>;
 }) {
+  const { letter, page } = await props.params;
+
   if (!Number.isInteger(Number(page))) return notFound();
   const pageNumber = Number(page);
   const letters = await getLetters();

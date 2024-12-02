@@ -26,11 +26,11 @@ const SubClassItem = ({ item }: { item: ATC }) => (
   </li>
 );
 
-export default async function Page({
-  params: { code },
-}: {
-  params: { code: string };
+export default async function Page(props: {
+  params: Promise<{ code: string }>;
 }) {
+  const { code } = await props.params;
+
   const atc1 = await getAtc1(code);
   const atc2 = code.length === 3 && (await getAtc2(code));
   const currentAtc = atc2 || atc1;

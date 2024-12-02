@@ -34,11 +34,11 @@ async function getPathoSpecialites(code: `${number}`): Promise<Specialite[]> {
     .execute();
 }
 
-export default async function Page({
-  params: { code },
-}: {
-  params: { code: `${number}` };
+export default async function Page(props: {
+  params: Promise<{ code: `${number}` }>;
 }) {
+  const { code } = await props.params;
+
   const patho = await getPatho(code);
   const definition = await getPathologyDefinition(code);
   const specialites = await getPathoSpecialites(code);

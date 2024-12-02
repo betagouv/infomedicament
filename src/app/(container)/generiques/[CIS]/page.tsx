@@ -27,6 +27,9 @@ import {
 import { Nullable, sql } from "kysely";
 import GenericAccordion from "@/components/GenericAccordion";
 
+export const dynamic = "error";
+export const dynamicParams = true;
+
 async function getGroupeGene(CIS: string) {
   return pdbmMySQL
     .selectFrom("GroupeGene")
@@ -101,11 +104,11 @@ async function getGeneriques(CIS: string) {
   );
 }
 
-export default async function Page({
-  params: { CIS },
-}: {
-  params: { CIS: string };
+export default async function Page(props: {
+  params: Promise<{ CIS: string }>;
 }) {
+  const { CIS } = await props.params;
+
   const group = await getGroupeGene(CIS);
   if (!group) notFound();
 
