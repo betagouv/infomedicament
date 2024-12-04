@@ -7,6 +7,9 @@ import Link from "next/link";
 import GenericAccordion from "@/components/GenericAccordion";
 import { formatSpecName, groupGeneNameToDCI } from "@/displayUtils";
 
+export const dynamic = "error";
+export const dynamicParams = true;
+
 async function getLetters() {
   return (
     (
@@ -28,11 +31,11 @@ async function getLetters() {
   );
 }
 
-export default async function Page({
-  params: { letter },
-}: {
-  params: { letter: string };
+export default async function Page(props: {
+  params: Promise<{ letter: string }>;
 }) {
+  const { letter } = await props.params;
+
   const letters = await getLetters();
   const generics = await pdbmMySQL
     .selectFrom("GroupeGene")

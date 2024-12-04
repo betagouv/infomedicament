@@ -31,9 +31,11 @@ export const dynamic = "error";
 export const dynamicParams = true;
 
 export async function generateMetadata(
-  { params: { CIS } }: { params: { CIS: string } },
+  props: { params: Promise<{ CIS: string }> },
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
+  const { CIS } = await props.params;
+
   const name = formatSpecName(
     (await getSpecialite(CIS)).specialite.SpecDenom01,
   );
@@ -181,11 +183,11 @@ const getLeaflet = cache(async (CIS: string) => {
   };
 });
 
-export default async function Page({
-  params: { CIS },
-}: {
-  params: { CIS: string };
+export default async function Page(props: {
+  params: Promise<{ CIS: string }>;
 }) {
+  const { CIS } = await props.params;
+
   if (!liste_CIS_MVP.includes(CIS)) notFound();
 
   const { specialite, composants, presentations, delivrance } =

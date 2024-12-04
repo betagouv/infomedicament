@@ -89,11 +89,9 @@ async function getSubstance(ids: string[]) {
   };
 }
 
-export default async function Page({
-  params: { id },
-}: {
-  params: { id: string };
-}) {
+export default async function Page(props: { params: Promise<{ id: string }> }) {
+  const { id } = await props.params;
+
   const ids = decodeURIComponent(id).split(",");
   const { substances, specialites, definitions } = await getSubstance(ids);
   const specialitiesGroups = groupSpecialites(specialites);

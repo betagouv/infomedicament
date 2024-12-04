@@ -2,6 +2,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "standalone",
   webpack: (config) => {
     config.module.rules.push({
       test: /\.woff2$/,
@@ -32,9 +33,6 @@ const nextConfig = {
         destination: "/alpha_lists/generiques/:letter",
       },
     ];
-  },
-  experimental: {
-    instrumentationHook: true,
   },
 };
 

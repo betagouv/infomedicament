@@ -68,11 +68,10 @@ const ATCClassResult = ({
   </li>
 );
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams?: Record<string, string>;
+export default async function Page(props: {
+  searchParams?: Promise<Record<string, string>>;
 }) {
+  const searchParams = await props.searchParams;
   const search = searchParams && "s" in searchParams && searchParams["s"];
   const results = search && (await getResults(searchParams["s"]));
 

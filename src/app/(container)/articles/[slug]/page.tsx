@@ -18,9 +18,11 @@ async function getArticle(slug: string) {
 }
 
 export async function generateMetadata(
-  { params: { slug } }: { params: { slug: string } },
+  props: { params: Promise<{ slug: string }> },
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
+  const { slug } = await props.params;
+
   const { title, description, canonicalUrl } = await getArticle(slug);
   return {
     title: `${title} - ${(await parent).title?.absolute}`,
@@ -31,11 +33,11 @@ export async function generateMetadata(
   };
 }
 
-export default async function Page({
-  params: { slug },
-}: {
-  params: { slug: string };
+export default async function Page(props0: {
+  params: Promise<{ slug: string }>;
 }) {
+  const { slug } = await props0.params;
+
   const { title, source, content } = await getArticle(slug);
   return (
     <>

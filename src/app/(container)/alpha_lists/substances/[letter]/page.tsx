@@ -8,6 +8,9 @@ import Link from "next/link";
 
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 
+export const dynamic = "error";
+export const dynamicParams = true;
+
 async function getSubstances(letter: string): Promise<SubstanceNom[]> {
   return await pdbmMySQL
     .selectFrom("Subs_Nom")
@@ -43,11 +46,11 @@ async function getLetters() {
   );
 }
 
-export default async function Page({
-  params: { letter },
-}: {
-  params: { letter: string };
+export default async function Page(props: {
+  params: Promise<{ letter: string }>;
 }) {
+  const { letter } = await props.params;
+
   const letters = await getLetters();
   const substances = await getSubstances(letter);
 

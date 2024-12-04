@@ -31,11 +31,11 @@ async function getLetters(): Promise<string[]> {
   ).map((r) => r.letter);
 }
 
-export default async function Page({
-  params: { letter },
-}: {
-  params: { letter: string };
+export default async function Page(props: {
+  params: Promise<{ letter: string }>;
 }) {
+  const { letter } = await props.params;
+
   const letters = await getLetters();
   const pathos = await getPathologyPage(letter);
   if (!pathos || !pathos.length) return notFound();

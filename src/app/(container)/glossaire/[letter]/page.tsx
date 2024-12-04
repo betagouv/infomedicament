@@ -5,6 +5,9 @@ import AlphabeticNav from "@/components/AlphabeticNav";
 import sanitizeHtml from "sanitize-html";
 import slugify from "slugify";
 
+export const dynamic = "error";
+export const dynamicParams = true;
+
 async function getDefinitions(firstLetter: string) {
   const definitions = await getGristTableData("Glossaire", [
     "Nom_glossaire",
@@ -35,11 +38,11 @@ async function getLetters() {
   );
 }
 
-export default async function Page({
-  params: { letter },
-}: {
-  params: { letter: string };
+export default async function Page(props: {
+  params: Promise<{ letter: string }>;
 }) {
+  const { letter } = await props.params;
+
   const letters = await getLetters();
   if (!letters.includes(letter)) return notFound();
 

@@ -57,7 +57,7 @@ function setFakeReactDispatcher<T>(action: () => T): T {
 
 async function evaluateServerComponent(
   node: ReactElement,
-): Promise<ReactElement> {
+): Promise<ReactElement<any>> {
   if (node && node.type?.constructor?.name === "AsyncFunction") {
     // Handle async server nodes by calling await.
 

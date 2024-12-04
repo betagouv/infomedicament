@@ -3,6 +3,8 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Link from "next/link";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 
+export const dynamic = "error";
+
 export default async function Page() {
   const articles = await getArticles();
 
