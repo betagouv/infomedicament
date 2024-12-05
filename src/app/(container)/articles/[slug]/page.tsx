@@ -43,7 +43,7 @@ export default async function Page(props0: {
     <>
       <Breadcrumb
         segments={[
-          { label: "Acceuil", linkProps: { href: "/" } },
+          { label: "Accueil", linkProps: { href: "/" } },
           {
             label: "Liste des articles",
             linkProps: { href: "/articles" },
