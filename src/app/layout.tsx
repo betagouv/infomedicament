@@ -37,7 +37,14 @@ export default async function RootLayout({
       <head>
         {process.env.NEXT_PUBLIC_HOTJAR_SITE_ID && <StartHotjar />}
         <StartDsfr />
-        <DsfrHead Link={Link} />
+        <DsfrHead
+          Link={Link}
+          preloadFonts={[
+            "Marianne-Regular",
+            "Marianne-Medium",
+            "Marianne-Bold",
+          ]}
+        />
       </head>
       <body>
         <Notice
