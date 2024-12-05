@@ -9,9 +9,52 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
 import React from "react";
+import { PresentationDetail } from "@/db";
+
+const unitesMesures = [
+  "cm2",
+  "g",
+  "GBq",
+  "GBq/ml",
+  "kg",
+  "l",
+  "MBq",
+  "MBq/ml",
+  "mg",
+  "microgrammes",
+  "ml",
+  "UI",
+];
+
+function totalDisplay(p: PresentationDetail): string {
+  return `${p.nbrrecipient * p.qtecontenance} ${p.unitecontenance.replaceAll("(s)", "s")}`;
+}
+
+function contentDisplay(p: PresentationDetail): string {
+  return `${p.qtecontenance} ${p.unitecontenance.replaceAll("(s)", p.qtecontenance && p.qtecontenance > 1 ? "s" : "")}`;
+}
+
+function presentationDetailName(p: PresentationDetail): string {
+  if (
+    p.nbrrecipient &&
+    p.nbrrecipient > 1 &&
+    p.qtecontenance &&
+    p.qtecontenance > 1 &&
+    !unitesMesures.includes(p.unitecontenance)
+  ) {
+    return `${totalDisplay(p)} - ${p.nbrrecipient} ${p.recipient.replaceAll("(s)", "s")} de ${contentDisplay(p)}`;
+  }
+
+  if (p.nbrrecipient && p.nbrrecipient > 1) {
+    return `${p.nbrrecipient} ${p.recipient.replaceAll("(s)", "s")} de ${contentDisplay(p)}`;
+  }
+
+  return `${p.recipient.replaceAll("(s)", "")} de ${contentDisplay(p)}`;
+}
 
 export function PresentationsList(props: {
-  presentations: (Presentation & Nullable<PresInfoTarif>)[];
+  presentations: (Presentation &
+    Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
 }) {
   return (
     <ul className={fr.cx("fr-raw-list")}>
@@ -20,7 +63,10 @@ export function PresentationsList(props: {
           <span
             className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
           />
-          <b>{p.PresNom01}</b> -{" "}
+          <b>
+            {(p.details && presentationDetailName(p.details)) || p.PresNom01}
+          </b>{" "}
+          -{" "}
           {p.Prix && p.Taux ? (
             <>
               Prix {p.Prix} € - remboursé à {p.Taux}
