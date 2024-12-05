@@ -21,9 +21,14 @@ export function PresentationsList(props: {
             className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
           />
           <b>{p.PresNom01}</b> -{" "}
-          {p.Prix && p.Taux ? (
+          {p.PPF && p.TauxPriseEnCharge ? (
             <>
-              Prix {p.Prix} € - remboursé à {p.Taux}
+              Prix{" "}
+              {Intl.NumberFormat("fr-FR", {
+                style: "currency",
+                currency: "EUR",
+              }).format(p.PPF)}{" "}
+              - remboursé à {p.TauxPriseEnCharge}
             </>
           ) : (
             <>Prix libre - non remboursable</>
