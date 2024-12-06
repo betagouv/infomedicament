@@ -21,6 +21,7 @@ async function getSubstances(letter: string): Promise<SubstanceNom[]> {
     .leftJoin("Specialite", "Composant.SpecId", "Specialite.SpecId")
     .groupBy(["Subs_Nom.NomLib", "Subs_Nom.NomId", "Subs_Nom.SubsId"])
     .where("Specialite.SpecId", "in", liste_CIS_MVP)
+    .orderBy("Subs_Nom.NomLib")
     .execute();
 }
 

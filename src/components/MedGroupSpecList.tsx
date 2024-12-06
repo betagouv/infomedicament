@@ -1,4 +1,4 @@
-import { getAtc2 } from "@/data/grist/atc";
+import { getAtc2, getAtcCode } from "@/data/grist/atc";
 import { fr } from "@codegouvfr/react-dsfr";
 import {
   displaySimpleComposants,
@@ -8,21 +8,8 @@ import {
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import Link from "next/link";
-import { parse as csvParse } from "csv-parse/sync";
-import { readFileSync } from "node:fs";
-import path from "node:path";
 import React from "react";
 import { getSpecialite } from "@/db/pdbmMySQL/utils";
-
-const atcData = csvParse(
-  readFileSync(
-    path.join(process.cwd(), "src", "data", "CIS-ATC_2024-04-07.csv"),
-  ),
-) as string[][];
-function getAtc(CIS: string) {
-  const atc = atcData.find((row) => row[0] === CIS);
-  return atc ? atc[1] : null;
-}
 
 export default async function MedGroupSpecList({
   medGroup,
@@ -32,9 +19,9 @@ export default async function MedGroupSpecList({
   className?: string;
 }) {
   const [groupName, specialites] = medGroup;
-  const atc = getAtc(specialites[0].SpecId);
+  const atc = getAtcCode(specialites[0].SpecId);
   const { composants } = await getSpecialite(specialites[0].SpecId);
-  const subClass = atc ? await getAtc2(atc) : null;
+  const subClass = await getAtc2(atc);
   return (
     <li className={className}>
       <div>
@@ -48,17 +35,15 @@ export default async function MedGroupSpecList({
             <i className={cx("fr-icon--custom-pill", fr.cx("fr-icon--sm"))} />
           </div>
           <ul className={fr.cx("fr-tags-group", "fr-mb-n1v")}>
-            {subClass && (
-              <Tag
-                small
-                linkProps={{
-                  href: `/atc/${subClass.code}`,
-                  className: cx("fr-tag--custom-alt-class"),
-                }}
-              >
-                {subClass.label}
-              </Tag>
-            )}
+            <Tag
+              small
+              linkProps={{
+                href: `/atc/${subClass.code}`,
+                className: cx("fr-tag--custom-alt-class"),
+              }}
+            >
+              {subClass.label}
+            </Tag>
             <Tag
               small
               linkProps={{
