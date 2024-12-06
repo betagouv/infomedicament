@@ -4,7 +4,7 @@ import Image from "next/image";
 import { fr } from "@codegouvfr/react-dsfr";
 import { isEmptyTextNode, isHtmlElement, isListItem } from "./leafletUtils";
 import { getLeafletImage } from "@/db";
-import { withGlossary } from "@/components/glossary/withGlossary";
+import { WithGlossary } from "@/components/glossary/WithGlossary";
 
 async function DsfrLeafletElement({ node }: { node: HTMLElement }) {
   if (
@@ -191,9 +191,7 @@ export default async function DsfrLeafletSection({ data }: { data: Node[] }) {
         cleanedData.map(async (node, index) => {
           if (!isHtmlElement(node)) {
             if (node.nodeType === NodeType.TEXT_NODE) {
-              return (
-                <Fragment key={index}>{await withGlossary(node.text)}</Fragment>
-              );
+              return <WithGlossary key={index} text={node.text} />;
             }
 
             return null;

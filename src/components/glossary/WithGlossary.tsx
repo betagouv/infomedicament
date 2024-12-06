@@ -2,9 +2,7 @@ import "server-cli-only";
 
 import getGlossaryDefinitions, { Definition } from "@/data/grist/glossary";
 import { Fragment } from "react";
-import { createModal } from "@codegouvfr/react-dsfr/Modal";
-import slugify from "slugify";
-import AddDefinition from "@/components/glossary/AddDefinition";
+import WithDefinition from "@/components/glossary/WithDefinition";
 
 function escapeRegExp(text: string) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -22,29 +20,18 @@ function withDefinition(
   );
   if (!match || !match.groups) return [text];
   const { before, word, after } = match.groups;
-
-  const definitionModal = createModal({
-    isOpenedByDefault: false,
-    id: `Definition-${slugify(definition.fields.Nom_glossaire)}`,
-  });
-
   return [
     before,
-    <a
-      key={definition.fields.Nom_glossaire}
-      href={`#Definition-${slugify(definition.fields.Nom_glossaire)}`}
-      aria-describedby={`Definition-${slugify(definition.fields.Nom_glossaire)}`}
-      role="button"
-      {...definitionModal.buttonProps}
-    >
-      {word}
-      <AddDefinition definition={definition} />
-    </a>,
+    <WithDefinition key={word} definition={definition} word={word} />,
     ...withDefinition(after, definition),
   ];
 }
 
-export async function withGlossary(text: string): Promise<React.JSX.Element> {
+export async function WithGlossary({
+  text,
+}: {
+  text: string;
+}): Promise<React.JSX.Element> {
   const definitions = (await getGlossaryDefinitions()).filter(
     (d) => d.fields.A_publier,
   );

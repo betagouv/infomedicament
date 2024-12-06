@@ -80,9 +80,7 @@ export default async function RootLayout({
                 accessibility={"non compliant"}
                 bottomItems={[headerFooterDisplayItem]}
               />
-              <Suspense fallback={null}>
-                <GlossaryModals />
-              </Suspense>
+              <GlossaryModals />
               <Suspense fallback={null}>
                 <Matomo />
               </Suspense>

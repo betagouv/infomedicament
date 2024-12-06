@@ -1,13 +1,12 @@
-import slugify from "slugify";
-import { memo } from "react";
-import DefinitionModal from "@/components/glossary/GlossaryModals/DefinitionModal";
-import getGlossaryDefinitions from "@/data/grist/glossary";
+"use client";
 
-// Preloads all Definitions server side
-// DefinitionModal then displays lazily depending on
-// weither the definition is in GlossaryContext
-const GlossaryModals = memo(async function GlossaryModals() {
-  const definitions = await getGlossaryDefinitions();
+import slugify from "slugify";
+import { useContext } from "react";
+import DefinitionModal from "@/components/glossary/GlossaryModals/DefinitionModal";
+import { GlossaryContext } from "@/components/glossary/GlossaryContextProvider";
+
+export default function GlossaryModals() {
+  const { definitions } = useContext(GlossaryContext);
 
   return (
     <>
@@ -19,6 +18,4 @@ const GlossaryModals = memo(async function GlossaryModals() {
       ))}
     </>
   );
-});
-
-export default GlossaryModals;
+}
