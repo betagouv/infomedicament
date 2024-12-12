@@ -12,7 +12,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@codegouvfr/react-dsfr": "^1.14.5",
+    "@codegouvfr/react-dsfr": "^1.16.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@hotjar/browser": "^1.0.9",
@@ -24,12 +24,12 @@
     "jszip": "^3.10.1",
     "kysely": "^0.27.4",
     "mysql2": "^3.10.2",
-    "next": "15.0.3",
+    "next": "15.1.0",
     "next-mdx-remote": "^5.0.0",
     "node-html-parser": "^6.1.13",
     "pg": "^8.12.0",
-    "react": "19.0.0-rc-66855b96-20241106",
-    "react-dom": "19.0.0-rc-66855b96-20241106",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "sanitize-html": "^2.13.1",
     "sass": "^1.77.6",
     "server-cli-only": "^0.3.2",
@@ -45,12 +45,12 @@
     "@testing-library/react": "^16.0.1",
     "@types/node": "^22",
     "@types/pg": "^8.11.6",
-    "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
+    "@types/react": "19.0.1",
+    "@types/react-dom": "19.0.2",
     "@types/sanitize-html": "^2.13.0",
     "@vitejs/plugin-react": "^4.3.1",
-    "eslint": "^8",
-    "eslint-config-next": "15.0.3",
+    "eslint": "^9",
+    "eslint-config-next": "15.1.0",
     "eslint-config-prettier": "^9.1.0",
     "global-jsdom": "^25.0.0",
     "jsdom": "^25.0.1",
@@ -61,7 +61,7 @@
     "vitest": "^2.0.5"
   },
   "overrides": {
-    "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
+    "@types/react": "19.0.1",
+    "@types/react-dom": "19.0.2"
   }
 }
