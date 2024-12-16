@@ -15,6 +15,7 @@ async function getPathologyPage(letter: string): Promise<Patho[]> {
     .selectFrom("Patho")
     .selectAll()
     .where("NomPatho", "like", `${letter}%`)
+    .orderBy("NomPatho")
     .execute();
 }
 

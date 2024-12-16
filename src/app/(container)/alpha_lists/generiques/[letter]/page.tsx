@@ -45,6 +45,7 @@ export default async function Page(props: {
     .leftJoin("Specialite", "GroupeGene.SpecId", "Specialite.SpecGeneId")
     .where("Specialite.SpecId", "in", liste_CIS_MVP)
     .groupBy(["GroupeGene.LibLong", "GroupeGene.SpecId"])
+    .orderBy("GroupeGene.LibLong")
     .execute();
 
   return (
