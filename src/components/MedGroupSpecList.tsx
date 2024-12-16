@@ -9,7 +9,7 @@ import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import Link from "next/link";
 import React from "react";
-import { getSpecialite } from "@/db/pdbmMySQL/utils";
+import { getSpecialite } from "@/db/utils";
 
 export default async function MedGroupSpecList({
   medGroup,

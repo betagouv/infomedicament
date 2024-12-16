@@ -22,7 +22,7 @@ import {
 } from "@/displayUtils";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getAtc1, getAtc2, getAtcCode } from "@/data/grist/atc";
-import { getSpecialite } from "@/db/pdbmMySQL/utils";
+import { getSpecialite } from "@/db/utils";
 import { PresentationsList } from "@/components/PresentationsList";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
