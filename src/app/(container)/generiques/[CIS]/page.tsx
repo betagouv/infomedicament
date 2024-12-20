@@ -1,5 +1,5 @@
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { getPresentations, getSpecialite } from "@/db/utils";
+import { getSpecialite } from "@/db/utils";
 import { fr } from "@codegouvfr/react-dsfr";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
@@ -32,20 +32,15 @@ async function getGroupeGene(CIS: string) {
 }
 
 async function getGeneriques(CIS: string) {
-  return Promise.all(
-    (
-      await pdbmMySQL
-        .selectFrom("Specialite")
-        .selectAll()
-        .where("SpecGeneId", "=", CIS)
-        .where("SpecId", "!=", CIS)
-        // Limit to 500 results
-        .where("SpecId", "in", liste_CIS_MVP)
-        .execute()
-    ).map(async (specialite) => ({
-      specialite,
-      presentations: await getPresentations(specialite.SpecId),
-    })),
+  return (
+    pdbmMySQL
+      .selectFrom("Specialite")
+      .selectAll()
+      .where("SpecGeneId", "=", CIS)
+      .where("SpecId", "!=", CIS)
+      // Limit to 500 results
+      .where("SpecId", "in", liste_CIS_MVP)
+      .execute()
   );
 }
 
@@ -66,9 +61,9 @@ export default async function Page(props: {
     atcCode = getAtcCode(CIS);
   } catch (e) {
     if (!(e instanceof ATCError)) throw e;
-    for (const generic of generiques) {
+    for (const specialite of generiques) {
       try {
-        atcCode = getAtcCode(generic.specialite.SpecId);
+        atcCode = getAtcCode(specialite.SpecId);
         break;
       } catch (e) {
         if (!(e instanceof ATCError)) throw e;
@@ -156,7 +151,7 @@ export default async function Page(props: {
           {generiques.length} médicament{generiques.length > 1 && "s"} générique
           {generiques.length > 1 && "s"}
         </h2>
-        {generiques.map(({ specialite }) => (
+        {generiques.map((specialite) => (
           <Fragment key={specialite.SpecId}>
             <p className={fr.cx("fr-mb-1v")}>
               {liste_CIS_MVP.includes(specialite.SpecId.trim()) ? (
