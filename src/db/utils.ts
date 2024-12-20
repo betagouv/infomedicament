@@ -15,6 +15,65 @@ import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { Nullable, sql } from "kysely";
 import db, { PresentationDetail } from "@/db/index";
 
+export const getPresentations = cache(
+  async (
+    CIS: string,
+  ): Promise<
+    (Presentation &
+      Nullable<PresInfoTarif> & { details?: PresentationDetail })[]
+  > => {
+    return (
+      await pdbmMySQL
+        .selectFrom("Presentation")
+        .where("SpecId", "=", CIS)
+        .where(({ eb }) =>
+          eb.or([
+            eb("CommId", "=", PresentationComm.Commercialisation),
+            eb.and([
+              eb("CommId", "in", [
+                PresentationComm["Arrêt"],
+                PresentationComm.Suspension,
+                PresentationComm["Plus d'autorisation"],
+              ]),
+              eb(
+                "PresCommDate",
+                ">=",
+                sql<Date>`DATE_ADD(NOW(),INTERVAL -730 DAY)`,
+              ),
+            ]),
+          ]),
+        )
+        .where(({ eb }) =>
+          eb.or([
+            eb("StatId", "is", null),
+            eb("StatId", "!=", PresentationStat.Abrogation),
+            eb(
+              "PresStatDate",
+              ">=",
+              sql<Date>`DATE_ADD(NOW(),INTERVAL -730 DAY)`,
+            ),
+          ]),
+        )
+        .leftJoin(
+          "CNAM_InfoTarif",
+          "Presentation.codeCIP13",
+          "CNAM_InfoTarif.Cip13",
+        )
+        .selectAll()
+        .execute()
+    ).sort((a, b) =>
+      a.Prix && b.Prix
+        ? parseFloat(a.Prix.replace(",", ".")) -
+          parseFloat(b.Prix.replace(",", "."))
+        : a.Prix
+          ? -1
+          : b.Prix
+            ? 1
+            : 0,
+    );
+  },
+);
+
 export const getSpecialite = cache(async (CIS: string) => {
   const specialite: Specialite | undefined = await pdbmMySQL
     .selectFrom("Specialite")
@@ -45,56 +104,7 @@ export const getSpecialite = cache(async (CIS: string) => {
     )
   ).flat();
 
-  const presentations: (Presentation &
-    Nullable<PresInfoTarif> & { details?: PresentationDetail })[] = (
-    await pdbmMySQL
-      .selectFrom("Presentation")
-      .where("SpecId", "=", CIS)
-      .where(({ eb }) =>
-        eb.or([
-          eb("CommId", "=", PresentationComm.Commercialisation),
-          eb.and([
-            eb("CommId", "in", [
-              PresentationComm["Arrêt"],
-              PresentationComm.Suspension,
-              PresentationComm["Plus d'autorisation"],
-            ]),
-            eb(
-              "PresCommDate",
-              ">=",
-              sql<Date>`DATE_ADD(NOW(),INTERVAL -730 DAY)`,
-            ),
-          ]),
-        ]),
-      )
-      .where(({ eb }) =>
-        eb.or([
-          eb("StatId", "is", null),
-          eb("StatId", "!=", PresentationStat.Abrogation),
-          eb(
-            "PresStatDate",
-            ">=",
-            sql<Date>`DATE_ADD(NOW(),INTERVAL -730 DAY)`,
-          ),
-        ]),
-      )
-      .leftJoin(
-        "CNAM_InfoTarif",
-        "Presentation.codeCIP13",
-        "CNAM_InfoTarif.Cip13",
-      )
-      .selectAll()
-      .execute()
-  ).sort((a, b) =>
-    a.Prix && b.Prix
-      ? parseFloat(a.Prix.replace(",", ".")) -
-        parseFloat(b.Prix.replace(",", "."))
-      : a.Prix
-        ? -1
-        : b.Prix
-          ? 1
-          : 0,
-  );
+  const presentations = await getPresentations(CIS);
 
   const presentationsDetails = presentations.length
     ? await db

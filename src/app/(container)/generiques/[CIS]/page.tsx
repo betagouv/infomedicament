@@ -1,5 +1,5 @@
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { getSpecialite } from "@/db/utils";
+import { getPresentations, getSpecialite } from "@/db/utils";
 import { fr } from "@codegouvfr/react-dsfr";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
@@ -18,13 +18,6 @@ import {
 import { ATCError, getAtc2, getAtcCode } from "@/data/grist/atc";
 import { notFound } from "next/navigation";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
-import {
-  Presentation,
-  PresentationComm,
-  PresentationStat,
-  PresInfoTarif,
-} from "@/db/pdbmMySQL/types";
-import { Nullable, sql } from "kysely";
 import GenericAccordion from "@/components/GenericAccordion";
 
 export const dynamic = "error";
@@ -51,55 +44,7 @@ async function getGeneriques(CIS: string) {
         .execute()
     ).map(async (specialite) => ({
       specialite,
-      presentations: (
-        await pdbmMySQL
-          .selectFrom("Presentation")
-          .where("SpecId", "=", CIS)
-          .where(({ eb }) =>
-            eb.or([
-              eb("CommId", "=", PresentationComm.Commercialisation),
-              eb.and([
-                eb("CommId", "in", [
-                  PresentationComm["Arrêt"],
-                  PresentationComm.Suspension,
-                  PresentationComm["Plus d'autorisation"],
-                ]),
-                eb(
-                  "PresCommDate",
-                  ">=",
-                  sql<Date>`DATE_ADD(NOW(),INTERVAL -730 DAY)`,
-                ),
-              ]),
-            ]),
-          )
-          .where(({ eb }) =>
-            eb.or([
-              eb("StatId", "is", null),
-              eb("StatId", "!=", PresentationStat.Abrogation),
-              eb(
-                "PresStatDate",
-                ">=",
-                sql<Date>`DATE_ADD(NOW(),INTERVAL -730 DAY)`,
-              ),
-            ]),
-          )
-          .leftJoin(
-            "CNAM_InfoTarif",
-            "Presentation.codeCIP13",
-            "CNAM_InfoTarif.Cip13",
-          )
-          .selectAll()
-          .execute()
-      ).sort((a, b) =>
-        a.Prix && b.Prix
-          ? parseFloat(a.Prix.replace(",", ".")) -
-            parseFloat(b.Prix.replace(",", "."))
-          : a.Prix
-            ? -1
-            : b.Prix
-              ? 1
-              : 0,
-      ) as (Presentation & Nullable<PresInfoTarif>)[],
+      presentations: await getPresentations(specialite.SpecId),
     })),
   );
 }

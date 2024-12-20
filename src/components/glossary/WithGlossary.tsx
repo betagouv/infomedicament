@@ -1,7 +1,7 @@
 import "server-cli-only";
 
 import getGlossaryDefinitions, { Definition } from "@/data/grist/glossary";
-import { Fragment } from "react";
+import React, { Fragment } from "react";
 import WithDefinition from "@/components/glossary/WithDefinition";
 
 function escapeRegExp(text: string) {

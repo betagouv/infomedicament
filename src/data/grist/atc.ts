@@ -63,7 +63,6 @@ export const getAtc1 = async function (code: string): Promise<ATC1> {
     "Libelles_niveau_1",
     "Definition_Classe",
   ]);
-  data[0].fields;
   const record = data.find(
     (record) => record.fields.Lettre_1_ATC_1 === code.slice(0, 1),
   );
