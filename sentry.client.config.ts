@@ -11,4 +11,7 @@ Sentry.init({
   tracesSampleRate: 1,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
+  ...(process.env.NEXT_PUBLIC_MATOMO_URL
+    ? { denyUrls: [process.env.NEXT_PUBLIC_MATOMO_URL] }
+    : {}),
 });
