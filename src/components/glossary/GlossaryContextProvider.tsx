@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useState } from "react";
+import React, { createContext, useState } from "react";
 import { Definition } from "@/data/grist/glossary";
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 

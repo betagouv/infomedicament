@@ -3,7 +3,7 @@
 import { Definition } from "@/data/grist/glossary";
 import sanitizeHtml from "sanitize-html";
 import { useIsModalOpen } from "@codegouvfr/react-dsfr/Modal/useIsModalOpen";
-import { useContext } from "react";
+import React, { useContext } from "react";
 import { GlossaryContext } from "@/components/glossary/GlossaryContextProvider";
 import { usePathname } from "next/navigation";
 
