@@ -75,19 +75,30 @@ export const getPresentations = cache(
 );
 
 export const getSpecialite = cache(async (CIS: string) => {
-  const specialite: Specialite | undefined = await pdbmMySQL
+  const specialiteP: Promise<Specialite | undefined> = pdbmMySQL
     .selectFrom("Specialite")
     .where("SpecId", "=", CIS)
     .selectAll()
     .executeTakeFirst();
 
-  if (!specialite) return notFound();
-
-  const elements: SpecElement[] = await pdbmMySQL
+  const presentationsP: Promise<
+    (Presentation &
+      Nullable<PresInfoTarif> & { details?: PresentationDetail })[]
+  > = getPresentations(CIS);
+  const elementsP: Promise<SpecElement[]> = pdbmMySQL
     .selectFrom("Element")
     .where("SpecId", "=", CIS)
     .selectAll()
     .execute();
+
+  const [specialite, presentations, elements] = await Promise.all([
+    specialiteP,
+    presentationsP,
+    elementsP,
+  ]);
+
+  if (!specialite) return notFound();
+  if (!presentations.length) return notFound();
 
   const composants: Array<SpecComposant & SubstanceNom> = (
     await Promise.all(
@@ -103,8 +114,6 @@ export const getSpecialite = cache(async (CIS: string) => {
       ),
     )
   ).flat();
-
-  const presentations = await getPresentations(CIS);
 
   const presentationsDetails = presentations.length
     ? await db
