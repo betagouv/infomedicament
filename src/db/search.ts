@@ -7,6 +7,7 @@ import { groupSpecialites } from "@/displayUtils";
 import { Patho, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { unstable_cache } from "next/cache";
 import { ATC, ATC1, getAtc1, getAtc2 } from "@/data/grist/atc";
+import { presentationIsComm } from "@/db/utils";
 
 export type SearchResultItem =
   | SubstanceNom
@@ -30,6 +31,8 @@ const getSpecialites = unstable_cache(async function (
               ])
             : eb("Specialite.SpecId", "in", specialitesId),
         )
+        .leftJoin("Presentation", "Specialite.SpecId", "Presentation.SpecId")
+        .where(presentationIsComm())
         .where("Specialite.SpecId", "in", liste_CIS_MVP)
         .selectAll("Specialite")
         .select(({ fn }) => [

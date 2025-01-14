@@ -1,6 +1,6 @@
 import { cache } from "react";
-import { notFound } from "next/navigation";
 import {
+  PdbmMySQL,
   Presentation,
   PresentationComm,
   PresentationStat,
@@ -12,8 +12,38 @@ import {
   SubstanceNom,
 } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { Nullable, sql } from "kysely";
+import { expressionBuilder, Nullable, sql } from "kysely";
 import db, { PresentationDetail } from "@/db/index";
+
+export const presentationIsComm = () => {
+  const eb = expressionBuilder<PdbmMySQL, "Presentation">();
+  return eb.and([
+    eb.or([
+      eb("Presentation.CommId", "=", PresentationComm.Commercialisation),
+      eb.and([
+        eb("Presentation.CommId", "in", [
+          PresentationComm["Arrêt"],
+          PresentationComm.Suspension,
+          PresentationComm["Plus d'autorisation"],
+        ]),
+        eb(
+          "Presentation.PresCommDate",
+          ">=",
+          sql<Date>`DATE_ADD(NOW(),INTERVAL -730 DAY)`,
+        ),
+      ]),
+    ]),
+    eb.or([
+      eb("Presentation.StatId", "is", null),
+      eb("Presentation.StatId", "!=", PresentationStat.Abrogation),
+      eb(
+        "Presentation.PresStatDate",
+        ">=",
+        sql<Date>`DATE_ADD(NOW(),INTERVAL -730 DAY)`,
+      ),
+    ]),
+  ]);
+};
 
 export const getPresentations = cache(
   async (
@@ -26,34 +56,7 @@ export const getPresentations = cache(
       await pdbmMySQL
         .selectFrom("Presentation")
         .where("SpecId", "=", CIS)
-        .where(({ eb }) =>
-          eb.or([
-            eb("CommId", "=", PresentationComm.Commercialisation),
-            eb.and([
-              eb("CommId", "in", [
-                PresentationComm["Arrêt"],
-                PresentationComm.Suspension,
-                PresentationComm["Plus d'autorisation"],
-              ]),
-              eb(
-                "PresCommDate",
-                ">=",
-                sql<Date>`DATE_ADD(NOW(),INTERVAL -730 DAY)`,
-              ),
-            ]),
-          ]),
-        )
-        .where(({ eb }) =>
-          eb.or([
-            eb("StatId", "is", null),
-            eb("StatId", "!=", PresentationStat.Abrogation),
-            eb(
-              "PresStatDate",
-              ">=",
-              sql<Date>`DATE_ADD(NOW(),INTERVAL -730 DAY)`,
-            ),
-          ]),
-        )
+        .where(presentationIsComm())
         .leftJoin(
           "CNAM_InfoTarif",
           "Presentation.codeCIP13",
@@ -96,9 +99,6 @@ export const getSpecialite = cache(async (CIS: string) => {
     presentationsP,
     elementsP,
   ]);
-
-  if (!specialite) return notFound();
-  if (!presentations.length) return notFound();
 
   const composants: Array<SpecComposant & SubstanceNom> = (
     await Promise.all(
