@@ -36,9 +36,10 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { CIS } = await props.params;
 
-  const name = formatSpecName(
-    (await getSpecialite(CIS)).specialite.SpecDenom01,
-  );
+  const { specialite } = await getSpecialite(CIS);
+  if (!specialite) return notFound();
+
+  const name = formatSpecName(specialite.SpecDenom01);
   return {
     title: `${name} - ${(await parent).title?.absolute}`,
   };
@@ -192,6 +193,10 @@ export default async function Page(props: {
 
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);
+
+  if (!specialite) return notFound();
+  if (!presentations.length) return notFound();
+
   const leaflet = await getLeaflet(CIS);
   const atcCode = getAtcCode(CIS);
   const atc1 = await getAtc1(atcCode);

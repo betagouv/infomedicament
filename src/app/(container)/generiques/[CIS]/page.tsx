@@ -54,6 +54,8 @@ export default async function Page(props: {
 
   const { specialite, composants } = await getSpecialite(group.SpecId);
 
+  if (!specialite) notFound();
+
   const generiques = await getGeneriques(CIS);
 
   let atcCode;
