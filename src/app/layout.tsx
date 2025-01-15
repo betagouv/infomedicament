@@ -78,7 +78,19 @@ export default async function RootLayout({
                   title: "Accueil",
                 }}
                 accessibility={"non compliant"}
-                bottomItems={[headerFooterDisplayItem]}
+                termsLinkProps={{
+                  href: "/mentions-legales",
+                  title: "Mentions légales",
+                }}
+                bottomItems={[
+                  {
+                    text: "Politique de confidentialité",
+                    linkProps: {
+                      href: "/politique-de-confidentialite",
+                    },
+                  },
+                  headerFooterDisplayItem,
+                ]}
               />
               <GlossaryModals />
               <Suspense fallback={null}>
