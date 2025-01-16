@@ -19,6 +19,11 @@ import GlossaryModals from "@/components/glossary/GlossaryModals";
 import GlossaryContextProvider from "@/components/glossary/GlossaryContextProvider";
 import GreetingModal from "@/components/GreetingModal";
 import Matomo from "@/components/Matomo";
+import {
+  ConsentBannerAndConsentManagement,
+  FooterConsentManagementItem,
+  FooterPersonalDataPolicyItem,
+} from "@/consentManagement";
 
 export const metadata: Metadata = {
   title: "Info Médicament",
@@ -61,6 +66,7 @@ export default async function RootLayout({
           }
         />
         <DsfrProvider lang={lang}>
+          <ConsentBannerAndConsentManagement />
           <MuiDsfrThemeProvider>
             <GlossaryContextProvider>
               {header}
@@ -83,12 +89,8 @@ export default async function RootLayout({
                   title: "Mentions légales",
                 }}
                 bottomItems={[
-                  {
-                    text: "Politique de confidentialité",
-                    linkProps: {
-                      href: "/politique-de-confidentialite",
-                    },
-                  },
+                  <FooterPersonalDataPolicyItem key={"dp"} />,
+                  <FooterConsentManagementItem key={"fc"} />,
                   headerFooterDisplayItem,
                 ]}
               />
