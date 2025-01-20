@@ -12,3 +12,8 @@
 .fr-icon--custom-pill::after {
     mask-image:url('pill.svg')
 }
+
+.fr-icon--custom-pregnancy::before,
+.fr-icon--custom-pregnancy::after {
+    mask-image:url('pregnancy.svg')
+}

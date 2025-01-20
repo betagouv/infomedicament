@@ -26,6 +26,9 @@ import { getSpecialite } from "@/db/utils";
 import { PresentationsList } from "@/components/PresentationsList";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
+import type { FrIconClassName } from "@codegouvfr/react-dsfr/src/fr/generatedFromCss/classNames";
+import Alert from "@codegouvfr/react-dsfr/Alert";
+import { getPregnancyAlerts } from "@/data/grist/pregnancy";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -213,6 +216,10 @@ export default async function Page(props: {
       .where("GroupeGene.SpecId", "=", CIS)
       .executeTakeFirst());
 
+  const pregnancyAlert = (await getPregnancyAlerts()).find((s) =>
+    composants.find((c) => c.SubsId.trim() === String(s.id)),
+  );
+
   return (
     <>
       <Breadcrumb
@@ -245,6 +252,27 @@ export default async function Page(props: {
       <h1 className={fr.cx("fr-h2")}>
         {formatSpecName(specialite.SpecDenom01)}
       </h1>
+      {pregnancyAlert && (
+        <div className={fr.cx("fr-grid-row", "fr-mb-2w")}>
+          <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
+            <Alert
+              severity={"warning"}
+              title={"Contre-indication grossesse"}
+              description={
+                <p>
+                  Ce médicament est contre-indiqué si vous êtes enceinte ou
+                  prévoyez de l’être. Demandez conseil à votre médecin avant de
+                  prendre ou d’arrêter ce médicament.
+                  <br />
+                  <a target="_blank" href={pregnancyAlert.link}>
+                    En savoir plus sur le site de l’ANSM
+                  </a>
+                </p>
+              }
+            />
+          </div>
+        </div>
+      )}
       <section className={"fr-mb-4w"}>
         <div className={"fr-mb-1w"}>
           <ul className={fr.cx("fr-tags-group", "fr-mb-n1v")}>
@@ -305,6 +333,18 @@ export default async function Page(props: {
                 Sur ordonnance
               </Tag>
             ) : null}
+            {pregnancyAlert && (
+              <Tag
+                small
+                iconId={"fr-icon--custom-pregnancy" as FrIconClassName}
+                linkProps={{
+                  href: "#",
+                  className: fr.cx("fr-tag--orange-terre-battue"),
+                }}
+              >
+                Contre-indication grossesse
+              </Tag>
+            )}
           </ul>
         </div>
         <div className={"fr-mb-1w"}>
