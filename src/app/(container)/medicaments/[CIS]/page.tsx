@@ -29,6 +29,8 @@ import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import type { FrIconClassName } from "@codegouvfr/react-dsfr/src/fr/generatedFromCss/classNames";
 import Alert from "@codegouvfr/react-dsfr/Alert";
 import { getPregnancyAlerts } from "@/data/grist/pregnancy";
+import { getPediatrics } from "@/data/grist/pediatrics";
+import PediatricsTags from "@/components/PediatricsTags";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -220,6 +222,8 @@ export default async function Page(props: {
     composants.find((c) => c.SubsId.trim() === String(s.id)),
   );
 
+  const pediatrics = await getPediatrics(CIS);
+
   return (
     <>
       <Breadcrumb
@@ -252,12 +256,13 @@ export default async function Page(props: {
       <h1 className={fr.cx("fr-h2")}>
         {formatSpecName(specialite.SpecDenom01)}
       </h1>
-      {pregnancyAlert && (
-        <div className={fr.cx("fr-grid-row", "fr-mb-2w")}>
-          <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
+      <div className={fr.cx("fr-grid-row")}>
+        <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
+          {pregnancyAlert && (
             <Alert
               severity={"warning"}
               title={"Contre-indication grossesse"}
+              className={fr.cx("fr-mb-2w")}
               description={
                 <p>
                   Ce médicament est contre-indiqué si vous êtes enceinte ou
@@ -270,93 +275,104 @@ export default async function Page(props: {
                 </p>
               }
             />
-          </div>
+          )}
+          {pediatrics?.contraindication && (
+            <Alert
+              severity={"warning"}
+              title={
+                "Il existe une contre-indication pédiatrique (vérifier selon l’âge)."
+              }
+              className={fr.cx("fr-mb-2w")}
+            />
+          )}
+
+          <section className={"fr-mb-4w"}>
+            <div className={"fr-mb-1w"}>
+              <ul className={fr.cx("fr-tags-group", "fr-mb-n1v")}>
+                <Tag
+                  small
+                  linkProps={{
+                    href: `/atc/${atc2.code}`,
+                    className: cx("fr-tag--custom-alt-class"),
+                  }}
+                >
+                  {atc2.label}
+                </Tag>
+                <Tag
+                  small
+                  linkProps={{
+                    href: `/substances/${displaySimpleComposants(composants)
+                      .map((s) => s.NomId.trim())
+                      .join(",")}`,
+                    className: cx("fr-tag--custom-alt-substance"),
+                  }}
+                >
+                  {displaySimpleComposants(composants)
+                    .map((s) => s.NomLib.trim())
+                    .join(", ")}
+                </Tag>
+                {isPrinceps && (
+                  <Tag
+                    small
+                    iconId="fr-icon-capsule-fill"
+                    linkProps={{
+                      className: fr.cx("fr-tag--blue-ecume"),
+                      href: `/generiques/${CIS}`,
+                    }}
+                  >
+                    Princeps
+                  </Tag>
+                )}
+                {specialite.SpecGeneId ? (
+                  <Tag
+                    small
+                    iconId="fr-icon-capsule-fill"
+                    linkProps={{
+                      className: fr.cx("fr-tag--blue-ecume"),
+                      href: `/generiques/${specialite.SpecGeneId}`,
+                    }}
+                  >
+                    Générique
+                  </Tag>
+                ) : null}{" "}
+                {delivrance.length ? (
+                  <Tag
+                    small
+                    iconId="fr-icon-file-text-fill"
+                    nativeButtonProps={{
+                      className: fr.cx("fr-tag--blue-ecume"),
+                    }}
+                  >
+                    Sur ordonnance
+                  </Tag>
+                ) : null}
+                {pregnancyAlert && (
+                  <Tag
+                    small
+                    iconId={"fr-icon--custom-pregnancy" as FrIconClassName}
+                    linkProps={{
+                      href: "#",
+                      className: fr.cx("fr-tag--orange-terre-battue"),
+                    }}
+                  >
+                    Contre-indication grossesse
+                  </Tag>
+                )}
+                {pediatrics && <PediatricsTags info={pediatrics} />}
+              </ul>
+            </div>
+            <div className={"fr-mb-1w"}>
+              <span
+                className={["fr-icon--custom-molecule", fr.cx("fr-mr-1w")].join(
+                  " ",
+                )}
+              />
+              <b>Substance active</b> {displayCompleteComposants(composants)}
+            </div>
+            <PresentationsList presentations={presentations} />
+          </section>
         </div>
-      )}
-      <section className={"fr-mb-4w"}>
-        <div className={"fr-mb-1w"}>
-          <ul className={fr.cx("fr-tags-group", "fr-mb-n1v")}>
-            <Tag
-              small
-              linkProps={{
-                href: `/atc/${atc2.code}`,
-                className: cx("fr-tag--custom-alt-class"),
-              }}
-            >
-              {atc2.label}
-            </Tag>
-            <Tag
-              small
-              linkProps={{
-                href: `/substances/${displaySimpleComposants(composants)
-                  .map((s) => s.NomId.trim())
-                  .join(",")}`,
-                className: cx("fr-tag--custom-alt-substance"),
-              }}
-            >
-              {displaySimpleComposants(composants)
-                .map((s) => s.NomLib.trim())
-                .join(", ")}
-            </Tag>
-            {isPrinceps && (
-              <Tag
-                small
-                iconId="fr-icon-capsule-fill"
-                linkProps={{
-                  className: fr.cx("fr-tag--blue-ecume"),
-                  href: `/generiques/${CIS}`,
-                }}
-              >
-                Princeps
-              </Tag>
-            )}
-            {specialite.SpecGeneId ? (
-              <Tag
-                small
-                iconId="fr-icon-capsule-fill"
-                linkProps={{
-                  className: fr.cx("fr-tag--blue-ecume"),
-                  href: `/generiques/${specialite.SpecGeneId}`,
-                }}
-              >
-                Générique
-              </Tag>
-            ) : null}{" "}
-            {delivrance.length ? (
-              <Tag
-                small
-                iconId="fr-icon-file-text-fill"
-                nativeButtonProps={{
-                  className: fr.cx("fr-tag--blue-ecume"),
-                }}
-              >
-                Sur ordonnance
-              </Tag>
-            ) : null}
-            {pregnancyAlert && (
-              <Tag
-                small
-                iconId={"fr-icon--custom-pregnancy" as FrIconClassName}
-                linkProps={{
-                  href: "#",
-                  className: fr.cx("fr-tag--orange-terre-battue"),
-                }}
-              >
-                Contre-indication grossesse
-              </Tag>
-            )}
-          </ul>
-        </div>
-        <div className={"fr-mb-1w"}>
-          <span
-            className={["fr-icon--custom-molecule", fr.cx("fr-mr-1w")].join(
-              " ",
-            )}
-          />
-          <b>Substance active</b> {displayCompleteComposants(composants)}
-        </div>
-        <PresentationsList presentations={presentations} />
-      </section>
+      </div>
       {leaflet ? (
         <div className={fr.cx("fr-grid-row")}>
           <article
