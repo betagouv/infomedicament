@@ -1,8 +1,6 @@
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { getSpecialite } from "@/db/utils";
 import { fr } from "@codegouvfr/react-dsfr";
-import Tag from "@codegouvfr/react-dsfr/Tag";
-import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import React, { Fragment } from "react";
 import Link from "next/link";
@@ -10,7 +8,6 @@ import Link from "next/link";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import {
   displayCompleteComposants,
-  displaySimpleComposants,
   formatSpecName,
   getSpecialiteGroupName,
   groupGeneNameToDCI,
@@ -19,6 +16,8 @@ import { ATCError, getAtc2, getAtcCode } from "@/data/grist/atc";
 import { notFound } from "next/navigation";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import GenericAccordion from "@/components/GenericAccordion";
+import ClassTag from "@/components/tags/ClassTag";
+import SubstanceTag from "@/components/tags/SubstanceTag";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -93,28 +92,8 @@ export default async function Page(props: {
           {formatSpecName(groupGeneNameToDCI(group.LibLong))}
         </h1>
         <ul className={fr.cx("fr-tags-group", "fr-mb-1v")}>
-          <Tag
-            small
-            linkProps={{
-              href: `/atc/${atc2.code}`,
-              className: cx("fr-tag--custom-alt-class"),
-            }}
-          >
-            {atc2.label}
-          </Tag>
-          <Tag
-            small
-            linkProps={{
-              href: `/substances/${displaySimpleComposants(composants)
-                .map((s) => s.NomId.trim())
-                .join(",")}`,
-              className: cx("fr-tag--custom-alt-substance"),
-            }}
-          >
-            {displaySimpleComposants(composants)
-              .map((s) => s.NomLib.trim())
-              .join(", ")}
-          </Tag>
+          <ClassTag atc2={atc2} />
+          <SubstanceTag composants={composants} />
         </ul>
         <div className={"fr-mb-1w"}>
           <span
