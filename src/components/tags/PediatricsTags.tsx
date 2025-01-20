@@ -41,7 +41,8 @@ export default function PediatricsTags({ info }: { info: PediatricsInfo }) {
             className: cx("fr-tag--custom-alt-pediatrics-advice"),
           }}
         >
-          Utilisation chez l&apos;enfant sur avis médical
+          Utilisation chez l&apos;enfant sur avis d&apos;un professionnel de
+          santé
         </Tag>
       )}
     </>
