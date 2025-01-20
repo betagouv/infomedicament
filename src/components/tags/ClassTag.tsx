@@ -7,7 +7,6 @@ import "./dsfr-custom-tags.css";
 export default function ClassTag(props: { atc2: ATC }) {
   return (
     <Tag
-      small
       linkProps={{
         href: `/atc/${props.atc2.code}`,
         className: cx("fr-tag--custom-alt-class"),

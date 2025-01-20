@@ -10,7 +10,6 @@ export default function SubstanceTag(props: {
 }) {
   return (
     <Tag
-      small
       linkProps={{
         href: `/substances/${displaySimpleComposants(props.composants)
           .map((s) => s.NomId.trim())

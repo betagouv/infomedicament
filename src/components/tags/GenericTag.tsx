@@ -6,7 +6,6 @@ import "./dsfr-custom-tags.css";
 export default function GenericTag(props: { specGeneId: string }) {
   return (
     <Tag
-      small
       iconId="fr-icon-capsule-fill"
       linkProps={{
         className: cx("fr-tag--custom-alt-blue"),

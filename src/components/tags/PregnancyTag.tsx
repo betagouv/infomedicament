@@ -7,7 +7,6 @@ import "./dsfr-custom-tags.css";
 export default function PregnancyTag() {
   return (
     <Tag
-      small
       iconId={"fr-icon--custom-pregnancy" as FrIconClassName}
       linkProps={{
         href: "#",

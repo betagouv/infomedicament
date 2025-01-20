@@ -6,7 +6,6 @@ import "./dsfr-custom-tags.css";
 export default function PrescriptionTag() {
   return (
     <Tag
-      small
       iconId="fr-icon-file-text-fill"
       nativeButtonProps={{
         className: cx("fr-tag--custom-alt-blue"),

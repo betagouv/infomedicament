@@ -10,7 +10,6 @@ export default function PediatricsTags({ info }: { info: PediatricsInfo }) {
     <>
       {info.indication && (
         <Tag
-          small
           iconId={"fr-icon--custom-bedroom-baby" as FrIconClassName}
           linkProps={{
             href: `#`,
@@ -22,7 +21,6 @@ export default function PediatricsTags({ info }: { info: PediatricsInfo }) {
       )}
       {info.contraindication && (
         <Tag
-          small
           iconId={"fr-icon--custom-bedroom-baby" as FrIconClassName}
           linkProps={{
             href: `#`,
@@ -34,7 +32,6 @@ export default function PediatricsTags({ info }: { info: PediatricsInfo }) {
       )}
       {info.doctorAdvice && (
         <Tag
-          small
           iconId={"fr-icon--custom-bedroom-baby" as FrIconClassName}
           linkProps={{
             href: `#`,
