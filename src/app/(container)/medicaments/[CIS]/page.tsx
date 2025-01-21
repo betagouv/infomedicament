@@ -3,9 +3,7 @@ import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import Tag from "@codegouvfr/react-dsfr/Tag";
 import Accordion from "@codegouvfr/react-dsfr/Accordion";
-import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import fs from "node:fs/promises";
 import path from "node:path";
 import JSZIP from "jszip";
@@ -26,11 +24,16 @@ import { getSpecialite } from "@/db/utils";
 import { PresentationsList } from "@/components/PresentationsList";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
-import type { FrIconClassName } from "@codegouvfr/react-dsfr/src/fr/generatedFromCss/classNames";
 import Alert from "@codegouvfr/react-dsfr/Alert";
 import { getPregnancyAlerts } from "@/data/grist/pregnancy";
 import { getPediatrics } from "@/data/grist/pediatrics";
-import PediatricsTags from "@/components/PediatricsTags";
+import PediatricsTags from "@/components/tags/PediatricsTags";
+import ClassTag from "@/components/tags/ClassTag";
+import SubstanceTag from "@/components/tags/SubstanceTag";
+import PregnancyTag from "@/components/tags/PregnancyTag";
+import PrescriptionTag from "@/components/tags/PrescriptionTag";
+import PrincepsTag from "@/components/tags/PrincepsTag";
+import GenericTag from "@/components/tags/GenericTag";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -289,75 +292,14 @@ export default async function Page(props: {
           <section className={"fr-mb-4w"}>
             <div className={"fr-mb-1w"}>
               <ul className={fr.cx("fr-tags-group", "fr-mb-n1v")}>
-                <Tag
-                  small
-                  linkProps={{
-                    href: `/atc/${atc2.code}`,
-                    className: cx("fr-tag--custom-alt-class"),
-                  }}
-                >
-                  {atc2.label}
-                </Tag>
-                <Tag
-                  small
-                  linkProps={{
-                    href: `/substances/${displaySimpleComposants(composants)
-                      .map((s) => s.NomId.trim())
-                      .join(",")}`,
-                    className: cx("fr-tag--custom-alt-substance"),
-                  }}
-                >
-                  {displaySimpleComposants(composants)
-                    .map((s) => s.NomLib.trim())
-                    .join(", ")}
-                </Tag>
-                {isPrinceps && (
-                  <Tag
-                    small
-                    iconId="fr-icon-capsule-fill"
-                    linkProps={{
-                      className: fr.cx("fr-tag--blue-ecume"),
-                      href: `/generiques/${CIS}`,
-                    }}
-                  >
-                    Princeps
-                  </Tag>
+                <ClassTag atc2={atc2} />
+                <SubstanceTag composants={composants} />
+                {isPrinceps && <PrincepsTag CIS={CIS} />}
+                {!!specialite.SpecGeneId && (
+                  <GenericTag specGeneId={specialite.SpecGeneId} />
                 )}
-                {specialite.SpecGeneId ? (
-                  <Tag
-                    small
-                    iconId="fr-icon-capsule-fill"
-                    linkProps={{
-                      className: fr.cx("fr-tag--blue-ecume"),
-                      href: `/generiques/${specialite.SpecGeneId}`,
-                    }}
-                  >
-                    Générique
-                  </Tag>
-                ) : null}{" "}
-                {delivrance.length ? (
-                  <Tag
-                    small
-                    iconId="fr-icon-file-text-fill"
-                    nativeButtonProps={{
-                      className: fr.cx("fr-tag--blue-ecume"),
-                    }}
-                  >
-                    Sur ordonnance
-                  </Tag>
-                ) : null}
-                {pregnancyAlert && (
-                  <Tag
-                    small
-                    iconId={"fr-icon--custom-pregnancy" as FrIconClassName}
-                    linkProps={{
-                      href: "#",
-                      className: fr.cx("fr-tag--orange-terre-battue"),
-                    }}
-                  >
-                    Contre-indication grossesse
-                  </Tag>
-                )}
+                {!!delivrance.length && <PrescriptionTag />}
+                {pregnancyAlert && <PregnancyTag />}
                 {pediatrics && <PediatricsTags info={pediatrics} />}
               </ul>
             </div>

@@ -1,0 +1,53 @@
+:root {
+    --purple-glycine-850-200-hover: #f983f1; /* This is in DSFR documentation but not in CSS */
+    --purple-glycine-850-200-active: #f767ef; /* This is in DSFR documentation but not in CSS */
+}
+
+:root[data-fr-theme=dark] {
+    --purple-glycine-850-200-hover: #855080; /* This is in DSFR documentation but not in CSS */
+    --purple-glycine-850-200-active: #a1629c; /* This is in DSFR documentation but not in CSS */
+}
+
+
+a.fr-tag--custom-alt-blue, button.fr-tag--custom-alt-blue {
+    color: var(--text-default-grey);
+    background-color: var(--blue-ecume-950-100);
+    --hover: var(--blue-ecume-950-100-hover);
+    --active: var(--blue-ecume-950-100-active);
+}
+
+a.fr-tag--custom-alt-class, button.fr-tag--custom-alt-class {
+    color: var(--text-default-grey);
+    background-color: var(--purple-glycine-850-200);
+    --hover: var(--purple-glycine-850-200-hover);
+    --active: var(--purple-glycine-850-200-active);
+}
+
+a.fr-tag--custom-alt-substance, button.fr-tag--custom-alt-substance {
+    color: var(--text-default-grey);
+    background-color: var(--purple-glycine-950-100);
+    --hover: var(--purple-glycine-950-100-hover);
+    --active: var(--purple-glycine-950-100-active);
+}
+
+a.fr-tag--custom-alt-contraindication, button.fr-tag--custom-alt-contraindication {
+    color: var(--text-default-grey);
+    background-color: var(--orange-terre-battue-925-125);
+    --hover: var(--orange-terre-battue-925-125-hover);
+    --active: var(--orange-terre-battue-925-125-active);
+}
+
+a.fr-tag--custom-alt-pediatrics-indication, button.fr-tag--custom-alt-pediatrics-indication {
+    color: var(--text-default-grey);
+    background-color: var(--green-emeraude-950-100);
+    --hover: var(--green-emeraude-950-100-hover);
+    --active: var(--green-emeraude-950-100-active);
+}
+
+
+a.fr-tag--custom-alt-pediatrics-advice, button.fr-tag--custom-alt-pediatrics-advice {
+    color: var(--text-default-grey);
+    background-color: var(--yellow-tournesol-950-100);
+    --hover: var(--yellow-tournesol-950-100-hover);
+    --active: var(--yellow-tournesol-950-100-active);
+}

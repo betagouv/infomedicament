@@ -1,19 +1,19 @@
 import { PediatricsInfo } from "@/data/grist/pediatrics";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import React from "react";
-import { fr } from "@codegouvfr/react-dsfr";
 import type { FrIconClassName } from "@codegouvfr/react-dsfr/src/fr/generatedFromCss/classNames";
+import { cx } from "@codegouvfr/react-dsfr/tools/cx";
+import "./dsfr-custom-tags.css";
 
 export default function PediatricsTags({ info }: { info: PediatricsInfo }) {
   return (
     <>
       {info.indication && (
         <Tag
-          small
           iconId={"fr-icon--custom-bedroom-baby" as FrIconClassName}
           linkProps={{
             href: `#`,
-            className: fr.cx("fr-tag--green-emeraude"),
+            className: cx("fr-tag--custom-alt-pediatrics-indication"),
           }}
         >
           Peut être utilisé chez l&apos;enfant selon l&apos;âge
@@ -21,11 +21,10 @@ export default function PediatricsTags({ info }: { info: PediatricsInfo }) {
       )}
       {info.contraindication && (
         <Tag
-          small
           iconId={"fr-icon--custom-bedroom-baby" as FrIconClassName}
           linkProps={{
             href: `#`,
-            className: fr.cx("fr-tag--orange-terre-battue"),
+            className: cx("fr-tag--custom-alt-contraindication"),
           }}
         >
           Contre-indication chez l&apos;enfant selon l&apos;âge
@@ -33,14 +32,14 @@ export default function PediatricsTags({ info }: { info: PediatricsInfo }) {
       )}
       {info.doctorAdvice && (
         <Tag
-          small
           iconId={"fr-icon--custom-bedroom-baby" as FrIconClassName}
           linkProps={{
             href: `#`,
-            className: fr.cx("fr-tag--yellow-tournesol"),
+            className: cx("fr-tag--custom-alt-pediatrics-advice"),
           }}
         >
-          Utilisation chez l&apos;enfant sur avis médical
+          Utilisation chez l&apos;enfant sur avis d&apos;un professionnel de
+          santé
         </Tag>
       )}
     </>
