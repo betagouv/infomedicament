@@ -62,23 +62,25 @@ export default async function Page(props0: {
           </p>
         </div>
       </div>
-      <div className={fr.cx("fr-grid-row")}>
-        <div
-          className={fr.cx(
-            "fr-col-12",
-            "fr-col-sm-9",
-            "fr-col-md-8",
-            "fr-col-lg-7",
-            "fr-mb-6w",
-          )}
-        >
-          <Image
-            alt="Image décorative"
-            className={fr.cx("fr-responsive-img", "fr-col-12")}
-            {...image}
-          />
+      {image && (
+        <div className={fr.cx("fr-grid-row")}>
+          <div
+            className={fr.cx(
+              "fr-col-12",
+              "fr-col-sm-9",
+              "fr-col-md-8",
+              "fr-col-lg-7",
+              "fr-mb-6w",
+            )}
+          >
+            <Image
+              alt="Image décorative"
+              className={fr.cx("fr-responsive-img", "fr-col-12")}
+              {...image}
+            />
+          </div>
         </div>
-      </div>
+      )}
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12", "fr-col-md-10", "fr-col-lg-9")}>
           <MDXRemote

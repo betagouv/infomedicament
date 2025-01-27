@@ -25,7 +25,9 @@ export async function getArticles() {
       homepage: fields.Homepage as boolean,
       canonicalUrl: fields.Lien as string,
       description: fields.Metadescription as string,
-      image: fields.Image as Omit<ImageProps, "alt">,
+      ...(fields.Image
+        ? { image: fields.Image as Omit<ImageProps, "alt"> }
+        : {}),
     };
   });
 }
