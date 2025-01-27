@@ -51,7 +51,7 @@ function presentationDetailName(p: PresentationDetail): string {
       return `${totalDisplay(p)} - ${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)} de ${contentDisplay(p)}`;
     }
 
-    return `${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)}${p.qtecontenance && p.qtecontenance ? `de ${contentDisplay(p)}` : ""}`;
+    return `${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)}${p.qtecontenance && p.qtecontenance ? ` de ${contentDisplay(p)}` : ""}`;
   }
 
   return capitalize(
