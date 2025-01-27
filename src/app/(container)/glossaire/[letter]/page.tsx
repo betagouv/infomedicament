@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import sanitizeHtml from "sanitize-html";
 import slugify from "slugify";
+import { Fragment } from "react";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -57,7 +58,12 @@ export default async function Page(props: {
           url={(letter) => `/glossaire/${letter}`}
         />
         {definitions.map((definition) => (
-          <>
+          <Fragment
+            key={slugify(definition.Nom_glossaire as string, {
+              lower: true,
+              strict: true,
+            })}
+          >
             <h2
               className={fr.cx("fr-h6", "fr-mt-4w", "fr-mb-1w")}
               id={slugify(definition.Nom_glossaire as string, {
@@ -77,7 +83,7 @@ export default async function Page(props: {
                 ),
               }}
             />
-          </>
+          </Fragment>
         ))}
       </div>
     </div>
