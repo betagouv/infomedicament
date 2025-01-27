@@ -43,11 +43,15 @@ function presentationDetailName(p: PresentationDetail): string {
   const recipient = p.recipient.replaceAll("thermoformée", "");
 
   if (p.nbrrecipient > 1) {
-    if (p.qtecontenance > 1 && !unitesMesures.includes(p.unitecontenance)) {
+    if (
+      p.qtecontenance > 1 &&
+      p.unitecontenance &&
+      !unitesMesures.includes(p.unitecontenance)
+    ) {
       return `${totalDisplay(p)} - ${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)} de ${contentDisplay(p)}`;
     }
 
-    return `${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)} de ${contentDisplay(p)}`;
+    return `${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)}${p.qtecontenance && p.qtecontenance ? `de ${contentDisplay(p)}` : ""}`;
   }
 
   return capitalize(
