@@ -6,7 +6,7 @@ export interface PdbmMySQL {
   Composant: SpecComposantTable;
   Subs_Nom: Subs_NomTable;
   Presentation: PresentationTable;
-  CNAM_InfoTarif: InfoTarifTable;
+  CEPS_Prix: CEPSPrixTable;
   Spec_Delivrance: SpecDelivranceTable;
   DicoDelivrance: DicoDelivranceTable;
   StatutComm: StatutCommTable;
@@ -79,12 +79,10 @@ interface PresentationTable {
   codeCIP13: string;
 }
 
-interface InfoTarifTable {
+interface CEPSPrixTable {
   Cip13: string;
-  Taux: string;
-  Prix: string;
-  DateEffet: Date;
-  IndicRestreinte: string;
+  TauxPriseEnCharge: string;
+  PPF: number;
 }
 
 interface SpecDelivranceTable {
@@ -139,7 +137,7 @@ export type SpecElement = Selectable<SpecElementTable>;
 export type SpecComposant = Selectable<SpecComposantTable>;
 export type SubstanceNom = Selectable<Subs_NomTable>;
 export type Presentation = Selectable<PresentationTable>;
-export type PresInfoTarif = Selectable<InfoTarifTable>;
+export type PresInfoTarif = Selectable<CEPSPrixTable>;
 export type SpecDelivrance = Selectable<SpecDelivranceTable> &
   Selectable<DicoDelivranceTable>;
 export type Patho = Selectable<PathoTable>;

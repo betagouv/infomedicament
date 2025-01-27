@@ -57,22 +57,11 @@ export const getPresentations = cache(
         .selectFrom("Presentation")
         .where("SpecId", "=", CIS)
         .where(presentationIsComm())
-        .leftJoin(
-          "CNAM_InfoTarif",
-          "Presentation.codeCIP13",
-          "CNAM_InfoTarif.Cip13",
-        )
+        .leftJoin("CEPS_Prix", "Presentation.codeCIP13", "CEPS_Prix.Cip13")
         .selectAll()
         .execute()
     ).sort((a, b) =>
-      a.Prix && b.Prix
-        ? parseFloat(a.Prix.replace(",", ".")) -
-          parseFloat(b.Prix.replace(",", "."))
-        : a.Prix
-          ? -1
-          : b.Prix
-            ? 1
-            : 0,
+      a.PPF && b.PPF ? a.PPF - b.PPF : a.PPF ? -1 : b.PPF ? 1 : 0,
     );
   },
 );
