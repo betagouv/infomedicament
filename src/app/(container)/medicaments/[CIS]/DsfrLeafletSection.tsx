@@ -3,7 +3,7 @@ import { Fragment, JSX } from "react";
 import Image from "next/image";
 import { fr } from "@codegouvfr/react-dsfr";
 import { isEmptyTextNode, isHtmlElement, isListItem } from "./leafletUtils";
-import { getLeafletImage } from "@/db";
+import { getLeafletImage } from "@/db/utils";
 import { WithGlossary } from "@/components/glossary/WithGlossary";
 
 async function DsfrLeafletElement({ node }: { node: HTMLElement }) {
@@ -128,7 +128,7 @@ export function DsfrListItems({
   ) as HTMLElement[];
 
   return (
-    <>
+    <Fragment>
       {cleanedData.map((node, index) => {
         // Remove original bullet points
         node.childNodes = node.childNodes.filter(
@@ -178,7 +178,7 @@ export function DsfrListItems({
           </li>
         );
       })}
-    </>
+    </Fragment>
   );
 }
 
@@ -186,7 +186,7 @@ export default async function DsfrLeafletSection({ data }: { data: Node[] }) {
   const cleanedData = data.filter((el) => !isEmptyTextNode(el));
 
   return (
-    <>
+    <Fragment>
       {await Promise.all(
         cleanedData.map(async (node, index) => {
           if (!isHtmlElement(node)) {
@@ -231,6 +231,6 @@ export default async function DsfrLeafletSection({ data }: { data: Node[] }) {
           return <DsfrLeafletElement key={index} node={node} />;
         }),
       )}
-    </>
+    </Fragment>
   );
 }

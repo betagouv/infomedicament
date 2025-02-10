@@ -5,7 +5,8 @@ import { fr } from "@codegouvfr/react-dsfr";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import Link from "next/link";
 import GenericAccordion from "@/components/GenericAccordion";
-import { formatSpecName, groupGeneNameToDCI } from "@/displayUtils";
+import { formatSpecName } from "@/displayUtils";
+import { groupGeneNameToDCI } from "@/db/utils";
 
 export const dynamic = "error";
 export const dynamicParams = true;

@@ -2,7 +2,7 @@ import React from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { groupSpecialites } from "@/displayUtils";
+import { groupSpecialites } from "@/db/utils";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { PdbmMySQL, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { notFound } from "next/navigation";

@@ -9,7 +9,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
 import React from "react";
-import { PresentationDetail } from "@/db";
+import { PresentationDetail } from "@/db/types";
 import { capitalize } from "tsafe";
 
 const unitesMesures = [

@@ -8,7 +8,7 @@ import Pagination from "@codegouvfr/react-dsfr/Pagination";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { MedGroupSpecListList } from "@/components/MedGroupSpecList";
-import { groupSpecialites } from "@/displayUtils";
+import { groupSpecialites } from "@/db/utils";
 import AlphabeticNav from "@/components/AlphabeticNav";
 
 export const dynamic = "error";
@@ -59,7 +59,7 @@ export default async function Page(props: {
   if (pageNumber < 1 || pageNumber > pageCount) return notFound();
 
   return (
-    <>
+    <Fragment>
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
         currentPageLabel="Liste des médicaments"
@@ -88,6 +88,6 @@ export default async function Page(props: {
           )}
         </div>
       </div>
-    </>
+    </Fragment>
   );
 }

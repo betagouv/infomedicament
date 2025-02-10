@@ -1,17 +1,16 @@
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { getSpecialite } from "@/db/utils";
+import {
+  getSpecialite,
+  getSpecialiteGroupName,
+  groupGeneNameToDCI,
+} from "@/db/utils";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import React, { Fragment } from "react";
 import Link from "next/link";
 
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import {
-  displayCompleteComposants,
-  formatSpecName,
-  getSpecialiteGroupName,
-  groupGeneNameToDCI,
-} from "@/displayUtils";
+import { displayCompleteComposants, formatSpecName } from "@/displayUtils";
 import { ATCError, getAtc2, getAtcCode } from "@/data/grist/atc";
 import { notFound } from "next/navigation";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";

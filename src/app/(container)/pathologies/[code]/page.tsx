@@ -2,7 +2,7 @@ import { pdbmMySQL } from "@/db/pdbmMySQL";
 import DefinitionBanner from "@/components/DefinitionBanner";
 import { notFound } from "next/navigation";
 import { Patho, Specialite } from "@/db/pdbmMySQL/types";
-import { groupSpecialites } from "@/displayUtils";
+import { groupSpecialites } from "@/db/utils";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { fr } from "@codegouvfr/react-dsfr";
 import { MedGroupSpecListList } from "@/components/MedGroupSpecList";

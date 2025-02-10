@@ -1,13 +1,13 @@
-import "server-only";
+import "server-cli-only";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
-import db, { SearchResult } from "@/db/index";
+import db from "@/db";
+import { SearchResult } from "@/db/types";
 import { sql } from "kysely";
-import { groupSpecialites } from "@/displayUtils";
+import { groupSpecialites, presentationIsComm } from "@/db/utils/index";
 import { Patho, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { unstable_cache } from "next/cache";
 import { ATC, ATC1, getAtc1, getAtc2 } from "@/data/grist/atc";
-import { presentationIsComm } from "@/db/utils";
 
 export type SearchResultItem =
   | SubstanceNom
@@ -77,7 +77,7 @@ const getPathologies = unstable_cache(async function (pathologiesId: string[]) {
  * 4. The score of each result is the word similarity between the search query and the token,
  *    for specialities, we sum direct match score and substance match score
  */
-export const getResults = unstable_cache(async function (
+export const getSearchResults = unstable_cache(async function (
   query: string,
   { onlyDirectMatches = false } = {},
 ): Promise<SearchResultItem[]> {

@@ -6,7 +6,7 @@ import { useState } from "react";
 import { formatSpecName } from "@/displayUtils";
 import { SearchBar } from "@codegouvfr/react-dsfr/SearchBar";
 import useSWR from "swr";
-import { SearchResultItem } from "@/db/search";
+import { SearchResultItem } from "@/db/utils/search";
 import { useRouter } from "next/navigation";
 
 type SearchInputProps = {
