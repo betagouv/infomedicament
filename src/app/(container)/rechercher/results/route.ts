@@ -1,4 +1,4 @@
-import { getResults } from "@/db/search";
+import { getSearchResults } from "@/db/utils";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -10,6 +10,6 @@ export async function GET(req: NextRequest) {
       { status: 400 },
     );
   }
-  const results = await getResults(search, { onlyDirectMatches: true });
+  const results = await getSearchResults(search, { onlyDirectMatches: true });
   return NextResponse.json(results.slice(0, 10));
 }

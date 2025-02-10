@@ -1,10 +1,13 @@
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { cleanup, screen, within } from "@testing-library/react";
 import HTMLParser from "node-html-parser";
 
 import DsfrLeafletSection from "./DsfrLeafletSection";
 import { renderServerComponent } from "@/testsUtils/renderServerComponent";
 import nock from "nock";
+
+// Otherwise it tries to import ./db and connect to the database
+vi.mock("@/db/utils", () => ({ getLeafletImage: vi.fn() }));
 
 describe("DsfrLeafletSection", () => {
   beforeEach(() => {

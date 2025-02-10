@@ -4,7 +4,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 
 import { Patho, SubstanceNom } from "@/db/pdbmMySQL/types";
-import { getResults } from "@/db/search";
+import { getSearchResults } from "@/db/utils";
 import { formatSpecName } from "@/displayUtils";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import MedGroupSpecList from "@/components/MedGroupSpecList";
@@ -73,7 +73,7 @@ export default async function Page(props: {
 }) {
   const searchParams = await props.searchParams;
   const search = searchParams && "s" in searchParams && searchParams["s"];
-  const results = search && (await getResults(searchParams["s"]));
+  const results = search && (await getSearchResults(searchParams["s"]));
 
   return (
     <>
