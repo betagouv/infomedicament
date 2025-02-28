@@ -6,6 +6,7 @@ import React from "react";
 import Link from "next/link";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import DefinitionBanner from "@/components/DefinitionBanner";
+import ContentContainer from "@/components/GenericContent/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -59,7 +60,7 @@ export default async function Page(props: {
   }) => React.JSX.Element;
 
   return (
-    <>
+    <ContentContainer>
       <Breadcrumb
         segments={[
           {
@@ -97,6 +98,6 @@ export default async function Page(props: {
           </ul>
         </div>
       </div>
-    </>
+    </ContentContainer>
   );
 }

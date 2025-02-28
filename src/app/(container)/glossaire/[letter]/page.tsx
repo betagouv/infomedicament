@@ -5,6 +5,7 @@ import AlphabeticNav from "@/components/AlphabeticNav";
 import sanitizeHtml from "sanitize-html";
 import slugify from "slugify";
 import { Fragment } from "react";
+import ContentContainer from "@/components/GenericContent/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -50,42 +51,44 @@ export default async function Page(props: {
   const definitions = await getDefinitions(letter);
 
   return (
-    <div className={fr.cx("fr-grid-row", "fr-mb-3w")}>
-      <div className={fr.cx("fr-col-md-8")}>
-        <h1>Glossaire</h1>
-        <AlphabeticNav
-          letters={letters}
-          url={(letter) => `/glossaire/${letter}`}
-        />
-        {definitions.map((definition) => (
-          <Fragment
-            key={slugify(definition.Nom_glossaire as string, {
-              lower: true,
-              strict: true,
-            })}
-          >
-            <h2
-              className={fr.cx("fr-h6", "fr-mt-4w", "fr-mb-1w")}
-              id={slugify(definition.Nom_glossaire as string, {
+    <ContentContainer>
+      <div className={fr.cx("fr-grid-row", "fr-mb-3w")}>
+        <div className={fr.cx("fr-col-md-8")}>
+          <h1>Glossaire</h1>
+          <AlphabeticNav
+            letters={letters}
+            url={(letter) => `/glossaire/${letter}`}
+          />
+          {definitions.map((definition) => (
+            <Fragment
+              key={slugify(definition.Nom_glossaire as string, {
                 lower: true,
                 strict: true,
               })}
             >
-              {definition.Nom_glossaire}
-            </h2>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: sanitizeHtml(
-                  definition.Definition_glossaire as string,
-                  {
-                    allowedTags: ["p", "br", "ul", "ol", "li"],
-                  },
-                ),
-              }}
-            />
-          </Fragment>
-        ))}
+              <h2
+                className={fr.cx("fr-h6", "fr-mt-4w", "fr-mb-1w")}
+                id={slugify(definition.Nom_glossaire as string, {
+                  lower: true,
+                  strict: true,
+                })}
+              >
+                {definition.Nom_glossaire}
+              </h2>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeHtml(
+                    definition.Definition_glossaire as string,
+                    {
+                      allowedTags: ["p", "br", "ul", "ol", "li"],
+                    },
+                  ),
+                }}
+              />
+            </Fragment>
+          ))}
+        </div>
       </div>
-    </div>
+    </ContentContainer>
   );
 }

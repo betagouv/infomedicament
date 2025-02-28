@@ -3,6 +3,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { Fragment } from "react";
 import Link from "next/link";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import ContentContainer from "@/components/GenericContent/ContentContainer";
 
 export const dynamic = "error";
 
@@ -18,7 +19,7 @@ export default async function Page() {
   );
 
   return (
-    <>
+    <ContentContainer>
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
         currentPageLabel={"Liste des articles"}
@@ -54,6 +55,6 @@ export default async function Page() {
           ))}
         </div>
       </div>
-    </>
+    </ContentContainer>
   );
 }

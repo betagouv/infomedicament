@@ -5,6 +5,7 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Metadata, ResolvingMetadata } from "next";
+import ContentContainer from "@/components/GenericContent/ContentContainer";
 
 export async function generateStaticParams() {
   const articles = await getArticles();
@@ -43,7 +44,7 @@ export default async function Page(props0: {
 
   const { title, source, content, image } = await getArticle(slug);
   return (
-    <>
+    <ContentContainer>
       <Breadcrumb
         segments={[
           { label: "Accueil", linkProps: { href: "/" } },
@@ -109,6 +110,6 @@ export default async function Page(props0: {
           />
         </div>
       </div>
-    </>
+    </ContentContainer>
   );
 }

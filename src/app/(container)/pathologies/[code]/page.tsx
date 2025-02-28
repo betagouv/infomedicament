@@ -8,6 +8,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { MedGroupSpecListList } from "@/components/MedGroupSpecList";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getPathologyDefinition } from "@/data/pathologies";
+import ContentContainer from "@/components/GenericContent/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -44,7 +45,7 @@ export default async function Page(props: {
   const specialites = await getPathoSpecialites(code);
   const medicaments = groupSpecialites(specialites);
   return (
-    <>
+    <ContentContainer>
       <Breadcrumb
         segments={[
           { label: "Accueil", linkProps: { href: "/" } },
@@ -68,6 +69,6 @@ export default async function Page(props: {
         {patho.NomPatho}&nbsp;»
       </h2>
       <MedGroupSpecListList items={medicaments} />
-    </>
+    </ContentContainer>
   );
 }

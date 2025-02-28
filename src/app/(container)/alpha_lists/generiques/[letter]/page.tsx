@@ -7,6 +7,7 @@ import Link from "next/link";
 import GenericAccordion from "@/components/GenericAccordion";
 import { formatSpecName } from "@/displayUtils";
 import { groupGeneNameToDCI } from "@/db/utils";
+import ContentContainer from "@/components/GenericContent/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -50,7 +51,7 @@ export default async function Page(props: {
     .execute();
 
   return (
-    <>
+    <ContentContainer>
       {" "}
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
@@ -80,6 +81,6 @@ export default async function Page(props: {
           </ul>
         </div>
       </div>
-    </>
+    </ContentContainer>
   );
 }
