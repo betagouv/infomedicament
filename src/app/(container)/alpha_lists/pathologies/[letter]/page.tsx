@@ -6,6 +6,7 @@ import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import AlphabeticNav from "@/components/AlphabeticNav";
+import ContentContainer from "@/components/GenericContent/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -42,7 +43,7 @@ export default async function Page(props: {
   if (!pathos || !pathos.length) return notFound();
 
   return (
-    <>
+    <ContentContainer>
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
         currentPageLabel="Liste des pathologies"
@@ -68,6 +69,6 @@ export default async function Page(props: {
           </ul>
         </div>
       </div>
-    </>
+    </ContentContainer>
   );
 }

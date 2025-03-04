@@ -17,6 +17,7 @@ import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import GenericAccordion from "@/components/GenericAccordion";
 import ClassTag from "@/components/tags/ClassTag";
 import SubstanceTag from "@/components/tags/SubstanceTag";
+import ContentContainer from "@/components/GenericContent/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -74,80 +75,82 @@ export default async function Page(props: {
   const atc2 = await getAtc2(atcCode);
 
   return (
-    <div className={fr.cx("fr-grid-row")}>
-      <div className={fr.cx("fr-col-md-8")}>
-        <Breadcrumb
-          segments={[
-            { label: "Accueil", linkProps: { href: "/" } },
-            {
-              label: "Liste des groupes génériques",
-              linkProps: { href: "/generiques/A" },
-            },
-          ]}
-          currentPageLabel={formatSpecName(groupGeneNameToDCI(group.LibLong))}
-        />
-        <Badge className="fr-badge--purple-glycine">Groupe générique</Badge>
-        <h1 className={fr.cx("fr-h1", "fr-mt-1w", "fr-mb-6w")}>
-          {formatSpecName(groupGeneNameToDCI(group.LibLong))}
-        </h1>
-        <ul className={fr.cx("fr-tags-group", "fr-mb-1v")}>
-          <ClassTag atc2={atc2} />
-          <SubstanceTag composants={composants} />
-        </ul>
-        <div className={"fr-mb-1w"}>
-          <span
-            className={["fr-icon--custom-molecule", fr.cx("fr-mr-1w")].join(
-              " ",
-            )}
+    <ContentContainer>
+      <div className={fr.cx("fr-grid-row")}>
+        <div className={fr.cx("fr-col-md-8")}>
+          <Breadcrumb
+            segments={[
+              { label: "Accueil", linkProps: { href: "/" } },
+              {
+                label: "Liste des groupes génériques",
+                linkProps: { href: "/generiques/A" },
+              },
+            ]}
+            currentPageLabel={formatSpecName(groupGeneNameToDCI(group.LibLong))}
           />
-          <b>Substance active</b>
-          <br />
-          {displayCompleteComposants(composants)}
-        </div>
-        <div className={"fr-mb-2w"}>
-          <b>Dénomination commune internationale (DCI)</b>
-          <br />
-          {formatSpecName(
-            getSpecialiteGroupName(groupGeneNameToDCI(group.LibLong)),
-          )}
-        </div>
-        <GenericAccordion />
-        <h2 className={fr.cx("fr-h6", "fr-mt-2w", "fr-mb-1w")}>
-          Médicament princeps
-        </h2>
-        <p className={fr.cx("fr-mb-1v")}>
-          {liste_CIS_MVP.includes(specialite.SpecId.trim()) ? (
-            <Link
-              className={fr.cx("fr-link")}
-              href={`/medicaments/${specialite.SpecId}`}
-            >
-              {formatSpecName(specialite.SpecDenom01)}
-            </Link>
-          ) : (
-            <b>{formatSpecName(specialite.SpecDenom01)}</b>
-          )}
-        </p>
-        <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
-          {generiques.length} médicament{generiques.length > 1 && "s"} générique
-          {generiques.length > 1 && "s"}
-        </h2>
-        {generiques.map((specialite) => (
-          <Fragment key={specialite.SpecId}>
-            <p className={fr.cx("fr-mb-1v")}>
-              {liste_CIS_MVP.includes(specialite.SpecId.trim()) ? (
-                <Link
-                  className={fr.cx("fr-link")}
-                  href={`/medicaments/${specialite.SpecId}`}
-                >
-                  {formatSpecName(specialite.SpecDenom01)}
-                </Link>
-              ) : (
-                <b>{formatSpecName(specialite.SpecDenom01)}</b>
+          <Badge className="fr-badge--purple-glycine">Groupe générique</Badge>
+          <h1 className={fr.cx("fr-h1", "fr-mt-1w", "fr-mb-6w")}>
+            {formatSpecName(groupGeneNameToDCI(group.LibLong))}
+          </h1>
+          <ul className={fr.cx("fr-tags-group", "fr-mb-1v")}>
+            <ClassTag atc2={atc2} />
+            <SubstanceTag composants={composants} />
+          </ul>
+          <div className={"fr-mb-1w"}>
+            <span
+              className={["fr-icon--custom-molecule", fr.cx("fr-mr-1w")].join(
+                " ",
               )}
-            </p>
-          </Fragment>
-        ))}
+            />
+            <b>Substance active</b>
+            <br />
+            {displayCompleteComposants(composants)}
+          </div>
+          <div className={"fr-mb-2w"}>
+            <b>Dénomination commune internationale (DCI)</b>
+            <br />
+            {formatSpecName(
+              getSpecialiteGroupName(groupGeneNameToDCI(group.LibLong)),
+            )}
+          </div>
+          <GenericAccordion />
+          <h2 className={fr.cx("fr-h6", "fr-mt-2w", "fr-mb-1w")}>
+            Médicament princeps
+          </h2>
+          <p className={fr.cx("fr-mb-1v")}>
+            {liste_CIS_MVP.includes(specialite.SpecId.trim()) ? (
+              <Link
+                className={fr.cx("fr-link")}
+                href={`/medicaments/${specialite.SpecId}`}
+              >
+                {formatSpecName(specialite.SpecDenom01)}
+              </Link>
+            ) : (
+              <b>{formatSpecName(specialite.SpecDenom01)}</b>
+            )}
+          </p>
+          <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
+            {generiques.length} médicament{generiques.length > 1 && "s"} générique
+            {generiques.length > 1 && "s"}
+          </h2>
+          {generiques.map((specialite) => (
+            <Fragment key={specialite.SpecId}>
+              <p className={fr.cx("fr-mb-1v")}>
+                {liste_CIS_MVP.includes(specialite.SpecId.trim()) ? (
+                  <Link
+                    className={fr.cx("fr-link")}
+                    href={`/medicaments/${specialite.SpecId}`}
+                  >
+                    {formatSpecName(specialite.SpecDenom01)}
+                  </Link>
+                ) : (
+                  <b>{formatSpecName(specialite.SpecDenom01)}</b>
+                )}
+              </p>
+            </Fragment>
+          ))}
+        </div>
       </div>
-    </div>
+    </ContentContainer>
   );
 }

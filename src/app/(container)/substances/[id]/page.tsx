@@ -11,6 +11,7 @@ import { Expression, expressionBuilder, SqlBool } from "kysely";
 import { getGristTableData } from "@/data/grist";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import DefinitionBanner from "@/components/DefinitionBanner";
+import ContentContainer from "@/components/GenericContent/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -97,37 +98,39 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   const specialitiesGroups = groupSpecialites(specialites);
 
   return (
-    <div className={fr.cx("fr-grid-row")}>
-      <div className={fr.cx("fr-col-md-8")}>
-        <Breadcrumb
-          segments={[
-            { label: "Accueil", linkProps: { href: "/" } },
-            {
-              label: "Listes des substances",
-              linkProps: {
-                href: `/substances/${substances[0].NomLib.slice(0, 1)}`,
+    <ContentContainer>
+      <div className={fr.cx("fr-grid-row")}>
+        <div className={fr.cx("fr-col-md-8")}>
+          <Breadcrumb
+            segments={[
+              { label: "Accueil", linkProps: { href: "/" } },
+              {
+                label: "Listes des substances",
+                linkProps: {
+                  href: `/substances/${substances[0].NomLib.slice(0, 1)}`,
+                },
               },
-            },
-          ]}
-          currentPageLabel={substances.map((s) => s.NomLib).join(", ")}
-        />
-        <DefinitionBanner
-          type={`Substance${ids.length > 1 ? "s" : ""} active${ids.length > 1 ? "s" : ""}`}
-          title={substances.map((s) => s.NomLib).join(", ")}
-          definition={definitions.map((d) => ({
-            title: d.fields.SA,
-            desc: d.fields.Definition,
-          }))}
-        />
+            ]}
+            currentPageLabel={substances.map((s) => s.NomLib).join(", ")}
+          />
+          <DefinitionBanner
+            type={`Substance${ids.length > 1 ? "s" : ""} active${ids.length > 1 ? "s" : ""}`}
+            title={substances.map((s) => s.NomLib).join(", ")}
+            definition={definitions.map((d) => ({
+              title: d.fields.SA,
+              desc: d.fields.Definition,
+            }))}
+          />
 
-        <h2 className={fr.cx("fr-h3", "fr-mt-4w")}>
-          {specialitiesGroups.length} médicaments contenant{" "}
-          {substances.length < 2
-            ? `uniquement la substance « ${substances[0].NomLib} »`
-            : `les substances « ${substances.map((s) => s.NomLib).join(", ")} »`}
-        </h2>
-        <MedGroupSpecListList items={specialitiesGroups} />
+          <h2 className={fr.cx("fr-h3", "fr-mt-4w")}>
+            {specialitiesGroups.length} médicaments contenant{" "}
+            {substances.length < 2
+              ? `uniquement la substance « ${substances[0].NomLib} »`
+              : `les substances « ${substances.map((s) => s.NomLib).join(", ")} »`}
+          </h2>
+          <MedGroupSpecListList items={specialitiesGroups} />
+        </div>
       </div>
-    </div>
+    </ContentContainer>
   );
 }

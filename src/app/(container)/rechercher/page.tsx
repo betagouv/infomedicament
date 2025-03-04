@@ -9,6 +9,7 @@ import { formatSpecName } from "@/displayUtils";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import MedGroupSpecList from "@/components/MedGroupSpecList";
 import { ATC, ATC1 } from "@/data/grist/atc";
+import ContentContainer from "@/components/GenericContent/ContentContainer";
 
 const SubstanceResult = ({ item }: { item: SubstanceNom }) => (
   <li className={fr.cx("fr-mb-3w")}>
@@ -76,7 +77,7 @@ export default async function Page(props: {
   const results = search && (await getSearchResults(searchParams["s"]));
 
   return (
-    <>
+    <ContentContainer>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
           <h1
@@ -124,6 +125,6 @@ export default async function Page(props: {
           </div>
         </div>
       )}
-    </>
+    </ContentContainer>
   );
 }

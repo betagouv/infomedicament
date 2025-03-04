@@ -7,6 +7,7 @@ import AlphabeticNav from "@/components/AlphabeticNav";
 import Link from "next/link";
 
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
+import ContentContainer from "@/components/GenericContent/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -58,7 +59,7 @@ export default async function Page(props: {
   if (!substances || !substances.length) return notFound();
 
   return (
-    <>
+    <ContentContainer>
       {" "}
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
@@ -85,6 +86,6 @@ export default async function Page(props: {
           </ul>
         </div>
       </div>
-    </>
+    </ContentContainer>
   );
 }

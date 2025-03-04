@@ -10,6 +10,7 @@ import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { MedGroupSpecListList } from "@/components/MedGroupSpecList";
 import { groupSpecialites } from "@/db/utils";
 import AlphabeticNav from "@/components/AlphabeticNav";
+import ContentContainer from "@/components/GenericContent/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -59,35 +60,37 @@ export default async function Page(props: {
   if (pageNumber < 1 || pageNumber > pageCount) return notFound();
 
   return (
-    <Fragment>
-      <Breadcrumb
-        segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
-        currentPageLabel="Liste des médicaments"
-      />
-      <div className={fr.cx("fr-grid-row")}>
-        <div className={fr.cx("fr-col-md-8")}>
-          <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>Liste des médicaments</h1>
-          <AlphabeticNav
-            letters={letters}
-            url={(letter) => `/medicaments/${letter}/1`}
-          />
-          <MedGroupSpecListList
-            items={medicaments.slice(
-              (pageNumber - 1) * PAGE_LENGTH,
-              pageNumber * PAGE_LENGTH,
-            )}
-          />
-          {pageCount > 1 && (
-            <Pagination
-              count={pageCount}
-              defaultPage={pageNumber}
-              getPageLinkProps={(number: number) => ({
-                href: `/medicaments/${letter}/${number}`,
-              })}
+    <ContentContainer>
+      <Fragment>
+        <Breadcrumb
+          segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
+          currentPageLabel="Liste des médicaments"
+        />
+        <div className={fr.cx("fr-grid-row")}>
+          <div className={fr.cx("fr-col-md-8")}>
+            <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>Liste des médicaments</h1>
+            <AlphabeticNav
+              letters={letters}
+              url={(letter) => `/medicaments/${letter}/1`}
             />
-          )}
+            <MedGroupSpecListList
+              items={medicaments.slice(
+                (pageNumber - 1) * PAGE_LENGTH,
+                pageNumber * PAGE_LENGTH,
+              )}
+            />
+            {pageCount > 1 && (
+              <Pagination
+                count={pageCount}
+                defaultPage={pageNumber}
+                getPageLinkProps={(number: number) => ({
+                  href: `/medicaments/${letter}/${number}`,
+                })}
+              />
+            )}
+          </div>
         </div>
-      </div>
-    </Fragment>
+      </Fragment>
+    </ContentContainer>
   );
 }
