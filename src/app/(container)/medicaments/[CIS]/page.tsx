@@ -261,11 +261,11 @@ export default async function Page(props: {
           {formatSpecName(specialite.SpecDenom01)}
         </h1>
       </ContentContainer>
-      <ContentContainer fullWidth style={{
+      <ContentContainer fullWidth className={fr.cx("fr-pt-4w", "fr-pb-8w")} style={{
             backgroundColor:
               fr.colors.decisions.background.alt.grey.default,
           }}>
-        <ContentContainer>
+        <ContentContainer whiteContainer>
           <div className={fr.cx("fr-p-2w")}>
             <div className={fr.cx("fr-grid-row")}>
               <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
