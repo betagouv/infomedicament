@@ -34,6 +34,7 @@ import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import PrincepsTag from "@/components/tags/PrincepsTag";
 import GenericTag from "@/components/tags/GenericTag";
 import ContentContainer from "@/components/GenericContent/ContentContainer";
+import TagContainer from "@/components/tags/TagContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -265,104 +266,110 @@ export default async function Page(props: {
             backgroundColor:
               fr.colors.decisions.background.alt.grey.default,
           }}>
-        <ContentContainer whiteContainer>
+        <ContentContainer>
           <div className={fr.cx("fr-p-2w")}>
-            <div className={fr.cx("fr-grid-row")}>
-              <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
-                {pregnancyAlert && (
-                  <Alert
-                    severity={"warning"}
-                    title={"Contre-indication grossesse"}
-                    className={fr.cx("fr-mb-2w")}
-                    description={
-                      <p>
-                        Ce médicament est contre-indiqué si vous êtes enceinte ou
-                        prévoyez de l’être. Demandez conseil à votre médecin avant de
-                        prendre ou d’arrêter ce médicament.
-                        <br />
-                        <a target="_blank" href={pregnancyAlert.link}>
-                          En savoir plus sur le site de l’ANSM
-                        </a>
-                      </p>
-                    }
-                  />
-                )}
-                {pediatrics?.contraindication && (
-                  <Alert
-                    severity={"warning"}
-                    title={
-                      "Il existe une contre-indication pédiatrique (vérifier selon l’âge)."
-                    }
-                    className={fr.cx("fr-mb-2w")}
-                  />
-                )}
-
-                <section className={"fr-mb-4w"}>
-                  <div className={"fr-mb-1w"}>
-                    <ul className={fr.cx("fr-tags-group", "fr-mb-n1v")}>
-                      <ClassTag atc2={atc2} />
-                      <SubstanceTag composants={composants} />
-                      {isPrinceps && <PrincepsTag CIS={CIS} />}
-                      {!!specialite.SpecGeneId && (
-                        <GenericTag specGeneId={specialite.SpecGeneId} />
-                      )}
-                      {!!delivrance.length && <PrescriptionTag />}
-                      {pregnancyAlert && <PregnancyTag />}
-                      {pediatrics && <PediatricsTags info={pediatrics} />}
-                    </ul>
-                  </div>
-                  <div className={"fr-mb-1w"}>
-                    <span
-                      className={["fr-icon--custom-molecule", fr.cx("fr-mr-1w")].join(
-                        " ",
-                      )}
+            <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>
+              {(pregnancyAlert || pediatrics?.contraindication )&& (
+                <ContentContainer whiteContainer className={fr.cx("fr-col-12", "fr-mb-2w")}>
+                  {pregnancyAlert && (
+                    <Alert
+                      severity={"warning"}
+                      title={"Contre-indication grossesse"}
+                      className={fr.cx("fr-mb-2w")}
+                      description={
+                        <p>
+                          Ce médicament est contre-indiqué si vous êtes enceinte ou
+                          prévoyez de l’être. Demandez conseil à votre médecin avant de
+                          prendre ou d’arrêter ce médicament.
+                          <br />
+                          <a target="_blank" href={pregnancyAlert.link}>
+                            En savoir plus sur le site de l’ANSM
+                          </a>
+                        </p>
+                      }
                     />
-                    <b>Substance active</b> {displayCompleteComposants(composants)}
-                  </div>
-                  <PresentationsList presentations={presentations} />
+                  )}
+                  {pediatrics?.contraindication && (
+                    <Alert
+                      severity={"warning"}
+                      title={
+                        "Il existe une contre-indication pédiatrique (vérifier selon l’âge)."
+                      }
+                      className={fr.cx("fr-mb-2w")}
+                    />
+                  )}
+                </ContentContainer>
+              )}
+              
+              <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")}>
+                <section className={fr.cx("fr-mb-4w")}>
+                  <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                      <TagContainer category="Sous-classe">
+                        <ClassTag atc2={atc2} />
+                      </TagContainer>
+                      <TagContainer category="Substance active">
+                        <SubstanceTag composants={composants} />
+                      </TagContainer>
+                      {isPrinceps && 
+                        <TagContainer>
+                          <PrincepsTag CIS={CIS} />
+                        </TagContainer>
+                      }
+                      {!!specialite.SpecGeneId && (
+                        <TagContainer>
+                          <GenericTag specGeneId={specialite.SpecGeneId} />
+                        </TagContainer>
+                      )}
+                      {!!delivrance.length && <TagContainer><PrescriptionTag /></TagContainer>}
+                      {pregnancyAlert && <TagContainer><PregnancyTag /></TagContainer>}
+                      {pediatrics && <PediatricsTags info={pediatrics} />}
+                  </ContentContainer >
+                  <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                    <PresentationsList presentations={presentations} />
+                  </ContentContainer >
                 </section>
-              </div>
+              </ContentContainer>
+              {leaflet ? (
+                <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
+                  <article>
+                    <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                      <div className={fr.cx("fr-mb-4w")}>
+                        <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice</h2>
+                        <Badge severity={"info"}>{leaflet.maj}</Badge>
+                      </div>
+
+                      <Accordion label={"Généralités"} titleAs={"h2"}>
+                        <DsfrLeafletSection data={leaflet.generalities} />
+                      </Accordion>
+
+                      <Accordion label={"A quoi sert-il ?"}>
+                        <DsfrLeafletSection data={leaflet.usage} />
+                      </Accordion>
+
+                      <Accordion label={"Précautions"}>
+                        <DsfrLeafletSection data={leaflet.warnings} />
+                      </Accordion>
+
+                      <Accordion label={"Comment le prendre ?"}>
+                        <DsfrLeafletSection data={leaflet.howTo} />
+                      </Accordion>
+
+                      <Accordion label={"Effets indésirables"}>
+                        <DsfrLeafletSection data={leaflet.sideEffects} />
+                      </Accordion>
+
+                      <Accordion label={"Conservation"}>
+                        <DsfrLeafletSection data={leaflet.storage} />
+                      </Accordion>
+
+                      <Accordion label={"Composition"}>
+                        <DsfrLeafletSection data={leaflet.composition} />
+                      </Accordion>
+                    </ContentContainer>
+                  </article>
+                </ContentContainer>
+              ) : null}
             </div>
-            {leaflet ? (
-              <div className={fr.cx("fr-grid-row")}>
-                <article
-                  className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}
-                >
-                  <div className={fr.cx("fr-mb-4w")}>
-                    <h1 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice</h1>
-                    <Badge severity={"info"}>{leaflet.maj}</Badge>
-                  </div>
-
-                  <Accordion label={"Généralités"} titleAs={"h2"}>
-                    <DsfrLeafletSection data={leaflet.generalities} />
-                  </Accordion>
-
-                  <Accordion label={"A quoi sert-il ?"}>
-                    <DsfrLeafletSection data={leaflet.usage} />
-                  </Accordion>
-
-                  <Accordion label={"Précautions"}>
-                    <DsfrLeafletSection data={leaflet.warnings} />
-                  </Accordion>
-
-                  <Accordion label={"Comment le prendre ?"}>
-                    <DsfrLeafletSection data={leaflet.howTo} />
-                  </Accordion>
-
-                  <Accordion label={"Effets indésirables"}>
-                    <DsfrLeafletSection data={leaflet.sideEffects} />
-                  </Accordion>
-
-                  <Accordion label={"Conservation"}>
-                    <DsfrLeafletSection data={leaflet.storage} />
-                  </Accordion>
-
-                  <Accordion label={"Composition"}>
-                    <DsfrLeafletSection data={leaflet.composition} />
-                  </Accordion>
-                </article>
-              </div>
-            ) : null}
           </div>
         </ContentContainer>
       </ContentContainer>

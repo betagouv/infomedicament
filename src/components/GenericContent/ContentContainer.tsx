@@ -21,10 +21,8 @@ function ContentContainer(
   {fullWidth, whiteContainer, children, ...props}: PropsWithChildren<ContentContainerProps>
 ) {
   let className = props.className || "";
-  console.log(className);
   if(!fullWidth){
     className+= " "+fr.cx("fr-container", "fr-pt-4w", "fr-pb-8w");
-    console.log(className);
   }
 
   return (

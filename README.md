@@ -52,7 +52,7 @@ puis charger les données. La base MySQL doit être accessible préalablement.
 
 ```bash
 # Créer les tables
-kysele migrate:latest
+kysely migrate:latest
 
 # Charger les images et les index de recherche
 # Le chemin vers le dossier contenant les images des notices doit être spécifié

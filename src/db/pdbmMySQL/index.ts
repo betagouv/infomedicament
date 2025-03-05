@@ -17,7 +17,7 @@ export const pdbmMySQL = new Kysely<PdbmMySQL>({
       : createPool({
           // .devcontainer config
           database: "pdbm_bdd",
-          host: "db-mysql",
+          host: "localhost",
           user: "root",
           password: "mysql",
           port: 3306,
