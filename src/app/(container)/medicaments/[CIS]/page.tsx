@@ -35,22 +35,10 @@ import PrincepsTag from "@/components/tags/PrincepsTag";
 import GenericTag from "@/components/tags/GenericTag";
 import ContentContainer from "@/components/GenericContent/ContentContainer";
 import TagContainer from "@/components/tags/TagContainer";
+import { TagTypeEnum } from "@/types/TagType";
 
 export const dynamic = "error";
 export const dynamicParams = true;
-
-//Tags in left column
-export enum TagTypeEnum {
-  CLASS,
-  SUBSTANCE,
-  PRINCEPS,
-  GENERIC,
-  PRESCRIPTION,
-  PREGNANCY,
-  PEDIATRIC_DOCTOR_ADVICE,
-  PEDIATRIC_CONTRAINDICATION,
-  PEDIATRIC_INDICATION
-}
 
 export async function generateMetadata(
   props: { params: Promise<{ CIS: string }> },

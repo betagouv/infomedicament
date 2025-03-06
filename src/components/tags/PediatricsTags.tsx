@@ -5,7 +5,7 @@ import type { FrIconClassName } from "@codegouvfr/react-dsfr/src/fr/generatedFro
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import "./dsfr-custom-tags.css";
 import TagContainer from "./TagContainer";
-import { TagTypeEnum } from "@/app/(container)/medicaments/[CIS]/page";
+import { TagTypeEnum } from "@/types/TagType";
 
 export default function PediatricsTags({ info, lastTagElement }: { info: PediatricsInfo, lastTagElement?: TagTypeEnum }) {
   return (
