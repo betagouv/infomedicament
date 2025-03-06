@@ -22,7 +22,7 @@ export default function PrincepsTag(props: { CIS: string }) {
         </Link>
       </div>
       <div className={cx("fr-hidden", "fr-unhidden-md")}>
-        <Link href={`/generiques/${props.CIS}`} className={cx("fr-link", "fr-link--sm")}>
+        <Link href={`/generiques/${props.CIS}`} className={cx("fr-link", "fr-link--sm")} style={{whiteSpace: "nowrap"}}>
           Voir alternatives
         </Link>
       </div>

@@ -98,7 +98,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   const specialitiesGroups = groupSpecialites(specialites);
 
   return (
-    <ContentContainer>
+    <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
           <Breadcrumb

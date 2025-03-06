@@ -22,7 +22,7 @@ export default function GenericTag(props: { specGeneId: string }) {
         </Link>
       </div>
       <div className={cx("fr-hidden", "fr-unhidden-md")}>
-        <Link href={`/generiques/${props.specGeneId}`} className={cx("fr-link", "fr-link--sm")}>
+        <Link href={`/generiques/${props.specGeneId}`} className={cx("fr-link", "fr-link--sm")} style={{whiteSpace: "nowrap"}}>
           Voir alternatives
         </Link>
       </div>

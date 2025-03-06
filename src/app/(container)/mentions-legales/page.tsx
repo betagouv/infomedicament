@@ -3,7 +3,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 
 export default async function Page() {
   return (
-    <ContentContainer>
+    <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
           <h1>Mentions légales de Info Médicament</h1>

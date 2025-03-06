@@ -39,6 +39,19 @@ import TagContainer from "@/components/tags/TagContainer";
 export const dynamic = "error";
 export const dynamicParams = true;
 
+//Tags in left column
+export enum TagTypeEnum {
+  CLASS,
+  SUBSTANCE,
+  PRINCEPS,
+  GENERIC,
+  PRESCRIPTION,
+  PREGNANCY,
+  PEDIATRIC_DOCTOR_ADVICE,
+  PEDIATRIC_CONTRAINDICATION,
+  PEDIATRIC_INDICATION
+}
+
 export async function generateMetadata(
   props: { params: Promise<{ CIS: string }> },
   parent: ResolvingMetadata,
@@ -228,9 +241,35 @@ export default async function Page(props: {
 
   const pediatrics = await getPediatrics(CIS);
 
+  // Use to display or not the separator after a tag (left column)
+  const lastTagElement: TagTypeEnum = (
+    pediatrics && pediatrics.doctorAdvice
+      ? TagTypeEnum.PEDIATRIC_DOCTOR_ADVICE 
+      : (pediatrics && pediatrics.contraindication
+        ? TagTypeEnum.PEDIATRIC_CONTRAINDICATION 
+        : (pediatrics && pediatrics.indication
+          ? TagTypeEnum.PEDIATRIC_INDICATION
+          : (pregnancyAlert 
+            ? TagTypeEnum.PREGNANCY 
+            : (!!delivrance.length  
+              ? TagTypeEnum.PRESCRIPTION 
+              : (!!specialite.SpecGeneId 
+                ? TagTypeEnum.GENERIC 
+                : (isPrinceps
+                  ? TagTypeEnum. PRINCEPS
+                  : TagTypeEnum.SUBSTANCE
+                )
+              )
+            )
+          )
+        )
+      )
+    );
+
+
   return (
     <>
-      <ContentContainer>
+      <ContentContainer frContainer>
         <Breadcrumb
           segments={[
             { label: "Accueil", linkProps: { href: "/" } },
@@ -262,114 +301,120 @@ export default async function Page(props: {
           {formatSpecName(specialite.SpecDenom01)}
         </h1>
       </ContentContainer>
-      <ContentContainer fullWidth className={fr.cx("fr-pt-4w", "fr-pb-8w")} style={{
+      <ContentContainer className={fr.cx("fr-pt-4w", "fr-pb-8w")} style={{
             backgroundColor:
               fr.colors.decisions.background.alt.grey.default,
           }}>
-        <ContentContainer>
-          <div className={fr.cx("fr-p-2w")}>
-            <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>
-              {(pregnancyAlert || pediatrics?.contraindication )&& (
-                <ContentContainer whiteContainer className={fr.cx("fr-col-12", "fr-mb-2w")}>
-                  {pregnancyAlert && (
-                    <Alert
-                      severity={"warning"}
-                      title={"Contre-indication grossesse"}
-                      className={fr.cx("fr-mb-2w")}
-                      description={
-                        <p>
-                          Ce médicament est contre-indiqué si vous êtes enceinte ou
-                          prévoyez de l’être. Demandez conseil à votre médecin avant de
-                          prendre ou d’arrêter ce médicament.
-                          <br />
-                          <a target="_blank" href={pregnancyAlert.link}>
-                            En savoir plus sur le site de l’ANSM
-                          </a>
-                        </p>
-                      }
-                    />
-                  )}
-                  {pediatrics?.contraindication && (
-                    <Alert
-                      severity={"warning"}
-                      title={
-                        "Il existe une contre-indication pédiatrique (vérifier selon l’âge)."
-                      }
-                      className={fr.cx("fr-mb-2w")}
-                    />
-                  )}
-                </ContentContainer>
-              )}
-              
-              <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")}>
-                <section className={fr.cx("fr-mb-4w")}>
-                  <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                      <TagContainer category="Sous-classe">
-                        <ClassTag atc2={atc2} />
-                      </TagContainer>
-                      <TagContainer category="Substance active">
-                        <SubstanceTag composants={composants} />
-                      </TagContainer>
-                      {isPrinceps && 
-                        <TagContainer>
-                          <PrincepsTag CIS={CIS} />
-                        </TagContainer>
-                      }
-                      {!!specialite.SpecGeneId && (
-                        <TagContainer>
-                          <GenericTag specGeneId={specialite.SpecGeneId} />
-                        </TagContainer>
-                      )}
-                      {!!delivrance.length && <TagContainer><PrescriptionTag /></TagContainer>}
-                      {pregnancyAlert && <TagContainer><PregnancyTag /></TagContainer>}
-                      {pediatrics && <PediatricsTags info={pediatrics} />}
-                  </ContentContainer >
-                  <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                    <PresentationsList presentations={presentations} />
-                  </ContentContainer >
-                </section>
+        <ContentContainer frContainer>
+          <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>
+            {(pregnancyAlert || pediatrics?.contraindication )&& (
+              <ContentContainer whiteContainer className={fr.cx("fr-col-12", "fr-mb-2w")}>
+                {pregnancyAlert && (
+                  <Alert
+                    severity={"warning"}
+                    title={"Contre-indication grossesse"}
+                    className={fr.cx("fr-mb-2w")}
+                    description={
+                      <p>
+                        Ce médicament est contre-indiqué si vous êtes enceinte ou
+                        prévoyez de l’être. Demandez conseil à votre médecin avant de
+                        prendre ou d’arrêter ce médicament.
+                        <br />
+                        <a target="_blank" href={pregnancyAlert.link}>
+                          En savoir plus sur le site de l’ANSM
+                        </a>
+                      </p>
+                    }
+                  />
+                )}
+                {pediatrics?.contraindication && (
+                  <Alert
+                    severity={"warning"}
+                    title={
+                      "Il existe une contre-indication pédiatrique (vérifier selon l’âge)."
+                    }
+                    className={fr.cx("fr-mb-2w")}
+                  />
+                )}
               </ContentContainer>
-              {leaflet ? (
-                <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
-                  <article>
-                    <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                      <div className={fr.cx("fr-mb-4w")}>
-                        <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice</h2>
-                        <Badge severity={"info"}>{leaflet.maj}</Badge>
-                      </div>
+            )}
+            
+            <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")}>
+              <section className={fr.cx("fr-mb-4w")}>
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                    <TagContainer category="Sous-classe">
+                      <ClassTag atc2={atc2} />
+                    </TagContainer>
+                    <TagContainer category="Substance active" hideSeparator={lastTagElement === TagTypeEnum.SUBSTANCE}>
+                      <SubstanceTag composants={composants} />
+                    </TagContainer>
+                    {isPrinceps && 
+                      <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRINCEPS}>
+                        <PrincepsTag CIS={CIS} />
+                      </TagContainer>
+                    }
+                    {!!specialite.SpecGeneId && (
+                      <TagContainer hideSeparator={lastTagElement === TagTypeEnum.GENERIC}>
+                        <GenericTag specGeneId={specialite.SpecGeneId} />
+                      </TagContainer>
+                    )}
+                    {!!delivrance.length && (
+                      <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRESCRIPTION}>
+                        <PrescriptionTag />
+                      </TagContainer>
+                    )}
+                    {pregnancyAlert && (
+                      <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY}>
+                        <PregnancyTag />
+                      </TagContainer>
+                    )}
+                    {pediatrics && <PediatricsTags info={pediatrics} lastTagElement={lastTagElement}/>}
+                </ContentContainer >
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                  <PresentationsList presentations={presentations} />
+                </ContentContainer >
+              </section>
+            </ContentContainer>
+            {leaflet ? (
+              <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
+                <article>
+                  <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                    <div className={fr.cx("fr-mb-4w")}>
+                      <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice</h2>
+                      <Badge severity={"info"}>{leaflet.maj}</Badge>
+                    </div>
 
-                      <Accordion label={"Généralités"} titleAs={"h2"}>
-                        <DsfrLeafletSection data={leaflet.generalities} />
-                      </Accordion>
+                    <Accordion label={"Généralités"} titleAs={"h2"}>
+                      <DsfrLeafletSection data={leaflet.generalities} />
+                    </Accordion>
 
-                      <Accordion label={"A quoi sert-il ?"}>
-                        <DsfrLeafletSection data={leaflet.usage} />
-                      </Accordion>
+                    <Accordion label={"A quoi sert-il ?"}>
+                      <DsfrLeafletSection data={leaflet.usage} />
+                    </Accordion>
 
-                      <Accordion label={"Précautions"}>
-                        <DsfrLeafletSection data={leaflet.warnings} />
-                      </Accordion>
+                    <Accordion label={"Précautions"}>
+                      <DsfrLeafletSection data={leaflet.warnings} />
+                    </Accordion>
 
-                      <Accordion label={"Comment le prendre ?"}>
-                        <DsfrLeafletSection data={leaflet.howTo} />
-                      </Accordion>
+                    <Accordion label={"Comment le prendre ?"}>
+                      <DsfrLeafletSection data={leaflet.howTo} />
+                    </Accordion>
 
-                      <Accordion label={"Effets indésirables"}>
-                        <DsfrLeafletSection data={leaflet.sideEffects} />
-                      </Accordion>
+                    <Accordion label={"Effets indésirables"}>
+                      <DsfrLeafletSection data={leaflet.sideEffects} />
+                    </Accordion>
 
-                      <Accordion label={"Conservation"}>
-                        <DsfrLeafletSection data={leaflet.storage} />
-                      </Accordion>
+                    <Accordion label={"Conservation"}>
+                      <DsfrLeafletSection data={leaflet.storage} />
+                    </Accordion>
 
-                      <Accordion label={"Composition"}>
-                        <DsfrLeafletSection data={leaflet.composition} />
-                      </Accordion>
-                    </ContentContainer>
-                  </article>
-                </ContentContainer>
-              ) : null}
-            </div>
+                    <Accordion label={"Composition"}>
+                      <DsfrLeafletSection data={leaflet.composition} />
+                    </Accordion>
+                  </ContentContainer>
+                </article>
+              </ContentContainer>
+            ) : null}
           </div>
         </ContentContainer>
       </ContentContainer>

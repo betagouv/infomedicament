@@ -1,13 +1,12 @@
 import { fr } from "@codegouvfr/react-dsfr";
-import React, { HTMLAttributes, PropsWithChildren } from "react";
+import { HTMLAttributes, PropsWithChildren } from "react";
 
 interface TagContainerProps extends HTMLAttributes<HTMLDivElement> {
   category?: string;
   hideSeparator?: boolean;
 }
 
-async function TagContainer(props: PropsWithChildren<TagContainerProps>) {
-  const {category, hideSeparator, ...rest} = props;
+async function TagContainer({category, hideSeparator, ...props}: PropsWithChildren<TagContainerProps>) {
   return (
     <div {...props}>
       {category && 
