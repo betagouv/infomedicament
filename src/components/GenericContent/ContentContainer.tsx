@@ -4,7 +4,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, PropsWithChildren } from "react";
 import styled, { css } from 'styled-components';
 
-const Container = await styled.div<{ whiteContainer?: boolean }>`
+const Container = styled.div<{ whiteContainer?: boolean; }> `
   ${({ whiteContainer }) => whiteContainer && css`
     background-color: #FFF;
     border: var(--border-open-blue-france) 1px solid;
@@ -17,7 +17,7 @@ interface ContentContainerProps extends HTMLAttributes<HTMLDivElement> {
   whiteContainer?: boolean; //With white background and border
 }
 
-async function ContentContainer(
+function ContentContainer(
   {frContainer, whiteContainer, children, ...props}: PropsWithChildren<ContentContainerProps>
 ) {
   let className = props.className || "";
