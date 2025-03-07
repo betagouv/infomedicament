@@ -75,7 +75,7 @@ export default async function Page(props: {
   const atc2 = await getAtc2(atcCode);
 
   return (
-    <ContentContainer>
+    <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
           <Breadcrumb

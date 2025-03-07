@@ -51,7 +51,7 @@ export default async function Page(props: {
     .execute();
 
   return (
-    <ContentContainer>
+    <ContentContainer frContainer>
       {" "}
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}

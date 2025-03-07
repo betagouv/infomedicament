@@ -60,7 +60,7 @@ export default async function Page(props: {
   }) => React.JSX.Element;
 
   return (
-    <ContentContainer>
+    <ContentContainer frContainer>
       <Breadcrumb
         segments={[
           {

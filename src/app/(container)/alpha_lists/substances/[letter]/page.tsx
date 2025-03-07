@@ -59,7 +59,7 @@ export default async function Page(props: {
   if (!substances || !substances.length) return notFound();
 
   return (
-    <ContentContainer>
+    <ContentContainer frContainer>
       {" "}
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}

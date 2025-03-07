@@ -77,7 +77,7 @@ export default async function Page(props: {
   const results = search && (await getSearchResults(searchParams["s"]));
 
   return (
-    <ContentContainer>
+    <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
           <h1

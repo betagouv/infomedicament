@@ -60,7 +60,7 @@ export default async function Page(props: {
   if (pageNumber < 1 || pageNumber > pageCount) return notFound();
 
   return (
-    <ContentContainer>
+    <ContentContainer frContainer>
       <Fragment>
         <Breadcrumb
           segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
