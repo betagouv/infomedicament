@@ -6,7 +6,7 @@ interface TagContainerProps extends HTMLAttributes<HTMLDivElement> {
   hideSeparator?: boolean;
 }
 
-async function TagContainer({category, hideSeparator, ...props}: PropsWithChildren<TagContainerProps>) {
+function TagContainer({category, hideSeparator, ...props}: PropsWithChildren<TagContainerProps>) {
   return (
     <div {...props}>
       {category && 
