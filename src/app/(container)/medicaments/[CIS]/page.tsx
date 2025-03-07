@@ -295,33 +295,35 @@ export default async function Page(props: {
         <ContentContainer frContainer>
           <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>
             {(pregnancyAlert || pediatrics?.contraindication )&& (
-              <ContentContainer whiteContainer className={fr.cx("fr-col-12", "fr-mb-2w")}>
+              <ContentContainer className={fr.cx("fr-col-12", "fr-mb-2w")}>
                 {pregnancyAlert && (
-                  <Alert
-                    severity={"warning"}
-                    title={"Contre-indication grossesse"}
-                    className={fr.cx("fr-mb-2w")}
-                    description={
-                      <p>
-                        Ce médicament est contre-indiqué si vous êtes enceinte ou
-                        prévoyez de l’être. Demandez conseil à votre médecin avant de
-                        prendre ou d’arrêter ce médicament.
-                        <br />
-                        <a target="_blank" href={pregnancyAlert.link}>
-                          En savoir plus sur le site de l’ANSM
-                        </a>
-                      </p>
-                    }
-                  />
+                  <ContentContainer whiteContainer className={fr.cx("fr-mb-2w")}>
+                    <Alert
+                      severity={"warning"}
+                      title={"Contre-indication grossesse"}
+                      description={
+                        <p>
+                          Ce médicament est contre-indiqué si vous êtes enceinte ou
+                          prévoyez de l’être. Demandez conseil à votre médecin avant de
+                          prendre ou d’arrêter ce médicament.
+                          <br />
+                          <a target="_blank" href={pregnancyAlert.link}>
+                            En savoir plus sur le site de l’ANSM
+                          </a>
+                        </p>
+                      }
+                    />
+                  </ContentContainer>
                 )}
                 {pediatrics?.contraindication && (
-                  <Alert
-                    severity={"warning"}
-                    title={
-                      "Il existe une contre-indication pédiatrique (vérifier selon l’âge)."
-                    }
-                    className={fr.cx("fr-mb-2w")}
-                  />
+                  <ContentContainer whiteContainer>
+                    <Alert
+                      severity={"warning"}
+                      title={
+                        "Il existe une contre-indication pédiatrique (vérifier selon l’âge)."
+                      }
+                    />
+                  </ContentContainer>
                 )}
               </ContentContainer>
             )}
