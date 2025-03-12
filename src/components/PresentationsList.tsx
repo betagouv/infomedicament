@@ -65,8 +65,10 @@ export function PresentationsList(props: {
 }) {
   return (
     <>
-      <h3 className={fr.cx("fr-h4", "fr-hidden-md")}>Conditionnement</h3>
-      <h3 className={fr.cx("fr-h4", "fr-hidden", "fr-unhidden-md")}>Conditionnement et prix</h3>
+      <h3 className={fr.cx("fr-h4")}>
+        <span className={fr.cx("fr-hidden-md")}>Conditionnement</span>
+        <span className={fr.cx("fr-hidden", "fr-unhidden-md")}>Conditionnement et prix</span>
+      </h3>
       <ul className={fr.cx("fr-raw-list")}>
         {props.presentations.map((p) => (
           <li key={p.Cip13} className={fr.cx("fr-mb-1w")}>

@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function PrincepsTag(props: { CIS: string }) {
   return (
-    <div style={{display: "inline"}}>
+    <div>
       <Tag
         iconId="fr-icon-capsule-fill"
         linkProps={{
@@ -16,14 +16,10 @@ export default function PrincepsTag(props: { CIS: string }) {
       >
         Princeps
       </Tag>{" "}
-      <div className={cx("fr-hidden-md")}>
+      <div style={{display: "inline"}}>
         <Link href={`/generiques/${props.CIS}`} className={cx("fr-link", "fr-link--sm")}>
-          Voir le groupe générique
-        </Link>
-      </div>
-      <div className={cx("fr-hidden", "fr-unhidden-md")}>
-        <Link href={`/generiques/${props.CIS}`} className={cx("fr-link", "fr-link--sm")} style={{whiteSpace: "nowrap"}}>
-          Voir alternatives
+          <span className={cx("fr-hidden-md")}>Voir le groupe générique</span>
+          <span className={cx("fr-hidden", "fr-unhidden-md")} style={{whiteSpace: "nowrap"}}>Voir alternatives</span>
         </Link>
       </div>
     </div>
