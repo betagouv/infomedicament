@@ -22,3 +22,9 @@
 .fr-icon--custom-pregnancy::after {
     mask-image:url('pregnancy.svg')
 }
+
+.fr-icon--custom-notice::before,
+.fr-icon--custom-notice::after {
+    mask-image:url('notice.svg');
+    --icon-size: 2rem;
+}
