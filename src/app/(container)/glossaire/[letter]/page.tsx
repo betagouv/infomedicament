@@ -51,7 +51,7 @@ export default async function Page(props: {
   const definitions = await getDefinitions(letter);
 
   return (
-    <ContentContainer>
+    <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row", "fr-mb-3w")}>
         <div className={fr.cx("fr-col-md-8")}>
           <h1>Glossaire</h1>

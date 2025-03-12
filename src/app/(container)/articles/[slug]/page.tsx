@@ -44,7 +44,7 @@ export default async function Page(props0: {
 
   const { title, source, content, image } = await getArticle(slug);
   return (
-    <ContentContainer>
+    <ContentContainer frContainer>
       <Breadcrumb
         segments={[
           { label: "Accueil", linkProps: { href: "/" } },

@@ -1,34 +1,35 @@
 "use client";
 
 import { fr } from "@codegouvfr/react-dsfr";
-import React, { HTMLAttributes, PropsWithChildren } from "react";
+import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
+import { HTMLAttributes, PropsWithChildren } from "react";
 import styled, { css } from 'styled-components';
 
-const Container = styled.div<{ whiteContainer?: boolean }>`
-  ${({ whiteContainer }) => whiteContainer && css`
-    background-color: #FFF;
+const Container = styled.div<{ $isDark: boolean; $whiteContainer?: boolean; }> `
+  ${props => props.$whiteContainer && css`
+    background-color: ${props.$isDark ? 'var(--background-default-grey)' : '#FFF'};
     border: var(--border-open-blue-france) 1px solid;
     border-radius: 8px;
   `}
 `;
 
 interface ContentContainerProps extends HTMLAttributes<HTMLDivElement> {
-  fullWidth?: boolean;
+  frContainer?: boolean;
   whiteContainer?: boolean; //With white background and border
 }
 
 function ContentContainer(
-  {fullWidth, whiteContainer, children, ...props}: PropsWithChildren<ContentContainerProps>
+  {frContainer, whiteContainer, children, ...props}: PropsWithChildren<ContentContainerProps>
 ) {
+  const { isDark } = useIsDark();
+
   let className = props.className || "";
-  console.log(className);
-  if(!fullWidth){
+  if(frContainer){
     className+= " "+fr.cx("fr-container", "fr-pt-4w", "fr-pb-8w");
-    console.log(className);
   }
 
   return (
-    <Container {...props} whiteContainer={whiteContainer} className={className}>
+    <Container {...props} $isDark={isDark} $whiteContainer={whiteContainer} className={className}>
       {children}
     </Container>
   );

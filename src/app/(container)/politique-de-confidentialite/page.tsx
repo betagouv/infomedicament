@@ -4,7 +4,7 @@ import Table from "@codegouvfr/react-dsfr/Table";
 
 export default async function Page() {
   return (
-    <ContentContainer>
+    <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
           <h1>Politique de confidentialité de Info Médicament</h1>

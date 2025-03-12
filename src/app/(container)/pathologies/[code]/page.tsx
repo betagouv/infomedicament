@@ -45,7 +45,7 @@ export default async function Page(props: {
   const specialites = await getPathoSpecialites(code);
   const medicaments = groupSpecialites(specialites);
   return (
-    <ContentContainer>
+    <ContentContainer frContainer>
       <Breadcrumb
         segments={[
           { label: "Accueil", linkProps: { href: "/" } },

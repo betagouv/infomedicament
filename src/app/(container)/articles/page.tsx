@@ -19,7 +19,7 @@ export default async function Page() {
   );
 
   return (
-    <ContentContainer>
+    <ContentContainer frContainer>
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
         currentPageLabel={"Liste des articles"}
