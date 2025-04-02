@@ -9,7 +9,7 @@ import { formatSpecName } from "@/displayUtils";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import MedGroupSpecList from "@/components/MedGroupSpecList";
 import { ATC, ATC1 } from "@/data/grist/atc";
-import ContentContainer from "@/components/genericContent/ContentContainer";
+import ContentContainer from "@/components/generic/ContentContainer";
 
 const SubstanceResult = ({ item }: { item: SubstanceNom }) => (
   <li className={fr.cx("fr-mb-3w")}>

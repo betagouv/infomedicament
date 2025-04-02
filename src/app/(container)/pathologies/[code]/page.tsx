@@ -8,7 +8,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { MedGroupSpecListList } from "@/components/MedGroupSpecList";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getPathologyDefinition } from "@/data/pathologies";
-import ContentContainer from "@/components/genericContent/ContentContainer";
+import ContentContainer from "@/components/generic/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;

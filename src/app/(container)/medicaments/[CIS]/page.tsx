@@ -22,7 +22,7 @@ import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import Alert from "@codegouvfr/react-dsfr/Alert";
 import { getPregnancyAlerts } from "@/data/grist/pregnancy";
 import { getPediatrics } from "@/data/grist/pediatrics";
-import ContentContainer from "@/components/genericContent/ContentContainer";
+import ContentContainer from "@/components/generic/ContentContainer";
 import SwitchNotice from "@/components/medicaments/SwitchNotice";
 
 export const dynamic = "error";
