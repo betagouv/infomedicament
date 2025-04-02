@@ -33,7 +33,7 @@ import PregnancyTag from "@/components/tags/PregnancyTag";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import PrincepsTag from "@/components/tags/PrincepsTag";
 import GenericTag from "@/components/tags/GenericTag";
-import ContentContainer from "@/components/GenericContent/ContentContainer";
+import ContentContainer from "@/components/genericContent/ContentContainer";
 import TagContainer from "@/components/tags/TagContainer";
 import { TagTypeEnum } from "@/types/TagType";
 
