@@ -1,4 +1,4 @@
-import ContentContainer from "@/components/genericContent/ContentContainer";
+import ContentContainer from "@/components/newGenericContent/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import Table from "@codegouvfr/react-dsfr/Table";
 

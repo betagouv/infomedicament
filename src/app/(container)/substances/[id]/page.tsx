@@ -11,7 +11,7 @@ import { Expression, expressionBuilder, SqlBool } from "kysely";
 import { getGristTableData } from "@/data/grist";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import DefinitionBanner from "@/components/DefinitionBanner";
-import ContentContainer from "@/components/genericContent/ContentContainer";
+import ContentContainer from "@/components/newGenericContent/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;

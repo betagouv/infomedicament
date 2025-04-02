@@ -5,7 +5,7 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Metadata, ResolvingMetadata } from "next";
-import ContentContainer from "@/components/genericContent/ContentContainer";
+import ContentContainer from "@/components/newGenericContent/ContentContainer";
 
 export async function generateStaticParams() {
   const articles = await getArticles();
