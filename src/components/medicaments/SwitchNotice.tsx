@@ -1,6 +1,6 @@
 "use client";
 
-import ContentContainer from "../newGenericContent/ContentContainer";
+import ContentContainer from "../genericContent/ContentContainer";
 import { ToggleSwitch } from "@codegouvfr/react-dsfr/ToggleSwitch";
 import TagContainer from "../tags/TagContainer";
 import ClassTag from "../tags/ClassTag";

@@ -5,7 +5,7 @@ import AlphabeticNav from "@/components/AlphabeticNav";
 import sanitizeHtml from "sanitize-html";
 import slugify from "slugify";
 import { Fragment } from "react";
-import ContentContainer from "@/components/newGenericContent/ContentContainer";
+import ContentContainer from "@/components/genericContent/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;

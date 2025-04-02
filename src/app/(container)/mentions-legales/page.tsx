@@ -1,4 +1,4 @@
-import ContentContainer from "@/components/newGenericContent/ContentContainer";
+import ContentContainer from "@/components/genericContent/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 
 export default async function Page() {
