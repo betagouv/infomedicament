@@ -2,8 +2,6 @@ import React, { cache } from "react";
 import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
-import Badge from "@codegouvfr/react-dsfr/Badge";
-import Accordion from "@codegouvfr/react-dsfr/Accordion";
 import fs from "node:fs/promises";
 import path from "node:path";
 import JSZIP from "jszip";
@@ -13,29 +11,19 @@ import HTMLParser, { HTMLElement } from "node-html-parser";
 import DsfrLeafletSection from "./DsfrLeafletSection";
 import { isHtmlElement } from "./leafletUtils";
 import {
-  displayCompleteComposants,
   displaySimpleComposants,
   formatSpecName,
 } from "@/displayUtils";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getAtc1, getAtc2, getAtcCode } from "@/data/grist/atc";
 import { getSpecialite, getSpecialiteGroupName } from "@/db/utils";
-import { PresentationsList } from "@/components/PresentationsList";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import Alert from "@codegouvfr/react-dsfr/Alert";
 import { getPregnancyAlerts } from "@/data/grist/pregnancy";
 import { getPediatrics } from "@/data/grist/pediatrics";
-import PediatricsTags from "@/components/tags/PediatricsTags";
-import ClassTag from "@/components/tags/ClassTag";
-import SubstanceTag from "@/components/tags/SubstanceTag";
-import PregnancyTag from "@/components/tags/PregnancyTag";
-import PrescriptionTag from "@/components/tags/PrescriptionTag";
-import PrincepsTag from "@/components/tags/PrincepsTag";
-import GenericTag from "@/components/tags/GenericTag";
-import ContentContainer from "@/components/GenericContent/ContentContainer";
-import TagContainer from "@/components/tags/TagContainer";
-import { TagTypeEnum } from "@/types/TagType";
+import ContentContainer from "@/components/genericContent/ContentContainer";
+import SwitchNotice from "@/components/medicaments/SwitchNotice";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -229,31 +217,6 @@ export default async function Page(props: {
 
   const pediatrics = await getPediatrics(CIS);
 
-  // Use to display or not the separator after a tag (left column)
-  const lastTagElement: TagTypeEnum = (
-    pediatrics && pediatrics.doctorAdvice
-      ? TagTypeEnum.PEDIATRIC_DOCTOR_ADVICE 
-      : (pediatrics && pediatrics.contraindication
-        ? TagTypeEnum.PEDIATRIC_CONTRAINDICATION 
-        : (pediatrics && pediatrics.indication
-          ? TagTypeEnum.PEDIATRIC_INDICATION
-          : (pregnancyAlert 
-            ? TagTypeEnum.PREGNANCY 
-            : (!!delivrance.length  
-              ? TagTypeEnum.PRESCRIPTION 
-              : (!!specialite.SpecGeneId 
-                ? TagTypeEnum.GENERIC 
-                : (isPrinceps
-                  ? TagTypeEnum. PRINCEPS
-                  : TagTypeEnum.SUBSTANCE
-                )
-              )
-            )
-          )
-        )
-      )
-    );  
-
   return (
     <>
       <ContentContainer frContainer>
@@ -283,12 +246,13 @@ export default async function Page(props: {
             formatSpecName(getSpecialiteGroupName(specialite)),
             "",
           )}
+          className={fr.cx("fr-mb-2w")}
         />
         <h1 className={fr.cx("fr-h2")}>
           {formatSpecName(specialite.SpecDenom01)}
         </h1>
       </ContentContainer>
-      <ContentContainer className={fr.cx("fr-pt-4w", "fr-pb-8w")} style={{
+      <ContentContainer className={fr.cx("fr-pt-1w", "fr-pb-2w")} style={{
             backgroundColor:
               fr.colors.decisions.background.alt.grey.default,
           }}>
@@ -327,83 +291,29 @@ export default async function Page(props: {
                 )}
               </ContentContainer>
             )}
-            
-            <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")}>
-              <section className={fr.cx("fr-mb-4w")}>
-                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                    <TagContainer category="Sous-classe">
-                      <ClassTag atc2={atc2} />
-                    </TagContainer>
-                    <TagContainer category="Substance active" hideSeparator={lastTagElement === TagTypeEnum.SUBSTANCE}>
-                      <SubstanceTag composants={composants} />
-                    </TagContainer>
-                    {isPrinceps && 
-                      <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRINCEPS}>
-                        <PrincepsTag CIS={CIS} />
-                      </TagContainer>
-                    }
-                    {!!specialite.SpecGeneId && (
-                      <TagContainer hideSeparator={lastTagElement === TagTypeEnum.GENERIC}>
-                        <GenericTag specGeneId={specialite.SpecGeneId} />
-                      </TagContainer>
-                    )}
-                    {!!delivrance.length && (
-                      <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRESCRIPTION}>
-                        <PrescriptionTag />
-                      </TagContainer>
-                    )}
-                    {pregnancyAlert && (
-                      <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY}>
-                        <PregnancyTag />
-                      </TagContainer>
-                    )}
-                    {pediatrics && <PediatricsTags info={pediatrics} lastTagElement={lastTagElement}/>}
-                </ContentContainer >
-                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                  <PresentationsList presentations={presentations} />
-                </ContentContainer >
-              </section>
-            </ContentContainer>
-            {leaflet ? (
-              <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
-                <article>
-                  <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                    <div className={fr.cx("fr-mb-4w")}>
-                      <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice</h2>
-                      <Badge severity={"info"}>{leaflet.maj}</Badge>
-                    </div>
-
-                    <Accordion label={"Généralités"} titleAs={"h2"}>
-                      <DsfrLeafletSection data={leaflet.generalities} />
-                    </Accordion>
-
-                    <Accordion label={"A quoi sert-il ?"}>
-                      <DsfrLeafletSection data={leaflet.usage} />
-                    </Accordion>
-
-                    <Accordion label={"Précautions"}>
-                      <DsfrLeafletSection data={leaflet.warnings} />
-                    </Accordion>
-
-                    <Accordion label={"Comment le prendre ?"}>
-                      <DsfrLeafletSection data={leaflet.howTo} />
-                    </Accordion>
-
-                    <Accordion label={"Effets indésirables"}>
-                      <DsfrLeafletSection data={leaflet.sideEffects} />
-                    </Accordion>
-
-                    <Accordion label={"Conservation"}>
-                      <DsfrLeafletSection data={leaflet.storage} />
-                    </Accordion>
-
-                    <Accordion label={"Composition"}>
-                      <DsfrLeafletSection data={leaflet.composition} />
-                    </Accordion>
-                  </ContentContainer>
-                </article>
-              </ContentContainer>
-            ) : null}
+            <SwitchNotice 
+              CIS={CIS}
+              atc2={atc2}
+              composants={composants}
+              isPrinceps={isPrinceps}
+              SpecGeneId={specialite.SpecGeneId}
+              isDelivrance={!!delivrance.length}
+              isPregnancyAlert={!!pregnancyAlert}
+              pediatrics={pediatrics}
+              presentations={presentations}
+              leaflet={leaflet && 
+                <>
+                  <DsfrLeafletSection data={leaflet.generalities} />
+                  <DsfrLeafletSection data={leaflet.usage} />
+                  <DsfrLeafletSection data={leaflet.warnings} />
+                  <DsfrLeafletSection data={leaflet.howTo} />
+                  <DsfrLeafletSection data={leaflet.sideEffects} />
+                  <DsfrLeafletSection data={leaflet.storage} />
+                  <DsfrLeafletSection data={leaflet.composition} /> 
+                </>
+              }
+              leafletMaj={leaflet?.maj}
+            />
           </div>
         </ContentContainer>
       </ContentContainer>
