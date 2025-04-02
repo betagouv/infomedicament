@@ -7,7 +7,7 @@ import AlphabeticNav from "@/components/AlphabeticNav";
 import Link from "next/link";
 
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
-import ContentContainer from "@/components/GenericContent/ContentContainer";
+import ContentContainer from "@/components/genericContent/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;

@@ -2,6 +2,9 @@
   "name": "info-medicament",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "22"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/",
@@ -25,7 +28,7 @@
     "jszip": "^3.10.1",
     "kysely": "^0.27.4",
     "mysql2": "^3.10.2",
-    "next": "15.1.5",
+    "next": "^15.2.4",
     "next-mdx-remote": "^5.0.0",
     "node-html-parser": "^7.0.1",
     "pg": "^8.12.0",
