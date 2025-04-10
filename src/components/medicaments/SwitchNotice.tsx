@@ -98,7 +98,7 @@ function SwitchNotice({
   return (
     <>
       <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")}>
-        <ToggleSwitchContainer className={fr.cx("fr-mb-4w")}>
+        <ToggleSwitchContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <ToggleSwitch 
             label="Version détaillée"
             labelPosition="left"
