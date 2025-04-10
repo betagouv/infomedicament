@@ -23,6 +23,9 @@ import styled, { css } from 'styled-components';
 import Badge from "@codegouvfr/react-dsfr/Badge";
 
 const ToggleSwitchContainer = styled.div `
+  background-color: var(--background-contrast-info);
+  border: var(--border-open-blue-france) 1px solid;
+  border-radius: 8px;
   .medicament-toggle-switch .fr-hint-text{
     margin-top: 0rem;
     font-style: italic;
