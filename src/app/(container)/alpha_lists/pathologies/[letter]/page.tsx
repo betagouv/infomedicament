@@ -6,7 +6,7 @@ import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import AlphabeticNav from "@/components/AlphabeticNav";
-import ContentContainer from "@/components/GenericContent/ContentContainer";
+import ContentContainer from "@/components/generic/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;

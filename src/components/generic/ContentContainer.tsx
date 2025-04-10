@@ -25,7 +25,7 @@ function ContentContainer(
 
   let className = props.className || "";
   if(frContainer){
-    className+= " "+fr.cx("fr-container", "fr-pt-4w", "fr-pb-8w");
+    className+= " "+fr.cx("fr-container", "fr-pt-1w", "fr-pb-2w");
   }
 
   return (

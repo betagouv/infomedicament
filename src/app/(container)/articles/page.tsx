@@ -3,7 +3,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { Fragment } from "react";
 import Link from "next/link";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import ContentContainer from "@/components/GenericContent/ContentContainer";
+import ContentContainer from "@/components/generic/ContentContainer";
 
 export const dynamic = "error";
 

@@ -6,7 +6,7 @@ import React from "react";
 import Link from "next/link";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import DefinitionBanner from "@/components/DefinitionBanner";
-import ContentContainer from "@/components/GenericContent/ContentContainer";
+import ContentContainer from "@/components/generic/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;

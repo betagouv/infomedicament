@@ -10,7 +10,7 @@ import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { MedGroupSpecListList } from "@/components/MedGroupSpecList";
 import { groupSpecialites } from "@/db/utils";
 import AlphabeticNav from "@/components/AlphabeticNav";
-import ContentContainer from "@/components/GenericContent/ContentContainer";
+import ContentContainer from "@/components/generic/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;

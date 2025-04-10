@@ -17,7 +17,7 @@ import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import GenericAccordion from "@/components/GenericAccordion";
 import ClassTag from "@/components/tags/ClassTag";
 import SubstanceTag from "@/components/tags/SubstanceTag";
-import ContentContainer from "@/components/GenericContent/ContentContainer";
+import ContentContainer from "@/components/generic/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;

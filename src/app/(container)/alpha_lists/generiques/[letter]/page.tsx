@@ -7,7 +7,7 @@ import Link from "next/link";
 import GenericAccordion from "@/components/GenericAccordion";
 import { formatSpecName } from "@/displayUtils";
 import { groupGeneNameToDCI } from "@/db/utils";
-import ContentContainer from "@/components/GenericContent/ContentContainer";
+import ContentContainer from "@/components/generic/ContentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;
