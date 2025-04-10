@@ -66,7 +66,7 @@ function KeywordsBox(
         updateCurrentNode(0, nodes[0]);
       }
     }
-  }, [questionID, setQuestion, setNodeList, setCurrentNode]);
+  }, [questionID, setQuestion, setNodeList, updateCurrentNode]);
 
   const onClickPrevious = () => {
     if(nodeList && currentNode && currentNode.index > 0){
