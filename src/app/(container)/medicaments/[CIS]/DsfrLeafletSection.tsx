@@ -184,32 +184,6 @@ export function DsfrListItems({
   );
 }
 
-async function getTextWithAnchor(text: string, isHeader?: boolean){
-  if(isHeader){
-    let anchorDetails: HeaderDetails | undefined;
-    let beginIndex = -1;
-    let endIndex = -1;
-    await headerAnchorsKeys.find((key: string) => {
-      beginIndex = (text.toLowerCase()).indexOf(headerAnchorsList[key].headerTerms.begin.toLowerCase());
-      if(beginIndex === -1) return false;
-      endIndex = (text.toLowerCase()).indexOf(headerAnchorsList[key].headerTerms.end.toLowerCase(), beginIndex + headerAnchorsList[key].headerTerms.begin.length);
-      if(endIndex === -1) return false;
-      anchorDetails = headerAnchorsList[key];
-      return true;
-    });
-    if(anchorDetails){
-      return (
-        <>
-          {text.substring(0, beginIndex)}
-          <span id={anchorDetails.id} className={`highlight-header-${anchorDetails.id}`}>{text.substring(beginIndex, endIndex + anchorDetails.headerTerms.end.length)}</span>
-          {text.substring(endIndex + anchorDetails.headerTerms.end.length)}
-        </>
-      );
-    }
-  }
-  return (<>{text}</>);
-}
-
 export default async function DsfrLeafletSection({ data, isHeader }: { data: Node[], isHeader?: boolean }) {
   const cleanedData = data.filter((el) => !isEmptyTextNode(el));
 

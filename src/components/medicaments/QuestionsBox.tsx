@@ -1,11 +1,10 @@
 "use client";
 
 import { fr } from "@codegouvfr/react-dsfr";
-import { HTMLAttributes, useState } from "react";
+import { HTMLAttributes } from "react";
 import styled from 'styled-components';
 import { questionsList, questionKeys } from "@/data/pages/notices_anchors";
 import { QuestionAnchors } from "@/types/NoticesAnchors";
-import QuestionKeywordsBox from "./QuestionKeywordsBox";
 
 const Container = styled.div `
   border: var(--border-open-blue-france) 1px solid;
@@ -38,53 +37,38 @@ const QuestionLink = styled.span `
     }
   }
 `;
-interface QuestionsBoxProps extends HTMLAttributes<HTMLDivElement> {}
+interface QuestionsBoxProps extends HTMLAttributes<HTMLDivElement> {
+  currentQuestion: string | undefined;
+  updateCurrentQuestion: (question: string) => void;
+}
 
-function QuestionsBox(
-  {...props}: QuestionsBoxProps
-) {
-
-  const [currentQuestion, setCurrentQuestion] = useState<string>();
-  const [showKeywordsBox, setShowKeywordsBox] = useState<boolean>(false);
+function QuestionsBox({
+  currentQuestion,
+  updateCurrentQuestion,
+  ...props
+}: QuestionsBoxProps) {
 
   const onClick = (anchorData: QuestionAnchors) => {
     const leafletContainer = document.getElementById('leafletContainer');
     if(leafletContainer){
       leafletContainer.className = "highlight-" + anchorData.id;
-      setCurrentQuestion(anchorData.id);
-      if(anchorData.keywords) {
-        setShowKeywordsBox(true);
-      } else {
-        setShowKeywordsBox(false);
-        if(anchorData.anchors && anchorData.anchors[0]){
-          const block = document.getElementById(anchorData.anchors[0].id);
-          block && block.scrollIntoView({
-            block: 'start',
-            inline: 'start',
-          });
-        }
-      }
+      updateCurrentQuestion(anchorData.id);
     }
   };
 
   //href on the question is the first element of the anchors list
   return (
-    <>
-      <Container className={fr.cx("fr-p-1w", "fr-mb-2w")} {...props}>
-        {questionKeys.map((key: string, index) => (
-          <QuestionLink key={index} className={fr.cx("fr-mr-2w", "fr-mb-1w")}>
-            <span 
-              className={[fr.cx("fr-link", "fr-link--sm"), currentQuestion && currentQuestion === key ? "active" : ""].join(" ")} 
-              onClick={() => onClick(questionsList[key])}>
-              <span>{questionsList[key].question}</span>
-            </span>
-          </QuestionLink>
-        ))}
-      </Container>
-      {showKeywordsBox && currentQuestion && (
-        <QuestionKeywordsBox onClose={() => setShowKeywordsBox(false)} questionID={currentQuestion}/>
-      )}
-    </>
+    <Container className={fr.cx("fr-p-1w", "fr-mb-2w")} {...props}>
+      {questionKeys.map((key: string, index) => (
+        <QuestionLink key={index} className={fr.cx("fr-mr-2w", "fr-mb-1w")}>
+          <span 
+            className={[fr.cx("fr-link", "fr-link--sm"), currentQuestion && currentQuestion === key ? "active" : ""].join(" ")} 
+            onClick={() => onClick(questionsList[key])}>
+            <span>{questionsList[key].question}</span>
+          </span>
+        </QuestionLink>
+      ))}
+    </Container>
   );
 };
 

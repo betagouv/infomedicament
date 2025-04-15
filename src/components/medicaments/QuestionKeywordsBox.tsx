@@ -8,6 +8,8 @@ import Button from "@codegouvfr/react-dsfr/Button";
 import { QuestionAnchors } from "@/types/NoticesAnchors";
 
 const Container = styled.div `
+  position: sticky;
+  top: 0;
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
   background-color: var(--background-alt-blue-france);
@@ -45,7 +47,7 @@ function QuestionKeywordsBox(
 
   const question: QuestionAnchors = questionsList[questionID];
 
-  const [nodeList, setNodeList] = useState<HTMLCollectionOf<Element>>();
+  const [nodeList, setNodeList] = useState<HTMLCollectionOf<Element> | HTMLElement[]>();
   const [currentNode, setCurrentNode] = useState<currentNodeFormat>();
 
   const updateCurrentNode = (index: number, element: Element) => {
@@ -53,7 +55,7 @@ function QuestionKeywordsBox(
     setCurrentNode({index: index, element: element});
     if(element) {
       element.scrollIntoView({
-        block: 'start'
+        block: 'center',
       });
       element.classList.add("active");
     }
@@ -61,9 +63,20 @@ function QuestionKeywordsBox(
 
   useEffect(() => {
     if(question){
-      const nodes = document.getElementsByClassName(`highlight-keyword-${question.id}`);
+      let nodes;
+      if(question.keywords) {
+        nodes = document.getElementsByClassName(`highlight-keyword-${question.id}`);
+      } else if(question.anchors) {
+        question.anchors.find((anchor) => {
+          const node = document.getElementById(anchor.id);
+          if(node){
+            nodes = [node];
+            return true;
+          }
+        })
+      }
+      setNodeList(nodes);
       if(nodes && nodes.length > 0){
-        setNodeList(nodes);
         updateCurrentNode(0, nodes[0]);
       }
     }
@@ -94,30 +107,39 @@ function QuestionKeywordsBox(
             />
         </InlineContainer>
         <InlineContainer>
-          <KeywordText>(...) {currentNode.element.innerHTML} (...)</KeywordText>
-          <div style={{verticalAlign: "middle"}}>
-            <Button
-              iconId="fr-icon-arrow-left-s-line"
-              onClick={onClickPrevious}
-              priority="tertiary no outline"
-              title="Précédent"
-              disabled={currentNode.index === 0}
-              size="small"
-              style={{verticalAlign: "middle"}}
-            />
-            <span className={fr.cx("fr-p-1w", "fr-mb-3w", "fr-text--sm")} style={{verticalAlign: "middle"}}>
-              {currentNode.index + 1} sur {nodeList.length}
-            </span>
-            <Button
-              iconId="fr-icon-arrow-right-s-line"
-              onClick={onClickNext}
-              priority="tertiary no outline"
-              title="Suivant"
-              disabled={currentNode.index === (nodeList.length - 1)}
-              size="small"
-              style={{verticalAlign: "middle"}}
-            />
-          </div>
+          {question.keywords
+           ? (
+            <>
+              <KeywordText>(...) {currentNode.element.innerHTML} (...)</KeywordText>
+              <div style={{verticalAlign: "middle"}}>
+                <Button
+                  iconId="fr-icon-arrow-left-s-line"
+                  onClick={onClickPrevious}
+                  priority="tertiary no outline"
+                  title="Précédent"
+                  disabled={currentNode.index === 0}
+                  size="small"
+                  style={{verticalAlign: "middle"}}
+                />
+                <span className={fr.cx("fr-p-1w", "fr-mb-3w", "fr-text--sm")} style={{verticalAlign: "middle"}}>
+                  {currentNode.index + 1} sur {nodeList.length}
+                </span>
+                <Button
+                  iconId="fr-icon-arrow-right-s-line"
+                  onClick={onClickNext}
+                  priority="tertiary no outline"
+                  title="Suivant"
+                  disabled={currentNode.index === (nodeList.length - 1)}
+                  size="small"
+                  style={{verticalAlign: "middle"}}
+                />
+              </div>
+            </>
+           ) :(
+            <>
+              <KeywordText>{currentNode.element.innerHTML}</KeywordText>
+            </>
+           )}
         </InlineContainer>
       </Container>
     ) : ('')

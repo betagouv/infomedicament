@@ -23,6 +23,8 @@ import styled, { css } from 'styled-components';
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import QuestionsBox from "./QuestionsBox";
 import LeafletContainer from "./LeafletContainer";
+import QuestionKeywordsBox from "./QuestionKeywordsBox";
+import { questionsList } from "@/data/pages/notices_anchors";
 
 const ToggleSwitchContainer = styled.div `
   background-color: var(--background-contrast-info);
@@ -63,6 +65,8 @@ function SwitchNotice({
   ...props
 }: SwitchNoticeProps) {
 
+  const [currentQuestion, setCurrentQuestion] = useState<string>();
+  const [showKeywordsBox, setShowKeywordsBox] = useState<boolean>(false);
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
   const onSwitchAdvanced = useCallback(
     (enabled: boolean) => {
@@ -70,6 +74,16 @@ function SwitchNotice({
     },
     [setIsAdvanced]
   );
+
+  const updateCurrentQuestion = (questionId: string) => {
+    setCurrentQuestion(questionId);
+    const question = questionsList[questionId];
+    if(question.keywords || question.anchors) {
+      setShowKeywordsBox(true);
+    } else {
+      setShowKeywordsBox(false);
+    }
+  };
 
   // Use to display or not the separator after a tag (left column)
   const lastTagElement: TagTypeEnum = (
@@ -170,8 +184,14 @@ function SwitchNotice({
                   </ContentContainer>
                 </div>
                 <ContentContainer>
-                  <QuestionsBox />
+                  <QuestionsBox 
+                    currentQuestion={currentQuestion}
+                    updateCurrentQuestion={updateCurrentQuestion}
+                  />
                 </ContentContainer>
+                {showKeywordsBox && currentQuestion && (
+                  <QuestionKeywordsBox onClose={() => setShowKeywordsBox(false)} questionID={currentQuestion}/>
+                )}
                 <LeafletContainer className={fr.cx("fr-mt-3w")}>
                   <ContentContainer id="leafletContainer">
                     {leaflet}
