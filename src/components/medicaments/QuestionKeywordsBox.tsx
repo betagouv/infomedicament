@@ -67,7 +67,7 @@ function QuestionKeywordsBox(
         updateCurrentNode(0, nodes[0]);
       }
     }
-  }, [question, updateCurrentNode]);
+  }, [question]);
 
   const onClickPrevious = () => {
     if(nodeList && currentNode && currentNode.index > 0){
