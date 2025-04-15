@@ -1,7 +1,6 @@
 "use client";
 
 import { fr } from "@codegouvfr/react-dsfr";
-import Link from "next/link";
 import { HTMLAttributes, useState } from "react";
 import styled from 'styled-components';
 import { questionsList, questionKeys } from "@/data/pages/notices_anchors";
@@ -60,7 +59,8 @@ function QuestionsBox(
         if(anchorData.anchors && anchorData.anchors[0]){
           const block = document.getElementById(anchorData.anchors[0].id);
           block && block.scrollIntoView({
-            block: 'start'
+            block: 'start',
+            inline: 'start',
           });
         }
       }

@@ -3,8 +3,9 @@ import "server-cli-only";
 import getGlossaryDefinitions, { Definition } from "@/data/grist/glossary";
 import React, { Fragment } from "react";
 import WithDefinition from "@/components/glossary/WithDefinition";
-import { questionKeys, questionsList } from "@/data/pages/notices_anchors";
+import { headerAnchorsKeys, headerAnchorsList, questionKeys, questionsList } from "@/data/pages/notices_anchors";
 import QuestionKeyword from "../medicaments/QuestionKeyword";
+import { HeaderDetails } from "@/types/NoticesAnchors";
 
 function escapeRegExp(text: string) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -49,6 +50,23 @@ function withKeyword(
   ];
 }
 
+function withHeaderAnchor(
+  text: string,
+  anchorDetails: HeaderDetails,
+): (React.JSX.Element | string)[] {
+
+  const beginIndex = (text.toLowerCase()).indexOf(anchorDetails.headerTerms.begin.toLowerCase());
+  if(beginIndex !== -1){
+    const endIndex =(text.toLowerCase()).indexOf(anchorDetails.headerTerms.end.toLowerCase(), beginIndex + anchorDetails.headerTerms.begin.length);
+    if(endIndex !== -1){
+      return [
+        <span id={anchorDetails.id} className={`highlight-header-${anchorDetails.id}`}>{text}</span>,
+      ];
+    }
+  }
+  return [text];
+}
+
 export async function WithGlossary({
   text,
   isHeader,
@@ -62,27 +80,45 @@ export async function WithGlossary({
     (d) => d.fields.A_publier,
   );
 
-  //Find keywords for questions
-  await questionKeys.forEach((key: string) => {
-    questionsList[key].keywords && questionsList[key].keywords.forEach((keyword: string) => {
+  if(isHeader){
+
+    await headerAnchorsKeys.forEach((key: string) => {
       elements = elements
         .map((element) => {
           if (typeof element !== "string") return element;
-          return withKeyword(element, keyword, key);
+          return withHeaderAnchor(element, headerAnchorsList[key]);
+        })
+        .flat();
+      // beginIndex = (text.toLowerCase()).indexOf(headerAnchorsList[key].headerTerms.begin.toLowerCase());
+      // if(beginIndex === -1) return false;
+      // endIndex = (text.toLowerCase()).indexOf(headerAnchorsList[key].headerTerms.end.toLowerCase(), beginIndex + headerAnchorsList[key].headerTerms.begin.length);
+      // if(endIndex === -1) return false;
+      // anchorDetails = headerAnchorsList[key];
+      // return true;
+    });
+  } else {
+    //Find keywords for questions
+    await questionKeys.forEach((key: string) => {
+      questionsList[key].keywords && questionsList[key].keywords.forEach((keyword: string) => {
+        elements = elements
+          .map((element) => {
+            if (typeof element !== "string") return element;
+            return withKeyword(element, keyword, key);
+          })
+          .flat();
+      });
+    });
+
+    //Find definitions
+    await definitions.forEach((definition) => {
+      elements = elements
+        .map((element) => {
+          if (typeof element !== "string") return element;
+          return withDefinition(element, definition);
         })
         .flat();
     });
-  });
-
-  //Find definitions
-  definitions.forEach((definition) => {
-    elements = elements
-      .map((element) => {
-        if (typeof element !== "string") return element;
-        return withDefinition(element, definition);
-      })
-      .flat();
-  });
+  }
 
   return (
     <>

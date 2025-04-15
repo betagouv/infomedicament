@@ -183,12 +183,7 @@ export function DsfrListItems({
     </Fragment>
   );
 }
-interface indexFormat {
-  index: number; //position
-  length: number; //length of the keyword
-  id: string; //question id
-  excerpt: string; //few words before and after the keyword
-}
+
 async function getTextWithAnchor(text: string, isHeader?: boolean){
   if(isHeader){
     let anchorDetails: HeaderDetails | undefined;
@@ -208,40 +203,6 @@ async function getTextWithAnchor(text: string, isHeader?: boolean){
           {text.substring(0, beginIndex)}
           <span id={anchorDetails.id} className={`highlight-header-${anchorDetails.id}`}>{text.substring(beginIndex, endIndex + anchorDetails.headerTerms.end.length)}</span>
           {text.substring(endIndex + anchorDetails.headerTerms.end.length)}
-        </>
-      );
-    }
-  } else {
-    const indexes: indexFormat[] = [];
-    await questionKeys.forEach((key: string) => {
-      questionsList[key].keywords && questionsList[key].keywords.forEach((keyword: string) => {
-        const index = (text.toLowerCase()).indexOf(keyword.toLowerCase());
-        if(index !== -1){
-          indexes.push({
-            index: index, 
-            length: keyword.length, 
-            id: questionsList[key].id,
-            excerpt: "",
-          });
-        }
-      });
-    });
-    if(indexes.length > 0){
-      await indexes.sort((a: any, b: any) => a.index - b.index);
-      return (
-        <>
-          {await indexes.map((data, index) => {
-            const previousPos = index !==0 ? (indexes[index-1].index + indexes[index-1].length) : 0;
-            const keywordSpan = (<span className={`highlight-keyword-${data.id}`}>{text.substring(data.index, data.index + data.length)}</span>);
-            return (
-              <span key={index}>
-                {text.substring(previousPos, data.index)}
-                {keywordSpan}
-              </span>
-            );
-            
-          })}
-          {text.substring(indexes[indexes.length - 1].index + indexes[indexes.length - 1].length)}
         </>
       );
     }

@@ -1,7 +1,7 @@
 import { HTMLAttributes, PropsWithChildren } from "react";
 
 interface KeywordProps extends HTMLAttributes<HTMLDivElement> {
-  excerpt: string;
+  excerpt?: string;
 }
 
 function Keyword(
@@ -20,10 +20,8 @@ function QuestionKeyword({
 }) {
 
   return (
-    <Keyword excerpt="ceci est mon résumé" className={`highlight-keyword-${questionId}`}>
-      <span>
-        {keyword}
-      </span>
+    <Keyword className={`highlight-keyword-${questionId}`}>
+      {keyword}
     </Keyword>
   );
 }
