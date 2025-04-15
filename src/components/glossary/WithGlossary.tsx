@@ -45,7 +45,7 @@ function withKeyword(
   const { before, word, after } = match.groups;
   return [
     before,
-    <QuestionKeyword keyword={word} questionId={questionId} />,
+    <QuestionKeyword key={word+"_"+questionId} keyword={word} questionId={questionId} />,
     ...withKeyword(after, keyword, questionId),
   ];
 }
@@ -60,7 +60,7 @@ function withHeaderAnchor(
     const endIndex =(text.toLowerCase()).indexOf(anchorDetails.headerTerms.end.toLowerCase(), beginIndex + anchorDetails.headerTerms.begin.length);
     if(endIndex !== -1){
       return [
-        <span id={anchorDetails.id} className={`highlight-header-${anchorDetails.id}`}>{text}</span>,
+        <span key={anchorDetails.id} id={anchorDetails.id} className={`highlight-header-${anchorDetails.id}`}>{text}</span>,
       ];
     }
   }
