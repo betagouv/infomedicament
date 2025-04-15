@@ -3,6 +3,8 @@ import "server-cli-only";
 import getGlossaryDefinitions, { Definition } from "@/data/grist/glossary";
 import React, { Fragment } from "react";
 import WithDefinition from "@/components/glossary/WithDefinition";
+import { questionKeys, questionsList } from "@/data/pages/notices_anchors";
+import QuestionKeyword from "../medicaments/QuestionKeyword";
 
 function escapeRegExp(text: string) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -27,17 +29,52 @@ function withDefinition(
   ];
 }
 
+function withKeyword(
+  text: string,
+  keyword: string,
+  questionId: string,
+): (React.JSX.Element | string)[] {
+  const match = text.match(
+    new RegExp(
+      `(?<before>.*)(?<word>${escapeRegExp(keyword.toLowerCase())}s?)(?<after>.*)`,
+      "i",
+    ),
+  );
+  if (!match || !match.groups) return [text];
+  const { before, word, after } = match.groups;
+  return [
+    before,
+    <QuestionKeyword keyword={word} questionId={questionId} />,
+    ...withKeyword(after, keyword, questionId),
+  ];
+}
+
 export async function WithGlossary({
   text,
+  isHeader,
 }: {
-  text: string | React.JSX.Element;
+  text: string;
+  isHeader?: boolean;
 }): Promise<React.JSX.Element> {
+
+  let elements: (React.JSX.Element | string)[] = [text];
   const definitions = (await getGlossaryDefinitions()).filter(
     (d) => d.fields.A_publier,
   );
 
-  let elements: (React.JSX.Element | string)[] = [text];
+  //Find keywords for questions
+  await questionKeys.forEach((key: string) => {
+    questionsList[key].keywords && questionsList[key].keywords.forEach((keyword: string) => {
+      elements = elements
+        .map((element) => {
+          if (typeof element !== "string") return element;
+          return withKeyword(element, keyword, key);
+        })
+        .flat();
+    });
+  });
 
+  //Find definitions
   definitions.forEach((definition) => {
     elements = elements
       .map((element) => {

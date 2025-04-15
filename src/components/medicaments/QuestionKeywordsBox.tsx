@@ -29,7 +29,7 @@ const KeywordText = styled.span `
   font-size: 14px;
 `;
 
-interface KeywordsBoxProps extends HTMLAttributes<HTMLDivElement> {
+interface QuestionKeywordsBoxProps extends HTMLAttributes<HTMLDivElement> {
   questionID: string;
   onClose: () => void;
 }
@@ -39,11 +39,12 @@ interface currentNodeFormat {
   element: Element;  
 }
 
-function KeywordsBox(
-  {questionID, onClose, ...props}: KeywordsBoxProps
+function QuestionKeywordsBox(
+  {questionID, onClose, ...props}: QuestionKeywordsBoxProps
 ) {
 
-  const [question, setQuestion] = useState<QuestionAnchors>();
+  const question: QuestionAnchors = questionsList[questionID];
+
   const [nodeList, setNodeList] = useState<HTMLCollectionOf<Element>>();
   const [currentNode, setCurrentNode] = useState<currentNodeFormat>();
 
@@ -51,22 +52,22 @@ function KeywordsBox(
     currentNode && currentNode.element && currentNode.element.classList && currentNode.element.classList.remove("active");
     setCurrentNode({index: index, element: element});
     if(element) {
-      element.scrollIntoView();
+      element.scrollIntoView({
+        block: 'start'
+      });
       element.classList.add("active");
     }
   }
 
   useEffect(() => {
-    const newQuestion = questionsList[questionID];
-    setQuestion(newQuestion);
-    if(newQuestion){
-      const nodes = document.getElementsByClassName(`highlight-keyword-${newQuestion.id}`);
+    if(question){
+      const nodes = document.getElementsByClassName(`highlight-keyword-${question.id}`);
       if(nodes && nodes.length > 0){
         setNodeList(nodes);
         updateCurrentNode(0, nodes[0]);
       }
     }
-  }, [questionID, setQuestion, setNodeList, updateCurrentNode]);
+  }, [question]);
 
   const onClickPrevious = () => {
     if(nodeList && currentNode && currentNode.index > 0){
@@ -123,4 +124,4 @@ function KeywordsBox(
   );
 };
 
-export default KeywordsBox;
+export default QuestionKeywordsBox;

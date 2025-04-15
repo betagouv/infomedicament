@@ -258,9 +258,8 @@ export default async function DsfrLeafletSection({ data, isHeader }: { data: Nod
         cleanedData.map(async (node, index) => {
           if (!isHtmlElement(node)) {
             if (node.nodeType === NodeType.TEXT_NODE) {
-              const newText = await getTextWithAnchor(node.text, isHeader);
               return (
-                <WithGlossary key={index} text={newText} />
+                <WithGlossary key={index} text={node.text} isHeader={isHeader} />
               );
             }
 
