@@ -18,9 +18,13 @@ import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "../PresentationsList";
 import { Nullable } from "kysely";
 import { PresentationDetail } from "@/db/types";
-import { HTMLAttributes, PropsWithChildren, useCallback, useState } from "react";
+import { HTMLAttributes, useCallback, useState } from "react";
 import styled, { css } from 'styled-components';
 import Badge from "@codegouvfr/react-dsfr/Badge";
+import QuestionsBox from "./QuestionsBox";
+import LeafletContainer from "./LeafletContainer";
+import QuestionKeywordsBox from "./QuestionKeywordsBox";
+import { questionsList } from "@/data/pages/notices_anchors";
 
 const ToggleSwitchContainer = styled.div `
   background-color: var(--background-contrast-info);
@@ -32,7 +36,7 @@ const ToggleSwitchContainer = styled.div `
   }
 `;
 
-interface OwnProps extends HTMLAttributes<HTMLDivElement> {
+interface SwitchNoticeProps extends HTMLAttributes<HTMLDivElement> {
   CIS: string;
   atc2: ATC;
   composants: Array<SpecComposant & SubstanceNom>;
@@ -58,10 +62,11 @@ function SwitchNotice({
   presentations,
   leaflet,
   leafletMaj,
-  children,
   ...props
-}: PropsWithChildren<OwnProps>) {
+}: SwitchNoticeProps) {
 
+  const [currentQuestion, setCurrentQuestion] = useState<string>();
+  const [showKeywordsBox, setShowKeywordsBox] = useState<boolean>(false);
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
   const onSwitchAdvanced = useCallback(
     (enabled: boolean) => {
@@ -69,6 +74,16 @@ function SwitchNotice({
     },
     [setIsAdvanced]
   );
+
+  const updateCurrentQuestion = (questionId: string) => {
+    setCurrentQuestion(questionId);
+    const question = questionsList[questionId];
+    if(question.keywords || question.anchors) {
+      setShowKeywordsBox(true);
+    } else {
+      setShowKeywordsBox(false);
+    }
+  };
 
   // Use to display or not the separator after a tag (left column)
   const lastTagElement: TagTypeEnum = (
@@ -156,7 +171,7 @@ function SwitchNotice({
           <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
             <article>
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
-                <div className={fr.cx("fr-mb-4w")} style={{display: "flex", justifyContent: "space-between", alignItems: "center", }}>
+                <div className={fr.cx("fr-mb-3w")} style={{display: "flex", justifyContent: "space-between", alignItems: "center", }}>
                   <div style={{display: "flex"}}>
                     <span className={["fr-icon--custom-notice", fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md")].join(" ")}/>
                     <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>
@@ -164,9 +179,24 @@ function SwitchNotice({
                       <span className={fr.cx("fr-hidden", "fr-unhidden-md")}>Notice complète</span>
                     </h2>
                   </div>
-                  {leafletMaj && <Badge severity={"info"}>{leafletMaj}</Badge>}
+                  <ContentContainer>
+                    {leafletMaj && <Badge severity={"info"}>{leafletMaj}</Badge>}
+                  </ContentContainer>
                 </div>
-                {leaflet}
+                <ContentContainer>
+                  <QuestionsBox 
+                    currentQuestion={currentQuestion}
+                    updateCurrentQuestion={updateCurrentQuestion}
+                  />
+                </ContentContainer>
+                {showKeywordsBox && currentQuestion && (
+                  <QuestionKeywordsBox onClose={() => setShowKeywordsBox(false)} questionID={currentQuestion}/>
+                )}
+                <LeafletContainer className={fr.cx("fr-mt-3w")}>
+                  <ContentContainer id="leafletContainer">
+                    {leaflet}
+                  </ContentContainer>
+                </LeafletContainer>
               </ContentContainer>
             </article>
           </ContentContainer>
