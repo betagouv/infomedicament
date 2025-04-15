@@ -89,12 +89,6 @@ export async function WithGlossary({
           return withHeaderAnchor(element, headerAnchorsList[key]);
         })
         .flat();
-      // beginIndex = (text.toLowerCase()).indexOf(headerAnchorsList[key].headerTerms.begin.toLowerCase());
-      // if(beginIndex === -1) return false;
-      // endIndex = (text.toLowerCase()).indexOf(headerAnchorsList[key].headerTerms.end.toLowerCase(), beginIndex + headerAnchorsList[key].headerTerms.begin.length);
-      // if(endIndex === -1) return false;
-      // anchorDetails = headerAnchorsList[key];
-      // return true;
     });
   } else {
     //Find keywords for questions
