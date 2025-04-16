@@ -6,6 +6,7 @@ import { AutocompleteSearchInput } from "@/components/AutocompleteSearch";
 import { useRouter } from "next/navigation";
 import { ATC1 } from "@/data/grist/atc";
 import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
+import { useTracking } from "@/services/tracking";
 
 export default function ClientHeader({
   atcs,
@@ -18,6 +19,7 @@ export default function ClientHeader({
 }) {
   const router = useRouter();
   const { isDark } = useIsDark();
+  useTracking();
 
   return (
     <Header

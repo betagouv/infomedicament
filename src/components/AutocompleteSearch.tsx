@@ -8,6 +8,7 @@ import { SearchBar } from "@codegouvfr/react-dsfr/SearchBar";
 import useSWR from "swr";
 import { SearchResultItem } from "@/db/utils/search";
 import { useRouter } from "next/navigation";
+import { trackSearchEvent } from "@/services/tracking";
 
 type SearchInputProps = {
   name: string;
@@ -74,6 +75,7 @@ export function AutocompleteSearchInput({
       }}
       onChange={(_, value, reason) => {
         if (reason === "selectOption") {
+          value && trackSearchEvent(value);
           router.push(`/rechercher?s=${value}`);
         }
       }}
@@ -104,10 +106,16 @@ export default function AutocompleteSearch({
   className?: string;
 }) {
   const router = useRouter();
+
+  const onButtonClick = (search: string) => {
+    search && trackSearchEvent(search);
+    router.push(`/rechercher?s=${search}`);
+  };
+
   return (
     <SearchBar
       label={"Que cherchez-vous ?"}
-      onButtonClick={(search: string) => router.push(`/rechercher?s=${search}`)}
+      onButtonClick={(search: string) => onButtonClick(search)}
       renderInput={({ className, ...props }) => (
         <AutocompleteSearchInput
           {...props}
