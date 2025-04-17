@@ -30,6 +30,7 @@ export const useTracking = () => {
 };
 
 export const trackSearchEvent = (keyword: string) => {
+  console.log("search -- Matomo - 2");
   if (!keyword) {
     return;
   }
