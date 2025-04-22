@@ -38,7 +38,8 @@ interface QuestionKeywordsBoxProps extends HTMLAttributes<HTMLDivElement> {
 
 interface currentNodeFormat {
   index: number;
-  element: Element;  
+  excerpt: string;
+  element: Element;
 }
 
 function QuestionKeywordsBox(
@@ -50,11 +51,21 @@ function QuestionKeywordsBox(
   const [nodeList, setNodeList] = useState<HTMLCollectionOf<Element> | HTMLElement[]>();
   const [currentNode, setCurrentNode] = useState<currentNodeFormat>();
 
+  const getExcerpt = (element: Element) => {
+    if(!element) return "";
+    const excerpt = element.getElementsByClassName("hidden-excerpt");
+    if(excerpt && excerpt[0]){
+      return excerpt[0].innerHTML;
+    } else {
+      return element.innerHTML;
+    }
+  };
+
   const updateCurrentNode = (index: number) => {
     if(nodeList){
       const element: Element = nodeList[index];
       currentNode && currentNode.element && currentNode.element.classList && currentNode.element.classList.remove("active");
-      setCurrentNode({index: index, element: element});
+      setCurrentNode({index: index, excerpt: getExcerpt(element), element: element});
       if(element) {
         element.scrollIntoView({block: 'start'});
         element.classList.add("active");
@@ -104,7 +115,6 @@ function QuestionKeywordsBox(
     updateCurrentNode(newIndex);
   };
 
-  //TODO innerHTML a changer - il faudrait un extrait
   return (
     question && nodeList && currentNode ? (
       <Container className={fr.cx("fr-p-1w", "fr-mb-1w")} {...props}>
@@ -121,7 +131,9 @@ function QuestionKeywordsBox(
           {question.keywords
            ? (
             <>
-              <KeywordText>(...) {currentNode.element.innerHTML} (...)</KeywordText>
+              <KeywordText>
+                (...)&nbsp;{currentNode.excerpt}&nbsp;(...)
+              </KeywordText>
               <div style={{verticalAlign: "middle"}}>
                 <Button
                   iconId="fr-icon-arrow-left-s-line"

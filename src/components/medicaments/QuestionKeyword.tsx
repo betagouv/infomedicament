@@ -1,28 +1,19 @@
-import { HTMLAttributes, PropsWithChildren } from "react";
-
-interface KeywordProps extends HTMLAttributes<HTMLDivElement> {
-  excerpt?: string;
-}
-
-function Keyword(
-  {excerpt, children, ...props}: PropsWithChildren<KeywordProps>) {
-  return (
-    <span {...props}>{children}</span>
-  );
-};
+import { fr } from "@codegouvfr/react-dsfr";
 
 function QuestionKeyword({
   keyword,
   questionId,
+  excerpt,
 }: {
   keyword: string;
   questionId: string;
+  excerpt: string;
 }) {
-
   return (
-    <Keyword className={`highlight-keyword-${questionId}`}>
+    <span className={`highlight-keyword-${questionId}`}>
+      <span className={["hidden-excerpt", fr.cx("fr-hidden")].join(" ",)} aria-hidden="true">{excerpt}</span>
       {keyword}
-    </Keyword>
+    </span>
   );
 }
 

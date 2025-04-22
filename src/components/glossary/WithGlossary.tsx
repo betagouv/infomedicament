@@ -43,9 +43,15 @@ function withKeyword(
   );
   if (!match || !match.groups) return [text];
   const { before, word, after } = match.groups;
+  const excerpt = before.substring(before.length - 12)+word+after.substring(12);
   return [
     before,
-    <QuestionKeyword key={word+"_"+questionId} keyword={word} questionId={questionId} />,
+    <QuestionKeyword 
+      key={word}
+      keyword={word} 
+      questionId={questionId} 
+      excerpt={excerpt}
+    />,
     ...withKeyword(after, keyword, questionId),
   ];
 }
