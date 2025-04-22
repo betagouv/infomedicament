@@ -50,14 +50,15 @@ function QuestionKeywordsBox(
   const [nodeList, setNodeList] = useState<HTMLCollectionOf<Element> | HTMLElement[]>();
   const [currentNode, setCurrentNode] = useState<currentNodeFormat>();
 
-  const updateCurrentNode = (index: number, element: Element) => {
-    currentNode && currentNode.element && currentNode.element.classList && currentNode.element.classList.remove("active");
-    setCurrentNode({index: index, element: element});
-    if(element) {
-      element.scrollIntoView({
-        block: 'center',
-      });
-      element.classList.add("active");
+  const updateCurrentNode = (index: number) => {
+    if(nodeList){
+      const element: Element = nodeList[index];
+      currentNode && currentNode.element && currentNode.element.classList && currentNode.element.classList.remove("active");
+      setCurrentNode({index: index, element: element});
+      if(element) {
+        element.scrollIntoView({block: 'start'});
+        element.classList.add("active");
+      }
     }
   }
 
@@ -77,20 +78,30 @@ function QuestionKeywordsBox(
       }
       setNodeList(nodes);
       if(nodes && nodes.length > 0){
-        updateCurrentNode(0, nodes[0]);
+        updateCurrentNode(0);
       }
     }
   }, [question]);
 
   const onClickPrevious = () => {
-    if(nodeList && currentNode && currentNode.index > 0){
-      updateCurrentNode(currentNode.index - 1, nodeList[currentNode.index - 1]);
+    let newIndex = 0;
+    if(nodeList && currentNode){
+      if(currentNode.index > 0){
+        newIndex = currentNode.index - 1;
+      } else {
+        newIndex = nodeList.length -1;
+      }
     }
+    updateCurrentNode(newIndex);
   };
   const onClickNext = () => {
-    if(nodeList && currentNode && currentNode.index < (nodeList.length -1) ){
-      updateCurrentNode(currentNode.index + 1, nodeList[currentNode.index + 1]);
-    };
+    let newIndex = 0;
+    if(nodeList && currentNode){
+      if(currentNode.index < (nodeList.length -1)){
+        newIndex = currentNode.index + 1;
+      }
+    }
+    updateCurrentNode(newIndex);
   };
 
   //TODO innerHTML a changer - il faudrait un extrait
@@ -117,7 +128,6 @@ function QuestionKeywordsBox(
                   onClick={onClickPrevious}
                   priority="tertiary no outline"
                   title="Précédent"
-                  disabled={currentNode.index === 0}
                   size="small"
                   style={{verticalAlign: "middle"}}
                 />
@@ -129,7 +139,6 @@ function QuestionKeywordsBox(
                   onClick={onClickNext}
                   priority="tertiary no outline"
                   title="Suivant"
-                  disabled={currentNode.index === (nodeList.length - 1)}
                   size="small"
                   style={{verticalAlign: "middle"}}
                 />

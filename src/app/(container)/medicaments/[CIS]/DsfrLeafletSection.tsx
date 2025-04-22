@@ -5,8 +5,6 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { isEmptyTextNode, isHtmlElement, isListItem } from "./leafletUtils";
 import { getLeafletImage } from "@/db/utils";
 import { WithGlossary } from "@/components/glossary/WithGlossary";
-import { headerAnchorsKeys, headerAnchorsList, questionKeys, questionsList } from "@/data/pages/notices_anchors";
-import { HeaderDetails } from "@/types/NoticesAnchors";
 
 async function DsfrLeafletElement({ node, isHeader }: { node: HTMLElement, isHeader?: boolean }) {
   if (

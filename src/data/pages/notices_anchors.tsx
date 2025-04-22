@@ -175,6 +175,7 @@ export const questionsList: QuestionsListFormat = {
       </>
     ),
     keywords: [
+      "Conduite de véhicules et utilisation de machines",
       "Conduire",
       "Conduite",
       "véhicule",
