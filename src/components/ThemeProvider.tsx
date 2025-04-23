@@ -12,6 +12,13 @@ export const AppGlobalStyle = createGlobalStyle`
       scroll-behavior: auto;
     }
   }
+
+  .go-top-button{
+    float: right;
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+  }
 `;
 
 function ThemeProvider({ children }: { children: React.ReactNode }) {
