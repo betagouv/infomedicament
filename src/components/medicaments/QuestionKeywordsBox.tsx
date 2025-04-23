@@ -9,10 +9,12 @@ import { QuestionAnchors } from "@/types/NoticesAnchors";
 
 const Container = styled.div `
   position: sticky;
-  top: 0;
+  top: 8px;
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
   background-color: var(--background-alt-blue-france);
+  z-index: 5;
+  filter: drop-shadow(var(--raised-shadow));
 `;
 
 const InlineContainer = styled.div `
