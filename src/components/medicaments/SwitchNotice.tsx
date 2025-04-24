@@ -90,6 +90,7 @@ function SwitchNotice({
     if(leafletContainer){
       leafletContainer.className = "";
       setShowKeywordsBox(false);
+      setCurrentQuestion("");
     }
   };
 
