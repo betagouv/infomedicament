@@ -85,6 +85,14 @@ function SwitchNotice({
     }
   };
 
+  const onCloseQuestionKeywordsBox = () => {
+    const leafletContainer = document.getElementById('leafletContainer');
+    if(leafletContainer){
+      leafletContainer.className = "";
+      setShowKeywordsBox(false);
+    }
+  };
+
   // Use to display or not the separator after a tag (left column)
   const lastTagElement: TagTypeEnum = (
     pediatrics && pediatrics.doctorAdvice
@@ -190,7 +198,7 @@ function SwitchNotice({
                   />
                 </ContentContainer>
                 {showKeywordsBox && currentQuestion && (
-                  <QuestionKeywordsBox onClose={() => setShowKeywordsBox(false)} questionID={currentQuestion}/>
+                  <QuestionKeywordsBox onClose={() => onCloseQuestionKeywordsBox()} questionID={currentQuestion}/>
                 )}
                 <LeafletContainer className={fr.cx("fr-mt-3w")}>
                   <ContentContainer id="leafletContainer">
