@@ -41,7 +41,7 @@ interface QuestionKeywordsBoxProps extends HTMLAttributes<HTMLDivElement> {
 interface currentNodeFormat {
   index: number;
   excerpt: string;
-  element: Element;
+  element?: HTMLElement;
 }
 
 function QuestionKeywordsBox(
@@ -53,7 +53,7 @@ function QuestionKeywordsBox(
   const [nodeList, setNodeList] = useState<HTMLCollectionOf<Element> | HTMLElement[]>();
   const [currentNode, setCurrentNode] = useState<currentNodeFormat>();
 
-  const getExcerpt = (element: Element) => {
+  const getExcerpt = (element?: HTMLElement) => {
     if(!element) return "";
     const excerpt = element.getElementsByClassName("hidden-excerpt");
     if(excerpt && excerpt[0]){
@@ -63,17 +63,18 @@ function QuestionKeywordsBox(
     }
   };
 
-  const updateCurrentNode = (index: number) => {
-    if(nodeList){
-      const element: Element = nodeList[index];
+  const updateCurrentNode = (index: number, element?: HTMLElement) => {
+    if(element){
       currentNode && currentNode.element && currentNode.element.classList && currentNode.element.classList.remove("active");
       setCurrentNode({index: index, excerpt: getExcerpt(element), element: element});
-      if(element) {
-        element.scrollIntoView({block: 'start'});
+      if(element) { 
         element.classList.add("active");
+        element.scrollIntoView({block: 'start'});
       }
+    } else {
+      setCurrentNode({index: index, excerpt: "", element: undefined});
     }
-  }
+  };
 
   useEffect(() => {
     if(question){
@@ -90,9 +91,10 @@ function QuestionKeywordsBox(
         })
       }
       setNodeList(nodes);
-      if(nodes && nodes.length > 0){
-        updateCurrentNode(0);
-      }
+      updateCurrentNode(
+        0, 
+        nodes && nodes.length > 0 ? nodes[0] as HTMLElement : undefined
+      );
     }
   }, [question]);
 
@@ -105,7 +107,10 @@ function QuestionKeywordsBox(
         newIndex = nodeList.length -1;
       }
     }
-    updateCurrentNode(newIndex);
+    updateCurrentNode(
+      newIndex, 
+      nodeList && nodeList[newIndex] ? nodeList[newIndex] as HTMLElement : undefined
+    );
   };
   const onClickNext = () => {
     let newIndex = 0;
@@ -114,7 +119,10 @@ function QuestionKeywordsBox(
         newIndex = currentNode.index + 1;
       }
     }
-    updateCurrentNode(newIndex);
+    updateCurrentNode(
+      newIndex, 
+      nodeList && nodeList[newIndex] ? nodeList[newIndex] as HTMLElement : undefined
+    );
   };
 
   return (
@@ -129,41 +137,45 @@ function QuestionKeywordsBox(
               title="Fermer"
             />
         </InlineContainer>
-        <InlineContainer>
-          {question.keywords
-           ? (
-            <>
-              <KeywordText>
-                (...)&nbsp;{currentNode.excerpt}&nbsp;(...)
-              </KeywordText>
-              <div style={{verticalAlign: "middle"}}>
-                <Button
-                  iconId="fr-icon-arrow-left-s-line"
-                  onClick={onClickPrevious}
-                  priority="tertiary no outline"
-                  title="Précédent"
-                  size="small"
-                  style={{verticalAlign: "middle"}}
-                />
-                <span className={fr.cx("fr-p-1w", "fr-mb-3w", "fr-text--sm")} style={{verticalAlign: "middle"}}>
-                  {currentNode.index + 1} sur {nodeList.length}
-                </span>
-                <Button
-                  iconId="fr-icon-arrow-right-s-line"
-                  onClick={onClickNext}
-                  priority="tertiary no outline"
-                  title="Suivant"
-                  size="small"
-                  style={{verticalAlign: "middle"}}
-                />
-              </div>
-            </>
-           ) :(
-            <>
-              <KeywordText>{currentNode.element.innerHTML}</KeywordText>
-            </>
-           )}
-        </InlineContainer>
+        {currentNode.element ? (
+          <InlineContainer>
+            {question.keywords
+            ? (
+              <>
+                <KeywordText>
+                  (...)&nbsp;{currentNode.element.innerHTML}&nbsp;(...)
+                </KeywordText>
+                <div style={{verticalAlign: "middle"}}>
+                  <Button
+                    iconId="fr-icon-arrow-left-s-line"
+                    onClick={onClickPrevious}
+                    priority="tertiary no outline"
+                    title="Précédent"
+                    size="small"
+                    style={{verticalAlign: "middle"}}
+                  />
+                  <span className={fr.cx("fr-p-1w", "fr-mb-3w", "fr-text--sm")} style={{verticalAlign: "middle"}}>
+                    {currentNode.index + 1} sur {nodeList.length}
+                  </span>
+                  <Button
+                    iconId="fr-icon-arrow-right-s-line"
+                    onClick={onClickNext}
+                    priority="tertiary no outline"
+                    title="Suivant"
+                    size="small"
+                    style={{verticalAlign: "middle"}}
+                  />
+                </div>
+              </>
+            ) :(
+              <>
+                <KeywordText>{currentNode.element.innerHTML}</KeywordText>
+              </>
+            )}
+          </InlineContainer>
+        ) : (
+          <InlineContainer>Aucun résultat</InlineContainer>
+        )}
       </Container>
     ) : ('')
   );

@@ -10,8 +10,8 @@ function QuestionKeyword({
   excerpt: string;
 }) {
   return (
-    <span className={`highlight-keyword-${questionId}`}>
-      <span className={["hidden-excerpt", fr.cx("fr-hidden")].join(" ",)} aria-hidden="true">{excerpt}</span>
+    <span className={`highlight-keyword-${questionId} test-scroll`}>
+      {/* <span className={["hidden-excerpt", fr.cx("fr-hidden")].join(" ",)} aria-hidden="true">{excerpt}</span> */}
       {keyword}
     </span>
   );
