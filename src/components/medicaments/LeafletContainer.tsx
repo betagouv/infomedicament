@@ -12,7 +12,6 @@ const Container = styled.div<{ $questionsList: QuestionsListFormat; $questionKey
       return css`
       .highlight-${key} .highlight-header-${anchor.id} {
         background-color: var(--green-tilleul-verveine-950-100);
-        scroll-margin-top: 120px;
       }`;
     })
   })};
@@ -22,7 +21,6 @@ const Container = styled.div<{ $questionsList: QuestionsListFormat; $questionKey
       return css`
       .highlight-${key} .highlight-keyword-${key} {
         background-color: var(--green-tilleul-verveine-950-100);
-        scroll-margin-top: 120px;
       }
       .highlight-${key} .highlight-keyword-${key}.active{
         background-color: orange;

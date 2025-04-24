@@ -19,6 +19,9 @@ export const AppGlobalStyle = createGlobalStyle`
     bottom: 2rem;
     right: 2rem;
   }
+  .scroll-m-150 {
+    scroll-margin: 150px !important;
+  }
 `;
 
 function ThemeProvider({ children }: { children: React.ReactNode }) {
