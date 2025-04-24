@@ -31,6 +31,7 @@ const QuestionText = styled.span `
 const KeywordText = styled.span `
   font-style: italic;
   font-size: 14px;
+  max-width: 80%;
 `;
 
 interface QuestionKeywordsBoxProps extends HTMLAttributes<HTMLDivElement> {
@@ -139,39 +140,30 @@ function QuestionKeywordsBox(
         </InlineContainer>
         {currentNode.element ? (
           <InlineContainer>
-            {question.keywords
-            ? (
-              <>
-                <KeywordText>
-                  (...)&nbsp;{currentNode.element.innerHTML}&nbsp;(...)
-                </KeywordText>
-                <div style={{verticalAlign: "middle"}}>
-                  <Button
-                    iconId="fr-icon-arrow-left-s-line"
-                    onClick={onClickPrevious}
-                    priority="tertiary no outline"
-                    title="Précédent"
-                    size="small"
-                    style={{verticalAlign: "middle"}}
-                  />
-                  <span className={fr.cx("fr-p-1w", "fr-mb-3w", "fr-text--sm")} style={{verticalAlign: "middle"}}>
-                    {currentNode.index + 1} sur {nodeList.length}
-                  </span>
-                  <Button
-                    iconId="fr-icon-arrow-right-s-line"
-                    onClick={onClickNext}
-                    priority="tertiary no outline"
-                    title="Suivant"
-                    size="small"
-                    style={{verticalAlign: "middle"}}
-                  />
-                </div>
-              </>
-            ) :(
-              <>
-                <KeywordText>{currentNode.element.innerHTML}</KeywordText>
-              </>
-            )}
+            <KeywordText>
+              (...)&nbsp;{currentNode.element.innerHTML}&nbsp;(...)
+            </KeywordText>
+            <div style={{verticalAlign: "middle"}}>
+              <Button
+                iconId="fr-icon-arrow-left-s-line"
+                onClick={onClickPrevious}
+                priority="tertiary no outline"
+                title="Précédent"
+                size="small"
+                style={{verticalAlign: "middle"}}
+              />
+              <span className={fr.cx("fr-p-1w", "fr-mb-3w", "fr-text--sm")} style={{verticalAlign: "middle"}}>
+                {currentNode.index + 1} sur {nodeList.length}
+              </span>
+              <Button
+                iconId="fr-icon-arrow-right-s-line"
+                onClick={onClickNext}
+                priority="tertiary no outline"
+                title="Suivant"
+                size="small"
+                style={{verticalAlign: "middle"}}
+              />
+            </div>
           </InlineContainer>
         ) : (
           <InlineContainer>
