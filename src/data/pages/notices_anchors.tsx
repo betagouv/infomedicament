@@ -84,6 +84,7 @@ export const questionsList: QuestionsListFormat = {
       "Combien en prendre",
       "Dose recommandée",
       "Dose",
+      "tableau posologique",
     ],
     unique: false,
   },
