@@ -174,7 +174,11 @@ function QuestionKeywordsBox(
             )}
           </InlineContainer>
         ) : (
-          <InlineContainer>Aucun résultat</InlineContainer>
+          <InlineContainer>
+            <KeywordText>
+              Aucun résultat
+            </KeywordText>
+          </InlineContainer>
         )}
       </Container>
     ) : ('')
