@@ -54,14 +54,42 @@ function QuestionKeywordsBox(
   const [nodeList, setNodeList] = useState<HTMLCollectionOf<Element> | HTMLElement[]>();
   const [currentNode, setCurrentNode] = useState<currentNodeFormat>();
 
+  function getExcerptBeforeWords(words: string) : string {
+    const split: string[] = words.trim().split(" ");
+    const excerpt: string[] = split.slice(split.length >= 3 ? -3 : -split.length);
+    return excerpt.join(" ");
+  }
+  function getExcerptAfterWords(words: string) : string {
+    const split: string[] = words.trim().split(" ");
+    const excerpt: string[] = split.slice(0, split.length >= 3 ? 3 : split.length);
+    return excerpt.join(" ");
+  }
+
   const getExcerpt = (element?: HTMLElement) => {
     if(!element) return "";
-    const excerpt = element.getElementsByClassName("hidden-excerpt");
-    if(excerpt && excerpt[0]){
-      return excerpt[0].innerHTML;
-    } else {
-      return element.innerHTML;
+    //Excerpt before
+    let before = element.previousSibling;
+    let beforeText = "";
+    if(before){
+      beforeText = before.textContent ? before.textContent : "";
+      while(before.previousSibling && beforeText.trim().split(" ").length < 3){
+        before = before.previousSibling;
+        beforeText = (before.textContent ? before.textContent : "") + beforeText;
+      }
+      beforeText = getExcerptBeforeWords(beforeText);
     }
+    //Excerpt After
+    let after = element.nextSibling;
+    let afterText = "";
+    if(after){
+      afterText = after.textContent ? after.textContent : "";
+      while(after.nextSibling && afterText.trim().split(" ").length < 3){
+        after = after.nextSibling;
+        afterText += (after.textContent ? after.textContent : "");
+      }
+      afterText = getExcerptAfterWords(afterText);
+    }
+    return beforeText + " " + element.innerHTML + " " + afterText;
   };
 
   const updateCurrentNode = (index: number, element?: HTMLElement) => {
@@ -141,7 +169,7 @@ function QuestionKeywordsBox(
         {currentNode.element ? (
           <InlineContainer>
             <KeywordText>
-              (...)&nbsp;{currentNode.element.innerHTML}&nbsp;(...)
+              (...)&nbsp;{currentNode.excerpt}&nbsp;(...)
             </KeywordText>
             <div style={{verticalAlign: "middle"}}>
               <Button

@@ -49,8 +49,7 @@ function withKeyword(
     <QuestionKeyword 
       key={word}
       keyword={word} 
-      questionId={questionId} 
-      excerpt={excerpt}
+      questionId={questionId}
     />,
     ...withKeyword(after, keyword, questionId),
   ];
