@@ -72,7 +72,7 @@ function QuestionKeywordsBox(
     let beforeText = "";
     if(before){
       beforeText = before.textContent ? before.textContent : "";
-      while(before.previousSibling && beforeText.trim().split(" ").length < 3){
+      while(before.previousSibling){
         before = before.previousSibling;
         beforeText = (before.textContent ? before.textContent : "") + beforeText;
       }
@@ -83,7 +83,7 @@ function QuestionKeywordsBox(
     let afterText = "";
     if(after){
       afterText = after.textContent ? after.textContent : "";
-      while(after.nextSibling && afterText.trim().split(" ").length < 3){
+      while(after.nextSibling){
         after = after.nextSibling;
         afterText += (after.textContent ? after.textContent : "");
       }
