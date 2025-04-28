@@ -168,6 +168,19 @@ function SwitchNotice({
                 )}
                 {pediatrics && <PediatricsTags info={pediatrics} lastTagElement={lastTagElement}/>}
               </ContentContainer>
+              <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-pt-2w", "fr-px-2w", "fr-hidden-md")}>
+                <QuestionsBox 
+                  noBorder
+                  currentQuestion={currentQuestion}
+                  updateCurrentQuestion={updateCurrentQuestion}
+                />
+              </ContentContainer>
+              {showKeywordsBox && currentQuestion && (
+                <QuestionKeywordsBox
+                  className={fr.cx("fr-hidden-md", "fr-mb-4w")}
+                  onClose={() => onCloseQuestionKeywordsBox()}
+                  questionID={currentQuestion}/>
+              )}
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                 <PresentationsList presentations={presentations} />
               </ContentContainer>
@@ -183,23 +196,23 @@ function SwitchNotice({
                 <div className={fr.cx("fr-mb-3w")} style={{display: "flex", justifyContent: "space-between", alignItems: "center", }}>
                   <div style={{display: "flex"}}>
                     <span className={["fr-icon--custom-notice", fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md")].join(" ")}/>
-                    <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>
-                      <span className={fr.cx("fr-hidden-md")}>Notice</span>
-                      <span className={fr.cx("fr-hidden", "fr-unhidden-md")}>Notice complète</span>
-                    </h2>
+                    <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice complète</h2>
                   </div>
                   <ContentContainer>
                     {leafletMaj && <Badge severity={"info"}>{leafletMaj}</Badge>}
                   </ContentContainer>
                 </div>
-                <ContentContainer>
+                <ContentContainer className={fr.cx("fr-hidden", "fr-unhidden-md")}>
                   <QuestionsBox 
                     currentQuestion={currentQuestion}
                     updateCurrentQuestion={updateCurrentQuestion}
                   />
                 </ContentContainer>
                 {showKeywordsBox && currentQuestion && (
-                  <QuestionKeywordsBox onClose={() => onCloseQuestionKeywordsBox()} questionID={currentQuestion}/>
+                  <QuestionKeywordsBox
+                    className={fr.cx("fr-hidden", "fr-unhidden-md")}
+                    onClose={() => onCloseQuestionKeywordsBox()}
+                    questionID={currentQuestion}/>
                 )}
                 <LeafletContainer className={fr.cx("fr-mt-3w")}>
                   <ContentContainer id="leafletContainer">

@@ -150,52 +150,54 @@ function QuestionKeywordsBox(
 
   return (
     question && nodeList && currentNode ? (
-      <Container className={fr.cx("fr-p-1w", "fr-mb-1w")} {...props}>
-        <InlineContainer className={fr.cx("fr-mb-1w")}>
-          <QuestionText>{question.question}</QuestionText>
-          <Button
-              iconId="fr-icon-close-line"
-              onClick={() => onClose()}
-              priority="tertiary no outline"
-              title="Fermer"
-            />
-        </InlineContainer>
-        {currentNode.element ? (
-          <InlineContainer>
-            <KeywordText>
-              {!currentNode.isHeader && <>(...)&nbsp;</>}
-              {currentNode.excerpt}
-              {!currentNode.isHeader && <>&nbsp;(...)</>}
-            </KeywordText>
-            <div style={{verticalAlign: "middle"}}>
-              <Button
-                iconId="fr-icon-arrow-left-s-line"
-                onClick={onClickPrevious}
+      <Container className={props.className} {...props}>
+        <div className={fr.cx("fr-p-1w", "fr-mb-1w")}>
+          <InlineContainer className={fr.cx("fr-mb-1w")}>
+            <QuestionText>{question.question}</QuestionText>
+            <Button
+                iconId="fr-icon-close-line"
+                onClick={() => onClose()}
                 priority="tertiary no outline"
-                title="Précédent"
-                size="small"
-                style={{verticalAlign: "middle"}}
+                title="Fermer"
               />
-              <span className={fr.cx("fr-p-1w", "fr-mb-3w", "fr-text--sm")} style={{verticalAlign: "middle"}}>
-                {currentNode.index + 1} sur {nodeList.length}
-              </span>
-              <Button
-                iconId="fr-icon-arrow-right-s-line"
-                onClick={onClickNext}
-                priority="tertiary no outline"
-                title="Suivant"
-                size="small"
-                style={{verticalAlign: "middle"}}
-              />
-            </div>
           </InlineContainer>
-        ) : (
-          <InlineContainer>
-            <KeywordText>
-              Aucun résultat
-            </KeywordText>
-          </InlineContainer>
-        )}
+          {currentNode.element ? (
+            <InlineContainer>
+              <KeywordText>
+                {!currentNode.isHeader && <>(...)&nbsp;</>}
+                {currentNode.excerpt}
+                {!currentNode.isHeader && <>&nbsp;(...)</>}
+              </KeywordText>
+              <div style={{verticalAlign: "middle"}}>
+                <Button
+                  iconId="fr-icon-arrow-left-s-line"
+                  onClick={onClickPrevious}
+                  priority="tertiary no outline"
+                  title="Précédent"
+                  size="small"
+                  style={{verticalAlign: "middle"}}
+                />
+                <span className={fr.cx("fr-p-1w", "fr-mb-3w", "fr-text--sm")} style={{verticalAlign: "middle"}}>
+                  {currentNode.index + 1} sur {nodeList.length}
+                </span>
+                <Button
+                  iconId="fr-icon-arrow-right-s-line"
+                  onClick={onClickNext}
+                  priority="tertiary no outline"
+                  title="Suivant"
+                  size="small"
+                  style={{verticalAlign: "middle"}}
+                />
+              </div>
+            </InlineContainer>
+          ) : (
+            <InlineContainer>
+              <KeywordText>
+                Aucun résultat
+              </KeywordText>
+            </InlineContainer>
+          )}
+        </div>
       </Container>
     ) : ('')
   );

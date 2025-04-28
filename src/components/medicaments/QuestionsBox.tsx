@@ -2,13 +2,15 @@
 
 import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes } from "react";
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { questionsList, questionKeys } from "@/data/pages/notices_anchors";
 import { QuestionAnchors } from "@/types/NoticesAnchors";
 
-const Container = styled.div `
-  border: var(--border-open-blue-france) 1px solid;
-  border-radius: 8px;
+const Container = styled.div<{ $noBorder?: boolean; }> `
+  ${props => !props.$noBorder && css`
+    border: var(--border-open-blue-france) 1px solid;
+    border-radius: 8px;
+  `}
 `;
 
 const QuestionLink = styled.span `
@@ -40,11 +42,13 @@ const QuestionLink = styled.span `
 interface QuestionsBoxProps extends HTMLAttributes<HTMLDivElement> {
   currentQuestion: string | undefined;
   updateCurrentQuestion: (question: string) => void;
+  noBorder?: boolean;
 }
 
 function QuestionsBox({
   currentQuestion,
   updateCurrentQuestion,
+  noBorder,
   ...props
 }: QuestionsBoxProps) {
 
@@ -58,7 +62,7 @@ function QuestionsBox({
 
   //href on the question is the first element of the anchors list
   return (
-    <Container className={fr.cx("fr-p-1w", "fr-mb-2w")} {...props}>
+    <Container className={fr.cx("fr-p-1w", "fr-mb-2w")} $noBorder={noBorder}>
       {questionKeys.map((key: string, index) => (
         <QuestionLink key={index} className={fr.cx("fr-mr-2w", "fr-mb-1w")}>
           <span 
