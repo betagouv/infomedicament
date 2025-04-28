@@ -65,7 +65,7 @@ function withHeaderAnchor(
     const endIndex =(text.toLowerCase()).indexOf(anchorDetails.headerTerms.end.toLowerCase(), beginIndex + anchorDetails.headerTerms.begin.length);
     if(endIndex !== -1){
       return [
-        <span key={anchorDetails.id} id={anchorDetails.id} className={`highlight-header-${anchorDetails.id} scroll-m-150`}>{text}</span>,
+        <span key={anchorDetails.id} id={anchorDetails.id} className={`highlight-keyword-${anchorDetails.id} highlight-header scroll-m-150`}>{text}</span>,
       ];
     }
   }

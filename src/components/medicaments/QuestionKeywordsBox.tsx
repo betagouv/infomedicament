@@ -43,6 +43,7 @@ interface currentNodeFormat {
   index: number;
   excerpt: string;
   element?: HTMLElement;
+  isHeader: boolean;
 }
 
 function QuestionKeywordsBox(
@@ -65,8 +66,11 @@ function QuestionKeywordsBox(
     return excerpt.join(" ");
   }
 
-  const getExcerpt = (element?: HTMLElement) => {
+  const getExcerpt = (isHeader: boolean, element?: HTMLElement) => {
     if(!element) return "";
+
+    if(isHeader) return element.innerHTML;
+
     //Excerpt before
     let before = element.previousSibling;
     let beforeText = "";
@@ -95,30 +99,20 @@ function QuestionKeywordsBox(
   const updateCurrentNode = (index: number, element?: HTMLElement) => {
     if(element){
       currentNode && currentNode.element && currentNode.element.classList && currentNode.element.classList.remove("active");
-      setCurrentNode({index: index, excerpt: getExcerpt(element), element: element});
+      const nodeIsHeader = element.className.indexOf("highlight-header") !== -1 ? true : false ;
+      setCurrentNode({index: index, excerpt: getExcerpt(nodeIsHeader, element), element: element, isHeader: nodeIsHeader});
       if(element) { 
         element.classList.add("active");
         element.scrollIntoView({block: 'start'});
       }
     } else {
-      setCurrentNode({index: index, excerpt: "", element: undefined});
+      setCurrentNode({index: index, excerpt: "", element: undefined, isHeader: false});
     }
   };
 
   useEffect(() => {
     if(question){
-      let nodes;
-      if(question.keywords) {
-        nodes = document.getElementsByClassName(`highlight-keyword-${question.id}`);
-      } else if(question.anchors) {
-        question.anchors.find((anchor) => {
-          const node = document.getElementById(anchor.id);
-          if(node){
-            nodes = [node];
-            return true;
-          }
-        })
-      }
+      const nodes = document.getElementsByClassName(`highlight-keyword-${question.id}`);
       setNodeList(nodes);
       updateCurrentNode(
         0, 
@@ -169,7 +163,9 @@ function QuestionKeywordsBox(
         {currentNode.element ? (
           <InlineContainer>
             <KeywordText>
-              (...)&nbsp;{currentNode.excerpt}&nbsp;(...)
+              {!currentNode.isHeader && <>(...)&nbsp;</>}
+              {currentNode.excerpt}
+              {!currentNode.isHeader && <>&nbsp;(...)</>}
             </KeywordText>
             <div style={{verticalAlign: "middle"}}>
               <Button
