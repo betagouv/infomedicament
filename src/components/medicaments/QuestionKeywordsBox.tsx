@@ -32,6 +32,9 @@ const KeywordText = styled.span `
   font-style: italic;
   font-size: 14px;
   max-width: 80%;
+  @media (max-width: 48em) {
+    max-width: 60%;
+  }
 `;
 
 interface QuestionKeywordsBoxProps extends HTMLAttributes<HTMLDivElement> {
