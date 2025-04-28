@@ -45,8 +45,8 @@ export default function Matomo() {
     setTimeout(() => {
       push(["setDocumentTitle", document.title]);
       if (pathname.startsWith("/recherche")) {
-        console.log("search -- Matomo - 1");
-        push(["trackSiteSearch", searchParams?.get("keyword") ?? ""]);
+        //console.log("search -- Matomo - 1");
+        //push(["trackSiteSearch", searchParams?.get("keyword") ?? ""]);
       } else {
         push(["trackPageView"]);
       }

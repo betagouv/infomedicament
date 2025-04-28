@@ -76,7 +76,7 @@ export function AutocompleteSearchInput({
       onChange={(_, value, reason) => {
         if (reason === "selectOption") {
           value && trackSearchEvent(value);
-          console.log("search -- Matomo - 3");
+          //console.log("search -- Matomo - 3");
           router.push(`/rechercher?s=${value}`);
         }
       }}
@@ -110,7 +110,7 @@ export default function AutocompleteSearch({
 
   const onButtonClick = (search: string) => {
     search && trackSearchEvent(search);
-    console.log("search -- Matomo - 4");
+    //console.log("search -- Matomo - 4");
     router.push(`/rechercher?s=${search}`);
   };
 
