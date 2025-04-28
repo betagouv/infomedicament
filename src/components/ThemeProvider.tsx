@@ -18,6 +18,7 @@ export const AppGlobalStyle = createGlobalStyle`
     position: fixed;
     bottom: 2rem;
     right: 2rem;
+    z-index: 20;
   }
   .scroll-m-150 {
     scroll-margin: 150px !important;
