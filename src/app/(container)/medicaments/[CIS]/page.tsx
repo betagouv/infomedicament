@@ -24,6 +24,7 @@ import { getPregnancyAlerts } from "@/data/grist/pregnancy";
 import { getPediatrics } from "@/data/grist/pediatrics";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SwitchNotice from "@/components/medicaments/SwitchNotice";
+import Button from "@codegouvfr/react-dsfr/Button";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -257,7 +258,7 @@ export default async function Page(props: {
               fr.colors.decisions.background.alt.grey.default,
           }}>
         <ContentContainer frContainer>
-          <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>
+          <div className={["mobile-display-unset", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ",)}>
             {(pregnancyAlert || pediatrics?.contraindication )&& (
               <ContentContainer className={fr.cx("fr-col-12", "fr-mb-2w")}>
                 {pregnancyAlert && (
@@ -317,6 +318,14 @@ export default async function Page(props: {
           </div>
         </ContentContainer>
       </ContentContainer>
+      <Button
+        iconId="fr-icon-arrow-up-line"
+        title="Haut de page"
+        className="go-top-button"
+        linkProps={{
+          href: '#'
+        }}
+      />
     </>
   );
 }
