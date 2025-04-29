@@ -10,7 +10,8 @@ const Container = styled.div<{ $noBorder?: boolean; }> `
   ${props => !props.$noBorder && css`
     border: var(--border-open-blue-france) 1px solid;
     border-radius: 8px;
-  `}
+    margin-bottom: 1rem;
+  `} 
 `;
 
 const QuestionLink = styled.span `
@@ -31,7 +32,7 @@ const QuestionLink = styled.span `
   .fr-link.active span{
     background: rgb(0 0 0 / 8%);
   }
-  @media only screen and (max-width: 768px) {
+  @media (max-width: 48em) {
     display: block;
 
     .fr-link {
@@ -62,7 +63,7 @@ function QuestionsBox({
 
   //href on the question is the first element of the anchors list
   return (
-    <Container className={fr.cx("fr-p-1w", "fr-mb-2w")} $noBorder={noBorder}>
+    <Container className={fr.cx("fr-p-1w")} $noBorder={noBorder}>
       {questionKeys.map((key: string, index) => (
         <QuestionLink key={index} className={fr.cx("fr-mr-2w", "fr-mb-1w")}>
           <span 

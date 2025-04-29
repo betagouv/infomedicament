@@ -7,9 +7,12 @@ export const AppGlobalStyle = createGlobalStyle`
   html {
     scroll-behavior: smooth;
   }
-  @media only screen and (max-width: 768px) {
+  @media (max-width: 48em) {
     html {
       scroll-behavior: auto;
+    }
+    .mobile-display-unset{
+      display: unset;
     }
   }
 

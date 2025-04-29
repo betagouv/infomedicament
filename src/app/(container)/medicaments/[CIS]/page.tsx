@@ -258,7 +258,7 @@ export default async function Page(props: {
               fr.colors.decisions.background.alt.grey.default,
           }}>
         <ContentContainer frContainer>
-          <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>
+          <div className={["mobile-display-unset", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ",)}>
             {(pregnancyAlert || pediatrics?.contraindication )&& (
               <ContentContainer className={fr.cx("fr-col-12", "fr-mb-2w")}>
                 {pregnancyAlert && (

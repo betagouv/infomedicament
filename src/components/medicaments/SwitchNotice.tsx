@@ -36,6 +36,16 @@ const ToggleSwitchContainer = styled.div `
   }
 `;
 
+const NoticeTitle = styled.div `
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  @media (max-width: 48em) {
+    flex-direction: column;
+    align-items: start;
+  }
+`;
+
 interface SwitchNoticeProps extends HTMLAttributes<HTMLDivElement> {
   CIS: string;
   atc2: ATC;
@@ -121,7 +131,7 @@ function SwitchNotice({
 
   return (
     <>
-      <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")}>
+      <ContentContainer className={["mobile-display-unset", fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")].join(" ",)}>
         <ToggleSwitchContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <ToggleSwitch 
             label="Version détaillée"
@@ -138,7 +148,7 @@ function SwitchNotice({
         </ToggleSwitchContainer>
         {isAdvanced 
           ? <span>Infos avancées</span>
-          : <section className={fr.cx("fr-mb-4w")}>
+          : <section className={["mobile-display-unset", fr.cx("fr-mb-4w")].join(" ",)}>
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                 <TagContainer category="Sous-classe">
                   <ClassTag atc2={atc2} />
@@ -168,7 +178,7 @@ function SwitchNotice({
                 )}
                 {pediatrics && <PediatricsTags info={pediatrics} lastTagElement={lastTagElement}/>}
               </ContentContainer>
-              <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-pt-2w", "fr-px-2w", "fr-hidden-md")}>
+              <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-pt-1w", "fr-px-1w", "fr-hidden-md")}>
                 <QuestionsBox 
                   noBorder
                   currentQuestion={currentQuestion}
@@ -177,7 +187,7 @@ function SwitchNotice({
               </ContentContainer>
               {showKeywordsBox && currentQuestion && (
                 <QuestionKeywordsBox
-                  className={fr.cx("fr-hidden-md", "fr-mb-4w")}
+                  className={fr.cx("fr-hidden-md", "fr-mb-4w", "fr-px-1w")}
                   onClose={() => onCloseQuestionKeywordsBox()}
                   questionID={currentQuestion}/>
               )}
@@ -190,10 +200,10 @@ function SwitchNotice({
       {isAdvanced 
         ? <span>Infos avancées</span>
         : leaflet && 
-          <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
+          <ContentContainer className={["mobile-display-unset", fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")].join(" ",)}>
             <article>
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
-                <div className={fr.cx("fr-mb-3w")} style={{display: "flex", justifyContent: "space-between", alignItems: "center", }}>
+                <NoticeTitle className={fr.cx("fr-mb-3w")}>
                   <div style={{display: "flex"}}>
                     <span className={["fr-icon--custom-notice", fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md")].join(" ")}/>
                     <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice complète</h2>
@@ -201,7 +211,7 @@ function SwitchNotice({
                   <ContentContainer>
                     {leafletMaj && <Badge severity={"info"}>{leafletMaj}</Badge>}
                   </ContentContainer>
-                </div>
+                </NoticeTitle>
                 <ContentContainer className={fr.cx("fr-hidden", "fr-unhidden-md")}>
                   <QuestionsBox 
                     currentQuestion={currentQuestion}
