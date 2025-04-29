@@ -36,13 +36,6 @@ const ToggleSwitchContainer = styled.div `
   }
 `;
 
-const Container  = styled.div `
-  margin-bottom: 2rem;
-  @media (max-width: 48em) {
-    margin-bottom: 1rem;
-  }
-`;
-
 const NoticeTitle = styled.div `
   display: flex;
   justify-content: space-between;
@@ -139,74 +132,66 @@ function SwitchNotice({
   return (
     <>
       <ContentContainer className={["mobile-display-unset", fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")].join(" ",)}>
-        <Container>
-          <ToggleSwitchContainer className={fr.cx("fr-p-2w")}>
-            <ToggleSwitch 
-              label="Version détaillée"
-              labelPosition="left"
-              inputTitle="Version détaillée"
-              helperText="(Afficher RCP, données HAS, CNAM...)"
-              showCheckedHint={false}
-              checked={isAdvanced}
-              onChange={(enabled) => {
-                onSwitchAdvanced(enabled);
-              }}
-              className="medicament-toggle-switch"
-            />
-          </ToggleSwitchContainer>
-        </Container>
+        <ToggleSwitchContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+          <ToggleSwitch 
+            label="Version détaillée"
+            labelPosition="left"
+            inputTitle="Version détaillée"
+            helperText="(Afficher RCP, données HAS, CNAM...)"
+            showCheckedHint={false}
+            checked={isAdvanced}
+            onChange={(enabled) => {
+              onSwitchAdvanced(enabled);
+            }}
+            className="medicament-toggle-switch"
+          />
+        </ToggleSwitchContainer>
         {isAdvanced 
           ? <span>Infos avancées</span>
-          : <section className="mobile-display-unset">
-              <Container>
-                <ContentContainer whiteContainer className={fr.cx("fr-p-2w")}>
-                  <TagContainer category="Sous-classe">
-                    <ClassTag atc2={atc2} />
+          : <section className={["mobile-display-unset", fr.cx("fr-mb-4w")].join(" ",)}>
+              <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                <TagContainer category="Sous-classe">
+                  <ClassTag atc2={atc2} />
+                </TagContainer>
+                <TagContainer category="Substance active" hideSeparator={lastTagElement === TagTypeEnum.SUBSTANCE}>
+                  <SubstanceTag composants={composants} />
+                </TagContainer>
+                {isPrinceps && 
+                  <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRINCEPS}>
+                    <PrincepsTag CIS={CIS} />
                   </TagContainer>
-                  <TagContainer category="Substance active" hideSeparator={lastTagElement === TagTypeEnum.SUBSTANCE}>
-                    <SubstanceTag composants={composants} />
+                }
+                {!!SpecGeneId && (
+                  <TagContainer hideSeparator={lastTagElement === TagTypeEnum.GENERIC}>
+                    <GenericTag specGeneId={SpecGeneId} />
                   </TagContainer>
-                  {isPrinceps && 
-                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRINCEPS}>
-                      <PrincepsTag CIS={CIS} />
-                    </TagContainer>
-                  }
-                  {!!SpecGeneId && (
-                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.GENERIC}>
-                      <GenericTag specGeneId={SpecGeneId} />
-                    </TagContainer>
-                  )}
-                  {isDelivrance && (
-                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRESCRIPTION}>
-                      <PrescriptionTag />
-                    </TagContainer>
-                  )}
-                  {isPregnancyAlert && (
-                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY}>
-                      <PregnancyTag />
-                    </TagContainer>
-                  )}
-                  {pediatrics && <PediatricsTags info={pediatrics} lastTagElement={lastTagElement}/>}
-                </ContentContainer>
-              </Container>
-              <Container className={fr.cx("fr-hidden-md")}>
-                <ContentContainer whiteContainer className={fr.cx("fr-pt-1w", "fr-px-1w")}>
-                  <QuestionsBox 
-                    noBorder
-                    currentQuestion={currentQuestion}
-                    updateCurrentQuestion={updateCurrentQuestion}
-                  />
-                </ContentContainer>
-              </Container>
+                )}
+                {isDelivrance && (
+                  <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRESCRIPTION}>
+                    <PrescriptionTag />
+                  </TagContainer>
+                )}
+                {isPregnancyAlert && (
+                  <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY}>
+                    <PregnancyTag />
+                  </TagContainer>
+                )}
+                {pediatrics && <PediatricsTags info={pediatrics} lastTagElement={lastTagElement}/>}
+              </ContentContainer>
+              <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-pt-1w", "fr-px-1w", "fr-hidden-md")}>
+                <QuestionsBox 
+                  noBorder
+                  currentQuestion={currentQuestion}
+                  updateCurrentQuestion={updateCurrentQuestion}
+                />
+              </ContentContainer>
               {showKeywordsBox && currentQuestion && (
-                <Container className={fr.cx("fr-hidden-md")}>
-                  <QuestionKeywordsBox
-                    className={fr.cx("fr-px-1w")}
-                    onClose={() => onCloseQuestionKeywordsBox()}
-                    questionID={currentQuestion}/>
-                </Container>
+                <QuestionKeywordsBox
+                  className={fr.cx("fr-hidden-md", "fr-mb-4w", "fr-px-1w")}
+                  onClose={() => onCloseQuestionKeywordsBox()}
+                  questionID={currentQuestion}/>
               )}
-              <ContentContainer whiteContainer className={fr.cx("fr-p-2w")}>
+              <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                 <PresentationsList presentations={presentations} />
               </ContentContainer>
             </section>
