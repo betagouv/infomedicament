@@ -1,9 +1,9 @@
 import { bulkFetchRangeFromMatomo } from '@/services/matomo';
-import { MatomoUniqueVisitorsMetrics } from '@/types/Matomo';
+import { MatomoActionMetrics } from '@/types/Matomo';
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const results = await bulkFetchRangeFromMatomo<MatomoUniqueVisitorsMetrics>({
+  const results = await bulkFetchRangeFromMatomo<MatomoActionMetrics>({
     method: 'Actions.get',
     period: 'month',
   });
