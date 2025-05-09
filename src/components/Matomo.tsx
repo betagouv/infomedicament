@@ -44,8 +44,9 @@ export default function Matomo() {
     // we delayed pushing the tracking to the next tick.
     setTimeout(() => {
       push(["setDocumentTitle", document.title]);
-      if (pathname.startsWith("/recherche")) {
-        push(["trackSiteSearch", searchParams?.get("keyword") ?? ""]);
+      if (pathname.startsWith("/recherche")) {       
+        //console.log("search -- Matomo - 1");
+        //push(["trackSiteSearch", searchParams?.get("keyword") ?? ""]);
       } else {
         push(["trackPageView"]);
       }
