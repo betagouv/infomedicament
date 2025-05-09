@@ -14,7 +14,7 @@ const db = new Kysely<Database>({
         : {
             // .devcontainer config
             database: "postgres",
-            host: "localhost",
+            host: "db-postgres",
             user: "postgres",
             password: "postgres",
             port: 5432,
