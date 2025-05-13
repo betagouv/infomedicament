@@ -5,7 +5,7 @@ import AutocompleteSearch from "@/components/AutocompleteSearch";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SearchResultsList from "@/components/search/SearchResultsList";
 import { ExtendedSearchResultItem, MainFilterCounterType, MainFilterTypeEnum } from "@/types/SearchType";
-import { getAtc2, getAtcCode } from "@/data/grist/atc";
+import { getAtc, getAtc1, getAtc2, getAtcCode } from "@/data/grist/atc";
 import { SearchResultItem } from "@/db/utils/search";
 
 type ExtendedResults = { 
@@ -39,6 +39,7 @@ async function getExtendedResults(results: SearchResultItem[]): Promise<Extended
         return {
           filterType: MainFilterTypeEnum.MEDGROUP,
           data : {
+            atc1: await getAtc1(atc),
             atc2: await getAtc2(atc),
             composants: composants,
             ...result,

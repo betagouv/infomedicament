@@ -19,6 +19,19 @@ import SubstanceResult from "./SubstanceResult";
 import PathoResult from "./PathoResult";
 import MedGroupSpecListResult from "./MedGroupSpecListResult";
 import styled from 'styled-components';
+import AccordionResultBlock from "./AccordionResultBlock";
+
+const Container = styled.div `
+  button.fr-tag[aria-pressed=true]:not(:disabled){
+    background-color: var(--background-action-low-blue-france-active);
+    color: var(--text-action-high-blue-france);
+    background-image: none;
+  }
+  button.fr-tag[aria-pressed=true]::after{
+    display: none;
+  }
+`;
+
 
 const SearchTerm = styled.div `
   font-weight: normal !important;
@@ -40,7 +53,7 @@ function SearchResultsList({
   const [currentFilter, setCurrentFilter] = useState<MainFilterTypeEnum>(MainFilterTypeEnum.ALL);
 
   return (
-    <>
+    <Container>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10", "fr-mb-2w")}>
           <h1 className={fr.cx("fr-h5", "fr-mb-0")}>
@@ -49,13 +62,8 @@ function SearchResultsList({
           <SearchTerm className={fr.cx("fr-h5")}>{searchTerms}</SearchTerm>
         </div>
       </div>
-      <div>
-        <div
-          className="container"
-          style={{
-            width: 800
-          }}
-        >
+      <div className={fr.cx("fr-grid-row")}>
+        <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
           <ul className={fr.cx("fr-tags-group", "fr-mb-3w")}>
             {mainFiltersList.map((filter: MainFilterType, index) => {
               const counter: number = counters[filter.type];
@@ -67,6 +75,7 @@ function SearchResultsList({
                     nativeButtonProps={{
                       onClick: () => setCurrentFilter(filter.type)
                     }}
+                    className="search-filter-tag"
                   >
                     {filter.text}{" "}({counter})
                   </Tag>
@@ -87,9 +96,7 @@ function SearchResultsList({
                   )
                 ) : result.filterType === MainFilterTypeEnum.MEDGROUP ? (
                   (currentFilter === MainFilterTypeEnum.ALL || currentFilter === MainFilterTypeEnum.MEDGROUP) && (
-                    <MedGroupSpecListResult
-                    item={result.data as SearchMedicamentGroup}
-                  />
+                    <AccordionResultBlock item={result.data as SearchMedicamentGroup} />
                   )
                 ) : result.filterType === MainFilterTypeEnum.PATHOLOGY ? (
                   (currentFilter === MainFilterTypeEnum.ALL || currentFilter === MainFilterTypeEnum.PATHOLOGY) && (
@@ -105,7 +112,7 @@ function SearchResultsList({
           </ul>
         </div>
       </div>
-    </>
+    </Container>
   );
 };
 

@@ -2,11 +2,11 @@ import { ATC, ATC1 } from "@/data/grist/atc";
 import { Patho, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 
 export enum MainFilterTypeEnum {
-  ALL = "ALL",
-  MEDGROUP = "MEDGROUP",
-  SUBSTANCE = "SUBSTANCE",
-  PATHOLOGY = "PATHOLOGY",
-  ATCCLASS = "ATCCLASS",
+  ALL = "Tout",
+  MEDGROUP = "Médicament",
+  SUBSTANCE = "Substance active",
+  PATHOLOGY = "Pathologie",
+  ATCCLASS = "Classe et sous-classe",
 };
 export type MainFilterCounterType = { [key in MainFilterTypeEnum]: number };
 
@@ -18,18 +18,20 @@ export type SearchATCClass = {
 export type SearchMedicamentGroup = {
   groupName: string; 
   specialites: Specialite[];
+  atc1: ATC1;
   atc2: ATC;
   composants: any;
 };
 
+export type SearchResultData =
+  | SubstanceNom
+  | SearchMedicamentGroup
+  | Patho
+  | SearchATCClass;
+
 export type ExtendedSearchResultItem = { 
   filterType: MainFilterTypeEnum;
-  data : (
-    | SubstanceNom
-    | SearchMedicamentGroup
-    | Patho
-    | SearchATCClass
-  )
+  data: SearchResultData;
 };
 
 export type MainFilterType = {
