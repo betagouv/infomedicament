@@ -8,7 +8,17 @@ import path from "node:path";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { ATC, ATC1 } from "@/types/ATCTTypes";
+
+export interface ATC1 extends ATC {
+  children: ATC[];
+}
+
+export interface ATC {
+  code: string;
+  label: string;
+  description: string;
+  children?: ATC[];
+}
 
 export class ATCError extends Error {
   constructor(code: string) {

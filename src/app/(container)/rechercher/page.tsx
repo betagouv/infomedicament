@@ -4,8 +4,9 @@ import { getSearchResults, getSpecialite } from "@/db/utils";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SearchResultsList from "@/components/search/SearchResultsList";
-import { ExtendedSearchResultItem, MainFilterTypeEnum, SearchResultItem } from "@/types/SearchType";
+import { ExtendedSearchResultItem, MainFilterTypeEnum } from "@/types/SearchType";
 import { getAtc2, getAtcCode } from "@/data/grist/atc";
+import { SearchResultItem } from "@/db/utils/search";
 
 async function getExtendedResults(results: SearchResultItem[]): Promise<ExtendedSearchResultItem[]> {
   const extendedResults = Promise.all(

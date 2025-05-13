@@ -1,5 +1,5 @@
+import { ATC, ATC1 } from "@/data/grist/atc";
 import { Patho, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
-import { ATC, ATC1 } from "./ATCTTypes";
 
 export enum MainFilterTypeEnum {
   EMPTY = "EMPTY",
@@ -12,20 +12,14 @@ export enum MainFilterTypeEnum {
 export type SearchATCClass = {
   class: ATC1; 
   subclasses: ATC[];
-}
+};
 
 export type SearchMedicamentGroup = {
   groupName: string; 
   specialites: Specialite[];
   atc2: ATC;
   composants: any;
-}
-
-export type SearchResultItem =
-  | SubstanceNom
-  | { groupName: string; specialites: Specialite[] }
-  | Patho
-  | SearchATCClass;
+};
 
 export type ExtendedSearchResultItem = { 
   filterType: MainFilterTypeEnum;
