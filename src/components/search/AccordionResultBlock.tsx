@@ -44,7 +44,7 @@ function AccordionResultBlock({
 }: AccordionResultBlockProps) {
 
   const specialites = item.specialites;
-  const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(true);
+  const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(false);
 
   return (
     <div className={fr.cx("fr-mb-3w")}>

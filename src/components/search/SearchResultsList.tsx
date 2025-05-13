@@ -19,6 +19,7 @@ import SubstanceResult from "./SubstanceResult";
 import PathoResult from "./PathoResult";
 import MedGroupSpecListResult from "./MedGroupSpecListResult";
 import styled from 'styled-components';
+import GenericResultBlock from "./GenericResultBlock";
 import AccordionResultBlock from "./AccordionResultBlock";
 
 const Container = styled.div `
@@ -92,7 +93,10 @@ function SearchResultsList({
               <Fragment key={index}>
                 {result.filterType === MainFilterTypeEnum.SUBSTANCE ? (
                   (currentFilter === MainFilterTypeEnum.ALL || currentFilter === MainFilterTypeEnum.SUBSTANCE) && (
-                    <SubstanceResult item={result.data as SubstanceNom} />
+                    <GenericResultBlock 
+                      type={MainFilterTypeEnum.SUBSTANCE} 
+                      item={result.data} 
+                    />
                   )
                 ) : result.filterType === MainFilterTypeEnum.MEDGROUP ? (
                   (currentFilter === MainFilterTypeEnum.ALL || currentFilter === MainFilterTypeEnum.MEDGROUP) && (
@@ -100,11 +104,17 @@ function SearchResultsList({
                   )
                 ) : result.filterType === MainFilterTypeEnum.PATHOLOGY ? (
                   (currentFilter === MainFilterTypeEnum.ALL || currentFilter === MainFilterTypeEnum.PATHOLOGY) && (
-                    <PathoResult item={result.data as Patho} />
+                    <GenericResultBlock 
+                      type={MainFilterTypeEnum.PATHOLOGY} 
+                      item={result.data} 
+                    />
                   )
                 ) : (
                   (currentFilter === MainFilterTypeEnum.ALL || currentFilter === MainFilterTypeEnum.ATCCLASS) && (
-                    <ATCClassResult item={result.data as SearchATCClass} />
+                    <GenericResultBlock 
+                      type={MainFilterTypeEnum.ATCCLASS} 
+                      item={result.data} 
+                    />
                   )
                 )}
               </Fragment>
