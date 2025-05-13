@@ -127,7 +127,7 @@ function Statistics() {
         <>Au {lastDayLastMonth}</>
         <h2 className={fr.cx("fr-h4")}>Nombre de requêtes</h2>
         <Number className={fr.cx("fr-h1")}>{Math.round(averageDataSearches)}</Number>
-        <>en moyenne par mois depuis le 25 novembre 2025 <i>(jour ou mois ?)</i></>
+        <>en moyenne par mois depuis le 25 novembre 2024 <i>(jour ou mois ?)</i></>
         <ContentContainer className={fr.cx("fr-p-2w", "fr-mt-2w")}>
           <BarChart
             x={[monthToString]}
@@ -140,7 +140,7 @@ function Statistics() {
       <>Au {lastDayLastMonth}</>
         <h2 className={fr.cx("fr-h4")}>Nombre de visiteurs uniques</h2>
         <Number className={fr.cx("fr-h1")}>{Math.round(averageDataVisits)}</Number>
-        <>en moyenne par mois depuis le 25 novembre 2025 <i>(jour ou mois ?)</i></>
+        <>en moyenne par mois depuis le 25 novembre 2024 <i>(jour ou mois ?)</i></>
         <ContentContainer className={fr.cx("fr-p-2w", "fr-mt-2w")}>
           <BarChart
             x={[monthToString]}
@@ -153,7 +153,7 @@ function Statistics() {
       <>Au {lastDayLastMonth}</>
         <h2 className={fr.cx("fr-h4")}>Nombre de pages visitées</h2>
         <Number className={fr.cx("fr-h1")}>{Math.round(averageDataPageViews)}</Number>
-        <>en moyenne par mois depuis le 25 novembre 2025 <i>(jour ou mois ?)</i></>
+        <>en moyenne par mois depuis le 25 novembre 2024 <i>(jour ou mois ?)</i></>
         <ContentContainer className={fr.cx("fr-p-2w", "fr-mt-2w")}>
           <BarChart
             x={[monthToString]}
