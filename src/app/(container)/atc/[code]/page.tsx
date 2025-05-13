@@ -1,5 +1,5 @@
 import { fr } from "@codegouvfr/react-dsfr";
-import { ATC, getAtc1, getAtc2, getSubstancesByAtc } from "@/data/grist/atc";
+import { getAtc1, getAtc2, getSubstancesByAtc } from "@/data/grist/atc";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
 import React from "react";
@@ -7,6 +7,7 @@ import Link from "next/link";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import DefinitionBanner from "@/components/DefinitionBanner";
 import ContentContainer from "@/components/generic/ContentContainer";
+import { ATC } from "@/types/ATCTTypes";
 
 export const dynamic = "error";
 export const dynamicParams = true;

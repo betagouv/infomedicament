@@ -5,15 +5,11 @@ import db from "@/db";
 import { SearchResult } from "@/db/types";
 import { sql } from "kysely";
 import { groupSpecialites, presentationIsComm } from "@/db/utils/index";
-import { Patho, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import { unstable_cache } from "next/cache";
-import { ATC, ATC1, getAtc1, getAtc2 } from "@/data/grist/atc";
-
-export type SearchResultItem =
-  | SubstanceNom
-  | { groupName: string; specialites: Specialite[] }
-  | Patho
-  | { class: ATC1; subclasses: ATC[] };
+import { getAtc1, getAtc2 } from "@/data/grist/atc";
+import { ATC1 } from "@/types/ATCTTypes";
+import { SearchResultItem } from "@/types/SearchType";
 
 const getSpecialites = unstable_cache(async function (
   specialitesId: string[],
