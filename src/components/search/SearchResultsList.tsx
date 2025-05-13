@@ -7,6 +7,7 @@ import Tag from "@codegouvfr/react-dsfr/Tag";
 import { Patho, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { 
   ExtendedSearchResultItem, 
+  MainFilterCounterType, 
   mainFiltersList, 
   MainFilterType, 
   MainFilterTypeEnum,
@@ -24,46 +25,19 @@ const SearchTerm = styled.div `
   font-style: italic;
 `;
 
-type MainFilterCounterType = { [key in MainFilterTypeEnum]: number } ;
-const emptyMainFilterCounter: MainFilterCounterType = {
-  [MainFilterTypeEnum.EMPTY]: 0,
-  [MainFilterTypeEnum.MEDGROUP]: 0,
-  [MainFilterTypeEnum.SUBSTANCE]: 0,
-  [MainFilterTypeEnum.PATHOLOGY]: 0,
-  [MainFilterTypeEnum.ATCCLASS]: 0,
-}
-
 interface SearchResultsListProps extends HTMLAttributes<HTMLDivElement> {
   resultsList: ExtendedSearchResultItem[];
+  counters: MainFilterCounterType;
   searchTerms: string;
 }
 
 function SearchResultsList({
   resultsList,
+  counters,
   searchTerms,
 }: SearchResultsListProps) {
 
-  const [currentFilter, setCurrentFilter] = useState<MainFilterTypeEnum>(MainFilterTypeEnum.EMPTY);
-  const [mainFilterCounter, setMainFilterCounter] = useState<MainFilterCounterType>(emptyMainFilterCounter);
-
-  //Calcul counter;
-  useEffect(() => {
-    const initMailFilterCounter = emptyMainFilterCounter;
-    resultsList.map((result: ExtendedSearchResultItem) => {
-      if(result.filterType === MainFilterTypeEnum.SUBSTANCE) {
-        initMailFilterCounter[MainFilterTypeEnum.SUBSTANCE] ++;
-      } else if(result.filterType === MainFilterTypeEnum.MEDGROUP) {
-        initMailFilterCounter[MainFilterTypeEnum.MEDGROUP] ++;
-      } else if (result.filterType === MainFilterTypeEnum.PATHOLOGY) {
-        initMailFilterCounter[MainFilterTypeEnum.PATHOLOGY] ++;
-      } else {
-        initMailFilterCounter[MainFilterTypeEnum.ATCCLASS] ++;
-      }
-      initMailFilterCounter[MainFilterTypeEnum.EMPTY] ++;
-    });
-    setMainFilterCounter(initMailFilterCounter);
-  }, []);
-
+  const [currentFilter, setCurrentFilter] = useState<MainFilterTypeEnum>(MainFilterTypeEnum.ALL);
 
   return (
     <>
@@ -84,7 +58,7 @@ function SearchResultsList({
         >
           <ul className={fr.cx("fr-tags-group", "fr-mb-3w")}>
             {mainFiltersList.map((filter: MainFilterType, index) => {
-              const counter: number = mainFilterCounter[filter.type];
+              const counter: number = counters[filter.type];
               if(counter > 0) {
                 return (
                   <Tag
@@ -108,21 +82,21 @@ function SearchResultsList({
             {resultsList.map((result, index) => (
               <Fragment key={index}>
                 {result.filterType === MainFilterTypeEnum.SUBSTANCE ? (
-                  (currentFilter === MainFilterTypeEnum.EMPTY || currentFilter === MainFilterTypeEnum.SUBSTANCE) && (
+                  (currentFilter === MainFilterTypeEnum.ALL || currentFilter === MainFilterTypeEnum.SUBSTANCE) && (
                     <SubstanceResult item={result.data as SubstanceNom} />
                   )
                 ) : result.filterType === MainFilterTypeEnum.MEDGROUP ? (
-                  (currentFilter === MainFilterTypeEnum.EMPTY || currentFilter === MainFilterTypeEnum.MEDGROUP) && (
+                  (currentFilter === MainFilterTypeEnum.ALL || currentFilter === MainFilterTypeEnum.MEDGROUP) && (
                     <MedGroupSpecListResult
                     item={result.data as SearchMedicamentGroup}
                   />
                   )
                 ) : result.filterType === MainFilterTypeEnum.PATHOLOGY ? (
-                  (currentFilter === MainFilterTypeEnum.EMPTY || currentFilter === MainFilterTypeEnum.PATHOLOGY) && (
+                  (currentFilter === MainFilterTypeEnum.ALL || currentFilter === MainFilterTypeEnum.PATHOLOGY) && (
                     <PathoResult item={result.data as Patho} />
                   )
                 ) : (
-                  (currentFilter === MainFilterTypeEnum.EMPTY || currentFilter === MainFilterTypeEnum.ATCCLASS) && (
+                  (currentFilter === MainFilterTypeEnum.ALL || currentFilter === MainFilterTypeEnum.ATCCLASS) && (
                     <ATCClassResult item={result.data as SearchATCClass} />
                   )
                 )}

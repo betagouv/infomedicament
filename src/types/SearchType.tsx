@@ -2,12 +2,13 @@ import { ATC, ATC1 } from "@/data/grist/atc";
 import { Patho, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 
 export enum MainFilterTypeEnum {
-  EMPTY = "EMPTY",
+  ALL = "ALL",
   MEDGROUP = "MEDGROUP",
   SUBSTANCE = "SUBSTANCE",
   PATHOLOGY = "PATHOLOGY",
   ATCCLASS = "ATCCLASS",
 };
+export type MainFilterCounterType = { [key in MainFilterTypeEnum]: number };
 
 export type SearchATCClass = {
   class: ATC1; 
@@ -39,7 +40,7 @@ export type MainFilterType = {
 //TODO faire un truc dynamique avec le ENUM
 export const mainFiltersList: MainFilterType[] = [
   {
-    type: MainFilterTypeEnum.EMPTY,
+    type: MainFilterTypeEnum.ALL,
     text: "Tout",
   },
   {

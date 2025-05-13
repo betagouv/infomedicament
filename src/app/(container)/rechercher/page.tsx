@@ -4,21 +4,36 @@ import { getSearchResults, getSpecialite } from "@/db/utils";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SearchResultsList from "@/components/search/SearchResultsList";
-import { ExtendedSearchResultItem, MainFilterTypeEnum } from "@/types/SearchType";
+import { ExtendedSearchResultItem, MainFilterCounterType, MainFilterTypeEnum } from "@/types/SearchType";
 import { getAtc2, getAtcCode } from "@/data/grist/atc";
 import { SearchResultItem } from "@/db/utils/search";
 
-async function getExtendedResults(results: SearchResultItem[]): Promise<ExtendedSearchResultItem[]> {
-  const extendedResults = Promise.all(
+type ExtendedResults = { 
+  counters: MainFilterCounterType, 
+  results: ExtendedSearchResultItem[],
+};
+
+async function getExtendedResults(results: SearchResultItem[]): Promise<ExtendedResults> {
+  const counters: MainFilterCounterType = {
+    [MainFilterTypeEnum.ALL]: 0,
+    [MainFilterTypeEnum.MEDGROUP]: 0,
+    [MainFilterTypeEnum.SUBSTANCE]: 0,
+    [MainFilterTypeEnum.PATHOLOGY]: 0,
+    [MainFilterTypeEnum.ATCCLASS]: 0,
+  }
+  const extendedResults = await Promise.all(
     results.map(async (result: SearchResultItem) => {
+      counters[MainFilterTypeEnum.ALL] ++;
       if("NomLib" in result) {
         //Substance
+        counters[MainFilterTypeEnum.SUBSTANCE] ++;
         return {
           filterType: MainFilterTypeEnum.SUBSTANCE,
           data: result,
         }
       } else if("groupName" in result){
         //Med Group
+        counters[MainFilterTypeEnum.MEDGROUP] ++;
         const atc = getAtcCode(result.specialites[0].SpecId);
         const { composants } = await getSpecialite(result.specialites[0].SpecId);
         return {
@@ -31,12 +46,14 @@ async function getExtendedResults(results: SearchResultItem[]): Promise<Extended
         }
       } else if("NomPatho" in result) {
         //Pathology
+        counters[MainFilterTypeEnum.PATHOLOGY] ++;
         return {
           filterType: MainFilterTypeEnum.PATHOLOGY,
           data: result,
         }
       } else {
         //ATC Class
+        counters[MainFilterTypeEnum.ATCCLASS] ++;
         return {
           filterType: MainFilterTypeEnum.ATCCLASS,
           data: result,
@@ -44,7 +61,10 @@ async function getExtendedResults(results: SearchResultItem[]): Promise<Extended
       }
     })
   );
-  return extendedResults;
+  return {
+    counters,
+    results: extendedResults,
+  };
 }
 
 export default async function Page(props: {
@@ -71,7 +91,7 @@ export default async function Page(props: {
         </div>
       </div>
       {extendedResults ? (
-        <SearchResultsList resultsList={extendedResults} searchTerms={search}/>
+        <SearchResultsList resultsList={extendedResults.results} counters={extendedResults.counters} searchTerms={search}/>
       ) : (
         <>Il n’y a aucun résultat.</>
       )}
