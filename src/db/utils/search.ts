@@ -3,9 +3,9 @@ import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import db from "@/db";
 import { SearchResult } from "@/db/types";
-import { sql } from "kysely";
+import { Expression, expressionBuilder, sql, SqlBool } from "kysely";
 import { groupSpecialites, presentationIsComm } from "@/db/utils/index";
-import { Patho, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { Patho, PdbmMySQL, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { unstable_cache } from "next/cache";
 import { ATC, ATC1, getAtc1, getAtc2 } from "@/data/grist/atc";
 
@@ -43,6 +43,47 @@ const getSpecialites = unstable_cache(async function (
     : [];
 });
 
+//TODO quand base maj ajouter ces calcules dans getSubstances - doublon
+function withSubstances(
+  specId: Expression<string>,
+  nomIds: string[],
+): Expression<SqlBool> {
+  const eb = expressionBuilder<PdbmMySQL, never>();
+
+  return eb.exists(
+    eb
+      .selectFrom("Composant")
+      .select("Composant.SpecId")
+      .where("Composant.NomId", "in", nomIds)
+      .where("Composant.SpecId", "=", specId)
+      .where(({ eb, selectFrom }) =>
+        eb(
+          "Composant.SpecId",
+          "not in",
+          selectFrom("Composant as subquery")
+            .select("SpecId")
+            .where("subquery.NomId", "not in", nomIds)
+            .whereRef(
+              "subquery.CompNum",
+              "not in",
+              selectFrom("Composant as subquery2")
+                .select("CompNum")
+                .where("subquery2.SpecId", "=", specId)
+                .where("subquery2.NomId", "in", nomIds),
+            ),
+        ),
+      )
+      .groupBy("Composant.SpecId")
+      .having((eb) =>
+        eb(
+          eb.fn.count("Composant.CompNum").distinct(),
+          "=",
+          eb.val(nomIds.length),
+        ),
+      ),
+  );
+}
+
 const getSubstances = unstable_cache(async function getSubstances(
   substancesId: string[],
 ) {
@@ -56,6 +97,18 @@ const getSubstances = unstable_cache(async function getSubstances(
   return substances;
 });
 
+//TODO quand base maj ajouter ces calcules dans getSubstances - doublon
+export const getSubstanceSpecialites = unstable_cache(async function (substanceID: string) {
+  return pdbmMySQL
+  .selectFrom("Specialite")
+  .selectAll("Specialite")
+  .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), [substanceID]))
+  .where("Specialite.SpecId", "in", liste_CIS_MVP)
+  .groupBy("Specialite.SpecId")
+  .execute();
+});
+
+//TODO quand base maj ajouter tous les calculs ici
 const getPathologies = unstable_cache(async function (pathologiesId: string[]) {
   return pathologiesId.length
     ? await pdbmMySQL
@@ -64,6 +117,16 @@ const getPathologies = unstable_cache(async function (pathologiesId: string[]) {
         .where("codePatho", "in", pathologiesId)
         .execute()
     : [];
+});
+//TODO quand base maj ajouter ces calcules dans getPathologies - doublon
+export const getPathoSpecialites = unstable_cache(async function (code: string) {
+  return pdbmMySQL
+    .selectFrom("Specialite")
+    .selectAll("Specialite")
+    .leftJoin("Spec_Patho", "Specialite.SpecId", "Spec_Patho.SpecId")
+    .where("Spec_Patho.codePatho", "=", code)
+    .where("Specialite.SpecId", "in", liste_CIS_MVP)
+    .execute();
 });
 
 /**
@@ -81,6 +144,7 @@ export const getSearchResults = unstable_cache(async function (
   query: string,
   { onlyDirectMatches = false } = {},
 ): Promise<SearchResultItem[]> {
+
   const dbQuery = db
     .selectFrom("search_index")
     .selectAll()

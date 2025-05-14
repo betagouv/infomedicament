@@ -8,9 +8,11 @@ import {
   SearchTypeEnum,
   SearchMedicamentGroup,
   SearchResultData,
+  SearchATCClass,
 } from "@/types/SearchType";
 import GenericResultBlock from "./GenericResultBlock";
 import AccordionResultBlock from "./AccordionResultBlock";
+import ATCClassResult from "./ATCClassResult";
 
 const TagContainer = styled.div `
   text-align: center;
@@ -44,6 +46,8 @@ function ResultsListBlock({
               {type === SearchTypeEnum.MEDGROUP 
               ? (
                 <AccordionResultBlock item={data as SearchMedicamentGroup} />
+              ) : type === SearchTypeEnum.ATCCLASS ? (
+                <ATCClassResult item={data as SearchATCClass} />
               ) : (
                 <GenericResultBlock 
                   type={type} 

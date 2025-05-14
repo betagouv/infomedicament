@@ -1,12 +1,12 @@
 import { fr } from "@codegouvfr/react-dsfr";
 ;
-import { getSearchResults, getSpecialite } from "@/db/utils";
+import { getSearchResults, getSpecialite, groupSpecialites } from "@/db/utils";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SearchResultsList from "@/components/search/SearchResultsList";
 import { ExtendedSearchResults, SearchTypeEnum } from "@/types/SearchType";
 import { getAtc1, getAtc2, getAtcCode } from "@/data/grist/atc";
-import { SearchResultItem } from "@/db/utils/search";
+import { getPathoSpecialites, getSubstanceSpecialites, SearchResultItem } from "@/db/utils/search";
 
 type ExtendedOrderResults = { 
   counter: number,
@@ -14,6 +14,7 @@ type ExtendedOrderResults = {
 };
 
 //TODO clean empty ?
+//TODO quand base maj peut-être mettre les données en plus dans le calcul des résultats
 async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<ExtendedOrderResults> {
   let counter = 0;
   const extentedOrderedResults: ExtendedSearchResults = {
@@ -27,14 +28,12 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
       counter ++;
       if("NomLib" in result) {
         //Substance
-        /*  const specialites: Specialite[] = await pdbmMySQL
-            .selectFrom("Specialite")
-            .selectAll("Specialite")
-            .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
-            .where("Specialite.SpecId", "in", liste_CIS_MVP)
-            .groupBy("Specialite.SpecId")
-            .execute(); */
-        extentedOrderedResults[SearchTypeEnum.SUBSTANCE].push(result);
+        const specialites = await getSubstanceSpecialites(result.SubsId);
+        const specialitiesGroups = groupSpecialites(specialites);
+        extentedOrderedResults[SearchTypeEnum.SUBSTANCE].push({
+          nbSpecs: specialitiesGroups.length,
+          ...result
+        });
       } else if("groupName" in result){
         //Med Group
         const atc = getAtcCode(result.specialites[0].SpecId);
@@ -47,7 +46,11 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
         });
       } else if("NomPatho" in result) {
         //Pathology
-        extentedOrderedResults[SearchTypeEnum.PATHOLOGY].push(result);
+        const specialites = await getPathoSpecialites(result.codePatho);
+        extentedOrderedResults[SearchTypeEnum.PATHOLOGY].push({
+          nbSpecs: specialites.length,
+          ...result
+        });
       } else {
         //ATC Class
         extentedOrderedResults[SearchTypeEnum.PATHOLOGY].push(result);

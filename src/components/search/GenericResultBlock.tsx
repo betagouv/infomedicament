@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { HTMLAttributes } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
-import { SearchTypeEnum, SearchATCClass, SearchResultData } from "@/types/SearchType";
+import { SearchTypeEnum, SearchATCClass, SearchResultData, SearchPatho, SearchSubstanceNom } from "@/types/SearchType";
 import { formatSpecName } from "@/displayUtils";
 import styled from 'styled-components';
-import { Patho, SubstanceNom } from "@/db/pdbmMySQL/types";
 
 const Container = styled.div`
   border: var(--border-open-blue-france) 1px solid;
@@ -22,6 +21,10 @@ const Container = styled.div`
 const ResultTitle = styled.span`
   color: var(--grey-200-850);
 `;
+const ResultDetails = styled.span`
+  color: var(--text-mention-grey);
+  font-style: italic;
+`;
 interface GenericResultBlockProps extends HTMLAttributes<HTMLDivElement> {
   item: SearchResultData;
   type: SearchTypeEnum;
@@ -36,9 +39,9 @@ function GenericResultBlock({
 
   function getFormatSpecName(){
     if(type === SearchTypeEnum.SUBSTANCE){
-      return formatSpecName((item as SubstanceNom).NomLib);
+      return formatSpecName((item as SearchSubstanceNom).NomLib);
     } else if(type === SearchTypeEnum.PATHOLOGY){
-      return formatSpecName((item as Patho).NomPatho)
+      return formatSpecName((item as SearchPatho).NomPatho)
     } else if(type === SearchTypeEnum.ATCCLASS){
       return formatSpecName((item as SearchATCClass).class.label)
     }
@@ -47,9 +50,20 @@ function GenericResultBlock({
 
   function getLink(){
     if(type === SearchTypeEnum.SUBSTANCE){
-      return `/substances/${(item as SubstanceNom).NomId}`;
+      return `/substances/${(item as SearchSubstanceNom).NomId}`;
     } else if(type === SearchTypeEnum.PATHOLOGY){
-      return `/pathologies/${(item as Patho).codePatho}`;
+      return `/pathologies/${(item as SearchPatho).codePatho}`;
+    } /*else if(type === SearchTypeEnum.ATCCLASS){
+      return formatSpecName((item as SearchATCClass).class.label)
+    }*/
+    return "#";
+  }
+
+  function getDetails(){
+    if(type === SearchTypeEnum.SUBSTANCE){
+      return `${(item as SearchSubstanceNom).nbSpecs} ${(item as SearchSubstanceNom).nbSpecs > 1 ? "médicaments" : "médicament"}`;
+    } else if(type === SearchTypeEnum.PATHOLOGY){
+      return `${(item as SearchPatho).nbSpecs} ${(item as SearchPatho).nbSpecs > 1 ? "médicaments" : "médicament"}`;
     } /*else if(type === SearchTypeEnum.ATCCLASS){
       return formatSpecName((item as SearchATCClass).class.label)
     }*/
@@ -63,6 +77,7 @@ function GenericResultBlock({
         className={["result-link", fr.cx("fr-p-2w")].join(" ")}
       >
         <ResultTitle className={fr.cx("fr-h5", "fr-mr-2w")}>{getFormatSpecName()}</ResultTitle>
+        <ResultDetails>{getDetails()}</ResultDetails>
       </Link>
       
     </Container>
