@@ -15,6 +15,9 @@ import AccordionResultBlock from "./AccordionResultBlock";
 const TagContainer = styled.div `
   text-align: center;
 `;
+const ResultNumber = styled.span`
+  font-weight: normal !important;
+`;
 
 interface ResultsListBlockProps extends HTMLAttributes<HTMLDivElement> {
   dataList: SearchResultData[];
@@ -31,7 +34,8 @@ function ResultsListBlock({
   return (
     <div className={fr.cx("fr-mb-3w")}>
       <div className={fr.cx("fr-mb-1w")}>
-        <span className={fr.cx("fr-h5")}>{type}</span>{" "}{dataList.length}
+        <span className={fr.cx("fr-h5")}>{type}</span>{" "}
+        <ResultNumber className={fr.cx("fr-h5")}>{dataList.length}</ResultNumber>
       </div>
       {dataList.map((data, index) => {
         if((!isOpen && index < 4) || isOpen) {

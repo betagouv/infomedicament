@@ -1,37 +1,47 @@
 import { HTMLAttributes, useState } from "react";
 import Link from "next/link";
 import { fr } from "@codegouvfr/react-dsfr";
-import Badge from "@codegouvfr/react-dsfr/Badge";
-import { SearchTypeEnum, SearchMedicamentGroup } from "@/types/SearchType";
+import { SearchMedicamentGroup } from "@/types/SearchType";
 import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
 import styled, {css} from 'styled-components';
 import Button from "@codegouvfr/react-dsfr/Button";
 
-const Container = styled.div<{ $isDetailsVisible?: boolean; }>`
+const Container = styled.div`
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
+  :hover{
+    background-color: var(--background-alt-grey);
+    border-radius: 8px;
+  }
+`;
+
+const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   padding: 1rem;
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
+    border-bottom: var(--border-open-blue-france) 1px solid;
     background-color: var(--background-alt-grey);
     border-radius: 8px 8px 0 0;
   `}
 `;
-
 const WhiteContainer = styled.div`
-  border: var(--border-open-blue-france) 1px solid;
-  border-top: none;
-  border-radius: 0 0 8px 8px;
   padding: 1rem;
 `;
-
 const DetailsContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
 `;
-
+const SpecName = styled.span`
+  color: var(--grey-200-850);
+`;
+const SpecLength = styled.span`
+  color: var(--text-default-info);
+`;
 const GreyText = styled.span`
   color: var(--text-mention-grey);
+`;
+const DarkGreyText = styled.span`
+  color: var(--text-title-grey);
 `;
 
 interface AccordionResultBlockProps extends HTMLAttributes<HTMLDivElement> {
@@ -47,25 +57,25 @@ function AccordionResultBlock({
   const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(false);
 
   return (
-    <div className={fr.cx("fr-mb-3w")}>
-      <Container $isDetailsVisible={isDetailsVisible}>
-        <div className={fr.cx("fr-mb-3w")}>
-          <Badge className={fr.cx("fr-badge--purple-glycine")}>{SearchTypeEnum.MEDGROUP}</Badge>
-        </div>
+    <Container className={fr.cx("fr-mb-3w")}>
+      <GreyContainer $isDetailsVisible={isDetailsVisible}>
         <div>
-          <span className={fr.cx("fr-h5")}>{formatSpecName(item.groupName)}</span>
+          <SpecName className={fr.cx("fr-h5", "fr-mr-2w")}>{formatSpecName(item.groupName)}</SpecName>
+          <SpecLength>{specialites.length} médicaments</SpecLength>
         </div>
         <DetailsContainer>
           <div>
             <span className={fr.cx("fr-text--xs", "fr-mr-2w")}>
               <GreyText>Classe</GreyText>&nbsp;
-              {item.atc1.label}&nbsp;{'>'}&nbsp;{item.atc2.label}
+              <DarkGreyText>{item.atc1.label}&nbsp;{'>'}&nbsp;{item.atc2.label}</DarkGreyText>
             </span>
             <span className={fr.cx("fr-text--xs")}>
               <GreyText>Substance&nbsp;active</GreyText>&nbsp;
-              {displaySimpleComposants(item.composants)
-                .map((s) => s.NomLib.trim())
-                .join(", ")}
+              <DarkGreyText>
+                {displaySimpleComposants(item.composants)
+                  .map((s) => s.NomLib.trim())
+                  .join(", ")}
+              </DarkGreyText>
             </span>
           </div>
           <Button
@@ -75,7 +85,7 @@ function AccordionResultBlock({
             title="Liens vers les notices"
           />
         </DetailsContainer>
-      </Container>
+      </GreyContainer>
       {isDetailsVisible && (
         <WhiteContainer>
           <GreyText className={fr.cx("fr-text--xs")}>Consultez la notice de :</GreyText>
@@ -93,7 +103,7 @@ function AccordionResultBlock({
           </ul>
         </WhiteContainer>
       )}
-    </div>
+    </Container>
   );
 };
 
