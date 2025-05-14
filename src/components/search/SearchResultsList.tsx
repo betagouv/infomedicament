@@ -1,26 +1,14 @@
 "use client";
 
-import { Fragment, HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import Tag from "@codegouvfr/react-dsfr/Tag";
-
-import { Patho, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { 
-  ExtendedSearchResultItem, 
-  MainFilterCounterType, 
-  mainFiltersList, 
-  MainFilterType, 
-  MainFilterTypeEnum,
-  SearchATCClass,
-  SearchMedicamentGroup, 
+  ExtendedSearchResults, 
+  SearchTypeEnum,
 } from "@/types/SearchType";
-import ATCClassResult from "./ATCClassResult";
-import SubstanceResult from "./SubstanceResult";
-import PathoResult from "./PathoResult";
-import MedGroupSpecListResult from "./MedGroupSpecListResult";
 import styled from 'styled-components';
-import GenericResultBlock from "./GenericResultBlock";
-import AccordionResultBlock from "./AccordionResultBlock";
+import ResultsListBlock from "./ResultsListBlock";
 
 const Container = styled.div `
   button.fr-tag[aria-pressed=true]:not(:disabled){
@@ -31,95 +19,89 @@ const Container = styled.div `
   button.fr-tag[aria-pressed=true]::after{
     display: none;
   }
+  .display-inline {
+    display: inline;
+  }
 `;
 
-
-const SearchTerm = styled.div `
+const SearchTitle = styled.h1 `
   font-weight: normal !important;
-  font-style: italic;
+  display: inline;
 `;
 
 interface SearchResultsListProps extends HTMLAttributes<HTMLDivElement> {
-  resultsList: ExtendedSearchResultItem[];
-  counters: MainFilterCounterType;
+  resultsList: ExtendedSearchResults;
+  totalResults: number;
   searchTerms: string;
 }
 
 function SearchResultsList({
   resultsList,
-  counters,
+  totalResults,
   searchTerms,
 }: SearchResultsListProps) {
 
-  const [currentFilter, setCurrentFilter] = useState<MainFilterTypeEnum>(MainFilterTypeEnum.ALL);
+  const [currentFilter, setCurrentFilter] = useState<SearchTypeEnum | boolean>(false);
 
   return (
     <Container>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10", "fr-mb-2w")}>
-          <h1 className={fr.cx("fr-h5", "fr-mb-0")}>
-            {resultsList.length} résultats pour :<br/>
-          </h1>
-          <SearchTerm className={fr.cx("fr-h5")}>{searchTerms}</SearchTerm>
+          <SearchTitle className={fr.cx("fr-h5", "fr-mb-0", "fr-mr-2w")}>
+            {totalResults} résultats pour :
+          </SearchTitle>
+          <i className={fr.cx("fr-h5")}>“{searchTerms}“</i>
         </div>
       </div>
-      <div className={fr.cx("fr-grid-row")}>
-        <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
-          <ul className={fr.cx("fr-tags-group", "fr-mb-3w")}>
-            {mainFiltersList.map((filter: MainFilterType, index) => {
-              const counter: number = counters[filter.type];
-              if(counter > 0) {
-                return (
-                  <Tag
-                    key={index}
-                    pressed={currentFilter === filter.type}
-                    nativeButtonProps={{
-                      onClick: () => setCurrentFilter(filter.type)
-                    }}
-                    className="search-filter-tag"
-                  >
-                    {filter.text}{" "}({counter})
-                  </Tag>
-                )
-              }
-            })}
-          </ul>
+      {totalResults > 0 && (
+        <div className={fr.cx("fr-grid-row", "fr-mb-5w")}>
+          <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
+            <span className={["display-inline", fr.cx("fr-mr-2w")].join(" ")}>Filtrer</span>
+            <ul className={["display-inline", fr.cx("fr-tags-group", "fr-mb-3w")].join(" ")}>
+              <Tag
+                pressed={!currentFilter}
+                nativeButtonProps={{
+                  onClick: () => setCurrentFilter(false)
+                }}
+                className="search-filter-tag"
+              >
+                Tout&nbsp;({totalResults})
+              </Tag>
+              {Object.keys(resultsList).map((key) => {
+                const type = key as SearchTypeEnum;
+                if(resultsList[type].length > 0) {
+                  return (
+                    <Tag
+                      key={type}
+                      pressed={currentFilter === type}
+                      nativeButtonProps={{
+                        onClick: () => setCurrentFilter(type)
+                      }}
+                      className="search-filter-tag"
+                    >
+                      {type}{" "}({resultsList[type].length})
+                    </Tag>
+                  )
+                }
+                })}
+            </ul>
+          </div>
         </div>
-      </div>
+      )}
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
-          <ul className={fr.cx("fr-raw-list")}>
-            {resultsList.map((result, index) => (
-              <Fragment key={index}>
-                {result.filterType === MainFilterTypeEnum.SUBSTANCE ? (
-                  (currentFilter === MainFilterTypeEnum.ALL || currentFilter === MainFilterTypeEnum.SUBSTANCE) && (
-                    <GenericResultBlock 
-                      type={MainFilterTypeEnum.SUBSTANCE} 
-                      item={result.data} 
-                    />
-                  )
-                ) : result.filterType === MainFilterTypeEnum.MEDGROUP ? (
-                  (currentFilter === MainFilterTypeEnum.ALL || currentFilter === MainFilterTypeEnum.MEDGROUP) && (
-                    <AccordionResultBlock item={result.data as SearchMedicamentGroup} />
-                  )
-                ) : result.filterType === MainFilterTypeEnum.PATHOLOGY ? (
-                  (currentFilter === MainFilterTypeEnum.ALL || currentFilter === MainFilterTypeEnum.PATHOLOGY) && (
-                    <GenericResultBlock 
-                      type={MainFilterTypeEnum.PATHOLOGY} 
-                      item={result.data} 
-                    />
-                  )
-                ) : (
-                  (currentFilter === MainFilterTypeEnum.ALL || currentFilter === MainFilterTypeEnum.ATCCLASS) && (
-                    <GenericResultBlock 
-                      type={MainFilterTypeEnum.ATCCLASS} 
-                      item={result.data} 
-                    />
-                  )
-                )}
-              </Fragment>
-            ))}
-          </ul>
+          {Object.keys(resultsList).map((key) => {
+            const type = key as SearchTypeEnum;
+            if(resultsList[type].length > 0 && (!currentFilter || currentFilter === type)) {
+              return (
+                <ResultsListBlock
+                  key={type}
+                  dataList={resultsList[type]}
+                  type={type}
+                />
+              )
+            }
+          })}
         </div>
       </div>
     </Container>

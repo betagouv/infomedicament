@@ -2,7 +2,7 @@ import { HTMLAttributes, useState } from "react";
 import Link from "next/link";
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { MainFilterTypeEnum, SearchMedicamentGroup } from "@/types/SearchType";
+import { SearchTypeEnum, SearchMedicamentGroup } from "@/types/SearchType";
 import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
 import styled, {css} from 'styled-components';
 import Button from "@codegouvfr/react-dsfr/Button";
@@ -38,7 +38,7 @@ interface AccordionResultBlockProps extends HTMLAttributes<HTMLDivElement> {
   item: SearchMedicamentGroup;
 }
 
-//For now only for type === MainFilterTypeEnum.MEDGROUP
+//For now only for type === SearchTypeEnum.MEDGROUP
 function AccordionResultBlock({
   item,
 }: AccordionResultBlockProps) {
@@ -50,7 +50,7 @@ function AccordionResultBlock({
     <div className={fr.cx("fr-mb-3w")}>
       <Container $isDetailsVisible={isDetailsVisible}>
         <div className={fr.cx("fr-mb-3w")}>
-          <Badge className={fr.cx("fr-badge--purple-glycine")}>{MainFilterTypeEnum.MEDGROUP}</Badge>
+          <Badge className={fr.cx("fr-badge--purple-glycine")}>{SearchTypeEnum.MEDGROUP}</Badge>
         </div>
         <div>
           <span className={fr.cx("fr-h5")}>{formatSpecName(item.groupName)}</span>

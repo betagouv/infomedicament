@@ -1,7 +1,7 @@
 import { HTMLAttributes } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { MainFilterTypeEnum, SearchATCClass, SearchResultData } from "@/types/SearchType";
+import { SearchTypeEnum, SearchATCClass, SearchResultData } from "@/types/SearchType";
 import { formatSpecName } from "@/displayUtils";
 import styled from 'styled-components';
 import { Patho, SubstanceNom } from "@/db/pdbmMySQL/types";
@@ -15,7 +15,7 @@ const Container = styled.div`
 
 interface GenericResultBlockProps extends HTMLAttributes<HTMLDivElement> {
   item: SearchResultData;
-  type: MainFilterTypeEnum;
+  type: SearchTypeEnum;
 }
 
 function GenericResultBlock({
@@ -26,11 +26,11 @@ function GenericResultBlock({
  console.log(item);
 
   function getFormatSpecName(){
-    if(type === MainFilterTypeEnum.SUBSTANCE){
+    if(type === SearchTypeEnum.SUBSTANCE){
       return formatSpecName((item as SubstanceNom).NomLib);
-    } else if(type === MainFilterTypeEnum.PATHOLOGY){
+    } else if(type === SearchTypeEnum.PATHOLOGY){
       return formatSpecName((item as Patho).NomPatho)
-    } else if(type === MainFilterTypeEnum.ATCCLASS){
+    } else if(type === SearchTypeEnum.ATCCLASS){
       return formatSpecName((item as SearchATCClass).class.label)
     }
     return "Autre";
@@ -38,16 +38,16 @@ function GenericResultBlock({
 
   return (
     <Container>
-      <div className={fr.cx("fr-mb-3w")}>
-        {type === MainFilterTypeEnum.SUBSTANCE 
+      <div className={fr.cx("fr-mb-1w")}>
+        {type === SearchTypeEnum.SUBSTANCE 
           ? (
-            <Badge className={fr.cx("fr-badge--blue-cumulus")}>{MainFilterTypeEnum.SUBSTANCE}</Badge>
-          ) : type === MainFilterTypeEnum.PATHOLOGY 
+            <Badge className={fr.cx("fr-badge--blue-cumulus")}>{SearchTypeEnum.SUBSTANCE}</Badge>
+          ) : type === SearchTypeEnum.PATHOLOGY 
               ? (
-                <Badge className={fr.cx("fr-badge--yellow-tournesol")}>{MainFilterTypeEnum.PATHOLOGY}</Badge>
-              ) : type === MainFilterTypeEnum.ATCCLASS 
+                <Badge className={fr.cx("fr-badge--yellow-tournesol")}>{SearchTypeEnum.PATHOLOGY}</Badge>
+              ) : type === SearchTypeEnum.ATCCLASS 
               ? (
-                <Badge className={fr.cx("fr-badge--yellow-tournesol")}>{MainFilterTypeEnum.ATCCLASS}</Badge>
+                <Badge className={fr.cx("fr-badge--yellow-tournesol")}>{SearchTypeEnum.ATCCLASS}</Badge>
               ) 
           : (<Badge>Autre</Badge>)
         }

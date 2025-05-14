@@ -4,67 +4,59 @@ import { getSearchResults, getSpecialite } from "@/db/utils";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SearchResultsList from "@/components/search/SearchResultsList";
-import { ExtendedSearchResultItem, MainFilterCounterType, MainFilterTypeEnum } from "@/types/SearchType";
-import { getAtc, getAtc1, getAtc2, getAtcCode } from "@/data/grist/atc";
+import { ExtendedSearchResults, SearchTypeEnum } from "@/types/SearchType";
+import { getAtc1, getAtc2, getAtcCode } from "@/data/grist/atc";
 import { SearchResultItem } from "@/db/utils/search";
 
-type ExtendedResults = { 
-  counters: MainFilterCounterType, 
-  results: ExtendedSearchResultItem[],
+type ExtendedOrderResults = { 
+  counter: number,
+  results: ExtendedSearchResults,
 };
 
-async function getExtendedResults(results: SearchResultItem[]): Promise<ExtendedResults> {
-  const counters: MainFilterCounterType = {
-    [MainFilterTypeEnum.ALL]: 0,
-    [MainFilterTypeEnum.MEDGROUP]: 0,
-    [MainFilterTypeEnum.SUBSTANCE]: 0,
-    [MainFilterTypeEnum.PATHOLOGY]: 0,
-    [MainFilterTypeEnum.ATCCLASS]: 0,
+//TODO clean empty ?
+async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<ExtendedOrderResults> {
+  let counter = 0;
+  const extentedOrderedResults: ExtendedSearchResults = {
+    [SearchTypeEnum.MEDGROUP]: [],
+    [SearchTypeEnum.SUBSTANCE]: [],
+    [SearchTypeEnum.PATHOLOGY]: [],
+    [SearchTypeEnum.ATCCLASS]: [],
   }
-  const extendedResults = await Promise.all(
+  await Promise.all(
     results.map(async (result: SearchResultItem) => {
-      counters[MainFilterTypeEnum.ALL] ++;
+      counter ++;
       if("NomLib" in result) {
         //Substance
-        counters[MainFilterTypeEnum.SUBSTANCE] ++;
-        return {
-          filterType: MainFilterTypeEnum.SUBSTANCE,
-          data: result,
-        }
+        /*  const specialites: Specialite[] = await pdbmMySQL
+            .selectFrom("Specialite")
+            .selectAll("Specialite")
+            .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
+            .where("Specialite.SpecId", "in", liste_CIS_MVP)
+            .groupBy("Specialite.SpecId")
+            .execute(); */
+        extentedOrderedResults[SearchTypeEnum.SUBSTANCE].push(result);
       } else if("groupName" in result){
         //Med Group
-        counters[MainFilterTypeEnum.MEDGROUP] ++;
         const atc = getAtcCode(result.specialites[0].SpecId);
         const { composants } = await getSpecialite(result.specialites[0].SpecId);
-        return {
-          filterType: MainFilterTypeEnum.MEDGROUP,
-          data : {
-            atc1: await getAtc1(atc),
-            atc2: await getAtc2(atc),
-            composants: composants,
-            ...result,
-          }
-        }
+        extentedOrderedResults[SearchTypeEnum.MEDGROUP].push({
+          atc1: await getAtc1(atc),
+          atc2: await getAtc2(atc),
+          composants: composants,
+          ...result,
+        });
       } else if("NomPatho" in result) {
         //Pathology
-        counters[MainFilterTypeEnum.PATHOLOGY] ++;
-        return {
-          filterType: MainFilterTypeEnum.PATHOLOGY,
-          data: result,
-        }
+        extentedOrderedResults[SearchTypeEnum.PATHOLOGY].push(result);
       } else {
         //ATC Class
-        counters[MainFilterTypeEnum.ATCCLASS] ++;
-        return {
-          filterType: MainFilterTypeEnum.ATCCLASS,
-          data: result,
-        }
+        extentedOrderedResults[SearchTypeEnum.PATHOLOGY].push(result);
       }
     })
   );
   return {
-    counters,
-    results: extendedResults,
+    counter,
+    results: extentedOrderedResults
   };
 }
 
@@ -74,11 +66,11 @@ export default async function Page(props: {
   const searchParams = await props.searchParams;
   const search = searchParams && "s" in searchParams && searchParams["s"];
   const results = search && (await getSearchResults(searchParams["s"]));
-  const extendedResults = results && (await getExtendedResults(results));
+  const extendedResults = results && (await getExtendedOrderedResults(results));
 
   return (
     <ContentContainer frContainer>
-      <div className={fr.cx("fr-grid-row")}>
+      <div className={fr.cx("fr-grid-row", "fr-mb-4w")}>
         <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
           <form
             action="/rechercher"
@@ -91,8 +83,8 @@ export default async function Page(props: {
           </form>
         </div>
       </div>
-      {extendedResults ? (
-        <SearchResultsList resultsList={extendedResults.results} counters={extendedResults.counters} searchTerms={search}/>
+      {extendedResults && extendedResults.counter > 0 ? (
+        <SearchResultsList resultsList={extendedResults.results} totalResults={extendedResults.counter} searchTerms={search}/>
       ) : (
         <>Il n’y a aucun résultat.</>
       )}
