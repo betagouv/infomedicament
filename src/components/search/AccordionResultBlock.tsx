@@ -14,7 +14,6 @@ const Container = styled.div`
     border-radius: 8px;
   }
 `;
-
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   padding: 1rem;
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
@@ -61,7 +60,7 @@ function AccordionResultBlock({
       <GreyContainer $isDetailsVisible={isDetailsVisible}>
         <div>
           <SpecName className={fr.cx("fr-h5", "fr-mr-2w")}>{formatSpecName(item.groupName)}</SpecName>
-          <SpecLength>{specialites.length} médicaments</SpecLength>
+          <SpecLength>{specialites.length} {specialites.length > 1 ? "médicaments" : "médicament"}</SpecLength>
         </div>
         <DetailsContainer>
           <div>
