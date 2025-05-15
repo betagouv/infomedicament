@@ -31,17 +31,17 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
       counter ++;
       if("NomLib" in result) {
         //Substance
-        const specialites = await getSubstanceSpecialites(result.SubsId);
-        const specialitiesGroups = groupSpecialites(specialites);
+        const specialites = await getSubstanceSpecialites(result.NomId);
+        const specialitiesGroups = await groupSpecialites(specialites);
         extentedOrderedResults[SearchTypeEnum.SUBSTANCE].push({
           nbSpecs: specialitiesGroups.length,
           ...result
         });
       } else if("groupName" in result){
         //Med Group
+        const CISList = result.specialites.map(spec => spec.SpecId);
         const atc = getAtcCode(result.specialites[0].SpecId);
         const { composants } = await getSpecialite(result.specialites[0].SpecId);
-        const CISList = result.specialites.map(spec => spec.SpecId);
         const pregnancyAlert = pregnancyAlerts.find((s) =>
           composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
         );
