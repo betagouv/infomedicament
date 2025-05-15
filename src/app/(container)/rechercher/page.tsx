@@ -53,7 +53,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
         });
       } else {
         //ATC Class
-        extentedOrderedResults[SearchTypeEnum.PATHOLOGY].push(result);
+        extentedOrderedResults[SearchTypeEnum.ATCCLASS].push(result);
       }
     })
   );

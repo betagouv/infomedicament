@@ -8,11 +8,9 @@ import {
   SearchTypeEnum,
   SearchMedicamentGroup,
   SearchResultData,
-  SearchATCClass,
 } from "@/types/SearchType";
 import GenericResultBlock from "./GenericResultBlock";
 import AccordionResultBlock from "./AccordionResultBlock";
-import ATCClassResult from "./ATCClassResult";
 
 const TagContainer = styled.div `
   text-align: center;
@@ -34,7 +32,7 @@ function ResultsListBlock({
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   return (
-    <div className={fr.cx("fr-mb-3w")}>
+    <div className={fr.cx("fr-mb-8w")}>
       <div className={fr.cx("fr-mb-1w")}>
         <span className={fr.cx("fr-h5")}>{type}</span>{" "}
         <ResultNumber className={fr.cx("fr-h5")}>{dataList.length}</ResultNumber>
@@ -46,8 +44,6 @@ function ResultsListBlock({
               {type === SearchTypeEnum.MEDGROUP 
               ? (
                 <AccordionResultBlock item={data as SearchMedicamentGroup} />
-              ) : type === SearchTypeEnum.ATCCLASS ? (
-                <ATCClassResult item={data as SearchATCClass} />
               ) : (
                 <GenericResultBlock 
                   type={type} 
