@@ -7,6 +7,8 @@ import SearchResultsList from "@/components/search/SearchResultsList";
 import { ExtendedSearchResults, SearchTypeEnum } from "@/types/SearchType";
 import { getAtc1, getAtc2, getAtcCode } from "@/data/grist/atc";
 import { getPathoSpecialites, getSubstanceSpecialites, SearchResultItem } from "@/db/utils/search";
+import { getPregnancyAlerts } from "@/data/grist/pregnancy";
+import { getPediatricsForList } from "@/data/grist/pediatrics";
 
 type ExtendedOrderResults = { 
   counter: number,
@@ -23,6 +25,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
     [SearchTypeEnum.PATHOLOGY]: [],
     [SearchTypeEnum.ATCCLASS]: [],
   }
+  const pregnancyAlerts = await getPregnancyAlerts();
   await Promise.all(
     results.map(async (result: SearchResultItem) => {
       counter ++;
@@ -38,10 +41,16 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
         //Med Group
         const atc = getAtcCode(result.specialites[0].SpecId);
         const { composants } = await getSpecialite(result.specialites[0].SpecId);
+        const CISList = result.specialites.map(spec => spec.SpecId);
+        const pregnancyAlert = pregnancyAlerts.find((s) =>
+          composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
+        );
         extentedOrderedResults[SearchTypeEnum.MEDGROUP].push({
           atc1: await getAtc1(atc),
           atc2: await getAtc2(atc),
           composants: composants,
+          pregnancyAlert: !!pregnancyAlert,
+          pediatrics: await getPediatricsForList(CISList),
           ...result,
         });
       } else if("NomPatho" in result) {
@@ -73,11 +82,11 @@ export default async function Page(props: {
 
   return (
     <ContentContainer frContainer>
-      <div className={fr.cx("fr-grid-row", "fr-mb-4w")}>
+      <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
           <form
             action="/rechercher"
-            className={fr.cx("fr-my-4w")}
+            className={fr.cx("fr-mt-4w", "fr-mb-1w")}
           >
             <AutocompleteSearch
               inputName="s"
@@ -89,7 +98,11 @@ export default async function Page(props: {
       {extendedResults && extendedResults.counter > 0 ? (
         <SearchResultsList resultsList={extendedResults.results} totalResults={extendedResults.counter} searchTerms={search}/>
       ) : (
-        <>Il n’y a aucun résultat.</>
+        <div className={fr.cx("fr-grid-row", "fr-mt-3w")}>
+          <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
+            Il n’y a aucun résultat.
+          </div>
+        </div>
       )}
     </ContentContainer>
   );

@@ -3,6 +3,7 @@
 import { HTMLAttributes, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import Tag from "@codegouvfr/react-dsfr/Tag";
+import { Checkbox } from "@codegouvfr/react-dsfr/Checkbox";
 import { 
   ExtendedSearchResults, 
   SearchTypeEnum,
@@ -41,10 +42,36 @@ function SearchResultsList({
   searchTerms,
 }: SearchResultsListProps) {
 
-  const [currentFilter, setCurrentFilter] = useState<SearchTypeEnum | boolean>(false);
+  const [filterCategory, setFilterCategory] = useState<SearchTypeEnum | boolean>(false);
+  const [filterPregnancy, setFilterPregnancy] = useState<boolean>(false);
+  const [filterPediatric, setFilterPediatric] = useState<boolean>(false);
 
   return (
     <Container>
+      <div className={fr.cx("fr-grid-row", "fr-mb-2w")}>
+        <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10", "fr-mb-1w")}>
+          <Checkbox
+            small
+            options={[
+              {
+                label: 'Je suis enceinte ou prévoit de l\'être',
+                nativeInputProps: {
+                  checked: filterPregnancy,
+                  onChange: () => setFilterPregnancy(!filterPregnancy),
+                }
+              },
+              {
+                label: 'Pour un enfant',
+                nativeInputProps: {
+                  checked: filterPediatric,
+                  onChange: () => setFilterPediatric(!filterPediatric),
+                }
+              }
+            ]}
+            orientation="horizontal"
+          />
+        </div>
+      </div>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10", "fr-mb-2w")}>
           <SearchTitle className={fr.cx("fr-h5", "fr-mb-0", "fr-mr-2w")}>
@@ -59,9 +86,9 @@ function SearchResultsList({
             <span className={["display-inline", fr.cx("fr-mr-2w")].join(" ")}>Filtrer</span>
             <ul className={["display-inline", fr.cx("fr-tags-group", "fr-mb-3w")].join(" ")}>
               <Tag
-                pressed={!currentFilter}
+                pressed={!filterCategory}
                 nativeButtonProps={{
-                  onClick: () => setCurrentFilter(false)
+                  onClick: () => setFilterCategory(false)
                 }}
                 className="search-filter-tag"
               >
@@ -73,9 +100,9 @@ function SearchResultsList({
                   return (
                     <Tag
                       key={type}
-                      pressed={currentFilter === type}
+                      pressed={filterCategory === type}
                       nativeButtonProps={{
-                        onClick: () => setCurrentFilter(type)
+                        onClick: () => setFilterCategory(type)
                       }}
                       className="search-filter-tag"
                     >
@@ -92,12 +119,14 @@ function SearchResultsList({
         <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
           {Object.keys(resultsList).map((key) => {
             const type = key as SearchTypeEnum;
-            if(resultsList[type].length > 0 && (!currentFilter || currentFilter === type)) {
+            if(resultsList[type].length > 0 && (!filterCategory || filterCategory === type)) {
               return (
                 <ResultsListBlock
                   key={type}
                   dataList={resultsList[type]}
                   type={type}
+                  filterPregnancy={filterPregnancy}
+                  filterPediatric={filterPediatric}
                 />
               )
             }

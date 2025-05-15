@@ -1,4 +1,5 @@
 import { ATC, ATC1 } from "@/data/grist/atc";
+import { PediatricsInfo } from "@/data/grist/pediatrics";
 import { Patho, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 
 export enum SearchTypeEnum {
@@ -27,6 +28,8 @@ export type SearchMedicamentGroup = {
   atc1: ATC1;
   atc2: ATC;
   composants: any;
+  pregnancyAlert?: boolean;
+  pediatrics?: PediatricsInfo;
 };
 
 export type SearchResultData =

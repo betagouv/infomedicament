@@ -12,6 +12,7 @@ const Container = styled.div`
   :hover{
     background-color: var(--background-alt-grey);
     border-radius: 8px;
+    cursor: pointer;
   }
 `;
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
@@ -42,14 +43,23 @@ const GreyText = styled.span`
 const DarkGreyText = styled.span`
   color: var(--text-title-grey);
 `;
-
+const RedText = styled.span`
+  color: var(--text-default-warning);
+`;
+const GreenText = styled.span`
+  color: var(--text-default-success);
+`;
 interface AccordionResultBlockProps extends HTMLAttributes<HTMLDivElement> {
   item: SearchMedicamentGroup;
+  filterPregnancy: boolean;
+  filterPediatric: boolean;
 }
 
 //For now only for type === SearchTypeEnum.MEDGROUP
 function AccordionResultBlock({
   item,
+  filterPregnancy,
+  filterPediatric
 }: AccordionResultBlockProps) {
 
   const specialites = item.specialites;
@@ -57,7 +67,10 @@ function AccordionResultBlock({
 
   return (
     <Container className={fr.cx("fr-mb-3w")}>
-      <GreyContainer $isDetailsVisible={isDetailsVisible}>
+      <GreyContainer 
+        $isDetailsVisible={isDetailsVisible}
+        onClick={() => setIsDetailsVisible(!isDetailsVisible)}
+      >
         <div>
           <SpecName className={fr.cx("fr-h5", "fr-mr-2w")}>{formatSpecName(item.groupName)}</SpecName>
           <SpecLength>{specialites.length} {specialites.length > 1 ? "médicaments" : "médicament"}</SpecLength>
@@ -76,6 +89,28 @@ function AccordionResultBlock({
                   .join(", ")}
               </DarkGreyText>
             </span>
+            {((filterPregnancy && item.pregnancyAlert) || (filterPediatric && item.pediatrics)) && (
+              <div>
+                {(filterPregnancy && item.pregnancyAlert) && (
+                  <RedText className={fr.cx("fr-text--xs", "fr-mr-2w")}>Contre-indication grossesse pour certains des médicaments</RedText>
+                )}
+                {(filterPediatric && item.pediatrics) && (
+                  <>
+                    {item.pediatrics.indication && (
+                      <GreenText className={fr.cx("fr-text--xs", "fr-mr-2w")}>Peut être utilisé chez l&apos;enfant selon l&apos;âge</GreenText>
+                    )}
+                    {item.pediatrics.contraindication && (
+                      <RedText className={fr.cx("fr-text--xs", "fr-mr-2w")}>Contre-indiqué pour un enfant selon l&apos;âge</RedText>                    
+                    )}
+                    {item.pediatrics.doctorAdvice && (
+                      <span className={fr.cx("fr-text--xs", "fr-mr-2w")}>
+                        Utilisation chez l&apos;enfant sur avis d&apos;un professionnel de santé
+                      </span>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
           <Button
             iconId={isDetailsVisible ? "fr-icon-arrow-up-s-line" : "fr-icon-arrow-down-s-line"}

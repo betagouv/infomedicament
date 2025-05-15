@@ -22,11 +22,15 @@ const ResultNumber = styled.span`
 interface ResultsListBlockProps extends HTMLAttributes<HTMLDivElement> {
   dataList: SearchResultData[];
   type: SearchTypeEnum;
+  filterPregnancy: boolean;
+  filterPediatric: boolean;
 }
 
 function ResultsListBlock({
   dataList,
-  type
+  type,
+  filterPregnancy,
+  filterPediatric
 }: ResultsListBlockProps) {
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -43,7 +47,11 @@ function ResultsListBlock({
             <Fragment key={index}>
               {type === SearchTypeEnum.MEDGROUP 
               ? (
-                <AccordionResultBlock item={data as SearchMedicamentGroup} />
+                <AccordionResultBlock 
+                  item={data as SearchMedicamentGroup}
+                  filterPregnancy={filterPregnancy}
+                  filterPediatric={filterPediatric}
+                />
               ) : (
                 <GenericResultBlock 
                   type={type} 
