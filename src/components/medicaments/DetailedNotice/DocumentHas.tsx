@@ -67,7 +67,7 @@ function DocumentHas({
             data={[
               [
                 "Important", 
-                (<Link href="#" target="_blank">Avis du 01/04</Link>),
+                "Avis du 01/04",
                 "Renouvellement d'inscription (CT)",
                 "Le service médical rendu par les spécialités DOLIPRANE, GELUPRANE et PARACETAMOL ZENTIVA reste important dans les indications de l'AMM."
               ],
