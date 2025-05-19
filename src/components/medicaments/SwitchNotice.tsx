@@ -7,7 +7,7 @@ import ClassTag from "../tags/ClassTag";
 import { ATC } from "@/data/grist/atc";
 import { fr } from "@codegouvfr/react-dsfr";
 import SubstanceTag from "../tags/SubstanceTag";
-import { Presentation, PresInfoTarif, SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { Presentation, PresInfoTarif, SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { TagTypeEnum } from "@/types/TagType";
 import PrincepsTag from "../tags/PrincepsTag";
 import GenericTag from "../tags/GenericTag";
@@ -19,8 +19,11 @@ import { PresentationsList } from "../PresentationsList";
 import { Nullable } from "kysely";
 import { PresentationDetail } from "@/db/types";
 import { HTMLAttributes, PropsWithChildren, useCallback, useState } from "react";
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import Badge from "@codegouvfr/react-dsfr/Badge";
+import DetailedSubMenu from "./DetailedSubMenu";
+import DetailedNotice from "./DetailedNotice";
+import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 
 const ToggleSwitchContainer = styled.div `
   background-color: var(--background-contrast-info);
@@ -35,10 +38,11 @@ const ToggleSwitchContainer = styled.div `
 interface OwnProps extends HTMLAttributes<HTMLDivElement> {
   CIS: string;
   atc2: ATC;
+  atcCode: string;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
   SpecGeneId: string;
-  isDelivrance: boolean;
+  delivrance: SpecDelivrance[];
   isPregnancyAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
@@ -49,10 +53,11 @@ interface OwnProps extends HTMLAttributes<HTMLDivElement> {
 function SwitchNotice({
   CIS,
   atc2,
+  atcCode,
   composants,
   isPrinceps,
   SpecGeneId,
-  isDelivrance,
+  delivrance,
   isPregnancyAlert,
   pediatrics,
   presentations,
@@ -62,7 +67,8 @@ function SwitchNotice({
   ...props
 }: PropsWithChildren<OwnProps>) {
 
-  const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
+  const [currentPart, setcurrentPart] = useState<DetailsNoticePartsEnum>(DetailsNoticePartsEnum.INFORMATIONS_GENERALES);
+  const [isAdvanced, setIsAdvanced] = useState<boolean>(true); //TODO go back false
   const onSwitchAdvanced = useCallback(
     (enabled: boolean) => {
       setIsAdvanced(enabled);
@@ -80,7 +86,7 @@ function SwitchNotice({
           ? TagTypeEnum.PEDIATRIC_INDICATION
           : (isPregnancyAlert 
             ? TagTypeEnum.PREGNANCY 
-            : (isDelivrance 
+            : (!!delivrance.length 
               ? TagTypeEnum.PRESCRIPTION 
               : (!!SpecGeneId 
                 ? TagTypeEnum.GENERIC 
@@ -113,7 +119,9 @@ function SwitchNotice({
           />
         </ToggleSwitchContainer>
         {isAdvanced 
-          ? <span>Infos avancées</span>
+          ? <section>
+              <DetailedSubMenu updateVisiblePart={setcurrentPart}/>
+            </section>
           : <section className={fr.cx("fr-mb-4w")}>
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                 <TagContainer category="Sous-classe">
@@ -132,7 +140,7 @@ function SwitchNotice({
                     <GenericTag specGeneId={SpecGeneId} />
                   </TagContainer>
                 )}
-                {isDelivrance && (
+                {!!delivrance.length && (
                   <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRESCRIPTION}>
                     <PrescriptionTag />
                   </TagContainer>
@@ -151,7 +159,18 @@ function SwitchNotice({
           }
       </ContentContainer>
       {isAdvanced 
-        ? <span>Infos avancées</span>
+        ? <DetailedNotice 
+            currentVisiblePart={currentPart}
+            CIS={CIS}
+            atcCode={atcCode}
+            composants={composants}
+            isPrinceps={isPrinceps}
+            SpecGeneId={SpecGeneId}
+            delivrance={delivrance}
+            isPregnancyAlert={isPregnancyAlert}
+            pediatrics={pediatrics}
+            presentations={presentations}
+          />
         : leaflet && 
           <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
             <article>
