@@ -32,7 +32,7 @@ function DocumentHas({
         <h2 className={fr.cx("fr-h6")}>Documents de bon usage</h2>
         <DocBonUsage className={fr.cx("fr-text--sm")}>
           <Link href="#" target="_blank" className={fr.cx("fr-mb-2w")}>
-            Choix et durée de l'antibiothérapie : Femme enceine : colonisation urinaire et cystite
+            {"Choix et durée de l'antibiothérapie : Femme enceine : colonisation urinaire et cystite"}
           </Link>
           <div className={fr.cx("fr-mt-1w")}>
             <i className={fr.cx("fr-text--xs", "fr-mb-0")}>Octobre 2016</i>
@@ -41,7 +41,7 @@ function DocumentHas({
         </DocBonUsage>
         <DocBonUsage>
           <Link href="#" target="_blank" className={fr.cx("fr-text--sm")}>
-            Choix et durée de l'antibiothérapie : Cystite aiguë simple, à risque de complication ou récidivante, de la femme
+            {"Choix et durée de l'antibiothérapie : Cystite aiguë simple, à risque de complication ou récidivante, de la femme"}
           </Link>
           <div className={fr.cx("fr-mt-1w")}>
             <i className={fr.cx("fr-text--xs", "fr-mb-0")}>Octobre 2016</i>
@@ -53,9 +53,9 @@ function DocumentHas({
       <ContentContainer id="document-has-smr" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Service médical rendu (SMR)</h2>
         <div className={fr.cx("fr-text--sm", "fr-mb-0")}>
-          Les libellés affichés ci-dessous ne sont que des résumés ou extraits issus des avis rendus par la Commission de la Transparence. Seul l'avis complet de la Commission de la Transparence fait référence.
+          {" Les libellés affichés ci-dessous ne sont que des résumés ou extraits issus des avis rendus par la Commission de la Transparence. Seul l'avis complet de la Commission de la Transparence fait référence."}
           <br/><br/>
-          Cet avis est consultable à partir du lien "Avis du jj/mm/aaaa" ou encore sur demande auprès de la HAS (<Link href="#" target="_blank">plus d'informations dans l'aide</Link>). Les avis et synthèses d'avis contiennent un paragraphe sur la place du médicament dans la stratégie thérapeutique.
+          {"Cet avis est consultable à partir du lien \"Avis du jj/mm/aaaa\" ou encore sur demande auprès de la HAS ("}<Link href="#" target="_blank">{"plus d'informations dans l'aide"}</Link>{"). Les avis et synthèses d'avis contiennent un paragraphe sur la place du médicament dans la stratégie thérapeutique."}
           <br/>
           <Table
             headers={[
@@ -79,7 +79,7 @@ function DocumentHas({
       <ContentContainer id="document-has-asmr" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Amélioration du service médical rendu (ASMR)</h2>
         <div className={fr.cx("fr-text--sm", "fr-mb-0")}>
-          Ce médicament étant un générique, l'ASMR n'a pas été évalué par la commission de la transparence (CT), il est possible de se référer à la /aux spécialité(s) de référence du groupe générique auquel appartient ce médicament (<Link href="#" target="_blank">cliquez ici pour aller à la rubrique des groupes génériques</Link>)
+          {"Ce médicament étant un générique, l'ASMR n'a pas été évalué par la commission de la transparence (CT), il est possible de se référer à la /aux spécialité(s) de référence du groupe générique auquel appartient ce médicament ("}<Link href="#" target="_blank">cliquez ici pour aller à la rubrique des groupes génériques</Link>{")"}
         </div>
       </ContentContainer>
     </>
