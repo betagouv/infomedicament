@@ -1,0 +1,147 @@
+import { HTMLAttributes, useState } from "react";
+import Link from "next/link";
+import { fr } from "@codegouvfr/react-dsfr";
+import { SearchMedicamentGroup } from "@/types/SearchType";
+import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
+import styled, {css} from 'styled-components';
+import Button from "@codegouvfr/react-dsfr/Button";
+
+const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
+  padding: 1rem;
+  ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
+    border-bottom: var(--border-open-blue-france) 1px solid;
+    background-color: var(--background-alt-grey);
+    border-radius: 8px 8px 0 0;
+  `}
+`;
+
+const Container = styled.div`
+  border: var(--border-open-blue-france) 1px solid;
+  border-radius: 8px;
+  ${GreyContainer}:hover{
+    background-color: var(--background-alt-grey);
+    border-radius: 8px;
+    cursor: pointer;
+  }
+`;
+
+const WhiteContainer = styled.div`
+  padding: 1rem;
+`;
+const DetailsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+const SpecName = styled.span`
+  color: var(--grey-200-850);
+`;
+const SpecLength = styled.span`
+  color: var(--text-default-info);
+`;
+const GreyText = styled.span`
+  color: var(--text-mention-grey);
+`;
+const DarkGreyText = styled.span`
+  color: var(--text-title-grey);
+`;
+const RedText = styled.span`
+  color: var(--text-default-warning);
+`;
+const GreenText = styled.span`
+  color: var(--text-default-success);
+`;
+const YellowText = styled.span`
+  color: var(--yellow-tournesol-main-731);
+`;
+interface AccordionResultBlockProps extends HTMLAttributes<HTMLDivElement> {
+  item: SearchMedicamentGroup;
+  filterPregnancy: boolean;
+  filterPediatric: boolean;
+}
+
+//For now only for type === SearchTypeEnum.MEDGROUP
+function AccordionResultBlock({
+  item,
+  filterPregnancy,
+  filterPediatric
+}: AccordionResultBlockProps) {
+
+  const specialites = item.specialites;
+  const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(false);
+
+  return (
+    <Container className={fr.cx("fr-mb-3w")}>
+      <GreyContainer 
+        $isDetailsVisible={isDetailsVisible}
+        onClick={() => setIsDetailsVisible(!isDetailsVisible)}
+      >
+        <div>
+          <SpecName className={fr.cx("fr-h5", "fr-mr-2w")}>{formatSpecName(item.groupName)}</SpecName>
+          <SpecLength>{specialites.length} {specialites.length > 1 ? "médicaments" : "médicament"}</SpecLength>
+        </div>
+        <DetailsContainer>
+          <div>
+            <span className={fr.cx("fr-text--xs", "fr-mr-2w")}>
+              <GreyText>Classe</GreyText>&nbsp;
+              <DarkGreyText>{item.atc1.label}&nbsp;{'>'}&nbsp;{item.atc2.label}</DarkGreyText>
+            </span>
+            <span className={fr.cx("fr-text--xs")}>
+              <GreyText>Substance&nbsp;active</GreyText>&nbsp;
+              <DarkGreyText>
+                {displaySimpleComposants(item.composants)
+                  .map((s) => s.NomLib.trim())
+                  .join(", ")}
+              </DarkGreyText>
+            </span>
+            {((filterPregnancy && item.pregnancyAlert) || (filterPediatric && item.pediatrics)) && (
+              <div>
+                {(filterPregnancy && item.pregnancyAlert) && (
+                  <RedText className={fr.cx("fr-text--xs", "fr-mr-2w")}>Contre-indication grossesse pour certains des médicaments</RedText>
+                )}
+                {(filterPediatric && item.pediatrics) && (
+                  <>
+                    {item.pediatrics.indication && (
+                      <GreenText className={fr.cx("fr-text--xs", "fr-mr-2w")}>Peut être utilisé chez l&apos;enfant selon l&apos;âge</GreenText>
+                    )}
+                    {item.pediatrics.contraindication && (
+                      <RedText className={fr.cx("fr-text--xs", "fr-mr-2w")}>Contre-indiqué pour un enfant selon l&apos;âge</RedText>                    
+                    )}
+                    {item.pediatrics.doctorAdvice && (
+                      <YellowText className={fr.cx("fr-text--xs", "fr-mr-2w")}>Utilisation chez l&apos;enfant sur avis d&apos;un professionnel de santé</YellowText>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+          <Button
+            iconId={isDetailsVisible ? "fr-icon-arrow-up-s-line" : "fr-icon-arrow-down-s-line"}
+            onClick={() => setIsDetailsVisible(!isDetailsVisible)}
+            priority="tertiary no outline"
+            title="Liens vers les notices"
+          />
+        </DetailsContainer>
+      </GreyContainer>
+      {isDetailsVisible && (
+        <WhiteContainer>
+          <GreyText className={fr.cx("fr-text--xs")}>Consultez la notice de :</GreyText>
+          <ul className={fr.cx("fr-raw-list", "fr-pl-3w")}>
+            {specialites?.map((specialite, i) => (
+              <li key={i} className={fr.cx("fr-mb-1v")}>
+                <Link
+                  href={`/medicaments/${specialite.SpecId}`}
+                  className={fr.cx("fr-text--sm", "fr-link")}
+                >
+                  {formatSpecName(specialite.SpecDenom01)}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </WhiteContainer>
+      )}
+    </Container>
+  );
+};
+
+export default AccordionResultBlock;
