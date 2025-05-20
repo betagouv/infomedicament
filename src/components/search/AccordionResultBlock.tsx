@@ -6,15 +6,6 @@ import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
 import styled, {css} from 'styled-components';
 import Button from "@codegouvfr/react-dsfr/Button";
 
-const Container = styled.div`
-  border: var(--border-open-blue-france) 1px solid;
-  border-radius: 8px;
-  :hover{
-    background-color: var(--background-alt-grey);
-    border-radius: 8px;
-    cursor: pointer;
-  }
-`;
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   padding: 1rem;
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
@@ -23,6 +14,17 @@ const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
     border-radius: 8px 8px 0 0;
   `}
 `;
+
+const Container = styled.div`
+  border: var(--border-open-blue-france) 1px solid;
+  border-radius: 8px;
+  ${GreyContainer}:hover{
+    background-color: var(--background-alt-grey);
+    border-radius: 8px;
+    cursor: pointer;
+  }
+`;
+
 const WhiteContainer = styled.div`
   padding: 1rem;
 `;
@@ -48,6 +50,9 @@ const RedText = styled.span`
 `;
 const GreenText = styled.span`
   color: var(--text-default-success);
+`;
+const YellowText = styled.span`
+  color: var(--yellow-tournesol-main-731);
 `;
 interface AccordionResultBlockProps extends HTMLAttributes<HTMLDivElement> {
   item: SearchMedicamentGroup;
@@ -103,9 +108,7 @@ function AccordionResultBlock({
                       <RedText className={fr.cx("fr-text--xs", "fr-mr-2w")}>Contre-indiqué pour un enfant selon l&apos;âge</RedText>                    
                     )}
                     {item.pediatrics.doctorAdvice && (
-                      <span className={fr.cx("fr-text--xs", "fr-mr-2w")}>
-                        Utilisation chez l&apos;enfant sur avis d&apos;un professionnel de santé
-                      </span>
+                      <YellowText className={fr.cx("fr-text--xs", "fr-mr-2w")}>Utilisation chez l&apos;enfant sur avis d&apos;un professionnel de santé</YellowText>
                     )}
                   </>
                 )}
