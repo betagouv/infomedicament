@@ -90,6 +90,21 @@ function GeneralInformations({
   ...props 
 }: GeneralInformationsProps) {
 
+  function formatCIS(CIS: string): string {
+    const cutting = [1, 3, 3, 1];
+    let next = CIS.length - cutting[0];
+    let finalCIS = CIS.substring(next);
+    for(let i = 1; i < cutting.length; i++){
+      let newNext = next - cutting[i];
+      if(next !== 0 && next !== newNext){
+        if(newNext < 0) newNext = 0;
+        finalCIS = CIS.substring(newNext, next) + " " + finalCIS;
+        next = newNext;
+      }
+    }
+    return finalCIS;
+  }
+
   return (
     <>
       <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
@@ -97,7 +112,7 @@ function GeneralInformations({
         <SummaryLineContainer>
           <ContentContainer className={fr.cx("fr-col-3")}>
             <SummaryCat className={fr.cx("fr-mr-1w")}>CIS</SummaryCat>
-            {CIS} TODO format
+            {formatCIS(CIS)}
           </ContentContainer>
           <ContentContainer className={fr.cx("fr-col-9")}>
             <SummaryCat className={fr.cx("fr-mr-1w")}>ATC</SummaryCat>
