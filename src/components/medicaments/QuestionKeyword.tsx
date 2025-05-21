@@ -1,5 +1,3 @@
-import { fr } from "@codegouvfr/react-dsfr";
-
 function QuestionKeyword({
   keyword,
   questionId,

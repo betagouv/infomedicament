@@ -25,6 +25,7 @@ import QuestionsBox from "./QuestionsBox";
 import LeafletContainer from "./LeafletContainer";
 import QuestionKeywordsBox from "./QuestionKeywordsBox";
 import { questionsList } from "@/data/pages/notices_anchors";
+import GoTopButton from "../generic/GoTopButton";
 
 const ToggleSwitchContainer = styled.div `
   background-color: var(--background-contrast-info);
@@ -240,6 +241,7 @@ function SwitchNotice({
                 </LeafletContainer>
               </ContentContainer>
             </article>
+            <GoTopButton />
           </ContentContainer>
       }
     </Container>

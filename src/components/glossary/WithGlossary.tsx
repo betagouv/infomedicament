@@ -37,7 +37,7 @@ function withKeyword(
 ): (React.JSX.Element | string)[] {
   const match = text.match(
     new RegExp(
-      `(?<before>.*)(?<word>${escapeRegExp(keyword.toLowerCase())}s?)(?<after>.*)`,
+      `(?<before>.*\\b)(?<word>${escapeRegExp(keyword.toLowerCase())}s?)(?<after>\\b.*)`, //8 - KO les accents
       "i",
     ),
   );

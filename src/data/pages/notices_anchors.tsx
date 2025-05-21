@@ -120,6 +120,7 @@ export const questionsList: QuestionsListFormat = {
     ),
     keywords: [
       "Grossesse, allaitement et fertilité",
+      "Grossesse et allaitement",
       "Grossesse",
       "Allaitement",
       "Fertilité",
