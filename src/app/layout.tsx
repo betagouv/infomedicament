@@ -23,6 +23,7 @@ import {
   FooterConsentManagementItem,
   FooterPersonalDataPolicyItem,
 } from "@/consentManagement";
+import ThemeProvider from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Info Médicament",
@@ -37,6 +38,7 @@ export default async function RootLayout({
 }>) {
   const lang = "fr";
   return (
+    <ThemeProvider>
     <html {...getHtmlAttributes({ defaultColorScheme, lang })}>
       <head>
         {process.env.NEXT_PUBLIC_HOTJAR_SITE_ID && <StartHotjar />}
@@ -108,6 +110,6 @@ export default async function RootLayout({
           </MuiDsfrThemeProvider>
         </DsfrProvider>
       </body>
-    </html>
+    </html></ThemeProvider>
   );
 }
