@@ -180,11 +180,17 @@ const documentHASMenu: SubMenuType[] = [
 ];
 
 const Container = styled.div `
+  display: contents;
+  
   .fr-accordion .fr-collapse--expanded{
     padding-top: 0rem;
   }
   .fr-accordion .fr-collapse:not(.fr-collapse--expanded){
     color: red
+  }
+  .fr-sidemenu {
+    width: 100%;
+    padding-right: 0px;
   }
 `;
 
@@ -230,7 +236,9 @@ function DetailedSubMenu(
     <Container {...props}>
       <SideMenu
         align="left"
-        burgerMenuButtonText="Dans cette rubrique"
+        burgerMenuButtonText="Version détaillée"
+        sticky
+        className="detailed-side-menu"
         items={[
           {
             expandedByDefault: true,
@@ -258,7 +266,7 @@ function DetailedSubMenu(
             items: getSubMenu(documentHASMenu),
           }
         ]}
-    />
+      />
     </Container>
   );
 };

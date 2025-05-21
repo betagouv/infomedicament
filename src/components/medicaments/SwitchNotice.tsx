@@ -68,7 +68,7 @@ function SwitchNotice({
 }: PropsWithChildren<OwnProps>) {
 
   const [currentPart, setcurrentPart] = useState<DetailsNoticePartsEnum>(DetailsNoticePartsEnum.INFORMATIONS_GENERALES);
-  const [isAdvanced, setIsAdvanced] = useState<boolean>(true); //TODO go back false
+  const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
   const onSwitchAdvanced = useCallback(
     (enabled: boolean) => {
       setIsAdvanced(enabled);
@@ -119,9 +119,7 @@ function SwitchNotice({
           />
         </ToggleSwitchContainer>
         {isAdvanced 
-          ? <section>
-              <DetailedSubMenu updateVisiblePart={setcurrentPart}/>
-            </section>
+          ? <DetailedSubMenu updateVisiblePart={setcurrentPart}/>
           : <section className={fr.cx("fr-mb-4w")}>
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                 <TagContainer category="Sous-classe">
