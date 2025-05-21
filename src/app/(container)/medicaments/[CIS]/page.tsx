@@ -294,10 +294,11 @@ export default async function Page(props: {
             <SwitchNotice 
               CIS={CIS}
               atc2={atc2}
+              atcCode={atcCode}
               composants={composants}
               isPrinceps={isPrinceps}
               SpecGeneId={specialite.SpecGeneId}
-              isDelivrance={!!delivrance.length}
+              delivrance={delivrance}
               isPregnancyAlert={!!pregnancyAlert}
               pediatrics={pediatrics}
               presentations={presentations}
