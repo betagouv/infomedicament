@@ -11,8 +11,8 @@ export const AppGlobalStyle = createGlobalStyle`
     html {
       scroll-behavior: auto;
     }
-    .mobile-display-unset{
-      display: unset;
+    .mobile-display-contents{
+      display: contents;
     }
   }
 
