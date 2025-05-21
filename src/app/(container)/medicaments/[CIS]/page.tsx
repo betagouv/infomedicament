@@ -258,64 +258,62 @@ export default async function Page(props: {
               fr.colors.decisions.background.alt.grey.default,
           }}>
         <ContentContainer frContainer>
-          <div className={["mobile-display-unset", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ",)}>
-            {(pregnancyAlert || pediatrics?.contraindication )&& (
-              <ContentContainer className={fr.cx("fr-col-12", "fr-mb-2w")}>
-                {pregnancyAlert && (
-                  <ContentContainer whiteContainer className={fr.cx("fr-mb-2w")}>
-                    <Alert
-                      severity={"warning"}
-                      title={"Contre-indication grossesse"}
-                      description={
-                        <p>
-                          Ce médicament est contre-indiqué si vous êtes enceinte ou
-                          prévoyez de l’être. Demandez conseil à votre médecin avant de
-                          prendre ou d’arrêter ce médicament.
-                          <br />
-                          <a target="_blank" href={pregnancyAlert.link}>
-                            En savoir plus sur le site de l’ANSM
-                          </a>
-                        </p>
-                      }
-                    />
-                  </ContentContainer>
-                )}
-                {pediatrics?.contraindication && (
-                  <ContentContainer whiteContainer>
-                    <Alert
-                      severity={"warning"}
-                      title={
-                        "Il existe une contre-indication pédiatrique (vérifier selon l’âge)."
-                      }
-                    />
-                  </ContentContainer>
-                )}
-              </ContentContainer>
-            )}
-            <SwitchNotice 
-              CIS={CIS}
-              atc2={atc2}
-              composants={composants}
-              isPrinceps={isPrinceps}
-              SpecGeneId={specialite.SpecGeneId}
-              isDelivrance={!!delivrance.length}
-              isPregnancyAlert={!!pregnancyAlert}
-              pediatrics={pediatrics}
-              presentations={presentations}
-              leaflet={leaflet && 
-                <>
-                  <DsfrLeafletSection data={leaflet.generalities} />
-                  <DsfrLeafletSection data={leaflet.usage} />
-                  <DsfrLeafletSection data={leaflet.warnings} />
-                  <DsfrLeafletSection data={leaflet.howTo} />
-                  <DsfrLeafletSection data={leaflet.sideEffects} />
-                  <DsfrLeafletSection data={leaflet.storage} />
-                  <DsfrLeafletSection data={leaflet.composition} /> 
-                </>
-              }
-              leafletMaj={leaflet?.maj}
-            />
-          </div>
+          {(pregnancyAlert || pediatrics?.contraindication )&& (
+            <ContentContainer className={fr.cx("fr-col-12", "fr-mb-2w")}>
+              {pregnancyAlert && (
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-2w")}>
+                  <Alert
+                    severity={"warning"}
+                    title={"Contre-indication grossesse"}
+                    description={
+                      <p>
+                        Ce médicament est contre-indiqué si vous êtes enceinte ou
+                        prévoyez de l’être. Demandez conseil à votre médecin avant de
+                        prendre ou d’arrêter ce médicament.
+                        <br />
+                        <a target="_blank" href={pregnancyAlert.link}>
+                          En savoir plus sur le site de l’ANSM
+                        </a>
+                      </p>
+                    }
+                  />
+                </ContentContainer>
+              )}
+              {pediatrics?.contraindication && (
+                <ContentContainer whiteContainer>
+                  <Alert
+                    severity={"warning"}
+                    title={
+                      "Il existe une contre-indication pédiatrique (vérifier selon l’âge)."
+                    }
+                  />
+                </ContentContainer>
+              )}
+            </ContentContainer>
+          )}
+          <SwitchNotice 
+            CIS={CIS}
+            atc2={atc2}
+            composants={composants}
+            isPrinceps={isPrinceps}
+            SpecGeneId={specialite.SpecGeneId}
+            isDelivrance={!!delivrance.length}
+            isPregnancyAlert={!!pregnancyAlert}
+            pediatrics={pediatrics}
+            presentations={presentations}
+            leaflet={leaflet && 
+              <>
+                <DsfrLeafletSection data={leaflet.generalities} />
+                <DsfrLeafletSection data={leaflet.usage} />
+                <DsfrLeafletSection data={leaflet.warnings} />
+                <DsfrLeafletSection data={leaflet.howTo} />
+                <DsfrLeafletSection data={leaflet.sideEffects} />
+                <DsfrLeafletSection data={leaflet.storage} />
+                <DsfrLeafletSection data={leaflet.composition} /> 
+              </>
+            }
+            leafletMaj={leaflet?.maj}
+          />
         </ContentContainer>
       </ContentContainer>
       <Button

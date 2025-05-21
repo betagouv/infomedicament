@@ -19,7 +19,7 @@ import { PresentationsList } from "../PresentationsList";
 import { Nullable } from "kysely";
 import { PresentationDetail } from "@/db/types";
 import { HTMLAttributes, useCallback, useState } from "react";
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import QuestionsBox from "./QuestionsBox";
 import LeafletContainer from "./LeafletContainer";
@@ -43,6 +43,15 @@ const NoticeTitle = styled.div `
   @media (max-width: 48em) {
     flex-direction: column;
     align-items: start;
+  }
+`;
+const Container = styled.div `
+  margin-top: 1rem;
+  @media (max-width: 48em) {
+    margin-top: 0rem;
+    .fr-mb-4w{
+      margin-bottom: 1rem !important;
+    }
   }
 `;
 
@@ -130,8 +139,8 @@ function SwitchNotice({
   );
 
   return (
-    <>
-      <ContentContainer className={["mobile-display-unset", fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")].join(" ",)}>
+    <Container className={["mobile-display-contents", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ",)}>
+      <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")].join(" ",)}>
         <ToggleSwitchContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <ToggleSwitch 
             label="Version détaillée"
@@ -148,7 +157,7 @@ function SwitchNotice({
         </ToggleSwitchContainer>
         {isAdvanced 
           ? <span>Infos avancées</span>
-          : <section className={["mobile-display-unset", fr.cx("fr-mb-4w")].join(" ",)}>
+          : <section className={["mobile-display-contents", fr.cx("fr-mb-4w")].join(" ",)}>
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                 <TagContainer category="Sous-classe">
                   <ClassTag atc2={atc2} />
@@ -200,7 +209,7 @@ function SwitchNotice({
       {isAdvanced 
         ? <span>Infos avancées</span>
         : leaflet && 
-          <ContentContainer className={["mobile-display-unset", fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")].join(" ",)}>
+          <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")].join(" ",)}>
             <article>
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
                 <NoticeTitle className={fr.cx("fr-mb-3w")}>
@@ -233,7 +242,7 @@ function SwitchNotice({
             </article>
           </ContentContainer>
       }
-    </>
+    </Container>
   );
 };
 
