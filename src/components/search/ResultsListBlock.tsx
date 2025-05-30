@@ -24,16 +24,18 @@ interface ResultsListBlockProps extends HTMLAttributes<HTMLDivElement> {
   type: SearchTypeEnum;
   filterPregnancy: boolean;
   filterPediatric: boolean;
+  isAllList: boolean;
+  setFilterCategory: (filterCategory: SearchTypeEnum | boolean) => void;
 }
 
 function ResultsListBlock({
   dataList,
   type,
   filterPregnancy,
-  filterPediatric
+  filterPediatric, 
+  isAllList,
+  setFilterCategory
 }: ResultsListBlockProps) {
-
-  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   return (
     <div className={fr.cx("fr-mb-8w")}>
@@ -42,7 +44,7 @@ function ResultsListBlock({
         <ResultNumber className={fr.cx("fr-h5")}>{dataList.length}</ResultNumber>
       </div>
       {dataList.map((data, index) => {
-        if((!isOpen && index < 4) || isOpen) {
+        if((isAllList && index < 4) || !isAllList) {
           return (
             <Fragment key={index}>
               {type === SearchTypeEnum.MEDGROUP 
@@ -62,19 +64,14 @@ function ResultsListBlock({
           )
         }
       })}
-      {dataList.length > 4 && (
+      {(isAllList && dataList.length > 4) && (
         <TagContainer>
           <Tag
-            pressed={isOpen}
             nativeButtonProps={{
-              onClick: () => setIsOpen(!isOpen)
+              onClick: () => setFilterCategory(type)
             }}
           >
-            {!isOpen ? (
-              <span>Voir tout&nbsp;({dataList.length})</span>
-            ) : (
-              <span>Voir moins</span>
-            )}
+            <span>Voir tout&nbsp;({dataList.length})</span>
           </Tag>
         </TagContainer>
       )}

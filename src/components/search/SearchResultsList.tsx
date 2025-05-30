@@ -139,6 +139,8 @@ function SearchResultsList({
                   type={type}
                   filterPregnancy={filterPregnancy}
                   filterPediatric={filterPediatric}
+                  isAllList={!filterCategory}
+                  setFilterCategory={setFilterCategory}
                 />
               )
             }
