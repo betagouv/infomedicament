@@ -1,3 +1,5 @@
+"use client";
+
 import { HTMLAttributes, useState } from "react";
 import Link from "next/link";
 import { fr } from "@codegouvfr/react-dsfr";
@@ -54,8 +56,8 @@ const YellowText = styled.span`
 `;
 interface AccordionResultBlockProps extends HTMLAttributes<HTMLDivElement> {
   item: SearchMedicamentGroup;
-  filterPregnancy: boolean;
-  filterPediatric: boolean;
+  filterPregnancy?: boolean;
+  filterPediatric?: boolean;
 }
 
 //For now only for type === SearchTypeEnum.MEDGROUP

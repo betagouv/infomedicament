@@ -7,10 +7,11 @@ import Pagination from "@codegouvfr/react-dsfr/Pagination";
 
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
-import { MedGroupSpecListList } from "@/components/MedGroupSpecList";
 import { groupSpecialites } from "@/db/utils";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import ContentContainer from "@/components/generic/ContentContainer";
+import { getSearchMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/search";
+import AccordionResultBlock from "@/components/search/AccordionResultBlock";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -53,9 +54,11 @@ export default async function Page(props: {
   if (!specialites || !specialites.length) return notFound();
 
   const medicaments = groupSpecialites(specialites);
+  const detailedMedicaments = await getSearchMedicamentGroupListFromMedicamentGroupList(medicaments);
+  
   const pageCount =
-    Math.trunc(medicaments.length / PAGE_LENGTH) +
-    (medicaments.length % PAGE_LENGTH ? 1 : 0);
+    Math.trunc(detailedMedicaments.length / PAGE_LENGTH) +
+    (detailedMedicaments.length % PAGE_LENGTH ? 1 : 0);
 
   if (pageNumber < 1 || pageNumber > pageCount) return notFound();
 
@@ -73,12 +76,19 @@ export default async function Page(props: {
               letters={letters}
               url={(letter) => `/medicaments/${letter}/1`}
             />
-            <MedGroupSpecListList
-              items={medicaments.slice(
+            {detailedMedicaments.slice(
                 (pageNumber - 1) * PAGE_LENGTH,
                 pageNumber * PAGE_LENGTH,
-              )}
-            />
+              )
+              .map((data, index) => {
+                return (
+                  <AccordionResultBlock 
+                    key={index}
+                    item={data}
+                  />
+                )
+              })
+            }
             {pageCount > 1 && (
               <Pagination
                 count={pageCount}

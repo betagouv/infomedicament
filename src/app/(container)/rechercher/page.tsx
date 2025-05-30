@@ -39,6 +39,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
         });
       } else if("groupName" in result){
         //Med Group
+        //TODO await getSearchMedicamentGroupListFromMedicamentGroupList(medicaments);
         const CISList = result.specialites.map(spec => spec.SpecId);
         const atc = getAtcCode(result.specialites[0].SpecId);
         const { composants } = await getSpecialite(result.specialites[0].SpecId);
