@@ -5,10 +5,11 @@ import { Patho, Specialite } from "@/db/pdbmMySQL/types";
 import { groupSpecialites } from "@/db/utils";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { fr } from "@codegouvfr/react-dsfr";
-import { MedGroupSpecListList } from "@/components/MedGroupSpecList";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getPathologyDefinition } from "@/data/pathologies";
 import ContentContainer from "@/components/generic/ContentContainer";
+import { getSearchMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/search";
+import AccordionResultBlock from "@/components/search/AccordionResultBlock";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -44,6 +45,8 @@ export default async function Page(props: {
   const definition = await getPathologyDefinition(code);
   const specialites = await getPathoSpecialites(code);
   const medicaments = groupSpecialites(specialites);
+  const detailedMedicaments = await getSearchMedicamentGroupListFromMedicamentGroupList(medicaments);
+  
   return (
     <ContentContainer frContainer>
       <Breadcrumb
@@ -68,7 +71,14 @@ export default async function Page(props: {
         {medicaments.length} médicaments traitant la pathologie «&nbsp;
         {patho.NomPatho}&nbsp;»
       </h2>
-      <MedGroupSpecListList items={medicaments} />
+      {detailedMedicaments.map((data, index) => {
+        return (
+          <AccordionResultBlock 
+            key={index}
+            item={data}
+          />
+        )
+      })}
     </ContentContainer>
   );
 }
