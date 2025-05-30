@@ -45,14 +45,14 @@ function ResultBlock({
   className,
 }: ResultBlockProps) {
   return (
-    <Container className={fr.cx("fr-mb-3w")}>
+    <Container className={fr.cx("fr-mb-1w")}>
       <Link
         href={link}
-        className={["result-link", fr.cx("fr-p-2w")].join(" ")}
+        className={["result-link", fr.cx("fr-p-1w")].join(" ")}
       >
-        {className && (<ClassTitle className={fr.cx("fr-h5")}>{className}{" > "}</ClassTitle>)}
-        <ResultTitle className={fr.cx("fr-h5", "fr-mr-2w")}>{specName}</ResultTitle>
-        {details && (<ResultDetails>{details}</ResultDetails>)}
+        {className && (<ClassTitle className={fr.cx("fr-text--md")}>{className}{" > "}</ClassTitle>)}
+        <ResultTitle className={fr.cx("fr-text--md", "fr-mr-2w")}>{specName}</ResultTitle>
+        {details && (<ResultDetails className={fr.cx("fr-text--sm")}>{details}</ResultDetails>)}
       </Link>
     </Container>
   );

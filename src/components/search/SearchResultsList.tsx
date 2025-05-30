@@ -26,8 +26,18 @@ const Container = styled.div `
 `;
 
 const SearchTitle = styled.h1 `
-  font-weight: normal !important;
   display: inline;
+  span {
+    font-weight: normal !important;
+  }
+  i {
+    font-weight: bold;
+  }
+`;
+
+const FiltersContainer = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 interface SearchResultsListProps extends HTMLAttributes<HTMLDivElement> {
@@ -74,17 +84,19 @@ function SearchResultsList({
       </div>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10", "fr-mb-2w")}>
-          <SearchTitle className={fr.cx("fr-h5", "fr-mb-0", "fr-mr-2w")}>
-            {totalResults} résultats pour :
+          <SearchTitle className={fr.cx("fr-text--md")}>
+            <span className={fr.cx("fr-mr-2w")}>
+              {totalResults} résultats pour :
+            </span>
+            <i>“{searchTerms}“</i>
           </SearchTitle>
-          <i className={fr.cx("fr-h5")}>“{searchTerms}“</i>
         </div>
       </div>
       {totalResults > 0 && (
         <div className={fr.cx("fr-grid-row", "fr-mb-5w")}>
-          <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
-            <span className={["display-inline", fr.cx("fr-mr-2w")].join(" ")}>Filtrer</span>
-            <ul className={["display-inline", fr.cx("fr-tags-group", "fr-mb-3w")].join(" ")}>
+          <FiltersContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
+            <span className={["display-inline", fr.cx("fr-mr-2w", "fr-text--md", "fr-mb-1w")].join(" ")}>Filtrer</span>
+            <ul className={["display-inline", fr.cx("fr-tags-group")].join(" ")}>
               <Tag
                 pressed={!filterCategory}
                 nativeButtonProps={{
@@ -112,7 +124,7 @@ function SearchResultsList({
                 }
                 })}
             </ul>
-          </div>
+          </FiltersContainer>
         </div>
       )}
       <div className={fr.cx("fr-grid-row")}>

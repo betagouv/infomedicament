@@ -7,7 +7,6 @@ import styled, {css} from 'styled-components';
 import Button from "@codegouvfr/react-dsfr/Button";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
-  padding: 1rem;
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
     border-bottom: var(--border-open-blue-france) 1px solid;
     background-color: var(--background-alt-grey);
@@ -25,9 +24,7 @@ const Container = styled.div`
   }
 `;
 
-const WhiteContainer = styled.div`
-  padding: 1rem;
-`;
+const WhiteContainer = styled.div``;
 const DetailsContainer = styled.div`
   display: flex;
   align-items: center;
@@ -35,6 +32,7 @@ const DetailsContainer = styled.div`
 `;
 const SpecName = styled.span`
   color: var(--grey-200-850);
+  font-weight: bold;
 `;
 const SpecLength = styled.span`
   color: var(--text-default-info);
@@ -71,22 +69,23 @@ function AccordionResultBlock({
   const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(false);
 
   return (
-    <Container className={fr.cx("fr-mb-3w")}>
+    <Container className={fr.cx("fr-mb-1w")}>
       <GreyContainer 
+        className={fr.cx("fr-p-1w")}
         $isDetailsVisible={isDetailsVisible}
         onClick={() => setIsDetailsVisible(!isDetailsVisible)}
       >
         <div>
-          <SpecName className={fr.cx("fr-h5", "fr-mr-2w")}>{formatSpecName(item.groupName)}</SpecName>
-          <SpecLength>{specialites.length} {specialites.length > 1 ? "médicaments" : "médicament"}</SpecLength>
+          <SpecName className={fr.cx("fr-text--md", "fr-mr-2w")}>{formatSpecName(item.groupName)}</SpecName>
+          <SpecLength className={fr.cx("fr-text--sm")}>{specialites.length} {specialites.length > 1 ? "médicaments" : "médicament"}</SpecLength>
         </div>
         <DetailsContainer>
           <div>
-            <span className={fr.cx("fr-text--xs", "fr-mr-2w")}>
+            <span className={fr.cx("fr-text--sm", "fr-mr-2w")}>
               <GreyText>Classe</GreyText>&nbsp;
               <DarkGreyText>{item.atc1.label}&nbsp;{'>'}&nbsp;{item.atc2.label}</DarkGreyText>
             </span>
-            <span className={fr.cx("fr-text--xs")}>
+            <span className={fr.cx("fr-text--sm")}>
               <GreyText>Substance&nbsp;active</GreyText>&nbsp;
               <DarkGreyText>
                 {displaySimpleComposants(item.composants)
@@ -97,18 +96,18 @@ function AccordionResultBlock({
             {((filterPregnancy && item.pregnancyAlert) || (filterPediatric && item.pediatrics)) && (
               <div>
                 {(filterPregnancy && item.pregnancyAlert) && (
-                  <RedText className={fr.cx("fr-text--xs", "fr-mr-2w")}>Contre-indication grossesse pour certains des médicaments</RedText>
+                  <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Contre-indication grossesse pour certains des médicaments</RedText>
                 )}
                 {(filterPediatric && item.pediatrics) && (
                   <>
                     {item.pediatrics.indication && (
-                      <GreenText className={fr.cx("fr-text--xs", "fr-mr-2w")}>Peut être utilisé chez l&apos;enfant selon l&apos;âge</GreenText>
+                      <GreenText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Peut être utilisé chez l&apos;enfant selon l&apos;âge</GreenText>
                     )}
                     {item.pediatrics.contraindication && (
-                      <RedText className={fr.cx("fr-text--xs", "fr-mr-2w")}>Contre-indiqué pour un enfant selon l&apos;âge</RedText>                    
+                      <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Contre-indiqué pour un enfant selon l&apos;âge</RedText>                    
                     )}
                     {item.pediatrics.doctorAdvice && (
-                      <YellowText className={fr.cx("fr-text--xs", "fr-mr-2w")}>Utilisation chez l&apos;enfant sur avis d&apos;un professionnel de santé</YellowText>
+                      <YellowText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Utilisation chez l&apos;enfant sur avis d&apos;un professionnel de santé</YellowText>
                     )}
                   </>
                 )}
@@ -124,9 +123,9 @@ function AccordionResultBlock({
         </DetailsContainer>
       </GreyContainer>
       {isDetailsVisible && (
-        <WhiteContainer>
-          <GreyText className={fr.cx("fr-text--xs")}>Consultez la notice de :</GreyText>
-          <ul className={fr.cx("fr-raw-list", "fr-pl-3w")}>
+        <WhiteContainer className={fr.cx("fr-p-1w")}>
+          <GreyText className={fr.cx("fr-text--sm")}>Consultez la notice de :</GreyText>
+          <ul className={fr.cx("fr-raw-list", "fr-pl-0")}>
             {specialites?.map((specialite, i) => (
               <li key={i} className={fr.cx("fr-mb-1v")}>
                 <Link
