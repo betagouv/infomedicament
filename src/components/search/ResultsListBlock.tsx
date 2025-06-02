@@ -28,6 +28,13 @@ interface ResultsListBlockProps extends HTMLAttributes<HTMLDivElement> {
   setFilterCategory: (filterCategory: SearchTypeEnum | boolean) => void;
 }
 
+const blockTitlesPlural = {
+  [SearchTypeEnum.MEDGROUP]: "Médicaments",
+  [SearchTypeEnum.SUBSTANCE]: "Substances actives",
+  [SearchTypeEnum.ATCCLASS]: "Classes et sous-classes",
+  [SearchTypeEnum.PATHOLOGY]: "Pathologies",
+}
+
 function ResultsListBlock({
   dataList,
   type,
@@ -40,7 +47,9 @@ function ResultsListBlock({
   return (
     <div className={fr.cx("fr-mb-8w")}>
       <div className={fr.cx("fr-mb-1w")}>
-        <span className={fr.cx("fr-h5")}>{type}</span>{" "}
+        <span className={fr.cx("fr-h5")}>
+          {dataList.length > 1 ? blockTitlesPlural[type] : type}
+        </span>{" "}
         <ResultNumber className={fr.cx("fr-h5")}>{dataList.length}</ResultNumber>
       </div>
       {dataList.map((data, index) => {
