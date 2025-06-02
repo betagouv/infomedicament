@@ -10,8 +10,8 @@ import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { groupSpecialites } from "@/db/utils";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import ContentContainer from "@/components/generic/ContentContainer";
-import { getSearchMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/search";
 import AccordionResultBlock from "@/components/search/AccordionResultBlock";
+import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -54,7 +54,7 @@ export default async function Page(props: {
   if (!specialites || !specialites.length) return notFound();
 
   const medicaments = groupSpecialites(specialites);
-  const detailedMedicaments = await getSearchMedicamentGroupListFromMedicamentGroupList(medicaments);
+  const detailedMedicaments = await getAdvancedMedicamentGroupListFromMedicamentGroupList(medicaments);
   
   const pageCount =
     Math.trunc(detailedMedicaments.length / PAGE_LENGTH) +

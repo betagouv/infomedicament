@@ -8,8 +8,8 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getPathologyDefinition } from "@/data/pathologies";
 import ContentContainer from "@/components/generic/ContentContainer";
-import { getSearchMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/search";
 import AccordionResultBlock from "@/components/search/AccordionResultBlock";
+import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -45,7 +45,7 @@ export default async function Page(props: {
   const definition = await getPathologyDefinition(code);
   const specialites = await getPathoSpecialites(code);
   const medicaments = groupSpecialites(specialites);
-  const detailedMedicaments = await getSearchMedicamentGroupListFromMedicamentGroupList(medicaments);
+  const detailedMedicaments = await getAdvancedMedicamentGroupListFromMedicamentGroupList(medicaments);
   
   return (
     <ContentContainer frContainer>

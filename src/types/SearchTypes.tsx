@@ -1,6 +1,6 @@
 import { ATC, ATC1 } from "@/data/grist/atc";
-import { PediatricsInfo } from "@/data/grist/pediatrics";
-import { Patho, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { Patho, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { AdvancedMedicamentGroup } from "./MedicamentTypes";
 
 export enum SearchTypeEnum {
   MEDGROUP = "Médicament",
@@ -22,18 +22,8 @@ export type SearchATCClass = {
   subclasses: ATC[];
 };
 
-export type SearchMedicamentGroup = {
-  groupName: string; 
-  specialites: Specialite[];
-  atc1: ATC1;
-  atc2: ATC;
-  composants: any;
-  pregnancyAlert?: boolean;
-  pediatrics?: PediatricsInfo;
-};
-
 export type SearchResultData =
   | SearchSubstanceNom
-  | SearchMedicamentGroup
+  | AdvancedMedicamentGroup
   | SearchPatho
   | SearchATCClass;

@@ -12,7 +12,7 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import DefinitionBanner from "@/components/DefinitionBanner";
 import ContentContainer from "@/components/generic/ContentContainer";
 import AccordionResultBlock from "@/components/search/AccordionResultBlock";
-import { getSearchMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/search";
+import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -97,7 +97,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   const ids = decodeURIComponent(id).split(",");
   const { substances, specialites, definitions } = await getSubstance(ids);
   const specialitiesGroups = groupSpecialites(specialites);
-  const detailedSpecialitiesGroups = await getSearchMedicamentGroupListFromMedicamentGroupList(specialitiesGroups);
+  const detailedSpecialitiesGroups = await getAdvancedMedicamentGroupListFromMedicamentGroupList(specialitiesGroups);
 
   return (
     <ContentContainer frContainer>

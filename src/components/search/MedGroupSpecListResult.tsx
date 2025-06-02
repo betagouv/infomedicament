@@ -5,10 +5,10 @@ import Link from "next/link";
 import React, { HTMLAttributes } from "react";
 import ClassTag from "@/components/tags/ClassTag";
 import SubstanceTag from "@/components/tags/SubstanceTag";
-import { SearchMedicamentGroup } from "@/types/SearchType";
+import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 
 interface MedGroupSpecListResultProps extends HTMLAttributes<HTMLDivElement> {
-  item: SearchMedicamentGroup;
+  item: AdvancedMedicamentGroup;
 }
 
 function MedGroupSpecListResult({

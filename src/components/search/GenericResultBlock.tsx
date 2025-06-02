@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { HTMLAttributes } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
-import { SearchTypeEnum, SearchPatho, SearchSubstanceNom, SearchResultData, SearchATCClass } from "@/types/SearchType";
+import { SearchTypeEnum, SearchPatho, SearchSubstanceNom, SearchResultData, SearchATCClass } from "@/types/SearchTypes";
 import { formatSpecName } from "@/displayUtils";
 import styled from 'styled-components';
 import { ATC } from "@/data/grist/atc";

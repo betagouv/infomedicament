@@ -7,7 +7,7 @@ import { Checkbox } from "@codegouvfr/react-dsfr/Checkbox";
 import { 
   ExtendedSearchResults, 
   SearchTypeEnum,
-} from "@/types/SearchType";
+} from "@/types/SearchTypes";
 import styled from 'styled-components';
 import ResultsListBlock from "./ResultsListBlock";
 

@@ -3,10 +3,12 @@
 import { HTMLAttributes, useState } from "react";
 import Link from "next/link";
 import { fr } from "@codegouvfr/react-dsfr";
-import { SearchMedicamentGroup } from "@/types/SearchType";
 import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
 import styled, {css} from 'styled-components';
 import Button from "@codegouvfr/react-dsfr/Button";
+import PregnancyTag from "../tags/PregnancyTag";
+import PediatricsTags from "../tags/PediatricsTags";
+import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
@@ -55,7 +57,7 @@ const YellowText = styled.span`
   color: var(--yellow-tournesol-main-731);
 `;
 interface AccordionResultBlockProps extends HTMLAttributes<HTMLDivElement> {
-  item: SearchMedicamentGroup;
+  item: AdvancedMedicamentGroup;
   filterPregnancy?: boolean;
   filterPediatric?: boolean;
 }
@@ -136,6 +138,16 @@ function AccordionResultBlock({
                 >
                   {formatSpecName(specialite.SpecDenom01)}
                 </Link>
+                {((filterPregnancy && specialite.pregnancyAlert) || (filterPediatric && specialite.pediatrics)) && (
+                  <div>
+                    {(filterPregnancy && specialite.pregnancyAlert) && (
+                      <PregnancyTag />
+                    )}
+                    {(filterPediatric && specialite.pediatrics) && (
+                      <PediatricsTags info={specialite.pediatrics} />
+                    )}
+                  </div>
+                )}
               </li>
             ))}
           </ul>

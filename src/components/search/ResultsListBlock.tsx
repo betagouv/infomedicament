@@ -6,11 +6,11 @@ import Tag from "@codegouvfr/react-dsfr/Tag";
 import styled from 'styled-components';
 import { 
   SearchTypeEnum,
-  SearchMedicamentGroup,
   SearchResultData,
-} from "@/types/SearchType";
+} from "@/types/SearchTypes";
 import GenericResultBlock from "./GenericResultBlock";
 import AccordionResultBlock from "./AccordionResultBlock";
+import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 
 const TagContainer = styled.div `
   text-align: center;
@@ -50,7 +50,7 @@ function ResultsListBlock({
               {type === SearchTypeEnum.MEDGROUP 
               ? (
                 <AccordionResultBlock 
-                  item={data as SearchMedicamentGroup}
+                  item={data as AdvancedMedicamentGroup}
                   filterPregnancy={filterPregnancy}
                   filterPediatric={filterPediatric}
                 />

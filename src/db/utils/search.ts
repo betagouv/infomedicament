@@ -4,14 +4,10 @@ import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import db from "@/db";
 import { SearchResult } from "@/db/types";
 import { Expression, expressionBuilder, sql, SqlBool } from "kysely";
-import { getSpecialite, groupSpecialites, presentationIsComm } from "@/db/utils/index";
+import { groupSpecialites, presentationIsComm } from "@/db/utils/index";
 import { Patho, PdbmMySQL, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { unstable_cache } from "next/cache";
-import { ATC, ATC1, getAtc1, getAtc2, getAtcCode } from "@/data/grist/atc";
-import { MedicamentGroup } from "@/displayUtils";
-import { SearchMedicamentGroup } from "@/types/SearchType";
-import { getPediatricsForList } from "@/data/grist/pediatrics";
-import { getPregnancyAlerts } from "@/data/grist/pregnancy";
+import { ATC, ATC1, getAtc1, getAtc2 } from "@/data/grist/atc";
 
 export type SearchResultItem =
   | SubstanceNom
@@ -294,29 +290,3 @@ export const getSearchResults = unstable_cache(async function (
 
   return acc.sort((a, b) => b.score - a.score).map(({ item }) => item);
 });
-
-export async function getSearchMedicamentGroupListFromMedicamentGroupList(medGroupList: MedicamentGroup[]): Promise <SearchMedicamentGroup[]> {
-  const pregnancyAlerts = await getPregnancyAlerts();
-
-  return await Promise.all(
-    medGroupList.map(async (medGroup) => {
-      const [groupName, specialites] = medGroup;
-      const CISList = specialites.map(spec => spec.SpecId);
-      const atc = getAtcCode(specialites[0].SpecId);
-      const { composants } = await getSpecialite(specialites[0].SpecId);
-      const pregnancyAlert = pregnancyAlerts.find((s) =>
-        composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
-      );
-
-      return {
-        groupName: groupName, 
-        specialites: specialites,
-        atc1: await getAtc1(atc),
-        atc2: await getAtc2(atc),
-        composants: composants,
-        pregnancyAlert: !!pregnancyAlert,
-        pediatrics: await getPediatricsForList(CISList),
-      }
-    })
-  );
-}
