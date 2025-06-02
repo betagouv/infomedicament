@@ -108,7 +108,6 @@ function SearchResultsList({
               </Tag>
               {Object.keys(resultsList).map((key) => {
                 const type = key as SearchTypeEnum;
-                if(resultsList[type].length > 0) {
                   return (
                     <Tag
                       key={type}
@@ -121,7 +120,6 @@ function SearchResultsList({
                       {type}{" "}({resultsList[type].length})
                     </Tag>
                   )
-                }
                 })}
             </ul>
           </FiltersContainer>
