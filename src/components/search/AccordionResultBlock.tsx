@@ -56,6 +56,14 @@ const GreenText = styled.span`
 const YellowText = styled.span`
   color: var(--yellow-tournesol-main-731);
 `;
+const FiltersTagContainer = styled.div`
+  display: flex;
+  a{
+    margin-right: 0.5rem;
+    margin-top: 0.2rem;
+  }
+`;
+
 interface AccordionResultBlockProps extends HTMLAttributes<HTMLDivElement> {
   item: AdvancedMedicamentGroup;
   filterPregnancy?: boolean;
@@ -139,14 +147,14 @@ function AccordionResultBlock({
                   {formatSpecName(specialite.SpecDenom01)}
                 </Link>
                 {((filterPregnancy && specialite.pregnancyAlert) || (filterPediatric && specialite.pediatrics)) && (
-                  <div>
+                  <FiltersTagContainer>
                     {(filterPregnancy && specialite.pregnancyAlert) && (
                       <PregnancyTag />
                     )}
                     {(filterPediatric && specialite.pediatrics) && (
                       <PediatricsTags info={specialite.pediatrics} />
                     )}
-                  </div>
+                  </FiltersTagContainer>
                 )}
               </li>
             ))}
