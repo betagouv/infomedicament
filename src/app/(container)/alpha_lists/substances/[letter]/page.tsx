@@ -4,10 +4,13 @@ import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { fr } from "@codegouvfr/react-dsfr";
 import AlphabeticNav from "@/components/AlphabeticNav";
-import Link from "next/link";
 
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import ContentContainer from "@/components/generic/ContentContainer";
+import GenericResultBlock from "@/components/search/GenericResultBlock";
+import { SearchSubstanceNom, SearchTypeEnum } from "@/types/SearchTypes";
+import { getSubstanceSpecialites } from "@/db/utils/search";
+import { groupSpecialites } from "@/db/utils";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -57,6 +60,17 @@ export default async function Page(props: {
   const substances = await getSubstances(letter);
 
   if (!substances || !substances.length) return notFound();
+  
+  const detailedSubstances: SearchSubstanceNom[] = await Promise.all(
+    substances.map(async (substance) => {
+      const specialites = await getSubstanceSpecialites(substance.NomId);
+      const specialitiesGroups = groupSpecialites(specialites);
+      return {
+        nbSpecs: specialitiesGroups.length,
+        ...substance
+      };
+    })
+  );
 
   return (
     <ContentContainer frContainer>
@@ -72,18 +86,15 @@ export default async function Page(props: {
             letters={letters}
             url={(letter) => `/substances/${letter}`}
           />
-          <ul className={fr.cx("fr-raw-list")}>
-            {substances.map((substance, i) => (
-              <li key={i} className={fr.cx("fr-mb-1v")}>
-                <Link
-                  href={`/substances/${substance.NomId}`}
-                  className={fr.cx("fr-link")}
-                >
-                  {substance.NomLib}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {detailedSubstances.map((substance, index) => {
+            return (
+              <GenericResultBlock
+                type={SearchTypeEnum.SUBSTANCE}
+                key={index}
+                item={substance}
+              />
+            );
+          })}
         </div>
       </div>
     </ContentContainer>

@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { HTMLAttributes } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
@@ -110,7 +111,7 @@ function GenericResultBlock({
         link={getLink()}
         details={getDetails()}
       />
-      {type === SearchTypeEnum.ATCCLASS && (item as SearchATCClass).subclasses.length > 0 && (
+      {(type === SearchTypeEnum.ATCCLASS && (item as SearchATCClass).subclasses.length > 0) && (
         (item as SearchATCClass).subclasses.map((subclass: ATC, index) => (
           <ResultBlock
             key={index}
