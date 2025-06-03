@@ -4,10 +4,10 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import React, { useMemo } from "react";
 import useSWR from "swr";
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { fetchJSON } from '@/utils/network';
 import dynamic from "next/dynamic";
-const BarChart = dynamic(() => import("@codegouvfr/react-dsfr/Chart/BarChart"), {
+const MultiLineChart = dynamic(() => import("@codegouvfr/react-dsfr/Chart/MultiLineChart"), {
   ssr: false
 });
 
@@ -19,10 +19,25 @@ const Container = styled.div`
   margin-bottom: 32px;
 `;
 
+const GraphContainer = styled.div`
+  multiline-chart,
+  bar-chart{
+    max-height: 400px;
+    .chart .flex.fr-mt-3v.fr-mb-1v {
+      display: inline-flex;
+    }
+  }
+`;
+
 const Number = styled.div `
   color: var(--blue-cumulus-main-526);
   font-weight: bold;
 `;
+
+const dateFrom = {
+  year: 2024,
+  month: 10, //Novembre
+}
 
 const getYearsList = () => {
   const years = [];
@@ -64,7 +79,7 @@ const getFormattedData = (
   data: any,
   fieldName: string,
 ): any => {
-  const visits = Array.from({ length: yearsList.length }, (n, i) => [...new Array(12).fill(0)]);
+  const visits = Array.from({ length: yearsList.length }, (n, i) => [...new Array(12).fill("Non défini")]);
   if (!data) {
     return [];
   }
@@ -72,7 +87,7 @@ const getFormattedData = (
     const [year, month] = row.date?.split('-') || ['YYYY', 'MM'];
     const yearIndex = yearsList.findIndex((y: string) => {return y === year;} );
     const monthIndex = parseInt(month) - 1;
-    if(yearIndex !== -1 && monthIndex !== -1){
+    if(yearIndex !== -1 && monthIndex !== -1 && ((parseInt(year) === dateFrom.year && monthIndex >= dateFrom.month) || (parseInt(year) > dateFrom.year)) ){
       visits[yearIndex][monthIndex] = row[fieldName];
     }
   });
@@ -118,50 +133,54 @@ function Statistics() {
 
   return (
     <ContentContainer>
-      <Container>
-        <h2 className={fr.cx("fr-h4")}>Score de satisfaction (global)</h2>
-        <Number className={fr.cx("fr-h1")}>4,5/5</Number>
-        <>au 12 juin 2025</>
-      </Container>
-      <Container>
-        <>Au {lastDayLastMonth}</>
-        <h2 className={fr.cx("fr-h4")}>Nombre de requêtes</h2>
-        <Number className={fr.cx("fr-h1")}>{Math.round(averageDataSearches)}</Number>
-        <>en moyenne par mois depuis le 25 novembre 2024 <i>(jour ou mois ?)</i></>
-        <ContentContainer className={fr.cx("fr-p-2w", "fr-mt-2w")}>
-          <BarChart
-            x={[monthToString]}
-            y={formatedDataSearches}
-            name={yearsList}
-          />
-        </ContentContainer>
-      </Container>
-      <Container>
-      <>Au {lastDayLastMonth}</>
-        <h2 className={fr.cx("fr-h4")}>Nombre de visiteurs uniques</h2>
-        <Number className={fr.cx("fr-h1")}>{Math.round(averageDataVisits)}</Number>
-        <>en moyenne par mois depuis le 25 novembre 2024 <i>(jour ou mois ?)</i></>
-        <ContentContainer className={fr.cx("fr-p-2w", "fr-mt-2w")}>
-          <BarChart
-            x={[monthToString]}
-            y={formatedDataVisits}
-            name={yearsList}
-          />
-        </ContentContainer>
-      </Container>
-      <Container>
-      <>Au {lastDayLastMonth}</>
-        <h2 className={fr.cx("fr-h4")}>Nombre de pages visitées</h2>
-        <Number className={fr.cx("fr-h1")}>{Math.round(averageDataPageViews)}</Number>
-        <>en moyenne par mois depuis le 25 novembre 2024 <i>(jour ou mois ?)</i></>
-        <ContentContainer className={fr.cx("fr-p-2w", "fr-mt-2w")}>
-          <BarChart
-            x={[monthToString]}
-            y={formatedDataPageViews}
-            name={yearsList}
-          />
-        </ContentContainer>
-      </Container>
+      <div className={fr.cx("fr-grid-row")}>
+        <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
+          <Container>
+            <h2 className={fr.cx("fr-h4")}>Score de satisfaction (global)</h2>
+            <Number className={fr.cx("fr-h1")}>4,5/5</Number>
+            <>au 12 juin 2025</>
+          </Container>
+          <Container>
+            <>Au {lastDayLastMonth}</>
+            <h2 className={fr.cx("fr-h4")}>Nombre de requêtes</h2>
+            <Number className={fr.cx("fr-h1")}>{Math.round(averageDataSearches)}</Number>
+            <>en moyenne par mois depuis le 25 novembre 2024</>
+            <GraphContainer className={fr.cx("fr-p-2w", "fr-mt-2w")}>
+              <MultiLineChart
+                x={[monthToString]}
+                y={formatedDataSearches}
+                name={yearsList}
+              />
+            </GraphContainer>
+          </Container>
+          <Container>
+          <>Au {lastDayLastMonth}</>
+            <h2 className={fr.cx("fr-h4")}>Nombre de visiteurs uniques</h2>
+            <Number className={fr.cx("fr-h1")}>{Math.round(averageDataVisits)}</Number>
+            <>en moyenne par mois depuis le 25 novembre 2024</>
+            <GraphContainer className={fr.cx("fr-p-2w", "fr-mt-2w")}>
+              <MultiLineChart
+                x={[monthToString]}
+                y={formatedDataVisits}
+                name={yearsList}
+              />
+            </GraphContainer>
+          </Container>
+          <Container>
+          <>Au {lastDayLastMonth}</>
+            <h2 className={fr.cx("fr-h4")}>Nombre de pages visitées</h2>
+            <Number className={fr.cx("fr-h1")}>{Math.round(averageDataPageViews)}</Number>
+            <>en moyenne par mois depuis le 25 novembre 2024</>
+            <GraphContainer className={fr.cx("fr-p-2w", "fr-mt-2w")}>
+              <MultiLineChart
+                x={[monthToString]}
+                y={formatedDataPageViews}
+                name={yearsList}
+              />
+            </GraphContainer>
+          </Container>
+        </div>
+      </div>
     </ContentContainer>
   );
 };
