@@ -23,35 +23,46 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
     [SearchTypeEnum.ATCCLASS]: [],
   }
   const pregnancyAlerts = await getPregnancyAlerts();
-  await Promise.all(
+
+  const extendedResults = await Promise.all(
     results.map(async (result: SearchResultItem) => {
       counter ++;
       if("NomLib" in result) {
         //Substance
         const specialites = await getSubstanceSpecialites(result.NomId);
         const specialitiesGroups = await groupSpecialites(specialites);
-        extentedOrderedResults[SearchTypeEnum.SUBSTANCE].push({
+        return {
+          type: SearchTypeEnum.SUBSTANCE,
           nbSpecs: specialitiesGroups.length,
           ...result
-        });
+        };
       } else if("groupName" in result){
         //Med Group
-        extentedOrderedResults[SearchTypeEnum.MEDGROUP].push(
-          await getAdvancedMedicamentGroupFromGroupNameSpecialites(result.groupName, result.specialites, pregnancyAlerts )
-        );
+        const advancedMedicamentGroup = await getAdvancedMedicamentGroupFromGroupNameSpecialites(result.groupName, result.specialites, pregnancyAlerts);
+        return {
+          type: SearchTypeEnum.MEDGROUP,
+          ...advancedMedicamentGroup
+        };
       } else if("NomPatho" in result) {
         //Pathology
         const specialites = await getPathoSpecialites(result.codePatho);
-        extentedOrderedResults[SearchTypeEnum.PATHOLOGY].push({
+        return {
+          type: SearchTypeEnum.PATHOLOGY,
           nbSpecs: specialites.length,
           ...result
-        });
+        };
       } else {
         //ATC Class
-        extentedOrderedResults[SearchTypeEnum.ATCCLASS].push(result);
+        return {
+          type: SearchTypeEnum.ATCCLASS,
+          ...result,
+        }
       }
     })
   );
+  extendedResults.forEach((result) => {
+    extentedOrderedResults[result.type].push(result);
+  }); 
   return {
     counter,
     results: extentedOrderedResults

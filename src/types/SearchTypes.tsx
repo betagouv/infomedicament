@@ -23,7 +23,11 @@ export type SearchATCClass = {
 };
 
 export type SearchResultData =
-  | SearchSubstanceNom
-  | AdvancedMedicamentGroup
-  | SearchPatho
-  | SearchATCClass;
+  (
+    | SearchSubstanceNom
+    | AdvancedMedicamentGroup
+    | SearchPatho
+    | SearchATCClass 
+  ) & {
+    type: SearchTypeEnum,
+  };
