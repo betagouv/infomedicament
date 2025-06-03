@@ -105,15 +105,38 @@ function GenericResultBlock({
   }
 
   return (
-    <Container className={fr.cx("fr-mb-1w")}>
-      <Link
-        href={getLink()}
-        className={["result-link", fr.cx("fr-p-1w")].join(" ")}
-      >
-        <ResultTitle className={fr.cx("fr-text--md", "fr-mr-2w")}>{getFormatSpecName()}</ResultTitle>
-        {getDetails() && (<ResultDetails className={fr.cx("fr-text--sm")}>{getDetails()}</ResultDetails>)}
-      </Link>
-    </Container>
+    <>
+      <Container className={fr.cx("fr-mb-1w")}>
+        <Link
+          href={getLink()}
+          className={["result-link", fr.cx("fr-p-1w")].join(" ")}
+        >
+          <ResultTitle className={fr.cx("fr-text--md", "fr-mr-2w")}>{getFormatSpecName()}</ResultTitle>
+          {getDetails() && (<ResultDetails className={fr.cx("fr-text--sm")}>{getDetails()}</ResultDetails>)}
+        </Link>
+      </Container>
+      {(type === SearchTypeEnum.ATCCLASS && (item as SearchATCClass).subclasses.length > 0) && (
+        (item as SearchATCClass).subclasses.map((subclass: ATC, index) => (
+          <Container 
+            className={fr.cx("fr-mb-1w")}
+            key={index}
+          >
+            <Link
+              href={`/atc/${subclass.code}`}
+              className={["result-link", fr.cx("fr-p-1w")].join(" ")}
+            >
+              <ClassTitle className={fr.cx("fr-text--md")}>{classSpecName}{" > "}</ClassTitle>
+              <ResultTitle className={fr.cx("fr-text--md", "fr-mr-2w")}>{formatSpecName(subclass.label)}</ResultTitle>
+              {subclass.children && (
+                <ResultDetails className={fr.cx("fr-text--sm")}>
+                  {`${subclass.children.length} ${subclass.children.length > 1 ? "substances actives" : "substance active"}`}
+                </ResultDetails>
+              )}
+            </Link>
+          </Container>
+        ))
+      )}
+    </>
   );
 };
 
