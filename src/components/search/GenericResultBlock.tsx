@@ -105,24 +105,15 @@ function GenericResultBlock({
   }
 
   return (
-    <>
-      <ResultBlock
-        specName={getFormatSpecName()}
-        link={getLink()}
-        details={getDetails()}
-      />
-      {(type === SearchTypeEnum.ATCCLASS && (item as SearchATCClass).subclasses.length > 0) && (
-        (item as SearchATCClass).subclasses.map((subclass: ATC, index) => (
-          <ResultBlock
-            key={index}
-            specName={formatSpecName(subclass.label)}
-            link={`/atc/${subclass.code}`}
-            details={subclass.children && `${subclass.children.length} ${subclass.children.length > 1 ? "substances actives" : "substance active"}`}
-            className={classSpecName}
-          />
-        ))
-      )}
-    </>
+    <Container className={fr.cx("fr-mb-1w")}>
+      <Link
+        href={getLink()}
+        className={["result-link", fr.cx("fr-p-1w")].join(" ")}
+      >
+        <ResultTitle className={fr.cx("fr-text--md", "fr-mr-2w")}>{getFormatSpecName()}</ResultTitle>
+        {getDetails() && (<ResultDetails className={fr.cx("fr-text--sm")}>{getDetails()}</ResultDetails>)}
+      </Link>
+    </Container>
   );
 };
 
