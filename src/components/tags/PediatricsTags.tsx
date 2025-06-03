@@ -11,7 +11,7 @@ export default function PediatricsTags({ info, lastTagElement }: { info: Pediatr
   return (
     <>
       {info.indication && (
-        <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PEDIATRIC_INDICATION}>
+        <TagContainer hideSeparator={!lastTagElement || lastTagElement === TagTypeEnum.PEDIATRIC_INDICATION}>
           <Tag
             iconId={"fr-icon--custom-bedroom-baby" as FrIconClassName}
             linkProps={{
@@ -24,7 +24,7 @@ export default function PediatricsTags({ info, lastTagElement }: { info: Pediatr
         </TagContainer>
       )}
       {info.contraindication && (
-        <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PEDIATRIC_CONTRAINDICATION}>
+        <TagContainer hideSeparator={!lastTagElement || lastTagElement === TagTypeEnum.PEDIATRIC_CONTRAINDICATION}>
           <Tag
             iconId={"fr-icon--custom-bedroom-baby" as FrIconClassName}
             linkProps={{
@@ -37,7 +37,7 @@ export default function PediatricsTags({ info, lastTagElement }: { info: Pediatr
         </TagContainer>
       )}
       {info.doctorAdvice && (
-        <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PEDIATRIC_DOCTOR_ADVICE}>
+        <TagContainer hideSeparator={!lastTagElement || lastTagElement === TagTypeEnum.PEDIATRIC_DOCTOR_ADVICE}>
           <Tag
             iconId={"fr-icon--custom-bedroom-baby" as FrIconClassName}
             linkProps={{

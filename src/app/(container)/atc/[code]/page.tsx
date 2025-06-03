@@ -7,6 +7,10 @@ import Link from "next/link";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import DefinitionBanner from "@/components/DefinitionBanner";
 import ContentContainer from "@/components/generic/ContentContainer";
+import GenericResultBlock from "@/components/search/GenericResultBlock";
+import { SearchATCClass, SearchSubstanceNom, SearchTypeEnum } from "@/types/SearchTypes";
+import { getSubstanceSpecialites } from "@/db/utils/search";
+import { groupSpecialites } from "@/db/utils";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -36,6 +40,7 @@ export default async function Page(props: {
   const atc2 = code.length === 3 && (await getAtc2(code));
   const currentAtc = atc2 || atc1;
 
+  //If atc2 --> subtances list else subclass list
   const items = atc2
     ? await getSubstancesByAtc(atc2)
     : (
@@ -50,8 +55,26 @@ export default async function Page(props: {
       )
         .filter(([_, substances]) => !!substances)
         .map(([atc2]) => atc2);
-
   if (!items) notFound();
+
+  let detailedSubClass: (SearchATCClass | SearchSubstanceNom)[] = [];
+  detailedSubClass = await Promise.all(
+    items.map(async (item:ATC | SubstanceNom) => {
+      if(atc2) {
+        const specialites = await getSubstanceSpecialites((item as SubstanceNom).NomId);
+        const specialitiesGroups = groupSpecialites(specialites);
+        return {
+          nbSpecs: specialitiesGroups.length,
+          ...item,
+        } as SearchSubstanceNom;
+      } else {
+        return {
+          class: (item as ATC),
+          subclasses:[],
+        } as SearchATCClass
+      }
+    })
+  );
 
   const ItemComponent = (atc2 ? SubstanceItem : SubClassItem) as ({
     item,
@@ -90,12 +113,21 @@ export default async function Page(props: {
             {items.length}{" "}
             {atc2 ? "substances actives" : "sous-classes de médicament"}
           </h2>
-
-          <ul className={fr.cx("fr-raw-list")}>
-            {items.map((item: SubstanceNom | ATC, index) => (
-              <ItemComponent item={item} key={index} />
-            ))}
-          </ul>
+          {detailedSubClass && detailedSubClass.map((item:SearchSubstanceNom|SearchATCClass, index) => {
+            return atc2 ? (
+                <GenericResultBlock 
+                  type={SearchTypeEnum.SUBSTANCE}
+                  key={index}
+                  item={item as SearchSubstanceNom}
+                />
+              ) : (
+                <GenericResultBlock 
+                  type={SearchTypeEnum.ATCCLASS}
+                  key={index}
+                  item={item as SearchATCClass}
+                />
+              )
+          })}
         </div>
       </div>
     </ContentContainer>

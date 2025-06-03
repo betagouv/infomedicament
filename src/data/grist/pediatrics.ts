@@ -47,3 +47,43 @@ export async function getPediatrics(
       doctorAdvice: record.fields.avis.trim() === "oui",
     };
 }
+
+export async function getPediatricsForList(
+  CISList: string[],
+): Promise<PediatricsInfo | undefined> {
+  const records = await getGristTableData("Pediatrie", [
+    "CIS",
+    "indication",
+    "contre_indication",
+    "avis",
+  ]);
+
+  const pediatricsInfo = {
+    indication: false,
+    contraindication: false,
+    doctorAdvice: false,
+  }
+  records.forEach(({ fields }) => {
+    if(CISList.includes(fields.CIS.toString().trim())){
+      if (
+        !isOuiOrNon(fields.indication) ||
+        !isOuiOrNon(fields.contre_indication) ||
+        !isOuiOrNon(fields.avis)
+        ) {
+        throw new Error(
+          `Unexpected value in pediatrics data for CIS ${fields.CIS}: ${JSON.stringify(
+            fields,
+          )}`,
+        );
+      }
+      fields.indication.trim() === "oui" && (pediatricsInfo.indication = true);
+      fields.contre_indication.trim() === "oui" && (pediatricsInfo.contraindication = true);
+      fields.avis.trim() === "oui" && (pediatricsInfo.doctorAdvice = true);
+    }
+  });
+
+  if (!pediatricsInfo.indication && !pediatricsInfo.contraindication && !pediatricsInfo.doctorAdvice) {
+    return;
+  }
+  return pediatricsInfo;
+}
