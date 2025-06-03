@@ -29,5 +29,5 @@ export type SearchResultData =
     | SearchPatho
     | SearchATCClass 
   ) & {
-    type: SearchTypeEnum,
+    type?: SearchTypeEnum,
   };
