@@ -6,10 +6,10 @@ import Tag from "@codegouvfr/react-dsfr/Tag";
 import { Checkbox } from "@codegouvfr/react-dsfr/Checkbox";
 import { 
   ExtendedSearchResults, 
-  SearchTypeEnum,
 } from "@/types/SearchTypes";
 import styled from 'styled-components';
 import ResultsListBlock from "./ResultsListBlock";
+import { DataTypeEnum } from "@/types/DataTypes";
 
 const Container = styled.div `
   button.fr-tag[aria-pressed=true]:not(:disabled){
@@ -52,7 +52,7 @@ function SearchResultsList({
   searchTerms,
 }: SearchResultsListProps) {
 
-  const [filterCategory, setFilterCategory] = useState<SearchTypeEnum | boolean>(false);
+  const [filterCategory, setFilterCategory] = useState<DataTypeEnum | boolean>(false);
   const [filterPregnancy, setFilterPregnancy] = useState<boolean>(false);
   const [filterPediatric, setFilterPediatric] = useState<boolean>(false);
 
@@ -107,7 +107,7 @@ function SearchResultsList({
                 Tout&nbsp;({totalResults})
               </Tag>
               {Object.keys(resultsList).map((key) => {
-                const type = key as SearchTypeEnum;
+                const type = key as DataTypeEnum;
                   return (
                     <Tag
                       key={type}
@@ -128,7 +128,7 @@ function SearchResultsList({
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
           {Object.keys(resultsList).map((key) => {
-            const type = key as SearchTypeEnum;
+            const type = key as DataTypeEnum;
             if(resultsList[type].length > 0 && (!filterCategory || filterCategory === type)) {
               return (
                 <ResultsListBlock

@@ -7,10 +7,10 @@ import AlphabeticNav from "@/components/AlphabeticNav";
 
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import ContentContainer from "@/components/generic/ContentContainer";
-import GenericResultBlock from "@/components/search/GenericResultBlock";
-import { SearchSubstanceNom, SearchTypeEnum } from "@/types/SearchTypes";
+import DataBlockGeneric from "@/components/data/DataBlockGeneric";
 import { getSubstanceSpecialites } from "@/db/utils/search";
 import { groupSpecialites } from "@/db/utils";
+import { AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -61,7 +61,7 @@ export default async function Page(props: {
 
   if (!substances || !substances.length) return notFound();
   
-  const detailedSubstances: SearchSubstanceNom[] = await Promise.all(
+  const detailedSubstances: AdvancedSubstanceNom[] = await Promise.all(
     substances.map(async (substance) => {
       const specialites = await getSubstanceSpecialites(substance.NomId);
       const specialitiesGroups = groupSpecialites(specialites);
@@ -88,10 +88,12 @@ export default async function Page(props: {
           />
           {detailedSubstances.map((substance, index) => {
             return (
-              <GenericResultBlock
-                type={SearchTypeEnum.SUBSTANCE}
+              <DataBlockGeneric
                 key={index}
-                item={substance}
+                item={{
+                  result: substance,
+                  type: DataTypeEnum.SUBSTANCE
+                }}
               />
             );
           })}

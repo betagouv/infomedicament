@@ -8,6 +8,7 @@ import { ExtendedSearchResults, SearchTypeEnum } from "@/types/SearchTypes";
 import { getPathoSpecialites, getSubstanceSpecialites, SearchResultItem } from "@/db/utils/search";
 import { getPregnancyAlerts } from "@/data/grist/pregnancy";
 import { getAdvancedMedicamentGroupFromGroupNameSpecialites } from "@/db/utils/medicaments";
+import { DataTypeEnum } from "@/types/DataTypes";
 
 type ExtendedOrderResults = { 
   counter: number,
@@ -17,10 +18,10 @@ type ExtendedOrderResults = {
 async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<ExtendedOrderResults> {
   let counter = 0;
   const extentedOrderedResults: ExtendedSearchResults = {
-    [SearchTypeEnum.MEDGROUP]: [],
-    [SearchTypeEnum.SUBSTANCE]: [],
-    [SearchTypeEnum.PATHOLOGY]: [],
-    [SearchTypeEnum.ATCCLASS]: [],
+    [DataTypeEnum.MEDGROUP]: [],
+    [DataTypeEnum.SUBSTANCE]: [],
+    [DataTypeEnum.PATHOLOGY]: [],
+    [DataTypeEnum.ATCCLASS]: [],
   }
   const pregnancyAlerts = await getPregnancyAlerts();
 
@@ -32,30 +33,34 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
         const specialites = await getSubstanceSpecialites(result.NomId);
         const specialitiesGroups = await groupSpecialites(specialites);
         return {
-          type: SearchTypeEnum.SUBSTANCE,
-          nbSpecs: specialitiesGroups.length,
-          ...result
+          type: DataTypeEnum.SUBSTANCE,
+          result: {
+            nbSpecs: specialitiesGroups.length,
+            ...result
+          }
         };
       } else if("groupName" in result){
         //Med Group
         const advancedMedicamentGroup = await getAdvancedMedicamentGroupFromGroupNameSpecialites(result.groupName, result.specialites, pregnancyAlerts);
         return {
-          type: SearchTypeEnum.MEDGROUP,
-          ...advancedMedicamentGroup
+          type: DataTypeEnum.MEDGROUP,
+          result: advancedMedicamentGroup
         };
       } else if("NomPatho" in result) {
         //Pathology
         const specialites = await getPathoSpecialites(result.codePatho);
         return {
-          type: SearchTypeEnum.PATHOLOGY,
-          nbSpecs: specialites.length,
-          ...result
+          type: DataTypeEnum.PATHOLOGY,
+          result: {
+            nbSpecs: specialites.length,
+            ...result
+          }
         };
       } else {
         //ATC Class
         return {
-          type: SearchTypeEnum.ATCCLASS,
-          ...result,
+          type: DataTypeEnum.ATCCLASS,
+          result: result,
         }
       }
     })

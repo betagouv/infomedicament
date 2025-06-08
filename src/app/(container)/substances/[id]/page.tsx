@@ -11,7 +11,7 @@ import { getGristTableData } from "@/data/grist";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import DefinitionBanner from "@/components/DefinitionBanner";
 import ContentContainer from "@/components/generic/ContentContainer";
-import AccordionResultBlock from "@/components/search/AccordionResultBlock";
+import DataBlockAccordion from "@/components/data/DataBlockAccordion";
 import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
 
 export const dynamic = "error";
@@ -133,7 +133,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 
           {detailedSpecialitiesGroups.map((data, index) => {
             return (
-              <AccordionResultBlock 
+              <DataBlockAccordion 
                 key={index}
                 item={data}
               />

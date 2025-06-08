@@ -7,10 +7,10 @@ import Link from "next/link";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import DefinitionBanner from "@/components/DefinitionBanner";
 import ContentContainer from "@/components/generic/ContentContainer";
-import GenericResultBlock from "@/components/search/GenericResultBlock";
-import { SearchATCClass, SearchSubstanceNom, SearchTypeEnum } from "@/types/SearchTypes";
+import DataBlockGeneric from "@/components/data/DataBlockGeneric";
 import { getSubstanceSpecialites } from "@/db/utils/search";
 import { groupSpecialites } from "@/db/utils";
+import { AdvancedATCClass, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -57,7 +57,7 @@ export default async function Page(props: {
         .map(([atc2]) => atc2);
   if (!items) notFound();
 
-  let detailedSubClass: (SearchATCClass | SearchSubstanceNom)[] = [];
+  let detailedSubClass: (AdvancedATCClass | AdvancedSubstanceNom)[] = [];
   detailedSubClass = await Promise.all(
     items.map(async (item:ATC | SubstanceNom) => {
       if(atc2) {
@@ -66,12 +66,12 @@ export default async function Page(props: {
         return {
           nbSpecs: specialitiesGroups.length,
           ...item,
-        } as SearchSubstanceNom;
+        } as AdvancedSubstanceNom;
       } else {
         return {
           class: (item as ATC),
           subclasses:[],
-        } as SearchATCClass
+        } as AdvancedATCClass
       }
     })
   );
@@ -113,18 +113,22 @@ export default async function Page(props: {
             {items.length}{" "}
             {atc2 ? "substances actives" : "sous-classes de médicament"}
           </h2>
-          {detailedSubClass && detailedSubClass.map((item:SearchSubstanceNom|SearchATCClass, index) => {
+          {detailedSubClass && detailedSubClass.map((item:AdvancedSubstanceNom|AdvancedATCClass, index) => {
             return atc2 ? (
-                <GenericResultBlock 
-                  type={SearchTypeEnum.SUBSTANCE}
+                <DataBlockGeneric 
                   key={index}
-                  item={item as SearchSubstanceNom}
+                  item={{
+                    result: item as AdvancedSubstanceNom,
+                    type: DataTypeEnum.SUBSTANCE
+                  }}
                 />
               ) : (
-                <GenericResultBlock 
-                  type={SearchTypeEnum.ATCCLASS}
+                <DataBlockGeneric 
                   key={index}
-                  item={item as SearchATCClass}
+                  item={{
+                    result: item as AdvancedATCClass,
+                    type: DataTypeEnum.ATCCLASS
+                  }}
                 />
               )
           })}

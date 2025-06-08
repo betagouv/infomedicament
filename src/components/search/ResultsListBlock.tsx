@@ -4,13 +4,10 @@ import { Fragment, HTMLAttributes, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import styled from 'styled-components';
-import { 
-  SearchTypeEnum,
-  SearchResultData,
-} from "@/types/SearchTypes";
-import GenericResultBlock from "./GenericResultBlock";
-import AccordionResultBlock from "./AccordionResultBlock";
+import DataBlockGeneric from "../data/DataBlockGeneric";
+import DataBlockAccordion from "../data/DataBlockAccordion";
 import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
+import { AdvancedData, DataTypeEnum } from "@/types/DataTypes";
 
 const TagContainer = styled.div `
   text-align: center;
@@ -20,19 +17,19 @@ const ResultNumber = styled.span`
 `;
 
 interface ResultsListBlockProps extends HTMLAttributes<HTMLDivElement> {
-  dataList: SearchResultData[];
-  type: SearchTypeEnum;
+  dataList: AdvancedData[];
+  type: DataTypeEnum;
   filterPregnancy: boolean;
   filterPediatric: boolean;
   isAllList: boolean;
-  setFilterCategory: (filterCategory: SearchTypeEnum | boolean) => void;
+  setFilterCategory: (filterCategory: DataTypeEnum | boolean) => void;
 }
 
 const blockTitlesPlural = {
-  [SearchTypeEnum.MEDGROUP]: "Médicaments",
-  [SearchTypeEnum.SUBSTANCE]: "Substances actives",
-  [SearchTypeEnum.ATCCLASS]: "Classes et sous-classes",
-  [SearchTypeEnum.PATHOLOGY]: "Pathologies",
+  [DataTypeEnum.MEDGROUP]: "Médicaments",
+  [DataTypeEnum.SUBSTANCE]: "Substances actives",
+  [DataTypeEnum.ATCCLASS]: "Classes et sous-classes",
+  [DataTypeEnum.PATHOLOGY]: "Pathologies",
 }
 
 function ResultsListBlock({
@@ -56,17 +53,19 @@ function ResultsListBlock({
         if((isAllList && index < 4) || !isAllList) {
           return (
             <Fragment key={index}>
-              {type === SearchTypeEnum.MEDGROUP 
+              {type === DataTypeEnum.MEDGROUP 
               ? (
-                <AccordionResultBlock 
-                  item={data as AdvancedMedicamentGroup}
+                <DataBlockAccordion 
+                  item={data.result as AdvancedMedicamentGroup}
                   filterPregnancy={filterPregnancy}
                   filterPediatric={filterPediatric}
                 />
               ) : (
-                <GenericResultBlock 
-                  type={type} 
-                  item={data} 
+                <DataBlockGeneric 
+                  item={{
+                    result: data.result,
+                    type: type
+                  }}
                 />
               )}
             </Fragment>

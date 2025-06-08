@@ -64,18 +64,18 @@ const FiltersTagContainer = styled.div`
   }
 `;
 
-interface AccordionResultBlockProps extends HTMLAttributes<HTMLDivElement> {
+interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
   item: AdvancedMedicamentGroup;
   filterPregnancy?: boolean;
   filterPediatric?: boolean;
 }
 
-//For now only for type === SearchTypeEnum.MEDGROUP
-function AccordionResultBlock({
+//For now only for type === DataTypeEnum.MEDGROUP
+function DataBlockAccordion({
   item,
   filterPregnancy,
   filterPediatric
-}: AccordionResultBlockProps) {
+}: DataBlockAccordionProps) {
 
   const specialites = item.specialites;
   const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(false);
@@ -165,4 +165,4 @@ function AccordionResultBlock({
   );
 };
 
-export default AccordionResultBlock;
+export default DataBlockAccordion;

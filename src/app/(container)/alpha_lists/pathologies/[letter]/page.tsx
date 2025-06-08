@@ -5,9 +5,9 @@ import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import ContentContainer from "@/components/generic/ContentContainer";
-import GenericResultBlock from "@/components/search/GenericResultBlock";
-import { SearchPatho, SearchTypeEnum } from "@/types/SearchTypes";
+import DataBlockGeneric from "@/components/data/DataBlockGeneric";
 import { getPathoSpecialites } from "@/db/utils/search";
+import { AdvancedPatho, DataTypeEnum } from "@/types/DataTypes";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -44,7 +44,7 @@ export default async function Page(props: {
 
   if (!pathos || !pathos.length) return notFound();
 
-  const detailedPathos: SearchPatho[] = await Promise.all(
+  const detailedPathos: AdvancedPatho[] = await Promise.all(
     pathos.map(async (patho) => {
       const specialites = await getPathoSpecialites(patho.codePatho);
       return {
@@ -69,10 +69,12 @@ export default async function Page(props: {
           />
           {detailedPathos.map((patho, index) => {
             return (
-              <GenericResultBlock
-                type={SearchTypeEnum.PATHOLOGY}
+              <DataBlockGeneric
                 key={index}
-                item={patho}
+                item={{
+                  result: patho,
+                  type: DataTypeEnum.SUBSTANCE
+                }}
               />
             );
           })}

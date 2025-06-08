@@ -10,7 +10,7 @@ import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { groupSpecialites } from "@/db/utils";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import ContentContainer from "@/components/generic/ContentContainer";
-import AccordionResultBlock from "@/components/search/AccordionResultBlock";
+import DataBlockAccordion from "@/components/data/DataBlockAccordion";
 import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
 
 export const dynamic = "error";
@@ -82,7 +82,7 @@ export default async function Page(props: {
               )
               .map((data, index) => {
                 return (
-                  <AccordionResultBlock 
+                  <DataBlockAccordion 
                     key={index}
                     item={data}
                   />
