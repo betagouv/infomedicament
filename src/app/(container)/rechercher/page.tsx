@@ -4,7 +4,7 @@ import { getSearchResults, groupSpecialites } from "@/db/utils";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SearchResultsList from "@/components/search/SearchResultsList";
-import { ExtendedSearchResults, SearchTypeEnum } from "@/types/SearchTypes";
+import { ExtendedSearchResults } from "@/types/SearchTypes";
 import { getPathoSpecialites, getSubstanceSpecialites, SearchResultItem } from "@/db/utils/search";
 import { getPregnancyAlerts } from "@/data/grist/pregnancy";
 import { getAdvancedMedicamentGroupFromGroupNameSpecialites } from "@/db/utils/medicaments";
