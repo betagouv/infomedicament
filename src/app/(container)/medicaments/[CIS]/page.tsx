@@ -24,6 +24,7 @@ import { getPregnancyAlerts } from "@/data/grist/pregnancy";
 import { getPediatrics } from "@/data/grist/pediatrics";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SwitchNotice from "@/components/medicaments/SwitchNotice";
+import { getMarr } from "@/data/grist/marr";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -217,6 +218,8 @@ export default async function Page(props: {
 
   const pediatrics = await getPediatrics(CIS);
 
+  const marr = await getMarr(CIS);
+
   return (
     <>
       <ContentContainer frContainer>
@@ -313,6 +316,7 @@ export default async function Page(props: {
                 </>
               }
               leafletMaj={leaflet?.maj}
+              marr={marr}
             />
           </div>
         </ContentContainer>

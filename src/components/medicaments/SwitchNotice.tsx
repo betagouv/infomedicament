@@ -18,9 +18,11 @@ import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "../PresentationsList";
 import { Nullable } from "kysely";
 import { PresentationDetail } from "@/db/types";
-import { HTMLAttributes, PropsWithChildren, useCallback, useState } from "react";
+import { HTMLAttributes, PropsWithChildren, useCallback, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
 import Badge from "@codegouvfr/react-dsfr/Badge";
+import MarrResumeList from "./MarrResumeList";
+import { MarrPdf } from "@/types/MarrTypes";
 
 const ToggleSwitchContainer = styled.div `
   background-color: var(--background-contrast-info);
@@ -44,6 +46,7 @@ interface OwnProps extends HTMLAttributes<HTMLDivElement> {
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
   leaflet?: any;
   leafletMaj?: string;
+  marr?: MarrPdf[];
 }
 
 function SwitchNotice({
@@ -58,11 +61,29 @@ function SwitchNotice({
   presentations,
   leaflet,
   leafletMaj,
+  marr,
   children,
   ...props
 }: PropsWithChildren<OwnProps>) {
 
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
+  const [currentMarr, setCurrentMarr] = useState<MarrPdf[]>([]);
+
+  useEffect(() => {
+    if(marr){
+      if(!isAdvanced){
+        //Que des patients
+        const newMarr: MarrPdf[] = [];
+        marr.forEach((marr) => {
+          if(marr.type === "Patient") newMarr.push(marr);
+        })
+        setCurrentMarr(newMarr);
+      } else {
+        setCurrentMarr(marr);
+      }
+    }
+  }, [isAdvanced]);
+  
   const onSwitchAdvanced = useCallback(
     (enabled: boolean) => {
       setIsAdvanced(enabled);
@@ -147,6 +168,11 @@ function SwitchNotice({
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                 <PresentationsList presentations={presentations} />
               </ContentContainer>
+              {(currentMarr && currentMarr.length > 0) && (
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                  <MarrResumeList marr={currentMarr} />
+                </ContentContainer>
+              )}
             </section>
           }
       </ContentContainer>
