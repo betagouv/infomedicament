@@ -4,11 +4,11 @@ import { ImageProps } from "next/image";
 import imageSize from "image-size";
 
 function matchesFields<F extends string[]>(
-  record: Record<string, string | number | boolean | Omit<ImageProps, "alt"> | string[]>,
+  record: Record<string, string | number | boolean | Omit<ImageProps, "alt"> | string[] | number[]>,
   fields: F,
 ): record is Record<
   F[number],
-  string | number | boolean | Omit<ImageProps, "alt"> | string[]
+  string | number | boolean | Omit<ImageProps, "alt"> | string[] | number[]
 > {
   return fields.every((key) => key in record);
 }
@@ -21,7 +21,7 @@ export const getGristTableData = <F extends string>(
 ): Promise<
   {
     id: number;
-    fields: Record<F, string | number | boolean | Omit<ImageProps, "alt"> | string[]>;
+    fields: Record<F, string | number | boolean | Omit<ImageProps, "alt"> | string[] | number[]>;
   }[]
 > => {
   if (!gristCache.has(tableId)) {
@@ -38,7 +38,7 @@ async function uncachedGetGristTableData<F extends string>(
 ): Promise<
   {
     id: number;
-    fields: Record<F, string | number | boolean | Omit<ImageProps, "alt"> | string[]>;
+    fields: Record<F, string | number | boolean | Omit<ImageProps, "alt"> | string[] | number[]>;
   }[]
 > {
   const response = await fetch(
@@ -61,7 +61,7 @@ async function uncachedGetGristTableData<F extends string>(
     id: number;
     fields: Record<
       string,
-      string | number | boolean | ["L", number] | Omit<ImageProps, "alt"> | string[]
+      string | number | boolean | ["L", number] | Omit<ImageProps, "alt"> | string[] | number[]
     >;
   }[];
 
@@ -70,7 +70,8 @@ async function uncachedGetGristTableData<F extends string>(
     for (const [key, value] of Object.entries(r.fields)) {
       if (Array.isArray(value) && value[0] === "L") {
         if((tableId === "MARR_URL_CIS" && key === "Generiques") 
-          || (tableId === "MARR_URL_PDF" && key === "Type")){
+          || (tableId === "MARR_URL_PDF" && key === "Type")
+          || (tableId === "Articles" && (key === "Classes_ATC" || key === "Pathologies"))){
           r.fields[key] = (value as string[]).slice(1);
         } else {
           const image = await (
@@ -107,7 +108,7 @@ async function uncachedGetGristTableData<F extends string>(
         id: number;
         fields: Record<
           string,
-          string | number | boolean | Omit<ImageProps, "alt"> | string[]
+          string | number | boolean | Omit<ImageProps, "alt"> | string[] | number[]
         >;
       }[]
     >(data),
