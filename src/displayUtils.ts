@@ -8,7 +8,7 @@ import {
 export type MedicamentGroup<T extends Specialite = Specialite> = [string, T[]];
 
 export const formatSpecName = (name: string): string =>
-  name
+  name && name
     .split(" ")
     .map((word) =>
       /[A-Z]/.test(word[0]) ? word[0] + word.slice(1).toLowerCase() : word,
