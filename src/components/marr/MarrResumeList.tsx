@@ -1,20 +1,23 @@
 import { HTMLAttributes } from "react";
-import { fr } from "@codegouvfr/react-dsfr";
+import { fr } from "@codegouvfr/react-dsfr"; 
+import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 import styled, { css } from 'styled-components';
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { MarrPdf } from "@/types/MarrTypes";
 import { Download } from "@codegouvfr/react-dsfr/Download";
 
-const MarrContainer = styled.div<{ $inLine?: boolean; }>`
+const MarrContainer = styled.div<{ $isDark: boolean; $inLine?: boolean; }>`
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
-  background-color: #FFF;
   padding: 1rem;
   margin-bottom: 1rem;
   ${props => props.$inLine && css`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+  `}
+  ${props => css`
+    background-color: ${props.$isDark ? 'var(--background-default-grey)' : '#FFF'};
   `}
 
   .fr-download{
@@ -43,12 +46,14 @@ function MarrResumeList({
   inLine,
 }: MarrResumeListProps) {
 
+  const { isDark } = useIsDark();
+
   return (
     marr.length > 0 && (
       <div>
         {marr.map((marr:MarrPdf, index) => {
           return (
-            <MarrContainer key={index} $inLine={inLine}>
+            <MarrContainer $isDark={isDark} key={index} $inLine={inLine}>
               <div className={fr.cx("fr-text--sm", "fr-mb-1w")}>
                 <u>{marr.filename}</u>
               </div>
