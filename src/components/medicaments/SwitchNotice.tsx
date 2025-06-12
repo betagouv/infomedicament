@@ -21,9 +21,9 @@ import { PresentationDetail } from "@/db/types";
 import { HTMLAttributes, PropsWithChildren, useCallback, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { MarrPdf } from "@/types/MarrTypes";
 import MarrNoticeAdvanced from "../marr/MarrNoticeAdvanced";
 import MarrNotice from "../marr/MarrNotice";
+import { Marr } from "@/types/MarrTypes";
 
 const ToggleSwitchContainer = styled.div `
   background-color: var(--background-contrast-info);
@@ -47,7 +47,7 @@ interface OwnProps extends HTMLAttributes<HTMLDivElement> {
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
   leaflet?: any;
   leafletMaj?: string;
-  marr?: MarrPdf[];
+  marr?: Marr;
 }
 
 function SwitchNotice({
@@ -68,15 +68,19 @@ function SwitchNotice({
 }: PropsWithChildren<OwnProps>) {
 
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
-  const [currentMarr, setCurrentMarr] = useState<MarrPdf[]>([]);
+  const [currentMarr, setCurrentMarr] = useState<Marr>();
 
   useEffect(() => {
     if(marr){
       if(!isAdvanced){
         //Que des patients
-        const newMarr: MarrPdf[] = [];
-        marr.forEach((marr) => {
-          if(marr.type === "Patient") newMarr.push(marr);
+        const newMarr: Marr = {
+          CIS: marr.CIS,
+          ansmUrl: marr.ansmUrl,
+          pdf: [],
+        };
+        marr.pdf.forEach((marrLine) => {
+          if(marrLine.type === "Patients") newMarr.pdf.push(marrLine);
         })
         setCurrentMarr(newMarr);
       } else {
@@ -176,7 +180,7 @@ function SwitchNotice({
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                 <PresentationsList presentations={presentations} />
               </ContentContainer>
-              {(currentMarr && currentMarr.length > 0) && (
+              {(currentMarr && currentMarr.pdf.length > 0) && (
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                   <MarrNotice 
                     marr={currentMarr}
@@ -188,7 +192,7 @@ function SwitchNotice({
           }
       </ContentContainer>
       {isAdvanced 
-        ? (currentMarr && currentMarr.length > 0) && 
+        ? (currentMarr && currentMarr.pdf.length > 0) && 
           <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
             <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
               <MarrNoticeAdvanced marr={currentMarr} />

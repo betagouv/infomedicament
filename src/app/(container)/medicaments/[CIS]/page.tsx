@@ -25,6 +25,7 @@ import { getPediatrics } from "@/data/grist/pediatrics";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SwitchNotice from "@/components/medicaments/SwitchNotice";
 import { getMarr } from "@/data/grist/marr";
+import { Marr } from "@/types/MarrTypes";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -218,7 +219,7 @@ export default async function Page(props: {
 
   const pediatrics = await getPediatrics(CIS);
 
-  const marr = await getMarr(CIS);
+  const marr: Marr = await getMarr(CIS);
 
   return (
     <>

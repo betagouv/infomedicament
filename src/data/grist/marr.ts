@@ -1,8 +1,8 @@
 import "server-only";
 import { getGristTableData } from "@/data/grist/index";
-import { MarrPdf } from "@/types/MarrTypes";
+import { Marr, MarrPdf } from "@/types/MarrTypes";
 
-export async function getMarr(CIS: string): Promise<MarrPdf[]> {
+export async function getMarr(CIS: string): Promise<Marr> {
   const marrCis = await getGristTableData("MARR_URL_CIS", [
     "URL",
     "CIS"
@@ -15,6 +15,11 @@ export async function getMarr(CIS: string): Promise<MarrPdf[]> {
   ]);
 
   const allPDF: MarrPdf[] = [];
+  const marr: Marr = {
+    CIS: CIS,
+    ansmUrl: "",
+    pdf: [],
+  };
 
   //Key is URL
   marrCis.forEach(( marrByCIS ) => {
@@ -23,11 +28,11 @@ export async function getMarr(CIS: string): Promise<MarrPdf[]> {
       return;
     }
 
+    marr.ansmUrl = (marrByCIS.fields.URL as string).trim(),
     marrPdf.forEach(
       (pdf) => {
         if(marrByCIS.id === (pdf.fields.URL as number)){
-          allPDF.push({
-            ansmUrl: (marrByCIS.fields.URL as string).trim(),
+          marr.pdf.push({
             filename: (pdf.fields.Nom_document as string).trim(),
             fileUrl: `https://ansm.sante.fr${(pdf.fields.URL_document as string).trim()}`,
             type: (pdf.fields.Type as string).trim(),
@@ -37,5 +42,5 @@ export async function getMarr(CIS: string): Promise<MarrPdf[]> {
     ); //PDF for the URL (array)
   });
 
-  return allPDF;
+  return marr;
 }
