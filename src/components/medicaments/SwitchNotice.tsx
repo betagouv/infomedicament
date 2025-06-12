@@ -18,9 +18,12 @@ import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "../PresentationsList";
 import { Nullable } from "kysely";
 import { PresentationDetail } from "@/db/types";
-import { HTMLAttributes, PropsWithChildren, useCallback, useState } from "react";
+import { HTMLAttributes, PropsWithChildren, useCallback, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
 import Badge from "@codegouvfr/react-dsfr/Badge";
+import MarrNoticeAdvanced from "../marr/MarrNoticeAdvanced";
+import MarrNotice from "../marr/MarrNotice";
+import { Marr } from "@/types/MarrTypes";
 
 const ToggleSwitchContainer = styled.div `
   background-color: var(--background-contrast-info);
@@ -44,6 +47,7 @@ interface OwnProps extends HTMLAttributes<HTMLDivElement> {
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
   leaflet?: any;
   leafletMaj?: string;
+  marr?: Marr;
 }
 
 function SwitchNotice({
@@ -58,14 +62,43 @@ function SwitchNotice({
   presentations,
   leaflet,
   leafletMaj,
+  marr,
   children,
   ...props
 }: PropsWithChildren<OwnProps>) {
 
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
+  const [currentMarr, setCurrentMarr] = useState<Marr>();
+
+  useEffect(() => {
+    if(marr){
+      if(!isAdvanced){
+        //Que des patients
+        const newMarr: Marr = {
+          CIS: marr.CIS,
+          ansmUrl: marr.ansmUrl,
+          pdf: [],
+        };
+        marr.pdf.forEach((marrLine) => {
+          if(marrLine.type === "Patients") newMarr.pdf.push(marrLine);
+        })
+        setCurrentMarr(newMarr);
+      } else {
+        setCurrentMarr(marr);
+      }
+    }
+  }, [isAdvanced, marr]);
+  
   const onSwitchAdvanced = useCallback(
     (enabled: boolean) => {
       setIsAdvanced(enabled);
+    },
+    [setIsAdvanced]
+  );
+
+  const onGoToAdvanced = useCallback(
+    (ancre: string) => {
+      setIsAdvanced(true);
     },
     [setIsAdvanced]
   );
@@ -147,11 +180,24 @@ function SwitchNotice({
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                 <PresentationsList presentations={presentations} />
               </ContentContainer>
+              {(currentMarr && currentMarr.pdf.length > 0) && (
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                  <MarrNotice 
+                    marr={currentMarr}
+                    onGoToAdvanced={onGoToAdvanced}
+                  />
+                </ContentContainer>
+              )}
             </section>
           }
       </ContentContainer>
       {isAdvanced 
-        ? <span>Infos avancées</span>
+        ? (currentMarr && currentMarr.pdf.length > 0) && 
+          <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
+            <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+              <MarrNoticeAdvanced marr={currentMarr} />
+            </ContentContainer>
+          </ContentContainer>
         : leaflet && 
           <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
             <article>
