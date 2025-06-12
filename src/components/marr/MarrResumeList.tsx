@@ -12,9 +12,11 @@ const MarrContainer = styled.div<{ $isDark: boolean; $inLine?: boolean; }>`
   padding: 1rem;
   margin-bottom: 1rem;
   ${props => props.$inLine && css`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    @media (min-width: 48em) {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
   `}
   ${props => css`
     background-color: ${props.$isDark ? 'var(--background-default-grey)' : '#FFF'};
