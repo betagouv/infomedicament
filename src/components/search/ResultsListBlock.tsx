@@ -41,6 +41,9 @@ function ResultsListBlock({
   setFilterCategory
 }: ResultsListBlockProps) {
 
+  console.log("dataList");
+  console.log(dataList);
+
   return (
     <div className={fr.cx("fr-mb-8w")}>
       <div className={fr.cx("fr-mb-1w")}>
