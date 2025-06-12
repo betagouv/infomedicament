@@ -24,6 +24,8 @@ import { getPregnancyAlerts } from "@/data/grist/pregnancy";
 import { getPediatrics } from "@/data/grist/pediatrics";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SwitchNotice from "@/components/medicaments/SwitchNotice";
+import { SearchArticlesFilters } from "@/types/SearchTypes";
+import { getArticlesFromFilters } from "@/data/grist/articles";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -217,6 +219,17 @@ export default async function Page(props: {
 
   const pediatrics = await getPediatrics(CIS);
 
+  const articlesFilters:SearchArticlesFilters = {
+    ATCList: [
+      atc1.code.trim(),
+      atc2.code.trim(),
+    ],
+    substancesList: composants.map((compo) => compo.SubsId.trim()),
+    specialitesList: [CIS],
+    pathologiesList: []
+  };
+  const articles = await getArticlesFromFilters(articlesFilters);
+
   return (
     <>
       <ContentContainer frContainer>
@@ -301,6 +314,7 @@ export default async function Page(props: {
               isPregnancyAlert={!!pregnancyAlert}
               pediatrics={pediatrics}
               presentations={presentations}
+              articles={articles}
               leaflet={leaflet && 
                 <>
                   <DsfrLeafletSection data={leaflet.generalities} />

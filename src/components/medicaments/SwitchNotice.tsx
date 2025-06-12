@@ -21,6 +21,8 @@ import { PresentationDetail } from "@/db/types";
 import { HTMLAttributes, PropsWithChildren, useCallback, useState } from "react";
 import styled, { css } from 'styled-components';
 import Badge from "@codegouvfr/react-dsfr/Badge";
+import { ArticleCardResume } from "@/types/ArticlesTypes";
+import ArticlesResumeList from "../articles/ArticlesResumeList";
 
 const ToggleSwitchContainer = styled.div `
   background-color: var(--background-contrast-info);
@@ -44,6 +46,7 @@ interface OwnProps extends HTMLAttributes<HTMLDivElement> {
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
   leaflet?: any;
   leafletMaj?: string;
+  articles?: ArticleCardResume[];
 }
 
 function SwitchNotice({
@@ -58,6 +61,7 @@ function SwitchNotice({
   presentations,
   leaflet,
   leafletMaj,
+  articles,
   children,
   ...props
 }: PropsWithChildren<OwnProps>) {
@@ -147,6 +151,9 @@ function SwitchNotice({
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                 <PresentationsList presentations={presentations} />
               </ContentContainer>
+              {articles && articles.length > 0 && (
+                <ArticlesResumeList articles={articles} whiteContainer />
+              )}
             </section>
           }
       </ContentContainer>
