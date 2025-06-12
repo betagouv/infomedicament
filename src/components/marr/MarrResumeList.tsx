@@ -53,13 +53,6 @@ function MarrResumeList({
                 <u>{marr.filename}</u>
               </div>
               <div>
-                <a
-                  className={fr.cx("fr-link", "fr-link--download")}
-                  download
-                  href={marr.fileUrl}>
-                    Télécharger le document
-                    <span className={fr.cx("fr-link__detail")}>JPG – 61,88 ko</span>
-                </a>
                 <Download
                   details="PDF"
                   label="Télécharger"

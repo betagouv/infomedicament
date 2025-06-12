@@ -34,7 +34,7 @@ function MarrNoticeAdvanced({
             href="https://ansm.sante.fr"
             target="_blank"
           >
-            En savoir plus sur le site de l'ANSM
+            En savoir plus sur le site de l&apos;ANSM
           </Link>
         </div>
         <MarrResumeList marr={marr} inLine/>

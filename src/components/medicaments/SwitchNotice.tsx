@@ -83,7 +83,7 @@ function SwitchNotice({
         setCurrentMarr(marr);
       }
     }
-  }, [isAdvanced]);
+  }, [isAdvanced, marr]);
   
   const onSwitchAdvanced = useCallback(
     (enabled: boolean) => {
