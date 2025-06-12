@@ -29,7 +29,7 @@ export async function getMarr(CIS: string): Promise<MarrPdf[]> {
           allPDF.push({
             ansmUrl: (marrByCIS.fields.URL as string).trim(),
             filename: (pdf.fields.Nom_document as string).trim(),
-            fileUrl: (pdf.fields.URL_document as string).trim(),
+            fileUrl: `https://ansm.sante.fr${(pdf.fields.URL_document as string).trim()}`,
             type: (pdf.fields.Type as string).trim(),
           })
         }

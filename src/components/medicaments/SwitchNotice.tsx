@@ -21,8 +21,9 @@ import { PresentationDetail } from "@/db/types";
 import { HTMLAttributes, PropsWithChildren, useCallback, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import MarrResumeList from "./MarrResumeList";
 import { MarrPdf } from "@/types/MarrTypes";
+import MarrNoticeAdvanced from "../marr/MarrNoticeAdvanced";
+import MarrNotice from "../marr/MarrNotice";
 
 const ToggleSwitchContainer = styled.div `
   background-color: var(--background-contrast-info);
@@ -87,6 +88,13 @@ function SwitchNotice({
   const onSwitchAdvanced = useCallback(
     (enabled: boolean) => {
       setIsAdvanced(enabled);
+    },
+    [setIsAdvanced]
+  );
+
+  const onGoToAdvanced = useCallback(
+    (ancre: string) => {
+      setIsAdvanced(true);
     },
     [setIsAdvanced]
   );
@@ -170,14 +178,22 @@ function SwitchNotice({
               </ContentContainer>
               {(currentMarr && currentMarr.length > 0) && (
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                  <MarrResumeList marr={currentMarr} />
+                  <MarrNotice 
+                    marr={currentMarr}
+                    onGoToAdvanced={onGoToAdvanced}
+                  />
                 </ContentContainer>
               )}
             </section>
           }
       </ContentContainer>
       {isAdvanced 
-        ? <span>Infos avancées</span>
+        ? (currentMarr && currentMarr.length > 0) && 
+          <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
+            <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+              <MarrNoticeAdvanced marr={currentMarr} />
+            </ContentContainer>
+          </ContentContainer>
         : leaflet && 
           <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
             <article>

@@ -1,15 +1,21 @@
 import { HTMLAttributes } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { MarrPdf } from "@/types/MarrTypes";
 import { Download } from "@codegouvfr/react-dsfr/Download";
 
-const MarrContainer = styled.div `
+const MarrContainer = styled.div<{ $inLine?: boolean; }>`
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
   background-color: #FFF;
   padding: 1rem;
+  margin-bottom: 1rem;
+  ${props => props.$inLine && css`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  `}
 
   .fr-download{
     text-align: right;
@@ -29,28 +35,31 @@ const BadgeContainer = styled.div`
 
 interface MarrResumeListProps extends HTMLAttributes<HTMLDivElement> {
   marr: MarrPdf[];
+  inLine?: boolean;
 }
 
 function MarrResumeList({
   marr,
+  inLine,
 }: MarrResumeListProps) {
 
   return (
     marr.length > 0 && (
-      <>
-        <div className={fr.cx("fr-h6", "fr-mb-1w")}>
-          Mesure additionnelles de réduction du risque (MARR)
-        </div>
-        <div className={fr.cx("fr-text--md", "fr-mb-1w")}>
-          Consultez les documents ci-dessous pour bien utiliser ce médicament&nbsp;:
-        </div>
-        <div>
-          {marr.map((marr:MarrPdf, index) => {
-            return (
-              <MarrContainer key={index}>
-                <div className={fr.cx("fr-text--sm", "fr-mb-1w")}>
-                  <u>{marr.filename}</u>
-                </div>
+      <div>
+        {marr.map((marr:MarrPdf, index) => {
+          return (
+            <MarrContainer key={index} $inLine={inLine}>
+              <div className={fr.cx("fr-text--sm", "fr-mb-1w")}>
+                <u>{marr.filename}</u>
+              </div>
+              <div>
+                <a
+                  className={fr.cx("fr-link", "fr-link--download")}
+                  download
+                  href={marr.fileUrl}>
+                    Télécharger le document
+                    <span className={fr.cx("fr-link__detail")}>JPG – 61,88 ko</span>
+                </a>
                 <Download
                   details="PDF"
                   label="Télécharger"
@@ -67,11 +76,11 @@ function MarrResumeList({
                     {marr.type}
                   </Badge>
                 </BadgeContainer>
-              </MarrContainer>
-            );
-          })}
-        </div>
-      </>
+              </div>
+            </MarrContainer>
+          );
+        })}
+      </div>
     )
   );
 };
