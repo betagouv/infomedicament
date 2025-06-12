@@ -18,6 +18,7 @@ const ResultNumber = styled.span`
 
 interface ResultsListBlockProps extends HTMLAttributes<HTMLDivElement> {
   dataList: AdvancedData[];
+  nbData: number;
   type: DataTypeEnum;
   filterPregnancy: boolean;
   filterPediatric: boolean;
@@ -34,6 +35,7 @@ const blockTitlesPlural = {
 
 function ResultsListBlock({
   dataList,
+  nbData,
   type,
   filterPregnancy,
   filterPediatric, 
@@ -41,16 +43,15 @@ function ResultsListBlock({
   setFilterCategory
 }: ResultsListBlockProps) {
 
-  console.log("dataList");
-  console.log(dataList);
-
   return (
     <div className={fr.cx("fr-mb-8w")}>
       <div className={fr.cx("fr-mb-1w")}>
         <span className={fr.cx("fr-h5")}>
-          {dataList.length > 1 ? blockTitlesPlural[type] : type}
+          {nbData > 1 ? blockTitlesPlural[type] : type}
         </span>{" "}
-        <ResultNumber className={fr.cx("fr-h5")}>{dataList.length}</ResultNumber>
+        <ResultNumber className={fr.cx("fr-h5")}>
+          {nbData}
+        </ResultNumber>
       </div>
       {dataList.map((data, index) => {
         if((isAllList && index < 4) || !isAllList) {
@@ -75,14 +76,14 @@ function ResultsListBlock({
           )
         }
       })}
-      {(isAllList && dataList.length > 4) && (
+      {(isAllList && nbData > 4) && (
         <TagContainer>
           <Tag
             nativeButtonProps={{
               onClick: () => setFilterCategory(type)
             }}
           >
-            <span>Voir tout&nbsp;({dataList.length})</span>
+            <span>Voir tout&nbsp;({nbData})</span>
           </Tag>
         </TagContainer>
       )}

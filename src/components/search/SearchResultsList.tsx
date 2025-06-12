@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, useState } from "react";
+import { HTMLAttributes, useEffect, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { Checkbox } from "@codegouvfr/react-dsfr/Checkbox";
@@ -9,7 +9,7 @@ import {
 } from "@/types/SearchTypes";
 import styled from 'styled-components';
 import ResultsListBlock from "./ResultsListBlock";
-import { DataTypeEnum } from "@/types/DataTypes";
+import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 
 const Container = styled.div `
   button.fr-tag[aria-pressed=true]:not(:disabled){
@@ -38,12 +38,14 @@ const SearchTitle = styled.h1 `
 const FiltersContainer = styled.div`
   display: flex;
   align-items: center;
+  white-space: nowrap;
+  overflow: scroll;
 `;
 
 interface SearchResultsListProps extends HTMLAttributes<HTMLDivElement> {
   resultsList: ExtendedSearchResults;
   totalResults: number;
-  searchTerms: string;
+  searchTerms?: string | boolean;
 }
 
 function SearchResultsList({
@@ -55,6 +57,17 @@ function SearchResultsList({
   const [filterCategory, setFilterCategory] = useState<DataTypeEnum | boolean>(false);
   const [filterPregnancy, setFilterPregnancy] = useState<boolean>(false);
   const [filterPediatric, setFilterPediatric] = useState<boolean>(false);
+  const [nbResults, setNbResults] = useState<number>(0);
+  const [nbResultsATC, setNbResultsATC] = useState<number>(0);
+
+  useEffect(() => {
+    let totalATC: number = resultsList[DataTypeEnum.ATCCLASS].length;
+    resultsList[DataTypeEnum.ATCCLASS].forEach((data) => {
+      totalATC += (data.result as AdvancedATCClass).subclasses.length;
+    });
+    setNbResultsATC(totalATC);
+    setNbResults(totalResults + totalATC);
+  }, [totalResults, resultsList, setNbResultsATC, setNbResults]);
 
   return (
     <Container>
@@ -86,13 +99,13 @@ function SearchResultsList({
         <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10", "fr-mb-2w")}>
           <SearchTitle className={fr.cx("fr-text--md")}>
             <span className={fr.cx("fr-mr-2w")}>
-              {totalResults} résultats pour :
+              {nbResults} résultats pour :
             </span>
             <i>“{searchTerms}“</i>
           </SearchTitle>
         </div>
       </div>
-      {totalResults > 0 && (
+      {nbResults > 0 && (
         <div className={fr.cx("fr-grid-row", "fr-mb-5w")}>
           <FiltersContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
             <span className={["display-inline", fr.cx("fr-mr-2w", "fr-text--md", "fr-mb-1w")].join(" ")}>Filtrer</span>
@@ -104,7 +117,7 @@ function SearchResultsList({
                 }}
                 className="search-filter-tag"
               >
-                Tout&nbsp;({totalResults})
+                Tout&nbsp;({nbResults})
               </Tag>
               {Object.keys(resultsList).map((key) => {
                 const type = key as DataTypeEnum;
@@ -117,7 +130,7 @@ function SearchResultsList({
                       }}
                       className="search-filter-tag"
                     >
-                      {type}{" "}({resultsList[type].length})
+                      {type}{" "}({type !== DataTypeEnum.ATCCLASS ? resultsList[type].length : nbResultsATC})
                     </Tag>
                   )
                 })}
@@ -134,6 +147,7 @@ function SearchResultsList({
                 <ResultsListBlock
                   key={type}
                   dataList={resultsList[type]}
+                  nbData={type !== DataTypeEnum.ATCCLASS ? resultsList[type].length : nbResultsATC}
                   type={type}
                   filterPregnancy={filterPregnancy}
                   filterPediatric={filterPediatric}
