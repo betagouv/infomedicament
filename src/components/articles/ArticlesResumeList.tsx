@@ -1,5 +1,6 @@
 import { HTMLAttributes, useEffect, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
+import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 import styled, { css } from 'styled-components';
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import Link from "next/link";
@@ -7,14 +8,14 @@ import Badge from "@codegouvfr/react-dsfr/Badge";
 import { SearchArticlesFilters } from "@/types/SearchTypes";
 import { DataTypeEnum } from "@/types/DataTypes";
 
-const Container = styled.div<{ $whiteContainer?: boolean; }> `
+const Container = styled.div<{ $isDark: boolean; $whiteContainer?: boolean; }> `
   ${props => props.$whiteContainer 
-    ? css`background-color: #FFF;`
+    ? css`background-color: ${props.$isDark ? 'var(--background-default-grey)' : '#FFF'};`
     : css`background-color: var(--background-alt-blue-france);`
   }
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
-  padding: 0.5rem;
+  padding: 1rem;
 `;
 const ArticleContainer = styled.div `
   border: var(--border-open-blue-france) 1px solid;
@@ -22,6 +23,7 @@ const ArticleContainer = styled.div `
   background-color: #FFF;
   padding: 0.5rem;
 `;
+
 interface ArticlesResumeListProps extends HTMLAttributes<HTMLDivElement> {
   articles: ArticleCardResume[];
   filterCategory?: DataTypeEnum | boolean;
@@ -35,6 +37,8 @@ function ArticlesResumeList({
   articlesFilters,
   whiteContainer,
 }: ArticlesResumeListProps) {
+
+  const { isDark } = useIsDark();
 
   const [articlesList, setArticlesList] = useState<ArticleCardResume[]>(articles);
 
@@ -64,17 +68,19 @@ function ArticlesResumeList({
 
   return (
     articlesList.length > 0 && (
-      <Container $whiteContainer={whiteContainer}>
-        <div className={fr.cx("fr-h6", "fr-mb-1w")}>
+      <Container $isDark={isDark} $whiteContainer={whiteContainer}>
+        <h3 className={fr.cx("fr-h6", "fr-mb-1w")}>
           En savoir plus
-        </div>
+        </h3>
         <div>
           {articlesList.map((article:ArticleCardResume, index) => {
             return (
-              <ArticleContainer key={index}>
+              <ArticleContainer key={index} className={fr.cx("fr-mb-2w")}>
                 <Link 
                   className={fr.cx("fr-text--sm", "fr-link")}
-                  href={article.canonicalUrl}>
+                  href={`/articles/${article.slug}`}
+                  target="_blank"
+                >
                     {article.title}
                 </Link>
                 <div className={fr.cx("fr-mt-1w")}>

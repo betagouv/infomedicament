@@ -61,7 +61,7 @@ async function uncachedGetGristTableData<F extends string>(
     id: number;
     fields: Record<
       string,
-      any//string | number | boolean | ["L", number] | Omit<ImageProps, "alt"> | string[] | number[]
+      string | number | boolean | ["L", number] | Omit<ImageProps, "alt"> | string[] | number[]
     >;
   }[];
 
