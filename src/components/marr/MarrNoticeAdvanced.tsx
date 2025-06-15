@@ -19,14 +19,7 @@ function MarrNoticeAdvanced({
           Mesure additionnelles de réduction du risque (MARR)
         </h2>
         <div className={fr.cx("fr-text--sm", "fr-mb-1w")}>
-          <ul>
-            <li>Guide médecin et Guide pharmacien décrivant les mesures de réduction des risques importants identifiés de tératogénicité, de troubles psychiatriques et de troubles lipidiques et hépatiques.</li>
-            <li>Brochure destinée aux patients et patientes pour les informer sur les risques importants identifiés de tératogénicité, troubles psychiatriques, troubles lipidiques et hépatiques.</li>
-            <li>Formulaire d’accord de soin pour les patientes en âge de procréer.</li>
-            <li>Carte Patiente pour le suivi du plan de prévention des grossesses.</li>
-            <li>Courrier de liaison entre le dermatologue envisageant d’initier un traitement chez une femme en âge de procréer et le médecin en charge de la contraception.</li>
-            <li>Courrier de liaison entre le dermatologue initiant le traitement et le médecin en charge du suivi du ou de la patiente.</li>
-          </ul>
+          Voici l&apos;ensemble des documents de mesure additionnelle de réduction du risque mis à disposition par le(s) laboratoire(s) exploitant(s) ce médicament et validés par l&apos;ANSM :
         </div>
         <div className={fr.cx("fr-mb-2w")}>
           <Link 

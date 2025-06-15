@@ -146,7 +146,10 @@ function SwitchNotice({
           />
         </ToggleSwitchContainer>
         {isAdvanced 
-          ? <span>Infos avancées</span>
+          ? <span>
+              Infos avancées
+              {(currentMarr && currentMarr.pdf.length > 0) && (<span><br/>Menu des MARR</span>)}
+            </span>
           : <section className={fr.cx("fr-mb-4w")}>
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                 <TagContainer category="Sous-classe">
