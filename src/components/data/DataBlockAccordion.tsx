@@ -28,12 +28,22 @@ const Container = styled.div`
   }
 `;
 
-const WhiteContainer = styled.div``;
 const DetailsContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
 `;
+
+const RowToColumnContainer = styled.div`
+  @media (max-width: 48em) {
+    display: flex;
+    flex-direction: column;
+    .fr-text--sm, .fr-text--md {
+      margin-bottom: 0px;
+    }
+  }
+`;
+
 const SpecName = styled.span`
   color: var(--grey-200-850);
   font-weight: bold;
@@ -87,24 +97,26 @@ function DataBlockAccordion({
         $isDetailsVisible={isDetailsVisible}
         onClick={() => setIsDetailsVisible(!isDetailsVisible)}
       >
-        <div>
+        <RowToColumnContainer>
           <SpecName className={fr.cx("fr-text--md", "fr-mr-2w")}>{formatSpecName(item.groupName)}</SpecName>
-          <SpecLength className={fr.cx("fr-text--sm")}>{specialites.length} {specialites.length > 1 ? "médicaments" : "médicament"}</SpecLength>
-        </div>
+          <SpecLength className={fr.cx("fr-text--sm")}>{specialites.length} {specialites.length > 1 ? "formats de médicament" : " format de médicament"}</SpecLength>
+        </RowToColumnContainer>
         <DetailsContainer>
           <div>
-            <span className={fr.cx("fr-text--sm", "fr-mr-2w")}>
-              <GreyText>Classe</GreyText>&nbsp;
-              <DarkGreyText>{item.atc1.label}&nbsp;{'>'}&nbsp;{item.atc2.label}</DarkGreyText>
-            </span>
-            <span className={fr.cx("fr-text--sm")}>
-              <GreyText>Substance&nbsp;active</GreyText>&nbsp;
-              <DarkGreyText>
-                {displaySimpleComposants(item.composants)
-                  .map((s) => s.NomLib.trim())
-                  .join(", ")}
-              </DarkGreyText>
-            </span>
+            <RowToColumnContainer>
+              <span className={fr.cx("fr-text--sm", "fr-mr-2w")}>
+                <GreyText>Classe</GreyText>&nbsp;
+                <DarkGreyText>{item.atc1.label}&nbsp;{'>'}&nbsp;{item.atc2.label}</DarkGreyText>
+              </span>
+              <span className={fr.cx("fr-text--sm")}>
+                <GreyText>Substance&nbsp;active</GreyText>&nbsp;
+                <DarkGreyText>
+                  {displaySimpleComposants(item.composants)
+                    .map((s) => s.NomLib.trim())
+                    .join(", ")}
+                </DarkGreyText>
+              </span>
+            </RowToColumnContainer>
             {((filterPregnancy && item.pregnancyAlert) || (filterPediatric && item.pediatrics)) && (
               <div>
                 {(filterPregnancy && item.pregnancyAlert) && (
@@ -135,7 +147,7 @@ function DataBlockAccordion({
         </DetailsContainer>
       </GreyContainer>
       {isDetailsVisible && (
-        <WhiteContainer className={fr.cx("fr-p-1w")}>
+        <div className={fr.cx("fr-p-1w")}>
           <GreyText className={fr.cx("fr-text--sm")}>Consultez la notice de :</GreyText>
           <ul className={fr.cx("fr-raw-list", "fr-pl-0")}>
             {specialites?.map((specialite, i) => (
@@ -159,7 +171,7 @@ function DataBlockAccordion({
               </li>
             ))}
           </ul>
-        </WhiteContainer>
+        </div>
       )}
     </Container>
   );
