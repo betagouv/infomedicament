@@ -6,14 +6,14 @@ import { isEmptyTextNode, isHtmlElement, isListItem } from "./leafletUtils";
 import { getLeafletImage } from "@/db/utils";
 import { WithGlossary } from "@/components/glossary/WithGlossary";
 
-async function DsfrLeafletElement({ node }: { node: HTMLElement }) {
+async function DsfrLeafletElement({ node, isHeader }: { node: HTMLElement, isHeader?: boolean }) {
   if (
     node.classList.contains("AmmNoticeTitre1") ||
     node.classList.contains("AmmAnnexeTitre1")
   ) {
     return (
       <h3 className={fr.cx("fr-h4")}>
-        <DsfrLeafletSection data={node.childNodes} />
+        <DsfrLeafletSection data={node.childNodes} isHeader/>
       </h3>
     );
   }
@@ -21,7 +21,7 @@ async function DsfrLeafletElement({ node }: { node: HTMLElement }) {
   if (node.classList.contains("AmmCorpsTexteGras")) {
     return (
       <p className={fr.cx("fr-text--bold")}>
-        <DsfrLeafletSection data={node.childNodes} />
+        <DsfrLeafletSection data={node.childNodes} isHeader={isHeader}/>
       </p>
     );
   }
@@ -39,11 +39,11 @@ async function DsfrLeafletElement({ node }: { node: HTMLElement }) {
     return (
       <>
         <p>
-          <DsfrLeafletSection data={node.childNodes.slice(0, tableIndex)} />
+          <DsfrLeafletSection data={node.childNodes.slice(0, tableIndex)}/>
         </p>
-        <DsfrLeafletElement node={node.childNodes[tableIndex] as HTMLElement} />
+        <DsfrLeafletElement node={node.childNodes[tableIndex] as HTMLElement}/>
         <p>
-          <DsfrLeafletSection data={node.childNodes.slice(tableIndex + 1)} />
+          <DsfrLeafletSection data={node.childNodes.slice(tableIndex + 1)}/>
         </p>
       </>
     );
@@ -59,18 +59,18 @@ async function DsfrLeafletElement({ node }: { node: HTMLElement }) {
     return (
       <table className={fr.cx("fr-table")}>
         <tbody>
-          <DsfrLeafletSection data={node.childNodes} />
+          <DsfrLeafletSection data={node.childNodes}/>
         </tbody>
       </table>
     );
   }
 
   if (node.rawTagName === "span") {
-    return <DsfrLeafletSection data={node.childNodes} />;
+    return <DsfrLeafletSection data={node.childNodes} isHeader={isHeader}/>;
   }
 
   if (node.rawTagName === "a") {
-    return <DsfrLeafletSection data={node.childNodes} />;
+    return <DsfrLeafletSection data={node.childNodes} isHeader={isHeader}/>;
   }
 
   if (node.rawTagName === "img") {
@@ -100,14 +100,14 @@ async function DsfrLeafletElement({ node }: { node: HTMLElement }) {
   if (node.rawTagName === "u") {
     return (
       <span style={{ fontWeight: 500 }}>
-        <DsfrLeafletSection data={node.childNodes} />
+        <DsfrLeafletSection data={node.childNodes}/>
       </span>
     );
   }
 
   return (
     <Tag>
-      <DsfrLeafletSection data={node.childNodes} />
+      <DsfrLeafletSection data={node.childNodes}/>
     </Tag>
   );
 }
@@ -182,7 +182,7 @@ export function DsfrListItems({
   );
 }
 
-export default async function DsfrLeafletSection({ data }: { data: Node[] }) {
+export default async function DsfrLeafletSection({ data, isHeader }: { data: Node[], isHeader?: boolean }) {
   const cleanedData = data.filter((el) => !isEmptyTextNode(el));
 
   return (
@@ -191,7 +191,9 @@ export default async function DsfrLeafletSection({ data }: { data: Node[] }) {
         cleanedData.map(async (node, index) => {
           if (!isHtmlElement(node)) {
             if (node.nodeType === NodeType.TEXT_NODE) {
-              return <WithGlossary key={index} text={node.text} />;
+              return (
+                <WithGlossary key={index} text={node.text} isHeader={isHeader} />
+              );
             }
 
             return null;
@@ -227,8 +229,7 @@ export default async function DsfrLeafletSection({ data }: { data: Node[] }) {
               </ul>
             );
           }
-
-          return <DsfrLeafletElement key={index} node={node} />;
+          return <DsfrLeafletElement key={index} node={node} isHeader={isHeader}/>;
         }),
       )}
     </Fragment>
