@@ -19,6 +19,8 @@ import PrincepsTag from "@/components/tags/PrincepsTag";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { PresentationDetail } from "@/db/types";
 import { Nullable } from "kysely";
+import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
+import { Marr } from "@/types/MarrTypes";
 
 const SummaryLineContainer = styled.div `
   display: flex;
@@ -74,6 +76,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   isPregnancyAlert: boolean;
   pediatrics: PediatricsInfo | undefined;  
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
+  marr?: Marr;
 }
 
 function GeneralInformations({ 
@@ -87,6 +90,7 @@ function GeneralInformations({
   isPregnancyAlert,
   pediatrics,
   presentations,
+  marr,
   ...props 
 }: GeneralInformationsProps) {
 
@@ -258,6 +262,12 @@ function GeneralInformations({
           </ul> */}
         </div>
       </ContentContainer>
+
+      {(marr && marr.pdf.length > 0) && (
+        <ContentContainer id="marr" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+          <MarrNoticeAdvanced marr={marr} />
+        </ContentContainer>
+      )}
     </>
   );
 };

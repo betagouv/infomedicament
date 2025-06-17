@@ -11,6 +11,7 @@ import { PediatricsInfo } from "@/data/grist/pediatrics";
 import { PresentationDetail } from "@/db/types";
 import { Nullable } from "kysely";
 import DocumentHas from "./DetailedNotice/DocumentHas";
+import { Marr } from "@/types/MarrTypes";
 
 const DetailedNoticeContainer = styled.div<{ $visible: boolean; }> `
   ${props => !props.$visible && css`
@@ -29,6 +30,7 @@ interface DetailedNotice extends HTMLAttributes<HTMLDivElement> {
   isPregnancyAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
+  marr?: Marr;
 }
 
 function DetailedNotice({
@@ -42,6 +44,7 @@ function DetailedNotice({
   isPregnancyAlert,
   pediatrics,
   presentations,
+  marr,
   ...props 
 }: DetailedNotice) {
 
@@ -65,6 +68,7 @@ function DetailedNotice({
           pediatrics={pediatrics}
           presentations={presentations}
           updateVisiblePart={setVisiblePart}
+          marr={marr}
         />
       </DetailedNoticeContainer>
       <DetailedNoticeContainer id="rcp-denomiation" $visible={visiblePart === DetailsNoticePartsEnum.RCP}>
