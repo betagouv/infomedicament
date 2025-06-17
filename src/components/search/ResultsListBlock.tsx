@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, HTMLAttributes, useState } from "react";
+import { Fragment, HTMLAttributes } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import styled from 'styled-components';

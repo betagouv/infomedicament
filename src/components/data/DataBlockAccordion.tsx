@@ -27,49 +27,6 @@ const Container = styled.div`
     border-radius: 8px;
     cursor: pointer;
   }
-  .data-block-accordion-details-container{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .data-block-accordion-row-to-column-container{
-    @media (max-width: 48em) {
-      display: flex;
-      flex-direction: column;
-      .fr-text--sm, .fr-text--md {
-        margin-bottom: 0px;
-      }
-    }
-  }
-  .data-block-accordion-spec-name{
-    color: var(--grey-200-850);
-    font-weight: bold;
-  }
-  .data-block-accordion-spec-length{
-    color: var(--text-default-info);
-  }
-  .data-block-accordion-grey-text{
-    color: var(--text-mention-grey);
-  }
-  .data-block-accordion-dark-grey-text{
-    color: var(--text-title-grey);
-  }
-  .data-block-accordion-dark-red-text{
-    color: var(--text-default-warning);
-  }
-  .data-block-accordion-dark-green-text{
-    color: var(--text-default-success);
-  }
-  .data-block-accordion-dark-yellow-text{
-    color: var(--yellow-tournesol-main-731);
-  }
-  .data-block-accordion-filters-tag-container{
-    display: flex;
-    a{
-      margin-right: 0.5rem;
-      margin-top: 0.2rem;
-    }
-  }
 `;
 
 const DetailsContainer = styled.div`
