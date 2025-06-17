@@ -1,9 +1,8 @@
 "use client";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { SideMenu, SideMenuProps } from "@codegouvfr/react-dsfr/SideMenu";
-import { HTMLAttributes, useState } from "react";
+import { HTMLAttributes, useEffect, useState } from "react";
 import styled from 'styled-components';
-
 
 type SubMenuType = {
   href: string;
@@ -196,13 +195,32 @@ const Container = styled.div `
 
 interface DetailedSubMenuProps extends HTMLAttributes<HTMLDivElement> {
   updateVisiblePart: (visiblePart: DetailsNoticePartsEnum) => void;
+  isMarr?: boolean;
 }
 
-function DetailedSubMenu(
-  {updateVisiblePart, ...props}: DetailedSubMenuProps
+function DetailedSubMenu({
+  updateVisiblePart,
+  isMarr,
+  ...props
+}: DetailedSubMenuProps
 ) {
 
   const [currentSubMenu, setCurrentSubMenu] = useState<SubMenuType>(infosGeneralesMenu[0]);
+  const [currentInfosGeneralesMenu, setCurrentInfosGeneralesMenu] = useState<SubMenuType[]>(infosGeneralesMenu);
+
+  useEffect(() => {
+    if(isMarr){
+      const menu = Array.from(infosGeneralesMenu);
+      menu.push(
+        {
+          href: 'informations-marr',
+          text: 'Mesures additionnelles de réduction du risque (MARR)',
+        }
+      );
+      setCurrentInfosGeneralesMenu(menu);
+    } else 
+      setCurrentInfosGeneralesMenu(infosGeneralesMenu);
+  }, [isMarr, infosGeneralesMenu, setCurrentInfosGeneralesMenu]);
 
   function menuOnClick(noticePart: DetailsNoticePartsEnum) {
     updateVisiblePart(noticePart);
@@ -247,7 +265,7 @@ function DetailedSubMenu(
               onClick: () => menuOnClick(DetailsNoticePartsEnum.INFORMATIONS_GENERALES),
             },
             text: 'Informations générales',
-            items: getSubMenu(infosGeneralesMenu),
+            items: getSubMenu(currentInfosGeneralesMenu),
           },
           {
             linkProps: {

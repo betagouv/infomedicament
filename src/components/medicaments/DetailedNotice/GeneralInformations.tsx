@@ -264,7 +264,7 @@ function GeneralInformations({
       </ContentContainer>
 
       {(marr && marr.pdf.length > 0) && (
-        <ContentContainer id="marr" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+        <ContentContainer id="informations-marr" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <MarrNoticeAdvanced marr={marr} />
         </ContentContainer>
       )}
