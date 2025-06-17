@@ -42,6 +42,22 @@ const FiltersContainer = styled.div`
   overflow: scroll;
 `;
 
+const CheckboxContainer = styled.div`
+  @media (max-width: 48em) {
+    .fr-fieldset{
+      padding: 0px;
+      flex-direction: column;
+      margin: 0;
+    }
+    .fr-fieldset__content{
+      margin: 0;
+    }
+    .fr-fieldset__content .fr-checkbox-group label {
+      padding-bottom: 0px;
+    }
+  }
+`;
+
 interface SearchResultsListProps extends HTMLAttributes<HTMLDivElement> {
   resultsList: ExtendedSearchResults;
   totalResults: number;
@@ -72,7 +88,7 @@ function SearchResultsList({
   return (
     <Container>
       <div className={fr.cx("fr-grid-row", "fr-mb-2w")}>
-        <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10", "fr-mb-1w")}>
+        <CheckboxContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10", "fr-mb-1w")}>
           <Checkbox
             small
             options={[
@@ -93,7 +109,7 @@ function SearchResultsList({
             ]}
             orientation="horizontal"
           />
-        </div>
+        </CheckboxContainer>
       </div>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10", "fr-mb-2w")}>

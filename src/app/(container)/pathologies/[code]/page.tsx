@@ -27,13 +27,14 @@ async function getPatho(code: string): Promise<Patho> {
 }
 
 async function getPathoSpecialites(code: `${number}`): Promise<Specialite[]> {
-  return pdbmMySQL
+  const specs = await pdbmMySQL
     .selectFrom("Specialite")
     .selectAll("Specialite")
     .leftJoin("Spec_Patho", "Specialite.SpecId", "Spec_Patho.SpecId")
     .where("Spec_Patho.codePatho", "=", code)
     .where("Specialite.SpecId", "in", liste_CIS_MVP)
     .execute();
+  return specs;
 }
 
 export default async function Page(props: {
@@ -44,8 +45,8 @@ export default async function Page(props: {
   const patho = await getPatho(code);
   const definition = await getPathologyDefinition(code);
   const specialites = await getPathoSpecialites(code);
-  const medicaments = groupSpecialites(specialites);
-  const detailedMedicaments = await getAdvancedMedicamentGroupListFromMedicamentGroupList(medicaments);
+  const medicaments = specialites && (groupSpecialites(specialites));
+  const detailedMedicaments = medicaments && (await getAdvancedMedicamentGroupListFromMedicamentGroupList(medicaments));
   
   return (
     <ContentContainer frContainer>
@@ -71,14 +72,11 @@ export default async function Page(props: {
         {medicaments.length} médicaments traitant la pathologie «&nbsp;
         {patho.NomPatho}&nbsp;»
       </h2>
-      {detailedMedicaments.map((data, index) => {
-        return (
-          <DataBlockAccordion 
-            key={index}
-            item={data}
-          />
-        )
-      })}
+      <div>
+        {detailedMedicaments && detailedMedicaments.length > 0 && detailedMedicaments.map((data, index) => (
+          <DataBlockAccordion key={index} item={data} />
+        ))}
+      </div>
     </ContentContainer>
   );
 }

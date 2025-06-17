@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, useState } from "react";
+import { HTMLAttributes, useEffect, useState } from "react";
 import Link from "next/link";
 import { fr } from "@codegouvfr/react-dsfr";
 import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
@@ -8,7 +8,8 @@ import styled, {css} from 'styled-components';
 import Button from "@codegouvfr/react-dsfr/Button";
 import PregnancyTag from "../tags/PregnancyTag";
 import PediatricsTags from "../tags/PediatricsTags";
-import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
+import { AdvancedMedicamentGroup, AdvancedSpecialite } from "@/types/MedicamentTypes";
+import { PediatricsInfo } from "@/data/grist/pediatrics";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
@@ -28,12 +29,22 @@ const Container = styled.div`
   }
 `;
 
-const WhiteContainer = styled.div``;
 const DetailsContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
 `;
+
+const RowToColumnContainer = styled.div`
+  @media (max-width: 48em) {
+    display: flex;
+    flex-direction: column;
+    .fr-text--sm, .fr-text--md {
+      margin-bottom: 0px;
+    }
+  }
+`;
+
 const SpecName = styled.span`
   color: var(--grey-200-850);
   font-weight: bold;
@@ -77,48 +88,83 @@ function DataBlockAccordion({
   filterPediatric
 }: DataBlockAccordionProps) {
 
-  const specialites = item.specialites;
+  const [advancedMedicamentGroup, setAdvancedMedicamentGroup] = useState<AdvancedMedicamentGroup>();
+  const [groupName, setGroupName] = useState<string>("");
+  const [specialites, setSpecialites] = useState<AdvancedSpecialite[]>();
+  const [listeComposants, setListeComposants] = useState<string>("");
+  const [pregnancyAlert, setPregnancyAlert] = useState<boolean>(false);
+  const [pediatricsInfo, setPediatricsInfo] = useState<PediatricsInfo>();
+
   const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(false);
 
-  return (
+  useEffect(() => {
+    setAdvancedMedicamentGroup(item);
+    setGroupName(formatSpecName(item.groupName));
+    setSpecialites(item.specialites);
+    setListeComposants(
+      displaySimpleComposants(item.composants)
+        .map((s) => s.NomLib.trim())
+        .join(", ")
+    );
+  }, [item, setAdvancedMedicamentGroup, setGroupName, setSpecialites, setListeComposants]);
+
+  useEffect(() => {
+    if(advancedMedicamentGroup && filterPregnancy && advancedMedicamentGroup.pregnancyAlert)
+      setPregnancyAlert(true);
+    else
+      setPregnancyAlert(false);
+
+  }, [filterPregnancy, advancedMedicamentGroup, setPregnancyAlert]);
+
+  useEffect(() => {
+    if(advancedMedicamentGroup && filterPediatric && advancedMedicamentGroup.pediatrics)
+      setPediatricsInfo(advancedMedicamentGroup.pediatrics);
+    else
+      setPediatricsInfo(undefined);
+
+  }, [filterPediatric, advancedMedicamentGroup, setPediatricsInfo]);
+
+  return advancedMedicamentGroup && (
     <Container className={fr.cx("fr-mb-1w")}>
       <GreyContainer 
         className={fr.cx("fr-p-1w")}
         $isDetailsVisible={isDetailsVisible}
         onClick={() => setIsDetailsVisible(!isDetailsVisible)}
       >
-        <div>
-          <SpecName className={fr.cx("fr-text--md", "fr-mr-2w")}>{formatSpecName(item.groupName)}</SpecName>
-          <SpecLength className={fr.cx("fr-text--sm")}>{specialites.length} {specialites.length > 1 ? "médicaments" : "médicament"}</SpecLength>
-        </div>
+        <RowToColumnContainer>
+          <SpecName className={fr.cx("fr-text--md", "fr-mr-2w")}>{groupName}</SpecName>
+          {(specialites && specialites.length > 0) && (
+            <SpecLength className={fr.cx("fr-text--sm")}>{specialites.length} {specialites.length > 1 ? "formats de médicament" : " format de médicament"}</SpecLength>
+          )}
+        </RowToColumnContainer>
         <DetailsContainer>
           <div>
-            <span className={fr.cx("fr-text--sm", "fr-mr-2w")}>
-              <GreyText>Classe</GreyText>&nbsp;
-              <DarkGreyText>{item.atc1.label}&nbsp;{'>'}&nbsp;{item.atc2.label}</DarkGreyText>
-            </span>
-            <span className={fr.cx("fr-text--sm")}>
-              <GreyText>Substance&nbsp;active</GreyText>&nbsp;
-              <DarkGreyText>
-                {displaySimpleComposants(item.composants)
-                  .map((s) => s.NomLib.trim())
-                  .join(", ")}
-              </DarkGreyText>
-            </span>
-            {((filterPregnancy && item.pregnancyAlert) || (filterPediatric && item.pediatrics)) && (
+            <RowToColumnContainer>
+              <span className={fr.cx("fr-text--sm", "fr-mr-2w")}>
+                <GreyText>Classe</GreyText>&nbsp;
+                <DarkGreyText>{advancedMedicamentGroup.atc1.label}&nbsp;{'>'}&nbsp;{advancedMedicamentGroup.atc2.label}</DarkGreyText>
+              </span>
+              <div className={fr.cx("fr-text--sm")}>
+                <GreyText>Substance&nbsp;active</GreyText>&nbsp;
+                <DarkGreyText>
+                  {listeComposants}
+                </DarkGreyText>
+              </div>
+            </RowToColumnContainer>
+            {(pregnancyAlert || pediatricsInfo) && (
               <div>
-                {(filterPregnancy && item.pregnancyAlert) && (
+                {pregnancyAlert && (
                   <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Contre-indication grossesse pour certains des médicaments</RedText>
                 )}
-                {(filterPediatric && item.pediatrics) && (
+                {pediatricsInfo && (
                   <>
-                    {item.pediatrics.indication && (
+                    {pediatricsInfo.indication && (
                       <GreenText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Peut être utilisé chez l&apos;enfant selon l&apos;âge</GreenText>
                     )}
-                    {item.pediatrics.contraindication && (
+                    {pediatricsInfo.contraindication && (
                       <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Contre-indiqué pour un enfant selon l&apos;âge</RedText>                    
                     )}
-                    {item.pediatrics.doctorAdvice && (
+                    {pediatricsInfo.doctorAdvice && (
                       <YellowText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Utilisation chez l&apos;enfant sur avis d&apos;un professionnel de santé</YellowText>
                     )}
                   </>
@@ -134,11 +180,11 @@ function DataBlockAccordion({
           />
         </DetailsContainer>
       </GreyContainer>
-      {isDetailsVisible && (
-        <WhiteContainer className={fr.cx("fr-p-1w")}>
+      {(isDetailsVisible && specialites && specialites.length > 0) && (
+        <div className={fr.cx("fr-p-1w")}>
           <GreyText className={fr.cx("fr-text--sm")}>Consultez la notice de :</GreyText>
           <ul className={fr.cx("fr-raw-list", "fr-pl-0")}>
-            {specialites?.map((specialite, i) => (
+            {specialites.map((specialite, i) => (
               <li key={i} className={fr.cx("fr-mb-1v")}>
                 <Link
                   href={`/medicaments/${specialite.SpecId}`}
@@ -146,12 +192,12 @@ function DataBlockAccordion({
                 >
                   {formatSpecName(specialite.SpecDenom01)}
                 </Link>
-                {((filterPregnancy && specialite.pregnancyAlert) || (filterPediatric && specialite.pediatrics)) && (
+                {((pregnancyAlert && specialite.pregnancyAlert) || (pediatricsInfo && specialite.pediatrics)) && (
                   <FiltersTagContainer>
-                    {(filterPregnancy && specialite.pregnancyAlert) && (
+                    {(pregnancyAlert && specialite.pregnancyAlert) && (
                       <PregnancyTag />
                     )}
-                    {(filterPediatric && specialite.pediatrics) && (
+                    {(pediatricsInfo && specialite.pediatrics) && (
                       <PediatricsTags info={specialite.pediatrics} />
                     )}
                   </FiltersTagContainer>
@@ -159,7 +205,7 @@ function DataBlockAccordion({
               </li>
             ))}
           </ul>
-        </WhiteContainer>
+        </div>
       )}
     </Container>
   );
