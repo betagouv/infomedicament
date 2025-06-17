@@ -7,7 +7,7 @@ import ClassTag from "../tags/ClassTag";
 import { ATC } from "@/data/grist/atc";
 import { fr } from "@codegouvfr/react-dsfr";
 import SubstanceTag from "../tags/SubstanceTag";
-import { Presentation, PresInfoTarif, SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { Presentation, PresInfoTarif, SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { TagTypeEnum } from "@/types/TagType";
 import PrincepsTag from "../tags/PrincepsTag";
 import GenericTag from "../tags/GenericTag";
@@ -19,9 +19,11 @@ import { PresentationsList } from "../PresentationsList";
 import { Nullable } from "kysely";
 import { PresentationDetail } from "@/db/types";
 import { HTMLAttributes, PropsWithChildren, useCallback, useEffect, useState } from "react";
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import MarrNoticeAdvanced from "../marr/MarrNoticeAdvanced";
+import DetailedSubMenu from "./DetailedSubMenu";
+import DetailedNotice from "./DetailedNotice";
+import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import MarrNotice from "../marr/MarrNotice";
 import { Marr } from "@/types/MarrTypes";
 
@@ -38,10 +40,11 @@ const ToggleSwitchContainer = styled.div `
 interface OwnProps extends HTMLAttributes<HTMLDivElement> {
   CIS: string;
   atc2: ATC;
+  atcCode: string;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
   SpecGeneId: string;
-  isDelivrance: boolean;
+  delivrance: SpecDelivrance[];
   isPregnancyAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
@@ -53,10 +56,11 @@ interface OwnProps extends HTMLAttributes<HTMLDivElement> {
 function SwitchNotice({
   CIS,
   atc2,
+  atcCode,
   composants,
   isPrinceps,
   SpecGeneId,
-  isDelivrance,
+  delivrance,
   isPregnancyAlert,
   pediatrics,
   presentations,
@@ -67,6 +71,7 @@ function SwitchNotice({
   ...props
 }: PropsWithChildren<OwnProps>) {
 
+  const [currentPart, setcurrentPart] = useState<DetailsNoticePartsEnum>(DetailsNoticePartsEnum.INFORMATIONS_GENERALES);
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
   const [currentMarr, setCurrentMarr] = useState<Marr>();
 
@@ -113,7 +118,7 @@ function SwitchNotice({
           ? TagTypeEnum.PEDIATRIC_INDICATION
           : (isPregnancyAlert 
             ? TagTypeEnum.PREGNANCY 
-            : (isDelivrance 
+            : (!!delivrance.length 
               ? TagTypeEnum.PRESCRIPTION 
               : (!!SpecGeneId 
                 ? TagTypeEnum.GENERIC 
@@ -146,10 +151,7 @@ function SwitchNotice({
           />
         </ToggleSwitchContainer>
         {isAdvanced 
-          ? <span>
-              Infos avancées
-              {(currentMarr && currentMarr.pdf.length > 0) && (<span><br/>Menu des MARR</span>)}
-            </span>
+          ? <DetailedSubMenu updateVisiblePart={setcurrentPart} isMarr={(currentMarr && currentMarr.pdf.length > 0)}/>
           : <section className={fr.cx("fr-mb-4w")}>
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                 <TagContainer category="Sous-classe">
@@ -168,7 +170,7 @@ function SwitchNotice({
                     <GenericTag specGeneId={SpecGeneId} />
                   </TagContainer>
                 )}
-                {isDelivrance && (
+                {!!delivrance.length && (
                   <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRESCRIPTION}>
                     <PrescriptionTag />
                   </TagContainer>
@@ -195,12 +197,19 @@ function SwitchNotice({
           }
       </ContentContainer>
       {isAdvanced 
-        ? (currentMarr && currentMarr.pdf.length > 0) && 
-          <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
-            <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-              <MarrNoticeAdvanced marr={currentMarr} />
-            </ContentContainer>
-          </ContentContainer>
+        ? <DetailedNotice 
+            currentVisiblePart={currentPart}
+            CIS={CIS}
+            atcCode={atcCode}
+            composants={composants}
+            isPrinceps={isPrinceps}
+            SpecGeneId={SpecGeneId}
+            delivrance={delivrance}
+            isPregnancyAlert={isPregnancyAlert}
+            pediatrics={pediatrics}
+            presentations={presentations}
+            marr={currentMarr}
+          />
         : leaflet && 
           <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
             <article>
