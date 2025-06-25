@@ -84,31 +84,31 @@ export default async function Page(props: {
 
   return (
     <ContentContainer frContainer>
-      <Breadcrumb
-        segments={[
-          {
-            label: "Accueil",
-            linkProps: { href: "/" },
-          },
-          ...(atc2
-            ? [
-                {
-                  label: atc1.label,
-                  linkProps: { href: `/atc/${atc1.code}` },
-                },
-              ]
-            : []),
-        ]}
-        currentPageLabel={currentAtc.label}
-      />
-      <DefinitionBanner
-        type={`${atc2 ? "Sous-classe" : "Classe"} de médicament`}
-        title={currentAtc.label}
-        definition={currentAtc.description}
-      />
-
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
+          <Breadcrumb
+            segments={[
+              {
+                label: "Accueil",
+                linkProps: { href: "/" },
+              },
+              ...(atc2
+                ? [
+                    {
+                      label: atc1.label,
+                      linkProps: { href: `/atc/${atc1.code}` },
+                    },
+                  ]
+                : []),
+            ]}
+            currentPageLabel={currentAtc.label}
+          />
+          <DefinitionBanner
+            type={`${atc2 ? "Sous-classe" : "Classe"} de médicament`}
+            title={currentAtc.label}
+            definition={currentAtc.description}
+          />
+
           <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
             {items.length}{" "}
             {atc2 ? "substances actives" : "sous-classes de médicament"}
