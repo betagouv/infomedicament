@@ -111,7 +111,11 @@ export default async function Page(props: {
 
           <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
             {items.length}{" "}
-            {atc2 ? "substances actives" : "sous-classes de médicament"}
+            {atc2 ? (
+              items.length > 1 ? "substances actives" : "substance active"
+            ) : (
+              items.length > 1 ? "sous-classes de médicament" : "sous-classe de médicament"
+            )}
           </h2>
 
           <DataList

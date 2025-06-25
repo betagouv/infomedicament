@@ -126,7 +126,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           />
 
           <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
-            {specialitiesGroups.length} médicaments contenant{" "}
+            {specialitiesGroups.length} {specialitiesGroups.length > 1 ? "médicaments" : "médicament"} contenant{" "}
             {substances.length < 2
               ? `uniquement la substance « ${substances[0].NomLib} »`
               : `les substances « ${substances.map((s) => s.NomLib).join(", ")} »`}

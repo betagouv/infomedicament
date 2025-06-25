@@ -72,7 +72,7 @@ export default async function Page(props: {
           />
 
           <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
-            {medicaments.length} médicaments traitant la pathologie «&nbsp;
+            {medicaments.length} {medicaments.length > 1 ? "médicaments" : "médicament"} traitant la pathologie «&nbsp;
             {patho.NomPatho}&nbsp;»
           </h2>
 
