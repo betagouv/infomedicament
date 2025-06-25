@@ -120,6 +120,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
               title: d.fields.SA,
               desc: d.fields.Definition,
             }))}
+            disclaimer={"Les définitions proposées sont fournies à titre informatif. Elles n'ont pas de valeur d'avis médical ou d’indication clinique. En cas de doute ou pour toute décision liée à votre santé, consultez un professionnel de santé."}
           />
 
           <h2 className={fr.cx("fr-h3", "fr-mt-4w")}>
