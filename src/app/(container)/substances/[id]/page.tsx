@@ -11,8 +11,9 @@ import { getGristTableData } from "@/data/grist";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import DefinitionBanner from "@/components/DefinitionBanner";
 import ContentContainer from "@/components/generic/ContentContainer";
-import DataBlockAccordion from "@/components/data/DataBlockAccordion";
 import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
+import DataList from "@/components/data/DataList";
+import { DataTypeEnum } from "@/types/DataTypes";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -124,21 +125,17 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
             }))}
           />
 
-          <h2 className={fr.cx("fr-h3", "fr-mt-4w")}>
+          <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
             {specialitiesGroups.length} médicaments contenant{" "}
             {substances.length < 2
               ? `uniquement la substance « ${substances[0].NomLib} »`
               : `les substances « ${substances.map((s) => s.NomLib).join(", ")} »`}
           </h2>
 
-          {detailedSpecialitiesGroups.map((data, index) => {
-            return (
-              <DataBlockAccordion 
-                key={index}
-                item={data}
-              />
-            )
-          })}
+          <DataList
+            dataList={detailedSpecialitiesGroups}
+            type={DataTypeEnum.MEDGROUP} 
+          />
         </div>
       </div>
     </ContentContainer>

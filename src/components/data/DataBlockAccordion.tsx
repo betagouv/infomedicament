@@ -144,12 +144,12 @@ function DataBlockAccordion({
                 <GreyText>Classe</GreyText>&nbsp;
                 <DarkGreyText>{advancedMedicamentGroup.atc1.label}&nbsp;{'>'}&nbsp;{advancedMedicamentGroup.atc2.label}</DarkGreyText>
               </span>
-              <div className={fr.cx("fr-text--sm")}>
+              <span className={fr.cx("fr-text--sm")}>
                 <GreyText>Substance&nbsp;active</GreyText>&nbsp;
                 <DarkGreyText>
                   {listeComposants}
                 </DarkGreyText>
-              </div>
+              </span>
             </RowToColumnContainer>
             {(pregnancyAlert || pediatricsInfo) && (
               <div>

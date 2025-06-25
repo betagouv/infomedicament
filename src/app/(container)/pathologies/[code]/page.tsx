@@ -8,8 +8,9 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getPathologyDefinition } from "@/data/pathologies";
 import ContentContainer from "@/components/generic/ContentContainer";
-import DataBlockAccordion from "@/components/data/DataBlockAccordion";
 import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
+import DataList from "@/components/data/DataList";
+import { DataTypeEnum } from "@/types/DataTypes";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -50,32 +51,36 @@ export default async function Page(props: {
   
   return (
     <ContentContainer frContainer>
-      <Breadcrumb
-        segments={[
-          { label: "Accueil", linkProps: { href: "/" } },
-          {
-            label: "Listes des pathologies",
-            linkProps: {
-              href: `/pathologies/${patho.NomPatho.slice(0, 1)}`,
-            },
-          },
-        ]}
-        currentPageLabel={patho.NomPatho}
-      />
-      <DefinitionBanner
-        type="Pathologie"
-        title={patho.NomPatho}
-        definition={definition}
-      />
+      <div className={fr.cx("fr-grid-row")}>
+        <div className={fr.cx("fr-col-md-8")}>
+          <Breadcrumb
+            segments={[
+              { label: "Accueil", linkProps: { href: "/" } },
+              {
+                label: "Listes des pathologies",
+                linkProps: {
+                  href: `/pathologies/${patho.NomPatho.slice(0, 1)}`,
+                },
+              },
+            ]}
+            currentPageLabel={patho.NomPatho}
+          />
+          <DefinitionBanner
+            type="Pathologie"
+            title={patho.NomPatho}
+            definition={definition}
+          />
 
-      <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
-        {medicaments.length} médicaments traitant la pathologie «&nbsp;
-        {patho.NomPatho}&nbsp;»
-      </h2>
-      <div>
-        {detailedMedicaments && detailedMedicaments.length > 0 && detailedMedicaments.map((data, index) => (
-          <DataBlockAccordion key={index} item={data} />
-        ))}
+          <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
+            {medicaments.length} médicaments traitant la pathologie «&nbsp;
+            {patho.NomPatho}&nbsp;»
+          </h2>
+
+          <DataList
+            dataList={detailedMedicaments}
+            type={DataTypeEnum.MEDGROUP} 
+          />
+        </div>
       </div>
     </ContentContainer>
   );

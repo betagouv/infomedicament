@@ -1,5 +1,5 @@
 import { fr } from "@codegouvfr/react-dsfr";
-import { ATC, getAtc1, getAtc2, getSubstancesByAtc } from "@/data/grist/atc";
+import { ATC, ATC1, getAtc1, getAtc2, getSubstancesByAtc } from "@/data/grist/atc";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
 import React from "react";
@@ -7,10 +7,10 @@ import Link from "next/link";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import DefinitionBanner from "@/components/DefinitionBanner";
 import ContentContainer from "@/components/generic/ContentContainer";
-import DataBlockGeneric from "@/components/data/DataBlockGeneric";
 import { getSubstanceSpecialites } from "@/db/utils/search";
 import { groupSpecialites } from "@/db/utils";
 import { AdvancedATCClass, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
+import DataList from "@/components/data/DataList";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -36,7 +36,7 @@ export default async function Page(props: {
 }) {
   const { code } = await props.params;
 
-  const atc1 = await getAtc1(code);
+  const atc1:ATC1 = await getAtc1(code);
   const atc2 = code.length === 3 && (await getAtc2(code));
   const currentAtc = atc2 || atc1;
 
@@ -113,25 +113,12 @@ export default async function Page(props: {
             {items.length}{" "}
             {atc2 ? "substances actives" : "sous-classes de médicament"}
           </h2>
-          {detailedSubClass && detailedSubClass.map((item:AdvancedSubstanceNom|AdvancedATCClass, index) => {
-            return atc2 ? (
-                <DataBlockGeneric 
-                  key={index}
-                  item={{
-                    result: item as AdvancedSubstanceNom,
-                    type: DataTypeEnum.SUBSTANCE
-                  }}
-                />
-              ) : (
-                <DataBlockGeneric 
-                  key={index}
-                  item={{
-                    result: item as AdvancedATCClass,
-                    type: DataTypeEnum.ATCCLASS
-                  }}
-                />
-              )
-          })}
+
+          <DataList
+            dataList={detailedSubClass as AdvancedSubstanceNom[] | AdvancedATCClass[]}
+            type={atc2 ? DataTypeEnum.SUBSTANCE : DataTypeEnum.ATCCLASS}
+          />
+
         </div>
       </div>
     </ContentContainer>

@@ -7,10 +7,10 @@ import AlphabeticNav from "@/components/AlphabeticNav";
 
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import ContentContainer from "@/components/generic/ContentContainer";
-import DataBlockGeneric from "@/components/data/DataBlockGeneric";
 import { getSubstanceSpecialites } from "@/db/utils/search";
 import { groupSpecialites } from "@/db/utils";
 import { AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
+import DataList from "@/components/data/DataList";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -86,17 +86,10 @@ export default async function Page(props: {
             letters={letters}
             url={(letter) => `/substances/${letter}`}
           />
-          {detailedSubstances.map((substance, index) => {
-            return (
-              <DataBlockGeneric
-                key={index}
-                item={{
-                  result: substance,
-                  type: DataTypeEnum.SUBSTANCE
-                }}
-              />
-            );
-          })}
+          <DataList 
+            dataList={detailedSubstances}
+            type={DataTypeEnum.SUBSTANCE}
+          />
         </div>
       </div>
     </ContentContainer>

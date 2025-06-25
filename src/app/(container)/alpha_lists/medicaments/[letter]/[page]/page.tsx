@@ -10,8 +10,9 @@ import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { groupSpecialites } from "@/db/utils";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import ContentContainer from "@/components/generic/ContentContainer";
-import DataBlockAccordion from "@/components/data/DataBlockAccordion";
 import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
+import { DataTypeEnum } from "@/types/DataTypes";
+import DataList from "@/components/data/DataList";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -76,19 +77,13 @@ export default async function Page(props: {
               letters={letters}
               url={(letter) => `/medicaments/${letter}/1`}
             />
-            {detailedMedicaments.slice(
-                (pageNumber - 1) * PAGE_LENGTH,
-                pageNumber * PAGE_LENGTH,
-              )
-              .map((data, index) => {
-                return (
-                  <DataBlockAccordion 
-                    key={index}
-                    item={data}
-                  />
-                )
-              })
-            }
+            <DataList
+              dataList={detailedMedicaments.slice(
+                  (pageNumber - 1) * PAGE_LENGTH,
+                  pageNumber * PAGE_LENGTH,
+                )}
+              type={DataTypeEnum.MEDGROUP} 
+            />
             {pageCount > 1 && (
               <Pagination
                 count={pageCount}

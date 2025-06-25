@@ -5,9 +5,9 @@ import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import ContentContainer from "@/components/generic/ContentContainer";
-import DataBlockGeneric from "@/components/data/DataBlockGeneric";
 import { getPathoSpecialites } from "@/db/utils/search";
 import { AdvancedPatho, DataTypeEnum } from "@/types/DataTypes";
+import DataList from "@/components/data/DataList";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -67,17 +67,10 @@ export default async function Page(props: {
             letters={letters}
             url={(letter) => `/pathologies/${letter}`}
           />
-          {detailedPathos.map((patho, index) => {
-            return (
-              <DataBlockGeneric
-                key={index}
-                item={{
-                  result: patho,
-                  type: DataTypeEnum.SUBSTANCE
-                }}
-              />
-            );
-          })}
+          <DataList 
+            dataList={detailedPathos}
+            type={DataTypeEnum.PATHOLOGY}
+          />
         </div>
       </div>
     </ContentContainer>
