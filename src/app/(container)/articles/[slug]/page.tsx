@@ -89,9 +89,9 @@ export default async function Page(props0: {
             components={{
               blockquote: (props) => (
                 <div className={fr.cx("fr-callout")}>
-                  <div className={fr.cx("fr-callout__title")}>
+                  <p>
                     {props.children}
-                  </div>
+                  </p>
                 </div>
               ),
               h1: (props) => (
