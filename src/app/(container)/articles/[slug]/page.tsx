@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Metadata, ResolvingMetadata } from "next";
 import ContentContainer from "@/components/generic/ContentContainer";
+import ShareButtons from "@/components/generic/ShareButtons";
 
 export async function generateStaticParams() {
   const articles = await getArticles();
@@ -58,11 +59,12 @@ export default async function Page(props0: {
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12", "fr-col-md-10", "fr-col-lg-9")}>
           <h1 className={fr.cx("fr-mb-1w")}>{title}</h1>
-          <p className={fr.cx("fr-text--light", "fr-mb-4w")}>
+          <p className={fr.cx("fr-text--light", "fr-mb-2w")}>
             Source&nbsp;: {source}
           </p>
         </div>
       </div>
+      <ShareButtons leftAlign={true} className={fr.cx("fr-mb-4w")}/>
       {image && (
         <div className={fr.cx("fr-grid-row")}>
           <div
