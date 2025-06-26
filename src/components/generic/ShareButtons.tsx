@@ -3,7 +3,7 @@
 
 import { fr } from "@codegouvfr/react-dsfr";
 import Link from "next/link";
-import { HTMLAttributes } from "react";
+import { HTMLAttributes, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
 
 const Container = styled.div<{$leftAlign?: boolean }> `
@@ -28,8 +28,14 @@ interface ShareButtonsProps extends HTMLAttributes<HTMLDivElement> {
   leftAlign?: boolean;
 }
 
-
 function ShareButtons({leftAlign, ...props}: ShareButtonsProps) {
+
+  const [currentHref, setCurrentHref] = useState<string>("");
+
+  useEffect(() => {
+    if(typeof window !== 'undefined')
+      setCurrentHref(window.location.href);
+  }, [setCurrentHref])
 
   return (
     <Container $leftAlign={leftAlign} className={props.className}>
@@ -38,7 +44,7 @@ function ShareButtons({leftAlign, ...props}: ShareButtonsProps) {
         <ul className={fr.cx("fr-btns-group")}>
           <li>
             <Link 
-              href={`mailto:?subject=[À MODIFIER - objet du mail]&body=[À MODIFIER - titre ou texte descriptif de la page] ${window.location.href}`}
+              href={`mailto:?subject=[À MODIFIER - objet du mail]&body=[À MODIFIER - titre ou texte descriptif de la page] ${currentHref}`}
               target="_blank" 
               rel="noopener external" 
               className={fr.cx("fr-btn--mail", "fr-btn")}
@@ -49,7 +55,7 @@ function ShareButtons({leftAlign, ...props}: ShareButtonsProps) {
           <li>
             <Link 
               onClick={() =>{
-                navigator.clipboard.writeText(window.location.href).then(
+                navigator.clipboard.writeText(currentHref).then(
                   function() {
                     alert('Adresse copiée dans le presse papier.')
                   }
