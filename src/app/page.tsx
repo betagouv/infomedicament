@@ -67,7 +67,12 @@ export default async function Page() {
                     {title}
                   </Link>
                 </li>
-              ))}
+              ))}              
+              <li key={"all"}>
+                <Link href="/articles" className={fr.cx("fr-link")}>
+                  Voir tous les articles
+                </Link>
+              </li>
             </ul>
           </div>
           <div
