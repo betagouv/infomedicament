@@ -6,12 +6,14 @@ import { groupSpecialites } from "@/db/utils";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { PdbmMySQL, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { notFound } from "next/navigation";
-import { MedGroupSpecListList } from "@/components/MedGroupSpecList";
 import { Expression, expressionBuilder, SqlBool } from "kysely";
 import { getGristTableData } from "@/data/grist";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import DefinitionBanner from "@/components/DefinitionBanner";
 import ContentContainer from "@/components/generic/ContentContainer";
+import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
+import DataList from "@/components/data/DataList";
+import { DataTypeEnum } from "@/types/DataTypes";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -96,6 +98,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   const ids = decodeURIComponent(id).split(",");
   const { substances, specialites, definitions } = await getSubstance(ids);
   const specialitiesGroups = groupSpecialites(specialites);
+  const detailedSpecialitiesGroups = await getAdvancedMedicamentGroupListFromMedicamentGroupList(specialitiesGroups);
 
   return (
     <ContentContainer frContainer>
@@ -123,13 +126,17 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
             disclaimer={"Les définitions proposées sont fournies à titre informatif. Elles n'ont pas de valeur d'avis médical ou d’indication clinique. En cas de doute ou pour toute décision liée à votre santé, consultez un professionnel de santé."}
           />
 
-          <h2 className={fr.cx("fr-h3", "fr-mt-4w")}>
-            {specialitiesGroups.length} médicaments contenant{" "}
+          <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
+            {specialitiesGroups.length} {specialitiesGroups.length > 1 ? "médicaments" : "médicament"} contenant{" "}
             {substances.length < 2
               ? `uniquement la substance « ${substances[0].NomLib} »`
               : `les substances « ${substances.map((s) => s.NomLib).join(", ")} »`}
           </h2>
-          <MedGroupSpecListList items={specialitiesGroups} />
+
+          <DataList
+            dataList={detailedSpecialitiesGroups}
+            type={DataTypeEnum.MEDGROUP} 
+          />
         </div>
       </div>
     </ContentContainer>

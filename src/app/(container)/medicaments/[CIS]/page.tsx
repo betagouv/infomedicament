@@ -214,7 +214,7 @@ export default async function Page(props: {
       .executeTakeFirst());
 
   const pregnancyAlert = (await getPregnancyAlerts()).find((s) =>
-    composants.find((c) => c.SubsId.trim() === String(s.id)),
+    composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
   );
 
   const pediatrics = await getPediatrics(CIS);

@@ -7,10 +7,12 @@ import Pagination from "@codegouvfr/react-dsfr/Pagination";
 
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
-import { MedGroupSpecListList } from "@/components/MedGroupSpecList";
 import { groupSpecialites } from "@/db/utils";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import ContentContainer from "@/components/generic/ContentContainer";
+import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
+import { DataTypeEnum } from "@/types/DataTypes";
+import DataList from "@/components/data/DataList";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -53,9 +55,11 @@ export default async function Page(props: {
   if (!specialites || !specialites.length) return notFound();
 
   const medicaments = groupSpecialites(specialites);
+  const detailedMedicaments = await getAdvancedMedicamentGroupListFromMedicamentGroupList(medicaments);
+  
   const pageCount =
-    Math.trunc(medicaments.length / PAGE_LENGTH) +
-    (medicaments.length % PAGE_LENGTH ? 1 : 0);
+    Math.trunc(detailedMedicaments.length / PAGE_LENGTH) +
+    (detailedMedicaments.length % PAGE_LENGTH ? 1 : 0);
 
   if (pageNumber < 1 || pageNumber > pageCount) return notFound();
 
@@ -73,11 +77,12 @@ export default async function Page(props: {
               letters={letters}
               url={(letter) => `/medicaments/${letter}/1`}
             />
-            <MedGroupSpecListList
-              items={medicaments.slice(
-                (pageNumber - 1) * PAGE_LENGTH,
-                pageNumber * PAGE_LENGTH,
-              )}
+            <DataList
+              dataList={detailedMedicaments.slice(
+                  (pageNumber - 1) * PAGE_LENGTH,
+                  pageNumber * PAGE_LENGTH,
+                )}
+              type={DataTypeEnum.MEDGROUP} 
             />
             {pageCount > 1 && (
               <Pagination
