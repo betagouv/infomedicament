@@ -61,7 +61,7 @@ async function uncachedGetGristTableData<F extends string>(
     id: number;
     fields: Record<
       string,
-      any//string | number | boolean | ["L", number] | Omit<ImageProps, "alt"> | string[] | number[]
+      string | number | boolean | ["L", number] | Omit<ImageProps, "alt"> | string[] | number[]
     >;
   }[];
 
@@ -69,8 +69,10 @@ async function uncachedGetGristTableData<F extends string>(
   for (const r of data) {
     for (const [key, value] of Object.entries(r.fields)) {
       if (Array.isArray(value) && value[0] === "L") {
-        if(tableId === "Articles" && (key === "Classes_ATC" || key === "Pathologies")){
-          r.fields[key] = (value as []).slice(1);
+        if((tableId === "MARR_URL_CIS" && key === "Generiques") 
+          || (tableId === "MARR_URL_PDF" && key === "Type")
+          || (tableId === "Articles" && (key === "Classes_ATC" || key === "Pathologies"))){
+          r.fields[key] = (value as string[]).slice(1);
         } else {
           const image = await (
             await (
@@ -88,7 +90,6 @@ async function uncachedGetGristTableData<F extends string>(
           ).bytes();
           if (!image) {
             throw Error(`Failed to fetch image for field ${key}.`);
-
           }
           const dimensions = imageSize(image);
           r.fields[key] = {
@@ -98,7 +99,7 @@ async function uncachedGetGristTableData<F extends string>(
           };
         }
       }
-    }
+    } 
   }
 
   assert(

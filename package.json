@@ -15,6 +15,7 @@
     "@codegouvfr/react-dsfr": "^1.16.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
+    "@gouvfr/dsfr-chart": "^1.0.0",
     "@hotjar/browser": "^1.0.9",
     "@mui/icons-material": "^6.1.2",
     "@mui/material": "^6.1.2",
