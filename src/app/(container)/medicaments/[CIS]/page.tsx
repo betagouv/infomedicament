@@ -26,6 +26,8 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import SwitchNotice from "@/components/medicaments/SwitchNotice";
 import { SearchArticlesFilters } from "@/types/SearchTypes";
 import { getArticlesFromFilters } from "@/data/grist/articles";
+import { getMarr } from "@/data/grist/marr";
+import { Marr } from "@/types/MarrTypes";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -214,7 +216,7 @@ export default async function Page(props: {
       .executeTakeFirst());
 
   const pregnancyAlert = (await getPregnancyAlerts()).find((s) =>
-    composants.find((c) => c.SubsId.trim() === String(s.id)),
+    composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
   );
 
   const pediatrics = await getPediatrics(CIS);
@@ -229,6 +231,7 @@ export default async function Page(props: {
     pathologiesList: []
   };
   const articles = await getArticlesFromFilters(articlesFilters);
+  const marr: Marr = await getMarr(CIS);
 
   return (
     <>
@@ -327,6 +330,7 @@ export default async function Page(props: {
                 </>
               }
               leafletMaj={leaflet?.maj}
+              marr={marr}
             />
           </div>
         </ContentContainer>
