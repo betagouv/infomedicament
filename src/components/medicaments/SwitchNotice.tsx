@@ -21,6 +21,8 @@ import { PresentationDetail } from "@/db/types";
 import { HTMLAttributes, PropsWithChildren, useCallback, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
 import Badge from "@codegouvfr/react-dsfr/Badge";
+import { ArticleCardResume } from "@/types/ArticlesTypes";
+import ArticlesResumeList from "../articles/ArticlesResumeList";
 import MarrNoticeAdvanced from "../marr/MarrNoticeAdvanced";
 import MarrNotice from "../marr/MarrNotice";
 import { Marr } from "@/types/MarrTypes";
@@ -47,6 +49,7 @@ interface OwnProps extends HTMLAttributes<HTMLDivElement> {
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
   leaflet?: any;
   leafletMaj?: string;
+  articles?: ArticleCardResume[];
   marr?: Marr;
 }
 
@@ -62,6 +65,7 @@ function SwitchNotice({
   presentations,
   leaflet,
   leafletMaj,
+  articles,
   marr,
   children,
   ...props
@@ -183,6 +187,11 @@ function SwitchNotice({
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                 <PresentationsList presentations={presentations} />
               </ContentContainer>
+              {articles && articles.length > 0 && (
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                  <ArticlesResumeList articles={articles} />
+                </ContentContainer>
+              )}
               {(currentMarr && currentMarr.pdf.length > 0) && (
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                   <MarrNotice 

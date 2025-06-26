@@ -4,12 +4,12 @@ import { HTMLAttributes, useEffect, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { Checkbox } from "@codegouvfr/react-dsfr/Checkbox";
-import { 
-  ExtendedSearchResults, 
-} from "@/types/SearchTypes";
+import { ExtendedSearchResults } from "@/types/SearchTypes";
 import styled from 'styled-components';
 import ResultsListBlock from "./ResultsListBlock";
 import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
+import { ArticleCardResume } from "@/types/ArticlesTypes";
+import ArticlesSearchList from "../articles/ArticlesSearchList";
 
 const Container = styled.div `
   button.fr-tag[aria-pressed=true]:not(:disabled){
@@ -58,16 +58,22 @@ const CheckboxContainer = styled.div`
   }
 `;
 
+const ResultsListBlockContainer = styled.div`
+  column-gap: 2rem;
+`;
+
 interface SearchResultsListProps extends HTMLAttributes<HTMLDivElement> {
   resultsList: ExtendedSearchResults;
   totalResults: number;
   searchTerms?: string | boolean;
+  articles?: false | "" | ArticleCardResume[] | undefined;
 }
 
 function SearchResultsList({
   resultsList,
   totalResults,
   searchTerms,
+  articles,
 }: SearchResultsListProps) {
 
   const [filterCategory, setFilterCategory] = useState<DataTypeEnum | boolean>(false);
@@ -154,8 +160,8 @@ function SearchResultsList({
           </FiltersContainer>
         </div>
       )}
-      <div className={fr.cx("fr-grid-row")}>
-        <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
+      <ResultsListBlockContainer className={fr.cx("fr-grid-row")}>
+        <div className={fr.cx("fr-col-12", "fr-col-md-8")}>
           {Object.keys(resultsList).map((key) => {
             const type = key as DataTypeEnum;
             if(resultsList[type].length > 0 && (!filterCategory || filterCategory === type)) {
@@ -174,7 +180,13 @@ function SearchResultsList({
             }
           })}
         </div>
-      </div>
+        {(articles && articles.length > 0) && (
+          <div className={fr.cx("fr-col-12", "fr-col-md-3")}>
+            <ArticlesSearchList 
+              articles={articles} />
+          </div>
+        )}
+      </ResultsListBlockContainer>
     </Container>
   );
 };

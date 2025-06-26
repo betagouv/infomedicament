@@ -8,6 +8,7 @@ import { ExtendedSearchResults } from "@/types/SearchTypes";
 import { getPathoSpecialites, getSubstanceSpecialites, SearchResultItem } from "@/db/utils/search";
 import { getPregnancyAlerts } from "@/data/grist/pregnancy";
 import { getAdvancedMedicamentGroupFromGroupNameSpecialites } from "@/db/utils/medicaments";
+import { getArticlesFromSearchResults } from "@/data/grist/articles";
 import { DataTypeEnum } from "@/types/DataTypes";
 
 type ExtendedOrderResults = { 
@@ -81,6 +82,9 @@ export default async function Page(props: {
   const search = searchParams && "s" in searchParams && searchParams["s"];
   const results = search && (await getSearchResults(searchParams["s"]));
   const extendedResults = results && (await getExtendedOrderedResults(results));
+  const articlesList = extendedResults 
+    ? (await getArticlesFromSearchResults(extendedResults.results))
+    : [];
 
   return (
     <ContentContainer frContainer>
@@ -98,7 +102,12 @@ export default async function Page(props: {
         </div>
       </div>
       {extendedResults && extendedResults.counter > 0 ? (
-        <SearchResultsList resultsList={extendedResults.results} totalResults={extendedResults.counter} searchTerms={search}/>
+        <SearchResultsList 
+          resultsList={extendedResults.results} 
+          totalResults={extendedResults.counter} 
+          searchTerms={search} 
+          articles={articlesList}
+        />
       ) : (
         <div className={fr.cx("fr-grid-row", "fr-mt-3w")}>
           <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
