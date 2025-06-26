@@ -5,8 +5,6 @@ import styled, { css } from 'styled-components';
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import Link from "next/link";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { SearchArticlesFilters } from "@/types/SearchTypes";
-import { DataTypeEnum } from "@/types/DataTypes";
 
 const Container = styled.div<{ $isDark: boolean; $whiteContainer?: boolean; }> `
   ${props => props.$whiteContainer 
@@ -17,71 +15,49 @@ const Container = styled.div<{ $isDark: boolean; $whiteContainer?: boolean; }> `
   border-radius: 8px;
   padding: 1rem;
 `;
-const ArticleContainer = styled.div `
+const ArticleContainer = styled.div<{ $isDark: boolean }>`
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
-  background-color: #FFF;
   padding: 0.5rem;
+  ${props => css`
+    background-color: ${props.$isDark ? 'var(--background-default-grey)' : '#FFF'};
+  `}
 `;
-
 interface ArticlesResumeListProps extends HTMLAttributes<HTMLDivElement> {
   articles: ArticleCardResume[];
-  filterCategory?: DataTypeEnum | boolean;
-  articlesFilters?: SearchArticlesFilters;
   whiteContainer?: boolean;
 }
 
 function ArticlesResumeList({
   articles,
-  filterCategory,
-  articlesFilters,
   whiteContainer,
 }: ArticlesResumeListProps) {
 
   const { isDark } = useIsDark();
 
-  const [articlesList, setArticlesList] = useState<ArticleCardResume[]>(articles);
+  const [articlesList, setArticlesList] = useState<ArticleCardResume[]>([]);
 
   useEffect(() => {
-    if(!filterCategory || !articlesFilters) return;
-    const newArticlesList:ArticleCardResume[] = [];
-    articles.forEach((article:ArticleCardResume) => {
-      if(filterCategory === DataTypeEnum.MEDGROUP){
-        const index = (article.specialites).find((articleCodeCIS: string) => articlesFilters.specialitesList.find((codeCIS: string) => codeCIS === articleCodeCIS));
-        if(index) newArticlesList.push(article);
-      }
-      if(filterCategory === DataTypeEnum.PATHOLOGY){
-        const index = (article.pathologies).find((articleCodePatho: number) => articlesFilters.pathologiesList.find((codePatho: string) => parseInt(codePatho) === articleCodePatho));
-        if(index) newArticlesList.push(article);
-      }
-      if(filterCategory === DataTypeEnum.SUBSTANCE){
-        const index = (article.substances).find((articleSubsId: string) => articlesFilters.substancesList.find((subsId: string) => subsId === articleSubsId));
-        if(index) newArticlesList.push(article);
-      }
-      if(filterCategory === DataTypeEnum.ATCCLASS){
-        const index = (article.atc).find((articleAtcCode: number) => articlesFilters.ATCList.find((atcCode: string) => parseInt(atcCode) === articleAtcCode));
-        if(index) newArticlesList.push(article);
-      }
-    })
-    setArticlesList(newArticlesList);
-  },[filterCategory, setArticlesList]);  
+    if(articles)
+      setArticlesList(articles);
+  },[articles, setArticlesList]);  
 
   return (
     articlesList.length > 0 && (
-      <Container $isDark={isDark} $whiteContainer={whiteContainer}>
+      <>
         <h3 className={fr.cx("fr-h6", "fr-mb-1w")}>
           En savoir plus
         </h3>
         <div>
           {articlesList.map((article:ArticleCardResume, index) => {
             return (
-              <ArticleContainer key={index} className={fr.cx("fr-mb-2w")}>
+              <ArticleContainer $isDark={isDark} key={index} className={fr.cx("fr-mb-2w")}>
                 <Link 
                   className={fr.cx("fr-text--sm", "fr-link")}
                   href={`/articles/${article.slug}`}
                   target="_blank"
                 >
-                    {article.title}
+                  {article.title}
                 </Link>
                 <div className={fr.cx("fr-mt-1w")}>
                   <Badge severity="info" noIcon={true}>ARTICLE</Badge>
@@ -90,7 +66,7 @@ function ArticlesResumeList({
             );
           })}
         </div>
-      </Container>
+      </>
     )
   );
 };

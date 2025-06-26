@@ -2,8 +2,12 @@ import "server-only";
 import { getGristTableData } from "@/data/grist/index";
 import slugify from "slugify";
 import { ImageProps } from "next/image";
-import { SearchArticlesFilters, } from "@/types/SearchTypes";
+import { ExtendedSearchResults, SearchArticlesFilters, } from "@/types/SearchTypes";
+import { SubstanceNom } from "@/db/pdbmMySQL/types";
+import { AdvancedMedicamentGroup, AdvancedSpecialite } from "@/types/MedicamentTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
+import { ATC } from "./atc";
+import { AdvancedATCClass, AdvancedData, AdvancedPatho, DataTypeEnum } from "@/types/DataTypes";
 
 export async function getArticles() {
   const records = await getGristTableData("Articles", [
@@ -86,4 +90,36 @@ export async function getArticlesFromFilters(articlesFilters: SearchArticlesFilt
     };
   });
   return articlesList;
+}
+
+export async function getArticlesFromSearchResults(results: ExtendedSearchResults): Promise<ArticleCardResume[]> {
+  const articlesFilters:SearchArticlesFilters = {
+    ATCList: [],
+    substancesList: [],
+    specialitesList: [],
+    pathologiesList: [],
+  };
+
+  const extendedSearchResultsKeys: DataTypeEnum[] = Object.keys(results) as DataTypeEnum[];
+  extendedSearchResultsKeys.forEach((key) => {
+    results[key].forEach((result: AdvancedData) => {
+      if(result.type === DataTypeEnum.MEDGROUP) {
+        (result.result as AdvancedMedicamentGroup).specialites.forEach(
+          (spec:AdvancedSpecialite) => articlesFilters.specialitesList.push(spec.SpecId)
+        )
+      }
+      else if(result.type === DataTypeEnum.PATHOLOGY)
+        articlesFilters.pathologiesList.push((result.result as AdvancedPatho).codePatho.trim());
+      else if(result.type === DataTypeEnum.SUBSTANCE) 
+        articlesFilters.substancesList.push((result.result as SubstanceNom).SubsId.trim());
+      else if(result.type === DataTypeEnum.ATCCLASS) {
+        articlesFilters.ATCList.push((result.result as AdvancedATCClass).class.code.trim());
+        (result.result as AdvancedATCClass).subclasses.map((subclass: ATC) => {
+          articlesFilters.ATCList.push((subclass).code.trim());
+        });
+      }
+    })
+  });
+
+  return await getArticlesFromFilters(articlesFilters);
 }

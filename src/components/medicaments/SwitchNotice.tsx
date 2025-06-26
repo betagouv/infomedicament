@@ -188,7 +188,9 @@ function SwitchNotice({
                 <PresentationsList presentations={presentations} />
               </ContentContainer>
               {articles && articles.length > 0 && (
-                <ArticlesResumeList articles={articles} whiteContainer />
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                  <ArticlesResumeList articles={articles} />
+                </ContentContainer>
               )}
               {(currentMarr && currentMarr.pdf.length > 0) && (
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>

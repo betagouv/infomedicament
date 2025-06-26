@@ -10,7 +10,4 @@ export type SearchArticlesFilters = {
   pathologiesList: string[];
 }
 
-export type SearchArticles = {
-  articlesList: ArticleCardResume[];
-  articlesFilters?: SearchArticlesFilters,
-}
+
