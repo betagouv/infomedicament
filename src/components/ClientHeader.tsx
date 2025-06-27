@@ -86,6 +86,14 @@ export default function ClientHeader({
           text: "À propos",
           linkProps: { href: "/a-propos" },
         },
+        {
+          text: "Signaler un effet indésirable",
+          linkProps: { 
+            href: "https://signalement.social-sante.gouv.fr/",
+            target: "_blank",
+            rel: "noopener external"
+          },
+        },
       ]}
       renderSearchInput={
         hasSearch
