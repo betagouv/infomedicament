@@ -6,7 +6,7 @@ import Link from "next/link";
 import { HTMLAttributes, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
 
-const Container = styled.div<{$leftAlign?: boolean }> `
+const Container = styled.div<{$leftAlign?: boolean }>`
   .fr-share {
     flex-direction: row;
     align-items: center;
@@ -22,6 +22,13 @@ const Container = styled.div<{$leftAlign?: boolean }> `
     margin-left: 0px;
     margin-right: 0px;
   }
+  .fr-share .fr-btns-group > li {
+    align-items: center;
+  }
+`;
+
+const CopiedText = styled.span`
+  color: var(--text-default-success);
 `;
 
 interface ShareButtonsProps extends HTMLAttributes<HTMLDivElement> {
@@ -31,6 +38,7 @@ interface ShareButtonsProps extends HTMLAttributes<HTMLDivElement> {
 function ShareButtons({leftAlign, ...props}: ShareButtonsProps) {
 
   const [currentHref, setCurrentHref] = useState<string>("");
+  const [isCopied, setIsCopied] = useState<boolean>(false);
 
   useEffect(() => {
     if(typeof window !== 'undefined')
@@ -53,19 +61,24 @@ function ShareButtons({leftAlign, ...props}: ShareButtonsProps) {
             </Link>
           </li>
           <li>
-            <Link 
-              onClick={() =>{
-                navigator.clipboard.writeText(currentHref).then(
-                  function() {
-                    alert('Adresse copiée dans le presse papier.')
+            {!isCopied 
+              ? ( <Link 
+                  onClick={() => {
+                    navigator.clipboard.writeText(currentHref).then(
+                      function() {
+                        //alert('Adresse copiée dans le presse papier.')
+                        setIsCopied(true);
+                      }
+                    )}
+                    //</li>setIsCopied(true);
                   }
-                )}
-              }
-              className={fr.cx("fr-btn--copy", "fr-btn")}
-              href=""
-            >
-              Copier dans le presse-papier
-            </Link>
+                  className={fr.cx("fr-btn--copy", "fr-btn")}
+                  href=""
+                >
+                  Copier dans le presse-papier
+                </Link>
+              ) : (<CopiedText className={fr.cx("fr-text--sm", "fr-icon-check-line")}>Lien copié</CopiedText>)
+            }
           </li>
         </ul>
       </div>
