@@ -19,7 +19,13 @@ export default async function Page() {
       <h1 className={fr.cx("fr-h2")}>
         Nos statistiques
       </h1>
-      <ShareButtons rightAlign={true} className={fr.cx("fr-mb-3w")}/>
+      <ContentContainer frContainer>
+        <div className={fr.cx("fr-grid-row")}>
+          <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
+            <ShareButtons rightAlign={true} className={fr.cx("fr-mb-3w")}/>
+          </div>
+        </div>
+      </ContentContainer>
       <ContentContainer frContainer>
         <Statistics />
       </ContentContainer>

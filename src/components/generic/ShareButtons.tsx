@@ -66,11 +66,9 @@ function ShareButtons({rightAlign, ...props}: ShareButtonsProps) {
                   onClick={() => {
                     navigator.clipboard.writeText(currentHref).then(
                       function() {
-                        //alert('Adresse copiée dans le presse papier.')
                         setIsCopied(true);
                       }
                     )}
-                    //</li>setIsCopied(true);
                   }
                   className={fr.cx("fr-btn--copy", "fr-btn")}
                   href=""
