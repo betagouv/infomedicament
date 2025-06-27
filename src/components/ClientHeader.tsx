@@ -47,25 +47,21 @@ export default function ClientHeader({
       navigation={[
         { text: "Accueil", linkProps: { href: "/" } },
         {
-          text: "Glossaire",
-          linkProps: { href: "/glossaire/A" },
-        },
-        {
-          text: "Parcourir",
+          text: "Parcourir par classe de médicament",
           menuLinks: atcs.map((atc) => ({
             linkProps: { href: `/atc/${atc.code}` },
             text: atc.label,
           })),
         },
         {
-          text: "Par ordre alphabétique",
+          text: "Listes par ordre alphabétique",
           menuLinks: [
             {
               text: "Tous les médicaments",
               linkProps: { href: "/medicaments/A/1" },
             },
             {
-              text: "Toutes les substances",
+              text: "Toutes les substances actives",
               linkProps: { href: "/substances/A" },
             },
             {
@@ -81,6 +77,22 @@ export default function ClientHeader({
         {
           text: "Articles",
           linkProps: { href: "/articles" },
+        },
+        {
+          text: "Glossaire",
+          linkProps: { href: "/glossaire/A" },
+        },
+        {
+          text: "À propos",
+          linkProps: { href: "/a-propos" },
+        },
+        {
+          text: "Signaler un effet indésirable",
+          linkProps: { 
+            href: "https://signalement.social-sante.gouv.fr/",
+            target: "_blank",
+            rel: "noopener external"
+          },
         },
       ]}
       renderSearchInput={

@@ -26,6 +26,7 @@ function MarrNoticeAdvanced({
             className={fr.cx("fr-icon-arrow-right-line", "fr-link--icon-left", "fr-text--sm")} 
             href={marr.ansmUrl}
             target="_blank"
+            rel="noopener external"
           >
             En savoir plus sur le site de l&apos;ANSM
           </Link>
