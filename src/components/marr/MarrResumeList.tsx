@@ -52,6 +52,7 @@ function MarrResumeList({
                 href={marr.fileUrl}
                 className={fr.cx("fr-text--sm")}
                 target="_blank"
+                rel="noopener external"
               >
                 {marr.filename}
               </Link>

@@ -287,7 +287,7 @@ export default async function Page(props: {
                           prévoyez de l’être. Demandez conseil à votre médecin avant de
                           prendre ou d’arrêter ce médicament.
                           <br />
-                          <a target="_blank" href={pregnancyAlert.link}>
+                          <a target="_blank" href={pregnancyAlert.link} rel="noopener external">
                             En savoir plus sur le site de l’ANSM
                           </a>
                         </p>
