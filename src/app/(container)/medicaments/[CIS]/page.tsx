@@ -24,6 +24,8 @@ import { getPregnancyAlerts } from "@/data/grist/pregnancy";
 import { getPediatrics } from "@/data/grist/pediatrics";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SwitchNotice from "@/components/medicaments/SwitchNotice";
+import { SearchArticlesFilters } from "@/types/SearchTypes";
+import { getArticlesFromFilters } from "@/data/grist/articles";
 import { getMarr } from "@/data/grist/marr";
 import { Marr } from "@/types/MarrTypes";
 
@@ -214,11 +216,21 @@ export default async function Page(props: {
       .executeTakeFirst());
 
   const pregnancyAlert = (await getPregnancyAlerts()).find((s) =>
-    composants.find((c) => c.SubsId.trim() === String(s.id)),
+    composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
   );
 
   const pediatrics = await getPediatrics(CIS);
 
+  const articlesFilters:SearchArticlesFilters = {
+    ATCList: [
+      atc1.code.trim(),
+      atc2.code.trim(),
+    ],
+    substancesList: composants.map((compo) => compo.SubsId.trim()),
+    specialitesList: [CIS],
+    pathologiesList: []
+  };
+  const articles = await getArticlesFromFilters(articlesFilters);
   const marr: Marr = await getMarr(CIS);
 
   return (
@@ -305,6 +317,7 @@ export default async function Page(props: {
               isPregnancyAlert={!!pregnancyAlert}
               pediatrics={pediatrics}
               presentations={presentations}
+              articles={articles}
               leaflet={leaflet && 
                 <>
                   <DsfrLeafletSection data={leaflet.generalities} />
