@@ -3,13 +3,13 @@
 import { HTMLAttributes, useEffect, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import Tag from "@codegouvfr/react-dsfr/Tag";
-import { Checkbox } from "@codegouvfr/react-dsfr/Checkbox";
 import { ExtendedSearchResults } from "@/types/SearchTypes";
 import styled from 'styled-components';
 import ResultsListBlock from "./ResultsListBlock";
 import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import ArticlesSearchList from "../articles/ArticlesSearchList";
+import PregnancyPediatricFilters from "./PregnancyPediatricFilters";
 
 const Container = styled.div `
   button.fr-tag[aria-pressed=true]:not(:disabled){
@@ -42,22 +42,6 @@ const FiltersContainer = styled.div`
   overflow: scroll;
 `;
 
-const CheckboxContainer = styled.div`
-  @media (max-width: 48em) {
-    .fr-fieldset{
-      padding: 0px;
-      flex-direction: column;
-      margin: 0;
-    }
-    .fr-fieldset__content{
-      margin: 0;
-    }
-    .fr-fieldset__content .fr-checkbox-group label {
-      padding-bottom: 0px;
-    }
-  }
-`;
-
 const ResultsListBlockContainer = styled.div`
   column-gap: 2rem;
 `;
@@ -67,6 +51,8 @@ interface SearchResultsListProps extends HTMLAttributes<HTMLDivElement> {
   totalResults: number;
   searchTerms?: string | boolean;
   articles?: false | "" | ArticleCardResume[] | undefined;
+  filterPregnancy?: boolean;
+  filterPediatric?: boolean;
 }
 
 function SearchResultsList({
@@ -74,11 +60,13 @@ function SearchResultsList({
   totalResults,
   searchTerms,
   articles,
+  filterPregnancy,
+  filterPediatric,
 }: SearchResultsListProps) {
 
   const [filterCategory, setFilterCategory] = useState<DataTypeEnum | boolean>(false);
-  const [filterPregnancy, setFilterPregnancy] = useState<boolean>(false);
-  const [filterPediatric, setFilterPediatric] = useState<boolean>(false);
+  const [currentFilterPregnancy, setCurrentFilterPregnancy] = useState<boolean>(false);
+  const [currentFilterPediatric, setCurrentFilterPediatric] = useState<boolean>(false);  
   const [nbResults, setNbResults] = useState<number>(0);
   const [nbResultsATC, setNbResultsATC] = useState<number>(0);
 
@@ -91,31 +79,28 @@ function SearchResultsList({
     setNbResults(totalResults + totalATC);
   }, [totalResults, resultsList, setNbResultsATC, setNbResults]);
 
+  useEffect(() => {
+    if(filterPregnancy)
+        setCurrentFilterPregnancy(filterPregnancy);
+    else setCurrentFilterPregnancy(false);
+  }, [filterPregnancy, setCurrentFilterPregnancy]);
+
+
+  useEffect(() => {
+    if(filterPediatric)
+        setCurrentFilterPediatric(filterPediatric);
+    else setCurrentFilterPediatric(false);
+  }, [filterPediatric, setCurrentFilterPediatric]);
+
   return (
     <Container>
       <div className={fr.cx("fr-grid-row", "fr-mb-2w")}>
-        <CheckboxContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10", "fr-mb-1w")}>
-          <Checkbox
-            small
-            options={[
-              {
-                label: 'Je suis enceinte ou prévoit de l\'être',
-                nativeInputProps: {
-                  checked: filterPregnancy,
-                  onChange: () => setFilterPregnancy(!filterPregnancy),
-                }
-              },
-              {
-                label: 'Pour un enfant',
-                nativeInputProps: {
-                  checked: filterPediatric,
-                  onChange: () => setFilterPediatric(!filterPediatric),
-                }
-              }
-            ]}
-            orientation="horizontal"
-          />
-        </CheckboxContainer>
+        <PregnancyPediatricFilters 
+          setFilterPregnancy={setCurrentFilterPregnancy}
+          setFilterPediatric={setCurrentFilterPediatric}
+          filterPregnancy={currentFilterPregnancy}
+          filterPediatric={currentFilterPediatric}
+        />
       </div>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10", "fr-mb-2w")}>
@@ -171,8 +156,8 @@ function SearchResultsList({
                   dataList={resultsList[type]}
                   nbData={type !== DataTypeEnum.ATCCLASS ? resultsList[type].length : nbResultsATC}
                   type={type}
-                  filterPregnancy={filterPregnancy}
-                  filterPediatric={filterPediatric}
+                  filterPregnancy={currentFilterPregnancy}
+                  filterPediatric={currentFilterPediatric}
                   isAllList={!filterCategory}
                   setFilterCategory={setFilterCategory}
                 />

@@ -85,6 +85,8 @@ export default async function Page(props: {
   const articlesList = extendedResults 
     ? (await getArticlesFromSearchResults(extendedResults.results))
     : [];
+  const filterPregnancy:boolean = (searchParams && "g" in searchParams && searchParams["g"] === "true") ? true : false; 
+  const filterPediatric:boolean = (searchParams && "p" in searchParams && searchParams["p"] === "true") ? true : false; 
 
   return (
     <ContentContainer frContainer>
@@ -97,6 +99,7 @@ export default async function Page(props: {
             <AutocompleteSearch
               inputName="s"
               initialValue={search || undefined}
+              hideFilters
             />
           </form>
         </div>
@@ -107,6 +110,8 @@ export default async function Page(props: {
           totalResults={extendedResults.counter} 
           searchTerms={search} 
           articles={articlesList}
+          filterPregnancy={filterPregnancy}
+          filterPediatric={filterPediatric}
         />
       ) : (
         <div className={fr.cx("fr-grid-row", "fr-mt-3w")}>
