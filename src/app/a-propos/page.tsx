@@ -70,7 +70,7 @@ export default async function Page() {
                 <p>
                   <b>
                     <Link href="https://infomedicament.beta.gouv.fr">
-                      InfoMedicament.gouv.fr
+                      Info Médicament
                     </Link>
                   </b>{" "}
                   est un service public gratuit proposé par l’État qui vise à
@@ -86,7 +86,7 @@ export default async function Page() {
                 <p>
                   <b>
                     <Link href="https://infomedicament.beta.gouv.fr">
-                      InfoMedicament.gouv.fr
+                      Info Médicament
                     </Link>
                   </b>{" "}
                   est le service numérique de référence d’informations sur les
@@ -94,14 +94,30 @@ export default async function Page() {
                   de santé des données actualisées et validées sur les
                   médicaments.
                 </p>
+                <p>
+                  Les données d’Info Médicament proviennent de la{" "}
+                  <Link 
+                    href="https://base-donnees-publique.medicaments.gouv.fr/"
+                    target="_blank"
+                    rel="noopener external"
+                  >
+                    Base de données publique des médicaments
+                  </Link>.
+                </p>
               </div>
               <div className={fr.cx("fr-col-md-8", "fr-mt-4w")}>
                 <h2 className={fr.cx("fr-h5")}>L&apos;équipe</h2>
                 <ul>
                   <li>
-                    ANSM&nbsp;:{" "}
+                    <Link 
+                      href="https://ansm.sante.fr/"
+                      target="_blank"
+                      rel="noopener external"
+                    >
+                      ANSM
+                    </Link>&nbsp;:{" "}
                     <Link href="https://infomedicament.beta.gouv.fr">
-                      InfoMedicament.gouv.fr
+                      Info Médicament
                     </Link>{" "}
                     est porté par l’Agence Nationale de Sécurité du Médicament et
                     des produits de santé.
@@ -115,9 +131,9 @@ export default async function Page() {
                       BETA.GOUV.FR
                     </Link>&nbsp;:{" "}
                     <Link href="https://infomedicament.beta.gouv.fr">
-                      InfoMedicament.gouv.fr
+                      Info Médicament
                     </Link>{" "}
-                    est une start-up d’État du programme 
+                    est une start-up d’État du programme{" "}
                     <Link 
                       href="https://beta.gouv.fr"
                       target="_blank"
@@ -126,8 +142,15 @@ export default async function Page() {
                       Beta.gouv.fr
                     </Link>
                     &nbsp;:{" "}de la
-                    Direction interministérielle du numérique (DINUM), qui
-                    accompagne les administrations dans la construction de
+                    Direction interministérielle du numérique (
+                      <Link 
+                        href="https://www.numerique.gouv.fr/numerique-etat/"
+                        target="_blank"
+                        rel="noopener external"
+                      >
+                        DINUM
+                      </Link>
+                    ), qui accompagne les administrations dans la construction de
                     services numériques.
                   </li>
                 </ul>
