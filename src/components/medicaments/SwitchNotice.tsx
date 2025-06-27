@@ -26,6 +26,7 @@ import ArticlesResumeList from "../articles/ArticlesResumeList";
 import MarrNoticeAdvanced from "../marr/MarrNoticeAdvanced";
 import MarrNotice from "../marr/MarrNotice";
 import { Marr } from "@/types/MarrTypes";
+import ShareButtons from "../generic/ShareButtons";
 
 const ToggleSwitchContainer = styled.div `
   background-color: var(--background-contrast-info);
@@ -135,6 +136,7 @@ function SwitchNotice({
   return (
     <>
       <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")}>
+        <ShareButtons />
         <ToggleSwitchContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <ToggleSwitch 
             label="Version détaillée"
