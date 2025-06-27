@@ -6,11 +6,11 @@ import Link from "next/link";
 import { HTMLAttributes, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
 
-const Container = styled.div<{$leftAlign?: boolean }>`
+const Container = styled.div<{$rightAlign?: boolean }>`
   .fr-share {
     flex-direction: row;
     align-items: center;
-    ${props => props.$leftAlign && css`
+    ${props => props.$rightAlign && css`
       justify-content: flex-end;
     `}
   }
@@ -32,10 +32,10 @@ const CopiedText = styled.span`
 `;
 
 interface ShareButtonsProps extends HTMLAttributes<HTMLDivElement> {
-  leftAlign?: boolean;
+  rightAlign?: boolean;
 }
 
-function ShareButtons({leftAlign, ...props}: ShareButtonsProps) {
+function ShareButtons({rightAlign, ...props}: ShareButtonsProps) {
 
   const [currentHref, setCurrentHref] = useState<string>("");
   const [isCopied, setIsCopied] = useState<boolean>(false);
@@ -46,7 +46,7 @@ function ShareButtons({leftAlign, ...props}: ShareButtonsProps) {
   }, [setCurrentHref])
 
   return (
-    <Container $leftAlign={leftAlign} className={props.className}>
+    <Container $rightAlign={rightAlign} className={props.className}>
       <div className={fr.cx("fr-share")}>
         <p className={fr.cx("fr-share__title")}>Partager via :</p>
         <ul className={fr.cx("fr-btns-group")}>

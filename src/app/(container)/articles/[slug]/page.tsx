@@ -64,7 +64,7 @@ export default async function Page(props0: {
           </p>
         </div>
       </div>
-      <ShareButtons leftAlign={true} className={fr.cx("fr-mb-4w")}/>
+      <ShareButtons rightAlign={true} className={fr.cx("fr-mb-4w")}/>
       {image && (
         <div className={fr.cx("fr-grid-row")}>
           <div
