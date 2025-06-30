@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
     .where("codeCIS", "=", parseInt(CIS))
     .executeTakeFirst();
 
-  if(!noticeRaw) return [];
+  if(!noticeRaw) return NextResponse.json(undefined);
 
   const notice:Notice = {
     codeCIS: noticeRaw.codeCIS,

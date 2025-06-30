@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
     .where("codeCIS", "=", parseInt(CIS))
     .executeTakeFirst();
 
-  if(!rcpRaw) return [];
+  if(!rcpRaw) return NextResponse.json(undefined);
 
   const rcp:Rcp = {
     codeCIS: rcpRaw.codeCIS,
