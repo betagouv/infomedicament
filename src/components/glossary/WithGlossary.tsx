@@ -37,22 +37,11 @@ function WithGlossary({
   definitions?: Definition[]
 }): React.JSX.Element {
 
-  let definitionsList = definitions;
-  if(!definitions || definitions.length === 0){
-    const { data: definitions } = useSWR<Definition[]>(
-      `/glossaire/definitions`,
-      fetchJSON,
-      { onError: (err) => console.warn('errorDefinitions >>', err), }
-    );
-    definitionsList = definitions;
-  }
+  if(!definitions) return (<>{text}</>);
 
-  if(!definitionsList) return (<>{text}</>);
-
-  
   let elements: (React.JSX.Element | string)[] = text;
 
-  definitionsList.forEach((definition) => {
+  definitions.forEach((definition) => {
     elements = elements
       .map((element) => {
         if (typeof element !== "string") return element;

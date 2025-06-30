@@ -220,7 +220,7 @@ function DetailedSubMenu({
       setCurrentInfosGeneralesMenu(menu);
     } else 
       setCurrentInfosGeneralesMenu(infosGeneralesMenu);
-  }, [isMarr, infosGeneralesMenu, setCurrentInfosGeneralesMenu]);
+  }, [isMarr, setCurrentInfosGeneralesMenu]);
 
   function menuOnClick(noticePart: DetailsNoticePartsEnum) {
     updateVisiblePart(noticePart);
