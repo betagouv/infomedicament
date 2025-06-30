@@ -3,7 +3,7 @@ import { PresentationDetail } from '@/db/types';
 import { Asmr, Composant, DocBonUsage, FicheInfos, GroupeGenerique, Smr } from '@/types/MedicamentsTypes';
 import { NextRequest, NextResponse } from "next/server";
 
-async function getListeGroupesGeneriques(ids: number[]): Promise<any[]>{
+async function getListeGroupesGeneriques(ids: number[]): Promise<GroupeGenerique[]>{
   const data = await db
     .selectFrom("groupes_generiques")
     .selectAll()
@@ -24,7 +24,7 @@ async function getListeGroupesGeneriques(ids: number[]): Promise<any[]>{
   return [];
 }
 
-async function getListeComposants(ids: number[]): Promise<any[]>{
+async function getListeComposants(ids: number[]): Promise<Composant[]>{
   const data = await db
     .selectFrom("composants")
     .selectAll()
@@ -45,7 +45,7 @@ async function getListeComposants(ids: number[]): Promise<any[]>{
   return [];
 }
 
-async function getListeDocuments(ids: number[]): Promise<any[]>{
+async function getListeDocuments(ids: number[]): Promise<DocBonUsage[]>{
   const data = await db
     .selectFrom("documents_bon_usage")
     .selectAll()
@@ -69,7 +69,7 @@ async function getListeDocuments(ids: number[]): Promise<any[]>{
   return [];
 }
 
-async function getListeSmr(ids: number[]): Promise<any[]>{
+async function getListeSmr(ids: number[]): Promise<Smr[]>{
   const data = await db
     .selectFrom("smr")
     .selectAll()
@@ -92,7 +92,7 @@ async function getListeSmr(ids: number[]): Promise<any[]>{
   return [];
 }
 
-async function getListeAsmr(ids: number[]): Promise<any[]>{
+async function getListeAsmr(ids: number[]): Promise<Asmr[]>{
   const data = await db
     .selectFrom("asmr")
     .selectAll()
@@ -115,7 +115,7 @@ async function getListeAsmr(ids: number[]): Promise<any[]>{
   return [];
 }
 
-async function getListePresentations(ids: string[]): Promise<any[]>{
+async function getListePresentations(ids: string[]): Promise<PresentationDetail[]>{
   const data = await db
     .selectFrom("presentations")
     .selectAll()
@@ -158,7 +158,7 @@ export async function GET(req: NextRequest) {
     .where("specId", "=", CIS)
     .executeTakeFirst();
 
-  if(!ficheInfoRaw) return [];
+  if(!ficheInfoRaw) return NextResponse.json(undefined);
 
   const ficheInfos:FicheInfos = {
     specId: ficheInfoRaw.specId,
