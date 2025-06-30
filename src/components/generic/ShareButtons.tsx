@@ -1,4 +1,3 @@
-
 "use client";
 
 import { fr } from "@codegouvfr/react-dsfr";
@@ -38,15 +37,21 @@ interface ShareButtonsProps extends HTMLAttributes<HTMLDivElement> {
 function ShareButtons({rightAlign, ...props}: ShareButtonsProps) {
 
   const [currentHref, setCurrentHref] = useState<string>("");
+  const [isRightAlign, setIsRightAlign] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
 
   useEffect(() => {
     if(typeof window !== 'undefined')
       setCurrentHref(window.location.href);
-  }, [setCurrentHref])
+  }, [setCurrentHref]);
+
+  useEffect(() => {
+    if(rightAlign)
+      setIsRightAlign(rightAlign);
+  }, [rightAlign, setIsRightAlign])
 
   return (
-    <Container $rightAlign={rightAlign} className={props.className}>
+    <Container $rightAlign={isRightAlign} className={props.className}>
       <div className={fr.cx("fr-share")}>
         <p className={fr.cx("fr-share__title")}>Partager via :</p>
         <ul className={fr.cx("fr-btns-group")}>
