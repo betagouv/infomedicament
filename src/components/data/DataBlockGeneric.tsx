@@ -47,50 +47,49 @@ function DataBlockGeneric({
   const [currentDetails, setCurrentDetails] = useState<string>("");
   const [currentSubClasses, setCurrentSubClasses] = useState<ATC[]>([]); //Only for type === DataTypeEnum.ATCCLASS
 
-
-  function getLink(
-    dataType: DataTypeEnum, 
-    data: AdvancedSubstanceNom | AdvancedMedicamentGroup | AdvancedPatho | AdvancedATCClass
-  ){
-    if(dataType === DataTypeEnum.SUBSTANCE){
-      setCurrentLink(`/substances/${(data as AdvancedSubstanceNom).NomId}`);
-    } else if(dataType === DataTypeEnum.PATHOLOGY){
-      setCurrentLink(`/pathologies/${(data as AdvancedPatho).codePatho}`);
-    } else if(dataType === DataTypeEnum.ATCCLASS){
-      setCurrentLink(`/atc/${(data as AdvancedATCClass).class.code}`);
-    } else 
-      setCurrentLink("#");
-  };
-
-  function getFormatSpecName(
-    dataType: DataTypeEnum, 
-    data: AdvancedSubstanceNom | AdvancedMedicamentGroup | AdvancedPatho | AdvancedATCClass
-  ){
-    if(dataType === DataTypeEnum.SUBSTANCE){
-      setCurrentFormatSpecName(formatSpecName((data as AdvancedSubstanceNom).NomLib));
-    } else if(dataType === DataTypeEnum.PATHOLOGY){
-      setCurrentFormatSpecName(formatSpecName((data as AdvancedPatho).NomPatho));
-    } else if(dataType === DataTypeEnum.ATCCLASS){
-      setCurrentFormatSpecName(formatSpecName((data as AdvancedATCClass).class.label));
-    } else 
-      setCurrentFormatSpecName("Autre");
-  };
-
-  function getDetails(
-    dataType: DataTypeEnum, 
-    data: AdvancedSubstanceNom | AdvancedMedicamentGroup | AdvancedPatho | AdvancedATCClass
-  ){
-    if(dataType === DataTypeEnum.SUBSTANCE){
-      setCurrentDetails(`${(data as AdvancedSubstanceNom).nbSpecs} ${(data as AdvancedSubstanceNom).nbSpecs > 1 ? "médicaments" : "médicament"}`);
-    } else if(dataType === DataTypeEnum.PATHOLOGY){
-      setCurrentDetails(`${(data as AdvancedPatho).nbSpecs} ${(data as AdvancedPatho).nbSpecs > 1 ? "médicaments" : "médicament"}`);
-    } else if(dataType === DataTypeEnum.ATCCLASS){
-      setCurrentDetails(`${(data as AdvancedATCClass).class.children.length} ${(data as AdvancedATCClass).class.children.length > 1 ? "substances actives" : "substance active"}`);
-    } else 
-      setCurrentDetails("");
-  }
-
   useEffect(() => {
+    function getLink(
+      dataType: DataTypeEnum, 
+      data: AdvancedSubstanceNom | AdvancedMedicamentGroup | AdvancedPatho | AdvancedATCClass
+    ){
+      if(dataType === DataTypeEnum.SUBSTANCE){
+        setCurrentLink(`/substances/${(data as AdvancedSubstanceNom).NomId}`);
+      } else if(dataType === DataTypeEnum.PATHOLOGY){
+        setCurrentLink(`/pathologies/${(data as AdvancedPatho).codePatho}`);
+      } else if(dataType === DataTypeEnum.ATCCLASS){
+        setCurrentLink(`/atc/${(data as AdvancedATCClass).class.code}`);
+      } else 
+        setCurrentLink("#");
+    };
+
+    function getFormatSpecName(
+      dataType: DataTypeEnum, 
+      data: AdvancedSubstanceNom | AdvancedMedicamentGroup | AdvancedPatho | AdvancedATCClass
+    ){
+      if(dataType === DataTypeEnum.SUBSTANCE){
+        setCurrentFormatSpecName(formatSpecName((data as AdvancedSubstanceNom).NomLib));
+      } else if(dataType === DataTypeEnum.PATHOLOGY){
+        setCurrentFormatSpecName(formatSpecName((data as AdvancedPatho).NomPatho));
+      } else if(dataType === DataTypeEnum.ATCCLASS){
+        setCurrentFormatSpecName(formatSpecName((data as AdvancedATCClass).class.label));
+      } else 
+        setCurrentFormatSpecName("Autre");
+    };
+
+    function getDetails(
+      dataType: DataTypeEnum, 
+      data: AdvancedSubstanceNom | AdvancedMedicamentGroup | AdvancedPatho | AdvancedATCClass
+    ){
+      if(dataType === DataTypeEnum.SUBSTANCE){
+        setCurrentDetails(`${(data as AdvancedSubstanceNom).nbSpecs} ${(data as AdvancedSubstanceNom).nbSpecs > 1 ? "médicaments" : "médicament"}`);
+      } else if(dataType === DataTypeEnum.PATHOLOGY){
+        setCurrentDetails(`${(data as AdvancedPatho).nbSpecs} ${(data as AdvancedPatho).nbSpecs > 1 ? "médicaments" : "médicament"}`);
+      } else if(dataType === DataTypeEnum.ATCCLASS){
+        setCurrentDetails(`${(data as AdvancedATCClass).class.children.length} ${(data as AdvancedATCClass).class.children.length > 1 ? "substances actives" : "substance active"}`);
+      } else 
+        setCurrentDetails("");
+    }
+
     if(item.type){
       setType(item.type);
       if(item.result){
@@ -102,7 +101,7 @@ function DataBlockGeneric({
         }
       }
     }
-  }, [item, setType, getLink, getFormatSpecName, getDetails, setCurrentSubClasses]);
+  }, [item, setType, setCurrentSubClasses]);
   
   return (
     <>
