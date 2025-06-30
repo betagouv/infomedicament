@@ -65,7 +65,7 @@ export function PresentationsList(props: {
 }) {
   return (
     <>
-      <h3 className={fr.cx("fr-h4")}>
+      <h3 className={fr.cx("fr-h6")}>
         <span className={fr.cx("fr-hidden-md")}>Conditionnement</span>
         <span className={fr.cx("fr-hidden", "fr-unhidden-md")}>Conditionnement et prix</span>
       </h3>

@@ -23,6 +23,8 @@ import styled from 'styled-components';
 import DetailedSubMenu from "./DetailedSubMenu";
 import DetailedNotice from "./DetailedNotice";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
+import { ArticleCardResume } from "@/types/ArticlesTypes";
+import ArticlesResumeList from "../articles/ArticlesResumeList";
 import MarrNotice from "../marr/MarrNotice";
 import { Marr } from "@/types/MarrTypes";
 import useSWR from "swr";
@@ -51,6 +53,7 @@ interface SwitchNoticeProps extends HTMLAttributes<HTMLDivElement> {
   isPregnancyAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
+  articles?: ArticleCardResume[];
   marr?: Marr;
 }
 
@@ -65,6 +68,7 @@ function SwitchNotice({
   isPregnancyAlert,
   pediatrics,
   presentations,
+  articles,
   marr,
   children,
   ...props
@@ -196,6 +200,11 @@ function SwitchNotice({
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                 <PresentationsList presentations={presentations} />
               </ContentContainer>
+              {articles && articles.length > 0 && (
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                  <ArticlesResumeList articles={articles} />
+                </ContentContainer>
+              )}
               {(currentMarr && currentMarr.pdf.length > 0) && (
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                   <MarrNotice 

@@ -9,6 +9,7 @@ import useSWR from "swr";
 import { SearchResultItem } from "@/db/utils/search";
 import { useRouter } from "next/navigation";
 import { trackSearchEvent } from "@/services/tracking";
+import PregnancyPediatricFilters from "./search/PregnancyPediatricFilters";
 
 type SearchInputProps = {
   name: string;
@@ -27,7 +28,6 @@ export function AutocompleteSearchInput({
   placeholder,
   type,
 }: SearchInputProps) {
-  const router = useRouter();
   const [inputValue, setInputValue] = useState(initialValue ?? "");
 
   const { data: searchResults } = useSWR(
@@ -100,31 +100,45 @@ export default function AutocompleteSearch({
   inputName,
   initialValue,
   className: parentClassName,
+  hideFilters,
 }: {
   inputName: string;
   initialValue?: string;
   className?: string;
+  hideFilters?: boolean;
 }) {
   const router = useRouter();
+  const [filterPregnancy, setFilterPregnancy] = useState<boolean>(false);
+  const [filterPediatric, setFilterPediatric] = useState<boolean>(false);
 
   const onButtonClick = (search: string) => {
     search && trackSearchEvent(search);
     //console.log("search -- Matomo - 4");
-    router.push(`/rechercher?s=${search}`);
+    router.push(`/rechercher?g=${filterPregnancy}&p=${filterPediatric}&s=${search}`);
   };
 
   return (
-    <SearchBar
-      label={"Que cherchez-vous ?"}
-      onButtonClick={(search: string) => onButtonClick(search)}
-      renderInput={({ className, ...props }) => (
-        <AutocompleteSearchInput
-          {...props}
-          className={cx(className, parentClassName)}
-          name={inputName}
-          initialValue={initialValue}
+    <>
+      <SearchBar
+        label={"Que cherchez-vous ?"}
+        onButtonClick={(search: string) => onButtonClick(search)}
+        renderInput={({ className, ...props }) => (
+          <AutocompleteSearchInput
+            {...props}
+            className={cx(className, parentClassName)}
+            name={inputName}
+            initialValue={initialValue}
+          />
+        )}
+      />
+      {!hideFilters && (
+        <PregnancyPediatricFilters 
+          setFilterPregnancy={setFilterPregnancy}
+          setFilterPediatric={setFilterPediatric}
+          filterPregnancy={filterPregnancy}
+          filterPediatric={filterPediatric}
         />
       )}
-    />
+    </>
   );
 }
