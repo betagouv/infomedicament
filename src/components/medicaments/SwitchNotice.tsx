@@ -18,19 +18,19 @@ import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "../PresentationsList";
 import { Nullable } from "kysely";
 import { PresentationDetail } from "@/db/types";
-import { HTMLAttributes, PropsWithChildren, useCallback, useEffect, useState } from "react";
+import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import styled from 'styled-components';
 import DetailedSubMenu from "./DetailedSubMenu";
-import DetailedNotice from "./DetailedNotice";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import ArticlesResumeList from "../articles/ArticlesResumeList";
 import MarrNotice from "../marr/MarrNotice";
 import { Marr } from "@/types/MarrTypes";
 import useSWR from "swr";
-import { Notice, Rcp } from "@/types/MedicamentsTypes";
+import { Notice, NoticeRCPContentBlock, Rcp } from "@/types/MedicamentTypes";
 import { fetchJSON } from "@/utils/network";
 import NoticeBlock from "./NoticeBlock";
+import DetailedNotice from "./DetailedNotice";
 
 const ToggleSwitchContainer = styled.div `
   background-color: var(--background-contrast-info);
@@ -70,13 +70,14 @@ function SwitchNotice({
   presentations,
   articles,
   marr,
-  children,
   ...props
-}: PropsWithChildren<SwitchNoticeProps>) {
+}: SwitchNoticeProps) {
+
+  const [currentMarr, setCurrentMarr] = useState<Marr>();
 
   const [currentPart, setcurrentPart] = useState<DetailsNoticePartsEnum>(DetailsNoticePartsEnum.INFORMATIONS_GENERALES);
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
-  const [currentMarr, setCurrentMarr] = useState<Marr>();
+  const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock>();
 
   useEffect(() => {
     if(marr){
@@ -95,7 +96,7 @@ function SwitchNotice({
         setCurrentMarr(marr);
       }
     }
-  }, [isAdvanced, marr]);
+  }, [isAdvanced, marr, setCurrentMarr]);
   
   const onSwitchAdvanced = useCallback(
     (enabled: boolean) => {
@@ -122,6 +123,16 @@ function SwitchNotice({
     fetchJSON,
     { onError: (err) => console.warn('errorNotice >>', err), }
   );
+
+  useEffect(() => {
+    if(notice && notice.children){
+      notice.children.forEach((child: NoticeRCPContentBlock) => {
+        if(child.anchor === "Ann3bQuestceque"){
+          setIndicationBlock(child);
+        }
+      })
+    }
+  }, [notice]);
 
   // Use to display or not the separator after a tag (left column)
   const lastTagElement: TagTypeEnum = (
@@ -229,6 +240,7 @@ function SwitchNotice({
           presentations={presentations}
           marr={currentMarr}
           rcp={rcp}
+          indicationBlock={indicationBlock}
         />
       ) : (
         <NoticeBlock 

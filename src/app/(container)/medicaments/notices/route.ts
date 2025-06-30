@@ -1,5 +1,5 @@
 import db from '@/db';
-import { Notice, NoticeContentBlock } from '@/types/MedicamentsTypes';
+import { Notice, NoticeRCPContentBlock } from '@/types/MedicamentTypes';
 import { NextRequest, NextResponse } from "next/server";
 
 
@@ -12,7 +12,7 @@ async function getContent(children: number[]): Promise<any[]>{
   
   return await Promise.all(
     childrenData.map(async (child) => {
-      const data:NoticeContentBlock = {
+      const data:NoticeRCPContentBlock = {
         id: child.id,
         type: child.type,
         styles: child.styles,
@@ -42,20 +42,23 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  const notice:Notice = {
+    codeCIS: parseInt(CIS),
+    title: "",
+    dateNotif: "",
+    children: [],
+  }
+
   const noticeRaw = await db
     .selectFrom("notices")
     .selectAll()
     .where("codeCIS", "=", parseInt(CIS))
     .executeTakeFirst();
 
-  if(!noticeRaw) return NextResponse.json(undefined);
+  if(!noticeRaw) return NextResponse.json(notice);
 
-  const notice:Notice = {
-    codeCIS: noticeRaw.codeCIS,
-    title: noticeRaw.title,
-    dateNotif: noticeRaw.dateNotif,
-    children: [],
-  }
+  notice.title = noticeRaw.title;
+  notice.dateNotif = noticeRaw.dateNotif;
   
   if(noticeRaw.children && noticeRaw.children.length > 0) 
     notice.children = await getContent(noticeRaw.children);

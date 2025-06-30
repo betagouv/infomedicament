@@ -1,6 +1,6 @@
 import db from '@/db';
 import { PresentationDetail } from '@/db/types';
-import { Asmr, Composant, DocBonUsage, FicheInfos, GroupeGenerique, Smr } from '@/types/MedicamentsTypes';
+import { Asmr, Composant, DocBonUsage, FicheInfos, GroupeGenerique, Smr } from '@/types/MedicamentTypes';
 import { NextRequest, NextResponse } from "next/server";
 
 async function getListeGroupesGeneriques(ids: number[]): Promise<GroupeGenerique[]>{

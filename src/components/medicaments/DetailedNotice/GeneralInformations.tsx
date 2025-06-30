@@ -18,7 +18,8 @@ import { PresentationDetail } from "@/db/types";
 import { Nullable } from "kysely";
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
-import { FicheInfos } from "@/types/MedicamentsTypes";
+import { FicheInfos, NoticeRCPContentBlock } from "@/types/MedicamentTypes";
+import { getContent } from "@/utils/notices/noticesUtils";
 
 const SummaryLineContainer = styled.div `
   display: flex;
@@ -44,6 +45,12 @@ const InfosImportantes = styled.div`
   a {
     background: none;
     text-decoration: underline;
+  }
+`;
+
+const IndicationBlock = styled.div`
+  div {
+    margin-bottom: 1rem;
   }
 `;
 
@@ -78,6 +85,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
   marr?: Marr;
   ficheInfos?: FicheInfos;
+  indicationBlock?: NoticeRCPContentBlock;
 }
 
 function GeneralInformations({ 
@@ -92,6 +100,7 @@ function GeneralInformations({
   presentations,
   marr,
   ficheInfos,
+  indicationBlock,
   ...props 
 }: GeneralInformationsProps) {
   
@@ -236,20 +245,14 @@ function GeneralInformations({
         </SummaryLine>
       </ContentContainer>
 
-      {/* <ContentContainer id="informations-indications" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-        <h2 className={fr.cx("fr-h6")}>Indications</h2>
-        <div className={fr.cx("fr-text--sm", "fr-mb-0")}>
-          Classe pharmacothérapeutique – code ATC : N02BE01
-          <br/><br/>
-          DOLIPRANE 1000 mg, comprimé contient du paracétamol. Le paracétamol est un antalgique (calme la douleur) et un antipyrétique (fait baisser la fièvre).
-          <br/><br/>
-          Ce médicament est indiqué chez l’adulte et l’enfant à partir de 50 kg (environ 15 ans) pour faire baisser la fièvre et/ou soulager les douleurs légères à modérées (par exemple : maux de tête, états grippaux, douleurs dentaires, courbatures, règles douloureuses, poussées douloureuses de l’arthrose).
-          <br/><br/>
-          Lire attentivement le paragraphe « Posologie » de la rubrique 3.
-          <br/><br/>
-          Pour les enfants de moins de 50 kg, il existe d’autres présentations de paracétamol : demandez conseil à votre médecin ou à votre pharmacien.
-        </div>
-      </ContentContainer> */}
+      {(indicationBlock && indicationBlock.children) && (
+        <ContentContainer id="informations-indications" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+          <h2 className={fr.cx("fr-h6")}>Indications</h2>
+          <IndicationBlock className={fr.cx("fr-text--sm", "fr-mb-0")}>
+            {getContent(indicationBlock.children)}
+          </IndicationBlock>
+        </ContentContainer>
+      )}
       
       {ficheInfos.listeComposants && ficheInfos.listeComposants.length > 0 && (
         <ContentContainer id="informations-composition" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
@@ -334,7 +337,7 @@ function GeneralInformations({
                       )}
                     </div>
                   )}
-                  <div className={fr.cx("fr-text--sm")}>
+                  <div className={fr.cx("fr-text--sm", "fr-mb-0")}>
                     Cette présentation est{" "}
                     <Link href="https://base-donnees-publique.medicaments.gouv.fr/glossaire.php#agrecol" target="_blank" rel="noopener noreferrer">
                       agréée aux collectivités

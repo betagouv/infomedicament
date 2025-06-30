@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import Link from "next/link";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { Table } from "@codegouvfr/react-dsfr/Table";
-import { FicheInfos } from "@/types/MedicamentsTypes";
+import { FicheInfos } from "@/types/MedicamentTypes";
 
 const DocBonUsage = styled.div`
   border: var(--border-open-blue-france) 1px solid;
@@ -36,6 +36,7 @@ function DocumentHas({
           ? (
             <>
               {ficheInfos && ficheInfos.listeDocumentsBonUsage.map((document, index) => {
+                const date = new Date(document.dateMaj);
                 return (
                   <DocBonUsage key={index} className={fr.cx("fr-text--sm", "fr-mb-2w")}>
                     <Link 
@@ -47,7 +48,7 @@ function DocumentHas({
                       {document.titreDoc}
                     </Link>
                     <div className={fr.cx("fr-mt-1w")}>
-                      <i className={fr.cx("fr-text--xs", "fr-mb-0")}>{document.dateMaj}</i>
+                      <i className={fr.cx("fr-text--xs", "fr-mb-0")} style={{textTransform:"capitalize"}}>{date.toLocaleDateString('fr-FR', {month: 'long', year: 'numeric'})}</i>
                       <Badge className={fr.cx("fr-badge--purple-glycine")} small>{document.typeDoc}</Badge>
                     </div>
                   </DocBonUsage>
@@ -78,9 +79,10 @@ function DocumentHas({
                 ]}
                 data={
                   ficheInfos.listeSMR.map((smr) => {
+                    const date = smr.date ? new Date(smr.date) : "";
                     return [
                       smr.valeur,
-                      smr.date,
+                      date ? date.toLocaleDateString('fr-FR') : "",
                       smr.motif,
                       smr.libelle
                     ];
@@ -112,9 +114,10 @@ function DocumentHas({
                 ]}
                 data={
                   ficheInfos.listeASMR.map((asmr) => {
+                    const date = asmr.date ? new Date(asmr.date) : "";
                     return [
                       asmr.valeur,
-                      asmr.date,
+                      date ? date.toLocaleString('fr-FR') : "",
                       asmr.motif,
                       asmr.libelle
                     ];

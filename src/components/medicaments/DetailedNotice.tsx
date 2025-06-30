@@ -12,7 +12,7 @@ import { PresentationDetail } from "@/db/types";
 import { Nullable } from "kysely";
 import DocumentHas from "./DetailedNotice/DocumentHas";
 import { Marr } from "@/types/MarrTypes";
-import { FicheInfos, Rcp } from "@/types/MedicamentsTypes";
+import { FicheInfos, NoticeRCPContentBlock, Rcp } from "@/types/MedicamentTypes";
 import RcpBlock from "./DetailedNotice/RcpBlock";
 import useSWR from "swr";
 import { fetchJSON } from "@/utils/network";
@@ -35,6 +35,7 @@ interface DetailedNoticeProps extends HTMLAttributes<HTMLDivElement> {
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
   marr?: Marr;
   rcp?: Rcp;
+  indicationBlock?: NoticeRCPContentBlock;
 }
 
 function DetailedNotice({
@@ -50,6 +51,7 @@ function DetailedNotice({
   marr,
   onResetCapture,
   rcp,
+  indicationBlock,
   ...props 
 }: DetailedNoticeProps) {
 
@@ -80,6 +82,7 @@ function DetailedNotice({
           updateVisiblePart={setVisiblePart}
           marr={marr}
           ficheInfos={ficheInfos}
+          indicationBlock={indicationBlock}
         />
       </DetailedNoticeContainer>
       <DetailedNoticeContainer id="rcp-denomiation" $visible={visiblePart === DetailsNoticePartsEnum.RCP}>

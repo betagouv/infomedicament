@@ -1,4 +1,4 @@
-import { NoticeBlockType } from "@/types/MedicamentsTypes";
+import { NoticeBlockType } from "@/types/MedicamentTypes";
 import { Selectable } from "kysely";
 
 export interface Database {

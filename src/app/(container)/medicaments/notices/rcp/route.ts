@@ -1,5 +1,5 @@
 import db from '@/db';
-import { Rcp, RcpContentBlock } from '@/types/MedicamentsTypes';
+import { Rcp, NoticeRCPContentBlock } from '@/types/MedicamentTypes';
 import { NextRequest, NextResponse } from "next/server";
 
 async function getContent(children: number[]): Promise<any[]>{
@@ -11,7 +11,7 @@ async function getContent(children: number[]): Promise<any[]>{
   
   return await Promise.all(
     childrenData.map(async (child) => {
-      const data:RcpContentBlock = {
+      const data:NoticeRCPContentBlock = {
         id: child.id,
         type: child.type,
         styles: child.styles,
