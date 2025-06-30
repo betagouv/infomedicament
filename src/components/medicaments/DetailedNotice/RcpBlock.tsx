@@ -236,7 +236,7 @@ function RcpBlock({
           )}
         </>
       ) : (
-        <span>Le résumé des caractéristiques du produit n'est pas disponible pour ce médicament.</span>
+        <span>Le résumé des caractéristiques du produit n&rsquo;est pas disponible pour ce médicament.</span>
       )}
     </>
   );

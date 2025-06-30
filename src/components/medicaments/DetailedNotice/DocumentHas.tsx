@@ -55,7 +55,7 @@ function DocumentHas({
               })}
             </>
           ) : (
-            <span>Il n'y a pas de documents de bon usage disponible pour ce médicament.</span>
+            <span>Il n&rsquo;y a pas de documents de bon usage disponible pour ce médicament.</span>
           )
         }
       </ContentContainer>
@@ -89,7 +89,7 @@ function DocumentHas({
               />
             </div>
           ) : (
-            <span>Il n'y a pas de SMR disponible pour ce médicament.</span>
+            <span>Il n&rsquo;y a pas de SMR disponible pour ce médicament.</span>
           )
         }
       </ContentContainer>
@@ -123,7 +123,7 @@ function DocumentHas({
               />
             </div>
           ) : (
-            <span>Il n'y a pas d'ASMR disponible pour ce médicament.</span>
+            <span>Il n&rsquo;y a pas d&rsquo;ASMR disponible pour ce médicament.</span>
           )
         }
       </ContentContainer>

@@ -238,7 +238,7 @@ function NoticeBlock({
           {(notice && notice.children) ? (
             <NoticeContainer>{getNoticeContent(notice.children)}</NoticeContainer>
           ) : (
-            <span>La notice n'est pas disponible pour ce médicament.</span>
+            <span>La notice n&rsquo;est pas disponible pour ce médicament.</span>
           )}
         </ContentContainer>
       </article>
