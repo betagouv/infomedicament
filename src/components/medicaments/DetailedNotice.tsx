@@ -26,10 +26,10 @@ const DetailedNoticeContainer = styled.div<{ $visible: boolean; }> `
 interface DetailedNoticeProps extends HTMLAttributes<HTMLDivElement> {
   currentVisiblePart: DetailsNoticePartsEnum;
   CIS: string;
-  atcCode: string;
+  atcCode?: string;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
-  SpecGeneId: string;
+  SpecGeneId?: string;
   isPregnancyAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];

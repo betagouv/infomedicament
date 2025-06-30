@@ -76,10 +76,10 @@ function SummaryLine(
 interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   updateVisiblePart: (visiblePart: DetailsNoticePartsEnum) => void;
   CIS: string;
-  atcCode: string;
+  atcCode?: string;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
-  SpecGeneId: string;
+  SpecGeneId?: string;
   isPregnancyAlert: boolean;
   pediatrics: PediatricsInfo | undefined;  
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
@@ -148,12 +148,14 @@ function GeneralInformations({
         <SummaryLine categoryName="Code CIS">
           {formatCIS(CIS)}
         </SummaryLine>
-        <SummaryLine categoryName="Classe ATC">
-          {atcCode}{" "}
-          <span style={{textTransform:"capitalize"}}>
-            {displaySimpleComposants(composants).map((s) => s.NomLib.trim()).join(", ")}
-          </span>
-        </SummaryLine>
+        {atcCode && (
+          <SummaryLine categoryName="Classe ATC">
+            {atcCode}{" "}
+            <span style={{textTransform:"capitalize"}}>
+              {displaySimpleComposants(composants).map((s) => s.NomLib.trim()).join(", ")}
+            </span>
+          </SummaryLine>
+        )}
         <SummaryLine categoryName="Substance active">
           {displayCompleteComposants(composants)}
         </SummaryLine>

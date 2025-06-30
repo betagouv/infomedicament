@@ -49,12 +49,12 @@ export default async function Page(props: {
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);
 
-  if (!specialite) return notFound();
-  if (!presentations.length) return notFound();
+  //if (!specialite) return notFound();
+  //if (!presentations.length) return notFound();
 
   const atcCode = getAtcCode(CIS);
-  const atc1 = await getAtc1(atcCode);
-  const atc2 = await getAtc2(atcCode);
+  const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
+  const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
   const isPrinceps =
     !!(await pdbmMySQL
       .selectFrom("Specialite")
@@ -73,11 +73,41 @@ export default async function Page(props: {
 
   const pediatrics = await getPediatrics(CIS);
 
+  const atcList = [];
+  const breadcrumb = [
+    { label: "Accueil", linkProps: { href: "/" } },
+  ];
+  if(atc1){
+    atcList.push(atc1.code.trim());
+    breadcrumb.push({ label: atc1.label, linkProps: { href: `/atc/${atc1.code}` } });
+  }
+  if(atc2){
+    atcList.push(atc2.code.trim());
+    breadcrumb.push({ label: atc2.label, linkProps: { href: `/atc/${atc2.code}` } });
+  }
+  if(composants){
+    breadcrumb.push({
+      label: displaySimpleComposants(composants)
+        .map((s) => s.NomLib.trim())
+        .join(", "),
+      linkProps: {
+        href: `/substances/${displaySimpleComposants(composants)
+          .map((s) => s.NomId.trim())
+          .join(",")}`,
+      },
+    });
+  }
+  if(specialite){
+    breadcrumb.push({
+      label: formatSpecName(getSpecialiteGroupName(specialite)),
+      linkProps: {
+        href: `/rechercher?s=${formatSpecName(getSpecialiteGroupName(specialite))}`,
+      },
+    });
+  }
+
   const articlesFilters:SearchArticlesFilters = {
-    ATCList: [
-      atc1.code.trim(),
-      atc2.code.trim(),
-    ],
+    ATCList: atcList,
     substancesList: composants.map((compo) => compo.SubsId.trim()),
     specialitesList: [CIS],
     pathologiesList: []
@@ -89,35 +119,16 @@ export default async function Page(props: {
     <>
       <ContentContainer frContainer>
         <Breadcrumb
-          segments={[
-            { label: "Accueil", linkProps: { href: "/" } },
-            { label: atc1.label, linkProps: { href: `/atc/${atc1.code}` } },
-            { label: atc2.label, linkProps: { href: `/atc/${atc2.code}` } },
-            {
-              label: displaySimpleComposants(composants)
-                .map((s) => s.NomLib.trim())
-                .join(", "),
-              linkProps: {
-                href: `/substances/${displaySimpleComposants(composants)
-                  .map((s) => s.NomId.trim())
-                  .join(",")}`,
-              },
-            },
-            {
-              label: formatSpecName(getSpecialiteGroupName(specialite)),
-              linkProps: {
-                href: `/rechercher?s=${formatSpecName(getSpecialiteGroupName(specialite))}`,
-              },
-            },
-          ]}
-          currentPageLabel={formatSpecName(specialite.SpecDenom01).replace(
-            formatSpecName(getSpecialiteGroupName(specialite)),
-            "",
-          )}
+          segments={breadcrumb}
+          currentPageLabel={
+            specialite ? formatSpecName(specialite.SpecDenom01).replace(
+              formatSpecName(getSpecialiteGroupName(specialite)),
+              "",
+            ) : ""}
           className={fr.cx("fr-mb-2w")}
         />
         <h1 className={fr.cx("fr-h2")}>
-          {formatSpecName(specialite.SpecDenom01)}
+          {specialite ? formatSpecName(specialite.SpecDenom01) : ''}
         </h1>
       </ContentContainer>
       <ContentContainer className={fr.cx("fr-pt-1w", "fr-pb-2w")} style={{
@@ -165,7 +176,7 @@ export default async function Page(props: {
               atcCode={atcCode}
               composants={composants}
               isPrinceps={isPrinceps}
-              SpecGeneId={specialite.SpecGeneId}
+              SpecGeneId={specialite ? specialite.SpecGeneId : ""}
               delivrance={delivrance}
               isPregnancyAlert={!!pregnancyAlert}
               pediatrics={pediatrics}

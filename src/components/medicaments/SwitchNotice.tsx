@@ -44,11 +44,11 @@ const ToggleSwitchContainer = styled.div `
 
 interface SwitchNoticeProps extends HTMLAttributes<HTMLDivElement> {
   CIS: string;
-  atc2: ATC;
-  atcCode: string;
+  atc2?: ATC;
+  atcCode?: string;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
-  SpecGeneId: string;
+  SpecGeneId?: string;
   delivrance: SpecDelivrance[];
   isPregnancyAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
@@ -180,9 +180,11 @@ function SwitchNotice({
           ? <DetailedSubMenu updateVisiblePart={setcurrentPart} isMarr={(currentMarr && currentMarr.pdf.length > 0)}/>
           : <section className={fr.cx("fr-mb-4w")}>
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                <TagContainer category="Sous-classe">
-                  <ClassTag atc2={atc2} />
-                </TagContainer>
+                {atc2 && (
+                  <TagContainer category="Sous-classe">
+                    <ClassTag atc2={atc2} />
+                  </TagContainer>
+                )}
                 <TagContainer category="Substance active" hideSeparator={lastTagElement === TagTypeEnum.SUBSTANCE}>
                   <SubstanceTag composants={composants} />
                 </TagContainer>

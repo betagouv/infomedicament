@@ -11,8 +11,8 @@ export type AdvancedSpecialite = Specialite & {
 export type AdvancedMedicamentGroup = {
   groupName: string; 
   specialites: AdvancedSpecialite[];
-  atc1: ATC1;
-  atc2: ATC;
+  atc1?: ATC1;
+  atc2?: ATC;
   composants: any;
   pregnancyAlert?: boolean;
   pediatrics?: PediatricsInfo;
