@@ -71,8 +71,8 @@ export default async function Page(props: {
       }
     }
   }
-  if (!atcCode) throw new ATCError(CIS);
-  const atc2 = await getAtc2(atcCode);
+  //if (!atcCode) throw new ATCError(CIS);
+  const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
   return (
     <ContentContainer frContainer>
@@ -93,7 +93,7 @@ export default async function Page(props: {
             {formatSpecName(groupGeneNameToDCI(group.LibLong))}
           </h1>
           <ul className={fr.cx("fr-tags-group", "fr-mb-1v")}>
-            <ClassTag atc2={atc2} />
+            {atc2 && (<ClassTag atc2={atc2} />)}
             <SubstanceTag composants={composants} />
           </ul>
           <div className={"fr-mb-1w"}>
