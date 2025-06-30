@@ -34,132 +34,132 @@ const infosGeneralesMenu: SubMenuType[] = [
 ];
 const RCPDonneesCliniSubMenu: SubMenuType[] = [
   {
-    href: 'rcp-indications-therapeutiques',
+    href: 'RcpIndicTherap',
     text: '4.1. Indications thérapeutiques'
   },
   {
-    href: 'rcp-posologie-mode-administration',
+    href: 'RcpPosoAdmin',
     text: '4.2. Posologie et mode d’administration'
   },
   {
-    href: 'rcp-contre-indications',
+    href: 'RcpContreindications',
     text: '4.3. Contre-indications'
   },
   {
-    href: 'rcp-precautions-emploi',
+    href: 'RcpMisesEnGarde',
     text: '4.4. Mises en garde spéciales et précautions d’emploi'
   },
   {
-    href: 'rcp-interactions',
+    href: 'RcpInteractionsMed',
     text: '4.5. Interactions avec d’autres médicaments et autres formes d’interactions'
   },
   {
-    href: 'rcp-fertilite-grossesse-allaitement',
+    href: 'RcpFertGrossAllait',
     text: '4.6. Fertilité, grossesse et allaitement'
   },
   {
-    href: 'rcp-conduite',
+    href: 'RcpConduite',
     text: '4.7. Effets sur l’aptitude à conduire des véhicules et à utiliser des machines'
   },
   {
-    href: 'rcp-effets-indesirables',
+    href: 'RcpEffetsIndesirables',
     text: '4.8. Effets indésirables'
   },
   {
-    href: 'rcp-surdosage',
+    href: 'RcpSurdosage',
     text: '4.9. Surdosage'
   }
 ];
 const RCPDonneesPharmaSubMenu: SubMenuType[] = [
   {
-    href: 'rcp-pharmacologie-liste-excipients',
+    href: 'RcpListeExcipients',
     text: '6.1. Liste des excipients'
   },
   {
-    href: 'rcp-pharmacologie-incompatibilites',
+    href: 'RcpIncompatibilites',
     text: '6.2. Incompatibilités'
   },
   {
-    href: 'rcp-pharmacologie-duree-conservation',
+    href: 'RcpDureeConservation',
     text: '6.3. Durée de conservation'
   },
   {
-    href: 'rcp-pharmacologie-precautions-conservation',
+    href: 'RcpPrecConservation',
     text: '6.4. Précautions particulières de conservation'
   },
   {
-    href: 'rcp-pharmacologie-emballage-exterieur',
+    href: 'RcpEmballage',
     text: '6.5. Nature et contenu de l’emballage extérieur'
   },
   {
-    href: 'rcp-pharmacologie-elimination-manipulation',
+    href: 'RcpPrecEmpl',
     text: '6.6. Précautions particulières d’élimination et de manipulation'
   }
 ];
 const RCPPropPharmaSubMenu: SubMenuType[] = [
   {
-    href: 'rcp-proprietes-pharmacodynamiques',
+    href: 'RcpPropPharmacodynamiques',
     text: '5.1. Propriétés pharmacodynamiques'
   },
   {
-    href: 'rcp-proprietes-pharmacocinetiques',
+    href: 'RcpPropPharmacocinetiques',
     text: '5.2. Propriétés pharmacocinétiques'
   },
   {
-    href: 'rcp-donnees-securite-preclinique',
+    href: 'RcpSecuritePreclinique',
     text: '5.3. Données de sécurité préclinique'
   }
 ];
 const RCPMenu: SubMenuType[] = [
   {
-    href: 'rcp-denomiation',
+    href: 'RcpDenomination',
     text: '1. Dénomination'
   },
   {
-    href: 'rcp-composition',
+    href: 'RcpCompoQualiQuanti',
     text: '2. Composition'
   },
   {
-    href: 'rcp-forme-pharmaceutique',
+    href: 'RcpFormePharm',
     text: '3. Forme pharmaceutique'
   },
   {
-    href: 'rcp-indications-therapeutiques',
+    href: 'RcpDonneesCliniques',
     text: '4. Données cliniques',
     children: RCPDonneesCliniSubMenu
   },
   {
-    href: 'rcp-proprietes-pharmacodynamiques',
+    href: 'RcpPropPharmacologiques',
     text: '5. Propriétés pharmacologiques',
     children: RCPPropPharmaSubMenu
   },
   {
-    href: 'rcp-pharmacologie-liste-excipients',
+    href: 'RcpDonneesPharmaceutiques',
     text: '6. Données pharmacologiques',
     children: RCPDonneesPharmaSubMenu
   },
   {
-    href: 'rcp-titulaire-amm',
+    href: 'RcpTitulaireAmm',
     text: '7. Titulaire l’AMM'
   },
   {
-     href: 'rcp-numeros-amm',
+     href: 'RcpNumAutor',
     text: '8. Numéro(s) de l’AMM'
   },
   {
-    href: 'rcp-date-autorisation',
+    href: 'RcpPremiereAutorisation',
     text: '9. Date de première autorisation/de renouvellement de l’autorisation'
   },
   {
-    href: 'rcp-date-mise-jour-texte',
+    href: 'RcpDateRevision',
     text: '10. Date de mise à jour du texte'
   },
   {
-    href: 'rcp-dosimetrie',
+    href: 'RcpDosimetrie',
     text: '11. Dosimétrie'
   },
   {
-    href: 'rcp-preparation-radiopharmaceutiques',
+    href: 'RcpInstPrepRadioph',
     text: '12. Instructions pour la préparation des radiopharmaceutiques'
   }
 ];
@@ -280,7 +280,7 @@ function DetailedSubMenu({
               href: '#document-has-bon-usage',
               onClick: () => menuOnClick(DetailsNoticePartsEnum.HAS),
             },
-            text: 'Document HAS',
+            text: 'Documents HAS (Bon usage, SMR, ASMR)',
             items: getSubMenu(documentHASMenu),
           }
         ]}

@@ -1,8 +1,9 @@
-import "server-cli-only";
-
-import getGlossaryDefinitions, { Definition } from "@/data/grist/glossary";
 import React, { Fragment } from "react";
 import WithDefinition from "@/components/glossary/WithDefinition";
+import useSWR from "swr";
+import { fetchJSON } from "@/utils/network";
+import { Definition } from "@/types/GlossaireTypes";
+
 
 function escapeRegExp(text: string) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -20,6 +21,7 @@ function withDefinition(
   );
   if (!match || !match.groups) return [text];
   const { before, word, after } = match.groups;
+
   return [
     before,
     <WithDefinition key={word} definition={definition} word={word} />,
@@ -27,18 +29,30 @@ function withDefinition(
   ];
 }
 
-export async function WithGlossary({
+function WithGlossary({
   text,
+  definitions
 }: {
-  text: string;
-}): Promise<React.JSX.Element> {
-  const definitions = (await getGlossaryDefinitions()).filter(
-    (d) => d.fields.A_publier,
-  );
+  text: string[];
+  definitions?: Definition[]
+}): React.JSX.Element {
 
-  let elements: (React.JSX.Element | string)[] = [text];
+  let definitionsList = definitions;
+  if(!definitions || definitions.length === 0){
+    const { data: definitions } = useSWR<Definition[]>(
+      `/glossaire/definitions`,
+      fetchJSON,
+      { onError: (err) => console.warn('errorDefinitions >>', err), }
+    );
+    definitionsList = definitions;
+  }
 
-  definitions.forEach((definition) => {
+  if(!definitionsList) return (<>{text}</>);
+
+  
+  let elements: (React.JSX.Element | string)[] = text;
+
+  definitionsList.forEach((definition) => {
     elements = elements
       .map((element) => {
         if (typeof element !== "string") return element;
@@ -56,3 +70,5 @@ export async function WithGlossary({
     </>
   );
 }
+
+export default WithGlossary;

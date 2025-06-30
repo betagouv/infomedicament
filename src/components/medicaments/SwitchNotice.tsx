@@ -20,12 +20,15 @@ import { Nullable } from "kysely";
 import { PresentationDetail } from "@/db/types";
 import { HTMLAttributes, PropsWithChildren, useCallback, useEffect, useState } from "react";
 import styled from 'styled-components';
-import Badge from "@codegouvfr/react-dsfr/Badge";
 import DetailedSubMenu from "./DetailedSubMenu";
 import DetailedNotice from "./DetailedNotice";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import MarrNotice from "../marr/MarrNotice";
 import { Marr } from "@/types/MarrTypes";
+import useSWR from "swr";
+import { Notice, Rcp } from "@/types/MedicamentsTypes";
+import { fetchJSON } from "@/utils/network";
+import NoticeBlock from "./NoticeBlock";
 
 const ToggleSwitchContainer = styled.div `
   background-color: var(--background-contrast-info);
@@ -37,7 +40,7 @@ const ToggleSwitchContainer = styled.div `
   }
 `;
 
-interface OwnProps extends HTMLAttributes<HTMLDivElement> {
+interface SwitchNoticeProps extends HTMLAttributes<HTMLDivElement> {
   CIS: string;
   atc2: ATC;
   atcCode: string;
@@ -48,8 +51,6 @@ interface OwnProps extends HTMLAttributes<HTMLDivElement> {
   isPregnancyAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
-  leaflet?: any;
-  leafletMaj?: string;
   marr?: Marr;
 }
 
@@ -64,12 +65,10 @@ function SwitchNotice({
   isPregnancyAlert,
   pediatrics,
   presentations,
-  leaflet,
-  leafletMaj,
   marr,
   children,
   ...props
-}: PropsWithChildren<OwnProps>) {
+}: PropsWithChildren<SwitchNoticeProps>) {
 
   const [currentPart, setcurrentPart] = useState<DetailsNoticePartsEnum>(DetailsNoticePartsEnum.INFORMATIONS_GENERALES);
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
@@ -106,6 +105,18 @@ function SwitchNotice({
       setIsAdvanced(true);
     },
     [setIsAdvanced]
+  );
+  
+  const { data: rcp } = useSWR<Rcp>(
+    `/medicaments/notices/rcp?cis=${CIS}`,
+    fetchJSON,
+    { onError: (err) => console.warn('errorRCP >>', err), }
+  );
+
+  const { data: notice } = useSWR<Notice>(
+    `/medicaments/notices?cis=${CIS}`,
+    fetchJSON,
+    { onError: (err) => console.warn('errorNotice >>', err), }
   );
 
   // Use to display or not the separator after a tag (left column)
@@ -196,39 +207,25 @@ function SwitchNotice({
             </section>
           }
       </ContentContainer>
-      {isAdvanced 
-        ? <DetailedNotice 
-            currentVisiblePart={currentPart}
-            CIS={CIS}
-            atcCode={atcCode}
-            composants={composants}
-            isPrinceps={isPrinceps}
-            SpecGeneId={SpecGeneId}
-            delivrance={delivrance}
-            isPregnancyAlert={isPregnancyAlert}
-            pediatrics={pediatrics}
-            presentations={presentations}
-            marr={currentMarr}
-          />
-        : leaflet && 
-          <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
-            <article>
-              <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
-                <div className={fr.cx("fr-mb-4w")} style={{display: "flex", justifyContent: "space-between", alignItems: "center", }}>
-                  <div style={{display: "flex"}}>
-                    <span className={["fr-icon--custom-notice", fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md")].join(" ")}/>
-                    <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>
-                      <span className={fr.cx("fr-hidden-md")}>Notice</span>
-                      <span className={fr.cx("fr-hidden", "fr-unhidden-md")}>Notice complète</span>
-                    </h2>
-                  </div>
-                  {leafletMaj && <Badge severity={"info"}>{leafletMaj}</Badge>}
-                </div>
-                {leaflet}
-              </ContentContainer>
-            </article>
-          </ContentContainer>
-      }
+      {isAdvanced ? (
+        <DetailedNotice 
+          currentVisiblePart={currentPart}
+          CIS={CIS}
+          atcCode={atcCode}
+          composants={composants}
+          isPrinceps={isPrinceps}
+          SpecGeneId={SpecGeneId}
+          isPregnancyAlert={isPregnancyAlert}
+          pediatrics={pediatrics}
+          presentations={presentations}
+          marr={currentMarr}
+          rcp={rcp}
+        />
+      ) : (
+        <NoticeBlock 
+          notice={notice}
+        />
+      )}
     </>
   );
 };

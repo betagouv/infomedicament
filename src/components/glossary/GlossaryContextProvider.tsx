@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useState } from "react";
-import { Definition } from "@/data/grist/glossary";
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
+import { Definition } from "@/types/GlossaireTypes";
 
 // This context provider is used to store which glossary modals should be mounted
 // depending on which words are used in the text.
