@@ -10,6 +10,7 @@ import { getPregnancyAlerts } from "@/data/grist/pregnancy";
 import { getAdvancedMedicamentGroupFromGroupNameSpecialites } from "@/db/utils/medicaments";
 import { getArticlesFromSearchResults } from "@/data/grist/articles";
 import { DataTypeEnum } from "@/types/DataTypes";
+import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 
 type ExtendedOrderResults = { 
   counter: number,
@@ -82,10 +83,20 @@ export default async function Page(props: {
   const search = searchParams && "s" in searchParams && searchParams["s"];
   const results = search && (await getSearchResults(searchParams["s"]));
   console.log("results");
+  results && results.forEach((res) => {
+    if("groupName" in res){
+      console.log(res.groupName);
+      // res.specialites && res.specialites.forEach((spec) => {
+      //   console.log(spec.SpecDenom01);
+      // })
+    }
+  })
   console.log(results);
   const extendedResults = results && (await getExtendedOrderedResults(results));
   console.log("extendedResults");
-  console.log(extendedResults);
+ ( extendedResults && extendedResults.results && extendedResults.results["Médicament"]) && extendedResults.results["Médicament"].forEach((res) => {
+    console.log((res.result as AdvancedMedicamentGroup).groupName);
+  })
   const articlesList = extendedResults 
     ? (await getArticlesFromSearchResults(extendedResults.results))
     : [];
