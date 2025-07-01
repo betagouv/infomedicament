@@ -59,7 +59,7 @@ function ShareButtons({rightAlign, ...props}: ShareButtonsProps) {
             <Link 
               href={`mailto:?subject=[À MODIFIER - objet du mail]&body=[À MODIFIER - titre ou texte descriptif de la page] ${currentHref}`}
               target="_blank" 
-              rel="noopener external" 
+              rel="noopener noreferrer" 
               className={fr.cx("fr-btn--mail", "fr-btn")}
             >
               Partager par email
