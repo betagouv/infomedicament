@@ -44,7 +44,7 @@ export default function GreetingModal() {
       <p className={fr.cx("fr-text--bold")}>🔎 Important à savoir&nbsp;:</p>
       <ul>
         <li>
-          Cette version repose sur une base de <b>500 médicaments uniquement</b>
+          Cette version repose sur une base de <b>5000 médicaments uniquement</b>
           , qui sera enrichie progressivement.
         </li>
         <li>
