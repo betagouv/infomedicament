@@ -34,10 +34,8 @@ function TagContainer({
     <div {...props}>
       {currentCategory && 
         <div style={{
-          color: "var(--text-title-blue-france)",
-          fontWeight: "bold",
+          color: "var(--text-mention-grey)",
           fontSize: "14px",
-          textTransform: "uppercase",
         }}>
           {currentCategory}
         </div>
