@@ -178,7 +178,11 @@ function GeneralInformations({
           </>
         </SummaryLine>
         <SummaryLine categoryName="Pédiatrie">
-          {pediatrics && <PediatricsTags info={pediatrics} />}
+          {pediatrics ? (
+            <PediatricsTags info={pediatrics} />
+          ) : ( 
+            <span>Aucune information pédiatrique disponible</span>
+          )}
           {/* <Link href="#">Voir dans le RCP</Link> */}
         </SummaryLine>
         <SummaryLine categoryName="Grossesse">
