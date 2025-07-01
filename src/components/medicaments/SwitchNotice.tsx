@@ -212,9 +212,11 @@ function SwitchNotice({
                 )}
                 {pediatrics && <PediatricsTags info={pediatrics} lastTagElement={lastTagElement}/>}
               </ContentContainer>
-              <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                <PresentationsList presentations={presentations} />
-              </ContentContainer>
+              {(presentations && presentations.length > 0) && (
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                  <PresentationsList presentations={presentations} />
+                </ContentContainer>
+              )}
               {articles && articles.length > 0 && (
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                   <ArticlesResumeList articles={articles} />
