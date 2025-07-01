@@ -57,6 +57,19 @@ export default function PediatricsTags({
           </Tag>
         </TagContainer>
       )}
+      {info.mention && (
+        <TagContainer hideSeparator={hideSeparator || lastTagElement === TagTypeEnum.PEDIATRIC_MENTION}>
+          <Tag
+            iconId={"fr-icon--custom-bedroom-baby" as FrIconClassName}
+            linkProps={{
+              href: `#`,
+              className: cx("fr-tag--custom-alt-pediatrics-indication"),
+            }}
+          >
+            Mention contre-indication enfant
+          </Tag>
+        </TagContainer>
+      )}
     </>
   );
 }

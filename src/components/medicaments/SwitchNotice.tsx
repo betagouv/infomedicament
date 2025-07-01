@@ -137,21 +137,24 @@ function SwitchNotice({
 
   // Use to display or not the separator after a tag (left column)
   const lastTagElement: TagTypeEnum = (
-    pediatrics && pediatrics.doctorAdvice
-      ? TagTypeEnum.PEDIATRIC_DOCTOR_ADVICE 
-      : (pediatrics && pediatrics.contraindication
-        ? TagTypeEnum.PEDIATRIC_CONTRAINDICATION 
-        : (pediatrics && pediatrics.indication
-          ? TagTypeEnum.PEDIATRIC_INDICATION
-          : (isPregnancyAlert 
-            ? TagTypeEnum.PREGNANCY 
-            : (!!delivrance.length 
-              ? TagTypeEnum.PRESCRIPTION 
-              : (!!SpecGeneId 
-                ? TagTypeEnum.GENERIC 
-                : (isPrinceps
-                  ? TagTypeEnum. PRINCEPS
-                  : TagTypeEnum.SUBSTANCE
+    pediatrics && pediatrics.mention
+      ? TagTypeEnum.PEDIATRIC_MENTION 
+      : (pediatrics && pediatrics.doctorAdvice
+        ? TagTypeEnum.PEDIATRIC_DOCTOR_ADVICE 
+        : (pediatrics && pediatrics.contraindication
+          ? TagTypeEnum.PEDIATRIC_CONTRAINDICATION
+          : (pediatrics && pediatrics.indication
+            ? TagTypeEnum.PEDIATRIC_INDICATION
+            : (isPregnancyAlert 
+              ? TagTypeEnum.PREGNANCY 
+              : (!!delivrance.length 
+                ? TagTypeEnum.PRESCRIPTION 
+                : (!!SpecGeneId 
+                  ? TagTypeEnum.GENERIC 
+                  : (isPrinceps
+                    ? TagTypeEnum. PRINCEPS
+                    : TagTypeEnum.SUBSTANCE
+                )
               )
             )
           )

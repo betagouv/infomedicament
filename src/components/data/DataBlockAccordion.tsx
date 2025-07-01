@@ -173,6 +173,9 @@ function DataBlockAccordion({
                     {pediatricsInfo.doctorAdvice && (
                       <YellowText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Utilisation chez l&apos;enfant sur avis d&apos;un professionnel de santé</YellowText>
                     )}
+                    {pediatricsInfo.mention && (
+                      <GreenText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Mention contre-indication enfant</GreenText>
+                    )}
                   </>
                 )}
               </div>

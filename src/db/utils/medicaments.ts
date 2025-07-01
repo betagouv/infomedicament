@@ -25,6 +25,7 @@ export async function getAdvancedMedicamentGroupFromGroupNameSpecialites(
     indication: false,
     contraindication: false,
     doctorAdvice: false,
+    mention: false,
   }
   const advancedSpecialites = await Promise.all(
     specialites.map(async (spec) => {
@@ -33,6 +34,7 @@ export async function getAdvancedMedicamentGroupFromGroupNameSpecialites(
         if(pediatrics.indication) pediatricsInfo.indication = true;
         if(pediatrics.contraindication) pediatricsInfo.contraindication = true;
         if(pediatrics.doctorAdvice) pediatricsInfo.doctorAdvice = true;
+        if(pediatrics.mention) pediatricsInfo.mention = true;
       }
       return {
         pregnancyAlert: !!pregnancyAlert,
@@ -49,7 +51,7 @@ export async function getAdvancedMedicamentGroupFromGroupNameSpecialites(
     atc2: atc ? await getAtc2(atc) : undefined,
     composants: composants,
     pregnancyAlert: !!pregnancyAlert,
-    pediatrics: (pediatricsInfo.indication || pediatricsInfo.contraindication || pediatricsInfo.doctorAdvice) ? pediatricsInfo : undefined,
+    pediatrics: (pediatricsInfo.indication || pediatricsInfo.contraindication || pediatricsInfo.doctorAdvice || pediatricsInfo.mention) ? pediatricsInfo : undefined,
   }
 }
 
