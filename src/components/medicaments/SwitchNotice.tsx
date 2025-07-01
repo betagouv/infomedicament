@@ -45,6 +45,7 @@ const ToggleSwitchContainer = styled.div `
 
 interface SwitchNoticeProps extends HTMLAttributes<HTMLDivElement> {
   CIS: string;
+  name: string;
   atc2?: ATC;
   atcCode?: string;
   composants: Array<SpecComposant & SubstanceNom>;
@@ -60,6 +61,7 @@ interface SwitchNoticeProps extends HTMLAttributes<HTMLDivElement> {
 
 function SwitchNotice({
   CIS,
+  name,
   atc2,
   atcCode,
   composants,
@@ -163,7 +165,9 @@ function SwitchNotice({
   return (
     <>
       <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")}>
-        <ShareButtons />
+        <ShareButtons 
+          pageName={name}
+        />
         <ToggleSwitchContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <ToggleSwitch 
             label="Version détaillée"

@@ -172,6 +172,7 @@ export default async function Page(props: {
             )}
             <SwitchNotice 
               CIS={CIS}
+              name={specialite ? formatSpecName(specialite.SpecDenom01) : ''}
               atc2={atc2}
               atcCode={atcCode}
               composants={composants}
