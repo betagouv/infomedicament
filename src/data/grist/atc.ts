@@ -159,7 +159,8 @@ export function getAtcCode(CIS: string) {
   const atc = atcData.find((row) => row[0] === CIS);
 
   if (!atc) {
-    throw new ATCError(CIS);
+    return atc;
+    //throw new ATCError(CIS);
   }
 
   return atc[1];

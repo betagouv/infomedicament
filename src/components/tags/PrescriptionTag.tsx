@@ -3,10 +3,14 @@ import React from "react";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import "./dsfr-custom-tags.css";
 
-export default function PrescriptionTag() {
+export default function PrescriptionTag(
+  props: { 
+    hideIcon?: boolean
+  }
+) {
   return (
     <Tag
-      iconId="fr-icon-file-text-fill"
+      iconId={!props.hideIcon ? "fr-icon-file-text-fill" : undefined}
       nativeButtonProps={{
         className: cx("fr-tag--custom-alt-blue"),
       }}

@@ -7,7 +7,7 @@ import ClassTag from "../tags/ClassTag";
 import { ATC } from "@/data/grist/atc";
 import { fr } from "@codegouvfr/react-dsfr";
 import SubstanceTag from "../tags/SubstanceTag";
-import { Presentation, PresInfoTarif, SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { Presentation, PresInfoTarif, SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { TagTypeEnum } from "@/types/TagType";
 import PrincepsTag from "../tags/PrincepsTag";
 import GenericTag from "../tags/GenericTag";
@@ -18,14 +18,28 @@ import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "../PresentationsList";
 import { Nullable } from "kysely";
 import { PresentationDetail } from "@/db/types";
-import { HTMLAttributes, useCallback, useState } from "react";
+import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import styled from 'styled-components';
-import Badge from "@codegouvfr/react-dsfr/Badge";
+import DetailedSubMenu from "./DetailedSubMenu";
+import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
+import { ArticleCardResume } from "@/types/ArticlesTypes";
+import ArticlesResumeList from "../articles/ArticlesResumeList";
+import MarrNotice from "../marr/MarrNotice";
+import { Marr } from "@/types/MarrTypes";
+import useSWR from "swr";
+import { Notice, NoticeRCPContentBlock, Rcp } from "@/types/MedicamentTypes";
+import { fetchJSON } from "@/utils/network";
+import DetailedNotice from "./DetailedNotice";
+import ShareButtons from "../generic/ShareButtons";
 import QuestionsBox from "./QuestionsBox";
-import LeafletContainer from "./LeafletContainer";
 import QuestionKeywordsBox from "./QuestionKeywordsBox";
-import { questionsList } from "@/data/pages/notices_anchors";
 import GoTopButton from "../generic/GoTopButton";
+import { RcpNoticeContainer } from "./Blocks/GenericBlocks";
+import Badge from "@codegouvfr/react-dsfr/Badge";
+import { getContent } from "@/utils/notices/noticesUtils";
+import { questionsList } from "@/data/pages/notices_anchors";
+import { Definition } from "@/types/GlossaireTypes";
+import NoticeContainer from "./NoticeContainer";
 
 const ToggleSwitchContainer = styled.div `
   background-color: var(--background-contrast-info);
@@ -34,6 +48,16 @@ const ToggleSwitchContainer = styled.div `
   .medicament-toggle-switch .fr-hint-text{
     margin-top: 0rem;
     font-style: italic;
+  }
+`;
+
+const Container = styled.div `
+  margin-top: 1rem;
+  @media (max-width: 48em) {
+    margin-top: 0rem;
+    .fr-mb-4w{
+      margin-bottom: 1rem !important;
+    }
   }
 `;
 
@@ -46,51 +70,78 @@ const NoticeTitle = styled.div `
     align-items: start;
   }
 `;
-const Container = styled.div `
-  margin-top: 1rem;
-  @media (max-width: 48em) {
-    margin-top: 0rem;
-    .fr-mb-4w{
-      margin-bottom: 1rem !important;
-    }
-  }
-`;
 
 interface SwitchNoticeProps extends HTMLAttributes<HTMLDivElement> {
   CIS: string;
-  atc2: ATC;
+  atc2?: ATC;
+  atcCode?: string;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
-  SpecGeneId: string;
-  isDelivrance: boolean;
+  SpecGeneId?: string;
+  delivrance: SpecDelivrance[];
   isPregnancyAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
-  leaflet?: any;
-  leafletMaj?: string;
+  articles?: ArticleCardResume[];
+  marr?: Marr;
 }
 
 function SwitchNotice({
   CIS,
   atc2,
+  atcCode,
   composants,
   isPrinceps,
   SpecGeneId,
-  isDelivrance,
+  delivrance,
   isPregnancyAlert,
   pediatrics,
   presentations,
-  leaflet,
-  leafletMaj,
+  articles,
+  marr,
   ...props
 }: SwitchNoticeProps) {
 
+  const [currentNotice, setCurrentNotice] = useState<Notice>();
+  const [loaded, setLoaded] = useState<boolean>(false);
+  const [currentMarr, setCurrentMarr] = useState<Marr>();
+
+  const [currentPart, setcurrentPart] = useState<DetailsNoticePartsEnum>(DetailsNoticePartsEnum.INFORMATIONS_GENERALES);
+  const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
+  const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock>();
+
   const [currentQuestion, setCurrentQuestion] = useState<string>();
   const [showKeywordsBox, setShowKeywordsBox] = useState<boolean>(false);
-  const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
+
+  useEffect(() => {
+    if(marr){
+      if(!isAdvanced){
+        //Que des patients
+        const newMarr: Marr = {
+          CIS: marr.CIS,
+          ansmUrl: marr.ansmUrl,
+          pdf: [],
+        };
+        marr.pdf.forEach((marrLine) => {
+          if(marrLine.type === "Patients") newMarr.pdf.push(marrLine);
+        })
+        setCurrentMarr(newMarr);
+      } else {
+        setCurrentMarr(marr);
+      }
+    }
+  }, [isAdvanced, marr, setCurrentMarr]);
+  
   const onSwitchAdvanced = useCallback(
     (enabled: boolean) => {
       setIsAdvanced(enabled);
+    },
+    [setIsAdvanced]
+  );
+
+  const onGoToAdvanced = useCallback(
+    (ancre: string) => {
+      setIsAdvanced(true);
     },
     [setIsAdvanced]
   );
@@ -104,15 +155,46 @@ function SwitchNotice({
       setShowKeywordsBox(false);
     }
   };
-
   const onCloseQuestionKeywordsBox = () => {
-    const leafletContainer = document.getElementById('leafletContainer');
-    if(leafletContainer){
-      leafletContainer.className = "";
+    const noticeContainer = document.getElementById('noticeContainer');
+    if(noticeContainer){
+      noticeContainer.className = "";
       setShowKeywordsBox(false);
       setCurrentQuestion("");
     }
   };
+
+  const { data: rcp } = useSWR<Rcp>(
+    `/medicaments/notices/rcp?cis=${CIS}`,
+    fetchJSON,
+    { onError: (err) => console.warn('errorRCP >>', err), }
+  );
+
+  const { data: notice } = useSWR<Notice>(
+    `/medicaments/notices?cis=${CIS}`,
+    fetchJSON,
+    { onError: (err) => console.warn('errorNotice >>', err), }
+  );
+
+  const { data: definitions } = useSWR<Definition[]>(
+    `/glossaire/definitions`,
+    fetchJSON,
+    { onError: (err) => console.warn('errorDefinitions >>', err), }
+  );
+
+  useEffect(() => {
+    if(notice) {
+      setCurrentNotice(notice);
+      setLoaded(true);
+      if(notice.children){
+        notice.children.forEach((child: NoticeRCPContentBlock) => {
+          if(child.anchor === "Ann3bQuestceque"){
+            setIndicationBlock(child);
+          }
+        })
+      }
+    }
+  }, [notice, setIndicationBlock, setCurrentNotice, setLoaded]);
 
   // Use to display or not the separator after a tag (left column)
   const lastTagElement: TagTypeEnum = (
@@ -124,7 +206,7 @@ function SwitchNotice({
           ? TagTypeEnum.PEDIATRIC_INDICATION
           : (isPregnancyAlert 
             ? TagTypeEnum.PREGNANCY 
-            : (isDelivrance 
+            : (!!delivrance.length 
               ? TagTypeEnum.PRESCRIPTION 
               : (!!SpecGeneId 
                 ? TagTypeEnum.GENERIC 
@@ -142,6 +224,7 @@ function SwitchNotice({
   return (
     <Container className={["mobile-display-contents", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ",)}>
       <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")].join(" ",)}>
+        <ShareButtons />
         <ToggleSwitchContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <ToggleSwitch 
             label="Version détaillée"
@@ -157,12 +240,14 @@ function SwitchNotice({
           />
         </ToggleSwitchContainer>
         {isAdvanced 
-          ? <span>Infos avancées</span>
+          ? <DetailedSubMenu updateVisiblePart={setcurrentPart} isMarr={(currentMarr && currentMarr.pdf.length > 0)}/>
           : <section className={["mobile-display-contents", fr.cx("fr-mb-4w")].join(" ",)}>
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                <TagContainer category="Sous-classe">
-                  <ClassTag atc2={atc2} />
-                </TagContainer>
+                {atc2 && (
+                  <TagContainer category="Sous-classe">
+                    <ClassTag atc2={atc2} />
+                  </TagContainer>
+                )}
                 <TagContainer category="Substance active" hideSeparator={lastTagElement === TagTypeEnum.SUBSTANCE}>
                   <SubstanceTag composants={composants} />
                 </TagContainer>
@@ -176,7 +261,7 @@ function SwitchNotice({
                     <GenericTag specGeneId={SpecGeneId} />
                   </TagContainer>
                 )}
-                {isDelivrance && (
+                {!!delivrance.length && (
                   <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRESCRIPTION}>
                     <PrescriptionTag />
                   </TagContainer>
@@ -204,46 +289,81 @@ function SwitchNotice({
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                 <PresentationsList presentations={presentations} />
               </ContentContainer>
+              {articles && articles.length > 0 && (
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                  <ArticlesResumeList articles={articles} />
+                </ContentContainer>
+              )}
+              {(currentMarr && currentMarr.pdf.length > 0) && (
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                  <MarrNotice 
+                    marr={currentMarr}
+                    onGoToAdvanced={onGoToAdvanced}
+                  />
+                </ContentContainer>
+              )}
             </section>
           }
       </ContentContainer>
-      {isAdvanced 
-        ? <span>Infos avancées</span>
-        : leaflet && 
-          <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")].join(" ",)}>
-            <article>
-              <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
-                <NoticeTitle className={fr.cx("fr-mb-3w")}>
-                  <div style={{display: "flex"}}>
-                    <span className={["fr-icon--custom-notice", fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md")].join(" ")}/>
-                    <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice complète</h2>
-                  </div>
-                  <ContentContainer>
-                    {leafletMaj && <Badge severity={"info"}>{leafletMaj}</Badge>}
-                  </ContentContainer>
-                </NoticeTitle>
-                <ContentContainer className={fr.cx("fr-hidden", "fr-unhidden-md")}>
-                  <QuestionsBox 
-                    currentQuestion={currentQuestion}
-                    updateCurrentQuestion={updateCurrentQuestion}
-                  />
+      {isAdvanced ? (
+        <DetailedNotice 
+          currentVisiblePart={currentPart}
+          CIS={CIS}
+          atcCode={atcCode}
+          composants={composants}
+          isPrinceps={isPrinceps}
+          SpecGeneId={SpecGeneId}
+          isPregnancyAlert={isPregnancyAlert}
+          pediatrics={pediatrics}
+          presentations={presentations}
+          marr={currentMarr}
+          rcp={rcp}
+          indicationBlock={indicationBlock}
+        />
+      ) : (
+        <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")].join(" ",)}>
+          <article>
+            <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
+              <NoticeTitle className={fr.cx("fr-mb-4w")}>
+                <div style={{display: "flex"}}>
+                  <span className={["fr-icon--custom-notice", fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md")].join(" ")}/>
+                  <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice complète</h2>
+                </div>
+                <ContentContainer>
+                  {(currentNotice && currentNotice.dateNotif) && (
+                    <Badge severity={"info"}>{currentNotice.dateNotif}</Badge>
+                  )}
                 </ContentContainer>
-                {showKeywordsBox && currentQuestion && (
-                  <QuestionKeywordsBox
-                    className={fr.cx("fr-hidden", "fr-unhidden-md")}
-                    onClose={() => onCloseQuestionKeywordsBox()}
-                    questionID={currentQuestion}/>
-                )}
-                <LeafletContainer className={fr.cx("fr-mt-3w")}>
-                  <ContentContainer id="leafletContainer">
-                    {leaflet}
+              </NoticeTitle>
+              {(currentNotice && currentNotice.children) ? (
+                <>
+                  <ContentContainer className={fr.cx("fr-hidden", "fr-unhidden-md")}>
+                    <QuestionsBox 
+                      currentQuestion={currentQuestion}
+                      updateCurrentQuestion={updateCurrentQuestion}
+                    />
                   </ContentContainer>
-                </LeafletContainer>
-              </ContentContainer>
-            </article>
-            <GoTopButton />
-          </ContentContainer>
-      }
+                  {showKeywordsBox && currentQuestion && (
+                    <QuestionKeywordsBox
+                      className={fr.cx("fr-hidden", "fr-unhidden-md")}
+                      onClose={() => onCloseQuestionKeywordsBox()}
+                      questionID={currentQuestion}
+                    />
+                  )}
+                  <NoticeContainer className={fr.cx("fr-mt-3w")}>
+                    <ContentContainer id="noticeContainer">
+                      <RcpNoticeContainer>{getContent(currentNotice.children, definitions)}</RcpNoticeContainer>
+                    </ContentContainer>
+                  </NoticeContainer>
+                </>
+              ) : (
+                loaded && (<span>La notice n&rsquo;est pas disponible pour ce médicament.</span>)
+              )}
+            </ContentContainer>
+          </article>
+          <GoTopButton />
+        </ContentContainer>
+      )}
     </Container>
   );
 };

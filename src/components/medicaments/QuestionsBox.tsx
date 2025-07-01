@@ -54,9 +54,9 @@ function QuestionsBox({
 }: QuestionsBoxProps) {
 
   const onClick = (anchorData: QuestionAnchors) => {
-    const leafletContainer = document.getElementById('leafletContainer');
-    if(leafletContainer){
-      leafletContainer.className = "highlight-" + anchorData.id;
+    const noticeContainer = document.getElementById('noticeContainer');
+    if(noticeContainer){
+      noticeContainer.className = "highlight-" + anchorData.id;
       updateCurrentQuestion(anchorData.id);
     }
   };

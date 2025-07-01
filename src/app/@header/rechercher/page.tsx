@@ -8,5 +8,5 @@ export default async function InfoMedicamentHeader(props: {
   const atcs = await getAtc();
   const search = searchParams && "s" in searchParams && searchParams["s"];
 
-  return <ClientHeader atcs={atcs} searchInitial={search || undefined} />;
+  return <ClientHeader atcs={atcs} hasSearch={false} />;
 }

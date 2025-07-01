@@ -29,11 +29,11 @@ const Container = styled.div<{ $questionsList: QuestionsListFormat; $questionKey
   })};
 `;
 
-interface LeafletContainerProps extends HTMLAttributes<HTMLDivElement> {
+interface NoticeContainerProps extends HTMLAttributes<HTMLDivElement> {
 }
 
-function LeafletContainer(
-  {children, ...props}: PropsWithChildren<LeafletContainerProps>
+function NoticeContainer(
+  {children, ...props}: PropsWithChildren<NoticeContainerProps>
 ) {
   return (
     <Container $questionsList={questionsList} $questionKeys={questionKeys} {...props}>
@@ -42,4 +42,4 @@ function LeafletContainer(
   );
 };
 
-export default LeafletContainer;
+export default NoticeContainer;

@@ -77,12 +77,15 @@ interface PresentationTable {
   PresCommDate: Date | null;
   PresStatDate: Date | null;
   codeCIP13: string;
+  PresCodeCip: string;
 }
 
 interface CEPSPrixTable {
   Cip13: string;
   TauxPriseEnCharge: string;
   PPF: number;
+  Ppttc: number;
+  HonoDisp: number;
 }
 
 interface SpecDelivranceTable {

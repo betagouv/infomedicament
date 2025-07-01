@@ -7,11 +7,18 @@ import "./dsfr-custom-tags.css";
 import TagContainer from "./TagContainer";
 import { TagTypeEnum } from "@/types/TagType";
 
-export default function PediatricsTags({ info, lastTagElement }: { info: PediatricsInfo, lastTagElement?: TagTypeEnum }) {
+export default function PediatricsTags({ 
+  info, 
+  lastTagElement 
+}: { 
+  info: PediatricsInfo, 
+  lastTagElement?: TagTypeEnum
+}) {
+  const hideSeparator = !lastTagElement;
   return (
     <>
       {info.indication && (
-        <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PEDIATRIC_INDICATION}>
+        <TagContainer hideSeparator={hideSeparator || lastTagElement === TagTypeEnum.PEDIATRIC_INDICATION}>
           <Tag
             iconId={"fr-icon--custom-bedroom-baby" as FrIconClassName}
             linkProps={{
@@ -24,7 +31,7 @@ export default function PediatricsTags({ info, lastTagElement }: { info: Pediatr
         </TagContainer>
       )}
       {info.contraindication && (
-        <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PEDIATRIC_CONTRAINDICATION}>
+        <TagContainer hideSeparator={hideSeparator || lastTagElement === TagTypeEnum.PEDIATRIC_CONTRAINDICATION}>
           <Tag
             iconId={"fr-icon--custom-bedroom-baby" as FrIconClassName}
             linkProps={{
@@ -37,7 +44,7 @@ export default function PediatricsTags({ info, lastTagElement }: { info: Pediatr
         </TagContainer>
       )}
       {info.doctorAdvice && (
-        <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PEDIATRIC_DOCTOR_ADVICE}>
+        <TagContainer hideSeparator={hideSeparator || lastTagElement === TagTypeEnum.PEDIATRIC_DOCTOR_ADVICE}>
           <Tag
             iconId={"fr-icon--custom-bedroom-baby" as FrIconClassName}
             linkProps={{

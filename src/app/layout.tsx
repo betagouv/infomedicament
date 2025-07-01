@@ -92,6 +92,12 @@ export default async function RootLayout({
                 bottomItems={[
                   <FooterPersonalDataPolicyItem key={"dp"} />,
                   <FooterConsentManagementItem key={"fc"} />,
+                  {
+                    text: 'Statistiques',
+                    linkProps: {
+                      href: '/statistiques',
+                    },
+                  },
                   headerFooterDisplayItem,
                   {
                     text: "Code source",

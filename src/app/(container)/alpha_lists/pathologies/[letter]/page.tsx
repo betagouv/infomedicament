@@ -1,12 +1,13 @@
-import { Fragment } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
-import Link from "next/link";
 import { Patho } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import ContentContainer from "@/components/generic/ContentContainer";
+import { getPathoSpecialites } from "@/db/utils/search";
+import { AdvancedPatho, DataTypeEnum } from "@/types/DataTypes";
+import DataList from "@/components/data/DataList";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -40,7 +41,18 @@ export default async function Page(props: {
 
   const letters = await getLetters();
   const pathos = await getPathologyPage(letter);
+
   if (!pathos || !pathos.length) return notFound();
+
+  const detailedPathos: AdvancedPatho[] = await Promise.all(
+    pathos.map(async (patho) => {
+      const specialites = await getPathoSpecialites(patho.codePatho);
+      return {
+        nbSpecs: specialites.length,
+        ...patho
+      };
+    })
+  );
 
   return (
     <ContentContainer frContainer>
@@ -55,18 +67,10 @@ export default async function Page(props: {
             letters={letters}
             url={(letter) => `/pathologies/${letter}`}
           />
-          <ul className={fr.cx("fr-raw-list")}>
-            {pathos.map((patho, i) => (
-              <li key={i} className={fr.cx("fr-mb-1v")}>
-                <Link
-                  href={`/pathologies/${patho.codePatho}`}
-                  className={fr.cx("fr-link")}
-                >
-                  {patho.NomPatho}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <DataList 
+            dataList={detailedPathos}
+            type={DataTypeEnum.PATHOLOGY}
+          />
         </div>
       </div>
     </ContentContainer>
