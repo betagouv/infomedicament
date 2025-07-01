@@ -45,8 +45,8 @@ export async function getAdvancedMedicamentGroupFromGroupNameSpecialites(
   return {
     groupName: groupName, 
     specialites: advancedSpecialites,
-    atc1: await getAtc1(atc),
-    atc2: await getAtc2(atc),
+    atc1: atc ? await getAtc1(atc) : undefined,
+    atc2: atc ? await getAtc2(atc) : undefined,
     composants: composants,
     pregnancyAlert: !!pregnancyAlert,
     pediatrics: (pediatricsInfo.indication || pediatricsInfo.contraindication || pediatricsInfo.doctorAdvice) ? pediatricsInfo : undefined,

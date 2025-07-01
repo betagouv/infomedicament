@@ -7,7 +7,7 @@ import ClassTag from "../tags/ClassTag";
 import { ATC } from "@/data/grist/atc";
 import { fr } from "@codegouvfr/react-dsfr";
 import SubstanceTag from "../tags/SubstanceTag";
-import { Presentation, PresInfoTarif, SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { Presentation, PresInfoTarif, SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { TagTypeEnum } from "@/types/TagType";
 import PrincepsTag from "../tags/PrincepsTag";
 import GenericTag from "../tags/GenericTag";
@@ -18,14 +18,19 @@ import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "../PresentationsList";
 import { Nullable } from "kysely";
 import { PresentationDetail } from "@/db/types";
-import { HTMLAttributes, PropsWithChildren, useCallback, useEffect, useState } from "react";
-import styled, { css } from 'styled-components';
-import Badge from "@codegouvfr/react-dsfr/Badge";
+import { HTMLAttributes, useCallback, useEffect, useState } from "react";
+import styled from 'styled-components';
+import DetailedSubMenu from "./DetailedSubMenu";
+import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import ArticlesResumeList from "../articles/ArticlesResumeList";
-import MarrNoticeAdvanced from "../marr/MarrNoticeAdvanced";
 import MarrNotice from "../marr/MarrNotice";
 import { Marr } from "@/types/MarrTypes";
+import useSWR from "swr";
+import { Notice, NoticeRCPContentBlock, Rcp } from "@/types/MedicamentTypes";
+import { fetchJSON } from "@/utils/network";
+import NoticeBlock from "./NoticeBlock";
+import DetailedNotice from "./DetailedNotice";
 
 const ToggleSwitchContainer = styled.div `
   background-color: var(--background-contrast-info);
@@ -37,18 +42,17 @@ const ToggleSwitchContainer = styled.div `
   }
 `;
 
-interface OwnProps extends HTMLAttributes<HTMLDivElement> {
+interface SwitchNoticeProps extends HTMLAttributes<HTMLDivElement> {
   CIS: string;
-  atc2: ATC;
+  atc2?: ATC;
+  atcCode?: string;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
-  SpecGeneId: string;
-  isDelivrance: boolean;
+  SpecGeneId?: string;
+  delivrance: SpecDelivrance[];
   isPregnancyAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
-  leaflet?: any;
-  leafletMaj?: string;
   articles?: ArticleCardResume[];
   marr?: Marr;
 }
@@ -56,23 +60,24 @@ interface OwnProps extends HTMLAttributes<HTMLDivElement> {
 function SwitchNotice({
   CIS,
   atc2,
+  atcCode,
   composants,
   isPrinceps,
   SpecGeneId,
-  isDelivrance,
+  delivrance,
   isPregnancyAlert,
   pediatrics,
   presentations,
-  leaflet,
-  leafletMaj,
   articles,
   marr,
-  children,
   ...props
-}: PropsWithChildren<OwnProps>) {
+}: SwitchNoticeProps) {
 
-  const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
   const [currentMarr, setCurrentMarr] = useState<Marr>();
+
+  const [currentPart, setcurrentPart] = useState<DetailsNoticePartsEnum>(DetailsNoticePartsEnum.INFORMATIONS_GENERALES);
+  const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
+  const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock>();
 
   useEffect(() => {
     if(marr){
@@ -91,7 +96,7 @@ function SwitchNotice({
         setCurrentMarr(marr);
       }
     }
-  }, [isAdvanced, marr]);
+  }, [isAdvanced, marr, setCurrentMarr]);
   
   const onSwitchAdvanced = useCallback(
     (enabled: boolean) => {
@@ -106,6 +111,28 @@ function SwitchNotice({
     },
     [setIsAdvanced]
   );
+  
+  const { data: rcp } = useSWR<Rcp>(
+    `/medicaments/notices/rcp?cis=${CIS}`,
+    fetchJSON,
+    { onError: (err) => console.warn('errorRCP >>', err), }
+  );
+
+  const { data: notice } = useSWR<Notice>(
+    `/medicaments/notices?cis=${CIS}`,
+    fetchJSON,
+    { onError: (err) => console.warn('errorNotice >>', err), }
+  );
+
+  useEffect(() => {
+    if(notice && notice.children){
+      notice.children.forEach((child: NoticeRCPContentBlock) => {
+        if(child.anchor === "Ann3bQuestceque"){
+          setIndicationBlock(child);
+        }
+      })
+    }
+  }, [notice]);
 
   // Use to display or not the separator after a tag (left column)
   const lastTagElement: TagTypeEnum = (
@@ -117,7 +144,7 @@ function SwitchNotice({
           ? TagTypeEnum.PEDIATRIC_INDICATION
           : (isPregnancyAlert 
             ? TagTypeEnum.PREGNANCY 
-            : (isDelivrance 
+            : (!!delivrance.length 
               ? TagTypeEnum.PRESCRIPTION 
               : (!!SpecGeneId 
                 ? TagTypeEnum.GENERIC 
@@ -150,15 +177,14 @@ function SwitchNotice({
           />
         </ToggleSwitchContainer>
         {isAdvanced 
-          ? <span>
-              Infos avancées
-              {(currentMarr && currentMarr.pdf.length > 0) && (<span><br/>Menu des MARR</span>)}
-            </span>
+          ? <DetailedSubMenu updateVisiblePart={setcurrentPart} isMarr={(currentMarr && currentMarr.pdf.length > 0)}/>
           : <section className={fr.cx("fr-mb-4w")}>
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                <TagContainer category="Sous-classe">
-                  <ClassTag atc2={atc2} />
-                </TagContainer>
+                {atc2 && (
+                  <TagContainer category="Sous-classe">
+                    <ClassTag atc2={atc2} />
+                  </TagContainer>
+                )}
                 <TagContainer category="Substance active" hideSeparator={lastTagElement === TagTypeEnum.SUBSTANCE}>
                   <SubstanceTag composants={composants} />
                 </TagContainer>
@@ -172,7 +198,7 @@ function SwitchNotice({
                     <GenericTag specGeneId={SpecGeneId} />
                   </TagContainer>
                 )}
-                {isDelivrance && (
+                {!!delivrance.length && (
                   <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRESCRIPTION}>
                     <PrescriptionTag />
                   </TagContainer>
@@ -203,32 +229,26 @@ function SwitchNotice({
             </section>
           }
       </ContentContainer>
-      {isAdvanced 
-        ? (currentMarr && currentMarr.pdf.length > 0) && 
-          <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
-            <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-              <MarrNoticeAdvanced marr={currentMarr} />
-            </ContentContainer>
-          </ContentContainer>
-        : leaflet && 
-          <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
-            <article>
-              <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
-                <div className={fr.cx("fr-mb-4w")} style={{display: "flex", justifyContent: "space-between", alignItems: "center", }}>
-                  <div style={{display: "flex"}}>
-                    <span className={["fr-icon--custom-notice", fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md")].join(" ")}/>
-                    <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>
-                      <span className={fr.cx("fr-hidden-md")}>Notice</span>
-                      <span className={fr.cx("fr-hidden", "fr-unhidden-md")}>Notice complète</span>
-                    </h2>
-                  </div>
-                  {leafletMaj && <Badge severity={"info"}>{leafletMaj}</Badge>}
-                </div>
-                {leaflet}
-              </ContentContainer>
-            </article>
-          </ContentContainer>
-      }
+      {isAdvanced ? (
+        <DetailedNotice 
+          currentVisiblePart={currentPart}
+          CIS={CIS}
+          atcCode={atcCode}
+          composants={composants}
+          isPrinceps={isPrinceps}
+          SpecGeneId={SpecGeneId}
+          isPregnancyAlert={isPregnancyAlert}
+          pediatrics={pediatrics}
+          presentations={presentations}
+          marr={currentMarr}
+          rcp={rcp}
+          indicationBlock={indicationBlock}
+        />
+      ) : (
+        <NoticeBlock 
+          notice={notice}
+        />
+      )}
     </>
   );
 };

@@ -140,10 +140,16 @@ function DataBlockAccordion({
         <DetailsContainer>
           <div>
             <RowToColumnContainer>
-              <span className={fr.cx("fr-text--sm", "fr-mr-2w")}>
-                <GreyText>Classe</GreyText>&nbsp;
-                <DarkGreyText>{advancedMedicamentGroup.atc1.label}&nbsp;{'>'}&nbsp;{advancedMedicamentGroup.atc2.label}</DarkGreyText>
-              </span>
+              {(advancedMedicamentGroup.atc1 || advancedMedicamentGroup.atc2) && (
+                <span className={fr.cx("fr-text--sm", "fr-mr-2w")}>
+                  <GreyText>Classe</GreyText>&nbsp;
+                  <DarkGreyText>
+                    {advancedMedicamentGroup.atc1 && advancedMedicamentGroup.atc1.label}
+                    {(advancedMedicamentGroup.atc1 && advancedMedicamentGroup.atc2) && ' > '}
+                    {advancedMedicamentGroup.atc2 && advancedMedicamentGroup.atc2.label}
+                  </DarkGreyText>
+                </span>
+              )}
               <span className={fr.cx("fr-text--sm")}>
                 <GreyText>Substance&nbsp;active</GreyText>&nbsp;
                 <DarkGreyText>

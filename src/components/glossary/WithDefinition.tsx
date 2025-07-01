@@ -2,8 +2,8 @@
 
 import { useContext, useEffect, useState } from "react";
 import { GlossaryContext } from "@/components/glossary/GlossaryContextProvider";
-import { Definition } from "@/data/grist/glossary";
 import slugify from "slugify";
+import { Definition } from "@/types/GlossaireTypes";
 
 // Client component to add a definition to the glossary context
 // and a link to the definition modal
