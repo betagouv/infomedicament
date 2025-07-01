@@ -76,14 +76,14 @@ function WithGlossary({
   definitions,
   isHeader,
 }: {
-  text: string;
+  text: string[];
   definitions?: Definition[];
   isHeader?: boolean;
 }): React.JSX.Element {
 
   if(!definitions) return (<>{text}</>);
 
-  let elements: (React.JSX.Element | string)[] = [text];
+  let elements: (React.JSX.Element | string)[] = text;
 
   if(isHeader){
     headerAnchorsKeys.forEach((key: string) => {
