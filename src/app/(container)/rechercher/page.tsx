@@ -81,7 +81,11 @@ export default async function Page(props: {
   const searchParams = await props.searchParams;
   const search = searchParams && "s" in searchParams && searchParams["s"];
   const results = search && (await getSearchResults(searchParams["s"]));
+  console.log("results");
+  console.log(results);
   const extendedResults = results && (await getExtendedOrderedResults(results));
+  console.log("extendedResults");
+  console.log(extendedResults);
   const articlesList = extendedResults 
     ? (await getArticlesFromSearchResults(extendedResults.results))
     : [];
