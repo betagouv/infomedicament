@@ -73,8 +73,8 @@ export default function PediatricsTags({
               className: cx("fr-tag--custom-alt-pediatrics-indication"),
             }}
           >
-            <span className={["fr-icon--custom-bedroom-baby" as FrIconClassName, fr.cx("fr-text--sm")].join(",")}>
-              Peut être utilisé chez l&apos;enfant selon l&apos;âge
+            <span className={["fr-icon--custom-bedroom-baby" as FrIconClassName, fr.cx("fr-text--sm")].join(" ")}>
+              <span className={"fr-mr-1w"}>Peut être utilisé chez l&apos;enfant selon l&apos;âge</span>
             </span>
           </Tag>
         </TagContainer>
@@ -88,8 +88,8 @@ export default function PediatricsTags({
               className: cx("fr-tag--custom-alt-contraindication"),
             }}
           >
-            <span className={["fr-icon--custom-bedroom-baby" as FrIconClassName, fr.cx("fr-text--sm")].join(",")}>
-              Contre-indication chez l&apos;enfant selon l&apos;âge
+            <span className={["fr-icon--custom-bedroom-baby" as FrIconClassName, fr.cx("fr-text--sm")].join(" ")}>
+              <span className={"fr-mr-1w"}>Contre-indication chez l&apos;enfant selon l&apos;âge</span>
             </span>
           </Tag>
         </TagContainer>
@@ -103,8 +103,8 @@ export default function PediatricsTags({
               className: cx("fr-tag--custom-alt-pediatrics-advice"),
             }}
           >
-            <span className={["fr-icon--custom-bedroom-baby" as FrIconClassName, fr.cx("fr-text--sm")].join(",")}>
-              Utilisation chez l&apos;enfant sur avis d&apos;un professionnel de santé
+            <span className={["fr-icon--custom-bedroom-baby" as FrIconClassName, fr.cx("fr-text--sm")].join(" ")}>
+              <span className={"fr-mr-1w"}>Utilisation chez l&apos;enfant sur avis d&apos;un professionnel de santé</span>
             </span>
           </Tag>
         </TagContainer>
@@ -118,8 +118,8 @@ export default function PediatricsTags({
               className: cx("fr-tag--custom-alt-pediatrics-indication"),
             }}
           >
-            <span className={["fr-icon--custom-bedroom-baby" as FrIconClassName, fr.cx("fr-text--sm")].join(",")}>
-              Mention contre-indication enfant
+            <span className={["fr-icon--custom-bedroom-baby" as FrIconClassName, fr.cx("fr-text--sm")].join(" ")}>
+              <span className={"fr-mr-1w"}>Mention contre-indication enfant</span>
             </span>
           </Tag>
         </TagContainer>
