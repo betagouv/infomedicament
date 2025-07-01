@@ -1,0 +1,197 @@
+import db from '@/db';
+import { PresentationDetail } from '@/db/types';
+import { Asmr, Composant, DocBonUsage, FicheInfos, GroupeGenerique, Smr } from '@/types/MedicamentTypes';
+import { NextRequest, NextResponse } from "next/server";
+
+async function getListeGroupesGeneriques(ids: number[]): Promise<GroupeGenerique[]>{
+  const data = await db
+    .selectFrom("groupes_generiques")
+    .selectAll()
+    .where("idGroupeGenerique", "in", ids)
+    .execute();
+  
+  if(data && data.length > 0) {
+    return await Promise.all(
+      data.map(async (child) => {
+        const data:GroupeGenerique = {
+          id: child.idGroupeGenerique,
+          libelle: child.libelleGroupeGenerique,
+        }
+        return data;
+      })
+    );
+  }
+  return [];
+}
+
+async function getListeComposants(ids: number[]): Promise<Composant[]>{
+  const data = await db
+    .selectFrom("composants")
+    .selectAll()
+    .where("id", "in", ids)
+    .execute();
+  
+  if(data && data.length > 0) {
+    return await Promise.all(
+      data.map(async (child) => {
+        const data:Composant = {
+          dosage: child.dosage,
+          nom: child.nomComposant,
+        }
+        return data;
+      })
+    );
+  }
+  return [];
+}
+
+async function getListeDocuments(ids: number[]): Promise<DocBonUsage[]>{
+  const data = await db
+    .selectFrom("documents_bon_usage")
+    .selectAll()
+    .where("id", "in", ids)
+    .execute();
+  
+  if(data && data.length > 0) {
+    return await Promise.all(
+      data.map(async (child) => {
+        const data:DocBonUsage = {
+          url: child.urlBU,
+          auteur: child.auteurBU,
+          dateMaj: child.dateMajBU,
+          typeDoc: child.typeDocBU,
+          titreDoc: child.titreDocBU,
+        }
+        return data;
+      })
+    );
+  }
+  return [];
+}
+
+async function getListeSmr(ids: number[]): Promise<Smr[]>{
+  const data = await db
+    .selectFrom("smr")
+    .selectAll()
+    .where("id", "in", ids)
+    .execute();
+  
+  if(data && data.length > 0) {
+    return await Promise.all(
+      data.map(async (child) => {
+        const data:Smr = {
+          date: child.date,
+          motif: child.motif,
+          valeur: child.valeur,
+          libelle: child.libelle,
+        }
+        return data;
+      })
+    );
+  }
+  return [];
+}
+
+async function getListeAsmr(ids: number[]): Promise<Asmr[]>{
+  const data = await db
+    .selectFrom("asmr")
+    .selectAll()
+    .where("id", "in", ids)
+    .execute();
+  
+  if(data && data.length > 0) {
+    return await Promise.all(
+      data.map(async (child) => {
+        const data:Asmr = {
+          date: child.date,
+          motif: child.motif,
+          valeur: child.valeur,
+          libelle: child.libelle,
+        }
+        return data;
+      })
+    );
+  }
+  return [];
+}
+
+async function getListePresentations(ids: string[]): Promise<PresentationDetail[]>{
+  const data = await db
+    .selectFrom("presentations")
+    .selectAll()
+    .where("codecip13", "in", ids)
+    .execute();
+  
+  if(data && data.length > 0) {
+    return await Promise.all(
+      data.map(async (child) => {
+        const data:PresentationDetail = {
+          codecip13: child.codecip13,
+          nomelement: child.nomelement,
+          nbrrecipient: child.nbrrecipient,
+          recipient: child.recipient,
+          caraccomplrecip: child.caraccomplrecip,
+          qtecontenance: child.qtecontenance,
+          unitecontenance: child.unitecontenance,
+        }
+        return data;
+      })
+    );
+  }
+  return [];
+}
+
+export async function GET(req: NextRequest) {
+  const params = req.nextUrl.searchParams;
+  const CIS = params.get("cis");
+
+  if (!CIS) {
+    return NextResponse.json(
+      { error: "Missing CIS parameter" },
+      { status: 400 },
+    );
+  }
+
+  const ficheInfoRaw = await db
+    .selectFrom("fiches_infos")
+    .selectAll()
+    .where("specId", "=", CIS)
+    .executeTakeFirst();
+
+  if(!ficheInfoRaw) return NextResponse.json(undefined);
+
+  const ficheInfos:FicheInfos = {
+    specId: ficheInfoRaw.specId,
+    listeInformationsImportantes: ficheInfoRaw.listeInformationsImportantes,
+    listeGroupesGeneriques: [], 
+    listeComposants: [],
+    listeTitulaires: ficheInfoRaw.listeTitulaires,
+    listeDocumentsBonUsage: [],
+    listeASMR: [],
+    listeSMR: [],
+    listeConditionsDelivrance: ficheInfoRaw.listeConditionsDelivrance,
+    libelleCourtAutorisation: ficheInfoRaw.libelleCourtAutorisation, 
+    libelleCourtProcedure: ficheInfoRaw.libelleCourtProcedure,
+    presentations: [],
+  }
+  
+  if(ficheInfoRaw.listeGroupesGeneriquesIds && ficheInfoRaw.listeGroupesGeneriquesIds.length > 0) 
+    ficheInfos.listeGroupesGeneriques = await getListeGroupesGeneriques(ficheInfoRaw.listeGroupesGeneriquesIds);
+
+  if(ficheInfoRaw.listeComposants && ficheInfoRaw.listeComposants.length > 0) 
+    ficheInfos.listeComposants = await getListeComposants(ficheInfoRaw.listeComposants);
+
+  if(ficheInfoRaw.listeDocumentsBonUsageIds && ficheInfoRaw.listeDocumentsBonUsageIds.length > 0) 
+    ficheInfos.listeDocumentsBonUsage = await getListeDocuments(ficheInfoRaw.listeDocumentsBonUsageIds);
+
+  if(ficheInfoRaw.listeASMR && ficheInfoRaw.listeASMR.length > 0) 
+    ficheInfos.listeASMR = await getListeAsmr(ficheInfoRaw.listeASMR);
+
+  if(ficheInfoRaw.listeSMR && ficheInfoRaw.listeSMR.length > 0) 
+    ficheInfos.listeSMR = await getListeSmr(ficheInfoRaw.listeSMR);
+
+  if(ficheInfoRaw.presentations && ficheInfoRaw.presentations.length > 0) 
+    ficheInfos.presentations = await getListePresentations(ficheInfoRaw.presentations);
+
+  return NextResponse.json(ficheInfos);
+};

@@ -18,7 +18,7 @@ export default async function MedGroupSpecList({
   const [groupName, specialites] = medGroup;
   const atc = getAtcCode(specialites[0].SpecId);
   const { composants } = await getSpecialite(specialites[0].SpecId);
-  const atc2 = await getAtc2(atc);
+  const atc2 = atc ? await getAtc2(atc) : undefined;
   return (
     <li className={className}>
       <div>
@@ -32,7 +32,7 @@ export default async function MedGroupSpecList({
             <i className={cx("fr-icon--custom-pill", fr.cx("fr-icon--sm"))} />
           </div>
           <ul className={fr.cx("fr-tags-group", "fr-mb-n1v")}>
-            <ClassTag atc2={atc2} />
+            {atc2 && (<ClassTag atc2={atc2} />)}
             <SubstanceTag composants={composants} />
           </ul>
         </div>

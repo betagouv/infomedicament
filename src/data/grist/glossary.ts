@@ -1,13 +1,5 @@
 import { getGristTableData } from "@/data/grist/index";
-
-export interface Definition {
-  fields: {
-    Nom_glossaire: string;
-    Definition_glossaire: string;
-    Source: string;
-    A_publier: boolean;
-  };
-}
+import { Definition } from "@/types/GlossaireTypes";
 
 export default async function getGlossaryDefinitions(): Promise<Definition[]> {
   const definitions = (await getGristTableData("Glossaire", [

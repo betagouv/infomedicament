@@ -36,9 +36,11 @@ export default async function Page(props: {
 }) {
   const { code } = await props.params;
 
-  const atc1:ATC1 = await getAtc1(code);
-  const atc2 = code.length === 3 && (await getAtc2(code));
-  const currentAtc = atc2 || atc1;
+  const atc1 = code ? await getAtc1(code) : undefined;
+  const atc2 = (code && code.length === 3) ? (await getAtc2(code)) : undefined;
+  const currentAtc = atc2 || atc1 || undefined;
+
+  if (!currentAtc || !atc1) notFound();
 
   //If atc2 --> subtances list else subclass list
   const items = atc2

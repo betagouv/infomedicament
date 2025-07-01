@@ -1,8 +1,9 @@
-import "server-cli-only";
-
-import getGlossaryDefinitions, { Definition } from "@/data/grist/glossary";
 import React, { Fragment } from "react";
 import WithDefinition from "@/components/glossary/WithDefinition";
+import useSWR from "swr";
+import { fetchJSON } from "@/utils/network";
+import { Definition } from "@/types/GlossaireTypes";
+
 
 function escapeRegExp(text: string) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -20,6 +21,7 @@ function withDefinition(
   );
   if (!match || !match.groups) return [text];
   const { before, word, after } = match.groups;
+
   return [
     before,
     <WithDefinition key={word} definition={definition} word={word} />,
@@ -27,16 +29,17 @@ function withDefinition(
   ];
 }
 
-export async function WithGlossary({
+function WithGlossary({
   text,
+  definitions
 }: {
-  text: string;
-}): Promise<React.JSX.Element> {
-  const definitions = (await getGlossaryDefinitions()).filter(
-    (d) => d.fields.A_publier,
-  );
+  text: string[];
+  definitions?: Definition[]
+}): React.JSX.Element {
 
-  let elements: (React.JSX.Element | string)[] = [text];
+  if(!definitions) return (<>{text}</>);
+
+  let elements: (React.JSX.Element | string)[] = text;
 
   definitions.forEach((definition) => {
     elements = elements
@@ -56,3 +59,5 @@ export async function WithGlossary({
     </>
   );
 }
+
+export default WithGlossary;
