@@ -4,10 +4,16 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import Card from "@codegouvfr/react-dsfr/Card";
 import styled from 'styled-components';
+import ShareButtons from "./generic/ShareButtons";
 
 const Container = styled.div`
   .fr-card__detail.fr-icon-information-line{
     font-style: italic;
+  }
+  @media (max-width: 48em) {
+    h1{
+      margin-bottom: 1rem;
+    }
   }
 `;
 
@@ -25,10 +31,12 @@ export default function DefinitionBanner({
   return (
     <Container>
       <div className={fr.cx("fr-grid-row")}>
-        <div className={fr.cx("fr-col-md-8")}>
+        <div className={fr.cx("fr-col-12")}>
           <Badge className={fr.cx("fr-badge--purple-glycine")}>{type}</Badge>
-          <h1 className={fr.cx("fr-h1", "fr-mt-1w", "fr-mb-6w")}>{title}</h1>
-
+          <h1 className={fr.cx("fr-h1", "fr-mt-1w", "fr-mb-0")}>{title}</h1>
+          <ShareButtons rightAlign={true} className={fr.cx("fr-mb-6w")} />
+        </div>
+        <div className={fr.cx("fr-col-md-8")}>
           {typeof definition === "string" ? (
             <div className={fr.cx("fr-grid-row")}>
               <div className={fr.cx("fr-col")}>

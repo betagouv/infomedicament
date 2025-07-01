@@ -31,6 +31,7 @@ import { Notice, NoticeRCPContentBlock, Rcp } from "@/types/MedicamentTypes";
 import { fetchJSON } from "@/utils/network";
 import NoticeBlock from "./NoticeBlock";
 import DetailedNotice from "./DetailedNotice";
+import ShareButtons from "../generic/ShareButtons";
 
 const ToggleSwitchContainer = styled.div `
   background-color: var(--background-contrast-info);
@@ -162,6 +163,7 @@ function SwitchNotice({
   return (
     <>
       <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")}>
+        <ShareButtons />
         <ToggleSwitchContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <ToggleSwitch 
             label="Version détaillée"
