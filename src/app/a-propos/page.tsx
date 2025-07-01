@@ -3,6 +3,7 @@ import Link from "next/link";
 import Card from "@codegouvfr/react-dsfr/Card";
 import ContentContainer from "@/components/generic/ContentContainer";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import ShareButtons from "@/components/generic/ShareButtons";
 
 export default async function Page() {
 
@@ -17,6 +18,13 @@ export default async function Page() {
         <h1 className={fr.cx("fr-h2")}>
           À propos
         </h1>
+        <ContentContainer frContainer>
+          <div className={fr.cx("fr-grid-row")}>
+            <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
+              <ShareButtons rightAlign={true} className={fr.cx("fr-mb-3w")}/>
+            </div>
+          </div>
+        </ContentContainer>
       </ContentContainer>
       <ContentContainer frContainer>
         <div className={fr.cx("fr-pt-4w", "fr-pb-4w")}>
