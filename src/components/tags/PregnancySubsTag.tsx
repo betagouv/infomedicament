@@ -38,9 +38,8 @@ export default function PregnancySubsTag() {
           className: cx("fr-tag--custom-alt-contraindication"),
         }}
       >
-        <span className={["fr-icon--custom-pregnancy" as FrIconClassName, fr.cx("fr-text--sm")].join(" ")}>
-          <span className={"fr-mr-1w"}>Plan de prévention grossesse</span>
-        </span>
+        <span className={["fr-icon--custom-pregnancy" as FrIconClassName, fr.cx("fr-text--sm")].join(" ")}/>
+        <span className={fr.cx("fr-ml-1w", "fr-text--sm")}>Plan de prévention grossesse</span>
       </Tag>
     </>
   );

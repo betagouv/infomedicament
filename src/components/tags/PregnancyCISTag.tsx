@@ -31,9 +31,8 @@ function PregnancyCISTag() {
           className: cx("fr-tag--custom-alt-contraindication"),
         }}
       >
-        <span className={["fr-icon--custom-pregnancy" as FrIconClassName, fr.cx("fr-text--sm")].join(" ")}>
-          <span className={"fr-mr-1w"}>Mention contre-indication grossesse</span>
-        </span>
+        <span className={["fr-icon--custom-pregnancy" as FrIconClassName, fr.cx("fr-text--sm")].join(" ")} />
+        <span className={fr.cx("fr-ml-1w", "fr-text--sm")}>Mention contre-indication grossesse</span>
       </Tag>
     </>
   );
