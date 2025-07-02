@@ -21,7 +21,11 @@ export default async function Page() {
         <ContentContainer frContainer>
           <div className={fr.cx("fr-grid-row")}>
             <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
-              <ShareButtons rightAlign={true} className={fr.cx("fr-mb-3w")}/>
+              <ShareButtons 
+                pageName="À propos"
+                rightAlign={true}
+                className={fr.cx("fr-mb-3w")}
+              />
             </div>
           </div>
         </ContentContainer>
@@ -107,7 +111,7 @@ export default async function Page() {
                   <Link 
                     href="https://base-donnees-publique.medicaments.gouv.fr/"
                     target="_blank"
-                    rel="noopener external"
+                    rel="noopener noreferrer"
                   >
                     Base de données publique des médicaments
                   </Link>.
@@ -120,7 +124,7 @@ export default async function Page() {
                     <Link 
                       href="https://ansm.sante.fr/"
                       target="_blank"
-                      rel="noopener external"
+                      rel="noopener noreferrer"
                     >
                       ANSM
                     </Link>&nbsp;:{" "}
@@ -134,7 +138,7 @@ export default async function Page() {
                     <Link 
                       href="https://beta.gouv.fr"
                       target="_blank"
-                      rel="noopener external"
+                      rel="noopener noreferrer"
                     >
                       BETA.GOUV.FR
                     </Link>&nbsp;:{" "}
@@ -145,7 +149,7 @@ export default async function Page() {
                     <Link 
                       href="https://beta.gouv.fr"
                       target="_blank"
-                      rel="noopener external"
+                      rel="noopener noreferrer"
                     >
                       Beta.gouv.fr
                     </Link>
@@ -154,7 +158,7 @@ export default async function Page() {
                       <Link 
                         href="https://www.numerique.gouv.fr/numerique-etat/"
                         target="_blank"
-                        rel="noopener external"
+                        rel="noopener noreferrer"
                       >
                         DINUM
                       </Link>

@@ -10,7 +10,6 @@ import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import { PediatricsInfo } from "@/data/grist/pediatrics";
 import PediatricsTags from "@/components/tags/PediatricsTags";
 import Link from "next/link";
-import PregnancyTag from "@/components/tags/PregnancyTag";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } from "@/displayUtils";
 import PrincepsTag from "@/components/tags/PrincepsTag";
@@ -20,6 +19,8 @@ import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
 import { FicheInfos, NoticeRCPContentBlock } from "@/types/MedicamentTypes";
 import { getContent } from "@/utils/notices/noticesUtils";
+import PregnancyCISTag from "@/components/tags/PregnancyCISTag";
+import PregnancySubsTag from "@/components/tags/PregnancySubsTag";
 
 const SummaryLineContainer = styled.div `
   display: flex;
@@ -80,7 +81,8 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
   SpecGeneId?: string;
-  isPregnancyAlert: boolean;
+  isPregnancySubsAlert: boolean;
+  isPregnancyCISAlert: boolean;
   pediatrics: PediatricsInfo | undefined;  
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
   marr?: Marr;
@@ -95,7 +97,8 @@ function GeneralInformations({
   composants,
   isPrinceps,
   SpecGeneId,
-  isPregnancyAlert,
+  isPregnancySubsAlert,
+  isPregnancyCISAlert,
   pediatrics,
   presentations,
   marr,
@@ -178,12 +181,19 @@ function GeneralInformations({
           </>
         </SummaryLine>
         <SummaryLine categoryName="Pédiatrie">
-          {pediatrics && <PediatricsTags info={pediatrics} />}
+          {pediatrics ? (
+            <PediatricsTags info={pediatrics} />
+          ) : ( 
+            <span>Aucune information pédiatrique disponible</span>
+          )}
           {/* <Link href="#">Voir dans le RCP</Link> */}
         </SummaryLine>
         <SummaryLine categoryName="Grossesse">
-          {isPregnancyAlert ? (
-            <PregnancyTag /> 
+          {(isPregnancyCISAlert || isPregnancySubsAlert) ? (
+            <>
+              {isPregnancyCISAlert && (<PregnancyCISTag />)}
+              {isPregnancySubsAlert && (<PregnancySubsTag />)}
+            </>
           ) : (
             <span>Aucune contre-indication grossesse</span>
           )}

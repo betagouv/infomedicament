@@ -10,7 +10,7 @@ interface TagContainerProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const CategoryContainer = styled.div `
-  color: var(--text-title-blue-france);
+  color: var(--text-mention-grey);
   font-size: 14px;
 `;
 

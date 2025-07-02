@@ -12,7 +12,6 @@ import { TagTypeEnum } from "@/types/TagType";
 import PrincepsTag from "../tags/PrincepsTag";
 import GenericTag from "../tags/GenericTag";
 import PrescriptionTag from "../tags/PrescriptionTag";
-import PregnancyTag from "../tags/PregnancyTag";
 import { PediatricsInfo } from "@/data/grist/pediatrics";
 import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "../PresentationsList";
@@ -40,6 +39,8 @@ import { getContent } from "@/utils/notices/noticesUtils";
 import { questionsList } from "@/data/pages/notices_anchors";
 import { Definition } from "@/types/GlossaireTypes";
 import NoticeContainer from "./NoticeContainer";
+import PregnancySubsTag from "../tags/PregnancySubsTag";
+import PregnancyCISTag from "../tags/PregnancyCISTag";
 
 const ToggleSwitchContainer = styled.div `
   background-color: var(--background-contrast-info);
@@ -73,13 +74,15 @@ const NoticeTitle = styled.div `
 
 interface SwitchNoticeProps extends HTMLAttributes<HTMLDivElement> {
   CIS: string;
+  name: string;
   atc2?: ATC;
   atcCode?: string;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
   SpecGeneId?: string;
   delivrance: SpecDelivrance[];
-  isPregnancyAlert: boolean;
+  isPregnancySubsAlert: boolean;
+  isPregnancyCISAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
   articles?: ArticleCardResume[];
@@ -88,13 +91,15 @@ interface SwitchNoticeProps extends HTMLAttributes<HTMLDivElement> {
 
 function SwitchNotice({
   CIS,
+  name,
   atc2,
   atcCode,
   composants,
   isPrinceps,
   SpecGeneId,
   delivrance,
-  isPregnancyAlert,
+  isPregnancySubsAlert,
+  isPregnancyCISAlert,
   pediatrics,
   presentations,
   articles,
@@ -198,21 +203,27 @@ function SwitchNotice({
 
   // Use to display or not the separator after a tag (left column)
   const lastTagElement: TagTypeEnum = (
-    pediatrics && pediatrics.doctorAdvice
-      ? TagTypeEnum.PEDIATRIC_DOCTOR_ADVICE 
-      : (pediatrics && pediatrics.contraindication
-        ? TagTypeEnum.PEDIATRIC_CONTRAINDICATION 
-        : (pediatrics && pediatrics.indication
-          ? TagTypeEnum.PEDIATRIC_INDICATION
-          : (isPregnancyAlert 
-            ? TagTypeEnum.PREGNANCY 
-            : (!!delivrance.length 
-              ? TagTypeEnum.PRESCRIPTION 
-              : (!!SpecGeneId 
-                ? TagTypeEnum.GENERIC 
-                : (isPrinceps
-                  ? TagTypeEnum. PRINCEPS
-                  : TagTypeEnum.SUBSTANCE
+    pediatrics && pediatrics.mention
+      ? TagTypeEnum.PEDIATRIC_MENTION 
+      : (pediatrics && pediatrics.doctorAdvice
+        ? TagTypeEnum.PEDIATRIC_DOCTOR_ADVICE 
+        : (pediatrics && pediatrics.contraindication
+          ? TagTypeEnum.PEDIATRIC_CONTRAINDICATION
+          : (pediatrics && pediatrics.indication
+            ? TagTypeEnum.PEDIATRIC_INDICATION
+            : (isPregnancySubsAlert 
+              ? TagTypeEnum.PREGNANCY_SUBS 
+              : (isPregnancyCISAlert 
+                ? TagTypeEnum.PREGNANCY_CIS 
+                : (!!delivrance.length 
+                  ? TagTypeEnum.PRESCRIPTION 
+                  : (!!SpecGeneId 
+                    ? TagTypeEnum.GENERIC 
+                    : (isPrinceps
+                      ? TagTypeEnum. PRINCEPS
+                      : TagTypeEnum.SUBSTANCE
+                  )
+                )
               )
             )
           )
@@ -224,7 +235,9 @@ function SwitchNotice({
   return (
     <Container className={["mobile-display-contents", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ",)}>
       <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")].join(" ",)}>
-        <ShareButtons />
+        <ShareButtons 
+          pageName={name}
+        />
         <ToggleSwitchContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <ToggleSwitch 
             label="Version détaillée"
@@ -266,9 +279,14 @@ function SwitchNotice({
                     <PrescriptionTag />
                   </TagContainer>
                 )}
-                {isPregnancyAlert && (
-                  <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY}>
-                    <PregnancyTag />
+                {isPregnancyCISAlert && (
+                  <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY_CIS}>
+                    <PregnancyCISTag />
+                  </TagContainer>
+                )}
+                {isPregnancySubsAlert && (
+                  <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY_SUBS}>
+                    <PregnancySubsTag />
                   </TagContainer>
                 )}
                 {pediatrics && <PediatricsTags info={pediatrics} lastTagElement={lastTagElement}/>}
@@ -313,7 +331,8 @@ function SwitchNotice({
           composants={composants}
           isPrinceps={isPrinceps}
           SpecGeneId={SpecGeneId}
-          isPregnancyAlert={isPregnancyAlert}
+          isPregnancySubsAlert={isPregnancySubsAlert}
+          isPregnancyCISAlert={isPregnancyCISAlert}
           pediatrics={pediatrics}
           presentations={presentations}
           marr={currentMarr}

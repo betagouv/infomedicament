@@ -34,7 +34,11 @@ export default function DefinitionBanner({
         <div className={fr.cx("fr-col-12")}>
           <Badge className={fr.cx("fr-badge--purple-glycine")}>{type}</Badge>
           <h1 className={fr.cx("fr-h1", "fr-mt-1w", "fr-mb-0")}>{title}</h1>
-          <ShareButtons rightAlign={true} className={fr.cx("fr-mb-6w")} />
+          <ShareButtons 
+            pageName={title}
+            rightAlign={true}
+            className={fr.cx("fr-mb-6w")} 
+          />
         </div>
         <div className={fr.cx("fr-col-md-8")}>
           {typeof definition === "string" ? (

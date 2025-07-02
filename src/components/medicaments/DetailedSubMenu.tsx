@@ -12,12 +12,12 @@ type SubMenuType = {
 
 const infosGeneralesMenu: SubMenuType[] = [
   {
-    href: 'informations-generales',
-    text: 'Résumé',
-  },
-  {
     href: 'informations-importantes',
     text: 'Informations importantes',
+  },
+  {
+    href: 'informations-generales',
+    text: 'Résumé',
   },
   {
     href: 'informations-indications',

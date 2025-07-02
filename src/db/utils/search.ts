@@ -190,14 +190,17 @@ export const getSearchResults = unstable_cache(async function (
     ATCCodes.map((code) => (code.length === 1 ? getAtc1(code) : getAtc2(code))),
   );
 
-  const acc: { score: number; item: SearchResultItem }[] = [];
+  const accSubs: { score: number; item: SearchResultItem }[] = [];
+  const accSpec: { score: number; item: SearchResultItem }[] = [];
+  const accPatho: { score: number; item: SearchResultItem }[] = [];
+  const accATC: { score: number; item: SearchResultItem }[] = [];
   for (const match of matches) {
     if (match.table_name === "Subs_Nom") {
       const substance = substances.find(
         (s) => s.NomId.trim() === match.id.trim(),
       ); // if undefined, the substance is not in one of the 500 CIS list
       if (substance) {
-        acc.push({ score: match.sml, item: substance });
+        accSubs.push({ score: match.sml, item: substance });
 
         if (onlyDirectMatches) continue;
 
@@ -213,7 +216,7 @@ export const getSearchResults = unstable_cache(async function (
           )
           .forEach(([groupName, specialites]) => {
             if (
-              !acc.find(
+              !accSubs.find(
                 ({ item }) =>
                   "groupName" in item && item.groupName === groupName,
               )
@@ -223,7 +226,7 @@ export const getSearchResults = unstable_cache(async function (
                   m.table_name === "Specialite" &&
                   specialites.find((s) => s.SpecId.trim() === m.id.trim()),
               );
-              acc.push({
+              accSubs.push({
                 score: directMatch ? directMatch.sml + match.sml : match.sml,
                 item: { groupName, specialites },
               });
@@ -238,13 +241,13 @@ export const getSearchResults = unstable_cache(async function (
       ); // if undefined, the specialite is not in the 500 CIS list
       if (
         specialiteGroup &&
-        !acc.find(
+        !accSpec.find(
           ({ item }) =>
             "groupName" in item && item.groupName === specialiteGroup[0],
         )
       ) {
         const [groupName, specialites] = specialiteGroup;
-        acc.push({ score: match.sml, item: { groupName, specialites } });
+        accSpec.push({ score: match.sml, item: { groupName, specialites } });
       }
     }
 
@@ -253,14 +256,14 @@ export const getSearchResults = unstable_cache(async function (
         (p) => p.codePatho.trim() === match.id.trim(),
       );
       if (patho) {
-        acc.push({ score: match.sml, item: patho });
+        accPatho.push({ score: match.sml, item: patho });
       }
     }
 
     if (match.table_name === "ATC") {
       const atc = ATCClasses.find((atc) => atc.code.trim() === match.id.trim());
       if (atc) {
-        const sameClass = acc.find(
+        const sameClass = accATC.find(
           ({ item }) =>
             "class" in item &&
             item.class.code.slice(0, 1) === atc.code.slice(0, 1),
@@ -273,12 +276,12 @@ export const getSearchResults = unstable_cache(async function (
           sameClass.score = Math.max(match.sml, sameClass.score);
         } else {
           if (atc.code.length === 1) {
-            acc.push({
+            accATC.push({
               score: match.sml,
               item: { class: atc as ATC1, subclasses: [] },
             });
           } else {
-            acc.push({
+            accATC.push({
               score: match.sml,
               item: { class: await getAtc1(atc.code), subclasses: [atc] },
             });
@@ -288,5 +291,14 @@ export const getSearchResults = unstable_cache(async function (
     }
   }
 
-  return acc.sort((a, b) => b.score - a.score).map(({ item }) => item);
+  const orderedAccSpec = accSpec
+    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => (a.item as { groupName: string; specialites: Specialite[] }).groupName.localeCompare((b.item as { groupName: string; specialites: Specialite[] }).groupName))
+    .map(({ item }) => item);
+
+  const orderedAccSubs = accSubs.sort((a, b) => b.score - a.score).map(({ item }) => item);
+  const orderedAccPatho = accPatho.sort((a, b) => b.score - a.score).map(({ item }) => item);
+  const orderedAccATC = accATC.sort((a, b) => b.score - a.score).map(({ item }) => item);
+
+  return orderedAccSpec.concat(orderedAccATC).concat(orderedAccPatho).concat(orderedAccSubs);
 });

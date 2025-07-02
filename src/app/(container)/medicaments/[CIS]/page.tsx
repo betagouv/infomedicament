@@ -12,7 +12,7 @@ import { getSpecialite, getSpecialiteGroupName } from "@/db/utils";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import Alert from "@codegouvfr/react-dsfr/Alert";
-import { getPregnancyAlerts } from "@/data/grist/pregnancy";
+import { getPregnancyCISAlert, getPregnancySubsAlerts } from "@/data/grist/pregnancy";
 import { getPediatrics } from "@/data/grist/pediatrics";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SwitchNotice from "@/components/medicaments/SwitchNotice";
@@ -20,6 +20,7 @@ import { SearchArticlesFilters } from "@/types/SearchTypes";
 import { getArticlesFromFilters } from "@/data/grist/articles";
 import { getMarr } from "@/data/grist/marr";
 import { Marr } from "@/types/MarrTypes";
+import Link from "next/link";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -67,9 +68,10 @@ export default async function Page(props: {
       .where("GroupeGene.SpecId", "=", CIS)
       .executeTakeFirst());
 
-  const pregnancyAlert = (await getPregnancyAlerts()).find((s) =>
+  const pregnancySubsAlert = (await getPregnancySubsAlerts()).find((s) =>
     composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
   );
+  const pregnancyCISAlert = await getPregnancyCISAlert(CIS);
 
   const pediatrics = await getPediatrics(CIS);
 
@@ -138,22 +140,39 @@ export default async function Page(props: {
 
         <ContentContainer frContainer>              
           <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>
-            {(pregnancyAlert || pediatrics?.contraindication )&& (
+            {(pregnancySubsAlert || pregnancyCISAlert || pediatrics?.contraindication )&& (
               <ContentContainer className={fr.cx("fr-col-12", "fr-mb-2w")}>
-                {pregnancyAlert && (
+                {pregnancySubsAlert && (
                   <ContentContainer whiteContainer className={fr.cx("fr-mb-2w")}>
                     <Alert
                       severity={"warning"}
-                      title={"Contre-indication grossesse"}
+                      title={"Plan de prévention grossesse"}
                       description={
                         <p>
-                          Ce médicament est contre-indiqué si vous êtes enceinte ou
-                          prévoyez de l’être. Demandez conseil à votre médecin avant de
-                          prendre ou d’arrêter ce médicament.
+                          Ce médicament est concerné par un{" "}
+                          <Link href="https://ansm.sante.fr/dossiers-thematiques/medicaments-et-grossesse/les-programmes-de-prevention-des-grossesses" target="_blank" rel="noopener noreferrer">
+                            plan de prévention grossesse
+                          </Link>.<br/>
+                          Il peut présenter des risques pour le fœtus (malformations, effets toxiques).<br/>
+                          Lisez attentivement la notice et parlez-en à un professionnel de santé avant toute utilisation.
                           <br />
-                          <a target="_blank" href={pregnancyAlert.link} rel="noopener external">
+                          <a target="_blank" href={pregnancySubsAlert.link} rel="noopener noreferrer">
                             En savoir plus sur le site de l’ANSM
                           </a>
+                        </p>
+                      }
+                    />
+                  </ContentContainer>
+                )}
+                {pregnancyCISAlert && (
+                  <ContentContainer whiteContainer className={fr.cx("fr-mb-2w")}>
+                    <Alert
+                      severity={"warning"}
+                      title={"Mention contre-indication grossesse"}
+                      description={
+                        <p>
+                          Ce médicament peut présenter des précautions d’usage pendant la grossesse ou l’allaitement. Il peut être autorisé, déconseillé ou contre-indiqué selon les cas.<br/>
+                          Lisez la notice et demandez l’avis d’un professionnel de santé avant toute prise.
                         </p>
                       }
                     />
@@ -173,13 +192,15 @@ export default async function Page(props: {
             )}
             <SwitchNotice 
               CIS={CIS}
+              name={specialite ? formatSpecName(specialite.SpecDenom01) : ''}
               atc2={atc2}
               atcCode={atcCode}
               composants={composants}
               isPrinceps={isPrinceps}
               SpecGeneId={specialite ? specialite.SpecGeneId : ""}
               delivrance={delivrance}
-              isPregnancyAlert={!!pregnancyAlert}
+              isPregnancySubsAlert={!!pregnancySubsAlert}
+              isPregnancyCISAlert={pregnancyCISAlert}
               pediatrics={pediatrics}
               presentations={presentations}
               articles={articles}

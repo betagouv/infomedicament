@@ -1,10 +1,11 @@
 import { ATC, ATC1 } from "@/data/grist/atc";
 import { PediatricsInfo } from "@/data/grist/pediatrics";
-import { Specialite } from "@/db/pdbmMySQL/types";
+import { SpecComposant, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { PresentationDetail } from "@/db/types";
 
 export type AdvancedSpecialite = Specialite & {
-  pregnancyAlert?: boolean;
+  pregnancyCISAlert?: boolean;
+  pregnancySubsAlert?: boolean;
   pediatrics?: PediatricsInfo;
 }
 
@@ -13,8 +14,9 @@ export type AdvancedMedicamentGroup = {
   specialites: AdvancedSpecialite[];
   atc1?: ATC1;
   atc2?: ATC;
-  composants: any;
-  pregnancyAlert?: boolean;
+  composants: Array<SpecComposant & SubstanceNom>;
+  pregnancySubsAlert?: boolean;
+  pregnancyCISAlert?: boolean;
   pediatrics?: PediatricsInfo;
 };
 
