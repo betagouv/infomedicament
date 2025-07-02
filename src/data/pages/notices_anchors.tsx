@@ -86,6 +86,7 @@ export const questionsList: QuestionsListFormat = {
       "Posologie",
       "Combien en prendre",
       "Dose recommandée",
+      "Doses",
       "Dose",
       "tableau posologique",
     ],
@@ -151,7 +152,9 @@ export const questionsList: QuestionsListFormat = {
       </>
     ),
     keywords: [
+      "Allergies",
       "Allergie",
+      "Allergiques",
       "Allergique",
     ],
     unique: false,
@@ -165,9 +168,15 @@ export const questionsList: QuestionsListFormat = {
       </>
     ),
     keywords: [
+      "alcoolisées",
+      "alcoolisée",
+      "alcoolisés",
       "alcoolisé",
+      "Alcools",
       "Alcool",
+      "Boissons",
       "Boisson",
+      "Aliments",
       "Aliment",
     ],
     unique: false,
@@ -184,7 +193,9 @@ export const questionsList: QuestionsListFormat = {
       "Conduite de véhicules et utilisation de machines",
       "Conduire",
       "Conduite",
+      "véhicules",
       "véhicule",
+      "machines",
       "machine",
     ],
     unique: true,

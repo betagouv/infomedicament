@@ -122,7 +122,7 @@ function QuestionKeywordsBox(
         nodes && nodes.length > 0 ? nodes[0] as HTMLElement : undefined
       );
     }
-  }, [question, setNodeList, updateCurrentNode]);
+  }, [question]);
 
   const onClickPrevious = () => {
     let newIndex = 0;

@@ -42,7 +42,6 @@ function withKeyword(
   );
   if (!match || !match.groups) return [text];
   const { before, word, after } = match.groups;
-  const excerpt = before.substring(before.length - 12)+word+after.substring(12);
   return [
     before,
     <QuestionKeyword 
