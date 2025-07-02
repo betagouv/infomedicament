@@ -65,7 +65,6 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
 
   const pregnancyAlerts = await getPregnancyAlerts();
 
-  //await Promise.all(
   await extentedOrderedResults[DataTypeEnum.SUBSTANCE].map(async(result: AdvancedData) => {
     const specialites = await getSubstanceSpecialites((result.result as AdvancedSubstanceNom).NomId);
     const specialitiesGroups = await groupSpecialites(specialites);
@@ -77,7 +76,6 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
       (result.result as AdvancedMedicamentGroup).specialites, 
       pregnancyAlerts
     );
-    //result.result = advancedMedicamentGroup;
     (result.result as AdvancedMedicamentGroup).atc1 = advancedMedicamentGroup.atc1;
     (result.result as AdvancedMedicamentGroup).atc2 = advancedMedicamentGroup.atc2;
     (result.result as AdvancedMedicamentGroup).composants = advancedMedicamentGroup.composants;
@@ -101,20 +99,17 @@ export default async function Page(props: {
   const searchParams = await props.searchParams;
   const search = searchParams && "s" in searchParams && searchParams["s"];
   const results = search && (await getSearchResults(searchParams["s"]));
-  // console.log("results");
-  // results && results.forEach((res) => {
-  //   if("groupName" in res){
-  //     console.log(res.groupName);
-  //     // res.specialites && res.specialites.forEach((spec) => {
-  //     //   console.log(spec.SpecDenom01);
-  //     // })
-  //   }
-  // })
+  console.log("results");
+  results && results.forEach((res) => {
+    if("groupName" in res){
+      console.log(res.groupName);
+    }
+  })
   const extendedResults = results && (await getExtendedOrderedResults(results));
-//   console.log("extendedResults");
-//  ( extendedResults && extendedResults.results && extendedResults.results["Médicament"]) && extendedResults.results["Médicament"].forEach((res) => {
-//     console.log((res.result as AdvancedMedicamentGroup).groupName);
-//   })
+  console.log("extendedResults");
+ ( extendedResults && extendedResults.results && extendedResults.results["Médicament"]) && extendedResults.results["Médicament"].forEach((res) => {
+    console.log((res.result as AdvancedMedicamentGroup).groupName);
+  })
   const articlesList = extendedResults 
     ? (await getArticlesFromSearchResults(extendedResults.results))
     : [];
