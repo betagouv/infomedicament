@@ -25,6 +25,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
     [DataTypeEnum.PATHOLOGY]: [],
     [DataTypeEnum.ATCCLASS]: [],
   }
+  console.log("results");
   results.forEach((result) => {
     counter ++;
     if("NomLib" in result) {
@@ -38,6 +39,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
       });
     } else if("groupName" in result){
       //Med Group
+      console.log(result.groupName);
       extentedOrderedResults[DataTypeEnum.MEDGROUP].push({
         type: DataTypeEnum.MEDGROUP,
         result: {
@@ -99,17 +101,7 @@ export default async function Page(props: {
   const searchParams = await props.searchParams;
   const search = searchParams && "s" in searchParams && searchParams["s"];
   const results = search && (await getSearchResults(searchParams["s"]));
-  console.log("results");
-  results && results.forEach((res) => {
-    if("groupName" in res){
-      console.log(res.groupName);
-    }
-  })
   const extendedResults = results && (await getExtendedOrderedResults(results));
-  console.log("extendedResults");
- ( extendedResults && extendedResults.results && extendedResults.results["Médicament"]) && extendedResults.results["Médicament"].forEach((res) => {
-    console.log((res.result as AdvancedMedicamentGroup).groupName);
-  })
   const articlesList = extendedResults 
     ? (await getArticlesFromSearchResults(extendedResults.results))
     : [];
