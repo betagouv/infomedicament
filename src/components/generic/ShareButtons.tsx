@@ -64,7 +64,7 @@ function ShareButtons({
             <Link 
               href={`mailto:?subject=${pageName} - Info Médicament&body=Voici un lien vers la page ${pageName} sur le site Info Médicament : ${currentHref}`}
               target="_blank" 
-              rel="noopener external" 
+              rel="noopener noreferrer" 
               className={fr.cx("fr-btn--mail", "fr-btn")}
             >
               Partager par email

@@ -6,7 +6,7 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import SearchResultsList from "@/components/search/SearchResultsList";
 import { ExtendedSearchResults } from "@/types/SearchTypes";
 import { getPathoSpecialites, getSubstanceSpecialites, SearchResultItem } from "@/db/utils/search";
-import { getPregnancyAlerts } from "@/data/grist/pregnancy";
+import { getPregnancySubsAlerts } from "@/data/grist/pregnancy";
 import { getAdvancedMedicamentGroupFromGroupNameSpecialites } from "@/db/utils/medicaments";
 import { getArticlesFromSearchResults } from "@/data/grist/articles";
 import { DataTypeEnum } from "@/types/DataTypes";
@@ -24,8 +24,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
     [DataTypeEnum.PATHOLOGY]: [],
     [DataTypeEnum.ATCCLASS]: [],
   }
-
-  const pregnancyAlerts = await getPregnancyAlerts();  
+  const pregnancySubsAlerts = await getPregnancySubsAlerts();
   const extendedResults = await Promise.all(
     results.map(async (result: SearchResultItem) => {
       counter ++;
@@ -42,7 +41,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
         };
       } else if("groupName" in result){
         //Med Group
-        const advancedMedicamentGroup = await getAdvancedMedicamentGroupFromGroupNameSpecialites(result.groupName, result.specialites, pregnancyAlerts);
+        const advancedMedicamentGroup = await getAdvancedMedicamentGroupFromGroupNameSpecialites(result.groupName, result.specialites, pregnancySubsAlerts);
         return {
           type: DataTypeEnum.MEDGROUP,
           result: advancedMedicamentGroup
@@ -84,6 +83,7 @@ export default async function Page(props: {
   const results = search && (await getSearchResults(searchParams["s"]));
 
   const extendedResults = results && (await getExtendedOrderedResults(results));
+
   const articlesList = extendedResults 
     ? (await getArticlesFromSearchResults(extendedResults.results))
     : [];
