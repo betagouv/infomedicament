@@ -77,12 +77,12 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
       (result.result as AdvancedMedicamentGroup).specialites, 
       pregnancyAlerts
     );
-    result.result = advancedMedicamentGroup;
-    // (result.result as AdvancedMedicamentGroup).atc1 = advancedMedicamentGroup.atc1;
-    // (result.result as AdvancedMedicamentGroup).atc2 = advancedMedicamentGroup.atc2;
-    // (result.result as AdvancedMedicamentGroup).composants = advancedMedicamentGroup.composants;
-    // (result.result as AdvancedMedicamentGroup).pregnancyAlert = advancedMedicamentGroup.pregnancyAlert;
-    // (result.result as AdvancedMedicamentGroup).pediatrics = advancedMedicamentGroup.pediatrics;
+    //result.result = advancedMedicamentGroup;
+    (result.result as AdvancedMedicamentGroup).atc1 = advancedMedicamentGroup.atc1;
+    (result.result as AdvancedMedicamentGroup).atc2 = advancedMedicamentGroup.atc2;
+    (result.result as AdvancedMedicamentGroup).composants = advancedMedicamentGroup.composants;
+    (result.result as AdvancedMedicamentGroup).pregnancyAlert = advancedMedicamentGroup.pregnancyAlert;
+    (result.result as AdvancedMedicamentGroup).pediatrics = advancedMedicamentGroup.pediatrics;
   });
   await extentedOrderedResults[DataTypeEnum.PATHOLOGY].map(async(result: AdvancedData) => {
     const specialites = await getPathoSpecialites((result.result as AdvancedPatho).codePatho);
