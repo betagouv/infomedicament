@@ -31,10 +31,15 @@ const CopiedText = styled.span`
 `;
 
 interface ShareButtonsProps extends HTMLAttributes<HTMLDivElement> {
+  pageName: string;
   rightAlign?: boolean;
 }
 
-function ShareButtons({rightAlign, ...props}: ShareButtonsProps) {
+function ShareButtons({
+  pageName,
+  rightAlign, 
+  ...props
+}: ShareButtonsProps) {
 
   const [currentHref, setCurrentHref] = useState<string>("");
   const [isRightAlign, setIsRightAlign] = useState<boolean>(false);
@@ -57,7 +62,7 @@ function ShareButtons({rightAlign, ...props}: ShareButtonsProps) {
         <ul className={fr.cx("fr-btns-group")}>
           <li>
             <Link 
-              href={`mailto:?subject=[À MODIFIER - objet du mail]&body=[À MODIFIER - titre ou texte descriptif de la page] ${currentHref}`}
+              href={`mailto:?subject=${pageName} - Info Médicament&body=Voici un lien vers la page ${pageName} sur le site Info Médicament : ${currentHref}`}
               target="_blank" 
               rel="noopener noreferrer" 
               className={fr.cx("fr-btn--mail", "fr-btn")}

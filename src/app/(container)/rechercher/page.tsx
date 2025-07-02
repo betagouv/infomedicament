@@ -25,7 +25,6 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
     [DataTypeEnum.ATCCLASS]: [],
   }
   const pregnancySubsAlerts = await getPregnancySubsAlerts();
-
   const extendedResults = await Promise.all(
     results.map(async (result: SearchResultItem) => {
       counter ++;
@@ -69,6 +68,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
   extendedResults.forEach((result) => {
     extentedOrderedResults[result.type].push(result);
   }); 
+
   return {
     counter,
     results: extentedOrderedResults
@@ -81,6 +81,7 @@ export default async function Page(props: {
   const searchParams = await props.searchParams;
   const search = searchParams && "s" in searchParams && searchParams["s"];
   const results = search && (await getSearchResults(searchParams["s"]));
+
   const extendedResults = results && (await getExtendedOrderedResults(results));
 
   const articlesList = extendedResults 
