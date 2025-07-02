@@ -28,9 +28,17 @@ import { Marr } from "@/types/MarrTypes";
 import useSWR from "swr";
 import { Notice, NoticeRCPContentBlock, Rcp } from "@/types/MedicamentTypes";
 import { fetchJSON } from "@/utils/network";
-import NoticeBlock from "./NoticeBlock";
 import DetailedNotice from "./DetailedNotice";
 import ShareButtons from "../generic/ShareButtons";
+import QuestionsBox from "./QuestionsBox";
+import QuestionKeywordsBox from "./QuestionKeywordsBox";
+import GoTopButton from "../generic/GoTopButton";
+import { RcpNoticeContainer } from "./Blocks/GenericBlocks";
+import Badge from "@codegouvfr/react-dsfr/Badge";
+import { getContent } from "@/utils/notices/noticesUtils";
+import { questionsList } from "@/data/pages/notices_anchors";
+import { Definition } from "@/types/GlossaireTypes";
+import NoticeContainer from "./NoticeContainer";
 import PregnancySubsTag from "../tags/PregnancySubsTag";
 import PregnancyCISTag from "../tags/PregnancyCISTag";
 
@@ -41,6 +49,26 @@ const ToggleSwitchContainer = styled.div `
   .medicament-toggle-switch .fr-hint-text{
     margin-top: 0rem;
     font-style: italic;
+  }
+`;
+
+const Container = styled.div `
+  margin-top: 1rem;
+  @media (max-width: 48em) {
+    margin-top: 0rem;
+    .fr-mb-4w{
+      margin-bottom: 1rem !important;
+    }
+  }
+`;
+
+const NoticeTitle = styled.div `
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  @media (max-width: 48em) {
+    flex-direction: column;
+    align-items: start;
   }
 `;
 
@@ -79,11 +107,16 @@ function SwitchNotice({
   ...props
 }: SwitchNoticeProps) {
 
+  const [currentNotice, setCurrentNotice] = useState<Notice>();
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [currentMarr, setCurrentMarr] = useState<Marr>();
 
   const [currentPart, setcurrentPart] = useState<DetailsNoticePartsEnum>(DetailsNoticePartsEnum.INFORMATIONS_GENERALES);
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
   const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock>();
+
+  const [currentQuestion, setCurrentQuestion] = useState<string>();
+  const [showKeywordsBox, setShowKeywordsBox] = useState<boolean>(false);
 
   useEffect(() => {
     if(marr){
@@ -117,7 +150,25 @@ function SwitchNotice({
     },
     [setIsAdvanced]
   );
-  
+
+  const updateCurrentQuestion = (questionId: string) => {
+    setCurrentQuestion(questionId);
+    const question = questionsList[questionId];
+    if(question.keywords || question.anchors) {
+      setShowKeywordsBox(true);
+    } else {
+      setShowKeywordsBox(false);
+    }
+  };
+  const onCloseQuestionKeywordsBox = () => {
+    const noticeContainer = document.getElementById('noticeContainer');
+    if(noticeContainer){
+      noticeContainer.className = "";
+      setShowKeywordsBox(false);
+      setCurrentQuestion("");
+    }
+  };
+
   const { data: rcp } = useSWR<Rcp>(
     `/medicaments/notices/rcp?cis=${CIS}`,
     fetchJSON,
@@ -130,15 +181,25 @@ function SwitchNotice({
     { onError: (err) => console.warn('errorNotice >>', err), }
   );
 
+  const { data: definitions } = useSWR<Definition[]>(
+    `/glossaire/definitions`,
+    fetchJSON,
+    { onError: (err) => console.warn('errorDefinitions >>', err), }
+  );
+
   useEffect(() => {
-    if(notice && notice.children){
-      notice.children.forEach((child: NoticeRCPContentBlock) => {
-        if(child.anchor === "Ann3bQuestceque"){
-          setIndicationBlock(child);
-        }
-      })
+    if(notice) {
+      setCurrentNotice(notice);
+      setLoaded(true);
+      if(notice.children){
+        notice.children.forEach((child: NoticeRCPContentBlock) => {
+          if(child.anchor === "Ann3bQuestceque"){
+            setIndicationBlock(child);
+          }
+        })
+      }
     }
-  }, [notice]);
+  }, [notice, setIndicationBlock, setCurrentNotice, setLoaded]);
 
   // Use to display or not the separator after a tag (left column)
   const lastTagElement: TagTypeEnum = (
@@ -172,8 +233,8 @@ function SwitchNotice({
   );
 
   return (
-    <>
-      <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")}>
+    <Container className={["mobile-display-contents", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ",)}>
+      <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")].join(" ",)}>
         <ShareButtons 
           pageName={name}
         />
@@ -193,7 +254,7 @@ function SwitchNotice({
         </ToggleSwitchContainer>
         {isAdvanced 
           ? <DetailedSubMenu updateVisiblePart={setcurrentPart} isMarr={(currentMarr && currentMarr.pdf.length > 0)}/>
-          : <section className={fr.cx("fr-mb-4w")}>
+          : <section className={["mobile-display-contents", fr.cx("fr-mb-4w")].join(" ",)}>
               <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                 {atc2 && (
                   <TagContainer category="Sous-classe">
@@ -230,11 +291,22 @@ function SwitchNotice({
                 )}
                 {pediatrics && <PediatricsTags info={pediatrics} lastTagElement={lastTagElement}/>}
               </ContentContainer>
-              {(presentations && presentations.length > 0) && (
-                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                  <PresentationsList presentations={presentations} />
-                </ContentContainer>
+              <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-pt-1w", "fr-px-1w", "fr-hidden-md")}>
+                <QuestionsBox 
+                  noBorder
+                  currentQuestion={currentQuestion}
+                  updateCurrentQuestion={updateCurrentQuestion}
+                />
+              </ContentContainer>
+              {showKeywordsBox && currentQuestion && (
+                <QuestionKeywordsBox
+                  className={fr.cx("fr-hidden-md", "fr-mb-4w", "fr-px-1w")}
+                  onClose={() => onCloseQuestionKeywordsBox()}
+                  questionID={currentQuestion}/>
               )}
+              <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                <PresentationsList presentations={presentations} />
+              </ContentContainer>
               {articles && articles.length > 0 && (
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                   <ArticlesResumeList articles={articles} />
@@ -268,11 +340,50 @@ function SwitchNotice({
           indicationBlock={indicationBlock}
         />
       ) : (
-        <NoticeBlock 
-          notice={notice}
-        />
+        <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")].join(" ",)}>
+          <article>
+            <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
+              <NoticeTitle className={fr.cx("fr-mb-4w")}>
+                <div style={{display: "flex"}}>
+                  <span className={["fr-icon--custom-notice", fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md")].join(" ")}/>
+                  <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice complète</h2>
+                </div>
+                <ContentContainer>
+                  {(currentNotice && currentNotice.dateNotif) && (
+                    <Badge severity={"info"}>{currentNotice.dateNotif}</Badge>
+                  )}
+                </ContentContainer>
+              </NoticeTitle>
+              {(currentNotice && currentNotice.children) ? (
+                <>
+                  <ContentContainer className={fr.cx("fr-hidden", "fr-unhidden-md")}>
+                    <QuestionsBox 
+                      currentQuestion={currentQuestion}
+                      updateCurrentQuestion={updateCurrentQuestion}
+                    />
+                  </ContentContainer>
+                  {showKeywordsBox && currentQuestion && (
+                    <QuestionKeywordsBox
+                      className={fr.cx("fr-hidden", "fr-unhidden-md")}
+                      onClose={() => onCloseQuestionKeywordsBox()}
+                      questionID={currentQuestion}
+                    />
+                  )}
+                  <NoticeContainer className={fr.cx("fr-mt-3w")}>
+                    <ContentContainer id="noticeContainer">
+                      <RcpNoticeContainer>{getContent(currentNotice.children, definitions)}</RcpNoticeContainer>
+                    </ContentContainer>
+                  </NoticeContainer>
+                </>
+              ) : (
+                loaded && (<span>La notice n&rsquo;est pas disponible pour ce médicament.</span>)
+              )}
+            </ContentContainer>
+          </article>
+          <GoTopButton />
+        </ContentContainer>
       )}
-    </>
+    </Container>
   );
 };
 

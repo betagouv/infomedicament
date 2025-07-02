@@ -2,17 +2,24 @@
 
 import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, PropsWithChildren, ReactNode, useEffect, useState } from "react";
+import styled from 'styled-components';
 
 interface TagContainerProps extends HTMLAttributes<HTMLDivElement> {
   category?: string;
   hideSeparator?: boolean;
 }
 
+const CategoryContainer = styled.div `
+  color: var(--text-mention-grey);
+  font-size: 14px;
+`;
+
+
 function TagContainer({
   category, 
   hideSeparator, 
-  ...props
-}: PropsWithChildren<TagContainerProps>) {
+  ...props}: PropsWithChildren<TagContainerProps>
+) {
 
   const [currentCategory, setCurrentCategory] = useState<string>("");
   const [currentHideSeparator, setCurrentHideSeparator] = useState<boolean>(false);
@@ -33,12 +40,9 @@ function TagContainer({
   return (
     <div {...props}>
       {currentCategory && 
-        <div style={{
-          color: "var(--text-mention-grey)",
-          fontSize: "14px",
-        }}>
+        <CategoryContainer>
           {currentCategory}
-        </div>
+        </CategoryContainer>
       }
       {currentChildren}
       {!currentHideSeparator && <hr className={fr.cx("fr-pb-1w", "fr-mt-1w")}/>}

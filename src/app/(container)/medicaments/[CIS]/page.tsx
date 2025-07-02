@@ -137,7 +137,8 @@ export default async function Page(props: {
             backgroundColor:
               fr.colors.decisions.background.alt.grey.default,
           }}>
-        <ContentContainer frContainer>
+
+        <ContentContainer frContainer>              
           <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>
             {(pregnancySubsAlert || pregnancyCISAlert || pediatrics?.contraindication )&& (
               <ContentContainer className={fr.cx("fr-col-12", "fr-mb-2w")}>
