@@ -9,7 +9,7 @@ import { getPathoSpecialites, getSubstanceSpecialites, SearchResultItem } from "
 import { getPregnancyAlerts } from "@/data/grist/pregnancy";
 import { getAdvancedMedicamentGroupFromGroupNameSpecialites } from "@/db/utils/medicaments";
 import { getArticlesFromSearchResults } from "@/data/grist/articles";
-import { DataTypeEnum } from "@/types/DataTypes";
+import { AdvancedData, AdvancedPatho, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
 import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 
 type ExtendedOrderResults = { 
@@ -25,51 +25,70 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
     [DataTypeEnum.PATHOLOGY]: [],
     [DataTypeEnum.ATCCLASS]: [],
   }
+  results.forEach((result) => {
+    counter ++;
+    if("NomLib" in result) {
+      //Substance
+      extentedOrderedResults[DataTypeEnum.SUBSTANCE].push({
+        type: DataTypeEnum.SUBSTANCE,
+        result: {
+          nbSpecs: 0,
+          ...result
+        }
+      });
+    } else if("groupName" in result){
+      //Med Group
+      extentedOrderedResults[DataTypeEnum.MEDGROUP].push({
+        type: DataTypeEnum.MEDGROUP,
+        result: {
+          composants: [],
+          ...result
+        }
+      });
+    } else if("NomPatho" in result) {
+      //Pathology
+      extentedOrderedResults[DataTypeEnum.PATHOLOGY].push({
+        type: DataTypeEnum.PATHOLOGY,
+        result: {
+          nbSpecs: 0,
+          ...result
+        }
+      });
+    } else {
+      //ATC Class
+      extentedOrderedResults[DataTypeEnum.ATCCLASS].push({
+        type: DataTypeEnum.ATCCLASS,
+        result: result,
+      });
+    }
+  })
+
   const pregnancyAlerts = await getPregnancyAlerts();
 
-  const extendedResults = await Promise.all(
-    results.map(async (result: SearchResultItem) => {
-      counter ++;
-      if("NomLib" in result) {
-        //Substance
-        const specialites = await getSubstanceSpecialites(result.NomId);
-        const specialitiesGroups = await groupSpecialites(specialites);
-        return {
-          type: DataTypeEnum.SUBSTANCE,
-          result: {
-            nbSpecs: specialitiesGroups.length,
-            ...result
-          }
-        };
-      } else if("groupName" in result){
-        //Med Group
-        const advancedMedicamentGroup = await getAdvancedMedicamentGroupFromGroupNameSpecialites(result.groupName, result.specialites, pregnancyAlerts);
-        return {
-          type: DataTypeEnum.MEDGROUP,
-          result: advancedMedicamentGroup
-        };
-      } else if("NomPatho" in result) {
-        //Pathology
-        const specialites = await getPathoSpecialites(result.codePatho);
-        return {
-          type: DataTypeEnum.PATHOLOGY,
-          result: {
-            nbSpecs: specialites.length,
-            ...result
-          }
-        };
-      } else {
-        //ATC Class
-        return {
-          type: DataTypeEnum.ATCCLASS,
-          result: result,
-        }
-      }
-    })
-  );
-  extendedResults.forEach((result) => {
-    extentedOrderedResults[result.type].push(result);
-  }); 
+  //await Promise.all(
+  await extentedOrderedResults[DataTypeEnum.SUBSTANCE].map(async(result: AdvancedData) => {
+    const specialites = await getSubstanceSpecialites((result.result as AdvancedSubstanceNom).NomId);
+    const specialitiesGroups = await groupSpecialites(specialites);
+    (result.result as AdvancedSubstanceNom).nbSpecs = specialitiesGroups.length;
+  });
+  await extentedOrderedResults[DataTypeEnum.MEDGROUP].map(async(result: AdvancedData) => {
+    const advancedMedicamentGroup = await getAdvancedMedicamentGroupFromGroupNameSpecialites(
+      (result.result as AdvancedMedicamentGroup).groupName, 
+      (result.result as AdvancedMedicamentGroup).specialites, 
+      pregnancyAlerts
+    );
+    result.result = advancedMedicamentGroup;
+    // (result.result as AdvancedMedicamentGroup).atc1 = advancedMedicamentGroup.atc1;
+    // (result.result as AdvancedMedicamentGroup).atc2 = advancedMedicamentGroup.atc2;
+    // (result.result as AdvancedMedicamentGroup).composants = advancedMedicamentGroup.composants;
+    // (result.result as AdvancedMedicamentGroup).pregnancyAlert = advancedMedicamentGroup.pregnancyAlert;
+    // (result.result as AdvancedMedicamentGroup).pediatrics = advancedMedicamentGroup.pediatrics;
+  });
+  await extentedOrderedResults[DataTypeEnum.PATHOLOGY].map(async(result: AdvancedData) => {
+    const specialites = await getPathoSpecialites((result.result as AdvancedPatho).codePatho);
+    (result.result as AdvancedPatho).nbSpecs = specialites.length;
+
+  });
   return {
     counter,
     results: extentedOrderedResults
@@ -82,21 +101,20 @@ export default async function Page(props: {
   const searchParams = await props.searchParams;
   const search = searchParams && "s" in searchParams && searchParams["s"];
   const results = search && (await getSearchResults(searchParams["s"]));
-  console.log("results");
-  results && results.forEach((res) => {
-    if("groupName" in res){
-      console.log(res.groupName);
-      // res.specialites && res.specialites.forEach((spec) => {
-      //   console.log(spec.SpecDenom01);
-      // })
-    }
-  })
-  console.log(results);
+  // console.log("results");
+  // results && results.forEach((res) => {
+  //   if("groupName" in res){
+  //     console.log(res.groupName);
+  //     // res.specialites && res.specialites.forEach((spec) => {
+  //     //   console.log(spec.SpecDenom01);
+  //     // })
+  //   }
+  // })
   const extendedResults = results && (await getExtendedOrderedResults(results));
-  console.log("extendedResults");
- ( extendedResults && extendedResults.results && extendedResults.results["Médicament"]) && extendedResults.results["Médicament"].forEach((res) => {
-    console.log((res.result as AdvancedMedicamentGroup).groupName);
-  })
+//   console.log("extendedResults");
+//  ( extendedResults && extendedResults.results && extendedResults.results["Médicament"]) && extendedResults.results["Médicament"].forEach((res) => {
+//     console.log((res.result as AdvancedMedicamentGroup).groupName);
+//   })
   const articlesList = extendedResults 
     ? (await getArticlesFromSearchResults(extendedResults.results))
     : [];
