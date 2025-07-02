@@ -4,7 +4,8 @@ import { Specialite } from "@/db/pdbmMySQL/types";
 import { PresentationDetail } from "@/db/types";
 
 export type AdvancedSpecialite = Specialite & {
-  pregnancyAlert?: boolean;
+  pregnancyCISAlert?: boolean;
+  pregnancySubsAlert?: boolean;
   pediatrics?: PediatricsInfo;
 }
 
@@ -14,7 +15,8 @@ export type AdvancedMedicamentGroup = {
   atc1?: ATC1;
   atc2?: ATC;
   composants: any;
-  pregnancyAlert?: boolean;
+  pregnancySubsAlert?: boolean;
+  pregnancyCISAlert?: boolean;
   pediatrics?: PediatricsInfo;
 };
 
