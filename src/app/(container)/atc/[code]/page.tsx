@@ -77,6 +77,13 @@ export default async function Page(props: {
       }
     })
   );
+  detailedSubClass = detailedSubClass.filter((detail) => {
+    if(atc2) {
+      if((detail as AdvancedSubstanceNom).nbSpecs > 0) return detail;
+    } else {
+      if((detail as AdvancedATCClass).class.children && (detail as AdvancedATCClass).class.children.length > 0) return detail;
+    }
+  })
 
   const ItemComponent = (atc2 ? SubstanceItem : SubClassItem) as ({
     item,
@@ -112,11 +119,11 @@ export default async function Page(props: {
           />
 
           <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
-            {items.length}{" "}
+            {detailedSubClass.length}{" "}
             {atc2 ? (
-              items.length > 1 ? "substances actives" : "substance active"
+              detailedSubClass.length > 1 ? "substances actives" : "substance active"
             ) : (
-              items.length > 1 ? "sous-classes de médicament" : "sous-classe de médicament"
+              detailedSubClass.length > 1 ? "sous-classes de médicament" : "sous-classe de médicament"
             )}
           </h2>
 
