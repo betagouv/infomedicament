@@ -129,6 +129,34 @@ export const getPathoSpecialites = unstable_cache(async function (code: string) 
     .execute();
 });
 
+function getSearchScore(
+  query: string, 
+  match: SearchResult & {sml: number},
+  specFromSub?: boolean,
+): number {
+  const cleanQuery = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const cleanToken = match.token.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const indexOf = cleanToken.toLowerCase().indexOf(cleanQuery);
+
+  let score: number = match.sml;
+  if(match.sml === 1){
+    //Mot entier non contenu dans un autre
+    if(indexOf !== 0) score -= 0.01; //Pas en début de phrase
+  } else {
+    if(indexOf !== -1){
+      if(indexOf === 0) score -= 0.02;
+      else score -= 0.03;
+
+    } else {
+      if(specFromSub){
+        score -= 0.03;
+      }
+      else score -= 0.04; //Pas trouvé : faute d'orthographe
+    } 
+  }
+  return score;
+}
+
 /**
  * Get search results from the database
  *
@@ -190,17 +218,14 @@ export const getSearchResults = unstable_cache(async function (
     ATCCodes.map((code) => (code.length === 1 ? getAtc1(code) : getAtc2(code))),
   );
 
-  const accSubs: { score: number; item: SearchResultItem }[] = [];
-  const accSpec: { score: number; item: SearchResultItem }[] = [];
-  const accPatho: { score: number; item: SearchResultItem }[] = [];
-  const accATC: { score: number; item: SearchResultItem }[] = [];
+  const acc: { score: number; item: SearchResultItem }[] = [];
   for (const match of matches) {
     if (match.table_name === "Subs_Nom") {
       const substance = substances.find(
         (s) => s.NomId.trim() === match.id.trim(),
       ); // if undefined, the substance is not in one of the 500 CIS list
       if (substance) {
-        accSubs.push({ score: match.sml, item: substance });
+        acc.push({ score: getSearchScore(query, match), item: substance });
 
         if (onlyDirectMatches) continue;
 
@@ -216,7 +241,7 @@ export const getSearchResults = unstable_cache(async function (
           )
           .forEach(([groupName, specialites]) => {
             if (
-              !accSubs.find(
+              !acc.find(
                 ({ item }) =>
                   "groupName" in item && item.groupName === groupName,
               )
@@ -226,8 +251,10 @@ export const getSearchResults = unstable_cache(async function (
                   m.table_name === "Specialite" &&
                   specialites.find((s) => s.SpecId.trim() === m.id.trim()),
               );
-              accSubs.push({
-                score: directMatch ? directMatch.sml + match.sml : match.sml,
+              //Avant : directMatch ? directMatch.sml + match.sml : match.sml
+              //Si vient de substance, on fait passer en avant
+              acc.push({
+                score: directMatch ? getSearchScore(query, directMatch, true) : 0.3,
                 item: { groupName, specialites },
               });
             }
@@ -241,13 +268,13 @@ export const getSearchResults = unstable_cache(async function (
       ); // if undefined, the specialite is not in the 500 CIS list
       if (
         specialiteGroup &&
-        !accSpec.find(
+        !acc.find(
           ({ item }) =>
             "groupName" in item && item.groupName === specialiteGroup[0],
         )
       ) {
         const [groupName, specialites] = specialiteGroup;
-        accSpec.push({ score: match.sml, item: { groupName, specialites } });
+        acc.push({ score: getSearchScore(query, match), item: { groupName, specialites } });
       }
     }
 
@@ -256,14 +283,14 @@ export const getSearchResults = unstable_cache(async function (
         (p) => p.codePatho.trim() === match.id.trim(),
       );
       if (patho) {
-        accPatho.push({ score: match.sml, item: patho });
+        acc.push({ score: getSearchScore(query, match), item: patho });
       }
     }
 
     if (match.table_name === "ATC") {
       const atc = ATCClasses.find((atc) => atc.code.trim() === match.id.trim());
       if (atc) {
-        const sameClass = accATC.find(
+        const sameClass = acc.find(
           ({ item }) =>
             "class" in item &&
             item.class.code.slice(0, 1) === atc.code.slice(0, 1),
@@ -276,12 +303,12 @@ export const getSearchResults = unstable_cache(async function (
           sameClass.score = Math.max(match.sml, sameClass.score);
         } else {
           if (atc.code.length === 1) {
-            accATC.push({
+            acc.push({
               score: match.sml,
               item: { class: atc as ATC1, subclasses: [] },
             });
           } else {
-            accATC.push({
+            acc.push({
               score: match.sml,
               item: { class: await getAtc1(atc.code), subclasses: [atc] },
             });
@@ -290,15 +317,33 @@ export const getSearchResults = unstable_cache(async function (
       }
     }
   }
-
-  const orderedAccSpec = accSpec
+  return acc
     .sort((a, b) => b.score - a.score)
-    .sort((a, b) => (a.item as { groupName: string; specialites: Specialite[] }).groupName.localeCompare((b.item as { groupName: string; specialites: Specialite[] }).groupName))
-    .map(({ item }) => item);
-
-  const orderedAccSubs = accSubs.sort((a, b) => b.score - a.score).map(({ item }) => item);
-  const orderedAccPatho = accPatho.sort((a, b) => b.score - a.score).map(({ item }) => item);
-  const orderedAccATC = accATC.sort((a, b) => b.score - a.score).map(({ item }) => item);
-
-  return orderedAccSpec.concat(orderedAccATC).concat(orderedAccPatho).concat(orderedAccSubs);
+    .sort(
+      (a, b) => 
+        { 
+          if(a.score !== b.score ) return 1;
+          else {
+            const valA: string = (a.item as SubstanceNom).NomLib 
+              ? (a.item as SubstanceNom).NomLib
+              : (a.item as Patho).NomPatho
+                ? (a.item as Patho).NomPatho
+                : (a.item as { class: ATC1; subclasses: ATC[] }).class && (a.item as { class: ATC1; subclasses: ATC[] }).class.label
+                  ? (a.item as { class: ATC1; subclasses: ATC[] }).class.label
+                  : (a.item as { groupName: string; specialites: Specialite[] }).groupName
+                    ? (a.item as { groupName: string; specialites: Specialite[] }).groupName
+                    : "";
+            const valB: string = (b.item as SubstanceNom).NomLib 
+              ? (b.item as SubstanceNom).NomLib
+              : (b.item as Patho).NomPatho
+                ? (b.item as Patho).NomPatho
+                : (b.item as { class: ATC1; subclasses: ATC[] }).class && (b.item as { class: ATC1; subclasses: ATC[] }).class.label
+                  ? (b.item as { class: ATC1; subclasses: ATC[] }).class.label
+                  : (b.item as { groupName: string; specialites: Specialite[] }).groupName
+                    ? (b.item as { groupName: string; specialites: Specialite[] }).groupName
+                    : "";
+            return valA.localeCompare(valB);
+          }
+        }
+    ).map(({ item }) => item);
 });
