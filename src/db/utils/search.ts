@@ -323,6 +323,27 @@ export const getSearchResults = unstable_cache(async function (
       (a, b) => 
         { 
           if(a.score !== b.score ) return 1;
-          else return (a.item as { groupName: string; specialites: Specialite[] }).groupName.localeCompare((b.item as { groupName: string; specialites: Specialite[] }).groupName)}
+          else {
+            const valA: string = (a.item as SubstanceNom).NomLib 
+              ? (a.item as SubstanceNom).NomLib
+              : (a.item as Patho).NomPatho
+                ? (a.item as Patho).NomPatho
+                : (a.item as { class: ATC1; subclasses: ATC[] }).class.label
+                  ? (a.item as { class: ATC1; subclasses: ATC[] }).class.label
+                  : (a.item as { groupName: string; specialites: Specialite[] }).groupName
+                    ? (a.item as { groupName: string; specialites: Specialite[] }).groupName
+                    : "";
+            const valB: string = (b.item as SubstanceNom).NomLib 
+              ? (b.item as SubstanceNom).NomLib
+              : (b.item as Patho).NomPatho
+                ? (b.item as Patho).NomPatho
+                : (b.item as { class: ATC1; subclasses: ATC[] }).class.label
+                  ? (b.item as { class: ATC1; subclasses: ATC[] }).class.label
+                  : (b.item as { groupName: string; specialites: Specialite[] }).groupName
+                    ? (b.item as { groupName: string; specialites: Specialite[] }).groupName
+                    : "";
+            return valA.localeCompare(valB);
+          }
+        }
     ).map(({ item }) => item);
 });
