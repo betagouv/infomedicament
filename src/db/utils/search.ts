@@ -328,7 +328,7 @@ export const getSearchResults = unstable_cache(async function (
               ? (a.item as SubstanceNom).NomLib
               : (a.item as Patho).NomPatho
                 ? (a.item as Patho).NomPatho
-                : (a.item as { class: ATC1; subclasses: ATC[] }).class.label
+                : (a.item as { class: ATC1; subclasses: ATC[] }).class && (a.item as { class: ATC1; subclasses: ATC[] }).class.label
                   ? (a.item as { class: ATC1; subclasses: ATC[] }).class.label
                   : (a.item as { groupName: string; specialites: Specialite[] }).groupName
                     ? (a.item as { groupName: string; specialites: Specialite[] }).groupName
@@ -337,7 +337,7 @@ export const getSearchResults = unstable_cache(async function (
               ? (b.item as SubstanceNom).NomLib
               : (b.item as Patho).NomPatho
                 ? (b.item as Patho).NomPatho
-                : (b.item as { class: ATC1; subclasses: ATC[] }).class.label
+                : (b.item as { class: ATC1; subclasses: ATC[] }).class && (b.item as { class: ATC1; subclasses: ATC[] }).class.label
                   ? (b.item as { class: ATC1; subclasses: ATC[] }).class.label
                   : (b.item as { groupName: string; specialites: Specialite[] }).groupName
                     ? (b.item as { groupName: string; specialites: Specialite[] }).groupName
