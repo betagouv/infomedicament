@@ -18,33 +18,36 @@ function getStyles(styles: string[] | undefined): CSSProperties{
   return formatedStyles;
 }
 
-function getTitleElement(content:NoticeRCPContentBlock): (React.JSX.Element | undefined){
+function getTitleElement(content:NoticeRCPContentBlock, definitions?:Definition[]): (React.JSX.Element | undefined){
   if(content.content){
+    const elementContent = definitions 
+      ? <WithGlossary definitions={definitions} text={content.content} isHeader={true}/>
+      : content.content;
     if(content.type && (content.type === "AmmNoticeTitre1" || content.type === "AmmAnnexeTitre1")){
       return (
         <h3 className={fr.cx("fr-h5")} key={content.id} id={content.anchor}>
-          {content.content}
+          {elementContent}
         </h3>
       );
     }
     if(content.type && content.type === "AmmAnnexeTitre2"){
       return (
         <h4 className={fr.cx("fr-h6")} key={content.id} id={content.anchor}>
-          {content.content}
+          {elementContent}
         </h4>
       );
     }
     if(content.type && content.type === "AmmAnnexeTitre3") {
       return (
         <h5 className={fr.cx("fr-h6")} key={content.id} id={content.anchor}>
-          {content.content}
+          {elementContent}
         </h5>
       );
     }
     if(content.type && content.type === "AmmAnnexeTitre4") {
       return (
         <h6 className={fr.cx("fr-h6")} key={content.id} id={content.anchor}>
-          {content.content}
+          {elementContent}
         </h6>
       );
     }
@@ -186,7 +189,7 @@ export function getContent(children:NoticeRCPContentBlock[], definitions?:Defini
           ));
         }
     } else {
-      const titleContent:(React.JSX.Element | undefined) = getTitleElement(child);
+      const titleContent:(React.JSX.Element | undefined) = getTitleElement(child, definitions);
       if(titleContent){
         content.push(titleContent);
       } else if(child.content){
