@@ -5,9 +5,10 @@ import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import ContentContainer from "@/components/generic/ContentContainer";
-import { getPathoSpecialites } from "@/db/utils/search";
 import { AdvancedPatho, DataTypeEnum } from "@/types/DataTypes";
 import DataList from "@/components/data/DataList";
+import { getPathoSpecialites } from "@/db/utils/pathologies";
+import { groupSpecialites } from "@/db/utils";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -44,16 +45,19 @@ export default async function Page(props: {
 
   if (!pathos || !pathos.length) return notFound();
 
-  const detailedPathos: AdvancedPatho[] = await Promise.all(
-    pathos.map(async (patho) => {
-      const specialites = await getPathoSpecialites(patho.codePatho);
-      return {
-        nbSpecs: specialites.length,
-        ...patho
-      };
-    })
+  let detailedPathos: AdvancedPatho[] = await Promise.all(
+    pathos
+      .map(async (patho) => {
+        const specialites = await getPathoSpecialites(patho.codePatho);
+        const medicaments = specialites && (groupSpecialites(specialites));
+        return {
+          nbSpecs: medicaments.length,
+          ...patho
+        };
+      })
   );
-
+  detailedPathos = detailedPathos.filter((patho) => patho.nbSpecs > 0);
+  
   return (
     <ContentContainer frContainer>
       <Breadcrumb

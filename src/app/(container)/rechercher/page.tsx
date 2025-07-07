@@ -1,15 +1,15 @@
 import { fr } from "@codegouvfr/react-dsfr";
-;
 import { getSearchResults, groupSpecialites } from "@/db/utils";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SearchResultsList from "@/components/search/SearchResultsList";
 import { ExtendedSearchResults } from "@/types/SearchTypes";
-import { getPathoSpecialites, getSubstanceSpecialites, SearchResultItem } from "@/db/utils/search";
+import { getSubstanceSpecialites, SearchResultItem } from "@/db/utils/search";
 import { getPregnancySubsAlerts } from "@/data/grist/pregnancy";
 import { getAdvancedMedicamentGroupFromGroupNameSpecialites } from "@/db/utils/medicaments";
 import { getArticlesFromSearchResults } from "@/data/grist/articles";
 import { DataTypeEnum } from "@/types/DataTypes";
+import { getPathoSpecialites } from "@/db/utils/pathologies";
 
 type ExtendedOrderResults = { 
   counter: number,
@@ -49,18 +49,27 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
       } else if("NomPatho" in result) {
         //Pathology
         const specialites = await getPathoSpecialites(result.codePatho);
+        const medicaments = specialites && (groupSpecialites(specialites));
         return {
           type: DataTypeEnum.PATHOLOGY,
           result: {
-            nbSpecs: specialites.length,
+            nbSpecs: medicaments.length,
             ...result
           }
         };
       } else {
         //ATC Class
+        console.log("TEMP result ATC");
+        console.log(result);
         return {
           type: DataTypeEnum.ATCCLASS,
-          result: result,
+          result: {
+            class: {
+              nbSubstances: 0,
+              ...result.class,
+            },
+            subclasses: result.subclasses,
+          }
         }
       }
     })

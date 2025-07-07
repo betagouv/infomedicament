@@ -85,7 +85,7 @@ function DataBlockGeneric({
       } else if(dataType === DataTypeEnum.PATHOLOGY){
         setCurrentDetails(`${(data as AdvancedPatho).nbSpecs} ${(data as AdvancedPatho).nbSpecs > 1 ? "médicaments" : "médicament"}`);
       } else if(dataType === DataTypeEnum.ATCCLASS){
-        setCurrentDetails(`${(data as AdvancedATCClass).class.children.length} ${(data as AdvancedATCClass).class.children.length > 1 ? "substances actives" : "substance active"}`);
+        setCurrentDetails(`${(data as AdvancedATCClass).class.nbSubstances} ${(data as AdvancedATCClass).class.nbSubstances > 1 ? "substances actives" : "substance active"}`);
       } else 
         setCurrentDetails("");
     }
@@ -97,6 +97,8 @@ function DataBlockGeneric({
         getFormatSpecName(item.type, item.result);
         getDetails(item.type, item.result);
         if(item.type === DataTypeEnum.ATCCLASS){
+          console.log("TEMP currentSubClasses");
+          console.log(item.result);
           setCurrentSubClasses((item.result as AdvancedATCClass).subclasses);
         }
       }

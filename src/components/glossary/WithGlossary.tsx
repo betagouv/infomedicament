@@ -1,7 +1,5 @@
 import React, { Fragment } from "react";
 import WithDefinition from "@/components/glossary/WithDefinition";
-import useSWR from "swr";
-import { fetchJSON } from "@/utils/network";
 import { Definition } from "@/types/GlossaireTypes";
 
 

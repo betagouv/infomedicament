@@ -1,5 +1,5 @@
 import { fr } from "@codegouvfr/react-dsfr";
-import { ATC, ATC1, getAtc1, getAtc2, getSubstancesByAtc } from "@/data/grist/atc";
+import { ATC, getAtc1, getAtc2, getSubstancesByAtc } from "@/data/grist/atc";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
 import React from "react";
@@ -9,7 +9,7 @@ import DefinitionBanner from "@/components/DefinitionBanner";
 import ContentContainer from "@/components/generic/ContentContainer";
 import { getSubstanceSpecialites } from "@/db/utils/search";
 import { groupSpecialites } from "@/db/utils";
-import { AdvancedATCClass, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
+import { AdvancedATC1, AdvancedATCClass, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
 import DataList from "@/components/data/DataList";
 
 export const dynamic = "error";
@@ -48,20 +48,39 @@ export default async function Page(props: {
     : (
         await Promise.all(
           atc1.children.map(
-            async (atc2): Promise<[ATC, SubstanceNom[] | undefined]> => [
-              atc2,
-              await getSubstancesByAtc(atc2),
-            ],
+            async (atc2): Promise<AdvancedATC1> => {
+              const substances = await getSubstancesByAtc(atc2);
+              let nbSpecialitiesGroupes: number[] = [];
+              if(substances) {
+                nbSpecialitiesGroupes = await Promise.all( 
+                  substances.map(async (substance) => {
+                    const specialites = await getSubstanceSpecialites(substance.NomId);
+                    const specialitiesGroups = groupSpecialites(specialites);
+                    return specialitiesGroups ? specialitiesGroups.length : 0;
+                  })
+                );
+              }
+              nbSpecialitiesGroupes = nbSpecialitiesGroupes.filter((nb) => {
+                return nb > 0;
+              });
+
+              const advancedATC: AdvancedATC1 = {
+                nbSubstances: nbSpecialitiesGroupes.length,
+                ...(atc2 as ATC),
+                children: atc2.children ? atc1.children : [],
+              }
+              return advancedATC;
+              
+            }
           ),
         )
       )
-        .filter(([_, substances]) => !!substances)
-        .map(([atc2]) => atc2);
+        .filter((data: AdvancedATC1) => data && data.nbSubstances > 0);
   if (!items) notFound();
 
   let detailedSubClass: (AdvancedATCClass | AdvancedSubstanceNom)[] = [];
   detailedSubClass = await Promise.all(
-    items.map(async (item:ATC | SubstanceNom) => {
+    items.map(async (item:AdvancedATC1 | SubstanceNom) => {
       if(atc2) {
         const specialites = await getSubstanceSpecialites((item as SubstanceNom).NomId);
         const specialitiesGroups = groupSpecialites(specialites);
@@ -69,9 +88,9 @@ export default async function Page(props: {
           nbSpecs: specialitiesGroups.length,
           ...item,
         } as AdvancedSubstanceNom;
-      } else {
+      } else { 
         return {
-          class: (item as ATC),
+          class: item,
           subclasses:[],
         } as AdvancedATCClass
       }
@@ -81,7 +100,7 @@ export default async function Page(props: {
     if(atc2) {
       if((detail as AdvancedSubstanceNom).nbSpecs > 0) return detail;
     } else {
-      if((detail as AdvancedATCClass).class.children && (detail as AdvancedATCClass).class.children.length > 0) return detail;
+      if((detail as AdvancedATCClass).class.nbSubstances > 0) return detail;
     }
   })
 
