@@ -26,7 +26,7 @@ async function getSubstance(ids: string[]) {
   if (!substances || substances.length < ids.length) return notFound();
 
   const specialites: Specialite[] = await getSubstanceSpecialites(ids);
-  const specialitiesGroups = groupSpecialites(specialites);
+  const specialitiesGroups = groupSpecialites(specialites, true);
   const subsIds = substances.map((subs: SubstanceNom) => (subs.SubsId).trim());
   const definitionsRaw = (
     await getGristTableData("Definitions_Substances_Actives", [

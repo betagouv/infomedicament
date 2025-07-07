@@ -60,8 +60,6 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
         };
       } else {
         //ATC Class
-        console.log("TEMP result ATC");
-        console.log(result);
         let subclassesList: AdvancedATC[] = await Promise.all(
           result.subclasses.map(async (atc2) => {
             const substances = await getSubstancesByAtc(atc2);

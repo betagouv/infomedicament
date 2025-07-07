@@ -35,7 +35,7 @@ export default async function Page(props: {
   const patho = await getPatho(code);
   const definition = await getPathologyDefinition(code);
   const specialites = await getPathoSpecialites(code);
-  const medicaments = specialites && (groupSpecialites(specialites));
+  const medicaments = specialites && (groupSpecialites(specialites, true));
   const detailedMedicaments = medicaments && (await getAdvancedMedicamentGroupListFromMedicamentGroupList(medicaments));
   
   return (

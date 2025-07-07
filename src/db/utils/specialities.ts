@@ -122,6 +122,7 @@ export function getSpecialiteGroupName(
 
 export function groupSpecialites<T extends Specialite>(
   specialites: T[],
+  isSort?: boolean,
 ): MedicamentGroup<T>[] {
   const groups = new Map<string, T[]>();
   for (const specialite of specialites) {
@@ -132,5 +133,9 @@ export function groupSpecialites<T extends Specialite>(
       groups.set(groupName, [specialite]);
     }
   }
-  return Array.from(groups.entries());
+  let allGroups = Array.from(groups.entries());
+  if(isSort){
+    allGroups = allGroups.sort((a,b) => a[0].localeCompare(b[0]))
+  }
+  return allGroups;
 }

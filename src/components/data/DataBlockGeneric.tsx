@@ -96,8 +96,6 @@ function DataBlockGeneric({
         getFormatSpecName(item.type, item.result);
         getDetails(item.type, item.result);
         if(item.type === DataTypeEnum.ATCCLASS){
-          console.log("TEMP currentSubClasses");
-          console.log(item.result);
           setCurrentSubClasses((item.result as AdvancedATCClass).subclasses);
         }
       }
