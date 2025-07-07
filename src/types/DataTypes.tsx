@@ -17,9 +17,12 @@ export type AdvancedPatho = Patho & {
   nbSpecs: number;
 };
 
+export type AdvancedATC1 = ATC1 & {nbSubstances: number};
+export type AdvancedATC = ATC & {nbSubstances: number};
+
 export type AdvancedATCClass = {
-  class: ATC1; 
-  subclasses: ATC[];
+  class: AdvancedATC1;
+  subclasses: AdvancedATC[];
 };
 
 export type AdvancedData = {

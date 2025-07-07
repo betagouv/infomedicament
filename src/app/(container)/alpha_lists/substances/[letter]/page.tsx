@@ -4,7 +4,6 @@ import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { fr } from "@codegouvfr/react-dsfr";
 import AlphabeticNav from "@/components/AlphabeticNav";
-
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import ContentContainer from "@/components/generic/ContentContainer";
 import { getSubstanceSpecialites } from "@/db/utils/search";
@@ -61,7 +60,7 @@ export default async function Page(props: {
 
   if (!substances || !substances.length) return notFound();
   
-  const detailedSubstances: AdvancedSubstanceNom[] = await Promise.all(
+  let detailedSubstances: AdvancedSubstanceNom[] = await Promise.all(
     substances.map(async (substance) => {
       const specialites = await getSubstanceSpecialites(substance.NomId);
       const specialitiesGroups = groupSpecialites(specialites);
@@ -71,6 +70,7 @@ export default async function Page(props: {
       };
     })
   );
+  detailedSubstances = detailedSubstances.filter((substance) => substance.nbSpecs > 0);
 
   return (
     <ContentContainer frContainer>

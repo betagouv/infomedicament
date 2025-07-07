@@ -97,12 +97,14 @@ const getSubstances = unstable_cache(async function getSubstances(
   return substances;
 });
 
-//TODO quand base maj ajouter ces calcules dans getSubstances - doublon
-export const getSubstanceSpecialites = unstable_cache(async function (substanceID: string) {
+export const getSubstanceSpecialites = unstable_cache(async function (
+  substanceIDs: (string | string[])
+): Promise<Specialite[]> {
+  const ids: string[] = !Array.isArray(substanceIDs) ? [substanceIDs] : substanceIDs;
   return pdbmMySQL
   .selectFrom("Specialite")
   .selectAll("Specialite")
-  .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), [substanceID]))
+  .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
   .where("Specialite.SpecId", "in", liste_CIS_MVP)
   .groupBy("Specialite.SpecId")
   .execute();
@@ -117,16 +119,6 @@ const getPathologies = unstable_cache(async function (pathologiesId: string[]) {
         .where("codePatho", "in", pathologiesId)
         .execute()
     : [];
-});
-//TODO quand base maj ajouter ces calcules dans getPathologies - doublon
-export const getPathoSpecialites = unstable_cache(async function (code: string) {
-  return pdbmMySQL
-    .selectFrom("Specialite")
-    .selectAll("Specialite")
-    .leftJoin("Spec_Patho", "Specialite.SpecId", "Spec_Patho.SpecId")
-    .where("Spec_Patho.codePatho", "=", code)
-    .where("Specialite.SpecId", "in", liste_CIS_MVP)
-    .execute();
 });
 
 function getSearchScore(

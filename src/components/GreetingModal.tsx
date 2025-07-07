@@ -57,7 +57,7 @@ export default function GreetingModal() {
             Base de Données Publique des Médicaments.
           </a>
         </li>
-        <li>Les données datent de juillet 2024.</li>
+        <li>Les données datent de février 2025.</li>
       </ul>
       <p>
         Pour nous aider à l’améliorer, pensez à <b>activer les cookies</b>

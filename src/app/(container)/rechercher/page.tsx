@@ -1,15 +1,16 @@
 import { fr } from "@codegouvfr/react-dsfr";
-;
 import { getSearchResults, groupSpecialites } from "@/db/utils";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SearchResultsList from "@/components/search/SearchResultsList";
 import { ExtendedSearchResults } from "@/types/SearchTypes";
-import { getPathoSpecialites, getSubstanceSpecialites, SearchResultItem } from "@/db/utils/search";
+import { getSubstanceSpecialites, SearchResultItem } from "@/db/utils/search";
 import { getPregnancySubsAlerts } from "@/data/grist/pregnancy";
 import { getAdvancedMedicamentGroupFromGroupNameSpecialites } from "@/db/utils/medicaments";
 import { getArticlesFromSearchResults } from "@/data/grist/articles";
-import { DataTypeEnum } from "@/types/DataTypes";
+import { AdvancedATC, DataTypeEnum } from "@/types/DataTypes";
+import { getPathoSpecialites } from "@/db/utils/pathologies";
+import { getSubstancesByAtc } from "@/data/grist/atc";
 
 type ExtendedOrderResults = { 
   counter: number,
@@ -49,18 +50,50 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
       } else if("NomPatho" in result) {
         //Pathology
         const specialites = await getPathoSpecialites(result.codePatho);
+        const medicaments = specialites && (groupSpecialites(specialites));
         return {
           type: DataTypeEnum.PATHOLOGY,
           result: {
-            nbSpecs: specialites.length,
+            nbSpecs: medicaments.length,
             ...result
           }
         };
       } else {
         //ATC Class
+        let subclassesList: AdvancedATC[] = await Promise.all(
+          result.subclasses.map(async (atc2) => {
+            const substances = await getSubstancesByAtc(atc2);
+            let nbSpecialitiesGroupes: number[] = [];
+            if(substances) {
+              nbSpecialitiesGroupes = await Promise.all( 
+                substances.map(async (substance) => {
+                  const specialites = await getSubstanceSpecialites(substance.NomId);
+                  const specialitiesGroups = groupSpecialites(specialites);
+                  return specialitiesGroups ? specialitiesGroups.length : 0;
+                })
+              );
+            }
+            nbSpecialitiesGroupes = nbSpecialitiesGroupes.filter((nb) => {
+              return nb > 0;
+            });
+            return {
+              nbSubstances: nbSpecialitiesGroupes.length,
+              ...atc2,
+            }
+          })
+        );
+        let nbSubstances = 0;
+        subclassesList = subclassesList.filter((subClass) => subClass.nbSubstances > 0);
+        subclassesList.forEach((subClass) => nbSubstances += subClass.nbSubstances);
         return {
           type: DataTypeEnum.ATCCLASS,
-          result: result,
+          result: {
+            class: {
+              nbSubstances: nbSubstances,
+              ...result.class,
+            },
+            subclasses: subclassesList,
+          }
         }
       }
     })

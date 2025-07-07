@@ -1,12 +1,9 @@
 import React from "react";
 import { fr } from "@codegouvfr/react-dsfr";
-
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { groupSpecialites } from "@/db/utils";
-import liste_CIS_MVP from "@/liste_CIS_MVP.json";
-import { PdbmMySQL, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { notFound } from "next/navigation";
-import { Expression, expressionBuilder, SqlBool } from "kysely";
 import { getGristTableData } from "@/data/grist";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import DefinitionBanner from "@/components/DefinitionBanner";
@@ -14,49 +11,10 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
 import DataList from "@/components/data/DataList";
 import { DataTypeEnum } from "@/types/DataTypes";
+import { getSubstanceSpecialites } from "@/db/utils/search";
 
 export const dynamic = "error";
 export const dynamicParams = true;
-
-function withSubstances(
-  specId: Expression<string>,
-  nomIds: string[],
-): Expression<SqlBool> {
-  const eb = expressionBuilder<PdbmMySQL, never>();
-
-  return eb.exists(
-    eb
-      .selectFrom("Composant")
-      .select("Composant.SpecId")
-      .where("Composant.NomId", "in", nomIds)
-      .where("Composant.SpecId", "=", specId)
-      .where(({ eb, selectFrom }) =>
-        eb(
-          "Composant.SpecId",
-          "not in",
-          selectFrom("Composant as subquery")
-            .select("SpecId")
-            .where("subquery.NomId", "not in", nomIds)
-            .whereRef(
-              "subquery.CompNum",
-              "not in",
-              selectFrom("Composant as subquery2")
-                .select("CompNum")
-                .where("subquery2.SpecId", "=", specId)
-                .where("subquery2.NomId", "in", nomIds),
-            ),
-        ),
-      )
-      .groupBy("Composant.SpecId")
-      .having((eb) =>
-        eb(
-          eb.fn.count("Composant.CompNum").distinct(),
-          "=",
-          eb.val(nomIds.length),
-        ),
-      ),
-  );
-}
 
 async function getSubstance(ids: string[]) {
   const substances: SubstanceNom[] | undefined = await pdbmMySQL
@@ -67,27 +25,32 @@ async function getSubstance(ids: string[]) {
 
   if (!substances || substances.length < ids.length) return notFound();
 
-  const specialites: Specialite[] = await pdbmMySQL
-    .selectFrom("Specialite")
-    .selectAll("Specialite")
-    .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
-    .where("Specialite.SpecId", "in", liste_CIS_MVP)
-    .groupBy("Specialite.SpecId")
-    .execute();
-
-  const definitions = (
+  const specialites: Specialite[] = await getSubstanceSpecialites(ids);
+  const specialitiesGroups = groupSpecialites(specialites, true);
+  const subsIds = substances.map((subs: SubstanceNom) => (subs.SubsId).trim());
+  const definitionsRaw = (
     await getGristTableData("Definitions_Substances_Actives", [
+      "SubsId",
       "NomId",
       "SA",
       "Definition",
     ])
-  ).filter((d) => ids.includes(d.fields.NomId as string)) as {
-    fields: { NomId: string; SA: string; Definition: string };
-  }[];
+  );
+  let definitions: any[] = [];
+  if(definitionsRaw){
+    definitions = definitionsRaw.filter((d) => ids.includes(d.fields.NomId as string)) as {
+      fields: { NomId: string; SA: string; Definition: string };
+    }[];
+    if(definitions.length === 0){
+      definitions = definitionsRaw.filter((d) => subsIds.includes((d.fields.SubsId as string).trim())) as {
+        fields: { NomId: string; SA: string; Definition: string };
+      }[];
+    }
+  }
 
   return {
     substances,
-    specialites,
+    specialitiesGroups,
     definitions,
   };
 }
@@ -96,8 +59,8 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
 
   const ids = decodeURIComponent(id).split(",");
-  const { substances, specialites, definitions } = await getSubstance(ids);
-  const specialitiesGroups = groupSpecialites(specialites);
+  const { substances, specialitiesGroups, definitions } = await getSubstance(ids);
+
   const detailedSpecialitiesGroups = await getAdvancedMedicamentGroupListFromMedicamentGroupList(specialitiesGroups);
 
   return (
