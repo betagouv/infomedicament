@@ -4,8 +4,7 @@ import { HTMLAttributes, useEffect, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import { formatSpecName } from "@/displayUtils";
 import styled from 'styled-components';
-import { ATC } from "@/data/grist/atc";
-import { AdvancedATCClass, AdvancedData, AdvancedPatho, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
+import { AdvancedATC, AdvancedATCClass, AdvancedData, AdvancedPatho, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
 import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 
 const Container = styled.div`
@@ -45,7 +44,7 @@ function DataBlockGeneric({
   const [currentLink, setCurrentLink] = useState<string>("#");
   const [currentFormatSpecName, setCurrentFormatSpecName] = useState<string>("");
   const [currentDetails, setCurrentDetails] = useState<string>("");
-  const [currentSubClasses, setCurrentSubClasses] = useState<ATC[]>([]); //Only for type === DataTypeEnum.ATCCLASS
+  const [currentSubClasses, setCurrentSubClasses] = useState<AdvancedATC[]>([]); //Only for type === DataTypeEnum.ATCCLASS
 
   useEffect(() => {
     function getLink(
@@ -117,7 +116,7 @@ function DataBlockGeneric({
         </Link>
       </Container>
       {(type === DataTypeEnum.ATCCLASS && currentSubClasses.length > 0) && (
-          currentSubClasses.map((subclass: ATC, index) => (
+          currentSubClasses.map((subclass: AdvancedATC, index) => (
           <Container 
             className={fr.cx("fr-mb-1w")}
             key={index}
@@ -130,7 +129,7 @@ function DataBlockGeneric({
               <Title className={fr.cx("fr-text--md", "fr-mr-2w")}>{formatSpecName(subclass.label)}</Title>
               {subclass.children && (
                 <Details className={fr.cx("fr-text--sm")}>
-                  {`${subclass.children.length} ${subclass.children.length > 1 ? "substances actives" : "substance active"}`}
+                  {`${subclass.nbSubstances} ${subclass.nbSubstances > 1 ? "substances actives" : "substance active"}`}
                 </Details>
               )}
             </Link>
