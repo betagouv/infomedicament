@@ -12,7 +12,7 @@ import { FicheInfos } from "@/types/MedicamentTypes";
 const DocBonUsage = styled.div`
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 0.5rem;
   div {
     display: flex;
     justify-content: space-between;
@@ -38,7 +38,7 @@ function DocumentHas({
               {ficheInfos && ficheInfos.listeDocumentsBonUsage.map((document, index) => {
                 const date = new Date(document.dateMaj);
                 return (
-                  <DocBonUsage key={index} className={fr.cx("fr-text--sm", "fr-mb-2w")}>
+                  <DocBonUsage key={index} className={fr.cx("fr-text--sm", "fr-mb-1w")}>
                     <Link 
                       href={document.url}
                       target="_blank"

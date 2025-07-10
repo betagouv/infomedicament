@@ -35,8 +35,8 @@ const SummaryCat = styled.span `
 const InfosImportantes = styled.div`
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
 
   div {
     display: flex;
