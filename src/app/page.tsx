@@ -21,7 +21,7 @@ export default async function Page() {
             >
               Trouvez instantanément les informations claires, précises et officielles sur vos médicaments, en toute simplicité !
             </h1>
-            <AutocompleteSearch inputName="s" className={fr.cx("fr-mb-2w")} />
+            <AutocompleteSearch inputName="s" />
             <p className="fr-text--sm">
               Cherchez un <b>médicament</b>, une <b>substance active</b> (ex : paracétamol), une <b>pathologie</b> (ex : diabète), ou une <b>classe de médicaments</b> (ex : antibiotiques).
             </p>
