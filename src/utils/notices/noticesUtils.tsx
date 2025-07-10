@@ -60,29 +60,13 @@ function getTableElement(children:NoticeRCPContentBlock[], definitions?:Definiti
   let content:(React.JSX.Element | undefined)[] = [];
   children.forEach((child, index) => {
     const styles = getStyles(child.styles);
-    const isTD:boolean = (child.tag && child.children && child.children.length > 0 && child.tag === "td") ? true : false;
-    const props = {
-      ...(styles && {style: styles})
-    };
-    if(child.tag && child.children && child.children.length > 0){
+    if(child.tag && child.tag !== "td" && child.children && child.children.length > 0){
       const childrenElement = getTableElement(child.children);
       if(child.tag === "tr") {
         content.push((<tr key={child.id+'-'+index} style={styles}>{...childrenElement}</tr>));
       }
       else if(child.tag === "thead") {
         content.push((<thead key={child.id+'-'+index} style={styles}>{...childrenElement}</thead>));
-      }
-      else if(child.tag === "td") {
-        content.push((
-          <td 
-            key={child.id+'-'+index}
-            colSpan={child.colspan ? child.colspan : 1}
-            rowSpan={child.rowspan ? child.rowspan : 1}
-            {...(styles && {style: styles})}
-          >
-            {...childrenElement}
-          </td>
-        ));
       }
       else if(child.tag === "th") {
         content.push((
@@ -99,15 +83,22 @@ function getTableElement(children:NoticeRCPContentBlock[], definitions?:Definiti
       else if(child.tag === "tbody") {
         content.push((<tbody key={child.id+'-'+index} style={styles}>{...childrenElement}</tbody>));
       }
-    } else if(child.content){
+    } else if(child.tag && child.tag === "td" && child.content){
       const elementContent = definitions 
         ? <WithGlossary definitions={definitions} key={child.id} text={child.content} />
         : child.content;
-      content.push(
-        <span className={fr.cx("fr-text--md")} key={child.id} style={styles}>
-          {elementContent}
-        </span>
-      );
+      content.push((
+        <td 
+          key={child.id+'-'+index}
+          colSpan={child.colspan ? child.colspan : 1}
+          rowSpan={child.rowspan ? child.rowspan : 1}
+          {...(styles && {style: styles})}
+        >
+          <span className={fr.cx("fr-text--md")} key={child.id} style={styles}>
+            {elementContent}
+          </span>
+        </td>
+      ));
     }
   })
   return content;
