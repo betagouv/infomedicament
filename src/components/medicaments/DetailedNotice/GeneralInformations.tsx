@@ -223,15 +223,15 @@ function GeneralInformations({
             ficheInfos.libelleCourtProcedure === "Reconnaissance mutuelle" ? (
               <span>Procédure de reconnaissance mutuelle</span>
             ) : (
-              ficheInfos.libelleCourtAutorisation === "Centralisée" ? (
+              ficheInfos.libelleCourtProcedure === "Centralisée" ? (
                 <span>Procédure centralisée</span>
               ) : (
-                (ficheInfos.libelleCourtAutorisation === "Enreg phyto (Proc. Dec.)"
-                  || ficheInfos.libelleCourtAutorisation === "Décentralisée"
+                (ficheInfos.libelleCourtProcedure === "Enreg phyto (Proc. Dec.)"
+                  || ficheInfos.libelleCourtProcedure === "Décentralisée"
                 ) ? (
                   <span>Procédure décentralisée</span>
                 ) : (
-                  <span>{ficheInfos.libelleCourtAutorisation}</span>
+                  <span>{ficheInfos.libelleCourtProcedure}</span>
                 )
               )
             )
