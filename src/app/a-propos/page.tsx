@@ -114,7 +114,7 @@ export default async function Page() {
                     rel="noopener noreferrer"
                   >
                     Base de données publique des médicaments
-                  </Link>.
+                  </Link>, elle même alimentée par les données de la Haute autorité de santé (HAS), la Caisse nationale d'assurance maladie des travailleurs salariés (CNAMTS), le Comité Economique des Produits de Santé (CEPS) et l'Agence nationale de sécurité des médicaments et des produits de santé (ANSM).
                 </p>
               </div>
               <div className={fr.cx("fr-col-md-8", "fr-mt-4w")}>
