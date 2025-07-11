@@ -37,7 +37,7 @@ const fs = require('fs');
 const type = process.argv[2] as ImportType;
 const importData:ImportData = (type === "notice") 
   ? {
-    filename: "notice_5000.jsonl",
+    filename: "notices_5000.jsonl",
     mainTable: "notices",
     contentTable: "notices_content",
 
@@ -68,6 +68,11 @@ const pool: number[][] = [
   [3401, 3600], //17
   [3601, 3800], //18
   [3801, 4000], //19
+  [4001, 4200], //20
+  [4201, 4400], //21
+  [4401, 4600], //22
+  [4601, 4800], //23
+  [4801, 5000], //24
 ];
 const poolNumber:number = parseInt(process.argv[3]);
 const poolBegin:number = pool[poolNumber][0];
@@ -97,9 +102,9 @@ async function getContentFromData(data: any, isTable?: boolean): Promise<Content
       if(data.attributes.colspan) contentBlock.colspan = parseInt(data.attributes.colspan);
       if(data.attributes.rowspan) contentBlock.rowspan = parseInt(data.attributes.rowspan);
     }
-
     if(data.text) contentBlock.content = !Array.isArray(data.text) ? [data.text] : data.text;
-    if(data.children) contentBlock.children = await addRcpContent(data.children, true);
+    if(data.children && data.children.length > 0) contentBlock.children = await addRcpContent(data.children, true);
+    
   } else {
     if(data.content) contentBlock.content = !Array.isArray(data.content) ? [data.content] : data.content;
     if(data.children) contentBlock.children = await addRcpContent(data.children);
