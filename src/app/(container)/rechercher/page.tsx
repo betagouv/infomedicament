@@ -1,9 +1,5 @@
-import { fr } from "@codegouvfr/react-dsfr";
 import { getSearchResults, groupSpecialites } from "@/db/utils";
-import AutocompleteSearch from "@/components/AutocompleteSearch";
-import ContentContainer from "@/components/generic/ContentContainer";
-import SearchResultsList from "@/components/search/SearchResultsList";
-import { ExtendedSearchResults } from "@/types/SearchTypes";
+import { ExtendedOrderResults, ExtendedSearchResults } from "@/types/SearchTypes";
 import { getSubstanceSpecialites, SearchResultItem } from "@/db/utils/search";
 import { getPregnancySubsAlerts } from "@/data/grist/pregnancy";
 import { getAdvancedMedicamentGroupFromGroupNameSpecialites } from "@/db/utils/medicaments";
@@ -11,11 +7,7 @@ import { getArticlesFromSearchResults } from "@/data/grist/articles";
 import { AdvancedATC, DataTypeEnum } from "@/types/DataTypes";
 import { getPathoSpecialites } from "@/db/utils/pathologies";
 import { getSubstancesByAtc } from "@/data/grist/atc";
-
-type ExtendedOrderResults = { 
-  counter: number,
-  results: ExtendedSearchResults,
-};
+import SearchPage from "./SearchPage";
 
 async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<ExtendedOrderResults> {
   let counter = 0;
@@ -124,37 +116,12 @@ export default async function Page(props: {
   const filterPediatric:boolean = (searchParams && "p" in searchParams && searchParams["p"] === "true") ? true : false; 
 
   return (
-    <ContentContainer frContainer>
-      <div className={fr.cx("fr-grid-row")}>
-        <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
-          <form
-            action="/rechercher"
-            className={fr.cx("fr-mt-4w", "fr-mb-1w")}
-          >
-            <AutocompleteSearch
-              inputName="s"
-              initialValue={search || undefined}
-              hideFilters
-            />
-          </form>
-        </div>
-      </div>
-      {extendedResults && extendedResults.counter > 0 ? (
-        <SearchResultsList 
-          resultsList={extendedResults.results} 
-          totalResults={extendedResults.counter} 
-          searchTerms={search} 
-          articles={articlesList}
-          filterPregnancy={filterPregnancy}
-          filterPediatric={filterPediatric}
-        />
-      ) : (
-        <div className={fr.cx("fr-grid-row", "fr-mt-3w")}>
-          <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
-            Il n’y a aucun résultat.
-          </div>
-        </div>
-      )}
-    </ContentContainer>
+    <SearchPage
+      search={search ? search : undefined}
+      filterPregnancy={filterPregnancy}
+      filterPediatric={filterPediatric}
+      extendedResults={extendedResults ? extendedResults : undefined}
+      articlesList={articlesList}
+    />
   );
 }

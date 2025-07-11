@@ -69,42 +69,46 @@ export function PresentationsList(props: {
         <span className={fr.cx("fr-hidden-md")}>Conditionnement</span>
         <span className={fr.cx("fr-hidden", "fr-unhidden-md")}>Conditionnement et prix</span>
       </h3>
-      <ul className={fr.cx("fr-raw-list")}>
-        {props.presentations.map((p, index) => (
-          <li key={`${p.Cip13}-${index}`} className={fr.cx("fr-mb-1w")}>
-            <span
-              className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
-            />
-            <b>
-              {(p.details && presentationDetailName(p.details)) || p.PresNom01}
-            </b>
-            {p.PPF && p.TauxPriseEnCharge ? (
-              <div>
-                Prix{" "}
-                {Intl.NumberFormat("fr-FR", {
-                  style: "currency",
-                  currency: "EUR",
-                }).format(p.PPF)}{" "}
-                - remboursé à {p.TauxPriseEnCharge}
-              </div>
-            ) : (
-              <div>Prix libre - non remboursable</div>
-            )}
-            {Number(p.CommId) !== PresentationComm.Commercialisation && (
-              <Badge severity="warning" className={fr.cx("fr-ml-1v")}>
-                {PresentationComm[p.CommId]}
-                {p.PresCommDate && ` (${dateShortFormat(p.PresCommDate)})`}
-              </Badge>
-            )}
-            {p.StatId && Number(p.StatId) === PresentationStat.Abrogation && (
-              <Badge severity="error" className={fr.cx("fr-ml-1v")}>
-                {PresentationStat[p.StatId]}
-                {p.PresStatDate && ` (${dateShortFormat(p.PresStatDate)})`}
-              </Badge>
-            )}
-          </li>
-        ))}
-      </ul>
+      {(props.presentations && props.presentations.length > 0) ? (
+        <ul className={fr.cx("fr-raw-list")}>
+          {props.presentations.map((p, index) => (
+            <li key={`${p.Cip13}-${index}`} className={fr.cx("fr-mb-1w")}>
+              <span
+                className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
+              />
+              <b>
+                {(p.details && presentationDetailName(p.details)) || p.PresNom01}
+              </b>
+              {p.PPF && p.TauxPriseEnCharge ? (
+                <div>
+                  Prix{" "}
+                  {Intl.NumberFormat("fr-FR", {
+                    style: "currency",
+                    currency: "EUR",
+                  }).format(p.PPF)}{" "}
+                  - remboursé à {p.TauxPriseEnCharge}
+                </div>
+              ) : (
+                <div>Prix libre - non remboursable</div>
+              )}
+              {Number(p.CommId) !== PresentationComm.Commercialisation && (
+                <Badge severity="warning" className={fr.cx("fr-ml-1v")}>
+                  {PresentationComm[p.CommId]}
+                  {p.PresCommDate && ` (${dateShortFormat(p.PresCommDate)})`}
+                </Badge>
+              )}
+              {p.StatId && Number(p.StatId) === PresentationStat.Abrogation && (
+                <Badge severity="error" className={fr.cx("fr-ml-1v")}>
+                  {PresentationStat[p.StatId]}
+                  {p.PresStatDate && ` (${dateShortFormat(p.PresStatDate)})`}
+                </Badge>
+              )}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <span>Pas de conditionnement à afficher</span>
+      )}
     </>
   );
 }

@@ -1,8 +1,9 @@
 "use client";
 
 import { Autocomplete } from "@mui/material";
+import { fr } from "@codegouvfr/react-dsfr";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { formatSpecName } from "@/displayUtils";
 import { SearchBar } from "@codegouvfr/react-dsfr/SearchBar";
 import useSWR from "swr";
@@ -18,6 +19,7 @@ type SearchInputProps = {
   id: string;
   placeholder: string;
   type: "search";
+  onSearch?: (search:string) => void;
 };
 
 export function AutocompleteSearchInput({
@@ -27,7 +29,10 @@ export function AutocompleteSearchInput({
   id,
   placeholder,
   type,
+  onSearch,
 }: SearchInputProps) {
+
+  const router = useRouter();
   const [inputValue, setInputValue] = useState(initialValue ?? "");
 
   const { data: searchResults } = useSWR(
@@ -75,8 +80,13 @@ export function AutocompleteSearchInput({
       }}
       onChange={(_, value, reason) => {
         if (reason === "selectOption") {
-          value && trackSearchEvent(value);
-          //console.log("search -- Matomo - 3");
+          if(onSearch && value){
+            onSearch(value);
+          } else {
+            value && trackSearchEvent(value);
+            router.push(`/rechercher?s=${value}`);
+            //console.log("search -- Matomo - 3");
+          }
         }
       }}
       disablePortal
@@ -101,20 +111,37 @@ export default function AutocompleteSearch({
   initialValue,
   className: parentClassName,
   hideFilters,
+  filterPediatric,
+  filterPregnancy,
 }: {
   inputName: string;
   initialValue?: string;
   className?: string;
   hideFilters?: boolean;
+  filterPediatric?: boolean;
+  filterPregnancy?: boolean;
 }) {
+  
   const router = useRouter();
-  const [filterPregnancy, setFilterPregnancy] = useState<boolean>(false);
-  const [filterPediatric, setFilterPediatric] = useState<boolean>(false);
+  const [currentFilterPregnancy, setFilterPregnancy] = useState<boolean>(false);
+  const [currentFilterPediatric, setFilterPediatric] = useState<boolean>(false);
+
+  useEffect(() => {
+    if(filterPediatric)
+      setFilterPediatric(filterPediatric)
+    else setFilterPediatric(false);
+  }, [filterPediatric, setFilterPediatric]);
+
+  useEffect(() => {
+    if(filterPregnancy)
+      setFilterPregnancy(filterPregnancy)
+    else setFilterPregnancy(false);
+  }, [filterPregnancy, setFilterPregnancy]);
 
   const onButtonClick = (search: string) => {
     search && trackSearchEvent(search);
     //console.log("search -- Matomo - 4");
-    router.push(`/rechercher?g=${filterPregnancy}&p=${filterPediatric}&s=${search}`);
+    router.push(`/rechercher?g=${currentFilterPregnancy}&p=${currentFilterPediatric}&s=${search}`);
   };
 
   return (
@@ -128,15 +155,17 @@ export default function AutocompleteSearch({
             className={cx(className, parentClassName)}
             name={inputName}
             initialValue={initialValue}
+            onSearch={onButtonClick}
           />
         )}
+        className={fr.cx("fr-mb-2w")}
       />
       {!hideFilters && (
         <PregnancyPediatricFilters 
           setFilterPregnancy={setFilterPregnancy}
           setFilterPediatric={setFilterPediatric}
-          filterPregnancy={filterPregnancy}
-          filterPediatric={filterPediatric}
+          filterPregnancy={currentFilterPregnancy}
+          filterPediatric={currentFilterPediatric}
         />
       )}
     </>

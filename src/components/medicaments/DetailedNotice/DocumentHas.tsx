@@ -12,7 +12,7 @@ import { FicheInfos } from "@/types/MedicamentTypes";
 const DocBonUsage = styled.div`
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 0.5rem;
   div {
     display: flex;
     justify-content: space-between;
@@ -38,7 +38,7 @@ function DocumentHas({
               {ficheInfos && ficheInfos.listeDocumentsBonUsage.map((document, index) => {
                 const date = new Date(document.dateMaj);
                 return (
-                  <DocBonUsage key={index} className={fr.cx("fr-text--sm", "fr-mb-2w")}>
+                  <DocBonUsage key={index} className={fr.cx("fr-text--sm", "fr-mb-1w")}>
                     <Link 
                       href={document.url}
                       target="_blank"
@@ -65,7 +65,7 @@ function DocumentHas({
         <h2 className={fr.cx("fr-h6")}>Service médical rendu (SMR)</h2>
         {(ficheInfos && ficheInfos.listeSMR && ficheInfos.listeSMR.length > 0) 
           ? (
-            <div className={fr.cx("fr-text--sm", "fr-mb-0")}>
+            <div className={fr.cx("fr-mb-0")}>
               {" Les libellés affichés ci-dessous ne sont que des résumés ou extraits issus des avis rendus par la Commission de la Transparence. Seul l'avis complet de la Commission de la Transparence fait référence."}
               <br/><br/>
               {"Cet avis est consultable à partir du lien \"Avis du jj/mm/aaaa\" ou encore sur demande auprès de la HAS ("}<Link href="https://base-donnees-publique.medicaments.gouv.fr/aide.php#titre16" target="_blank" rel="noopener noreferrer">{"plus d'informations dans l'aide"}</Link>{"). Les avis et synthèses d'avis contiennent un paragraphe sur la place du médicament dans la stratégie thérapeutique."}
@@ -100,7 +100,7 @@ function DocumentHas({
         <h2 className={fr.cx("fr-h6")}>Amélioration du service médical rendu (ASMR)</h2>
         {(ficheInfos && ficheInfos.listeASMR && ficheInfos.listeASMR.length > 0) 
           ? (
-            <div className={fr.cx("fr-text--sm", "fr-mb-0")}>
+            <div className={fr.cx("fr-mb-0")}>
               {" Les libellés affichés ci-dessous ne sont que des résumés ou extraits issus des avis rendus par la Commission de la Transparence. Seul l'avis complet de la Commission de la Transparence fait référence."}
               <br/><br/>
               {"Cet avis est consultable à partir du lien \"Avis du jj/mm/aaaa\" ou encore sur demande auprès de la HAS ("}<Link href="https://base-donnees-publique.medicaments.gouv.fr/aide.php#titre16" target="_blank" rel="noopener noreferrer">{"plus d'informations dans l'aide"}</Link>{"). Les avis et synthèses d'avis contiennent un paragraphe sur la place du médicament dans la stratégie thérapeutique."}

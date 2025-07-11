@@ -14,8 +14,6 @@ import DocumentHas from "./DetailedNotice/DocumentHas";
 import { Marr } from "@/types/MarrTypes";
 import { FicheInfos, NoticeRCPContentBlock, Rcp } from "@/types/MedicamentTypes";
 import RcpBlock from "./DetailedNotice/RcpBlock";
-import useSWR from "swr";
-import { fetchJSON } from "@/utils/network";
 
 const DetailedNoticeContainer = styled.div<{ $visible: boolean; }> `
   ${props => !props.$visible && css`
@@ -36,6 +34,7 @@ interface DetailedNoticeProps extends HTMLAttributes<HTMLDivElement> {
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
   marr?: Marr;
   rcp?: Rcp;
+  ficheInfos?: FicheInfos
   indicationBlock?: NoticeRCPContentBlock;
 }
 
@@ -53,6 +52,7 @@ function DetailedNotice({
   marr,
   onResetCapture,
   rcp,
+  ficheInfos,
   indicationBlock,
   ...props 
 }: DetailedNoticeProps) {
@@ -63,14 +63,8 @@ function DetailedNotice({
     setVisiblePart(currentVisiblePart);
   }, [currentVisiblePart]);
 
-  const { data: ficheInfos } = useSWR<FicheInfos>(
-    `/medicaments/notices/ficheInfos?cis=${CIS}`,
-    fetchJSON,
-    { onError: (err) => console.warn('errorRCP >>', err), }
-  );
-
   return (
-    <ContentContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")}>
+    <>
       <DetailedNoticeContainer id="informations-generales" $visible={visiblePart === DetailsNoticePartsEnum.INFORMATIONS_GENERALES}>
         <GeneralInformations 
           CIS={CIS}
@@ -96,7 +90,7 @@ function DetailedNotice({
       <DetailedNoticeContainer id="document-has-bon-usage" $visible={visiblePart === DetailsNoticePartsEnum.HAS}>
         <DocumentHas ficheInfos={ficheInfos}/>
       </DetailedNoticeContainer>
-    </ContentContainer>
+    </>
   );
 };
 

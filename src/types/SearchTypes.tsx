@@ -9,4 +9,7 @@ export type SearchArticlesFilters = {
   pathologiesList: string[];
 }
 
-
+export type ExtendedOrderResults = { 
+  counter: number,
+  results: ExtendedSearchResults,
+};

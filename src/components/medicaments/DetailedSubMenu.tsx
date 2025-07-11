@@ -196,11 +196,13 @@ const Container = styled.div `
 interface DetailedSubMenuProps extends HTMLAttributes<HTMLDivElement> {
   updateVisiblePart: (visiblePart: DetailsNoticePartsEnum) => void;
   isMarr?: boolean;
+  isInfosImportantes?: boolean;
 }
 
 function DetailedSubMenu({
   updateVisiblePart,
   isMarr,
+  isInfosImportantes,
   ...props
 }: DetailedSubMenuProps
 ) {
@@ -218,9 +220,16 @@ function DetailedSubMenu({
         }
       );
       setCurrentInfosGeneralesMenu(menu);
-    } else 
-      setCurrentInfosGeneralesMenu(infosGeneralesMenu);
+    }
   }, [isMarr, setCurrentInfosGeneralesMenu]);
+
+  useEffect(() => {
+    if(!isInfosImportantes){
+      const menu = Array.from(infosGeneralesMenu);
+      menu.shift();
+      setCurrentInfosGeneralesMenu(menu);
+    }
+  }, [isInfosImportantes, setCurrentInfosGeneralesMenu]);
 
   function menuOnClick(noticePart: DetailsNoticePartsEnum) {
     updateVisiblePart(noticePart);
@@ -254,7 +263,7 @@ function DetailedSubMenu({
     <Container {...props}>
       <SideMenu
         align="left"
-        burgerMenuButtonText="Version détaillée"
+        burgerMenuButtonText="Voir toutes les infos (RCP, HAS, ...)"
         sticky
         className="detailed-side-menu"
         items={[

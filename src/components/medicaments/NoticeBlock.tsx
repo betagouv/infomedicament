@@ -1,57 +1,44 @@
 "use client";
 
-import ContentContainer from "../generic/ContentContainer";
-import { fr } from "@codegouvfr/react-dsfr";
-import { HTMLAttributes, PropsWithChildren, useState, useEffect } from "react";
-import Badge from "@codegouvfr/react-dsfr/Badge";
-import { Notice } from "@/types/MedicamentTypes";
-import useSWR from "swr";
-import { Definition } from "@/types/GlossaireTypes";
-import { fetchJSON } from "@/utils/network";
-import { getContent } from "@/utils/notices/noticesUtils";
-import { RcpNoticeContainer } from "./Blocks/GenericBlocks";
-import GoTopButton from "../generic/GoTopButton";
-import styled from 'styled-components';
-import QuestionsBox from "./QuestionsBox";
+import { HTMLAttributes, PropsWithChildren } from "react";
+import styled, { css } from 'styled-components';
+import { questionsList, questionKeys } from "@/data/pages/notices_anchors";
+import { QuestionsListFormat } from "@/types/NoticesAnchors";
 
+const Container = styled.div<{ $questionsList: QuestionsListFormat; $questionKeys: string[]}> `
+  ${props => props.$questionKeys.map(key => { 
+    //First time for header
+    return props.$questionsList[key].anchors && props.$questionsList[key].anchors.map((anchor) => {
+      return css`
+      .highlight-${key} .highlight-keyword-${anchor.id} {
+        background-color: var(--green-tilleul-verveine-950-100);
+      }`;
+    })
+  })};
+  ${props => props.$questionKeys.map(key => { 
+    //Second time for keywords
+    if(props.$questionsList[key].keywords){
+      return css`
+      .highlight-${key} .highlight-keyword-${key} {
+        background-color: var(--green-tilleul-verveine-950-100);
+      }
+      .highlight-${key} .highlight-keyword-${key}.active{
+        background-color: orange;
+      }`;
+    }
+  })};
+`;
 
-interface NoticeProps extends HTMLAttributes<HTMLDivElement> {
-  notice?: Notice;
+interface NoticeBlockProps extends HTMLAttributes<HTMLDivElement> {
 }
 
-function NoticeBlock({
-  notice,
-  ...props
-}: PropsWithChildren<NoticeProps>) {
-
-
-  
-
-
-
+function NoticeBlock(
+  {children, ...props}: PropsWithChildren<NoticeBlockProps>
+) {
   return (
-              // <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
-             
-              
-              //   {showKeywordsBox && currentQuestion && (
-              //     <QuestionKeywordsBox
-              //       className={fr.cx("fr-hidden", "fr-unhidden-md")}
-              //       onClose={() => onCloseQuestionKeywordsBox()}
-              //       questionID={currentQuestion}/>
-              //   )}
-              //   <LeafletContainer className={fr.cx("fr-mt-3w")}>
-              //     <ContentContainer id="leafletContainer">
-              //       {leaflet}
-              //     </ContentContainer>
-              //   </LeafletContainer>
-              // </ContentContainer>
-            
-
-
-
-    <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")].join(" ",)}>
-
-    </ContentContainer>
+    <Container $questionsList={questionsList} $questionKeys={questionKeys} {...props}>
+      {children}
+    </Container>
   );
 };
 

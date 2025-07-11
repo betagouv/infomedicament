@@ -41,19 +41,19 @@ function PregnancyPediatricFilters({
         small
         options={[
           {
-            label: 'Je suis enceinte ou prévoit de l\'être',
-            nativeInputProps: {
-              checked: filterPregnancy,
-              onChange: () => setFilterPregnancy(!filterPregnancy),
-            }
-          },
-          {
             label: 'Pour un enfant',
             nativeInputProps: {
               checked: filterPediatric,
               onChange: () => setFilterPediatric(!filterPediatric),
             }
-          }
+          },
+          {
+            label: 'Contre-indication femme enceinte',
+            nativeInputProps: {
+              checked: filterPregnancy,
+              onChange: () => setFilterPregnancy(!filterPregnancy),
+            }
+          },
         ]}
         orientation="horizontal"
       />

@@ -18,7 +18,7 @@ import { Nullable } from "kysely";
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
 import { FicheInfos, NoticeRCPContentBlock } from "@/types/MedicamentTypes";
-import { getContent } from "@/utils/notices/noticesUtils";
+import { displayInfosImportantes, getContent } from "@/utils/notices/noticesUtils";
 import PregnancyCISTag from "@/components/tags/PregnancyCISTag";
 import PregnancySubsTag from "@/components/tags/PregnancySubsTag";
 
@@ -35,8 +35,8 @@ const SummaryCat = styled.span `
 const InfosImportantes = styled.div`
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
 
   div {
     display: flex;
@@ -64,10 +64,10 @@ function SummaryLine(
 ){
   return (
     <SummaryLineContainer className={fr.cx("fr-mb-1w", "fr-pb-1w", "fr-mt-1w", "fr-text--sm")}>
-      <ContentContainer className={fr.cx("fr-col-3")}>
+      <ContentContainer className={fr.cx("fr-col-4", "fr-col-sm-3")}>
         <SummaryCat>{categoryName}</SummaryCat>
       </ContentContainer>
-      <ContentContainer className={fr.cx("fr-col-9")}>
+      <ContentContainer className={fr.cx("fr-col-8", "fr-col-sm-9")}>
         {children}
       </ContentContainer>
     </SummaryLineContainer>
@@ -125,7 +125,7 @@ function GeneralInformations({
   return (
     ficheInfos && (
     <>
-      {(ficheInfos.listeInformationsImportantes && ficheInfos.listeInformationsImportantes.length > 0) && (
+      {ficheInfos.listeInformationsImportantes && displayInfosImportantes(ficheInfos) && (
         <ContentContainer id="informations-importantes" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <h2 className={fr.cx("fr-h6")}>Informations importantes</h2>
           {ficheInfos.listeInformationsImportantes.map((info, index) => {
@@ -133,15 +133,6 @@ function GeneralInformations({
               <InfosImportantes key={index}>
                 <div dangerouslySetInnerHTML={{__html: info}} className={fr.cx("fr-text--sm", "fr-mb-0")}></div>
               </InfosImportantes>
-              // <InfosImportantes>
-              //   <Link href={info.} target="_blank" rel="noopener noreferrer" className={fr.cx("fr-text--sm")}>
-              //     Amoxicilline : des recommandations pour contribuer à garantir la couverture des besoins des patients
-              //   </Link>
-              //   <div className={fr.cx("fr-mt-1w")}>
-              //     <i className={fr.cx("fr-text--xs", "fr-mb-0")}>Octobre 2016</i>
-              //     <Badge className={fr.cx("fr-badge--purple-glycine")} small>Recommandation ANSM</Badge>
-              //   </div>
-              // </InfosImportantes>
             )
           })}
         </ContentContainer>
@@ -223,15 +214,15 @@ function GeneralInformations({
             ficheInfos.libelleCourtProcedure === "Reconnaissance mutuelle" ? (
               <span>Procédure de reconnaissance mutuelle</span>
             ) : (
-              ficheInfos.libelleCourtAutorisation === "Centralisée" ? (
+              ficheInfos.libelleCourtProcedure === "Centralisée" ? (
                 <span>Procédure centralisée</span>
               ) : (
-                (ficheInfos.libelleCourtAutorisation === "Enreg phyto (Proc. Dec.)"
-                  || ficheInfos.libelleCourtAutorisation === "Décentralisée"
+                (ficheInfos.libelleCourtProcedure === "Enreg phyto (Proc. Dec.)"
+                  || ficheInfos.libelleCourtProcedure === "Décentralisée"
                 ) ? (
                   <span>Procédure décentralisée</span>
                 ) : (
-                  <span>{ficheInfos.libelleCourtAutorisation}</span>
+                  <span>{ficheInfos.libelleCourtProcedure}</span>
                 )
               )
             )
@@ -260,7 +251,7 @@ function GeneralInformations({
       {(indicationBlock && indicationBlock.children) && (
         <ContentContainer id="informations-indications" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <h2 className={fr.cx("fr-h6")}>Indications</h2>
-          <IndicationBlock className={fr.cx("fr-text--sm", "fr-mb-0")}>
+          <IndicationBlock className={fr.cx("fr-mb-0")}>
             {getContent(indicationBlock.children)}
           </IndicationBlock>
         </ContentContainer>
@@ -269,7 +260,7 @@ function GeneralInformations({
       {ficheInfos.listeComposants && ficheInfos.listeComposants.length > 0 && (
         <ContentContainer id="informations-composition" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <h2 className={fr.cx("fr-h6")}>Composition</h2>
-          <div className={fr.cx("fr-text--sm", "fr-mb-0")}>
+          <div className={fr.cx("fr-mb-0")}>
             {ficheInfos.listeComposants.map((composant, index) => {
               return (<span key={index}>{"> "}{composant.nom}{" "}{composant.dosage}</span>)
             })}
@@ -284,7 +275,7 @@ function GeneralInformations({
             <ul className={fr.cx("fr-raw-list")}>
               {presentations.map((pres, index) => (
                 <li key={`${pres.Cip13}-${index}`} className={fr.cx("fr-mb-1w")}>
-                  <div className={fr.cx("fr-text--sm", "fr-mb-0")}>
+                  <div className={fr.cx("fr-mb-0")}>
                     <span
                       className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
                     />
@@ -316,7 +307,7 @@ function GeneralInformations({
                     )}
                   </div>
                   {(pres.Ppttc || pres.HonoDisp) && (
-                    <div className={fr.cx("fr-text--sm", "fr-mb-0")}>
+                    <div className={fr.cx("fr-mb-0")}>
                       {pres.Ppttc && (
                         <span className={fr.cx("fr-mr-2w")}>
                           Prix hors honoraire de dispensation :{" "}
@@ -340,7 +331,7 @@ function GeneralInformations({
                     </div>
                   )}
                   {(pres.PresCommDate && pres.PresCodeCip) && (
-                    <div className={fr.cx("fr-text--sm", "fr-mb-0")}>
+                    <div className={fr.cx("fr-mb-0")}>
                       {pres.PresCodeCip && (
                         <span className={fr.cx("fr-mr-2w")}>Code CIP : {pres.PresCodeCip}</span>
                       )}
@@ -349,7 +340,7 @@ function GeneralInformations({
                       )}
                     </div>
                   )}
-                  <div className={fr.cx("fr-text--sm", "fr-mb-0")}>
+                  <div className={fr.cx("fr-mb-0")}>
                     Cette présentation est{" "}
                     <Link href="https://base-donnees-publique.medicaments.gouv.fr/glossaire.php#agrecol" target="_blank" rel="noopener noreferrer">
                       agréée aux collectivités
