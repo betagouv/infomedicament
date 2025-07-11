@@ -26,6 +26,7 @@ export const RcpNoticeContainer = styled.div`
     border-spacing: 0;
     border-collapse: collapse;
     margin-bottom: 1rem;
+    margin-top: 1rem;
     tr, th {
       border: gray 1px solid;
       td {

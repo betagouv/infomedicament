@@ -257,18 +257,32 @@ function GeneralInformations({
         </ContentContainer>
       )}
       
-      {ficheInfos.listeComposants && ficheInfos.listeComposants.length > 0 && (
+      {((ficheInfos.listeElements && ficheInfos.listeElements.length > 0) || (ficheInfos.listeComposants && ficheInfos.listeComposants.length > 0)) && (
         <ContentContainer id="informations-composition" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <h2 className={fr.cx("fr-h6")}>Composition</h2>
-          <div className={fr.cx("fr-mb-0")}>
-            {ficheInfos.listeComposants.map((composant, index) => {
-              return (<span key={index}>{"> "}{composant.nom}{" "}{composant.dosage}</span>)
-            })}
-          </div>
+          {(ficheInfos.listeElements && ficheInfos.listeElements.length > 0) && (
+            <div className={fr.cx("fr-mb-0")}>
+              {ficheInfos.listeElements.map((element, index) => {
+                return (
+                  <span key={index}>
+                    {index > 1 && ", "}
+                    {element.referenceDosage.charAt(0).toUpperCase()}{element.referenceDosage.substring(1)}
+                  </span>
+                )
+              })}
+            </div>
+          )}
+          {(ficheInfos.listeComposants && ficheInfos.listeComposants.length > 0) && (
+            <div className={fr.cx("fr-mb-0")}>
+              {ficheInfos.listeComposants.map((composant, index) => {
+                return (<span key={index}>{" > "}{composant.nom}{" "}{composant.dosage}</span>)
+              })}
+            </div>
+          )}
         </ContentContainer>
       )}
       
-      {presentations && presentations.length > 0 && (
+      {(presentations && presentations.length > 0) && (
         <ContentContainer id="informations-presentations" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <h2 className={fr.cx("fr-h6")}>Présentations</h2>
           <div>

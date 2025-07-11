@@ -65,55 +65,6 @@ function getTitleElement(content:NoticeRCPContentBlock, definitions?:Definition[
   return undefined;
 }
 
-//Same than RCP
-function getTableElement(children:NoticeRCPContentBlock[], definitions?:Definition[]): (React.JSX.Element | undefined)[] {
-  let content:(React.JSX.Element | undefined)[] = [];
-  children.forEach((child, index) => {
-    const styles = getStyles(child.styles);
-    if(child.tag && child.tag !== "td" && child.children && child.children.length > 0){
-      const childrenElement = getTableElement(child.children);
-      if(child.tag === "tr") {
-        content.push((<tr key={child.id+'-'+index} style={styles}>{...childrenElement}</tr>));
-      }
-      else if(child.tag === "thead") {
-        content.push((<thead key={child.id+'-'+index} style={styles}>{...childrenElement}</thead>));
-      }
-      else if(child.tag === "th") {
-        content.push((
-          <th 
-            key={child.id+'-'+index}
-            colSpan={child.colspan ? child.colspan : 1}
-            rowSpan={child.rowspan ? child.rowspan : 1}
-            style={styles}
-          >
-            {...childrenElement}
-          </th>
-        ));
-      }
-      else if(child.tag === "tbody") {
-        content.push((<tbody key={child.id+'-'+index} style={styles}>{...childrenElement}</tbody>));
-      }
-    } else if(child.tag && child.tag === "td" && child.content){
-      const elementContent = definitions 
-        ? <WithGlossary definitions={definitions} key={child.id} text={child.content} />
-        : child.content;
-      content.push((
-        <td 
-          key={child.id+'-'+index}
-          colSpan={child.colspan ? child.colspan : 1}
-          rowSpan={child.rowspan ? child.rowspan : 1}
-          {...(styles && {style: styles})}
-        >
-          <span className={fr.cx("fr-text--md")} key={child.id} style={styles}>
-            {elementContent}
-          </span>
-        </td>
-      ));
-    }
-  })
-  return content;
-}
-
 function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definition[]): (React.JSX.Element | undefined){
   if(content.content){
     const styles = getStyles(content.styles);
@@ -122,7 +73,7 @@ function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definitio
       : content.content;
     if(content.type && content.type === "AmmCorpsTexte") {
       return (
-        <div key={content.id} style={styles}>
+        <div key={content.id} className={fr.cx("fr-mb-2w")} style={styles}>
           {content.content}
         </div>
       )
@@ -179,16 +130,82 @@ function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definitio
   return undefined;
 }
 
+function getTableElement(children:NoticeRCPContentBlock[], definitions?:Definition[]): (React.JSX.Element | undefined)[] {
+  const content:(React.JSX.Element | undefined)[] = [];
+  children.forEach((child, index) => {
+    const styles = getStyles(child.styles);
+    if(child.tag && child.tag !== "td" && child.children && child.children.length > 0){
+      const childrenElement = getTableElement(child.children, definitions);
+      if(childrenElement && childrenElement.length > 0){
+        if(child.tag === "tr") {
+          content.push((<tr key={child.id+'-'+index} style={styles}>{...childrenElement}</tr>));
+        }
+        else if(child.tag === "thead") {
+          content.push((<thead key={child.id+'-'+index} style={styles}>{...childrenElement}</thead>));
+        }
+        else if(child.tag === "th") {
+          content.push((
+            <th 
+              key={child.id+'-'+index}
+              colSpan={child.colspan ? child.colspan : 1}
+              rowSpan={child.rowspan ? child.rowspan : 1}
+              style={styles}
+            >
+              {...childrenElement}
+            </th>
+          ));
+        }
+        else if(child.tag === "tbody") {
+          content.push((<tbody key={child.id+'-'+index} style={styles}>{...childrenElement}</tbody>));
+        }
+      }
+    } else if(child.tag && child.tag === "td"){
+      let elementContent:(React.JSX.Element | string[] | undefined) = undefined;
+      if(child.children && child.children.length > 0){
+        const childElements:(React.JSX.Element | undefined)[] = [];
+        child.children.forEach((element) => {
+          const childElement = getGenericElement(element, definitions);
+          if(childElement)
+            childElements.push(childElement);
+        });
+        if(childElements && childElements.length > 0)
+          elementContent = (
+            <>{...childElements}</>
+          );
+      } else if(child.content && child.content.length > 0) {
+        elementContent = definitions 
+          ? <WithGlossary definitions={definitions} key={child.id} text={child.content} />
+          : child.content;
+      }
+      if(elementContent){
+        content.push((
+          <td 
+            key={child.id+'-'+index}
+            colSpan={child.colspan ? child.colspan : 1}
+            rowSpan={child.rowspan ? child.rowspan : 1}
+            {...(styles && {style: styles})}
+          >
+            <span className={fr.cx("fr-text--md")} key={child.id} style={styles}>
+              {elementContent}
+            </span>
+          </td>
+        ));
+      }
+    }
+  })
+  return content;
+}
+
 export function getContent(children:NoticeRCPContentBlock[], definitions?:Definition[]): (React.JSX.Element | undefined)[] {
   let content:(React.JSX.Element | undefined)[] = [];
   children.forEach((child, index) => {
     if(child.type && child.type === "AmmCorpsTexteTable"){
-        if(child.children){
-          const tableContent:(React.JSX.Element | undefined)[] = getTableElement(child.children, definitions);
-          if(tableContent) content.push((
-            <div className="rcp-notice-block"><table key={child.id+'-'+index}>{...tableContent}</table></div>
-          ));
-        }
+      if(child.children){
+        const tableContent:(React.JSX.Element | undefined)[] = getTableElement(child.children, definitions);
+        if(tableContent) content.push((
+          <div className="rcp-notice-block"><table key={child.id+'-'+index}>{...tableContent}</table></div>
+        ));
+      }
     } else {
       const titleContent:(React.JSX.Element | undefined) = getTitleElement(child, definitions);
       if(titleContent){

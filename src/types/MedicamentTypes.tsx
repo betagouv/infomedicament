@@ -58,22 +58,6 @@ export type Notice = {
   dateNotif?: string;
   children?: NoticeRCPContentBlock[];
 }
-
-export type FicheInfos = {
-  specId: string;
-  listeInformationsImportantes?: string[];
-  listeGroupesGeneriques?: GroupeGenerique[];
-  listeComposants?: Composant[];
-  listeTitulaires?: string[];
-  listeDocumentsBonUsage?: DocBonUsage[],
-  listeASMR?: Asmr[];
-  listeSMR?: Smr[];
-  listeConditionsDelivrance?: string[];
-  libelleCourtAutorisation?: string;
-  libelleCourtProcedure?: string;
-  presentations?: PresentationDetail[];
-}
-
 export type GroupeGenerique = {
   id: number;
   libelle: string;
@@ -104,4 +88,25 @@ export type Asmr = {
   motif?: number;
   valeur?: string;
   libelle?: string;
+}
+
+export type ComposantElement = {
+  nom: string;
+  referenceDosage: string;
+}
+
+export type FicheInfos = {
+  specId: string;
+  listeInformationsImportantes?: string[];
+  listeGroupesGeneriques?: GroupeGenerique[];
+  listeComposants?: Composant[];
+  listeTitulaires?: string[];
+  listeDocumentsBonUsage?: DocBonUsage[],
+  listeASMR?: Asmr[];
+  listeSMR?: Smr[];
+  listeConditionsDelivrance?: string[];
+  libelleCourtAutorisation?: string;
+  libelleCourtProcedure?: string;
+  presentations?: PresentationDetail[];
+  listeElements: ComposantElement[];
 }

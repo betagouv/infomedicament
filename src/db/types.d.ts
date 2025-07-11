@@ -9,6 +9,7 @@ export interface Database {
   groupes_generiques: GroupeGeneriqueTable;
   documents_bon_usage: DocBUTable;
   composants: ComposantTable;
+  elements: ElementTable;
   smr: SmrTable;
   asmr: AsmrTable;
   rcp: RcpTable;
@@ -44,6 +45,12 @@ interface ComposantTable {
   nomComposant: string;
 }
 
+interface ElementTable {
+  id?: number;
+  nomElement: string;
+  referenceDosage: string;
+}
+
 interface SmrTable {
   id?: number;
   date?: string;
@@ -73,6 +80,7 @@ interface FicheInfoTable {
   libelleCourtAutorisation?: string;
   libelleCourtProcedure?: string;
   presentations?: string[];
+  listeElements?: number[];
 }
 
 interface GroupeGeneriqueTable {
