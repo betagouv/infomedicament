@@ -1,6 +1,6 @@
 import db from '@/db';
 import { PresentationDetail } from '@/db/types';
-import { Asmr, Composant, DocBonUsage, FicheInfos, GroupeGenerique, Smr } from '@/types/MedicamentTypes';
+import { Asmr, Composant, ComposantElement, DocBonUsage, FicheInfos, GroupeGenerique, Smr } from '@/types/MedicamentTypes';
 import { NextRequest, NextResponse } from "next/server";
 
 async function getListeGroupesGeneriques(ids: number[]): Promise<GroupeGenerique[]>{
@@ -141,6 +141,27 @@ async function getListePresentations(ids: string[]): Promise<PresentationDetail[
   return [];
 }
 
+async function getListeElements(ids: number[]): Promise<ComposantElement[]>{
+  const data = await db
+    .selectFrom("elements")
+    .selectAll()
+    .where("id", "in", ids)
+    .execute();
+  
+  if(data && data.length > 0) {
+    return await Promise.all(
+      data.map(async (child) => {
+        const data:ComposantElement = {
+          nom: child.nomElement,
+          referenceDosage: child.referenceDosage,
+        }
+        return data;
+      })
+    );
+  }
+  return [];
+}
+
 export async function GET(req: NextRequest) {
   const params = req.nextUrl.searchParams;
   const CIS = params.get("cis");
@@ -173,6 +194,7 @@ export async function GET(req: NextRequest) {
     libelleCourtAutorisation: ficheInfoRaw.libelleCourtAutorisation, 
     libelleCourtProcedure: ficheInfoRaw.libelleCourtProcedure,
     presentations: [],
+    listeElements: [],
   }
   
   if(ficheInfoRaw.listeGroupesGeneriquesIds && ficheInfoRaw.listeGroupesGeneriquesIds.length > 0) 
@@ -192,6 +214,9 @@ export async function GET(req: NextRequest) {
 
   if(ficheInfoRaw.presentations && ficheInfoRaw.presentations.length > 0) 
     ficheInfos.presentations = await getListePresentations(ficheInfoRaw.presentations);
+
+  if(ficheInfoRaw.listeElements && ficheInfoRaw.listeElements.length > 0) 
+    ficheInfos.listeElements = await getListeElements(ficheInfoRaw.listeElements);
 
   return NextResponse.json(ficheInfos);
 };

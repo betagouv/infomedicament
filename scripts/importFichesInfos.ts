@@ -1,5 +1,5 @@
 import db from "@/db";
-import { FichesInfosDB, DocBUDB, GroupeGeneriqueDB } from "@/db/types";
+import { FichesInfosDB, GroupeGeneriqueDB } from "@/db/types";
 import path from "node:path";
 
 if (process.argv.length !== 3) {
@@ -14,36 +14,36 @@ const pool: number[][] = [
   [3001, 4000], //3
   [4001, 5000], //4
   [5001, 6000], //5
-  [6001, 7000], //6
-  [7001, 8000], //7
-  [8001, 9000], //8
-  [9001, 10000], //9
-  [10001, 11000], //10
-  [11001, 12000], //11
-  [12001, 13000], //12
-  [13001, 14000], //13
-  [14001, 15000], //14
-  [15001, 16000], //15
-  [16001, 17000], //16
-  [17001, 18000], //17
-  [18001, 19000], //18
-  [19001, 20000], //19
-  [20001, 21000], //20
-  [21001, 22000], //21
-  [22001, 23000], //22
-  [23001, 24000], //23
-  [24001, 25000], //24
-  [25001, 26000], //25
-  [26001, 27000], //26
-  [27001, 28000], //27
-  [28001, 29000], //28
-  [29001, 30000], //29
-  [30001, 31000], //30
-  [31001, 32000], //31
-  [32001, 33000], //32
-  [33001, 34000], //33
-  [34001, 35000], //34
-  [35001, 38000], //35
+  // [6001, 7000], //6
+  // [7001, 8000], //7
+  // [8001, 9000], //8
+  // [9001, 10000], //9
+  // [10001, 11000], //10
+  // [11001, 12000], //11
+  // [12001, 13000], //12
+  // [13001, 14000], //13
+  // [14001, 15000], //14
+  // [15001, 16000], //15
+  // [16001, 17000], //16
+  // [17001, 18000], //17
+  // [18001, 19000], //18
+  // [19001, 20000], //19
+  // [20001, 21000], //20
+  // [21001, 22000], //21
+  // [22001, 23000], //22
+  // [23001, 24000], //23
+  // [24001, 25000], //24
+  // [25001, 26000], //25
+  // [26001, 27000], //26
+  // [27001, 28000], //27
+  // [28001, 29000], //28
+  // [29001, 30000], //29
+  // [30001, 31000], //30
+  // [31001, 32000], //31
+  // [32001, 33000], //32
+  // [33001, 34000], //33
+  // [34001, 35000], //34
+  // [35001, 38000], //35
 ];
 const poolNumber:number = parseInt(process.argv[2]);
 const poolBegin:number = pool[poolNumber][0];
@@ -54,7 +54,7 @@ const fs = require('fs');
 
 async function importFichesInfos(){
 
-  const pathfile = path.join(process.cwd(), "scripts", "fiches_infos.jsonl");
+  const pathfile = path.join(process.cwd(), "scripts", "fiches_infos_5000.jsonl");
 
   // create a readline interface for reading the file line by line
   const rl = readline.createInterface({
@@ -148,6 +148,19 @@ async function importFichesInfos(){
         };
       }
 
+      //Elements
+      const elementsIDs: number[] = [];
+      if(ficheInfoRaw.Elements.listeElements){
+        const listeElements = ficheInfoRaw.Elements.listeElements;
+        if(listeElements){
+          const ids = await db.insertInto("elements")
+            .values(listeElements)
+            .returning('id')
+            .execute()
+          ids.forEach((id) => (id && id.id !== undefined) && elementsIDs.push(id.id));
+        };
+      }
+
       const presentations: string[] = [];
       if(ficheInfoRaw.Presentations.presentations){
         (ficheInfoRaw.Presentations.presentations).forEach((pres: any) => {
@@ -169,6 +182,7 @@ async function importFichesInfos(){
         libelleCourtAutorisation: ficheInfoRaw.StatutAutorisation.libelleCourtAutorisation ? ficheInfoRaw.StatutAutorisation.libelleCourtAutorisation : undefined,
         libelleCourtProcedure: ficheInfoRaw.TypeProcedure.libelleCourtProcedure ? ficheInfoRaw.TypeProcedure.libelleCourtProcedure : undefined,
         presentations: presentations,
+        listeElements: elementsIDs,
       };
       
       db.insertInto("fiches_infos")
