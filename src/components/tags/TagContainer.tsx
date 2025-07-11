@@ -37,7 +37,7 @@ function TagContainer({
     if(props.children) setCurrentChildren(props.children);
   }, [props, setCurrentChildren]);
 
-  return (
+  return currentChildren && (
     <div {...props}>
       {currentCategory && 
         <CategoryContainer>

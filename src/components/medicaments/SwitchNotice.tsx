@@ -26,7 +26,7 @@ import ArticlesResumeList from "../articles/ArticlesResumeList";
 import MarrNotice from "../marr/MarrNotice";
 import { Marr } from "@/types/MarrTypes";
 import useSWR from "swr";
-import { Notice, NoticeRCPContentBlock, Rcp } from "@/types/MedicamentTypes";
+import { FicheInfos, Notice, NoticeRCPContentBlock, Rcp } from "@/types/MedicamentTypes";
 import { fetchJSON } from "@/utils/network";
 import DetailedNotice from "./DetailedNotice";
 import ShareButtons from "../generic/ShareButtons";
@@ -35,14 +35,15 @@ import QuestionKeywordsBox from "./QuestionKeywordsBox";
 import GoTopButton from "../generic/GoTopButton";
 import { RcpNoticeContainer } from "./Blocks/GenericBlocks";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { getContent } from "@/utils/notices/noticesUtils";
+import { displayInfosImportantes, getContent } from "@/utils/notices/noticesUtils";
 import { questionsList } from "@/data/pages/notices_anchors";
 import { Definition } from "@/types/GlossaireTypes";
-import NoticeContainer from "./NoticeContainer";
+import NoticeBlock from "./NoticeBlock";
 import PregnancySubsTag from "../tags/PregnancySubsTag";
 import PregnancyCISTag from "../tags/PregnancyCISTag";
+import Link from "next/link";
 
-const ToggleSwitchContainer = styled.div `
+const ToggleSwitchContainer = styled.div`
   background-color: var(--background-contrast-info);
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
@@ -52,7 +53,7 @@ const ToggleSwitchContainer = styled.div `
   }
 `;
 
-const Container = styled.div `
+const Container = styled.div`
   margin-top: 1rem;
   @media (max-width: 48em) {
     margin-top: 0rem;
@@ -62,7 +63,14 @@ const Container = styled.div `
   }
 `;
 
-const NoticeTitle = styled.div `
+const NoticeContainer = styled.div`
+  padding: 2rem;
+  @media (max-width: 48em) {
+    padding: 1rem;
+  }
+`;
+
+const NoticeTitle = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -178,13 +186,23 @@ function SwitchNotice({
   const { data: notice } = useSWR<Notice>(
     `/medicaments/notices?cis=${CIS}`,
     fetchJSON,
-    { onError: (err) => console.warn('errorNotice >>', err), }
+    { onError: (err) => {
+        setLoaded(true);
+        console.warn('errorNotice >>', err);
+      }
+    }
   );
 
   const { data: definitions } = useSWR<Definition[]>(
     `/glossaire/definitions`,
     fetchJSON,
     { onError: (err) => console.warn('errorDefinitions >>', err), }
+  );
+
+  const { data: ficheInfos } = useSWR<FicheInfos>(
+    `/medicaments/notices/ficheInfos?cis=${CIS}`,
+    fetchJSON,
+    { onError: (err) => console.warn('errorRCP >>', err), }
   );
 
   useEffect(() => {
@@ -233,156 +251,193 @@ function SwitchNotice({
   );
 
   return (
-    <Container className={["mobile-display-contents", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ",)}>
-      <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")].join(" ",)}>
-        <ShareButtons 
-          pageName={name}
-        />
-        <ToggleSwitchContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-          <ToggleSwitch 
-            label="Version détaillée"
-            labelPosition="left"
-            inputTitle="Version détaillée"
-            helperText="(Afficher RCP, données HAS, CNAM...)"
-            showCheckedHint={false}
-            checked={isAdvanced}
-            onChange={(enabled) => {
-              onSwitchAdvanced(enabled);
-            }}
-            className="medicament-toggle-switch"
+    <Container className={fr.cx("fr-col-12")}>
+      <Container className={["mobile-display-contents", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ",)}>
+        <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")].join(" ",)}>
+          <ShareButtons 
+            pageName={name}
           />
-        </ToggleSwitchContainer>
-        {isAdvanced 
-          ? <DetailedSubMenu updateVisiblePart={setcurrentPart} isMarr={(currentMarr && currentMarr.pdf.length > 0)}/>
-          : <section className={["mobile-display-contents", fr.cx("fr-mb-4w")].join(" ",)}>
-              <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                {atc2 && (
-                  <TagContainer category="Sous-classe">
-                    <ClassTag atc2={atc2} />
-                  </TagContainer>
-                )}
-                <TagContainer category="Substance active" hideSeparator={lastTagElement === TagTypeEnum.SUBSTANCE}>
-                  <SubstanceTag composants={composants} />
-                </TagContainer>
-                {isPrinceps && 
-                  <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRINCEPS}>
-                    <PrincepsTag CIS={CIS} />
-                  </TagContainer>
-                }
-                {!!SpecGeneId && (
-                  <TagContainer hideSeparator={lastTagElement === TagTypeEnum.GENERIC}>
-                    <GenericTag specGeneId={SpecGeneId} />
-                  </TagContainer>
-                )}
-                {!!delivrance.length && (
-                  <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRESCRIPTION}>
-                    <PrescriptionTag />
-                  </TagContainer>
-                )}
-                {isPregnancyCISAlert && (
-                  <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY_CIS}>
-                    <PregnancyCISTag />
-                  </TagContainer>
-                )}
-                {isPregnancySubsAlert && (
-                  <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY_SUBS}>
-                    <PregnancySubsTag />
-                  </TagContainer>
-                )}
-                {pediatrics && <PediatricsTags info={pediatrics} lastTagElement={lastTagElement}/>}
-              </ContentContainer>
-              <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-pt-1w", "fr-px-1w", "fr-hidden-md")}>
-                <QuestionsBox 
-                  noBorder
-                  currentQuestion={currentQuestion}
-                  updateCurrentQuestion={updateCurrentQuestion}
-                />
-              </ContentContainer>
-              {showKeywordsBox && currentQuestion && (
-                <QuestionKeywordsBox
-                  className={fr.cx("fr-hidden-md", "fr-mb-4w", "fr-px-1w")}
-                  onClose={() => onCloseQuestionKeywordsBox()}
-                  questionID={currentQuestion}/>
-              )}
-              <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                <PresentationsList presentations={presentations} />
-              </ContentContainer>
-              {articles && articles.length > 0 && (
+          <ToggleSwitchContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+            <ToggleSwitch 
+              label="Version détaillée"
+              labelPosition="left"
+              inputTitle="Version détaillée"
+              helperText="(Afficher RCP, données HAS, CNAM...)"
+              showCheckedHint={false}
+              checked={isAdvanced}
+              onChange={(enabled) => {
+                onSwitchAdvanced(enabled);
+              }}
+              className="medicament-toggle-switch"
+            />
+          </ToggleSwitchContainer>
+          {isAdvanced 
+            ? <DetailedSubMenu 
+                updateVisiblePart={setcurrentPart} 
+                isMarr={(currentMarr && currentMarr.pdf.length > 0)}
+                isInfosImportantes={displayInfosImportantes(ficheInfos)}
+              />
+            : <section className={["mobile-display-contents", fr.cx("fr-mb-4w")].join(" ",)}>
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                  <ArticlesResumeList articles={articles} />
-                </ContentContainer>
-              )}
-              {(currentMarr && currentMarr.pdf.length > 0) && (
-                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                  <MarrNotice 
-                    marr={currentMarr}
-                    onGoToAdvanced={onGoToAdvanced}
-                  />
-                </ContentContainer>
-              )}
-            </section>
-          }
-      </ContentContainer>
-      {isAdvanced ? (
-        <DetailedNotice 
-          currentVisiblePart={currentPart}
-          CIS={CIS}
-          atcCode={atcCode}
-          composants={composants}
-          isPrinceps={isPrinceps}
-          SpecGeneId={SpecGeneId}
-          isPregnancySubsAlert={isPregnancySubsAlert}
-          isPregnancyCISAlert={isPregnancyCISAlert}
-          pediatrics={pediatrics}
-          presentations={presentations}
-          marr={currentMarr}
-          rcp={rcp}
-          indicationBlock={indicationBlock}
-        />
-      ) : (
-        <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")].join(" ",)}>
-          <article>
-            <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
-              <NoticeTitle className={fr.cx("fr-mb-4w")}>
-                <div style={{display: "flex"}}>
-                  <span className={["fr-icon--custom-notice", fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md")].join(" ")}/>
-                  <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice complète</h2>
-                </div>
-                <ContentContainer>
-                  {(currentNotice && currentNotice.dateNotif) && (
-                    <Badge severity={"info"}>{currentNotice.dateNotif}</Badge>
+                  {atc2 && (
+                    <TagContainer category="Sous-classe">
+                      <ClassTag atc2={atc2} />
+                    </TagContainer>
                   )}
+                  {composants && (
+                    <TagContainer category="Substance active" hideSeparator={lastTagElement === TagTypeEnum.SUBSTANCE}>
+                      <SubstanceTag composants={composants} />
+                    </TagContainer>
+                  )}
+                  {isPrinceps && 
+                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRINCEPS}>
+                      <PrincepsTag CIS={CIS} />
+                    </TagContainer>
+                  }
+                  {!!SpecGeneId && (
+                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.GENERIC}>
+                      <GenericTag specGeneId={SpecGeneId} />
+                    </TagContainer>
+                  )}
+                  {!!delivrance.length && (
+                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRESCRIPTION}>
+                      <PrescriptionTag />
+                    </TagContainer>
+                  )}
+                  {isPregnancyCISAlert && (
+                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY_CIS}>
+                      <PregnancyCISTag />
+                    </TagContainer>
+                  )}
+                  {isPregnancySubsAlert && (
+                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY_SUBS}>
+                      <PregnancySubsTag />
+                    </TagContainer>
+                  )}
+                  {pediatrics && <PediatricsTags info={pediatrics} lastTagElement={lastTagElement}/>}
                 </ContentContainer>
-              </NoticeTitle>
-              {(currentNotice && currentNotice.children) ? (
-                <>
-                  <ContentContainer className={fr.cx("fr-hidden", "fr-unhidden-md")}>
+                {(currentNotice && currentNotice.children) && (
+                  <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-pt-1w", "fr-px-1w", "fr-hidden-md")}>
                     <QuestionsBox 
+                      noBorder
                       currentQuestion={currentQuestion}
                       updateCurrentQuestion={updateCurrentQuestion}
                     />
                   </ContentContainer>
-                  {showKeywordsBox && currentQuestion && (
-                    <QuestionKeywordsBox
-                      className={fr.cx("fr-hidden", "fr-unhidden-md")}
-                      onClose={() => onCloseQuestionKeywordsBox()}
-                      questionID={currentQuestion}
+                )}
+                {showKeywordsBox && currentQuestion && (
+                  <QuestionKeywordsBox
+                    className={fr.cx("fr-hidden-md", "fr-mb-4w", "fr-px-1w")}
+                    onClose={() => onCloseQuestionKeywordsBox()}
+                    questionID={currentQuestion}/>
+                )}
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                  <PresentationsList presentations={presentations} />
+                </ContentContainer>
+                {articles && articles.length > 0 && (
+                  <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                    <ArticlesResumeList articles={articles} />
+                  </ContentContainer>
+                )}
+                {(currentMarr && currentMarr.pdf.length > 0) && (
+                  <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                    <MarrNotice 
+                      marr={currentMarr}
+                      onGoToAdvanced={onGoToAdvanced}
                     />
-                  )}
-                  <NoticeContainer className={fr.cx("fr-mt-3w")}>
-                    <ContentContainer id="noticeContainer">
-                      <RcpNoticeContainer>{getContent(currentNotice.children, definitions)}</RcpNoticeContainer>
-                    </ContentContainer>
-                  </NoticeContainer>
-                </>
-              ) : (
-                loaded && (<span>La notice n&rsquo;est pas disponible pour ce médicament.</span>)
-              )}
-            </ContentContainer>
-          </article>
-          <GoTopButton />
+                  </ContentContainer>
+                )}
+              </section>
+            }
         </ContentContainer>
-      )}
+        <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")].join(" ",)}>
+          {ficheInfos && ficheInfos.libelleCourtProcedure === "Centralisée" && (
+            <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
+              <b>
+                Les informations sur ce médicament font l’objet d’une procédure centralisée au niveau européen. Leur intégration sur notre site est en cours.<br/>
+                En attendant, vous pouvez consulter la notice, le RCP et les données complètes sur le site de l’
+                <Link 
+                  href="https://www.ema.europa.eu/en/search"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                    EMA
+                </Link>{" "}(
+                <Link 
+                  href="https://www.ema.europa.eu/en/search"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Agence européenne des médicaments
+                </Link>).
+              </b>
+            </ContentContainer>
+          )}
+          {isAdvanced ? (
+            <DetailedNotice 
+              currentVisiblePart={currentPart}
+              CIS={CIS}
+              atcCode={atcCode}
+              composants={composants}
+              isPrinceps={isPrinceps}
+              SpecGeneId={SpecGeneId}
+              isPregnancySubsAlert={isPregnancySubsAlert}
+              isPregnancyCISAlert={isPregnancyCISAlert}
+              pediatrics={pediatrics}
+              presentations={presentations}
+              marr={currentMarr}
+              rcp={rcp}
+              ficheInfos={ficheInfos}
+              indicationBlock={indicationBlock}
+            />
+          ) : (
+            <>
+              <article>
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w")}>
+                  <NoticeContainer>
+                    <NoticeTitle className={fr.cx("fr-mb-4w")}>
+                      <div style={{display: "flex"}}>
+                        <span className={["fr-icon--custom-notice", fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md")].join(" ")}/>
+                        <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice complète</h2>
+                      </div>
+                      <ContentContainer>
+                        {(currentNotice && currentNotice.dateNotif) && (
+                          <Badge severity={"info"}>{currentNotice.dateNotif}</Badge>
+                        )}
+                      </ContentContainer>
+                    </NoticeTitle>
+                    {(loaded && currentNotice && currentNotice.children && currentNotice.children.length > 0) ? (
+                      <>
+                        <ContentContainer className={fr.cx("fr-hidden", "fr-unhidden-md")}>
+                          <QuestionsBox 
+                            currentQuestion={currentQuestion}
+                            updateCurrentQuestion={updateCurrentQuestion}
+                          />
+                        </ContentContainer>
+                        {showKeywordsBox && currentQuestion && (
+                          <QuestionKeywordsBox
+                            className={fr.cx("fr-hidden", "fr-unhidden-md")}
+                            onClose={() => onCloseQuestionKeywordsBox()}
+                            questionID={currentQuestion}
+                          />
+                        )}
+                        <NoticeBlock className={fr.cx("fr-mt-3w")}>
+                          <ContentContainer id="noticeContainer">
+                            <RcpNoticeContainer>{getContent(currentNotice.children, definitions)}</RcpNoticeContainer>
+                          </ContentContainer>
+                        </NoticeBlock>
+                      </>
+                    ) : (
+                      loaded && (<span>La notice n&rsquo;est pas disponible pour ce médicament.</span>)
+                    )}
+                  </NoticeContainer>
+                </ContentContainer>
+              </article>
+              <GoTopButton />
+            </>
+          )}
+        </ContentContainer>
+      </Container>
     </Container>
   );
 };

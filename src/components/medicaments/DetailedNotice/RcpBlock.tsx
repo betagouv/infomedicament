@@ -22,8 +22,8 @@ function RcpBlock({
   useEffect(() => {
     if(rcp) {
       setCurrentRcp(rcp);
-      setLoaded(true);
     }
+    setLoaded(true);
   }, [rcp, setCurrentRcp, setLoaded]);
 
   return (

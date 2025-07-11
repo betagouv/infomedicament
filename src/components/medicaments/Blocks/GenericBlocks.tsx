@@ -18,6 +18,9 @@ export const RcpNoticeContainer = styled.div`
   div {
     margin-bottom: 0px;
   }
+  div.rcp-notice-block{
+    overflow-y: auto;
+  }
   table {
     border: gray 1px solid;
     border-spacing: 0;

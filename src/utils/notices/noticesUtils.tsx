@@ -1,9 +1,19 @@
 import WithGlossary from "@/components/glossary/WithGlossary";
 import { TitulaireAddressContainer, TitulaireNomContainer } from "@/components/medicaments/Blocks/GenericBlocks";
 import { Definition } from "@/types/GlossaireTypes";
-import { NoticeRCPContentBlock } from "@/types/MedicamentTypes";
+import { FicheInfos, NoticeRCPContentBlock } from "@/types/MedicamentTypes";
 import { fr } from "@codegouvfr/react-dsfr";
 import { CSSProperties } from "react";
+
+
+export function displayInfosImportantes(ficheInfos?:FicheInfos): boolean{
+  if(ficheInfos && ficheInfos.listeInformationsImportantes && ficheInfos.listeInformationsImportantes.length > 0){
+    if(ficheInfos.listeInformationsImportantes.length === 1 && ficheInfos.listeInformationsImportantes[0] === "")
+      return false;
+    return true;
+  }
+  return false;
+}
 
 function getStyles(styles: string[] | undefined): CSSProperties{
   let formatedStyles:CSSProperties = {};
@@ -154,7 +164,7 @@ function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definitio
               ? <WithGlossary definitions={definitions} key={content.id} text={[text]} />
               : text;
             return (
-              <li className={fr.cx("fr-text--md")} key={content.id+'-'+index}>
+              <li className={fr.cx("fr-text--md", "fr-mb-1w")} key={content.id+'-'+index}>
                 {liContent}
               </li>
             )
@@ -176,7 +186,7 @@ export function getContent(children:NoticeRCPContentBlock[], definitions?:Defini
         if(child.children){
           const tableContent:(React.JSX.Element | undefined)[] = getTableElement(child.children, definitions);
           if(tableContent) content.push((
-            <table key={child.id+'-'+index}>{...tableContent}</table>
+            <div className="rcp-notice-block"><table key={child.id+'-'+index}>{...tableContent}</table></div>
           ));
         }
     } else {
