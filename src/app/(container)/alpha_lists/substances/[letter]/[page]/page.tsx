@@ -2,6 +2,7 @@ import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { notFound } from "next/navigation";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import Pagination from "@codegouvfr/react-dsfr/Pagination";
 import { fr } from "@codegouvfr/react-dsfr";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
@@ -51,12 +52,15 @@ async function getLetters() {
 }
 
 export default async function Page(props: {
-  params: Promise<{ letter: string }>;
+  params: Promise<{ letter: string; page: `${number}` }>;
 }) {
-  const { letter } = await props.params;
+  const { letter, page } = await props.params;
 
+  if (!Number.isInteger(Number(page))) return notFound();
+  const pageNumber = Number(page);
   const letters = await getLetters();
   const substances = await getSubstances(letter);
+  const PAGE_LENGTH = 40;
 
   if (!substances || !substances.length) return notFound();
   
@@ -72,6 +76,12 @@ export default async function Page(props: {
   );
   detailedSubstances = detailedSubstances.filter((substance) => substance.nbSpecs > 0);
 
+  const pageCount =
+    Math.trunc(detailedSubstances.length / PAGE_LENGTH) +
+    (detailedSubstances.length % PAGE_LENGTH ? 1 : 0);
+
+  if (pageNumber < 1 || pageNumber > pageCount) return notFound();
+
   return (
     <ContentContainer frContainer>
       {" "}
@@ -84,13 +94,25 @@ export default async function Page(props: {
           <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>Liste des substances</h1>
           <AlphabeticNav
             letters={letters}
-            url={(letter) => `/substances/${letter}`}
+            url={(letter) => `/substances/${letter}/1`}
           />
           <DataList 
-            dataList={detailedSubstances}
+            dataList={detailedSubstances.slice(
+                (pageNumber - 1) * PAGE_LENGTH,
+                pageNumber * PAGE_LENGTH,
+              )}
             type={DataTypeEnum.SUBSTANCE}
           />
         </div>
+        {pageCount > 1 && (
+          <Pagination
+            count={pageCount}
+            defaultPage={pageNumber}
+            getPageLinkProps={(number: number) => ({
+              href: `/substances/${letter}/${number}`,
+            })}
+          />
+        )}
       </div>
     </ContentContainer>
   );

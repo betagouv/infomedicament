@@ -62,11 +62,11 @@ export default function ClientHeader({
             },
             {
               text: "Toutes les substances actives",
-              linkProps: { href: "/substances/A" },
+              linkProps: { href: "/substances/A/1" },
             },
             {
               text: "Toutes les pathologies",
-              linkProps: { href: "/pathologies/A" },
+              linkProps: { href: "/pathologies/A/1" },
             },
             {
               text: "Tous les groupes génériques",

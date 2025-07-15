@@ -3,6 +3,7 @@ import { Patho } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import Pagination from "@codegouvfr/react-dsfr/Pagination";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import ContentContainer from "@/components/generic/ContentContainer";
 import { AdvancedPatho, DataTypeEnum } from "@/types/DataTypes";
@@ -36,12 +37,15 @@ async function getLetters(): Promise<string[]> {
 }
 
 export default async function Page(props: {
-  params: Promise<{ letter: string }>;
+  params: Promise<{ letter: string; page: `${number}` }>;
 }) {
-  const { letter } = await props.params;
+  const { letter, page } = await props.params;
 
+  if (!Number.isInteger(Number(page))) return notFound();
+  const pageNumber = Number(page);
   const letters = await getLetters();
   const pathos = await getPathologyPage(letter);
+  const PAGE_LENGTH = 40;
 
   if (!pathos || !pathos.length) return notFound();
 
@@ -57,6 +61,12 @@ export default async function Page(props: {
       })
   );
   detailedPathos = detailedPathos.filter((patho) => patho.nbSpecs > 0);
+
+  const pageCount =
+    Math.trunc(detailedPathos.length / PAGE_LENGTH) +
+    (detailedPathos.length % PAGE_LENGTH ? 1 : 0);
+
+  if (pageNumber < 1 || pageNumber > pageCount) return notFound();
   
   return (
     <ContentContainer frContainer>
@@ -69,13 +79,25 @@ export default async function Page(props: {
           <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>Liste des pathologies</h1>
           <AlphabeticNav
             letters={letters}
-            url={(letter) => `/pathologies/${letter}`}
+            url={(letter) => `/pathologies/${letter}/1`}
           />
           <DataList 
-            dataList={detailedPathos}
+            dataList={detailedPathos.slice(
+                (pageNumber - 1) * PAGE_LENGTH,
+                pageNumber * PAGE_LENGTH,
+              )}
             type={DataTypeEnum.PATHOLOGY}
           />
         </div>
+        {pageCount > 1 && (
+          <Pagination
+            count={pageCount}
+            defaultPage={pageNumber}
+            getPageLinkProps={(number: number) => ({
+              href: `/pathologies/${letter}/${number}`,
+            })}
+          />
+        )}
       </div>
     </ContentContainer>
   );
