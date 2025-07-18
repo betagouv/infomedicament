@@ -47,9 +47,19 @@ const ToggleSwitchContainer = styled.div`
   background-color: var(--background-contrast-info);
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
+  filter: drop-shadow(var(--raised-shadow));
+  .medicament-toggle-switch .fr-toggle__label {
+    font-size: 1.125rem;
+    @media (min-width: 48em){
+      font-size: 1.25rem;
+    }
+    font-weight: 700;
+  }
   .medicament-toggle-switch .fr-hint-text{
-    margin-top: 0rem;
+    color: var(--text-default-grey);
+    margin-top: 0.3rem;
     font-style: italic;
+    font-size: 0.9rem;
   }
 `;
 
@@ -262,7 +272,7 @@ function SwitchNotice({
               label="Version détaillée"
               labelPosition="left"
               inputTitle="Version détaillée"
-              helperText="(Afficher RCP, données HAS, CNAM...)"
+              helperText="Afficher RCP, données HAS, CNAM..."
               showCheckedHint={false}
               checked={isAdvanced}
               onChange={(enabled) => {
