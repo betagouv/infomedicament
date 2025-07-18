@@ -28,18 +28,23 @@ const unitesMesures = [
 ];
 
 function totalDisplay(p: PresentationDetail): string {
-  return `${p.nbrrecipient * p.qtecontenance} ${p.unitecontenance.replaceAll("(s)", "s")}`;
+  if(p.nbrrecipient && p.qtecontenance && p.unitecontenance)
+    return `${p.nbrrecipient * p.qtecontenance} ${p.unitecontenance.replaceAll("(s)", "s")}`;
+  else return "";
 }
 
 function contentDisplay(p: PresentationDetail): string {
-  return `${p.qtecontenance} ${p.unitecontenance.replaceAll("(s)", p.qtecontenance && p.qtecontenance > 1 ? "s" : "")}`;
+  if(p.qtecontenance && p.unitecontenance)
+    return `${p.qtecontenance} ${p.unitecontenance.replaceAll("(s)", p.qtecontenance && p.qtecontenance > 1 ? "s" : "")}`;
+  else return "";
 }
 
 function caracCompDisplay(p: PresentationDetail): string {
-  return p.caraccomplrecip.startsWith("avec") ? ` ${p.caraccomplrecip}` : "";
+  return (p.caraccomplrecip && p.caraccomplrecip.startsWith("avec")) ? ` ${p.caraccomplrecip}` : "";
 }
 
 function presentationDetailName(p: PresentationDetail): string {
+  if(!p.recipient) return "";
   const recipient = p.recipient.replaceAll("thermoformée", "");
 
   if (p.nbrrecipient > 1) {
