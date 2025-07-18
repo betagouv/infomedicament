@@ -42,26 +42,17 @@ const getSpecialites = unstable_cache(async function (letter: string) {
 });
 
 export default async function Page(props: {
-  params: Promise<{ letter: string; page: `${number}` }>;
+  params: Promise<{ letter: string }>;
 }) {
-  const { letter, page } = await props.params;
+  const { letter } = await props.params;
 
-  if (!Number.isInteger(Number(page))) return notFound();
-  const pageNumber = Number(page);
   const letters = await getLetters();
   const specialites = await getSpecialites(letter);
-  const PAGE_LENGTH = 10;
 
   if (!specialites || !specialites.length) return notFound();
 
   const medicaments = groupSpecialites(specialites);
   const detailedMedicaments = await getAdvancedMedicamentGroupListFromMedicamentGroupList(medicaments);
-  
-  const pageCount =
-    Math.trunc(detailedMedicaments.length / PAGE_LENGTH) +
-    (detailedMedicaments.length % PAGE_LENGTH ? 1 : 0);
-
-  if (pageNumber < 1 || pageNumber > pageCount) return notFound();
 
   return (
     <ContentContainer frContainer>
@@ -75,26 +66,15 @@ export default async function Page(props: {
             <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>Liste des médicaments</h1>
             <AlphabeticNav
               letters={letters}
-              url={(letter) => `/medicaments/${letter}/1`}
-            />
-            <DataList
-              dataList={detailedMedicaments.slice(
-                  (pageNumber - 1) * PAGE_LENGTH,
-                  pageNumber * PAGE_LENGTH,
-                )}
-              type={DataTypeEnum.MEDGROUP} 
+              url={(letter) => `/medicaments/${letter}`}
             />
           </div>
-          {pageCount > 1 && (
-            <Pagination
-              count={pageCount}
-              defaultPage={pageNumber}
-              getPageLinkProps={(number: number) => ({
-                href: `/medicaments/${letter}/${number}`,
-              })}
-            />
-          )}
         </div>
+        <DataList
+          dataList={detailedMedicaments}
+          type={DataTypeEnum.MEDGROUP} 
+          paginationLength={10}
+        />
       </Fragment>
     </ContentContainer>
   );

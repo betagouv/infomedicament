@@ -58,15 +58,15 @@ export default function ClientHeader({
           menuLinks: [
             {
               text: "Tous les médicaments",
-              linkProps: { href: "/medicaments/A/1" },
+              linkProps: { href: "/medicaments/A" },
             },
             {
               text: "Toutes les substances actives",
-              linkProps: { href: "/substances/A/1" },
+              linkProps: { href: "/substances/A" },
             },
             {
               text: "Toutes les pathologies",
-              linkProps: { href: "/pathologies/A/1" },
+              linkProps: { href: "/pathologies/A" },
             },
             {
               text: "Tous les groupes génériques",
