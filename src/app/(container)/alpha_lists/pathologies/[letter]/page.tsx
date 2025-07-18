@@ -3,6 +3,7 @@ import { Patho } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import Pagination from "@codegouvfr/react-dsfr/Pagination";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import ContentContainer from "@/components/generic/ContentContainer";
 import { AdvancedPatho, DataTypeEnum } from "@/types/DataTypes";
@@ -71,12 +72,13 @@ export default async function Page(props: {
             letters={letters}
             url={(letter) => `/pathologies/${letter}`}
           />
-          <DataList 
-            dataList={detailedPathos}
-            type={DataTypeEnum.PATHOLOGY}
-          />
         </div>
       </div>
+      <DataList 
+        dataList={detailedPathos}
+        type={DataTypeEnum.PATHOLOGY}
+        paginationLength={10}
+      />
     </ContentContainer>
   );
 }

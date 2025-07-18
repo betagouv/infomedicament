@@ -64,13 +64,14 @@ export default async function Page(props: {
             {medicaments.length} {medicaments.length > 1 ? "médicaments" : "médicament"} traitant la pathologie «&nbsp;
             {patho.NomPatho}&nbsp;»
           </h2>
-
-          <DataList
-            dataList={detailedMedicaments}
-            type={DataTypeEnum.MEDGROUP} 
-          />
         </div>
       </div>
+
+      <DataList
+        dataList={detailedMedicaments}
+        type={DataTypeEnum.MEDGROUP} 
+        paginationLength={10}
+      />
     </ContentContainer>
   );
 }

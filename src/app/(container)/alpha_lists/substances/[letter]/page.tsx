@@ -2,6 +2,7 @@ import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { notFound } from "next/navigation";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import Pagination from "@codegouvfr/react-dsfr/Pagination";
 import { fr } from "@codegouvfr/react-dsfr";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
@@ -86,12 +87,13 @@ export default async function Page(props: {
             letters={letters}
             url={(letter) => `/substances/${letter}`}
           />
-          <DataList 
-            dataList={detailedSubstances}
-            type={DataTypeEnum.SUBSTANCE}
-          />
         </div>
       </div>
+      <DataList 
+        dataList={detailedSubstances}
+        type={DataTypeEnum.SUBSTANCE}
+        paginationLength={10}
+      />
     </ContentContainer>
   );
 }
