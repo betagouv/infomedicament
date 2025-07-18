@@ -151,7 +151,7 @@ export default async function Page(props: {
       <DataList
         dataList={detailedSubClass as AdvancedSubstanceNom[] | AdvancedATCClass[]}
         type={atc2 ? DataTypeEnum.SUBSTANCE : DataTypeEnum.ATCCLASS}
-        paginationLength={atc2 ? 20 : 0}
+        paginationLength={10}
       />
     </ContentContainer>
   );
