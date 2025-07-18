@@ -45,7 +45,7 @@ export default async function Page(props: {
   const pageNumber = Number(page);
   const letters = await getLetters();
   const pathos = await getPathologyPage(letter);
-  const PAGE_LENGTH = 40;
+  const PAGE_LENGTH = 20;
 
   if (!pathos || !pathos.length) return notFound();
 

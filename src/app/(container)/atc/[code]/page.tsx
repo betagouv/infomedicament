@@ -145,14 +145,14 @@ export default async function Page(props: {
               detailedSubClass.length > 1 ? "sous-classes de médicament" : "sous-classe de médicament"
             )}
           </h2>
-
-          <DataList
-            dataList={detailedSubClass as AdvancedSubstanceNom[] | AdvancedATCClass[]}
-            type={atc2 ? DataTypeEnum.SUBSTANCE : DataTypeEnum.ATCCLASS}
-          />
-
         </div>
       </div>
+
+      <DataList
+        dataList={detailedSubClass as AdvancedSubstanceNom[] | AdvancedATCClass[]}
+        type={atc2 ? DataTypeEnum.SUBSTANCE : DataTypeEnum.ATCCLASS}
+        paginationLength={atc2 ? 20 : 0}
+      />
     </ContentContainer>
   );
 }

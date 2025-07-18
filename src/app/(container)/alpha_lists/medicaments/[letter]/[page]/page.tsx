@@ -84,16 +84,16 @@ export default async function Page(props: {
                 )}
               type={DataTypeEnum.MEDGROUP} 
             />
-            {pageCount > 1 && (
-              <Pagination
-                count={pageCount}
-                defaultPage={pageNumber}
-                getPageLinkProps={(number: number) => ({
-                  href: `/medicaments/${letter}/${number}`,
-                })}
-              />
-            )}
           </div>
+          {pageCount > 1 && (
+            <Pagination
+              count={pageCount}
+              defaultPage={pageNumber}
+              getPageLinkProps={(number: number) => ({
+                href: `/medicaments/${letter}/${number}`,
+              })}
+            />
+          )}
         </div>
       </Fragment>
     </ContentContainer>

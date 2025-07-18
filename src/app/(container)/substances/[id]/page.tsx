@@ -95,13 +95,14 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
               ? `uniquement la substance « ${substances[0].NomLib} »`
               : `les substances « ${substances.map((s) => s.NomLib).join(", ")} »`}
           </h2>
-
-          <DataList
-            dataList={detailedSpecialitiesGroups}
-            type={DataTypeEnum.MEDGROUP} 
-          />
         </div>
       </div>
+
+      <DataList
+        dataList={detailedSpecialitiesGroups}
+        type={DataTypeEnum.MEDGROUP} 
+        paginationLength={10}
+      />
     </ContentContainer>
   );
 }

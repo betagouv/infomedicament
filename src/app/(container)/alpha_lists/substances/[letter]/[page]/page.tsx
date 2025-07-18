@@ -60,7 +60,7 @@ export default async function Page(props: {
   const pageNumber = Number(page);
   const letters = await getLetters();
   const substances = await getSubstances(letter);
-  const PAGE_LENGTH = 40;
+  const PAGE_LENGTH = 20;
 
   if (!substances || !substances.length) return notFound();
   
