@@ -141,9 +141,12 @@ export default async function Page(props: {
         <ContentContainer frContainer>              
           <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>
             {(pregnancySubsAlert || pregnancyCISAlert || pediatrics?.contraindication )&& (
-              <ContentContainer className={fr.cx("fr-col-12", "fr-mb-2w")}>
+              <ContentContainer className={fr.cx("fr-col-12")}>
                 {pregnancySubsAlert && (
-                  <ContentContainer whiteContainer className={fr.cx("fr-mb-2w")}>
+                  <ContentContainer 
+                    whiteContainer 
+                     className={(pregnancyCISAlert || pediatrics?.contraindication) ? fr.cx("fr-mb-2w") : ""}
+                  >
                     <Alert
                       severity={"warning"}
                       title={"Plan de prévention grossesse"}
@@ -165,7 +168,10 @@ export default async function Page(props: {
                   </ContentContainer>
                 )}
                 {pregnancyCISAlert && (
-                  <ContentContainer whiteContainer className={fr.cx("fr-mb-2w")}>
+                  <ContentContainer 
+                    whiteContainer 
+                    className={pediatrics?.contraindication ? fr.cx("fr-mb-2w") : ""}
+                  >
                     <Alert
                       severity={"warning"}
                       title={"Mention contre-indication grossesse"}

@@ -64,7 +64,6 @@ const ToggleSwitchContainer = styled.div`
 `;
 
 const Container = styled.div`
-  margin-top: 1rem;
   @media (max-width: 48em) {
     margin-top: 0rem;
     .fr-mb-4w{
@@ -261,7 +260,7 @@ function SwitchNotice({
   );
 
   return (
-    <Container className={fr.cx("fr-col-12")}>
+    <Container className={fr.cx("fr-col-12", 'fr-mt-2w')}>
       <Container className={["mobile-display-contents", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ",)}>
         <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")].join(" ",)}>
           <ShareButtons 
