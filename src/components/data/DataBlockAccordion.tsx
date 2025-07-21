@@ -70,6 +70,8 @@ const YellowText = styled.span`
 `;
 const FiltersTagContainer = styled.div`
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   a{
     margin-right: 0.5rem;
     margin-top: 0.2rem;
