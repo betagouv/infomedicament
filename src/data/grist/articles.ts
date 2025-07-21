@@ -138,7 +138,7 @@ export async function getArticlesFromPatho(codePatho: string): Promise<ArticleCa
 
 export async function getArticlesFromATC(codeATC: string): Promise<ArticleCardResume[]> {
   const articlesFilters:SearchArticlesFilters = {
-    ATCList: [codeATC, "N02", "J07"],
+    ATCList: [codeATC],
     substancesList: [],
     specialitesList: [],
     pathologiesList: [],
