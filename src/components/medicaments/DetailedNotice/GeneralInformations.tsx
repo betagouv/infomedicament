@@ -334,7 +334,7 @@ function GeneralInformations({
                       )}
                       {pres.HonoDisp && (
                         <span>
-                          <u>Honaire de dispensation</u> : {" "}
+                          <u>Honoraire de dispensation</u> : {" "}
                           {Intl.NumberFormat("fr-FR", {
                             style: "currency",
                             currency: "EUR",

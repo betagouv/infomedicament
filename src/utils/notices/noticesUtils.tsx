@@ -185,7 +185,7 @@ function getTableElement(children:NoticeRCPContentBlock[], definitions?:Definiti
             rowSpan={child.rowspan ? child.rowspan : 1}
             {...(styles && {style: styles})}
           >
-            <span className={fr.cx("fr-text--md")} key={child.id} style={styles}>
+            <span className={fr.cx("fr-text--sm")} key={child.id} style={styles}>
               {elementContent}
             </span>
           </td>
@@ -203,7 +203,11 @@ export function getContent(children:NoticeRCPContentBlock[], definitions?:Defini
       if(child.children){
         const tableContent:(React.JSX.Element | undefined)[] = getTableElement(child.children, definitions);
         if(tableContent) content.push((
-          <div className="rcp-notice-block"><table key={child.id+'-'+index}>{...tableContent}</table></div>
+          <div className="rcp-notice-block">
+            <table key={child.id+'-'+index}>
+              {...tableContent}
+            </table>
+          </div>
         ));
       }
     } else {
