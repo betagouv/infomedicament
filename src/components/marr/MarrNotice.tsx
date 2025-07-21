@@ -18,7 +18,7 @@ function MarrNotice({
     marr.pdf.length > 0 && (
       <>
         <h3 className={fr.cx("fr-h6", "fr-mb-1w")}>
-          Mesure additionnelles de réduction du risque (MARR)
+          Mesures additionnelles de réduction du risque (MARR)
         </h3>
         <div className={fr.cx("fr-text--md", "fr-mb-1w")}>
           Consultez les documents ci-dessous pour bien utiliser ce médicament&nbsp;:
