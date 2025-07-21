@@ -1,15 +1,12 @@
-import { fr } from "@codegouvfr/react-dsfr";
 import { Patho } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import Pagination from "@codegouvfr/react-dsfr/Pagination";
-import AlphabeticNav from "@/components/AlphabeticNav";
 import ContentContainer from "@/components/generic/ContentContainer";
 import { AdvancedPatho, DataTypeEnum } from "@/types/DataTypes";
-import DataList from "@/components/data/DataList";
 import { getPathoSpecialites } from "@/db/utils/pathologies";
 import { groupSpecialites } from "@/db/utils";
+import PageListContent from "@/components/generic/PageListContent";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -65,19 +62,12 @@ export default async function Page(props: {
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
         currentPageLabel="Liste des pathologies"
       />
-      <div className={fr.cx("fr-grid-row")}>
-        <div className={fr.cx("fr-col-md-8")}>
-          <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>Liste des pathologies</h1>
-          <AlphabeticNav
-            letters={letters}
-            url={(letter) => `/pathologies/${letter}`}
-          />
-        </div>
-      </div>
-      <DataList 
+      <PageListContent
+        title="Liste des pathologies"
+        letters={letters}
+        urlPrefix="/pathologies/"
         dataList={detailedPathos}
         type={DataTypeEnum.PATHOLOGY}
-        paginationLength={10}
       />
     </ContentContainer>
   );

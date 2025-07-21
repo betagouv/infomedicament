@@ -1,5 +1,4 @@
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import DefinitionBanner from "@/components/DefinitionBanner";
 import { notFound } from "next/navigation";
 import { Patho } from "@/db/pdbmMySQL/types";
 import { groupSpecialites } from "@/db/utils";
@@ -8,9 +7,10 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getPathologyDefinition } from "@/data/pathologies";
 import ContentContainer from "@/components/generic/ContentContainer";
 import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
-import DataList from "@/components/data/DataList";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { getPathoSpecialites } from "@/db/utils/pathologies";
+import { getArticlesFromPatho } from "@/data/grist/articles";
+import PageDefinitionContent from "@/components/generic/PageDefinitionContent";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -37,11 +37,13 @@ export default async function Page(props: {
   const specialites = await getPathoSpecialites(code);
   const medicaments = specialites && (groupSpecialites(specialites, true));
   const detailedMedicaments = medicaments && (await getAdvancedMedicamentGroupListFromMedicamentGroupList(medicaments));
+
+  const articles = await getArticlesFromPatho(code);
   
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
-        <div className={fr.cx("fr-col-md-8")}>
+        <div className={fr.cx("fr-col-12")}>
           <Breadcrumb
             segments={[
               { label: "Accueil", linkProps: { href: "/" } },
@@ -54,23 +56,17 @@ export default async function Page(props: {
             ]}
             currentPageLabel={patho.NomPatho}
           />
-          <DefinitionBanner
-            type="Pathologie"
-            title={patho.NomPatho}
-            definition={definition}
-          />
-
-          <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
-            {medicaments.length} {medicaments.length > 1 ? "médicaments" : "médicament"} traitant la pathologie «&nbsp;
-            {patho.NomPatho}&nbsp;»
-          </h2>
         </div>
       </div>
-
-      <DataList
+      <PageDefinitionContent 
+        definitionType="Pathologie"
+        definitionTitle={patho.NomPatho}
+        definition={definition}
+        title={`${medicaments.length} ${medicaments.length > 1 ? "médicaments" : "médicament"} traitant la pathologie « 
+            ${patho.NomPatho} »`}
         dataList={detailedMedicaments}
-        type={DataTypeEnum.MEDGROUP} 
-        paginationLength={10}
+        dataType={DataTypeEnum.MEDGROUP}
+        articles={articles}
       />
     </ContentContainer>
   );

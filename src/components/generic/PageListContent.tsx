@@ -1,0 +1,57 @@
+"use client";
+
+import { fr } from "@codegouvfr/react-dsfr";
+import AlphabeticNav from "@/components/AlphabeticNav";
+import DataList from "@/components/data/DataList";
+import { HTMLAttributes, useState } from "react";
+import { AdvancedATCClass, AdvancedPatho, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
+import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
+import DataListPagination from "../data/DataListPagination";
+
+interface PageListContentProps extends HTMLAttributes<HTMLDivElement> {
+  title: string;
+  letters: string[];  
+  urlPrefix: string;
+  dataList: AdvancedSubstanceNom[] | AdvancedMedicamentGroup[] | AdvancedPatho[] | AdvancedATCClass[];
+  type: DataTypeEnum;
+}
+
+
+function PageListContent({
+  title,
+  letters,
+  urlPrefix,
+  dataList,
+  type,
+}: PageListContentProps ) {
+
+  const PAGINATION_LENGTH:number = 10;
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  
+  return (
+    <div className={fr.cx("fr-grid-row")}>
+      <div className={fr.cx("fr-col-md-8")}>
+        <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>{title}</h1>
+        <AlphabeticNav
+          letters={letters}
+          url={(letter) => `${urlPrefix}${letter}`}
+        />
+      </div>
+      <div className={fr.cx("fr-col-md-8")}>
+        <DataList 
+          dataList={dataList}
+          type={type}
+          paginationLength={PAGINATION_LENGTH}
+          currentPage={currentPage}
+        />
+      </div>
+      <DataListPagination 
+        dataLength={dataList.length}
+        paginationLength={PAGINATION_LENGTH}
+        updateCurrentPage={setCurrentPage}
+      />
+    </div>
+  );
+}
+
+export default PageListContent;
