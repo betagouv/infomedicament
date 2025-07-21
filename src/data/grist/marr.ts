@@ -14,7 +14,6 @@ export async function getMarr(CIS: string): Promise<Marr> {
     "Type",
   ]);
 
-  const allPDF: MarrPdf[] = [];
   const marr: Marr = {
     CIS: CIS,
     ansmUrl: "",
