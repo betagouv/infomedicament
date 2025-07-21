@@ -65,10 +65,9 @@ export default async function Page(props0: {
         </div>
       </div>
       <div className={fr.cx("fr-grid-row")}>
-        <div className={fr.cx("fr-col-12", "fr-col-md-10", "fr-col-lg-9")}>
+        <div className={fr.cx("fr-col-12")}>
           <ShareButtons 
             pageName={title}
-            rightAlign={true} 
             className={fr.cx("fr-mb-4w")}
           />
         </div>

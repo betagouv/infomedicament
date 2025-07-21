@@ -4,6 +4,7 @@ import Card from "@codegouvfr/react-dsfr/Card";
 import ContentContainer from "@/components/generic/ContentContainer";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ShareButtons from "@/components/generic/ShareButtons";
+import Image from "next/image";
 
 export default async function Page() {
 
@@ -18,18 +19,31 @@ export default async function Page() {
         <h1 className={fr.cx("fr-h2")}>
           À propos
         </h1>
-        <ContentContainer frContainer>
-          <div className={fr.cx("fr-grid-row")}>
-            <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
-              <ShareButtons 
-                pageName="À propos"
-                rightAlign={true}
-                className={fr.cx("fr-mb-3w")}
-              />
-            </div>
-          </div>
-        </ContentContainer>
+        <ShareButtons 
+          pageName="À propos"
+          className={fr.cx("fr-mb-3w")}
+        />
+        <div
+          className={fr.cx(
+            "fr-col-md-6",
+            "fr-col-sm-4",
+            "fr-hidden",
+            "fr-unhidden-xl",
+            "fr-unhidden-lg",
+            "fr-unhidden-md",
+            "fr-unhidden-sm",
+          )}
+        >
+          <Image
+            src="/apropos_illu.svg"
+            alt="Un dessin d'une personne examinant une notice de médicament."
+            className={fr.cx("fr-responsive-img")}
+            width={2000}
+            height={2000}
+          />
+        </div>
       </ContentContainer>
+
       <ContentContainer frContainer>
         <div className={fr.cx("fr-pt-4w", "fr-pb-4w")}>
           <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>

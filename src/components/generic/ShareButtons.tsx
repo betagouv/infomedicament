@@ -5,13 +5,10 @@ import Link from "next/link";
 import { HTMLAttributes, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
 
-const Container = styled.div<{$rightAlign?: boolean }>`
+const Container = styled.div`
   .fr-share {
     flex-direction: row;
     align-items: center;
-    ${props => props.$rightAlign && css`
-      justify-content: flex-end;
-    `}
   }
   .fr-share .fr-share__title{
     margin-right: 0.5rem;
@@ -32,17 +29,14 @@ const CopiedText = styled.span`
 
 interface ShareButtonsProps extends HTMLAttributes<HTMLDivElement> {
   pageName: string;
-  rightAlign?: boolean;
 }
 
 function ShareButtons({
   pageName,
-  rightAlign, 
   ...props
 }: ShareButtonsProps) {
 
   const [currentHref, setCurrentHref] = useState<string>("");
-  const [isRightAlign, setIsRightAlign] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
 
   useEffect(() => {
@@ -50,13 +44,8 @@ function ShareButtons({
       setCurrentHref(window.location.href);
   }, [setCurrentHref]);
 
-  useEffect(() => {
-    if(rightAlign)
-      setIsRightAlign(rightAlign);
-  }, [rightAlign, setIsRightAlign])
-
   return (
-    <Container $rightAlign={isRightAlign} className={props.className}>
+    <Container className={props.className}>
       <div className={fr.cx("fr-share")}>
         <p className={fr.cx("fr-share__title")}>Partager via :</p>
         <ul className={fr.cx("fr-btns-group")}>

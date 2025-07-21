@@ -36,7 +36,6 @@ export default function DefinitionBanner({
           <h1 className={fr.cx("fr-h1", "fr-mt-1w", "fr-mb-0")}>{title}</h1>
           <ShareButtons 
             pageName={title}
-            rightAlign={true}
             className={fr.cx("fr-mb-6w")} 
           />
         </div>
