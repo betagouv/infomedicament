@@ -9,8 +9,8 @@ import Button from "@codegouvfr/react-dsfr/Button";
 import PediatricsTags from "../tags/PediatricsTags";
 import { AdvancedMedicamentGroup, AdvancedSpecialite } from "@/types/MedicamentTypes";
 import { PediatricsInfo } from "@/data/grist/pediatrics";
-import PregnancyCISTag from "../tags/PregnancyCISTag";
-import PregnancySubsTag from "../tags/PregnancySubsTag";
+import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
+import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
@@ -70,6 +70,8 @@ const YellowText = styled.span`
 `;
 const FiltersTagContainer = styled.div`
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   a{
     margin-right: 0.5rem;
     margin-top: 0.2rem;
@@ -93,8 +95,8 @@ function DataBlockAccordion({
   const [groupName, setGroupName] = useState<string>("");
   const [specialites, setSpecialites] = useState<AdvancedSpecialite[]>();
   const [listeComposants, setListeComposants] = useState<string>("");
-  const [pregnancySubsAlert, setPregnancySubsAlert] = useState<boolean>(false);
-  const [pregnancyCISAlert, setPregnancyCISAlert] = useState<boolean>(false);
+  const [pregnancyPlanAlert, setPregnancyPlanAlert] = useState<boolean>(false);
+  const [pregnancyMentionAlert, setPregnancyMentionAlert] = useState<boolean>(false);
   const [pediatricsInfo, setPediatricsInfo] = useState<PediatricsInfo>();
 
   const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(false);
@@ -112,17 +114,17 @@ function DataBlockAccordion({
 
   useEffect(() => {
     if(advancedMedicamentGroup && filterPregnancy){
-      if (advancedMedicamentGroup.pregnancySubsAlert) setPregnancySubsAlert(true)
-      else setPregnancySubsAlert(false);
+      if (advancedMedicamentGroup.pregnancyPlanAlert) setPregnancyPlanAlert(true)
+      else setPregnancyPlanAlert(false);
 
-      if (advancedMedicamentGroup.pregnancyCISAlert) setPregnancyCISAlert(true);
-      else setPregnancyCISAlert(false);
+      if (advancedMedicamentGroup.pregnancyMentionAlert) setPregnancyMentionAlert(true);
+      else setPregnancyMentionAlert(false);
     } else {
-      setPregnancySubsAlert(false);
-      setPregnancyCISAlert(false);
+      setPregnancyPlanAlert(false);
+      setPregnancyMentionAlert(false);
     }
 
-  }, [filterPregnancy, advancedMedicamentGroup, setPregnancySubsAlert, setPregnancyCISAlert]);
+  }, [filterPregnancy, advancedMedicamentGroup, setPregnancyPlanAlert, setPregnancyMentionAlert]);
 
   useEffect(() => {
     if(advancedMedicamentGroup && filterPediatric && advancedMedicamentGroup.pediatrics)
@@ -165,13 +167,13 @@ function DataBlockAccordion({
                 </DarkGreyText>
               </span>
             </RowToColumnContainer>
-            {(pregnancySubsAlert || pregnancyCISAlert || pediatricsInfo) && (
+            {(pregnancyPlanAlert || pregnancyMentionAlert || pediatricsInfo) && (
               <div>
-                {pregnancyCISAlert && (
-                  <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Mention contre-indication grossesse pour certains des médicaments</RedText>
-                )}
-                {pregnancySubsAlert && (
+                {pregnancyPlanAlert && (
                   <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Plan de prévention grossesse pour certains des médicaments</RedText>
+                )}
+                {(!pregnancyPlanAlert && pregnancyMentionAlert) && (
+                  <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Mention contre-indication grossesse pour certains des médicaments</RedText>
                 )}
                 {pediatricsInfo && (
                   <>
@@ -212,13 +214,13 @@ function DataBlockAccordion({
                 >
                   {formatSpecName(specialite.SpecDenom01)}
                 </Link>
-                {((pregnancySubsAlert && specialite.pregnancySubsAlert) || (pregnancyCISAlert && specialite.pregnancyCISAlert) || (pediatricsInfo && specialite.pediatrics)) && (
+                {((pregnancyPlanAlert && specialite.pregnancyPlanAlert) || (pregnancyMentionAlert && specialite.pregnancyMentionAlert) || (pediatricsInfo && specialite.pediatrics)) && (
                   <FiltersTagContainer>
-                    {(pregnancyCISAlert && specialite.pregnancyCISAlert) && (
-                      <PregnancyCISTag />
+                    {(pregnancyPlanAlert && specialite.pregnancyPlanAlert) && (
+                      <PregnancyPlanTag />
                     )}
-                    {(pregnancySubsAlert && specialite.pregnancySubsAlert) && (
-                      <PregnancySubsTag />
+                    {((!pregnancyPlanAlert && !specialite.pregnancyPlanAlert) && pregnancyMentionAlert && specialite.pregnancyMentionAlert) && (
+                      <PregnancyMentionTag />
                     )}
                     {(pediatricsInfo && specialite.pediatrics) && (
                       <PediatricsTags info={specialite.pediatrics} />

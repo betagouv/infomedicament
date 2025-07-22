@@ -19,8 +19,8 @@ import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
 import { FicheInfos, NoticeRCPContentBlock } from "@/types/MedicamentTypes";
 import { displayInfosImportantes, getContent } from "@/utils/notices/noticesUtils";
-import PregnancyCISTag from "@/components/tags/PregnancyCISTag";
-import PregnancySubsTag from "@/components/tags/PregnancySubsTag";
+import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
+import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 
 const SummaryLineContainer = styled.div `
   display: flex;
@@ -81,8 +81,8 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
   SpecGeneId?: string;
-  isPregnancySubsAlert: boolean;
-  isPregnancyCISAlert: boolean;
+  isPregnancyPlanAlert: boolean;
+  isPregnancyMentionAlert: boolean;
   pediatrics: PediatricsInfo | undefined;  
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
   marr?: Marr;
@@ -97,8 +97,8 @@ function GeneralInformations({
   composants,
   isPrinceps,
   SpecGeneId,
-  isPregnancySubsAlert,
-  isPregnancyCISAlert,
+  isPregnancyPlanAlert,
+  isPregnancyMentionAlert,
   pediatrics,
   presentations,
   marr,
@@ -180,10 +180,10 @@ function GeneralInformations({
           {/* <Link href="#">Voir dans le RCP</Link> */}
         </SummaryLine>
         <SummaryLine categoryName="Grossesse">
-          {(isPregnancyCISAlert || isPregnancySubsAlert) ? (
+          {(isPregnancyMentionAlert || isPregnancyPlanAlert) ? (
             <>
-              {isPregnancyCISAlert && (<PregnancyCISTag />)}
-              {isPregnancySubsAlert && (<PregnancySubsTag />)}
+              {isPregnancyPlanAlert && (<PregnancyPlanTag />)}
+              {(!isPregnancyPlanAlert && isPregnancyMentionAlert) && (<PregnancyMentionTag />)}
             </>
           ) : (
             <span>Aucune contre-indication grossesse</span>
@@ -334,7 +334,7 @@ function GeneralInformations({
                       )}
                       {pres.HonoDisp && (
                         <span>
-                          <u>Honaire de dispensation</u> : {" "}
+                          <u>Honoraire de dispensation</u> : {" "}
                           {Intl.NumberFormat("fr-FR", {
                             style: "currency",
                             currency: "EUR",

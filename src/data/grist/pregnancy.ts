@@ -1,7 +1,7 @@
 import { getGristTableData } from "@/data/grist/index";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 
-export async function getPregnancySubsAlerts(): Promise <PregnancyAlert[]> {
+export async function getPregnancyPlanAlerts(): Promise <PregnancyAlert[]> {
   const records = await getGristTableData(
     "Grossesse_substances_contre_indiquees",
     ["SubsId", "Lien_site_ANSM"],
@@ -13,7 +13,7 @@ export async function getPregnancySubsAlerts(): Promise <PregnancyAlert[]> {
   }));
 }
 
-export async function getPregnancyCISAlert(
+export async function getPregnancyMentionAlert(
   CIS: string
 ): Promise <boolean> {
   const records = await getGristTableData(

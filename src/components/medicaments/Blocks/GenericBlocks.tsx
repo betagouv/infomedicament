@@ -30,7 +30,7 @@ export const RcpNoticeContainer = styled.div`
     tr, th {
       border: gray 1px solid;
       td {
-        padding: 0.5rem;
+        padding: 0.4rem;
         border: gray 1px solid;
       }
     }

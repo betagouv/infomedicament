@@ -1,6 +1,6 @@
 import { getAtc1, getAtc2, getAtcCode } from "@/data/grist/atc";
 import { getSpecialite } from "./specialities";
-import { getPregnancyCISAlert, getPregnancySubsAlerts } from "@/data/grist/pregnancy";
+import { getPregnancyMentionAlert, getPregnancyPlanAlerts } from "@/data/grist/pregnancy";
 import { MedicamentGroup } from "@/displayUtils";
 import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 import { getPediatrics } from "@/data/grist/pediatrics";
@@ -10,15 +10,15 @@ import { Specialite } from "../pdbmMySQL/types";
 export async function getAdvancedMedicamentGroupFromGroupNameSpecialites(
   groupName: string,
   specialites: Specialite[],
-  pregnancySubsAlerts?: PregnancyAlert[],
+  pregnancyPlanAlerts?: PregnancyAlert[],
 ): Promise <AdvancedMedicamentGroup> {
-  if(!pregnancySubsAlerts) {
-    pregnancySubsAlerts = await getPregnancySubsAlerts();
+  if(!pregnancyPlanAlerts) {
+    pregnancyPlanAlerts = await getPregnancyPlanAlerts();
   }
 
   const atc = getAtcCode(specialites[0].SpecId);
   const { composants } = await getSpecialite(specialites[0].SpecId);
-  const pregnancySubsAlert = pregnancySubsAlerts.find((s) =>
+  const pregnancyPlanAlert = pregnancyPlanAlerts.find((s) =>
     composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
   );
   const pediatricsInfo = {
@@ -27,7 +27,7 @@ export async function getAdvancedMedicamentGroupFromGroupNameSpecialites(
     doctorAdvice: false,
     mention: false,
   }
-  let pregnancyCISAlert = false;
+  let pregnancyMentionAlert = false;
   const advancedSpecialites = await Promise.all(
     specialites.map(async (spec) => {
       const pediatrics = await getPediatrics(spec.SpecId);
@@ -37,11 +37,11 @@ export async function getAdvancedMedicamentGroupFromGroupNameSpecialites(
         if(pediatrics.doctorAdvice) pediatricsInfo.doctorAdvice = true;
         if(pediatrics.mention) pediatricsInfo.mention = true;
       }
-      const pregnancyAlert = await getPregnancyCISAlert(spec.SpecId)
-      if(pregnancyAlert) pregnancyCISAlert = true;
+      const pregnancyAlert = await getPregnancyMentionAlert(spec.SpecId)
+      if(pregnancyAlert) pregnancyMentionAlert = true;
       return {
-        pregnancyCISAlert: pregnancyAlert,
-        pregnancySubsAlert: !!pregnancySubsAlert,
+        pregnancyMentionAlert: pregnancyAlert,
+        pregnancyPlanAlert: !!pregnancyPlanAlert,
         pediatrics: pediatrics,
         ...spec,
       }
@@ -54,29 +54,29 @@ export async function getAdvancedMedicamentGroupFromGroupNameSpecialites(
     atc1: atc ? await getAtc1(atc) : undefined,
     atc2: atc ? await getAtc2(atc) : undefined,
     composants: composants,
-    pregnancySubsAlert: !!pregnancySubsAlert,
-    pregnancyCISAlert: pregnancyCISAlert,
+    pregnancyPlanAlert: !!pregnancyPlanAlert,
+    pregnancyMentionAlert: pregnancyMentionAlert,
     pediatrics: (pediatricsInfo.indication || pediatricsInfo.contraindication || pediatricsInfo.doctorAdvice || pediatricsInfo.mention) ? pediatricsInfo : undefined,
   }
 }
 
 export async function getAdvancedMedicamentGroupFromMedicamentGroup(
   medGroup: MedicamentGroup,
-  pregnancySubsAlerts?: PregnancyAlert[],
+  pregnancyPlanAlerts?: PregnancyAlert[],
 ): Promise <AdvancedMedicamentGroup> {
 
   const [groupName, specialites] = medGroup;
-  return getAdvancedMedicamentGroupFromGroupNameSpecialites(groupName, specialites, pregnancySubsAlerts);
+  return getAdvancedMedicamentGroupFromGroupNameSpecialites(groupName, specialites, pregnancyPlanAlerts);
 }
 
 export async function getAdvancedMedicamentGroupListFromMedicamentGroupList(
   medGroupList: MedicamentGroup[]
 ): Promise <AdvancedMedicamentGroup[]> {
-  const pregnancySubsAlerts = await getPregnancySubsAlerts();
+  const pregnancyPlanAlerts = await getPregnancyPlanAlerts();
 
   return await Promise.all(
     medGroupList.map(async (medGroup) => {
-      return getAdvancedMedicamentGroupFromMedicamentGroup(medGroup, pregnancySubsAlerts);
+      return getAdvancedMedicamentGroupFromMedicamentGroup(medGroup, pregnancyPlanAlerts);
     })
   );
 }

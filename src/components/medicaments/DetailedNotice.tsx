@@ -28,8 +28,8 @@ interface DetailedNoticeProps extends HTMLAttributes<HTMLDivElement> {
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
   SpecGeneId?: string;
-  isPregnancySubsAlert: boolean;
-  isPregnancyCISAlert: boolean;
+  isPregnancyPlanAlert: boolean;
+  isPregnancyMentionAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
   marr?: Marr;
@@ -45,8 +45,8 @@ function DetailedNotice({
   composants,
   isPrinceps,
   SpecGeneId,
-  isPregnancySubsAlert,
-  isPregnancyCISAlert,
+  isPregnancyPlanAlert,
+  isPregnancyMentionAlert,
   pediatrics,
   presentations,
   marr,
@@ -72,8 +72,8 @@ function DetailedNotice({
           composants={composants}
           isPrinceps={isPrinceps}
           SpecGeneId={SpecGeneId}
-          isPregnancySubsAlert={isPregnancySubsAlert}
-          isPregnancyCISAlert={isPregnancyCISAlert}
+          isPregnancyPlanAlert={isPregnancyPlanAlert}
+          isPregnancyMentionAlert={isPregnancyMentionAlert}
           pediatrics={pediatrics}
           presentations={presentations}
           updateVisiblePart={setVisiblePart}
