@@ -39,8 +39,8 @@ import { displayInfosImportantes, getContent } from "@/utils/notices/noticesUtil
 import { questionsList } from "@/data/pages/notices_anchors";
 import { Definition } from "@/types/GlossaireTypes";
 import NoticeBlock from "./NoticeBlock";
-import PregnancySubsTag from "../tags/PregnancySubsTag";
-import PregnancyCISTag from "../tags/PregnancyCISTag";
+import PregnancyMentionTag from "../tags/PregnancyMentionTag";
+import PregnancyPlanTag from "../tags/PregnancyPlanTag";
 import Link from "next/link";
 
 const ToggleSwitchContainer = styled.div`
@@ -98,8 +98,8 @@ interface SwitchNoticeProps extends HTMLAttributes<HTMLDivElement> {
   isPrinceps: boolean;
   SpecGeneId?: string;
   delivrance: SpecDelivrance[];
-  isPregnancySubsAlert: boolean;
-  isPregnancyCISAlert: boolean;
+  isPregnancyPlanAlert: boolean;
+  isPregnancyMentionAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
   articles?: ArticleCardResume[];
@@ -115,8 +115,8 @@ function SwitchNotice({
   isPrinceps,
   SpecGeneId,
   delivrance,
-  isPregnancySubsAlert,
-  isPregnancyCISAlert,
+  isPregnancyPlanAlert,
+  isPregnancyMentionAlert,
   pediatrics,
   presentations,
   articles,
@@ -238,10 +238,10 @@ function SwitchNotice({
           ? TagTypeEnum.PEDIATRIC_CONTRAINDICATION
           : (pediatrics && pediatrics.indication
             ? TagTypeEnum.PEDIATRIC_INDICATION
-            : (isPregnancySubsAlert 
-              ? TagTypeEnum.PREGNANCY_SUBS 
-              : (isPregnancyCISAlert 
-                ? TagTypeEnum.PREGNANCY_CIS 
+            : (isPregnancyPlanAlert 
+              ? TagTypeEnum.PREGNANCY_PLAN 
+              : (isPregnancyMentionAlert 
+                ? TagTypeEnum.PREGNANCY_MENTION 
                 : (!!delivrance.length 
                   ? TagTypeEnum.PRESCRIPTION 
                   : (!!SpecGeneId 
@@ -313,14 +313,14 @@ function SwitchNotice({
                       <PrescriptionTag />
                     </TagContainer>
                   )}
-                  {isPregnancyCISAlert && (
-                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY_CIS}>
-                      <PregnancyCISTag />
+                  {isPregnancyPlanAlert && (
+                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY_PLAN}>
+                      <PregnancyPlanTag />
                     </TagContainer>
                   )}
-                  {isPregnancySubsAlert && (
-                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY_SUBS}>
-                      <PregnancySubsTag />
+                  {(!isPregnancyPlanAlert && isPregnancyMentionAlert) && (
+                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY_MENTION}>
+                      <PregnancyMentionTag />
                     </TagContainer>
                   )}
                   {pediatrics && <PediatricsTags info={pediatrics} lastTagElement={lastTagElement}/>}
@@ -390,8 +390,8 @@ function SwitchNotice({
               composants={composants}
               isPrinceps={isPrinceps}
               SpecGeneId={SpecGeneId}
-              isPregnancySubsAlert={isPregnancySubsAlert}
-              isPregnancyCISAlert={isPregnancyCISAlert}
+              isPregnancyPlanAlert={isPregnancyPlanAlert}
+              isPregnancyMentionAlert={isPregnancyMentionAlert}
               pediatrics={pediatrics}
               presentations={presentations}
               marr={currentMarr}

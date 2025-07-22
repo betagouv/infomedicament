@@ -21,7 +21,7 @@ const ModalContent = styled.div`
   }
 `;
 
-function PregnancyCISTag() {
+function PregnancyMentionTag() {
 
   return (
     <div>
@@ -53,4 +53,4 @@ function PregnancyCISTag() {
   );
 }
 
-export default PregnancyCISTag;
+export default PregnancyMentionTag;

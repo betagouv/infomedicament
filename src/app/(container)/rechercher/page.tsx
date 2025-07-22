@@ -1,7 +1,7 @@
 import { getSearchResults, groupSpecialites } from "@/db/utils";
 import { ExtendedOrderResults, ExtendedSearchResults } from "@/types/SearchTypes";
 import { getSubstanceSpecialites, SearchResultItem } from "@/db/utils/search";
-import { getPregnancySubsAlerts } from "@/data/grist/pregnancy";
+import { getPregnancyPlanAlerts } from "@/data/grist/pregnancy";
 import { getAdvancedMedicamentGroupFromGroupNameSpecialites } from "@/db/utils/medicaments";
 import { getArticlesFromSearchResults } from "@/data/grist/articles";
 import { AdvancedATC, DataTypeEnum } from "@/types/DataTypes";
@@ -17,7 +17,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
     [DataTypeEnum.PATHOLOGY]: [],
     [DataTypeEnum.ATCCLASS]: [],
   }
-  const pregnancySubsAlerts = await getPregnancySubsAlerts();
+  const pregnancyPlanAlerts = await getPregnancyPlanAlerts();
   const extendedResults = await Promise.all(
     results.map(async (result: SearchResultItem) => {
       counter ++;
@@ -34,7 +34,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
         };
       } else if("groupName" in result){
         //Med Group
-        const advancedMedicamentGroup = await getAdvancedMedicamentGroupFromGroupNameSpecialites(result.groupName, result.specialites, pregnancySubsAlerts);
+        const advancedMedicamentGroup = await getAdvancedMedicamentGroupFromGroupNameSpecialites(result.groupName, result.specialites, pregnancyPlanAlerts);
         return {
           type: DataTypeEnum.MEDGROUP,
           result: advancedMedicamentGroup

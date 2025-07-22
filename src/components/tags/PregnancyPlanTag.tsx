@@ -20,7 +20,7 @@ const ModalContent = styled.div`
   }
 `;
 
-export default function PregnancySubsTag() {
+function PregnancyPlanTag() {
 
   return (
     <>
@@ -59,3 +59,5 @@ export default function PregnancySubsTag() {
     </>
   );
 }
+
+export default PregnancyPlanTag;

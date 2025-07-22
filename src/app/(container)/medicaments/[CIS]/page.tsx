@@ -12,7 +12,7 @@ import { getSpecialite, getSpecialiteGroupName } from "@/db/utils";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import Alert from "@codegouvfr/react-dsfr/Alert";
-import { getPregnancyCISAlert, getPregnancySubsAlerts } from "@/data/grist/pregnancy";
+import { getPregnancyMentionAlert, getPregnancyPlanAlerts } from "@/data/grist/pregnancy";
 import { getPediatrics } from "@/data/grist/pediatrics";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SwitchNotice from "@/components/medicaments/SwitchNotice";
@@ -69,10 +69,10 @@ export default async function Page(props: {
       .where("GroupeGene.SpecId", "=", CIS)
       .executeTakeFirst());
 
-  const pregnancySubsAlert = (await getPregnancySubsAlerts()).find((s) =>
+  const pregnancyPlanAlert = (await getPregnancyPlanAlerts()).find((s) =>
     composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
   );
-  const pregnancyCISAlert = await getPregnancyCISAlert(CIS);
+  const pregnancyMentionAlert = await getPregnancyMentionAlert(CIS);
 
   const pediatrics = await getPediatrics(CIS);
 
@@ -141,12 +141,12 @@ export default async function Page(props: {
 
         <ContentContainer frContainer>              
           <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>
-            {(pregnancySubsAlert || pregnancyCISAlert || pediatrics?.contraindication )&& (
+            {(pregnancyPlanAlert || pregnancyMentionAlert || pediatrics?.contraindication )&& (
               <ContentContainer className={fr.cx("fr-col-12")}>
-                {pregnancySubsAlert && (
+                {pregnancyPlanAlert && (
                   <ContentContainer 
                     whiteContainer 
-                     className={(pregnancyCISAlert || pediatrics?.contraindication) ? fr.cx("fr-mb-2w") : ""}
+                     className={(pregnancyMentionAlert || pediatrics?.contraindication) ? fr.cx("fr-mb-2w") : ""}
                   >
                     <Alert
                       severity={"warning"}
@@ -160,7 +160,7 @@ export default async function Page(props: {
                           Il peut présenter des risques pour le fœtus (malformations, effets toxiques).<br/>
                           Lisez attentivement la notice et parlez-en à un professionnel de santé avant toute utilisation.
                           <br />
-                          <a target="_blank" href={pregnancySubsAlert.link} rel="noopener noreferrer">
+                          <a target="_blank" href={pregnancyPlanAlert.link} rel="noopener noreferrer">
                             En savoir plus sur le site de l’ANSM
                           </a>
                         </p>
@@ -168,7 +168,7 @@ export default async function Page(props: {
                     />
                   </ContentContainer>
                 )}
-                {pregnancyCISAlert && (
+                {(!pregnancyPlanAlert && pregnancyMentionAlert) && (
                   <ContentContainer 
                     whiteContainer 
                     className={pediatrics?.contraindication ? fr.cx("fr-mb-2w") : ""}
@@ -206,8 +206,8 @@ export default async function Page(props: {
               isPrinceps={isPrinceps}
               SpecGeneId={specialite ? specialite.SpecGeneId : ""}
               delivrance={delivrance}
-              isPregnancySubsAlert={!!pregnancySubsAlert}
-              isPregnancyCISAlert={pregnancyCISAlert}
+              isPregnancyPlanAlert={!!pregnancyPlanAlert}
+              isPregnancyMentionAlert={pregnancyMentionAlert}
               pediatrics={pediatrics}
               presentations={presentations}
               articles={articles}
