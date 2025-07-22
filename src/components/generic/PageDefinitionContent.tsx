@@ -49,6 +49,8 @@ function PageDefinitionContent({
         <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
           {title}
         </h2>
+      </div>
+      <div className={fr.cx("fr-col-12", "fr-col-md-8")}>
         <DataList
           dataList={dataList}
           type={dataType}
