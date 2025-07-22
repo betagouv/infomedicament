@@ -25,8 +25,8 @@ export default async function Page() {
         />
         <div
           className={fr.cx(
-            "fr-col-md-6",
-            "fr-col-sm-4",
+            "fr-col-md-8",
+            "fr-col-sm-9",
             "fr-hidden",
             "fr-unhidden-xl",
             "fr-unhidden-lg",
@@ -35,7 +35,7 @@ export default async function Page() {
           )}
         >
           <Image
-            src="/apropos_illu.svg"
+            src="/apropos_illu.webp"
             alt="Un dessin d'une personne examinant une notice de médicament."
             className={fr.cx("fr-responsive-img")}
             width={2000}
@@ -45,7 +45,7 @@ export default async function Page() {
       </ContentContainer>
 
       <ContentContainer frContainer>
-        <div className={fr.cx("fr-pt-4w", "fr-pb-4w")}>
+        <div className={fr.cx("fr-pb-4w")}>
           <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>
             <div className={fr.cx("fr-col-12", "fr-mt-4w")}>
               <h2 className={fr.cx("fr-h4")}>Nos missions</h2>
