@@ -2,7 +2,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { Fragment } from "react";
 import Link from "next/link";
 
-export default async function AlphabeticNav({
+function AlphabeticNav({
   letters,
   url,
 }: {
@@ -30,4 +30,6 @@ export default async function AlphabeticNav({
         ))}
     </p>
   );
-}
+};
+
+export default AlphabeticNav;

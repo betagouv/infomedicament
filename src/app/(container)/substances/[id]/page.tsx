@@ -6,12 +6,12 @@ import { Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { notFound } from "next/navigation";
 import { getGristTableData } from "@/data/grist";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import DefinitionBanner from "@/components/DefinitionBanner";
 import ContentContainer from "@/components/generic/ContentContainer";
 import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
-import DataList from "@/components/data/DataList";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { getSubstanceSpecialites } from "@/db/utils/search";
+import PageDefinitionContent from "@/components/generic/PageDefinitionContent";
+import { getArticlesFromSubstances } from "@/data/grist/articles";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -62,6 +62,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   const { substances, specialitiesGroups, definitions } = await getSubstance(ids);
 
   const detailedSpecialitiesGroups = await getAdvancedMedicamentGroupListFromMedicamentGroupList(specialitiesGroups);
+  const articles = await getArticlesFromSubstances(ids);
 
   return (
     <ContentContainer frContainer>
@@ -79,29 +80,23 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
             ]}
             currentPageLabel={substances.map((s) => s.NomLib).join(", ")}
           />
-          <DefinitionBanner
-            type={`Substance${ids.length > 1 ? "s" : ""} active${ids.length > 1 ? "s" : ""}`}
-            title={substances.map((s) => s.NomLib).join(", ")}
-            definition={definitions.map((d) => ({
+        </div>
+      </div>
+      <PageDefinitionContent 
+        definitionType={`Substance${ids.length > 1 ? "s" : ""} active${ids.length > 1 ? "s" : ""}`}
+        definitionTitle={substances.map((s) => s.NomLib).join(", ")}
+        definition={definitions.map((d) => ({
               title: d.fields.SA,
               desc: d.fields.Definition,
             }))}
-            disclaimer={"Les définitions proposées sont fournies à titre informatif. Elles n'ont pas de valeur d'avis médical ou d’indication clinique. En cas de doute ou pour toute décision liée à votre santé, consultez un professionnel de santé."}
-          />
-
-          <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
-            {specialitiesGroups.length} {specialitiesGroups.length > 1 ? "médicaments" : "médicament"} contenant{" "}
-            {substances.length < 2
+        definitionDisclaimer={"Les définitions proposées sont fournies à titre informatif. Elles n'ont pas de valeur d'avis médical ou d’indication clinique. En cas de doute ou pour toute décision liée à votre santé, consultez un professionnel de santé."}
+        title={`${specialitiesGroups.length} ${specialitiesGroups.length > 1 ? "médicaments" : "médicament"} contenant 
+            ${substances.length < 2
               ? `uniquement la substance « ${substances[0].NomLib} »`
-              : `les substances « ${substances.map((s) => s.NomLib).join(", ")} »`}
-          </h2>
-        </div>
-      </div>
-
-      <DataList
+              : `les substances « ${substances.map((s) => s.NomLib).join(", ")} »`}`}
         dataList={detailedSpecialitiesGroups}
-        type={DataTypeEnum.MEDGROUP} 
-        paginationLength={10}
+        dataType={DataTypeEnum.MEDGROUP}
+        articles={articles}
       />
     </ContentContainer>
   );
