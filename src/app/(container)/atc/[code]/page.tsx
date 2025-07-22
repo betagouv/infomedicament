@@ -5,12 +5,12 @@ import { notFound } from "next/navigation";
 import React from "react";
 import Link from "next/link";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
-import DefinitionBanner from "@/components/DefinitionBanner";
 import ContentContainer from "@/components/generic/ContentContainer";
 import { getSubstanceSpecialites } from "@/db/utils/search";
 import { groupSpecialites } from "@/db/utils";
 import { AdvancedATC1, AdvancedATCClass, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
-import DataList from "@/components/data/DataList";
+import { getArticlesFromATC } from "@/data/grist/articles";
+import PageDefinitionContent from "@/components/generic/PageDefinitionContent";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -102,7 +102,9 @@ export default async function Page(props: {
     } else {
       if((detail as AdvancedATCClass).class.nbSubstances > 0) return detail;
     }
-  })
+  });
+
+  const articles = await getArticlesFromATC(code);
 
   const ItemComponent = (atc2 ? SubstanceItem : SubClassItem) as ({
     item,
@@ -113,7 +115,7 @@ export default async function Page(props: {
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
-        <div className={fr.cx("fr-col-md-8")}>
+        <div className={fr.cx("fr-col-12")}>
           <Breadcrumb
             segments={[
               {
@@ -131,27 +133,20 @@ export default async function Page(props: {
             ]}
             currentPageLabel={currentAtc.label}
           />
-          <DefinitionBanner
-            type={`${atc2 ? "Sous-classe" : "Classe"} de médicament`}
-            title={currentAtc.label}
-            definition={currentAtc.description}
-          />
-
-          <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
-            {detailedSubClass.length}{" "}
-            {atc2 ? (
+        </div>
+      </div>
+      <PageDefinitionContent 
+        definitionType={`${atc2 ? "Sous-classe" : "Classe"} de médicament`}
+        definitionTitle={currentAtc.label}
+        definition={currentAtc.description}
+        title={`${detailedSubClass.length.toString()} ${atc2 ? (
               detailedSubClass.length > 1 ? "substances actives" : "substance active"
             ) : (
               detailedSubClass.length > 1 ? "sous-classes de médicament" : "sous-classe de médicament"
-            )}
-          </h2>
-        </div>
-      </div>
-
-      <DataList
+            )}`}
         dataList={detailedSubClass as AdvancedSubstanceNom[] | AdvancedATCClass[]}
-        type={atc2 ? DataTypeEnum.SUBSTANCE : DataTypeEnum.ATCCLASS}
-        paginationLength={10}
+        dataType={atc2 ? DataTypeEnum.SUBSTANCE : DataTypeEnum.ATCCLASS}
+        articles={articles}
       />
     </ContentContainer>
   );

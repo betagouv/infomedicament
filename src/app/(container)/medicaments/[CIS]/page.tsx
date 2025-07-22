@@ -21,6 +21,7 @@ import { getArticlesFromFilters } from "@/data/grist/articles";
 import { getMarr } from "@/data/grist/marr";
 import { Marr } from "@/types/MarrTypes";
 import Link from "next/link";
+import { getSpecialitesPatho } from "@/db/utils/pathologies";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -112,7 +113,7 @@ export default async function Page(props: {
     ATCList: atcList,
     substancesList: composants.map((compo) => compo.SubsId.trim()),
     specialitesList: [CIS],
-    pathologiesList: []
+    pathologiesList: await getSpecialitesPatho(CIS),
   };
   const articles = await getArticlesFromFilters(articlesFilters);
   const marr: Marr = await getMarr(CIS);

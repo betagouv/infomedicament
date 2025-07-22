@@ -60,7 +60,8 @@ export async function getArticlesFromFilters(articlesFilters: SearchArticlesFilt
       if(index) find = true;
     }
     if(!find && record.fields.Pathologies && articlesFilters.pathologiesList.length > 0){
-      const index = (record.fields.Pathologies as number[]).find((articleCodePatho: number) => articlesFilters.pathologiesList.find((codePatho: string) => parseInt(codePatho) === articleCodePatho));
+      const pathosArticle = (record.fields.Pathologies as string).split(",");
+      const index = pathosArticle.find((articleCodePatho: string) => articlesFilters.pathologiesList.find((codePatho: string) => codePatho === articleCodePatho.trim()));
       if(index) find = true;
     }
     if(!find && record.fields.Specialites && articlesFilters.specialitesList.length > 0){
@@ -69,7 +70,8 @@ export async function getArticlesFromFilters(articlesFilters: SearchArticlesFilt
       if(index) find = true;
     }
     if(!find && record.fields.Classes_ATC && articlesFilters.ATCList.length > 0){
-      const index = (record.fields.Classes_ATC as number[]).find((articleCodeATC: number) => articlesFilters.ATCList.find((codeATC: string) => parseInt(codeATC) === articleCodeATC));
+      const atcArticle = (record.fields.Classes_ATC as string).split(",");
+      const index = atcArticle.find((articleCodeATC: string) => articlesFilters.ATCList.find((codeATC: string) => codeATC === articleCodeATC.trim()));
       if(index) find = true;
     }
     if(find) articles.push(record);
@@ -122,4 +124,36 @@ export async function getArticlesFromSearchResults(results: ExtendedSearchResult
   });
 
   return await getArticlesFromFilters(articlesFilters);
+}
+
+export async function getArticlesFromPatho(codePatho: string): Promise<ArticleCardResume[]> {
+  const articlesFilters:SearchArticlesFilters = {
+    ATCList: [],
+    substancesList: [],
+    specialitesList: [],
+    pathologiesList: [codePatho],
+  };
+  return getArticlesFromFilters(articlesFilters);
+}
+
+export async function getArticlesFromATC(codeATC: string): Promise<ArticleCardResume[]> {
+  const articlesFilters:SearchArticlesFilters = {
+    ATCList: [codeATC],
+    substancesList: [],
+    specialitesList: [],
+    pathologiesList: [],
+  };
+
+  return getArticlesFromFilters(articlesFilters);
+}
+
+export async function getArticlesFromSubstances(ids: string[]): Promise<ArticleCardResume[]> {
+  const articlesFilters:SearchArticlesFilters = {
+    ATCList: [],
+    substancesList: ids,
+    specialitesList: [],
+    pathologiesList: [],
+  };
+
+  return getArticlesFromFilters(articlesFilters);
 }

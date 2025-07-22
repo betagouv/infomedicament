@@ -1,3 +1,5 @@
+"use client";
+
 import { HTMLAttributes, useEffect, useState } from "react";
 import styled from 'styled-components';
 import { ArticleCardResume } from "@/types/ArticlesTypes";
