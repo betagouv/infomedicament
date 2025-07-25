@@ -30,9 +30,7 @@ function getStyles(styles: string[] | undefined): CSSProperties{
 
 function getTitleElement(content:NoticeRCPContentBlock, definitions?:Definition[]): (React.JSX.Element | undefined){
   if(content.content){
-    const elementContent = definitions 
-      ? <WithGlossary definitions={definitions} text={content.content} isHeader={true}/>
-      : content.content;
+    const elementContent = <WithGlossary definitions={definitions} key={content.id} text={content.content} headerId={content.anchor}/>;
     if(content.type && (content.type === "AmmNoticeTitre1" || content.type === "AmmAnnexeTitre1")){
       return (
         <h3 className={fr.cx("fr-h5")} key={content.id} id={content.anchor}>
@@ -68,13 +66,11 @@ function getTitleElement(content:NoticeRCPContentBlock, definitions?:Definition[
 function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definition[]): (React.JSX.Element | undefined){
   if(content.content){
     const styles = getStyles(content.styles);
-    const elementContent = definitions 
-      ? <WithGlossary definitions={definitions} key={content.id} text={content.content} />
-      : content.content;
+    const elementContent = <WithGlossary definitions={definitions} key={content.id} text={content.content}/>;
     if(content.type && content.type === "AmmCorpsTexte") {
       return (
         <div key={content.id} className={fr.cx("fr-mb-2w")} style={styles}>
-          {content.content}
+          {elementContent}
         </div>
       )
     }
@@ -94,7 +90,7 @@ function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definitio
       return (
         //Only in RCP
         <TitulaireNomContainer key={content.id} style={styles}>
-          {content.content}
+          {elementContent}
         </TitulaireNomContainer>
       );
     }
@@ -102,7 +98,7 @@ function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definitio
       //Only in RCP
       return (
         <TitulaireAddressContainer key={content.id} style={styles}>
-          {content.content}
+          {elementContent}
         </TitulaireAddressContainer>
       );
     }
@@ -111,12 +107,9 @@ function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definitio
         <ul key={content.id} className={fr.cx("fr-ml-2w")} style={styles}>
           {content.content.map((li, index) => {
             const text = li.charAt(0) === '·' ? li.substring(1) : li;
-            const liContent = definitions 
-              ? <WithGlossary definitions={definitions} key={content.id} text={[text]} />
-              : text;
             return (
               <li className={fr.cx("fr-text--md", "fr-mb-1w")} key={content.id+'-'+index}>
-                {liContent}
+                <WithGlossary definitions={definitions} key={content.id} text={[text]} />
               </li>
             )
           })}
@@ -173,9 +166,7 @@ function getTableElement(children:NoticeRCPContentBlock[], definitions?:Definiti
             <>{...childElements}</>
           );
       } else if(child.content && child.content.length > 0) {
-        elementContent = definitions 
-          ? <WithGlossary definitions={definitions} key={child.id} text={child.content} />
-          : child.content;
+        elementContent = <WithGlossary definitions={definitions} key={child.id} text={child.content} />;
       }
       if(elementContent){
         content.push((
