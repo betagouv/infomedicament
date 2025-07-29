@@ -301,14 +301,23 @@ function GeneralInformations({
                     />
                     {pres.details ? (
                       <span className={fr.cx("fr-mr-2w")}>
-                        <b>
-                          {pres.details.qtecontenance}{" "}
-                          {pres.details.qtecontenance > 1 
-                            ? pres.details.unitecontenance.replaceAll("(s)", "s")
-                            : pres.details.unitecontenance.replaceAll("(s)", "")
-                          }
-                        </b>
-                        {" - "}{pres.details.recipient.replaceAll("thermoformée", "").replaceAll("(s)", "")}
+                        {pres.details.qtecontenance && (
+                          <>
+                            <b>
+                              {pres.details.qtecontenance.toLocaleString('fr-FR')}{" "}
+                              {pres.details.unitecontenance && (
+                                <>
+                                  {pres.details.qtecontenance > 1
+                                    ? pres.details.unitecontenance.replaceAll("(s)", "s")
+                                    : pres.details.unitecontenance.replaceAll("(s)", "")
+                                  }
+                                </>
+                              )}
+                            </b>
+                            {" - "}
+                          </>
+                        )}
+                        {pres.details.recipient.replaceAll("thermoformée", "").replaceAll("(s)", "")}
                       </span>
                     ) : (
                       <b>{pres.PresNom01}</b>

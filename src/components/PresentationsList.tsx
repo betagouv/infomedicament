@@ -35,7 +35,7 @@ function totalDisplay(p: PresentationDetail): string {
 
 function contentDisplay(p: PresentationDetail): string {
   if(p.qtecontenance && p.unitecontenance)
-    return `${p.qtecontenance} ${p.unitecontenance.replaceAll("(s)", p.qtecontenance && p.qtecontenance > 1 ? "s" : "")}`;
+    return `${p.qtecontenance.toLocaleString('fr-FR')} ${p.unitecontenance.replaceAll("(s)", p.qtecontenance && p.qtecontenance > 1 ? "s" : "")}`;
   else return "";
 }
 
@@ -46,6 +46,7 @@ function caracCompDisplay(p: PresentationDetail): string {
 function presentationDetailName(p: PresentationDetail): string {
   if(!p.recipient) return "";
   const recipient = p.recipient.replaceAll("thermoformée", "");
+  const contentDisplayStr = contentDisplay(p);
 
   if (p.nbrrecipient > 1) {
     if (
@@ -53,14 +54,14 @@ function presentationDetailName(p: PresentationDetail): string {
       p.unitecontenance &&
       !unitesMesures.includes(p.unitecontenance)
     ) {
-      return `${totalDisplay(p)} - ${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)} de ${contentDisplay(p)}`;
+      return `${totalDisplay(p)} - ${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)}${contentDisplayStr && ` de ${contentDisplayStr}`}`;
     }
 
-    return `${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)}${p.qtecontenance && p.qtecontenance ? ` de ${contentDisplay(p)}` : ""}`;
+    return `${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)}${contentDisplayStr && ` de ${contentDisplayStr}`}`;
   }
 
   return capitalize(
-    `${recipient.replaceAll("(s)", "")}${caracCompDisplay(p)} de ${contentDisplay(p)}`,
+    `${recipient.replaceAll("(s)", "")}${caracCompDisplay(p)}${contentDisplayStr && ` de ${contentDisplayStr}`}`,
   );
 }
 
