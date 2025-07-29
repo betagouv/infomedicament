@@ -3,7 +3,7 @@
 import ContentContainer from "../../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, PropsWithChildren } from "react";
-import styled from 'styled-components';
+import styled, {css} from 'styled-components';
 import GenericTag from "@/components/tags/GenericTag";
 import { Presentation, PresInfoTarif, SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
@@ -22,10 +22,12 @@ import { displayInfosImportantes, getContent } from "@/utils/notices/noticesUtil
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 
-const SummaryLineContainer = styled.div `
+const SummaryLineContainer = styled.div<{ $hideBorder?: boolean; }>`
   display: flex;
   align-items: center;
-  border-bottom: var(--border-open-blue-france) 1px solid;
+  ${props => !props.$hideBorder && css`
+    border-bottom: var(--border-open-blue-france) 1px solid;
+  `}
 `;
 
 const SummaryCat = styled.span `
@@ -57,13 +59,17 @@ const IndicationBlock = styled.div`
 
 interface SummaryLineProps extends HTMLAttributes<HTMLDivElement> {
   categoryName: string;
+  hideBorder?: boolean;
 }
 
-function SummaryLine(
-  {categoryName, children, ...props} :PropsWithChildren<SummaryLineProps>
-){
+function SummaryLine({
+  categoryName,
+  hideBorder,
+  children,
+  ...props
+} :PropsWithChildren<SummaryLineProps>){
   return (
-    <SummaryLineContainer className={fr.cx("fr-mb-1w", "fr-pb-1w", "fr-mt-1w", "fr-text--sm")}>
+    <SummaryLineContainer className={fr.cx("fr-mb-1w", "fr-pb-1w", "fr-mt-1w", "fr-text--sm")} $hideBorder={hideBorder}>
       <ContentContainer className={fr.cx("fr-col-4", "fr-col-sm-3")}>
         <SummaryCat>{categoryName}</SummaryCat>
       </ContentContainer>
@@ -228,7 +234,7 @@ function GeneralInformations({
             )
           ) }
         </SummaryLine>
-        <SummaryLine categoryName="Conditions de prescription et de délivrance">
+        <SummaryLine categoryName="Conditions de prescription et de délivrance" hideBorder>
           {(ficheInfos.listeConditionsDelivrance && ficheInfos.listeConditionsDelivrance.length > 0) ? (
             <ContentContainer>
               <PrescriptionTag hideIcon/>
