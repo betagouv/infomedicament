@@ -143,7 +143,7 @@ function GeneralInformations({
           })}
         </ContentContainer>
       )}
-      <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+      <ContentContainer id="informations-resume" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Résumé</h2>
         <SummaryLine categoryName="Code CIS">
           {formatCIS(CIS)}
