@@ -67,6 +67,12 @@ function getTitleElement(content:NoticeRCPContentBlock, definitions?:Definition[
 
 function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definition[]): (React.JSX.Element | undefined){
   if(content.content){
+
+    if(content.html) { 
+      if(definitions) return <WithGlossary definitions={definitions} key={content.id} text={[content.html]} />
+      return (<div dangerouslySetInnerHTML={{__html: content.html}}></div>)
+    };
+
     const styles = getStyles(content.styles);
     const elementContent = definitions 
       ? <WithGlossary definitions={definitions} key={content.id} text={content.content} />
@@ -199,7 +205,7 @@ function getTableElement(children:NoticeRCPContentBlock[], definitions?:Definiti
 export function getContent(children:NoticeRCPContentBlock[], definitions?:Definition[]): (React.JSX.Element | undefined)[] {
   let content:(React.JSX.Element | undefined)[] = [];
   children.forEach((child, index) => {
-    if(child.type && child.type === "AmmCorpsTexteTable"){
+    if(child.type && child.type === "AmmCorpsTexteTable" && !child.html){
       if(child.children){
         const tableContent:(React.JSX.Element | undefined)[] = getTableElement(child.children, definitions);
         if(tableContent) content.push((
