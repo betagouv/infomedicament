@@ -21,6 +21,7 @@
     "@mui/material": "^6.1.2",
     "@sentry/nextjs": "^8.28.0",
     "@socialgouv/matomo-next": "^1.9.2",
+    "axios": "^1.11.0",
     "csv-parse": "^5.5.6",
     "image-size": "^1.2.0",
     "jszip": "^3.10.1",

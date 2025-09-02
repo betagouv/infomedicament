@@ -1,0 +1,179 @@
+"use client";
+
+import { HTMLAttributes, useCallback, useState } from "react";
+import { fr } from "@codegouvfr/react-dsfr";
+import styled from 'styled-components';
+import axios from "axios";
+import Alert from "@codegouvfr/react-dsfr/Alert";
+import Link from "next/link";
+import RatingStars from "./RatingStars";
+import RatingAdvanced from "./RatingAdvanced";
+import { AdvancedRating, SimpleRating } from "@/types/RatingTypes";
+
+const Container = styled.div`
+  text-align: center;
+
+  .rating-empty-star{
+    font-size: 3rem;
+    color: #faaf00;
+  }
+  .rating-star{
+    font-size: 3rem;
+  }
+`;
+
+const AlertContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  .fr-alert{
+    width: 400px;
+    max-width: 80%;
+  }
+`;
+
+const RatingAdvancedContainer = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+interface RatingPageProps extends HTMLAttributes<HTMLDivElement> {
+  pageId: string;
+}
+
+function RatingPage({
+  pageId,
+  ...props
+}: RatingPageProps) {
+
+  const [ratingError, setRatingError] = useState<boolean>(false);
+  const [dbRatingId, setDbRatingId] = useState<number>(-1);
+
+  const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
+  const [advancedRatingSuccess, setAdvancedRatingSuccess] = useState<boolean>(false);
+  const [advancedRatingError, setAdvancedRatingError] = useState<boolean>(false);
+
+  const addRating = useCallback(
+    async (rating: number) => {
+      const simpleRating: SimpleRating = {
+        rating: rating,
+        pageId: pageId,
+      }
+      const result = await axios.post(
+        '/rating', 
+        simpleRating,
+      );
+      if (result && result.status === 200 && result.data !== -1) {
+        setDbRatingId(result.data);
+        setRatingError(false);
+      } else {
+        setRatingError(true);
+      }
+    },
+    [setDbRatingId, setRatingError]
+  );
+
+  function onSaveRating(rating: number): void{
+    addRating(rating);
+  }
+
+  const updateRating = useCallback(
+    async (advancedRating: AdvancedRating) => {
+      const data = {
+        advancedRating: advancedRating,
+        id: dbRatingId,
+      }
+      const result = await axios.patch(
+        '/rating', 
+        data,
+      );
+      if (result && result.status === 200 && result.data === true) {
+        setAdvancedRatingSuccess(true);
+        setAdvancedRatingError(false);
+      } else {
+        setAdvancedRatingSuccess(false);
+        setAdvancedRatingError(true);
+      }
+    },
+    [dbRatingId]
+  );
+
+  function onSaveAdvancedRating(advancedRating: AdvancedRating): void{
+    updateRating(advancedRating);
+  }
+
+  return (
+    <Container className={fr.cx("fr-mb-2w")}>
+      <div className={fr.cx("fr-mb-2w")}>
+        <span className={fr.cx("fr-text--lg")}><b>Cette page vous a-t-elle été utile ?</b></span>
+      </div>
+      <RatingStars 
+        className={fr.cx("fr-mb-2w")} 
+        onSaveRating={onSaveRating}
+        readOnly={!ratingError && dbRatingId !== -1}
+      />
+      {(dbRatingId !== -1 && !ratingError) && (
+        <>
+          <AlertContainer className={fr.cx("fr-mb-6w")}>
+            <Alert
+              description="Merci pour votre avis"
+              severity="success"
+              title=""
+            />
+          </AlertContainer>
+          {!isAdvanced && (
+            <Link
+              href=""
+              onClick={() => setIsAdvanced(true)}
+              className={fr.cx(
+                "fr-link",
+                "fr-link--icon-left",
+                "fr-icon-arrow-right-line",
+              )}
+            >
+              Je fais une remarque sur cette page
+            </Link>
+          )}
+        </>
+      )}
+      {ratingError && (
+        <AlertContainer className={fr.cx("fr-mb-6w")}>
+          <Alert
+            description="Votre n'a pas pu être enregistrée, merci de ré-essayer."
+            severity="error"
+            title=""
+          />
+        </AlertContainer>
+      )}
+      {isAdvanced && (
+        <>
+        <RatingAdvancedContainer className={fr.cx("fr-mb-2w")}>
+          <RatingAdvanced 
+            onSaveAdvancedRating={onSaveAdvancedRating}
+            readOnly={advancedRatingSuccess && !advancedRatingError}
+          />
+        </RatingAdvancedContainer>
+          {(advancedRatingSuccess && !advancedRatingError) && (
+            <AlertContainer className={fr.cx("fr-mb-6w")}>
+              <Alert
+                description="Merci pour vos remarques"
+                severity="success"
+                title=""
+              />
+            </AlertContainer>
+          )}
+          {(!advancedRatingSuccess && advancedRatingError) && (
+            <AlertContainer className={fr.cx("fr-mb-6w")}>
+              <Alert
+                description="Votre n'a pas pu être enregistrée, merci de ré-essayer."
+                severity="error"
+                title=""
+              />
+            </AlertContainer>
+          )}
+        </>
+        )}
+    </Container>
+  );
+};
+
+export default RatingPage;
