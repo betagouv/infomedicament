@@ -10,7 +10,7 @@ import RatingStars from "./RatingStars";
 import RatingAdvanced from "./RatingAdvanced";
 import { AdvancedRating, SimpleRating } from "@/types/RatingTypes";
 
-const Container = styled.div`
+const ContainerRatingPage = styled.div`
   text-align: center;
 
   .rating-empty-star{
@@ -102,7 +102,7 @@ function RatingPage({
   }
 
   return (
-    <Container className={fr.cx("fr-mb-2w")}>
+    <ContainerRatingPage className={fr.cx("fr-mb-2w")}>
       <div className={fr.cx("fr-mb-2w")}>
         <span className={fr.cx("fr-text--lg")}><b>Cette page vous a-t-elle été utile ?</b></span>
       </div>
@@ -172,7 +172,7 @@ function RatingPage({
           )}
         </>
         )}
-    </Container>
+    </ContainerRatingPage>
   );
 };
 
