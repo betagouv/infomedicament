@@ -1,8 +1,21 @@
 import { HTMLAttributes, useEffect, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
-import RatingStars from "./RatingStars";
 import Button from "@codegouvfr/react-dsfr/Button";
+import { RadioButtons } from "@codegouvfr/react-dsfr/RadioButtons";
 import { AdvancedRating } from "@/types/RatingTypes";
+
+const question1Options: string[] = [
+  'Oui, immédiatement et clairement',
+  'Oui, mais après quelques recherches',
+  'Non, pas vraiment',
+  'Non, pas du tout',
+];
+const question2Options: string[] = [
+  'Mieux informé·e et rassuré·e',
+  'J\'ai encore des doutes',
+  'Pas plus avancé·e',
+  'Je ne sais pas encore',
+];
 
 interface RatingAdvancedProps extends HTMLAttributes<HTMLDivElement> {
   onSaveAdvancedRating: (advancedRating: AdvancedRating) => void;
@@ -14,8 +27,8 @@ function RatingAdvanced({
   readOnly,
   ...props
 }: RatingAdvancedProps) {
-  const [ratingQ1, setRatingQ1] = useState<number>(0);
-  const [ratingQ2, setRatingQ2] = useState<number>(0);
+  const [question1, setQuestion1] = useState<string>("");
+  const [question2, setQuestion2] = useState<string>("");
 
   const [isReadOnly, setIsReadOnly] = useState<boolean>(false);
 
@@ -23,40 +36,45 @@ function RatingAdvanced({
     readOnly && setIsReadOnly(readOnly);
   }, [readOnly])
 
-  function onSaveRatingQ1(newRating: number): void{
-    setRatingQ1(newRating);
-  }
-  function onSaveRatingQ2(newRating: number): void{
-    setRatingQ2(newRating);
-  }
-
   function onClickSave(){
     const newRating:AdvancedRating = {
-      question1: ratingQ1,
-      question2: ratingQ2,
+      question1: question1,
+      question2: question2,
     }
     onSaveAdvancedRating(newRating);
   }
 
   return (
-    <div>
+    <div style={{width: "100%"}}>
       <div className={fr.cx("fr-mb-2w")}>
         <span className={fr.cx("fr-text--lg")}><b>Vos remarques pour améliorer la page</b></span>
       </div>
       <div>
-        <span className={fr.cx("fr-text--md")}><b>La page est-elle facile à comprendre ?</b></span>
-        <RatingStars 
-          starsNumber={3}
-          onSaveRating={onSaveRatingQ1}
-          readOnly={isReadOnly}
+        <RadioButtons 
+            legend="Avez-vous trouvé l’information que vous cherchiez ?" 
+            small
+            options={question1Options.map((option: string) => ({
+              label: option,
+              nativeInputProps: {
+                  checked: question1 === option,
+                  onChange: ()=> setQuestion1(option)
+              }
+            }))
+          }
         />
       </div>
       <div>
-        <span className={fr.cx("fr-text--md")}><b>L'information a-t-elle été utile ?</b></span>
-        <RatingStars 
-          starsNumber={3}
-          readOnly={isReadOnly}
-          onSaveRating={onSaveRatingQ2}
+        <RadioButtons 
+            legend="Après votre visite sur InfoMédicament, vous vous sentez :"
+            small 
+            options={question2Options.map((option: string) => ({
+              label: option,
+              nativeInputProps: {
+                  checked: question2 === option,
+                  onChange: ()=> setQuestion2(option)
+              }
+            }))
+          }
         />
       </div>
       {!isReadOnly && (

@@ -1,6 +1,6 @@
 export type AdvancedRating = {
-  question1: number,
-  question2: number,
+  question1: string,
+  question2: string,
 };
 
 export type SimpleRating = {

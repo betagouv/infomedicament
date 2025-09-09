@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, useCallback, useState } from "react";
+import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from 'styled-components';
 import axios from "axios";
@@ -10,8 +10,8 @@ import RatingStars from "./RatingStars";
 import RatingAdvanced from "./RatingAdvanced";
 import { AdvancedRating, SimpleRating } from "@/types/RatingTypes";
 
-const ContainerRatingPage = styled.div`
-  text-align: center;
+const RatingPageContainer = styled.div`
+  width: 100%;
 
   .rating-empty-star{
     font-size: 3rem;
@@ -20,6 +20,12 @@ const ContainerRatingPage = styled.div`
   .rating-star{
     font-size: 3rem;
   }
+`;
+
+const GlobalRatingContainer = styled.div`
+  text-align: center;
+  display: flex;
+  flex-direction: column;
 `;
 
 const AlertContainer = styled.div`
@@ -33,7 +39,15 @@ const AlertContainer = styled.div`
 
 const RatingAdvancedContainer = styled.div`
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  .fr-fieldset__legend {
+    font-weight: bold !important;
+  }
+  .fr-fieldset__content label{
+    font-size: 0.875rem;
+  }
 `;
 
 interface RatingPageProps extends HTMLAttributes<HTMLDivElement> {
@@ -47,6 +61,7 @@ function RatingPage({
 
   const [ratingError, setRatingError] = useState<boolean>(false);
   const [dbRatingId, setDbRatingId] = useState<number>(-1);
+  const [ratingReadOnly, setRatingReadOnly] = useState<boolean>(false);
 
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
   const [advancedRatingSuccess, setAdvancedRatingSuccess] = useState<boolean>(false);
@@ -58,21 +73,28 @@ function RatingPage({
         rating: rating,
         pageId: pageId,
       }
-      const result = await axios.post(
-        '/rating', 
-        simpleRating,
-      );
-      if (result && result.status === 200 && result.data !== -1) {
-        setDbRatingId(result.data);
-        setRatingError(false);
-      } else {
+      try {
+        const result = await axios.post(
+          '/rating', 
+          simpleRating,
+        );
+        if (result && result.status === 200 && result.data !== -1) {
+          setDbRatingId(result.data);
+          setRatingError(false);
+        } else {
+          setRatingError(true);
+          setRatingReadOnly(false);
+        }
+      } catch(e) {
         setRatingError(true);
+        setRatingReadOnly(false);
       }
     },
     [setDbRatingId, setRatingError]
   );
 
   function onSaveRating(rating: number): void{
+    setRatingReadOnly(true);
     addRating(rating);
   }
 
@@ -82,14 +104,19 @@ function RatingPage({
         advancedRating: advancedRating,
         id: dbRatingId,
       }
-      const result = await axios.patch(
-        '/rating', 
-        data,
-      );
-      if (result && result.status === 200 && result.data === true) {
-        setAdvancedRatingSuccess(true);
-        setAdvancedRatingError(false);
-      } else {
+      try {
+        const result = await axios.patch(
+          '/rating', 
+          data,
+        );
+        if (result && result.status === 200 && result.data === true) {
+          setAdvancedRatingSuccess(true);
+          setAdvancedRatingError(false);
+        } else {
+          setAdvancedRatingSuccess(false);
+          setAdvancedRatingError(true);
+        }
+      } catch(e) {
         setAdvancedRatingSuccess(false);
         setAdvancedRatingError(true);
       }
@@ -102,58 +129,58 @@ function RatingPage({
   }
 
   return (
-    <ContainerRatingPage className={fr.cx("fr-mb-2w")}>
-      <div className={fr.cx("fr-mb-2w")}>
-        <span className={fr.cx("fr-text--lg")}><b>Cette page vous a-t-elle été utile ?</b></span>
-      </div>
-      <RatingStars 
-        className={fr.cx("fr-mb-2w")} 
-        onSaveRating={onSaveRating}
-        readOnly={!ratingError && dbRatingId !== -1}
-      />
-      {(dbRatingId !== -1 && !ratingError) && (
-        <>
-          <AlertContainer className={fr.cx("fr-mb-6w")}>
+    <RatingPageContainer className={fr.cx("fr-mb-2w")}>
+      <GlobalRatingContainer>
+        <div className={fr.cx("fr-mb-2w")}>
+          <span className={fr.cx("fr-text--lg")}><b>Cette page vous a-t-elle été utile ?</b></span>
+        </div>
+        <RatingStars 
+          className={fr.cx("fr-mb-2w")} 
+          onSaveRating={onSaveRating}
+          readOnly={ratingReadOnly}
+        />
+        {(dbRatingId !== -1 && !ratingError) && (
+          <>
+            <AlertContainer className={fr.cx("fr-mb-6w")}>
+              <Alert
+                description="Merci pour votre avis"
+                severity="success"
+                title=""
+              />
+            </AlertContainer>
+            {!isAdvanced && (
+              <Link
+                href=""
+                onClick={() => setIsAdvanced(true)}
+                className={fr.cx(
+                  "fr-link",
+                  "fr-link--icon-left",
+                  "fr-icon-arrow-right-line",
+                )}
+              >
+                Je fais une remarque sur cette page
+              </Link>
+            )}
+          </>
+        )}
+        {ratingError && (
+          <AlertContainer className={fr.cx("fr-mt-2w")}>
             <Alert
-              description="Merci pour votre avis"
-              severity="success"
+              description="Votre réponse n'a pas pu être enregistrée, merci de ré-essayer."
+              severity="error"
               title=""
             />
           </AlertContainer>
-          {!isAdvanced && (
-            <Link
-              href=""
-              onClick={() => setIsAdvanced(true)}
-              className={fr.cx(
-                "fr-link",
-                "fr-link--icon-left",
-                "fr-icon-arrow-right-line",
-              )}
-            >
-              Je fais une remarque sur cette page
-            </Link>
-          )}
-        </>
-      )}
-      {ratingError && (
-        <AlertContainer className={fr.cx("fr-mb-6w")}>
-          <Alert
-            description="Votre n'a pas pu être enregistrée, merci de ré-essayer."
-            severity="error"
-            title=""
-          />
-        </AlertContainer>
-      )}
+        )}
+      </GlobalRatingContainer>
       {isAdvanced && (
-        <>
-        <RatingAdvancedContainer className={fr.cx("fr-mb-2w")}>
+        <RatingAdvancedContainer>
           <RatingAdvanced 
             onSaveAdvancedRating={onSaveAdvancedRating}
             readOnly={advancedRatingSuccess && !advancedRatingError}
           />
-        </RatingAdvancedContainer>
           {(advancedRatingSuccess && !advancedRatingError) && (
-            <AlertContainer className={fr.cx("fr-mb-6w")}>
+            <AlertContainer className={fr.cx("fr-mt-2w")}>
               <Alert
                 description="Merci pour vos remarques"
                 severity="success"
@@ -162,17 +189,17 @@ function RatingPage({
             </AlertContainer>
           )}
           {(!advancedRatingSuccess && advancedRatingError) && (
-            <AlertContainer className={fr.cx("fr-mb-6w")}>
+            <AlertContainer className={fr.cx("fr-mt-2w")}>
               <Alert
-                description="Votre n'a pas pu être enregistrée, merci de ré-essayer."
+                description="Votre réponse n'a pas pu être enregistrée, merci de ré-essayer."
                 severity="error"
                 title=""
               />
             </AlertContainer>
           )}
-        </>
-        )}
-    </ContainerRatingPage>
+        </RatingAdvancedContainer>
+      )}
+    </RatingPageContainer>
   );
 };
 

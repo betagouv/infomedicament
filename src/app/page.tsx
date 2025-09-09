@@ -3,7 +3,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import Link from "next/link";
 import { getArticles } from "@/data/grist/articles";
-import RatingPage from "@/components/rating/RatingPage";
+import RatingToaster from "@/components/rating/RatingToaster";
 
 export default async function Page() {
   const articles = (await getArticles()).filter(({ homepage }) => homepage);
@@ -95,7 +95,7 @@ export default async function Page() {
           </div>
         </div>
       </div>
-      <RatingPage
+      <RatingToaster
         pageId="home"
       />
     </>
