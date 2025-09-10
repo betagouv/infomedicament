@@ -5,7 +5,6 @@ import { fr } from "@codegouvfr/react-dsfr";
 import styled from 'styled-components';
 import axios from "axios";
 import Alert from "@codegouvfr/react-dsfr/Alert";
-import Link from "next/link";
 import RatingStars from "./RatingStars";
 import RatingAdvanced from "./RatingAdvanced";
 import { AdvancedRating, SimpleRating } from "@/types/RatingTypes";
@@ -81,6 +80,7 @@ function RatingPage({
         if (result && result.status === 200 && result.data !== -1) {
           setDbRatingId(result.data);
           setRatingError(false);
+          setIsAdvanced(true);
         } else {
           setRatingError(true);
           setRatingReadOnly(false);
@@ -148,19 +148,6 @@ function RatingPage({
                 title=""
               />
             </AlertContainer>
-            {!isAdvanced && (
-              <Link
-                href=""
-                onClick={() => setIsAdvanced(true)}
-                className={fr.cx(
-                  "fr-link",
-                  "fr-link--icon-left",
-                  "fr-icon-arrow-right-line",
-                )}
-              >
-                Je fais une remarque sur cette page
-              </Link>
-            )}
           </>
         )}
         {ratingError && (
