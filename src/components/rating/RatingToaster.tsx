@@ -6,7 +6,7 @@ import RatingPage from "./RatingPage";
 import styled from 'styled-components';
 
 const RatingToasterContainer = styled.div`
-  .Toastify__toast-theme--light{
+  .Toastify .Toastify__toast{
     color: var(--text-default-grey);
     font-family: inherit;
     max-height: 100%;
