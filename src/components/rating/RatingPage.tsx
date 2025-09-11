@@ -8,6 +8,7 @@ import Alert from "@codegouvfr/react-dsfr/Alert";
 import RatingStars from "./RatingStars";
 import RatingAdvanced from "./RatingAdvanced";
 import { AdvancedRating, SimpleRating } from "@/types/RatingTypes";
+import { BeatLoader } from "react-spinners";
 
 const RatingPageContainer = styled.div`
   width: 100%;
@@ -47,6 +48,10 @@ const RatingAdvancedContainer = styled.div`
   .fr-fieldset__content label{
     font-size: 0.875rem;
   }
+`;
+
+const BeatLoaderContainer = styled.div`
+  text-align: center;
 `;
 
 interface RatingPageProps extends HTMLAttributes<HTMLDivElement> {
@@ -139,6 +144,16 @@ function RatingPage({
           onSaveRating={onSaveRating}
           readOnly={ratingReadOnly}
         />
+        {(ratingReadOnly && dbRatingId === -1 && !ratingError) &&(
+          <BeatLoaderContainer>
+            <BeatLoader
+              color="var(--text-action-high-blue-france)"
+              loading={true}
+              aria-label="Sauvegarde en cours"
+              data-testid="loader"
+            />
+          </BeatLoaderContainer>
+        )}
         {(dbRatingId !== -1 && !ratingError) && (
           <>
             <AlertContainer className={fr.cx("fr-mb-6w")}>
