@@ -32,7 +32,7 @@ const getSpecialites = unstable_cache(async function (
             : eb("Specialite.SpecId", "in", specialitesId),
         )
         .leftJoin("Presentation", "Specialite.SpecId", "Presentation.SpecId")
-        //.where(presentationIsComm())
+        .where(presentationIsComm())
         .where("Specialite.SpecId", "in", liste_CIS_MVP)
         .selectAll("Specialite")
         .select(({ fn }) => [

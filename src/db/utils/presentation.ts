@@ -52,7 +52,7 @@ export const getPresentations = cache(
       await pdbmMySQL
         .selectFrom("Presentation")
         .where("SpecId", "=", CIS)
-        //.where(presentationIsComm())
+        .where(presentationIsComm())
         .leftJoin("CEPS_Prix", "Presentation.codeCIP13", "CEPS_Prix.Cip13")
         .selectAll()
         .execute()
