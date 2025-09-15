@@ -9,9 +9,11 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
 import { DataTypeEnum } from "@/types/DataTypes";
 import PageListContent from "@/components/generic/PageListContent";
+import RatingToaster from "@/components/rating/RatingToaster";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+const PAGE_LABEL:string = "Liste des médicaments";
 
 const getLetters = unstable_cache(async function () {
   return (
@@ -55,16 +57,19 @@ export default async function Page(props: {
       <Fragment>
         <Breadcrumb
           segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
-          currentPageLabel="Liste des médicaments"
+          currentPageLabel={PAGE_LABEL}
         />
         <PageListContent
-          title="Liste des médicaments"
+          title={PAGE_LABEL}
           letters={letters}
           urlPrefix="/medicaments/"
           dataList={detailedMedicaments}
           type={DataTypeEnum.MEDGROUP}
         />
       </Fragment>
+      <RatingToaster
+        pageId={`${PAGE_LABEL} ${letter}`}
+      />
     </ContentContainer>
   );
 }

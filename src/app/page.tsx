@@ -5,6 +5,8 @@ import Link from "next/link";
 import { getArticles } from "@/data/grist/articles";
 import RatingToaster from "@/components/rating/RatingToaster";
 
+const PAGE_LABEL:string = "Accueil";
+
 export default async function Page() {
   const articles = (await getArticles()).filter(({ homepage }) => homepage);
 
@@ -96,7 +98,7 @@ export default async function Page() {
         </div>
       </div>
       <RatingToaster
-        pageId="home"
+        pageId={PAGE_LABEL}
       />
     </>
   );

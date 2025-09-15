@@ -7,9 +7,11 @@ import { AdvancedPatho, DataTypeEnum } from "@/types/DataTypes";
 import { getPathoSpecialites } from "@/db/utils/pathologies";
 import { groupSpecialites } from "@/db/utils";
 import PageListContent from "@/components/generic/PageListContent";
+import RatingToaster from "@/components/rating/RatingToaster";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+const PAGE_LABEL:string = "Liste des pathologies";
 
 async function getPathologyPage(letter: string): Promise<Patho[]> {
   return pdbmMySQL
@@ -60,14 +62,17 @@ export default async function Page(props: {
     <ContentContainer frContainer>
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
-        currentPageLabel="Liste des pathologies"
+        currentPageLabel={PAGE_LABEL}
       />
       <PageListContent
-        title="Liste des pathologies"
+        title={PAGE_LABEL}
         letters={letters}
         urlPrefix="/pathologies/"
         dataList={detailedPathos}
         type={DataTypeEnum.PATHOLOGY}
+      />
+      <RatingToaster
+        pageId={`${PAGE_LABEL} ${letter}`}
       />
     </ContentContainer>
   );

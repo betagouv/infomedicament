@@ -22,6 +22,7 @@ import { getMarr } from "@/data/grist/marr";
 import { Marr } from "@/types/MarrTypes";
 import Link from "next/link";
 import { getSpecialitesPatho } from "@/db/utils/pathologies";
+import RatingToaster from "@/components/rating/RatingToaster";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -118,6 +119,8 @@ export default async function Page(props: {
   const articles = await getArticlesFromFilters(articlesFilters);
   const marr: Marr = await getMarr(CIS);
 
+  const pageLabel = specialite ? formatSpecName(specialite.SpecDenom01) : '';
+
   return (
     <>
       <ContentContainer frContainer>
@@ -131,7 +134,7 @@ export default async function Page(props: {
           className={fr.cx("fr-mb-2w")}
         />
         <h1 className={fr.cx("fr-h2")}>
-          {specialite ? formatSpecName(specialite.SpecDenom01) : ''}
+          {pageLabel}
         </h1>
       </ContentContainer>
       <ContentContainer className={fr.cx("fr-pt-1w", "fr-pb-2w")} style={{
@@ -216,6 +219,9 @@ export default async function Page(props: {
           </div>
         </ContentContainer>
       </ContentContainer>
+      <RatingToaster
+        pageId={pageLabel}
+      />
     </>
   );
 }

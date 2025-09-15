@@ -18,6 +18,7 @@ import GenericAccordion from "@/components/GenericAccordion";
 import ClassTag from "@/components/tags/ClassTag";
 import SubstanceTag from "@/components/tags/SubstanceTag";
 import ContentContainer from "@/components/generic/ContentContainer";
+import RatingToaster from "@/components/rating/RatingToaster";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -74,6 +75,8 @@ export default async function Page(props: {
   //if (!atcCode) throw new ATCError(CIS);
   const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
+  const pageLabel = formatSpecName(groupGeneNameToDCI(group.LibLong));
+
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
@@ -86,11 +89,11 @@ export default async function Page(props: {
                 linkProps: { href: "/generiques/A" },
               },
             ]}
-            currentPageLabel={formatSpecName(groupGeneNameToDCI(group.LibLong))}
+            currentPageLabel={pageLabel}
           />
           <Badge className="fr-badge--purple-glycine">Groupe générique</Badge>
           <h1 className={fr.cx("fr-h1", "fr-mt-1w", "fr-mb-6w")}>
-            {formatSpecName(groupGeneNameToDCI(group.LibLong))}
+            {pageLabel}
           </h1>
           <ul className={fr.cx("fr-tags-group", "fr-mb-1v")}>
             {atc2 && (<ClassTag atc2={atc2} />)}
@@ -151,6 +154,9 @@ export default async function Page(props: {
           ))}
         </div>
       </div>
+      <RatingToaster
+        pageId={pageLabel}
+      />
     </ContentContainer>
   );
 }

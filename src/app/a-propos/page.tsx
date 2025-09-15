@@ -5,6 +5,9 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ShareButtons from "@/components/generic/ShareButtons";
 import Image from "next/image";
+import RatingToaster from "@/components/rating/RatingToaster";
+
+const PAGE_LABEL:string = "À propos";
 
 export default async function Page() {
 
@@ -14,13 +17,13 @@ export default async function Page() {
         {" "}
         <Breadcrumb
           segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
-          currentPageLabel="À propos"
+          currentPageLabel={PAGE_LABEL}
         />
         <h1 className={fr.cx("fr-h2")}>
-          À propos
+          {PAGE_LABEL}
         </h1>
         <ShareButtons 
-          pageName="À propos"
+          pageName={PAGE_LABEL}
           className={fr.cx("fr-mb-3w")}
         />
         <div
@@ -184,6 +187,9 @@ export default async function Page() {
             </div>
           </div>
         </div>
+        <RatingToaster
+          pageId={PAGE_LABEL}
+        />
       </ContentContainer>
     </>
   );
