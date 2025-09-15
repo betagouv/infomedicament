@@ -11,6 +11,7 @@ import { DataTypeEnum } from "@/types/DataTypes";
 import { getPathoSpecialites } from "@/db/utils/pathologies";
 import { getArticlesFromPatho } from "@/data/grist/articles";
 import PageDefinitionContent from "@/components/generic/PageDefinitionContent";
+import RatingToaster from "@/components/rating/RatingToaster";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -67,6 +68,9 @@ export default async function Page(props: {
         dataList={detailedMedicaments}
         dataType={DataTypeEnum.MEDGROUP}
         articles={articles}
+      />
+      <RatingToaster
+        pageId={patho.NomPatho}
       />
     </ContentContainer>
   );

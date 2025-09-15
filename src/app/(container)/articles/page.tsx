@@ -4,8 +4,10 @@ import { Fragment } from "react";
 import Link from "next/link";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
+import RatingToaster from "@/components/rating/RatingToaster";
 
 export const dynamic = "error";
+const PAGE_LABEL:string = "Liste des articles";
 
 export default async function Page() {
   const articles = await getArticles();
@@ -22,7 +24,7 @@ export default async function Page() {
     <ContentContainer frContainer>
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
-        currentPageLabel={"Liste des articles"}
+        currentPageLabel={PAGE_LABEL}
       />
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
@@ -55,6 +57,9 @@ export default async function Page() {
           ))}
         </div>
       </div>
+      <RatingToaster
+        pageId={PAGE_LABEL}
+      />
     </ContentContainer>
   );
 }

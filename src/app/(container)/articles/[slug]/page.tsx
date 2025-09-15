@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Metadata, ResolvingMetadata } from "next";
 import ContentContainer from "@/components/generic/ContentContainer";
 import ShareButtons from "@/components/generic/ShareButtons";
+import RatingToaster from "@/components/rating/RatingToaster";
 
 export async function generateStaticParams() {
   const articles = await getArticles();
@@ -119,6 +120,9 @@ export default async function Page(props0: {
           />
         </div>
       </div>
+      <RatingToaster
+        pageId={`Article ${title}`}
+      />
     </ContentContainer>
   );
 }

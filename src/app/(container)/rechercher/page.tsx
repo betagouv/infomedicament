@@ -8,6 +8,7 @@ import { AdvancedATC, DataTypeEnum } from "@/types/DataTypes";
 import { getPathoSpecialites } from "@/db/utils/pathologies";
 import { getSubstancesByAtc } from "@/data/grist/atc";
 import SearchPage from "./SearchPage";
+import RatingToaster from "@/components/rating/RatingToaster";
 
 async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<ExtendedOrderResults> {
   let counter = 0;
@@ -116,12 +117,17 @@ export default async function Page(props: {
   const filterPediatric:boolean = (searchParams && "p" in searchParams && searchParams["p"] === "true") ? true : false; 
 
   return (
-    <SearchPage
-      search={search ? search : undefined}
-      filterPregnancy={filterPregnancy}
-      filterPediatric={filterPediatric}
-      extendedResults={extendedResults ? extendedResults : undefined}
-      articlesList={articlesList}
-    />
+    <>
+      <SearchPage
+        search={search ? search : undefined}
+        filterPregnancy={filterPregnancy}
+        filterPediatric={filterPediatric}
+        extendedResults={extendedResults ? extendedResults : undefined}
+        articlesList={articlesList}
+      />
+      <RatingToaster
+        pageId={`Recherche ${search ? search : ""}`}
+      />
+    </>
   );
 }
