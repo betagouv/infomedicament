@@ -16,6 +16,7 @@ export interface Database {
   rcp_content: RcpContentTable;
   notices: NoticeTable;
   notices_content: NoticeContentTable;
+  rating: RatingTable;
 }
 
 interface SearchIndexTable {
@@ -135,6 +136,14 @@ interface NoticeContentTable {
   colspan?: number,
 }
 
+interface RatingTable {
+  id?: number,
+  pageId: string,
+  rating?: number,
+  question1?: number,
+  question2?: number,
+}
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
@@ -143,3 +152,4 @@ export type GroupeGeneriqueDB = Selectable<GroupeGeneriqueTable>;
 export type DocBUDB = Selectable<DocBUTable>;
 export type RCPContent = Selectable<RcpContentTable>;
 export type Notice = Selectable<NoticeTable>;
+export type Rating = Selectable<RatingTable>;

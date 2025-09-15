@@ -11,6 +11,7 @@ import { groupSpecialites } from "@/db/utils";
 import { AdvancedATC1, AdvancedATCClass, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
 import { getArticlesFromATC } from "@/data/grist/articles";
 import PageDefinitionContent from "@/components/generic/PageDefinitionContent";
+import RatingToaster from "@/components/rating/RatingToaster";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -147,6 +148,9 @@ export default async function Page(props: {
         dataList={detailedSubClass as AdvancedSubstanceNom[] | AdvancedATCClass[]}
         dataType={atc2 ? DataTypeEnum.SUBSTANCE : DataTypeEnum.ATCCLASS}
         articles={articles}
+      />
+      <RatingToaster
+        pageId={currentAtc.label}
       />
     </ContentContainer>
   );

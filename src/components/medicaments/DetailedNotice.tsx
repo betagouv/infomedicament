@@ -60,10 +60,15 @@ function DetailedNotice({
 }: DetailedNoticeProps) {
 
   const [visiblePart, setVisiblePart] = useState<DetailsNoticePartsEnum>(currentVisiblePart);
+  const [currentIndicationBlock, setCurrentIndicationBlock] = useState<NoticeRCPContentBlock>();
 
   useEffect(() => {
     setVisiblePart(currentVisiblePart);
-  }, [currentVisiblePart]);
+  }, [currentVisiblePart, setVisiblePart]);
+
+  useEffect(() => {
+    setCurrentIndicationBlock(indicationBlock);
+  }, [indicationBlock, setCurrentIndicationBlock]);
 
   return (
     <>
@@ -81,7 +86,7 @@ function DetailedNotice({
           updateVisiblePart={setVisiblePart}
           marr={marr}
           ficheInfos={ficheInfos}
-          indicationBlock={indicationBlock}
+          indicationBlock={currentIndicationBlock}
         />
       </DetailedNoticeContainer>
       <DetailedNoticeContainer id="rcp-denomiation" $visible={visiblePart === DetailsNoticePartsEnum.RCP}>

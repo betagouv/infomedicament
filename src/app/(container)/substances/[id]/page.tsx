@@ -12,6 +12,7 @@ import { DataTypeEnum } from "@/types/DataTypes";
 import { getSubstanceSpecialites } from "@/db/utils/search";
 import PageDefinitionContent from "@/components/generic/PageDefinitionContent";
 import { getArticlesFromSubstances } from "@/data/grist/articles";
+import RatingToaster from "@/components/rating/RatingToaster";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -97,6 +98,9 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         dataList={detailedSpecialitiesGroups}
         dataType={DataTypeEnum.MEDGROUP}
         articles={articles}
+      />
+      <RatingToaster
+        pageId={substances.map((s) => s.NomLib).join(", ")}
       />
     </ContentContainer>
   );

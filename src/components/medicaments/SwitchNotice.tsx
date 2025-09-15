@@ -175,7 +175,7 @@ function SwitchNotice({
   const updateCurrentQuestion = (questionId: string) => {
     setCurrentQuestion(questionId);
     const question = questionsList[questionId];
-    if(question.keywords || question.anchors) {
+    if(question.keywords || question.headerId) {
       setShowKeywordsBox(true);
     } else {
       setShowKeywordsBox(false);
@@ -215,7 +215,7 @@ function SwitchNotice({
   const { data: ficheInfos } = useSWR<FicheInfos>(
     `/medicaments/notices/ficheInfos?cis=${CIS}`,
     fetchJSON,
-    { onError: (err) => console.warn('errorRCP >>', err), }
+    { onError: (err) => console.warn('errorFicheInfos >>', err), }
   );
 
   useEffect(() => {

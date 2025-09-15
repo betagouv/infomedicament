@@ -8,9 +8,11 @@ import GenericAccordion from "@/components/GenericAccordion";
 import { formatSpecName } from "@/displayUtils";
 import { groupGeneNameToDCI } from "@/db/utils";
 import ContentContainer from "@/components/generic/ContentContainer";
+import RatingToaster from "@/components/rating/RatingToaster";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+const PAGE_LABEL:string = "Liste des groupes génériques";
 
 async function getLetters() {
   return (
@@ -55,12 +57,12 @@ export default async function Page(props: {
       {" "}
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
-        currentPageLabel="Liste des groupes génériques"
+        currentPageLabel={PAGE_LABEL}
       />
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
           <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>
-            Liste des groupes génériques
+            {PAGE_LABEL}
           </h1>
           <GenericAccordion className={fr.cx("fr-mb-4w")} />
           <AlphabeticNav
@@ -81,6 +83,9 @@ export default async function Page(props: {
           </ul>
         </div>
       </div>
+      <RatingToaster
+        pageId={`${PAGE_LABEL} ${letter}`}
+      />
     </ContentContainer>
   );
 }

@@ -2,7 +2,7 @@
 
 import ContentContainer from "../../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
-import { HTMLAttributes, PropsWithChildren } from "react";
+import { HTMLAttributes, PropsWithChildren, useEffect, useState } from "react";
 import styled, {css} from 'styled-components';
 import GenericTag from "@/components/tags/GenericTag";
 import { Presentation, PresInfoTarif, SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
@@ -112,6 +112,12 @@ function GeneralInformations({
   indicationBlock,
   ...props 
 }: GeneralInformationsProps) {
+
+  const [currentIndicationBlock, setCurrentIndicationBlock] = useState<NoticeRCPContentBlock>();
+
+  useEffect(() => {
+    setCurrentIndicationBlock(indicationBlock);
+  }, [indicationBlock, setCurrentIndicationBlock]);
   
   function formatCIS(CIS: string): string {
     const cutting = [1, 3, 3, 1];
@@ -254,11 +260,11 @@ function GeneralInformations({
         </SummaryLine>
       </ContentContainer>
 
-      {(indicationBlock && indicationBlock.children) && (
+      {(currentIndicationBlock && currentIndicationBlock.children) && (
         <ContentContainer id="informations-indications" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <h2 className={fr.cx("fr-h6")}>Indications</h2>
           <IndicationBlock className={fr.cx("fr-mb-0")}>
-            {getContent(indicationBlock.children)}
+            {getContent(currentIndicationBlock.children)}
           </IndicationBlock>
         </ContentContainer>
       )}

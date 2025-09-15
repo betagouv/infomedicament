@@ -5,16 +5,11 @@ type NoticesAnchorsSearchTerms = {
   end: string;
 }
 
-export type HeaderDetails = {
-  id: string;
-  headerTerms: NoticesAnchorsSearchTerms;
-}
-
 export type QuestionAnchors = {
   id: string;
   highlightClass: string;
   question: JSX.Element;
-  anchors?: HeaderDetails[];
+  headerId?: string;
   keywords?: string[];
   unique: boolean;
 };

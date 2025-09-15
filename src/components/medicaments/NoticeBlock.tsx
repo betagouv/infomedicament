@@ -8,12 +8,12 @@ import { QuestionsListFormat } from "@/types/NoticesAnchors";
 const Container = styled.div<{ $questionsList: QuestionsListFormat; $questionKeys: string[]}> `
   ${props => props.$questionKeys.map(key => { 
     //First time for header
-    return props.$questionsList[key].anchors && props.$questionsList[key].anchors.map((anchor) => {
-      return css`
-      .highlight-${key} .highlight-keyword-${anchor.id} {
+    return props.$questionsList[key].id && (
+      css`
+      .highlight-${key} .highlight-keyword-${props.$questionsList[key].id} {
         background-color: var(--green-tilleul-verveine-950-100);
-      }`;
-    })
+      }`
+    )
   })};
   ${props => props.$questionKeys.map(key => { 
     //Second time for keywords

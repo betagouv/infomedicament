@@ -6,9 +6,11 @@ import sanitizeHtml from "sanitize-html";
 import slugify from "slugify";
 import { Fragment } from "react";
 import ContentContainer from "@/components/generic/ContentContainer";
+import RatingToaster from "@/components/rating/RatingToaster";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+const PAGE_LABEL:string = "Glossaire";
 
 async function getDefinitions(firstLetter: string) {
   const definitions = await getGristTableData("Glossaire", [
@@ -54,7 +56,7 @@ export default async function Page(props: {
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row", "fr-mb-3w")}>
         <div className={fr.cx("fr-col-md-8")}>
-          <h1>Glossaire</h1>
+          <h1>{PAGE_LABEL}</h1>
           <AlphabeticNav
             letters={letters}
             url={(letter) => `/glossaire/${letter}`}
@@ -89,6 +91,9 @@ export default async function Page(props: {
           ))}
         </div>
       </div>
+      <RatingToaster
+        pageId={`${PAGE_LABEL} ${letter}`}
+      />
     </ContentContainer>
   );
 }

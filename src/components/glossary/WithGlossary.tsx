@@ -1,9 +1,9 @@
 import React, { Fragment } from "react";
 import WithDefinition from "@/components/glossary/WithDefinition";
 import { Definition } from "@/types/GlossaireTypes";
-import { headerAnchorsKeys, headerAnchorsList, questionKeys, questionsList } from "@/data/pages/notices_anchors";
+import { questionKeys, questionsList } from "@/data/pages/notices_anchors";
 import QuestionKeyword from "../medicaments/QuestionKeyword";
-import { HeaderDetails } from "@/types/NoticesAnchors";
+import { QuestionAnchors, QuestionsListFormat } from "@/types/NoticesAnchors";
 
 function escapeRegExp(text: string) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -55,17 +55,14 @@ function withKeyword(
 
 function withHeaderAnchor(
   text: string,
-  anchorDetails: HeaderDetails,
+  headerId: string,
+  questionDetails: QuestionAnchors,
 ): (React.JSX.Element | string)[] {
 
-  const beginIndex = (text.toLowerCase()).indexOf(anchorDetails.headerTerms.begin.toLowerCase());
-  if(beginIndex !== -1){
-    const endIndex =(text.toLowerCase()).indexOf(anchorDetails.headerTerms.end.toLowerCase(), beginIndex + anchorDetails.headerTerms.begin.length);
-    if(endIndex !== -1){
-      return [
-        <span key={anchorDetails.id} id={anchorDetails.id} className={`highlight-keyword-${anchorDetails.id} highlight-header scroll-m-150`}>{text}</span>,
-      ];
-    }
+  if(questionDetails.headerId && (headerId === questionDetails.headerId)){
+    return [
+      <span key={questionDetails.headerId}  className={`highlight-keyword-${questionDetails.id} highlight-header scroll-m-150`}>{text}</span>,
+    ];
   }
   return [text];
 }
@@ -73,23 +70,24 @@ function withHeaderAnchor(
 function WithGlossary({
   text,
   definitions,
-  isHeader,
+  headerId,
 }: {
   text: string[];
   definitions?: Definition[];
-  isHeader?: boolean;
+  headerId?: string;
 }): React.JSX.Element {
 
   if(!definitions) return (<>{text}</>);
 
   let elements: (React.JSX.Element | string)[] = text;
 
-  if(isHeader){
-    headerAnchorsKeys.forEach((key: string) => {
+  if(headerId){
+    questionKeys.forEach((key: string) => {
+      if(!questionsList[key].headerId) return elements;
       elements = elements
         .map((element) => {
           if (typeof element !== "string") return element;
-          return withHeaderAnchor(element, headerAnchorsList[key]);
+          return withHeaderAnchor(element, headerId, questionsList[key]);
         })
         .flat();
     });

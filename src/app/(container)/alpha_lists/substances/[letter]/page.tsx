@@ -8,9 +8,11 @@ import { getSubstanceSpecialites } from "@/db/utils/search";
 import { groupSpecialites } from "@/db/utils";
 import { AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
 import PageListContent from "@/components/generic/PageListContent";
+import RatingToaster from "@/components/rating/RatingToaster";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+const PAGE_LABEL:string = "Liste des substances";
 
 async function getSubstances(letter: string): Promise<SubstanceNom[]> {
   return await pdbmMySQL
@@ -75,14 +77,17 @@ export default async function Page(props: {
       {" "}
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
-        currentPageLabel="Liste des substances"
+        currentPageLabel={PAGE_LABEL}
       />
       <PageListContent
-        title="Liste des substances"
+        title={PAGE_LABEL}
         letters={letters}
         urlPrefix="/substances/"
         dataList={detailedSubstances}
         type={DataTypeEnum.SUBSTANCE}
+      />
+      <RatingToaster
+        pageId={`${PAGE_LABEL} ${letter}`}
       />
     </ContentContainer>
   );
