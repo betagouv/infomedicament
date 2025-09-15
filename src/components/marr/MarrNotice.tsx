@@ -3,10 +3,12 @@ import { fr } from "@codegouvfr/react-dsfr";
 import MarrResumeList from "./MarrResumeList";
 import Link from "next/link";
 import { Marr } from "@/types/MarrTypes";
+import { AnchorMenu } from "../medicaments/DetailedSubMenu";
+import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 
 interface MarrNoticeProps extends HTMLAttributes<HTMLDivElement> {
   marr: Marr;
-  onGoToAdvanced: (ancre: string) => void;
+  onGoToAdvanced: (anchor: AnchorMenu) => void;
 }
 
 function MarrNotice({
@@ -38,7 +40,7 @@ function MarrNotice({
           <Link 
             className={fr.cx("fr-icon-arrow-right-line", "fr-link--icon-left", "fr-text--sm")} 
             href=""
-            onClick={() => onGoToAdvanced("ancre")}
+            onClick={() => onGoToAdvanced({anchor: "informations-marr", menuPart: DetailsNoticePartsEnum.INFORMATIONS_GENERALES})}
           >
             Voir les documents pour les professionnels de santé
           </Link>

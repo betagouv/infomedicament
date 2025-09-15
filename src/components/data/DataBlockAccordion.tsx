@@ -91,26 +91,31 @@ function DataBlockAccordion({
   filterPediatric
 }: DataBlockAccordionProps) {
 
+  const COMPOSANTS_TRUNC_LENGTH = window.innerWidth <= 768 ? 150 : 250;
+
   const [advancedMedicamentGroup, setAdvancedMedicamentGroup] = useState<AdvancedMedicamentGroup>();
   const [groupName, setGroupName] = useState<string>("");
   const [specialites, setSpecialites] = useState<AdvancedSpecialite[]>();
-  const [listeComposants, setListeComposants] = useState<string>("");
   const [pregnancyPlanAlert, setPregnancyPlanAlert] = useState<boolean>(false);
   const [pregnancyMentionAlert, setPregnancyMentionAlert] = useState<boolean>(false);
   const [pediatricsInfo, setPediatricsInfo] = useState<PediatricsInfo>();
 
   const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(false);
 
+  const [fullListeComposants, setFullListeComposants] = useState<string>("");
+  const [listeComposants, setListeComposants] = useState<string>("");
+
   useEffect(() => {
     setAdvancedMedicamentGroup(item);
     setGroupName(formatSpecName(item.groupName));
     setSpecialites(item.specialites);
-    setListeComposants(
+    const composants = 
       displaySimpleComposants(item.composants)
         .map((s) => s.NomLib.trim())
-        .join(", ")
-    );
-  }, [item, setAdvancedMedicamentGroup, setGroupName, setSpecialites, setListeComposants]);
+        .join(", ");
+    setFullListeComposants(composants);
+    setListeComposants(composants.slice(0, COMPOSANTS_TRUNC_LENGTH) + (composants.length > COMPOSANTS_TRUNC_LENGTH ? "..." : ""));
+  }, [item, setAdvancedMedicamentGroup, setGroupName, setSpecialites, setFullListeComposants, setListeComposants]);
 
   useEffect(() => {
     if(advancedMedicamentGroup && filterPregnancy){
@@ -134,12 +139,21 @@ function DataBlockAccordion({
 
   }, [filterPediatric, advancedMedicamentGroup, setPediatricsInfo]);
 
+  function onDetailsVisibles(isVisible: boolean) {
+    setIsDetailsVisible(isVisible);
+    if(isVisible)
+      setListeComposants(fullListeComposants);
+    else {
+      setListeComposants(fullListeComposants.slice(0, COMPOSANTS_TRUNC_LENGTH) + (fullListeComposants.length > COMPOSANTS_TRUNC_LENGTH ? "..." : ""));
+    }
+  }
+
   return advancedMedicamentGroup && (
     <Container className={fr.cx("fr-mb-1w")}>
       <GreyContainer 
         className={fr.cx("fr-p-1w")}
         $isDetailsVisible={isDetailsVisible}
-        onClick={() => setIsDetailsVisible(!isDetailsVisible)}
+        onClick={() => onDetailsVisibles(!isDetailsVisible)}
       >
         <RowToColumnContainer>
           <SpecName className={fr.cx("fr-text--md", "fr-mr-2w")}>{groupName}</SpecName>
@@ -148,7 +162,7 @@ function DataBlockAccordion({
           )}
         </RowToColumnContainer>
         <DetailsContainer>
-          <div>
+          <div style={{width: "100%"}}>
             <RowToColumnContainer>
               {(advancedMedicamentGroup.atc1 || advancedMedicamentGroup.atc2) && (
                 <span className={fr.cx("fr-text--sm", "fr-mr-2w")}>
@@ -196,9 +210,10 @@ function DataBlockAccordion({
           </div>
           <Button
             iconId={isDetailsVisible ? "fr-icon-arrow-up-s-line" : "fr-icon-arrow-down-s-line"}
-            onClick={() => setIsDetailsVisible(!isDetailsVisible)}
+            onClick={() => onDetailsVisibles(!isDetailsVisible)}
             priority="tertiary no outline"
             title="Liens vers les notices"
+            style={{width: "100%"}}
           />
         </DetailsContainer>
       </GreyContainer>

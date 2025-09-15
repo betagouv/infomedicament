@@ -14,6 +14,7 @@ type ContentBlock = {
   styles?: string[],
   anchor?: string,
   content?: string[],
+  html?: string,
   children?: number[],
   tag?: string,
   rowspan?: number,
@@ -78,12 +79,28 @@ const poolNumber:number = parseInt(process.argv[3]);
 const poolBegin:number = pool[poolNumber][0];
 const poolEnd:number = pool[poolNumber][1];
 
+function getCleanHTML(htmlToClean: string): string{
+  let cleanHTML: string = htmlToClean;
+  let indexAEmpty:number = cleanHTML.indexOf("<a name=");
+  while(indexAEmpty !== -1){
+    var indexAEmptyEnd:number = cleanHTML.indexOf(">", indexAEmpty);
+    if(indexAEmptyEnd === -1) break; 
+    var indexAEmptyClose:number = cleanHTML.indexOf("</a>", indexAEmptyEnd);
+    if(indexAEmptyClose === -1) break; 
+    const newCleanHTML = cleanHTML.slice(0, indexAEmpty - 1) + cleanHTML.slice(indexAEmptyEnd + 1, indexAEmptyClose - 1) + cleanHTML.slice(indexAEmptyClose + 4);
+    cleanHTML = newCleanHTML;
+    indexAEmpty = cleanHTML.indexOf("<a name=");
+  }
+  return cleanHTML;
+}
+
 async function getContentFromData(data: any, isTable?: boolean): Promise<ContentBlock>{
   const contentBlock:ContentBlock = {
     type: "",
     styles: [],
     anchor: "",
     content: [],
+    html: "",
     children: [],
     tag: "",
     rowspan: undefined,
@@ -95,24 +112,25 @@ async function getContentFromData(data: any, isTable?: boolean): Promise<Content
   if(data.styles) contentBlock.styles = !Array.isArray(data.styles) ? [data.styles] : data.styles;
 
   if((data.type && data.type === "table") || isTable){
-
     if(data.tag) contentBlock.tag = data.tag;
     if(data.attributes){ 
       if(data.attributes.class && (data.type === "table" || !data.type)) contentBlock.type = data.attributes.class;
       if(data.attributes.colspan) contentBlock.colspan = parseInt(data.attributes.colspan);
       if(data.attributes.rowspan) contentBlock.rowspan = parseInt(data.attributes.rowspan);
     }
-    if(data.text) contentBlock.content = !Array.isArray(data.text) ? [data.text] : data.text;
-    if(data.children && data.children.length > 0) contentBlock.children = await addRcpContent(data.children, true);
-    
+    if(data.html) contentBlock.html = data.html;
+    // if(data.children && data.children.length > 0) contentBlock.children = await addContent(data.children, true);
   } else {
     if(data.content) contentBlock.content = !Array.isArray(data.content) ? [data.content] : data.content;
-    if(data.children) contentBlock.children = await addRcpContent(data.children);
+    if(data.html){
+      contentBlock.html = getCleanHTML(data.html);
+    }
+    if(data.children) contentBlock.children = await addContent(data.children);
   }
   return contentBlock;
 }
 
-async function addRcpContent(childrenData: any, isTable?: boolean): Promise<number[]>{
+async function addContent(childrenData: any, isTable?: boolean): Promise<number[]>{
   const childrenToInsert:(ContentBlock | boolean)[] =  await Promise.all(
     childrenData.map(async(data: any) => {
       if(data.content || data.children || data.text){

@@ -6,6 +6,7 @@ import { Rcp } from "@/types/MedicamentTypes";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { getContent } from "@/utils/notices/noticesUtils";
 import { RcpNoticeContainer } from "../Blocks/GenericBlocks";
+import GoTopButton from "@/components/generic/GoTopButton";
 
 interface RCPProps extends HTMLAttributes<HTMLDivElement> {
   rcp?: Rcp;
@@ -41,6 +42,7 @@ function RcpBlock({
       ) : (
         loaded && (<span>Le résumé des caractéristiques du produit n&rsquo;est pas disponible pour ce médicament.</span>)
       )}
+      <GoTopButton />
     </>
   );
 };

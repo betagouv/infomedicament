@@ -19,7 +19,7 @@ import { Nullable } from "kysely";
 import { PresentationDetail } from "@/db/types";
 import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import styled from 'styled-components';
-import DetailedSubMenu from "./DetailedSubMenu";
+import DetailedSubMenu, { AnchorMenu } from "./DetailedSubMenu";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import ArticlesResumeList from "../articles/ArticlesResumeList";
@@ -130,6 +130,7 @@ function SwitchNotice({
 
   const [currentPart, setcurrentPart] = useState<DetailsNoticePartsEnum>(DetailsNoticePartsEnum.INFORMATIONS_GENERALES);
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
+  const [advancedAnchor, setAdvancedAnchor] = useState<AnchorMenu>();
   const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock>();
 
   const [currentQuestion, setCurrentQuestion] = useState<string>();
@@ -162,10 +163,13 @@ function SwitchNotice({
   );
 
   const onGoToAdvanced = useCallback(
-    (ancre: string) => {
+    (anchor?: AnchorMenu) => {
+      if(anchor){
+        setAdvancedAnchor(anchor);
+      } 
       setIsAdvanced(true);
     },
-    [setIsAdvanced]
+    [setAdvancedAnchor, setIsAdvanced]
   );
 
   const updateCurrentQuestion = (questionId: string) => {
@@ -285,6 +289,7 @@ function SwitchNotice({
                 updateVisiblePart={setcurrentPart} 
                 isMarr={(currentMarr && currentMarr.pdf.length > 0)}
                 isInfosImportantes={displayInfosImportantes(ficheInfos)}
+                anchor={advancedAnchor}
               />
             : <section className={["mobile-display-contents", fr.cx("fr-mb-4w")].join(" ",)}>
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>

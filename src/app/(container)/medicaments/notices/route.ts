@@ -18,6 +18,7 @@ async function getContent(children: number[]): Promise<any[]>{
         styles: child.styles,
         anchor: child.anchor,
         content: child.content,
+        html: child.html,
         children: [],
         tag: child.tag,
         rowspan: child.rowspan,
