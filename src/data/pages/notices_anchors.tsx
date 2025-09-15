@@ -1,46 +1,4 @@
-import { HeaderDetails, QuestionsListFormat } from "@/types/NoticesAnchors";
-
-interface headerAnchorsListFormat {
-  [index: string]: HeaderDetails;
-}
-export const headerAnchorsList: headerAnchorsListFormat = {
-  description: {
-    id: "description",
-    headerTerms : {
-      begin: "1. QU’EST-CE QU",
-      end: "ET DANS QUELS CAS EST-IL UTILISE ?",
-    },
-  },
-  commentPrendre: {
-    id: "commentPrendre",
-    headerTerms : {
-      begin: "3. COMMENT PRENDRE",
-      end: "?",
-    },
-  },
-  effetsIndesirables: {
-    id: "effetsIndesirables",
-    headerTerms : {
-      begin: "4. QUELS SONT LES EFFETS INDESIRABLES EVENTUELS",
-      end: "?"
-    },
-  },
-  conservation: {
-    id:"conservation",
-    headerTerms : {
-      begin: "5. COMMENT CONSERVER",
-      end: "?",
-    },
-  },
-  contenu: {
-    id: "contenu",
-    headerTerms : {
-      begin: "6. CONTENU DE L’EMBALLAGE",
-      end: "ET AUTRES INFORMATIONS",
-    },
-  }
-};
-export const headerAnchorsKeys: string[] = Object.keys(headerAnchorsList);
+import { QuestionsListFormat } from "@/types/NoticesAnchors";
 
 export const questionsList: QuestionsListFormat = {
   description: {
@@ -51,7 +9,7 @@ export const questionsList: QuestionsListFormat = {
         <strong>À quoi sert-il</strong> ?
       </>
     ),
-    anchors: [headerAnchorsList.description],
+    headerId: "Ann3bQuestceque",
     unique: true,
   },
   commentPrendre: {
@@ -62,7 +20,7 @@ export const questionsList: QuestionsListFormat = {
         <strong>Comment</strong> le prendre ?
       </>
     ),
-    anchors: [headerAnchorsList.commentPrendre],
+    headerId: "Ann3bCommentPrendre",
     keywords: [
       "Mode et voie d’administration",
       "Mode et voie d'administration",
@@ -226,7 +184,7 @@ export const questionsList: QuestionsListFormat = {
         Quels sont les <strong>effets indésirables ?</strong>
       </>
     ),
-    anchors: [headerAnchorsList.effetsIndesirables],
+    headerId: "Ann3bEffetsIndesirables",
     unique: true,
   },
   conservation: {
@@ -237,7 +195,7 @@ export const questionsList: QuestionsListFormat = {
         Comment le <strong>conserver</strong> ?
       </>
     ),
-    anchors:[headerAnchorsList.conservation],
+    headerId:"Ann3bConservation",
     unique: true,
   },
   contenu: {
@@ -248,7 +206,7 @@ export const questionsList: QuestionsListFormat = {
         <strong>Que contient</strong> ce médicament ?
       </>
     ),
-    anchors: [headerAnchorsList.contenu],
+    headerId: "Ann3bEmballage",
     keywords: [
       "Ce que contient",
     ],
