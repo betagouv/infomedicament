@@ -13,7 +13,6 @@ import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { displayCompleteComposants, formatSpecName } from "@/displayUtils";
 import { ATCError, getAtc2, getAtcCode } from "@/data/grist/atc";
 import { notFound } from "next/navigation";
-import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import GenericAccordion from "@/components/GenericAccordion";
 import ClassTag from "@/components/tags/ClassTag";
 import SubstanceTag from "@/components/tags/SubstanceTag";
@@ -39,7 +38,6 @@ async function getGeneriques(CIS: string) {
       .where("SpecGeneId", "=", CIS)
       .where("SpecId", "!=", CIS)
       // Limit to 500 results
-      .where("SpecId", "in", liste_CIS_MVP)
       .execute()
   );
 }
@@ -121,16 +119,12 @@ export default async function Page(props: {
             Médicament princeps
           </h2>
           <p className={fr.cx("fr-mb-1v")}>
-            {liste_CIS_MVP.includes(specialite.SpecId.trim()) ? (
-              <Link
-                className={fr.cx("fr-link")}
-                href={`/medicaments/${specialite.SpecId}`}
-              >
-                {formatSpecName(specialite.SpecDenom01)}
-              </Link>
-            ) : (
-              <b>{formatSpecName(specialite.SpecDenom01)}</b>
-            )}
+            <Link
+              className={fr.cx("fr-link")}
+              href={`/medicaments/${specialite.SpecId}`}
+            >
+              {formatSpecName(specialite.SpecDenom01)}
+            </Link>
           </p>
           <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
             {generiques.length} médicament{generiques.length > 1 && "s"} générique
@@ -139,16 +133,12 @@ export default async function Page(props: {
           {generiques.map((specialite) => (
             <Fragment key={specialite.SpecId}>
               <p className={fr.cx("fr-mb-1v")}>
-                {liste_CIS_MVP.includes(specialite.SpecId.trim()) ? (
-                  <Link
-                    className={fr.cx("fr-link")}
-                    href={`/medicaments/${specialite.SpecId}`}
-                  >
-                    {formatSpecName(specialite.SpecDenom01)}
-                  </Link>
-                ) : (
-                  <b>{formatSpecName(specialite.SpecDenom01)}</b>
-                )}
+                <Link
+                  className={fr.cx("fr-link")}
+                  href={`/medicaments/${specialite.SpecId}`}
+                >
+                  {formatSpecName(specialite.SpecDenom01)}
+                </Link>
               </p>
             </Fragment>
           ))}

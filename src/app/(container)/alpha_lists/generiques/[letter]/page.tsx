@@ -1,5 +1,4 @@
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { fr } from "@codegouvfr/react-dsfr";
 import AlphabeticNav from "@/components/AlphabeticNav";
@@ -25,9 +24,7 @@ async function getLetters() {
           ),
         )
 
-        // Filter the 500 list
         .leftJoin("Specialite", "GroupeGene.SpecId", "Specialite.SpecId")
-        .where("Specialite.SpecId", "in", liste_CIS_MVP)
         .orderBy("letter")
         .groupBy("letter")
         .execute()
@@ -45,9 +42,7 @@ export default async function Page(props: {
     .selectFrom("GroupeGene")
     .select(["GroupeGene.LibLong", "GroupeGene.SpecId"])
     .where("GroupeGene.LibLong", "like", `${letter.toUpperCase()}%`)
-    // Filter the 500 list
     .leftJoin("Specialite", "GroupeGene.SpecId", "Specialite.SpecGeneId")
-    .where("Specialite.SpecId", "in", liste_CIS_MVP)
     .groupBy(["GroupeGene.LibLong", "GroupeGene.SpecId"])
     .orderBy("GroupeGene.LibLong")
     .execute();
