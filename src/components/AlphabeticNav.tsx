@@ -5,9 +5,11 @@ import Link from "next/link";
 function AlphabeticNav({
   letters,
   url,
+  currentLetter,
 }: {
   letters: string[];
   url: (letter: string) => string;
+  currentLetter: string;
 }) {
   return (
     <p className={fr.cx("fr-text--lg")}>
@@ -23,6 +25,7 @@ function AlphabeticNav({
                 "fr-mr-3w",
                 "fr-mb-3w",
               )}
+              style={{background: currentLetter === a ? "none" : ""}}
             >
               {a.toUpperCase()}
             </Link>{" "}

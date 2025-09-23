@@ -79,6 +79,7 @@ export default async function Page(props: {
         urlPrefix="/substances/"
         dataList={detailedSubstances}
         type={DataTypeEnum.SUBSTANCE}
+        currentLetter={letter}
       />
       <RatingToaster
         pageId={`${PAGE_LABEL} ${letter}`}

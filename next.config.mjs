@@ -17,7 +17,7 @@ const nextConfig = {
         destination: "/alpha_lists/articles/:letter",
       },
       {
-        source: "/medicaments/:letter([A-Za-z])",
+        source: "/medicaments/:letter([A-Za-z0-9])",
         destination: "/alpha_lists/medicaments/:letter",
       },
       {

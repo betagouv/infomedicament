@@ -62,6 +62,7 @@ export default async function Page(props: {
           urlPrefix="/medicaments/"
           dataList={detailedMedicaments}
           type={DataTypeEnum.MEDGROUP}
+          currentLetter={letter}
         />
       </Fragment>
       <RatingToaster

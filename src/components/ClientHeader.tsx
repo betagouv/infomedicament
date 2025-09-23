@@ -58,7 +58,7 @@ export default function ClientHeader({
           menuLinks: [
             {
               text: "Tous les médicaments",
-              linkProps: { href: "/medicaments/A" },
+              linkProps: { href: "/medicaments/1" },
             },
             {
               text: "Toutes les substances actives",

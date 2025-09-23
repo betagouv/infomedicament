@@ -63,6 +63,7 @@ export default async function Page(props: {
           <AlphabeticNav
             letters={letters}
             url={(letter) => `/generiques/${letter}`}
+            currentLetter={letter}
           />
           <ul className={fr.cx("fr-raw-list")}>
             {generics.map((g, i) => (
