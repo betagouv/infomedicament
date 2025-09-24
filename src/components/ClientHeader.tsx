@@ -62,7 +62,7 @@ export default function ClientHeader({
             },
             {
               text: "Toutes les substances actives",
-              linkProps: { href: "/substances/A" },
+              linkProps: { href: "/substances/(" },
             },
             {
               text: "Toutes les pathologies",

@@ -15,7 +15,7 @@ function AlphabeticNav({
     <p className={fr.cx("fr-text--lg")}>
       {letters
         .map((a) => a && a.normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
-        .map((a) => a && (
+        .map((a) => (a && a !== "\t") && (
           <Fragment key={a}>
             <Link
               href={url(a.toUpperCase())}
