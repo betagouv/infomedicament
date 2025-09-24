@@ -18,8 +18,8 @@ async function getSubstances(letter: string): Promise<SubstanceNom[]> {
     .selectFrom("Subs_Nom")
     .selectAll("Subs_Nom")
     .where("NomLib", "like", `${letter.toLowerCase()}%`)
-    .leftJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
-    .leftJoin("Specialite", "Composant.SpecId", "Specialite.SpecId")
+    .innerJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
+    .innerJoin("Specialite", "Composant.SpecId", "Specialite.SpecId") //At least one
     .groupBy(["Subs_Nom.NomLib", "Subs_Nom.NomId", "Subs_Nom.SubsId"])
     .orderBy("Subs_Nom.NomLib")
     .execute();
@@ -35,8 +35,8 @@ async function getLetters() {
             "letter",
           ),
         )
-        .leftJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
-        .leftJoin("Specialite", "Composant.SpecId", "Specialite.SpecId")
+        .innerJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
+        .innerJoin("Specialite", "Composant.SpecId", "Specialite.SpecId") //At least one
         .orderBy("letter")
         .groupBy("letter")
         .execute()
