@@ -14,6 +14,7 @@ interface PageListContentProps extends HTMLAttributes<HTMLDivElement> {
   urlPrefix: string;
   dataList: AdvancedSubstanceNom[] | AdvancedMedicamentGroup[] | AdvancedPatho[] | AdvancedATCClass[];
   type: DataTypeEnum;
+  currentLetter: string;
 }
 
 
@@ -23,6 +24,7 @@ function PageListContent({
   urlPrefix,
   dataList,
   type,
+  currentLetter,
 }: PageListContentProps ) {
 
   const PAGINATION_LENGTH:number = 10;
@@ -35,6 +37,7 @@ function PageListContent({
         <AlphabeticNav
           letters={letters}
           url={(letter) => `${urlPrefix}${letter}`}
+          currentLetter={currentLetter}
         />
       </div>
       <div className={fr.cx("fr-col-md-8")}>

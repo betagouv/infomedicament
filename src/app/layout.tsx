@@ -57,7 +57,7 @@ export default async function RootLayout({
           title={
             <>
               {process.env.NEXT_PUBLIC_ENVIRONMENT == "production"
-                ? "Ce site est actuellement en version bêta et contient les données de 5000 médicaments."
+                ? "Ce site est actuellement en version bêta."
                 : "Ceci est un environnement de test."}{" "}
               Pour les informations officielles et complètes, consultez{" "}
               <a href="https://base-donnees-publique.medicaments.gouv.fr/">

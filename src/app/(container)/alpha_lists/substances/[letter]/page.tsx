@@ -2,7 +2,6 @@ import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { notFound } from "next/navigation";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import ContentContainer from "@/components/generic/ContentContainer";
 import { getSubstanceSpecialites } from "@/db/utils/search";
 import { groupSpecialites } from "@/db/utils";
@@ -19,11 +18,9 @@ async function getSubstances(letter: string): Promise<SubstanceNom[]> {
     .selectFrom("Subs_Nom")
     .selectAll("Subs_Nom")
     .where("NomLib", "like", `${letter.toLowerCase()}%`)
-    // filter the 500 list
-    .leftJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
-    .leftJoin("Specialite", "Composant.SpecId", "Specialite.SpecId")
+    .innerJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
+    .innerJoin("Specialite", "Composant.SpecId", "Specialite.SpecId") //At least one
     .groupBy(["Subs_Nom.NomLib", "Subs_Nom.NomId", "Subs_Nom.SubsId"])
-    .where("Specialite.SpecId", "in", liste_CIS_MVP)
     .orderBy("Subs_Nom.NomLib")
     .execute();
 }
@@ -38,11 +35,8 @@ async function getLetters() {
             "letter",
           ),
         )
-
-        // Filter the 500 list
-        .leftJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
-        .leftJoin("Specialite", "Composant.SpecId", "Specialite.SpecId")
-        .where("Specialite.SpecId", "in", liste_CIS_MVP)
+        .innerJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
+        .innerJoin("Specialite", "Composant.SpecId", "Specialite.SpecId") //At least one
         .orderBy("letter")
         .groupBy("letter")
         .execute()
@@ -85,6 +79,7 @@ export default async function Page(props: {
         urlPrefix="/substances/"
         dataList={detailedSubstances}
         type={DataTypeEnum.SUBSTANCE}
+        currentLetter={letter}
       />
       <RatingToaster
         pageId={`${PAGE_LABEL} ${letter}`}

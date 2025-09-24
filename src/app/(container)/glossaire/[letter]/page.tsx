@@ -60,6 +60,7 @@ export default async function Page(props: {
           <AlphabeticNav
             letters={letters}
             url={(letter) => `/glossaire/${letter}`}
+            currentLetter={letter}
           />
           {definitions.map((definition) => (
             <Fragment

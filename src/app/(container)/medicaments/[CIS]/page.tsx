@@ -10,7 +10,6 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getAtc1, getAtc2, getAtcCode } from "@/data/grist/atc";
 import { getSpecialite, getSpecialiteGroupName } from "@/db/utils";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import Alert from "@codegouvfr/react-dsfr/Alert";
 import { getPregnancyMentionAlert, getPregnancyPlanAlerts } from "@/data/grist/pregnancy";
 import { getPediatrics } from "@/data/grist/pediatrics";
@@ -46,8 +45,6 @@ export default async function Page(props: {
   params: Promise<{ CIS: string }>;
 }) {
   const { CIS } = await props.params;
-
-  if (!liste_CIS_MVP.includes(CIS)) notFound();
 
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);

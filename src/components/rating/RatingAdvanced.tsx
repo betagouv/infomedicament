@@ -11,10 +11,10 @@ const question1Options: string[] = [
   'Non, pas du tout',
 ];
 const question2Options: string[] = [
-  'Mieux informé·e et rassuré·e',
-  'J\'ai encore des doutes',
-  'Pas plus avancé·e',
-  'Je ne sais pas encore',
+  'J’ai trouvé l’information que je cherchais et je me sens rassuré·e',
+  'J’ai trouvé une partie de l’information, mais j’ai encore des doutes',
+  'Je n’ai pas trouvé l’information que je cherchais',
+  'Je n’ai pas encore pu me faire un avis',
 ];
 
 interface RatingAdvancedProps extends HTMLAttributes<HTMLDivElement> {
@@ -65,7 +65,7 @@ function RatingAdvanced({
       </div>
       <div>
         <RadioButtons 
-            legend="Après votre visite sur InfoMédicament, vous vous sentez :"
+            legend="Après votre visite sur InfoMédicament, diriez-vous que :"
             small 
             options={question2Options.map((option: string) => ({
               label: option,

@@ -1,6 +1,5 @@
 import "server-cli-only";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import db from "@/db";
 import { SearchResult } from "@/db/types";
 import { Expression, expressionBuilder, sql, SqlBool } from "kysely";
@@ -33,7 +32,6 @@ const getSpecialites = unstable_cache(async function (
         )
         .leftJoin("Presentation", "Specialite.SpecId", "Presentation.SpecId")
         .where(presentationIsComm())
-        .where("Specialite.SpecId", "in", liste_CIS_MVP)
         .selectAll("Specialite")
         .select(({ fn }) => [
           fn<Array<string>>("json_arrayagg", ["NomId"]).as("SubsNomId"),
@@ -105,7 +103,6 @@ export const getSubstanceSpecialites = unstable_cache(async function (
   .selectFrom("Specialite")
   .selectAll("Specialite")
   .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
-  .where("Specialite.SpecId", "in", liste_CIS_MVP)
   .groupBy("Specialite.SpecId")
   .execute();
 });

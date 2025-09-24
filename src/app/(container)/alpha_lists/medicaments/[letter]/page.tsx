@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { unstable_cache } from "next/cache";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import { groupSpecialites } from "@/db/utils";
 import ContentContainer from "@/components/generic/ContentContainer";
 import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
@@ -22,7 +21,6 @@ const getLetters = unstable_cache(async function () {
       .select(({ fn, val }) =>
         fn<string>("substr", ["SpecDenom01", val(1), val(1)]).as("letter"),
       )
-      .where("Specialite.SpecId", "in", liste_CIS_MVP)
       .orderBy("letter")
       .groupBy("letter")
       .execute()
@@ -34,7 +32,6 @@ const getSpecialites = unstable_cache(async function (letter: string) {
     .selectFrom("Specialite")
     .selectAll("Specialite")
     .where("SpecDenom01", "like", `${letter}%`)
-    .where("Specialite.SpecId", "in", liste_CIS_MVP)
     .orderBy("SpecDenom01")
     .execute();
 });
@@ -65,6 +62,7 @@ export default async function Page(props: {
           urlPrefix="/medicaments/"
           dataList={detailedMedicaments}
           type={DataTypeEnum.MEDGROUP}
+          currentLetter={letter}
         />
       </Fragment>
       <RatingToaster
