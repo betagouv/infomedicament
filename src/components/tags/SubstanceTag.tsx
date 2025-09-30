@@ -15,6 +15,7 @@ export default function SubstanceTag(props: {
           .map((s) => s.NomId.trim())
           .join(",")}`,
         className: cx("fr-tag--custom-alt-substance"),
+        target: "_blank",
       }}
     >
       {displaySimpleComposants(props.composants)

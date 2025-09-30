@@ -10,6 +10,7 @@ export default function ClassTag(props: { atc2: ATC }) {
       linkProps={{
         href: `/atc/${props.atc2.code}`,
         className: cx("fr-tag--custom-alt-class"),
+        target: "_blank",
       }}
     >
       {props.atc2.label}
