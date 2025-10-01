@@ -1,6 +1,7 @@
 import { Patho, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { AdvancedMedicamentGroup } from "./MedicamentTypes";
 import { ATC, ATC1 } from "@/data/grist/atc";
+import { PathologyResume } from "./Pathology";
 
 export enum DataTypeEnum {
   MEDGROUP = "Médicament",
@@ -29,7 +30,7 @@ export type AdvancedData = {
   result: (
     | AdvancedSubstanceNom
     | AdvancedMedicamentGroup
-    | AdvancedPatho
+    | PathologyResume
     | AdvancedATCClass 
   ),
   type: DataTypeEnum,

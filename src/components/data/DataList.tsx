@@ -1,12 +1,13 @@
 "use client";
 import { HTMLAttributes, useEffect, useState } from "react";
-import { AdvancedATCClass, AdvancedPatho, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
+import { AdvancedATCClass, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
 import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 import DataBlockGeneric from "./DataBlockGeneric";
 import DataBlockAccordion from "./DataBlockAccordion";
+import { PathologyResume } from "@/types/Pathology";
 
 interface DataListProps extends HTMLAttributes<HTMLDivElement> {
-  dataList: AdvancedSubstanceNom[] | AdvancedMedicamentGroup[] | AdvancedPatho[] | AdvancedATCClass[];
+  dataList: AdvancedSubstanceNom[] | AdvancedMedicamentGroup[] | PathologyResume[] | AdvancedATCClass[];
   type: DataTypeEnum;
   paginationLength: number;
   currentPage: number;
@@ -19,7 +20,7 @@ function DataList({
   currentPage,
 }: DataListProps) {
 
-  const [currentDataList, setCurrentDataList] = useState<AdvancedSubstanceNom[] | AdvancedMedicamentGroup[] | AdvancedPatho[] | AdvancedATCClass[]>(dataList);
+  const [currentDataList, setCurrentDataList] = useState<AdvancedSubstanceNom[] | AdvancedMedicamentGroup[] | PathologyResume[] | AdvancedATCClass[]>(dataList);
   const [currentType, setCurrentType] = useState<DataTypeEnum>();
 
   useEffect(() => {

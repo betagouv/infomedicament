@@ -1,62 +1,47 @@
-import { Patho } from "@/db/pdbmMySQL/types";
-import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
-import { AdvancedPatho, DataTypeEnum } from "@/types/DataTypes";
-import { getPathoSpecialites } from "@/db/utils/pathologies";
-import { groupSpecialites } from "@/db/utils";
+import { DataTypeEnum } from "@/types/DataTypes";
+import { getAllPathoWithSpecialites } from "@/db/utils/pathologies";
+import { getSpecialiteGroupName } from "@/db/utils";
 import PageListContent from "@/components/generic/PageListContent";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { PathologyResume } from "@/types/Pathology";
 
 export const dynamic = "error";
 export const dynamicParams = true;
 const PAGE_LABEL:string = "Liste des pathologies";
-
-async function getPathologyPage(letter: string): Promise<Patho[]> {
-  return pdbmMySQL
-    .selectFrom("Patho")
-    .selectAll()
-    .where("NomPatho", "like", `${letter}%`)
-    .orderBy("NomPatho")
-    .execute();
-}
-
-async function getLetters(): Promise<string[]> {
-  return (
-    await pdbmMySQL
-      .selectFrom("Patho")
-      .select(({ fn, val }) =>
-        fn<string>("substr", ["NomPatho", val(1), val(1)]).as("letter"),
-      )
-      .orderBy("letter")
-      .groupBy("letter")
-      .execute()
-  ).map((r) => r.letter);
-}
 
 export default async function Page(props: {
   params: Promise<{ letter: string }>;
 }) {
   const { letter } = await props.params;
 
-  const letters = await getLetters();
-  const pathos = await getPathologyPage(letter);
+  const allPathos = await getAllPathoWithSpecialites();
+  const letters: string[] = [];
+  const orderedPathos: PathologyResume[] = [];
 
-  if (!pathos || !pathos.length) return notFound();
+  allPathos.forEach((patho) => {
+    const pathoLetter = patho.NomPatho.substring(0,1);
+    if(!letters.includes(pathoLetter)) letters.push(pathoLetter);
+    if(pathoLetter !== letter) return;
 
-  let detailedPathos: AdvancedPatho[] = await Promise.all(
-    pathos
-      .map(async (patho) => {
-        const specialites = await getPathoSpecialites(patho.codePatho);
-        const medicaments = specialites && (groupSpecialites(specialites));
-        return {
-          nbSpecs: medicaments.length,
-          ...patho
-        };
-      })
-  );
-  detailedPathos = detailedPathos.filter((patho) => patho.nbSpecs > 0);
+    const index = orderedPathos.findIndex((orderedPatho) => orderedPatho.codePatho === patho.codePatho);
+    if(index !== -1) {
+      const specGroupName = getSpecialiteGroupName(patho.SpecDenom01);
+      if(!orderedPathos[index].medicaments.includes(specGroupName)){
+        orderedPathos[index].medicaments.push(specGroupName);
+      }
+    } else orderedPathos.push({
+      codePatho: patho.codePatho,
+      NomPatho: patho.NomPatho,
+      medicaments: [
+        getSpecialiteGroupName(patho.SpecDenom01),
+      ],
+    });
+  })
+
+  if (!orderedPathos || !orderedPathos.length) return notFound();
   
   return (
     <ContentContainer frContainer>
@@ -68,7 +53,7 @@ export default async function Page(props: {
         title={PAGE_LABEL}
         letters={letters}
         urlPrefix="/pathologies/"
-        dataList={detailedPathos}
+        dataList={orderedPathos}
         type={DataTypeEnum.PATHOLOGY}
         currentLetter={letter}
       />

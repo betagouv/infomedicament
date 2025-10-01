@@ -23,3 +23,14 @@ export const getSpecialitesPatho = unstable_cache(async function (CIS: string) {
     .execute();
   return rawCodePatho.map((code) => code.codePatho);
 });
+
+export async function getAllPathoWithSpecialites() {
+  "use cache";
+  return pdbmMySQL
+    .selectFrom("Patho")
+    .innerJoin("Spec_Patho", "Patho.codePatho", "Spec_Patho.codePatho")
+    .innerJoin("Specialite", "Spec_Patho.SpecId", "Specialite.SpecId")
+    .selectAll("Patho")
+    .select("Specialite.SpecDenom01")
+    .execute();
+};
