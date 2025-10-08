@@ -17,16 +17,11 @@ export default function GenericTag(
         linkProps={{
           className: cx("fr-tag--custom-alt-blue"),
           href: `/generiques/${props.specGeneId}`,
+          target: "_blank",
         }}
       >
-        Générique
+        Voir les Génériques
       </Tag>{" "}
-      <div style={{display: "inline"}}>
-        <Link href={`/generiques/${props.specGeneId}`} className={cx("fr-link", "fr-link--sm")}>
-          <span className={cx("fr-hidden-md")}>Voir le groupe générique</span>
-          <span className={cx("fr-hidden", "fr-unhidden-md")} style={{whiteSpace: "nowrap"}}>Voir alternatives</span>
-        </Link>
-      </div>
     </div>
   );
 }
