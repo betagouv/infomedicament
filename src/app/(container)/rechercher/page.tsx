@@ -9,6 +9,7 @@ import { getPathoSpecialites } from "@/db/utils/pathologies";
 import { getSubstancesByAtc } from "@/data/grist/atc";
 import SearchPage from "./SearchPage";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { MedicamentGroup } from "@/displayUtils";
 
 async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<ExtendedOrderResults> {
   let counter = 0;
@@ -29,7 +30,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
         return {
           type: DataTypeEnum.SUBSTANCE,
           result: {
-            nbSpecs: specialitiesGroups.length,
+            medicaments: specialitiesGroups.map((spec: MedicamentGroup) => spec[0]),
             ...result
           }
         };
@@ -47,7 +48,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
         return {
           type: DataTypeEnum.PATHOLOGY,
           result: {
-            nbSpecs: medicaments.length,
+            medicaments: medicaments.map((spec: MedicamentGroup) => spec[0]),
             ...result
           }
         };
