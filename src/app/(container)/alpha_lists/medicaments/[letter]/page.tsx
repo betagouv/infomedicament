@@ -1,53 +1,41 @@
 import { Fragment } from "react";
-import { notFound } from "next/navigation";
-import { unstable_cache } from "next/cache";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { groupSpecialites } from "@/db/utils";
 import ContentContainer from "@/components/generic/ContentContainer";
-import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
 import { DataTypeEnum } from "@/types/DataTypes";
 import PageListContent from "@/components/generic/PageListContent";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { Specialite } from "@/db/pdbmMySQL/types";
+import { getSpecialites, groupSpecialites } from "@/db/utils/specialities";
+import { notFound } from "next/navigation";
+import { MedicamentGroup } from "@/displayUtils";
+import { getAdvancedMedicamentFromGroup } from "@/db/utils/medicaments";
 
 export const dynamic = "error";
 export const dynamicParams = true;
 const PAGE_LABEL:string = "Liste des médicaments";
-
-const getLetters = unstable_cache(async function () {
-  return (
-    await pdbmMySQL
-      .selectFrom("Specialite")
-      .select(({ fn, val }) =>
-        fn<string>("substr", ["SpecDenom01", val(1), val(1)]).as("letter"),
-      )
-      .orderBy("letter")
-      .groupBy("letter")
-      .execute()
-  ).map((r) => r.letter);
-});
-
-const getSpecialites = unstable_cache(async function (letter: string) {
-  return pdbmMySQL
-    .selectFrom("Specialite")
-    .selectAll("Specialite")
-    .where("SpecDenom01", "like", `${letter}%`)
-    .orderBy("SpecDenom01")
-    .execute();
-});
 
 export default async function Page(props: {
   params: Promise<{ letter: string }>;
 }) {
   const { letter } = await props.params;
 
-  const letters = await getLetters();
-  const specialites = await getSpecialites(letter);
+  const allSpecialites: Specialite[] = await getSpecialites();
+  const letters: string[] = [];
+  const filteredSpecialites: Specialite[] = [];
 
-  if (!specialites || !specialites.length) return notFound();
+  allSpecialites.forEach((spec) => {
+    const specLetter = spec.SpecDenom01.substring(0,1).toUpperCase();
+    if(!letters.includes(specLetter)) letters.push(specLetter);
+    if(specLetter !== letter) return;
 
-  const medicaments = groupSpecialites(specialites);
-  const detailedMedicaments = await getAdvancedMedicamentGroupListFromMedicamentGroupList(medicaments);
+    const index = filteredSpecialites.findIndex((filteredSpec) => filteredSpec.SpecId === spec.SpecId);
+    if(index === -1) filteredSpecialites.push(spec);
+  })
+
+  if (!filteredSpecialites || !filteredSpecialites.length) return notFound();
+
+  const medicaments: MedicamentGroup[] = groupSpecialites(filteredSpecialites);
+  const detailedMedicaments = await getAdvancedMedicamentFromGroup(medicaments);
 
   return (
     <ContentContainer frContainer>

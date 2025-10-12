@@ -1,11 +1,11 @@
 import { getAtc1, getAtc2, getAtcCode } from "@/data/grist/atc";
-import { getSpecialite } from "./specialities";
-import { getPregnancyMentionAlert, getPregnancyPlanAlerts } from "@/data/grist/pregnancy";
+import { getAllPregnancyMentionAlerts, getPregnancyMentionAlert, getPregnancyPlanAlerts } from "@/data/grist/pregnancy";
 import { MedicamentGroup } from "@/displayUtils";
 import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
-import { getPediatrics } from "@/data/grist/pediatrics";
+import { AllPediatricsInfo, getAllPediatrics, getPediatrics } from "@/data/grist/pediatrics";
 import { PregnancyAlert } from "@/types/PregancyTypes";
-import { Specialite } from "../pdbmMySQL/types";
+import { SpecComposant, Specialite, SubstanceNom } from "../pdbmMySQL/types";
+import { getComposants, getComposantsList } from "./composants";
 
 export async function getAdvancedMedicamentGroupFromGroupNameSpecialites(
   groupName: string,
@@ -17,7 +17,7 @@ export async function getAdvancedMedicamentGroupFromGroupNameSpecialites(
   }
 
   const atc = getAtcCode(specialites[0].SpecId);
-  const { composants } = await getSpecialite(specialites[0].SpecId);
+  const composants = await getComposants(specialites[0].SpecId);
   const pregnancyPlanAlert = pregnancyPlanAlerts.find((s) =>
     composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
   );
@@ -28,6 +28,7 @@ export async function getAdvancedMedicamentGroupFromGroupNameSpecialites(
     mention: false,
   }
   let pregnancyMentionAlert = false;
+
   const advancedSpecialites = await Promise.all(
     specialites.map(async (spec) => {
       const pediatrics = await getPediatrics(spec.SpecId);
@@ -60,23 +61,77 @@ export async function getAdvancedMedicamentGroupFromGroupNameSpecialites(
   }
 }
 
-export async function getAdvancedMedicamentGroupFromMedicamentGroup(
+async function getAdvancedMedicament(
   medGroup: MedicamentGroup,
-  pregnancyPlanAlerts?: PregnancyAlert[],
-): Promise <AdvancedMedicamentGroup> {
-
+  composantsList: Array<SpecComposant & SubstanceNom>,
+  pregnancyPlanAlerts: PregnancyAlert[],
+  pregnancyMentionAlerts: string[],
+  allPediatricsInfo: AllPediatricsInfo[],
+): Promise<AdvancedMedicamentGroup> {
   const [groupName, specialites] = medGroup;
-  return getAdvancedMedicamentGroupFromGroupNameSpecialites(groupName, specialites, pregnancyPlanAlerts);
-}
+  const atc = getAtcCode(specialites[0].SpecId);
 
-export async function getAdvancedMedicamentGroupListFromMedicamentGroupList(
+  const composants: Array<SpecComposant & SubstanceNom> = [];
+  composantsList.forEach((comp) => {
+    if(comp.SpecId === specialites[0].SpecId) composants.push(comp);
+  })
+  const pregnancyPlanAlert = pregnancyPlanAlerts.find((s) =>
+    composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
+  );
+  const pediatricsInfo = {
+    indication: false,
+    contraindication: false,
+    doctorAdvice: false,
+    mention: false,
+  }
+  let pregnancyMentionAlert = false;
+  const advancedSpecialites = specialites.map((spec) => {
+    const pediatrics = allPediatricsInfo.find((info) => info.CIS === spec.SpecId);
+    if(pediatrics){
+      if(pediatrics.indication) pediatricsInfo.indication = true;
+      if(pediatrics.contraindication) pediatricsInfo.contraindication = true;
+      if(pediatrics.doctorAdvice) pediatricsInfo.doctorAdvice = true;
+      if(pediatrics.mention) pediatricsInfo.mention = true;
+    }
+
+    const pregnancyAlert = pregnancyMentionAlerts.find((mentionCIS) => mentionCIS === spec.SpecId);
+    if(pregnancyAlert) pregnancyMentionAlert = true;
+    return {
+      pregnancyMentionAlert: !!pregnancyAlert,
+      pregnancyPlanAlert: !!pregnancyPlanAlert,
+      pediatrics: pediatrics,
+      ...spec,
+    }
+  });
+
+  return {
+    groupName: groupName, 
+    specialites: advancedSpecialites,
+    atc1: atc ? await getAtc1(atc) : undefined,
+    atc2: atc ? await getAtc2(atc) : undefined,
+    composants: composants,
+    pregnancyPlanAlert: !!pregnancyPlanAlert,
+    pregnancyMentionAlert: pregnancyMentionAlert,
+    pediatrics: (pediatricsInfo.indication || pediatricsInfo.contraindication || pediatricsInfo.doctorAdvice || pediatricsInfo.mention) ? pediatricsInfo : undefined,
+  }
+};
+
+export async function getAdvancedMedicamentFromGroup(
   medGroupList: MedicamentGroup[]
-): Promise <AdvancedMedicamentGroup[]> {
-  const pregnancyPlanAlerts = await getPregnancyPlanAlerts();
+): Promise <AdvancedMedicamentGroup[]>{
+  const CISList: string[] = medGroupList.map((medGroup) => {
+    const [groupName, specialites] = medGroup;
+    return specialites[0].SpecId;
+  });
+
+  const pregnancyPlanAlerts: PregnancyAlert[] = await getPregnancyPlanAlerts();
+  const pregnancyMentionAlerts: string[] = await getAllPregnancyMentionAlerts();
+  const allPediatricsInfo: AllPediatricsInfo[] = await getAllPediatrics();
+  const composantsList = await getComposantsList(CISList);
 
   return await Promise.all(
     medGroupList.map(async (medGroup) => {
-      return getAdvancedMedicamentGroupFromMedicamentGroup(medGroup, pregnancyPlanAlerts);
+      return getAdvancedMedicament(medGroup, composantsList, pregnancyPlanAlerts, pregnancyMentionAlerts, allPediatricsInfo);
     })
   );
-}
+};

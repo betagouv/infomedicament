@@ -51,7 +51,6 @@ export async function PATCH(req: NextRequest) {
         },
       ]
     };
-    console.log(gristData);
 
     const result = await axios.patch(    
       `https://grist.numerique.gouv.fr/api/docs/${process.env.GRIST_DOC_ID}/tables/Avis/records`, 

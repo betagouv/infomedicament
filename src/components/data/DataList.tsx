@@ -1,13 +1,29 @@
 "use client";
 import { HTMLAttributes, useEffect, useState } from "react";
-import { AdvancedATCClass, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
+import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 import DataBlockGeneric from "./DataBlockGeneric";
 import DataBlockAccordion from "./DataBlockAccordion";
-import { PathologyResume } from "@/types/Pathology";
+import { PathologyResume } from "@/types/PathologyTypes";
+import { SubstanceResume } from "@/types/SubstanceTypes";
+
+function getCurrentDataList(
+  dataList: SubstanceResume[] | AdvancedMedicamentGroup[] | PathologyResume[] | AdvancedATCClass[],
+  paginationLength: number,
+  currentPage: number,
+){
+  if(dataList && dataList.length > 0 && paginationLength && paginationLength > 0) {
+    const list = dataList.slice(
+      (currentPage - 1) * paginationLength,
+      currentPage * paginationLength,
+    );
+    return list;
+  }
+  return [];
+}
 
 interface DataListProps extends HTMLAttributes<HTMLDivElement> {
-  dataList: AdvancedSubstanceNom[] | AdvancedMedicamentGroup[] | PathologyResume[] | AdvancedATCClass[];
+  dataList: SubstanceResume[] | AdvancedMedicamentGroup[] | PathologyResume[] | AdvancedATCClass[];
   type: DataTypeEnum;
   paginationLength: number;
   currentPage: number;
@@ -20,7 +36,7 @@ function DataList({
   currentPage,
 }: DataListProps) {
 
-  const [currentDataList, setCurrentDataList] = useState<AdvancedSubstanceNom[] | AdvancedMedicamentGroup[] | PathologyResume[] | AdvancedATCClass[]>(dataList);
+  const [currentDataList, setCurrentDataList] = useState<SubstanceResume[] | AdvancedMedicamentGroup[] | PathologyResume[] | AdvancedATCClass[]>([]);
   const [currentType, setCurrentType] = useState<DataTypeEnum>();
 
   useEffect(() => {
@@ -31,13 +47,13 @@ function DataList({
   }, [type, setCurrentType]);
 
   useEffect(() => {
-    if(dataList && paginationLength && paginationLength > 0) {
-      const list = dataList.slice(
-        (currentPage - 1) * paginationLength,
-        currentPage * paginationLength,
-      );
-      setCurrentDataList(list);
-    } else setCurrentDataList(dataList);
+    const list = getCurrentDataList(dataList, paginationLength, currentPage);
+    setCurrentDataList(list);
+  }, [dataList]);
+
+  useEffect(() => {
+    const list = getCurrentDataList(dataList, paginationLength, currentPage);
+    setCurrentDataList(list);
   }, [currentPage, setCurrentDataList]);
   
   return (

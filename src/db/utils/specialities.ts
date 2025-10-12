@@ -139,3 +139,12 @@ export function groupSpecialites<T extends Specialite>(
   }
   return allGroups;
 }
+
+export const getSpecialites = cache(async function (): Promise<Specialite[]> {
+  return pdbmMySQL
+    .selectFrom("Specialite")
+    .selectAll("Specialite")
+    .distinct()
+    .orderBy("SpecDenom01")
+    .execute();
+});

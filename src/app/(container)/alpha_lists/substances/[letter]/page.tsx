@@ -1,70 +1,48 @@
-import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { notFound } from "next/navigation";
-import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
-import { getSubstanceSpecialites } from "@/db/utils/search";
-import { groupSpecialites } from "@/db/utils";
-import { AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
+import { getSpecialiteGroupName } from "@/db/utils";
+import { DataTypeEnum } from "@/types/DataTypes";
 import PageListContent from "@/components/generic/PageListContent";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { getAllSubsWithSpecialites } from "@/db/utils/substances";
+import { SubstanceResume } from "@/types/SubstanceTypes";
 
 export const dynamic = "error";
 export const dynamicParams = true;
 const PAGE_LABEL:string = "Liste des substances";
-
-async function getSubstances(letter: string): Promise<SubstanceNom[]> {
-  return await pdbmMySQL
-    .selectFrom("Subs_Nom")
-    .selectAll("Subs_Nom")
-    .where("NomLib", "like", `${letter.toLowerCase()}%`)
-    .innerJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
-    .innerJoin("Specialite", "Composant.SpecId", "Specialite.SpecId") //At least one
-    .groupBy(["Subs_Nom.NomLib", "Subs_Nom.NomId", "Subs_Nom.SubsId"])
-    .orderBy("Subs_Nom.NomLib")
-    .execute();
-}
-
-async function getLetters() {
-  return (
-    (
-      await pdbmMySQL
-        .selectFrom("Subs_Nom")
-        .select(({ fn, val }) =>
-          fn<string>("substr", ["Subs_Nom.NomLib", val(1), val(1)]).as(
-            "letter",
-          ),
-        )
-        .innerJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
-        .innerJoin("Specialite", "Composant.SpecId", "Specialite.SpecId") //At least one
-        .orderBy("letter")
-        .groupBy("letter")
-        .execute()
-    ).map((r) => r.letter)
-  );
-}
 
 export default async function Page(props: {
   params: Promise<{ letter: string }>;
 }) {
   const { letter } = await props.params;
 
-  const letters = await getLetters();
-  const substances = await getSubstances(letter);
-
-  if (!substances || !substances.length) return notFound();
+    const allSubs = await getAllSubsWithSpecialites();
+    const letters: string[] = [];
+    const filteredSubs: SubstanceResume[] = [];
   
-  let detailedSubstances: AdvancedSubstanceNom[] = await Promise.all(
-    substances.map(async (substance) => {
-      const specialites = await getSubstanceSpecialites(substance.NomId);
-      const specialitiesGroups = groupSpecialites(specialites);
-      return {
-        nbSpecs: specialitiesGroups.length,
-        ...substance
-      };
+    allSubs.forEach((sub) => {
+      const subLetter = sub.NomLib.substring(0,1).toUpperCase();
+      if(!letters.includes(subLetter)) letters.push(subLetter);
+      if(subLetter !== letter) return;
+  
+      const index = filteredSubs.findIndex((filteredSub) => filteredSub.SubsId === sub.SubsId);
+      if(index !== -1) {
+        const specGroupName = getSpecialiteGroupName(sub.SpecDenom01);
+        if(!filteredSubs[index].medicaments.includes(specGroupName)){
+          filteredSubs[index].medicaments.push(specGroupName);
+        }
+      } else filteredSubs.push({
+        SubsId: sub.SubsId,
+        NomId: sub.NomId,
+        NomLib: sub.NomLib,
+        medicaments: [
+          getSpecialiteGroupName(sub.SpecDenom01),
+        ],
+      });
     })
-  );
-  detailedSubstances = detailedSubstances.filter((substance) => substance.nbSpecs > 0);
+  
+    if (!filteredSubs || !filteredSubs.length) return notFound();
 
   return (
     <ContentContainer frContainer>
@@ -77,7 +55,7 @@ export default async function Page(props: {
         title={PAGE_LABEL}
         letters={letters}
         urlPrefix="/substances/"
-        dataList={detailedSubstances}
+        dataList={filteredSubs}
         type={DataTypeEnum.SUBSTANCE}
         currentLetter={letter}
       />

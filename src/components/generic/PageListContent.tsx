@@ -4,20 +4,20 @@ import { fr } from "@codegouvfr/react-dsfr";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import DataList from "@/components/data/DataList";
 import { HTMLAttributes, useState } from "react";
-import { AdvancedATCClass, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
+import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 import DataListPagination from "../data/DataListPagination";
-import { PathologyResume } from "@/types/Pathology";
+import { PathologyResume } from "@/types/PathologyTypes";
+import { SubstanceResume } from "@/types/SubstanceTypes";
 
 interface PageListContentProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
-  letters: string[];  
+  letters: string[];
   urlPrefix: string;
-  dataList: AdvancedSubstanceNom[] | AdvancedMedicamentGroup[] | PathologyResume[] | AdvancedATCClass[];
+  dataList: SubstanceResume[] | AdvancedMedicamentGroup[] | PathologyResume[] | AdvancedATCClass[];
   type: DataTypeEnum;
   currentLetter: string;
 }
-
 
 function PageListContent({
   title,

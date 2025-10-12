@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 import { getGristTableData } from "@/data/grist";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
-import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
+import { getAdvancedMedicamentFromGroup } from "@/db/utils/medicaments";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { getSubstanceSpecialites } from "@/db/utils/search";
 import PageDefinitionContent from "@/components/generic/PageDefinitionContent";
@@ -62,7 +62,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   const ids = decodeURIComponent(id).split(",");
   const { substances, specialitiesGroups, definitions } = await getSubstance(ids);
 
-  const detailedSpecialitiesGroups = await getAdvancedMedicamentGroupListFromMedicamentGroupList(specialitiesGroups);
+  const detailedSpecialitiesGroups = await getAdvancedMedicamentFromGroup(specialitiesGroups);
   const articles = await getArticlesFromSubstances(ids);
 
   return (

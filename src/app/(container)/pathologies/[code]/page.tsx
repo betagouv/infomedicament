@@ -6,7 +6,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getPathologyDefinition } from "@/data/pathologies";
 import ContentContainer from "@/components/generic/ContentContainer";
-import { getAdvancedMedicamentGroupListFromMedicamentGroupList } from "@/db/utils/medicaments";
+import { getAdvancedMedicamentFromGroup } from "@/db/utils/medicaments";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { getPathoSpecialites } from "@/db/utils/pathologies";
 import { getArticlesFromPatho } from "@/data/grist/articles";
@@ -37,7 +37,7 @@ export default async function Page(props: {
   const definition = await getPathologyDefinition(code);
   const specialites = await getPathoSpecialites(code);
   const medicaments = specialites && (groupSpecialites(specialites, true));
-  const detailedMedicaments = medicaments && (await getAdvancedMedicamentGroupListFromMedicamentGroupList(medicaments));
+  const detailedMedicaments = medicaments && (await getAdvancedMedicamentFromGroup(medicaments));
 
   const articles = await getArticlesFromPatho(code);
   
