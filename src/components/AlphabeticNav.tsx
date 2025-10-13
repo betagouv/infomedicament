@@ -1,3 +1,5 @@
+"use client";
+
 import { fr } from "@codegouvfr/react-dsfr";
 import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
