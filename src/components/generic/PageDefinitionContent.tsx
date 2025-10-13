@@ -3,12 +3,14 @@
 import { fr } from "@codegouvfr/react-dsfr";
 import React, { HTMLAttributes, useState } from "react";
 import DefinitionBanner from "@/components/DefinitionBanner";
-import { AdvancedATCClass, AdvancedPatho, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
+import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import DataList from "@/components/data/DataList";
 import ArticlesSearchList from "@/components/articles/ArticlesSearchList";
 import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import DataListPagination from "../data/DataListPagination";
+import { SubstanceResume } from "@/types/SubstanceTypes";
+import { PathologyResume } from "@/types/PathologyTypes";
 
 interface PageDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
   definitionType: string;
@@ -16,7 +18,7 @@ interface PageDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
   definition: string | { title: string; desc: string }[];
   definitionDisclaimer?: string;
   title: string;
-  dataList: AdvancedSubstanceNom[] | AdvancedMedicamentGroup[] | AdvancedPatho[] | AdvancedATCClass[];
+  dataList: SubstanceResume[] | AdvancedMedicamentGroup[] | PathologyResume[] | AdvancedATCClass[];
   dataType: DataTypeEnum;
   articles: ArticleCardResume[];
 }

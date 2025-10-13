@@ -49,12 +49,7 @@ function DataList({
   useEffect(() => {
     const list = getCurrentDataList(dataList, paginationLength, currentPage);
     setCurrentDataList(list);
-  }, [dataList]);
-
-  useEffect(() => {
-    const list = getCurrentDataList(dataList, paginationLength, currentPage);
-    setCurrentDataList(list);
-  }, [currentPage, setCurrentDataList]);
+  }, [dataList, paginationLength, currentPage, setCurrentDataList]);
   
   return (
     <>

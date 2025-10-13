@@ -95,7 +95,7 @@ function RatingPage({
         setRatingReadOnly(false);
       }
     },
-    [setDbRatingId, setRatingError]
+    [pageId, setDbRatingId, setRatingError]
   );
 
   function onSaveRating(rating: number): void{
