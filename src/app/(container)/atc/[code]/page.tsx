@@ -7,11 +7,13 @@ import Link from "next/link";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import ContentContainer from "@/components/generic/ContentContainer";
 import { getSubstanceSpecialites } from "@/db/utils/search";
-import { groupSpecialites } from "@/db/utils";
-import { AdvancedATC1, AdvancedATCClass, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
+import { AdvancedATC1, AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import { getArticlesFromATC } from "@/data/grist/articles";
 import PageDefinitionContent from "@/components/generic/PageDefinitionContent";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { groupSpecialites } from "@/utils/specialites";
+import { SubstanceResume } from "@/types/SubstanceTypes";
+import { MedicamentGroup } from "@/displayUtils";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -79,16 +81,16 @@ export default async function Page(props: {
         .filter((data: AdvancedATC1) => data && data.nbSubstances > 0);
   if (!items) notFound();
 
-  let detailedSubClass: (AdvancedATCClass | AdvancedSubstanceNom)[] = [];
+  let detailedSubClass: (AdvancedATCClass | SubstanceResume)[] = [];
   detailedSubClass = await Promise.all(
     items.map(async (item:AdvancedATC1 | SubstanceNom) => {
       if(atc2) {
         const specialites = await getSubstanceSpecialites((item as SubstanceNom).NomId);
         const specialitiesGroups = groupSpecialites(specialites);
         return {
-          nbSpecs: specialitiesGroups.length,
+          medicaments: specialitiesGroups.map((spec: MedicamentGroup) => spec[0]),
           ...item,
-        } as AdvancedSubstanceNom;
+        } as SubstanceResume;
       } else { 
         return {
           class: item,
@@ -99,7 +101,7 @@ export default async function Page(props: {
   );
   detailedSubClass = detailedSubClass.filter((detail) => {
     if(atc2) {
-      if((detail as AdvancedSubstanceNom).nbSpecs > 0) return detail;
+      if((detail as SubstanceResume).medicaments.length > 0) return detail;
     } else {
       if((detail as AdvancedATCClass).class.nbSubstances > 0) return detail;
     }
@@ -145,7 +147,7 @@ export default async function Page(props: {
             ) : (
               detailedSubClass.length > 1 ? "sous-classes de médicament" : "sous-classe de médicament"
             )}`}
-        dataList={detailedSubClass as AdvancedSubstanceNom[] | AdvancedATCClass[]}
+        dataList={detailedSubClass as SubstanceResume[] | AdvancedATCClass[]}
         dataType={atc2 ? DataTypeEnum.SUBSTANCE : DataTypeEnum.ATCCLASS}
         articles={articles}
       />
