@@ -67,7 +67,7 @@ function SubstancesListContent({
 
   useEffect(() => {
     getFilteredSubstances(letter);
-  }, [letter]);
+  }, [letter, getFilteredSubstances]);
 
   return (
     <PageListContent

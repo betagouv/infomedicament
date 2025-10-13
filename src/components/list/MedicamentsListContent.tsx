@@ -61,7 +61,7 @@ function MedicamentsListContent({
 
   useEffect(() => {
     getDetailedMedicaments(letter);
-  }, [letter]);
+  }, [letter, getDetailedMedicaments]);
 
   return (
     <PageListContent

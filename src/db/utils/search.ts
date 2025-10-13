@@ -42,8 +42,8 @@ const getSpecialites = unstable_cache(async function (
     : [];
 });
 
-//TODO quand base maj ajouter ces calcules dans getSubstances - doublon
-function withSubstances(
+//TODO quand base maj ajouter ces calculs dans getSubstances - doublon
+export function withSubstances(
   specId: Expression<string>,
   nomIds: string[],
 ): Expression<SqlBool> {
