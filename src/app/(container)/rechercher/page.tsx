@@ -1,4 +1,4 @@
-import { getSearchResults, groupSpecialites } from "@/db/utils";
+import { getSearchResults } from "@/db/utils";
 import { ExtendedOrderResults, ExtendedSearchResults } from "@/types/SearchTypes";
 import { getSubstanceSpecialites, SearchResultItem } from "@/db/utils/search";
 import { getPregnancyPlanAlerts } from "@/data/grist/pregnancy";
@@ -10,6 +10,7 @@ import { getSubstancesByAtc } from "@/data/grist/atc";
 import SearchPage from "./SearchPage";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { MedicamentGroup } from "@/displayUtils";
+import { groupSpecialites } from "@/utils/specialites";
 
 async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<ExtendedOrderResults> {
   let counter = 0;

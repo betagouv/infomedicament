@@ -1,7 +1,6 @@
 import React from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { groupSpecialites } from "@/db/utils";
 import { Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { notFound } from "next/navigation";
 import { getGristTableData } from "@/data/grist";
@@ -13,6 +12,7 @@ import { getSubstanceSpecialites } from "@/db/utils/search";
 import PageDefinitionContent from "@/components/generic/PageDefinitionContent";
 import { getArticlesFromSubstances } from "@/data/grist/articles";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { groupSpecialites } from "@/utils/specialites";
 
 export const dynamic = "error";
 export const dynamicParams = true;

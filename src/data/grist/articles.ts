@@ -7,7 +7,7 @@ import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import { AdvancedMedicamentGroup, AdvancedSpecialite } from "@/types/MedicamentTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import { ATC } from "./atc";
-import { AdvancedATCClass, AdvancedData, AdvancedPatho, DataTypeEnum } from "@/types/DataTypes";
+import { AdvancedATCClass, AdvancedData, DataTypeEnum } from "@/types/DataTypes";
 import { PathologyResume } from "@/types/PathologyTypes";
 
 export async function getArticles() {

@@ -3,10 +3,11 @@ import { pdbmMySQL } from "@/db/pdbmMySQL";
 import db from "@/db";
 import { SearchResult } from "@/db/types";
 import { Expression, expressionBuilder, sql, SqlBool } from "kysely";
-import { groupSpecialites, presentationIsComm } from "@/db/utils/index";
+import { presentationIsComm } from "@/db/utils/index";
 import { Patho, PdbmMySQL, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { unstable_cache } from "next/cache";
 import { ATC, ATC1, getAtc1, getAtc2 } from "@/data/grist/atc";
+import { groupSpecialites } from "@/utils/specialites";
 
 export type SearchResultItem =
   | SubstanceNom

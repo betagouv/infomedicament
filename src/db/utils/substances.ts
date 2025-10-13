@@ -1,3 +1,5 @@
+"use server";
+
 import { pdbmMySQL } from "../pdbmMySQL";
 
 export async function getAllSubsWithSpecialites() {

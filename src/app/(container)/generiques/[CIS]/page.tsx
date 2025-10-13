@@ -1,7 +1,6 @@
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import {
   getSpecialite,
-  getSpecialiteGroupName,
   groupGeneNameToDCI,
 } from "@/db/utils";
 import { fr } from "@codegouvfr/react-dsfr";
@@ -18,6 +17,7 @@ import ClassTag from "@/components/tags/ClassTag";
 import SubstanceTag from "@/components/tags/SubstanceTag";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { getSpecialiteGroupName } from "@/utils/specialites";
 
 export const dynamic = "error";
 export const dynamicParams = true;

@@ -7,11 +7,11 @@ import Link from "next/link";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import ContentContainer from "@/components/generic/ContentContainer";
 import { getSubstanceSpecialites } from "@/db/utils/search";
-import { groupSpecialites } from "@/db/utils";
 import { AdvancedATC1, AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import { getArticlesFromATC } from "@/data/grist/articles";
 import PageDefinitionContent from "@/components/generic/PageDefinitionContent";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { groupSpecialites } from "@/utils/specialites";
 import { SubstanceResume } from "@/types/SubstanceTypes";
 import { MedicamentGroup } from "@/displayUtils";
 

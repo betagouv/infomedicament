@@ -1,7 +1,6 @@
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { notFound } from "next/navigation";
 import { Patho } from "@/db/pdbmMySQL/types";
-import { groupSpecialites } from "@/db/utils";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getPathologyDefinition } from "@/data/pathologies";
@@ -12,6 +11,7 @@ import { getPathoSpecialites } from "@/db/utils/pathologies";
 import { getArticlesFromPatho } from "@/data/grist/articles";
 import PageDefinitionContent from "@/components/generic/PageDefinitionContent";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { groupSpecialites } from "@/utils/specialites";
 
 export const dynamic = "error";
 export const dynamicParams = true;

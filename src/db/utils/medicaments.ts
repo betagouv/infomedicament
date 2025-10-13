@@ -1,3 +1,5 @@
+"use server";
+
 import { getAtc1, getAtc2, getAtcCode } from "@/data/grist/atc";
 import { getAllPregnancyMentionAlerts, getPregnancyMentionAlert, getPregnancyPlanAlerts } from "@/data/grist/pregnancy";
 import { MedicamentGroup } from "@/displayUtils";
