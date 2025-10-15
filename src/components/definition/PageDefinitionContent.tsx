@@ -41,7 +41,7 @@ function PageDefinitionContent({
   const [currentArticles, setCurrentArticles] = useState<ArticleCardResume[]>();
 
   useEffect(() => {
-    setCurrentTitle(currentTitle);
+    setCurrentTitle(title);
   }, [title, setCurrentTitle]);
 
   useEffect(() => {

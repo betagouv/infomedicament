@@ -22,7 +22,7 @@ function SubstancesListContent({
   const [allSubs, setAllSubs] = useState<any[]>([]);
 
   const getFilteredSubstances = useCallback(
-    async (letter: string) => {
+    async () => {
       try {
         const newAllSubs = await getAllSubsWithSpecialites();
         setAllSubs(newAllSubs);
@@ -64,11 +64,11 @@ function SubstancesListContent({
       });
     });
     return newFilteredSubs;
-  }, [allSubs]);
+  }, [allSubs, letter]);
 
   useEffect(() => {
-    getFilteredSubstances(letter);
-  }, [letter, getFilteredSubstances]);
+    getFilteredSubstances();
+  }, [getFilteredSubstances]);
 
   return (
     <PageListContent

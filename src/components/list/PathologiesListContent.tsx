@@ -22,7 +22,7 @@ function PathologiesListContent({
   const [allPathos, setAllPathos] = useState<any[]>([]);
 
   const getFilteredPathos = useCallback(
-    async (letter: string) => {
+    async () => {
       try {
         const newAllPathos = await getAllPathoWithSpecialites();
         setAllPathos(newAllPathos);
@@ -63,11 +63,11 @@ function PathologiesListContent({
       });
     })
     return newFilteredPathos;
-  }, [allPathos]);
+  }, [allPathos, letter]);
 
   useEffect(() => {
-    getFilteredPathos(letter);
-  }, [letter, getFilteredPathos]);
+    getFilteredPathos();
+  }, [getFilteredPathos]);
 
   return (
     <PageListContent
