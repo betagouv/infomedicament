@@ -1,7 +1,9 @@
+"use server";
+
 import { getGristTableData } from "@/data/grist";
 
 export async function getPathologyDefinition(
-  code: `${number}`,
+  code: string,
 ): Promise<string> {
   const data = await getGristTableData("Pathologies", [
     "codePatho",

@@ -112,7 +112,6 @@ export const getSpecialite = cache(async (CIS: string) => {
   };
 });
 
-
 export const getSpecialites = cache(async function (): Promise<Specialite[]> {
   return pdbmMySQL
     .selectFrom("Specialite")

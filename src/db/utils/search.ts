@@ -1,13 +1,17 @@
+"use server";
+
 import "server-cli-only";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import db from "@/db";
 import { SearchResult } from "@/db/types";
-import { Expression, expressionBuilder, sql, SqlBool } from "kysely";
+import { sql } from "kysely";
 import { presentationIsComm } from "@/db/utils/index";
-import { Patho, PdbmMySQL, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { Patho, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { unstable_cache } from "next/cache";
-import { ATC, ATC1, getAtc1, getAtc2 } from "@/data/grist/atc";
+import { getAtc1, getAtc2 } from "@/data/grist/atc";
 import { groupSpecialites } from "@/utils/specialites";
+import { ATC, ATC1 } from "@/types/ATCTypes";
+import { withSubstances } from "./query";
 
 export type SearchResultItem =
   | SubstanceNom
@@ -42,47 +46,6 @@ const getSpecialites = unstable_cache(async function (
     : [];
 });
 
-//TODO quand base maj ajouter ces calculs dans getSubstances - doublon
-export function withSubstances(
-  specId: Expression<string>,
-  nomIds: string[],
-): Expression<SqlBool> {
-  const eb = expressionBuilder<PdbmMySQL, never>();
-
-  return eb.exists(
-    eb
-      .selectFrom("Composant")
-      .select("Composant.SpecId")
-      .where("Composant.NomId", "in", nomIds)
-      .where("Composant.SpecId", "=", specId)
-      .where(({ eb, selectFrom }) =>
-        eb(
-          "Composant.SpecId",
-          "not in",
-          selectFrom("Composant as subquery")
-            .select("SpecId")
-            .where("subquery.NomId", "not in", nomIds)
-            .whereRef(
-              "subquery.CompNum",
-              "not in",
-              selectFrom("Composant as subquery2")
-                .select("CompNum")
-                .where("subquery2.SpecId", "=", specId)
-                .where("subquery2.NomId", "in", nomIds),
-            ),
-        ),
-      )
-      .groupBy("Composant.SpecId")
-      .having((eb) =>
-        eb(
-          eb.fn.count("Composant.CompNum").distinct(),
-          "=",
-          eb.val(nomIds.length),
-        ),
-      ),
-  );
-}
-
 const getSubstances = unstable_cache(async function getSubstances(
   substancesId: string[],
 ) {
@@ -101,11 +64,11 @@ export const getSubstanceSpecialites = unstable_cache(async function (
 ): Promise<Specialite[]> {
   const ids: string[] = !Array.isArray(substanceIDs) ? [substanceIDs] : substanceIDs;
   return pdbmMySQL
-  .selectFrom("Specialite")
-  .selectAll("Specialite")
-  .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
-  .groupBy("Specialite.SpecId")
-  .execute();
+    .selectFrom("Specialite")
+    .selectAll("Specialite")
+    .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
+    .groupBy("Specialite.SpecId")
+    .execute();
 });
 
 //TODO quand base maj ajouter tous les calculs ici

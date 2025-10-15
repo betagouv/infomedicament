@@ -1,4 +1,4 @@
-import { getAtc2, getAtcCode } from "@/data/grist/atc";
+import { getAtc2 } from "@/data/grist/atc";
 import { fr } from "@codegouvfr/react-dsfr";
 import { formatSpecName, MedicamentGroup } from "@/displayUtils";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
@@ -7,6 +7,7 @@ import React from "react";
 import { getSpecialite } from "@/db/utils";
 import ClassTag from "@/components/tags/ClassTag";
 import SubstanceTag from "@/components/tags/SubstanceTag";
+import { getAtcCode } from "@/utils/atc";
 
 export default async function MedGroupSpecList({
   medGroup,

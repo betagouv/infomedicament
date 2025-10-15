@@ -6,11 +6,11 @@ import { getAdvancedMedicamentGroupFromGroupNameSpecialites } from "@/db/utils/m
 import { getArticlesFromSearchResults } from "@/data/grist/articles";
 import { AdvancedATC, DataTypeEnum } from "@/types/DataTypes";
 import { getPathoSpecialites } from "@/db/utils/pathologies";
-import { getSubstancesByAtc } from "@/data/grist/atc";
 import SearchPage from "./SearchPage";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { MedicamentGroup } from "@/displayUtils";
 import { groupSpecialites } from "@/utils/specialites";
+import { getSubstancesByAtc } from "@/db/utils/atc";
 
 async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<ExtendedOrderResults> {
   let counter = 0;

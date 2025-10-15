@@ -3,6 +3,15 @@
 import "server-cli-only";
 import { unstable_cache } from "next/cache";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
+import { Patho } from "../pdbmMySQL/types";
+
+export async function getPatho(code: string): Promise<Patho | undefined> {
+  return await pdbmMySQL
+    .selectFrom("Patho")
+    .selectAll()
+    .where("codePatho", "=", code)
+    .executeTakeFirst();
+}
 
 // Get the specialites list from code patho
 export const getPathoSpecialites = unstable_cache(async function (code: string) {

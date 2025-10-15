@@ -20,40 +20,17 @@ function SubstancesListContent({
 }: SubstancesListContentProps ) {
 
   const [allSubs, setAllSubs] = useState<any[]>([]);
-  const [filteredSubs, setFilteredSubs] = useState<SubstanceResume[]>([]);
 
   const getFilteredSubstances = useCallback(
     async (letter: string) => {
       try {
         const newAllSubs = await getAllSubsWithSpecialites();
         setAllSubs(newAllSubs);
-
-        const newFilteredSubs: SubstanceResume[] = [];
-        newAllSubs.forEach((sub) => {
-          const subLetter = getNormalizeLetter(sub.NomLib.substring(0,1));
-          if(subLetter !== letter) return;
-
-          const index = newFilteredSubs.findIndex((filteredSub) => filteredSub.SubsId === sub.SubsId);
-          if(index !== -1) {
-            const specGroupName = getSpecialiteGroupName(sub.SpecDenom01);
-            if(!newFilteredSubs[index].medicaments.includes(specGroupName)){
-              newFilteredSubs[index].medicaments.push(specGroupName);
-            }
-          } else newFilteredSubs.push({
-            SubsId: sub.SubsId,
-            NomId: sub.NomId,
-            NomLib: sub.NomLib,
-            medicaments: [
-              getSpecialiteGroupName(sub.SpecDenom01),
-            ],
-          });
-        })
-        setFilteredSubs(newFilteredSubs);
       } catch(e) {
         Sentry.captureException(e);
       }
     },
-    [setFilteredSubs, setAllSubs]
+    [setAllSubs]
   );
 
   const letters: string[] = useMemo(() => {
@@ -63,6 +40,30 @@ function SubstancesListContent({
       if(!newLetters.includes(subLetter)) newLetters.push(subLetter);
     })
     return newLetters;
+  }, [allSubs]);
+
+  const filteredSubs: SubstanceResume[] = useMemo(() => {
+    const newFilteredSubs: SubstanceResume[] = [];
+    allSubs.forEach((sub) => {
+      const subLetter = getNormalizeLetter(sub.NomLib.substring(0,1));
+      if(subLetter !== letter) return;
+
+      const index = newFilteredSubs.findIndex((filteredSub) => filteredSub.SubsId === sub.SubsId);
+      if(index !== -1) {
+        const specGroupName = getSpecialiteGroupName(sub.SpecDenom01);
+        if(!newFilteredSubs[index].medicaments.includes(specGroupName)){
+          newFilteredSubs[index].medicaments.push(specGroupName);
+        }
+      } else newFilteredSubs.push({
+        SubsId: sub.SubsId,
+        NomId: sub.NomId,
+        NomLib: sub.NomLib,
+        medicaments: [
+          getSpecialiteGroupName(sub.SpecDenom01),
+        ],
+      });
+    });
+    return newFilteredSubs;
   }, [allSubs]);
 
   useEffect(() => {

@@ -39,29 +39,15 @@ export default function DefinitionBanner({
             className={fr.cx("fr-mb-6w", "fr-mt-2w")} 
           />
         </div>
-        <div className={fr.cx("fr-col-md-8")}>
-          {typeof definition === "string" ? (
-            <div className={fr.cx("fr-grid-row")}>
-              <div className={fr.cx("fr-col")}>
-                <Card 
-                  title="Définition" 
-                  titleAs={"h6"} 
-                  desc={definition}
-                  endDetail={disclaimer && disclaimer}
-                  classes={{
-                    endDetail: disclaimer && fr.cx("fr-icon-information-line")
-                  }}
-                />
-              </div>
-            </div>
-          ) : (
-            definition.map(({ title, desc }) => (
-              <div key={title} className={fr.cx("fr-grid-row", "fr-mb-1w")}>
+        {definition && (
+          <div className={fr.cx("fr-col-md-8")}>
+            {typeof definition === "string" ? (
+              <div className={fr.cx("fr-grid-row")}>
                 <div className={fr.cx("fr-col")}>
                   <Card 
-                    title={title}
-                    titleAs={"h6"}
-                    desc={desc}
+                    title="Définition" 
+                    titleAs={"h6"} 
+                    desc={definition}
                     endDetail={disclaimer && disclaimer}
                     classes={{
                       endDetail: disclaimer && fr.cx("fr-icon-information-line")
@@ -69,9 +55,25 @@ export default function DefinitionBanner({
                   />
                 </div>
               </div>
-            ))
-          )}
-        </div>
+            ) : (
+              definition.map(({ title, desc }) => (
+                <div key={title} className={fr.cx("fr-grid-row", "fr-mb-1w")}>
+                  <div className={fr.cx("fr-col")}>
+                    <Card 
+                      title={title}
+                      titleAs={"h6"}
+                      desc={desc}
+                      endDetail={disclaimer && disclaimer}
+                      classes={{
+                        endDetail: disclaimer && fr.cx("fr-icon-information-line")
+                      }}
+                    />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </Container>
   );

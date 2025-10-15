@@ -10,7 +10,7 @@ import Link from "next/link";
 
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { displayCompleteComposants, formatSpecName } from "@/displayUtils";
-import { ATCError, getAtc2, getAtcCode } from "@/data/grist/atc";
+import { getAtc2 } from "@/data/grist/atc";
 import { notFound } from "next/navigation";
 import GenericAccordion from "@/components/GenericAccordion";
 import ClassTag from "@/components/tags/ClassTag";
@@ -18,6 +18,7 @@ import SubstanceTag from "@/components/tags/SubstanceTag";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
+import { ATCError, getAtcCode } from "@/utils/atc";
 
 export const dynamic = "error";
 export const dynamicParams = true;

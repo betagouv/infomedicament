@@ -1,38 +1,15 @@
 import { fr } from "@codegouvfr/react-dsfr";
-import { ATC, getAtc1, getAtc2, getSubstancesByAtc } from "@/data/grist/atc";
+import { getAtc1, getAtc2 } from "@/data/grist/atc";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
 import React from "react";
-import Link from "next/link";
-import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import ContentContainer from "@/components/generic/ContentContainer";
-import { getSubstanceSpecialites } from "@/db/utils/search";
-import { AdvancedATC1, AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
-import { getArticlesFromATC } from "@/data/grist/articles";
-import PageDefinitionContent from "@/components/generic/PageDefinitionContent";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { groupSpecialites } from "@/utils/specialites";
-import { SubstanceResume } from "@/types/SubstanceTypes";
-import { MedicamentGroup } from "@/displayUtils";
+import ATC1DefinitionContent from "@/components/definition/ATC1DefinitionContent";
+import ATC2DefinitionContent from "@/components/definition/ATC2DefinitionContent";
 
 export const dynamic = "error";
 export const dynamicParams = true;
-
-const SubstanceItem = ({ item }: { item: SubstanceNom }) => (
-  <li key={item.NomId} className={fr.cx("fr-mb-1w")}>
-    <Link className={fr.cx("fr-link")} href={`/substances/${item.NomId}`}>
-      {item.NomLib}
-    </Link>
-  </li>
-);
-
-const SubClassItem = ({ item }: { item: ATC }) => (
-  <li key={item.code} className={fr.cx("fr-mb-1w")}>
-    <Link className={fr.cx("fr-link")} href={`/atc/${item.code}`}>
-      {item.label}
-    </Link>
-  </li>
-);
 
 export default async function Page(props: {
   params: Promise<{ code: string }>;
@@ -44,76 +21,6 @@ export default async function Page(props: {
   const currentAtc = atc2 || atc1 || undefined;
 
   if (!currentAtc || !atc1) notFound();
-
-  //If atc2 --> subtances list else subclass list
-  const items = atc2
-    ? await getSubstancesByAtc(atc2)
-    : (
-        await Promise.all(
-          atc1.children.map(
-            async (atc2): Promise<AdvancedATC1> => {
-              const substances = await getSubstancesByAtc(atc2);
-              let nbSpecialitiesGroupes: number[] = [];
-              if(substances) {
-                nbSpecialitiesGroupes = await Promise.all( 
-                  substances.map(async (substance) => {
-                    const specialites = await getSubstanceSpecialites(substance.NomId);
-                    const specialitiesGroups = groupSpecialites(specialites);
-                    return specialitiesGroups ? specialitiesGroups.length : 0;
-                  })
-                );
-              }
-              nbSpecialitiesGroupes = nbSpecialitiesGroupes.filter((nb) => {
-                return nb > 0;
-              });
-
-              const advancedATC: AdvancedATC1 = {
-                nbSubstances: nbSpecialitiesGroupes.length,
-                ...(atc2 as ATC),
-                children: atc2.children ? atc1.children : [],
-              }
-              return advancedATC;
-              
-            }
-          ),
-        )
-      )
-        .filter((data: AdvancedATC1) => data && data.nbSubstances > 0);
-  if (!items) notFound();
-
-  let detailedSubClass: (AdvancedATCClass | SubstanceResume)[] = [];
-  detailedSubClass = await Promise.all(
-    items.map(async (item:AdvancedATC1 | SubstanceNom) => {
-      if(atc2) {
-        const specialites = await getSubstanceSpecialites((item as SubstanceNom).NomId);
-        const specialitiesGroups = groupSpecialites(specialites);
-        return {
-          medicaments: specialitiesGroups.map((spec: MedicamentGroup) => spec[0]),
-          ...item,
-        } as SubstanceResume;
-      } else { 
-        return {
-          class: item,
-          subclasses:[],
-        } as AdvancedATCClass
-      }
-    })
-  );
-  detailedSubClass = detailedSubClass.filter((detail) => {
-    if(atc2) {
-      if((detail as SubstanceResume).medicaments.length > 0) return detail;
-    } else {
-      if((detail as AdvancedATCClass).class.nbSubstances > 0) return detail;
-    }
-  });
-
-  const articles = await getArticlesFromATC(code);
-
-  const ItemComponent = (atc2 ? SubstanceItem : SubClassItem) as ({
-    item,
-  }: {
-    item: SubstanceNom | ATC;
-  }) => React.JSX.Element;
 
   return (
     <ContentContainer frContainer>
@@ -138,19 +45,15 @@ export default async function Page(props: {
           />
         </div>
       </div>
-      <PageDefinitionContent 
-        definitionType={`${atc2 ? "Sous-classe" : "Classe"} de médicament`}
-        definitionTitle={currentAtc.label}
-        definition={currentAtc.description}
-        title={`${detailedSubClass.length.toString()} ${atc2 ? (
-              detailedSubClass.length > 1 ? "substances actives" : "substance active"
-            ) : (
-              detailedSubClass.length > 1 ? "sous-classes de médicament" : "sous-classe de médicament"
-            )}`}
-        dataList={detailedSubClass as SubstanceResume[] | AdvancedATCClass[]}
-        dataType={atc2 ? DataTypeEnum.SUBSTANCE : DataTypeEnum.ATCCLASS}
-        articles={articles}
-      />
+      {atc2 ? (
+        <ATC2DefinitionContent
+          atc={atc2}
+        />
+      ) : (
+        <ATC1DefinitionContent
+          atc={atc1}
+        />
+      )}
       <RatingToaster
         pageId={currentAtc.label}
       />

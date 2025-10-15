@@ -20,39 +20,17 @@ function PathologiesListContent({
 }: PathologiesListContentProps ) {
 
   const [allPathos, setAllPathos] = useState<any[]>([]);
-  const [filteredPathos, setFilteredPathos] = useState<PathologyResume[]>([]);
 
   const getFilteredPathos = useCallback(
     async (letter: string) => {
       try {
         const newAllPathos = await getAllPathoWithSpecialites();
         setAllPathos(newAllPathos);
-
-        const newFilteredPathos: PathologyResume[] = [];
-        newAllPathos.forEach((patho) => {
-          const pathoLetter = getNormalizeLetter(patho.NomPatho.substring(0,1));
-          if(pathoLetter !== letter) return;
-
-          const index = newFilteredPathos.findIndex((filteredPatho) => filteredPatho.codePatho === patho.codePatho);
-          if(index !== -1) {
-            const specGroupName = getSpecialiteGroupName(patho.SpecDenom01);
-            if(!newFilteredPathos[index].medicaments.includes(specGroupName)){
-              newFilteredPathos[index].medicaments.push(specGroupName);
-            }
-          } else newFilteredPathos.push({
-            codePatho: patho.codePatho,
-            NomPatho: patho.NomPatho,
-            medicaments: [
-              getSpecialiteGroupName(patho.SpecDenom01),
-            ],
-          });
-        })
-        setFilteredPathos(newFilteredPathos);
       } catch(e) {
         Sentry.captureException(e);
       }
     },
-    [setFilteredPathos, setAllPathos]
+    [setAllPathos]
   );
 
   const letters: string[] = useMemo(() => {
@@ -62,6 +40,29 @@ function PathologiesListContent({
       if(!newLetters.includes(pathoLetter)) newLetters.push(pathoLetter);
     })
     return newLetters;
+  }, [allPathos]);
+
+  const filteredPathos: PathologyResume[] = useMemo(() => {
+    const newFilteredPathos:PathologyResume[] = [];
+    allPathos.forEach((patho) => {
+      const pathoLetter = getNormalizeLetter(patho.NomPatho.substring(0,1));
+      if(pathoLetter !== letter) return;
+
+      const index = newFilteredPathos.findIndex((filteredPatho) => filteredPatho.codePatho === patho.codePatho);
+      if(index !== -1) {
+        const specGroupName = getSpecialiteGroupName(patho.SpecDenom01);
+        if(!newFilteredPathos[index].medicaments.includes(specGroupName)){
+          newFilteredPathos[index].medicaments.push(specGroupName);
+        }
+      } else newFilteredPathos.push({
+        codePatho: patho.codePatho,
+        NomPatho: patho.NomPatho,
+        medicaments: [
+          getSpecialiteGroupName(patho.SpecDenom01),
+        ],
+      });
+    })
+    return newFilteredPathos;
   }, [allPathos]);
 
   useEffect(() => {

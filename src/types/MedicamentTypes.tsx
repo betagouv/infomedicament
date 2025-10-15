@@ -1,7 +1,7 @@
-import { ATC, ATC1 } from "@/data/grist/atc";
 import { PediatricsInfo } from "@/data/grist/pediatrics";
 import { SpecComposant, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { PresentationDetail } from "@/db/types";
+import { ATC, ATC1 } from "./ATCTypes";
 
 export type AdvancedSpecialite = Specialite & {
   pregnancyMentionAlert?: boolean;
@@ -109,4 +109,8 @@ export type FicheInfos = {
   libelleCourtProcedure?: string;
   presentations?: PresentationDetail[];
   listeElements: ComposantElement[];
+}
+
+export type SpecialiteWithSubstance = Specialite & {
+  NomId: string;
 }
