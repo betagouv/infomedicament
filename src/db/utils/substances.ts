@@ -17,8 +17,8 @@ export const getSubstances = cache(async function (
     .execute();
 });
 
-export async function getAllSubsWithSpecialites() {
-  "use cache";
+export const getAllSubsWithSpecialites = cache(async function () {
+  //"use cache";
   return pdbmMySQL
     .selectFrom("Subs_Nom")
     .innerJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
@@ -28,7 +28,7 @@ export async function getAllSubsWithSpecialites() {
     .distinct()
     .orderBy("Subs_Nom.NomLib")
     .execute();
-};
+});
 
 //Get all the specialites who contains at least one substance
 export const getSubstanceAllSpecialites = unstable_cache(async function (

@@ -3,9 +3,6 @@ import { withSentryConfig } from "@sentry/nextjs";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
-  experimental:{
-    useCache: true,
-  },
   webpack: (config) => {
     config.module.rules.push({
       test: /\.woff2$/,

@@ -4,6 +4,7 @@ import "server-cli-only";
 import { unstable_cache } from "next/cache";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { Patho } from "../pdbmMySQL/types";
+import { cache } from "react";
 
 export async function getPatho(code: string): Promise<Patho | undefined> {
   return await pdbmMySQL
@@ -34,8 +35,8 @@ export const getSpecialitesPatho = unstable_cache(async function (CIS: string) {
   return rawCodePatho.map((code) => code.codePatho);
 });
 
-export async function getAllPathoWithSpecialites() {
-  "use cache";
+export const getAllPathoWithSpecialites = cache(async function() {
+  //"use cache";
   return pdbmMySQL
     .selectFrom("Patho")
     .innerJoin("Spec_Patho", "Patho.codePatho", "Spec_Patho.codePatho")
@@ -43,4 +44,4 @@ export async function getAllPathoWithSpecialites() {
     .selectAll("Patho")
     .select("Specialite.SpecDenom01")
     .execute();
-};
+});
