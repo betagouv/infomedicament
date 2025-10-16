@@ -112,10 +112,11 @@ export const getSpecialite = cache(async (CIS: string) => {
   };
 });
 
-export const getSpecialites = cache(async function (): Promise<Specialite[]> {
+export const getSpecialitesWithLetter = cache(async function (letter: string): Promise<Specialite[]> {
   return pdbmMySQL
     .selectFrom("Specialite")
     .selectAll("Specialite")
+    .where("SpecDenom01", "like", `${letter}%`)
     .distinct()
     .orderBy("SpecDenom01")
     .execute();
