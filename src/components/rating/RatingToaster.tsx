@@ -41,7 +41,7 @@ function RatingToaster({
         theme: theme,
       });
     }
-  }, [readyToOpen, isDark, isOpen, setIsOpen])
+  }, [pageId, readyToOpen, isDark, isOpen, setIsOpen])
 
   useEffect(() => {
     if(!readyToOpen){

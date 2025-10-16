@@ -3,8 +3,6 @@ import db from "@/db/index";
 import { NoResultError } from "kysely";
 
 export {
-  groupSpecialites,
-  getSpecialiteGroupName,
   getSpecialite,
 } from "./specialities";
 export { getPresentations, presentationIsComm } from "./presentation";

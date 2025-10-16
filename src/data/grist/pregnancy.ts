@@ -12,6 +12,13 @@ export async function getPregnancyPlanAlerts(): Promise <PregnancyAlert[]> {
     link: fields.Lien_site_ANSM as string,
   }));
 }
+export async function getAllPregnancyMentionAlerts(): Promise <string[]> {
+  const records = await getGristTableData(
+    "Grossesse_mention",
+    ["CIS"],
+  );
+  return records.map(({ fields }) => fields.CIS as string );
+}
 
 export async function getPregnancyMentionAlert(
   CIS: string

@@ -7,8 +7,8 @@ import {
   formatSpecName,
 } from "@/displayUtils";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import { getAtc1, getAtc2, getAtcCode } from "@/data/grist/atc";
-import { getSpecialite, getSpecialiteGroupName } from "@/db/utils";
+import { getAtc1, getAtc2 } from "@/data/grist/atc";
+import { getSpecialite } from "@/db/utils";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import Alert from "@codegouvfr/react-dsfr/Alert";
 import { getPregnancyMentionAlert, getPregnancyPlanAlerts } from "@/data/grist/pregnancy";
@@ -22,6 +22,8 @@ import { Marr } from "@/types/MarrTypes";
 import Link from "next/link";
 import { getSpecialitesPatho } from "@/db/utils/pathologies";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { getSpecialiteGroupName } from "@/utils/specialites";
+import { getAtcCode } from "@/utils/atc";
 
 export const dynamic = "error";
 export const dynamicParams = true;

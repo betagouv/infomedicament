@@ -1,3 +1,5 @@
+"use server";
+
 import "server-only";
 import { getGristTableData } from "@/data/grist/index";
 import slugify from "slugify";
@@ -6,8 +8,9 @@ import { ExtendedSearchResults, SearchArticlesFilters, } from "@/types/SearchTyp
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import { AdvancedMedicamentGroup, AdvancedSpecialite } from "@/types/MedicamentTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
-import { ATC } from "./atc";
-import { AdvancedATCClass, AdvancedData, AdvancedPatho, DataTypeEnum } from "@/types/DataTypes";
+import { AdvancedATCClass, AdvancedData, DataTypeEnum } from "@/types/DataTypes";
+import { PathologyResume } from "@/types/PathologyTypes";
+import { ATC } from "@/types/ATCTypes";
 
 export async function getArticles() {
   const records = await getGristTableData("Articles", [
@@ -111,7 +114,7 @@ export async function getArticlesFromSearchResults(results: ExtendedSearchResult
         )
       }
       else if(result.type === DataTypeEnum.PATHOLOGY)
-        articlesFilters.pathologiesList.push((result.result as AdvancedPatho).codePatho.trim());
+        articlesFilters.pathologiesList.push((result.result as PathologyResume).codePatho.trim());
       else if(result.type === DataTypeEnum.SUBSTANCE) 
         articlesFilters.substancesList.push((result.result as SubstanceNom).SubsId.trim());
       else if(result.type === DataTypeEnum.ATCCLASS) {
@@ -126,16 +129,6 @@ export async function getArticlesFromSearchResults(results: ExtendedSearchResult
   return await getArticlesFromFilters(articlesFilters);
 }
 
-export async function getArticlesFromPatho(codePatho: string): Promise<ArticleCardResume[]> {
-  const articlesFilters:SearchArticlesFilters = {
-    ATCList: [],
-    substancesList: [],
-    specialitesList: [],
-    pathologiesList: [codePatho],
-  };
-  return getArticlesFromFilters(articlesFilters);
-}
-
 export async function getArticlesFromATC(codeATC: string): Promise<ArticleCardResume[]> {
   const articlesFilters:SearchArticlesFilters = {
     ATCList: [codeATC],
@@ -144,6 +137,16 @@ export async function getArticlesFromATC(codeATC: string): Promise<ArticleCardRe
     pathologiesList: [],
   };
 
+  return getArticlesFromFilters(articlesFilters);
+}
+
+export async function getArticlesFromPatho(codePatho: string): Promise<ArticleCardResume[]> {
+  const articlesFilters:SearchArticlesFilters = {
+    ATCList: [],
+    substancesList: [],
+    specialitesList: [],
+    pathologiesList: [codePatho],
+  };
   return getArticlesFromFilters(articlesFilters);
 }
 
@@ -157,3 +160,4 @@ export async function getArticlesFromSubstances(ids: string[]): Promise<ArticleC
 
   return getArticlesFromFilters(articlesFilters);
 }
+

@@ -1,8 +1,8 @@
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import React from "react";
-import { ATC } from "@/data/grist/atc";
 import "./dsfr-custom-tags.css";
+import { ATC } from "@/types/ATCTypes";
 
 export default function ClassTag(props: { atc2: ATC }) {
   return (

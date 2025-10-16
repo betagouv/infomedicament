@@ -4,7 +4,6 @@ import ContentContainer from "../generic/ContentContainer";
 import { ToggleSwitch } from "@codegouvfr/react-dsfr/ToggleSwitch";
 import TagContainer from "../tags/TagContainer";
 import ClassTag from "../tags/ClassTag";
-import { ATC } from "@/data/grist/atc";
 import { fr } from "@codegouvfr/react-dsfr";
 import SubstanceTag from "../tags/SubstanceTag";
 import { Presentation, PresInfoTarif, SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
@@ -42,6 +41,7 @@ import NoticeBlock from "./NoticeBlock";
 import PregnancyMentionTag from "../tags/PregnancyMentionTag";
 import PregnancyPlanTag from "../tags/PregnancyPlanTag";
 import Link from "next/link";
+import { ATC } from "@/types/ATCTypes";
 
 const ToggleSwitchContainer = styled.div`
   background-color: var(--background-contrast-info);
