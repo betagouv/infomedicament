@@ -1,0 +1,149 @@
+import db from "@/db";
+import { Letters, ResumePatho, ResumeSubstancesTable } from "@/db/types";
+import { getAllPathoWithSpecialites } from "@/db/utils/pathologies";
+import { getAllSubsWithSpecialites } from "@/db/utils/substances";
+import { getNormalizeLetter } from "@/utils/alphabeticNav";
+import { getSpecialiteGroupName } from "@/utils/specialites";
+
+type DataToResumeType = "patho" | "substances" | "specialites" | "atc1" | "atc2";
+
+type RawResumePatho = {
+  codePatho: string;
+  NomPatho: string;
+  medicaments: string[];
+}
+
+type RawResumeSubstance = {
+  SubsId: string;
+  NomId: string;
+  NomLib: string;
+  medicaments: string[];
+}
+
+if (process.argv.length !== 3) {
+  console.info('Usage: npx tsx scripts/updateResumeData.ts dataToResume');
+  process.exit(1);
+}
+const dataToResume:DataToResumeType = process.argv[2] as DataToResumeType;
+
+async function createResumePathologies(): Promise<string[]>{
+  await db
+    .deleteFrom('resume_pathologies')
+    .execute();
+
+  const allPathos = await getAllPathoWithSpecialites();
+  const rawResumeData: RawResumePatho[] = [];
+  const letters: string[] = [];
+  allPathos.forEach((patho) => {
+    const index = rawResumeData.findIndex((resumePatho) => resumePatho.codePatho === patho.codePatho);
+    if(index !== -1) {
+      const specGroupName = getSpecialiteGroupName(patho.SpecDenom01);
+      if(!rawResumeData[index].medicaments.includes(specGroupName)){
+        rawResumeData[index].medicaments.push(specGroupName);
+      }
+    } else rawResumeData.push({
+      codePatho: patho.codePatho,
+      NomPatho: patho.NomPatho,
+      medicaments: [
+        getSpecialiteGroupName(patho.SpecDenom01),
+      ],
+    });
+    const pathoLetter = getNormalizeLetter(patho.NomPatho.substring(0,1));
+    if(!letters.includes(pathoLetter)) letters.push(pathoLetter);
+  });
+
+  const resumeData: ResumePatho[] = rawResumeData
+    .map((resumePatho) => {
+      return {
+        codePatho: resumePatho.codePatho,
+        NomPatho: resumePatho.NomPatho,
+        medicaments: resumePatho.medicaments.length,
+      }
+    })
+    .filter((resumePatho) => resumePatho.medicaments > 0);
+  
+  const result = await db
+    .insertInto('resume_pathologies')
+    .values(resumeData)
+    .execute();
+  console.log(`Nombre de pathologies ajoutées: ${result[0].numInsertedOrUpdatedRows}`);
+  
+  return letters;
+}
+
+async function createResumeSubstances(): Promise<string[]>{
+  await db
+    .deleteFrom('resume_substances')
+    .execute();
+  //TODO trier avec les substances qui ont bien le bon nombre.
+  const allSubs = await getAllSubsWithSpecialites();
+  const rawResumeData: RawResumeSubstance[] = [];
+  const letters: string[] = [];
+  allSubs.forEach((sub) => {
+     const index = rawResumeData.findIndex((resumeData) => resumeData.SubsId === sub.SubsId);
+    if(index !== -1) {
+      const specGroupName = getSpecialiteGroupName(sub.SpecDenom01);
+      if(!rawResumeData[index].medicaments.includes(specGroupName)){
+        rawResumeData[index].medicaments.push(specGroupName);
+      }
+    } else rawResumeData.push({
+      SubsId: sub.SubsId,
+      NomId: sub.NomId,
+      NomLib: sub.NomLib,
+      medicaments: [
+        getSpecialiteGroupName(sub.SpecDenom01),
+      ],
+    });
+    const subLetter = getNormalizeLetter(sub.NomLib.substring(0,1));
+    if(!letters.includes(subLetter)) letters.push(subLetter);
+  });
+  const resumeData: ResumeSubstancesTable[] = rawResumeData
+    .map((resumeSub) => {
+      return {
+        SubsId: resumeSub.SubsId,
+        NomId: resumeSub.NomId,
+        NomLib: resumeSub.NomLib,
+        medicaments: resumeSub.medicaments.length,
+      }
+    })
+    .filter((resumeSub) => resumeSub.medicaments > 0);
+  const result = await db
+    .insertInto('resume_substances')
+    .values(resumeData)
+    .execute();
+  console.log(`Nombre de substances ajoutées: ${result[0].numInsertedOrUpdatedRows}`);
+
+  return letters;
+}
+
+async function createResumeDataFromBDPM(){
+  if(dataToResume === "patho" || dataToResume === "substances") {
+    let letters: string[] = [];
+    if(dataToResume === "patho") {
+      letters = await createResumePathologies(); 
+    } else if(dataToResume === "substances"){
+      letters = await createResumeSubstances();
+    } /*else if(dataToResume === "specialites"){
+      letters = await createResumeSpecialites();
+    }*/
+
+    console.log("Ajout des letters");
+    const lettersValue: Letters = {
+      type: dataToResume,
+      letters: letters,
+    }
+    await db
+      .deleteFrom('letters')
+      .where("type", "=", dataToResume)
+      .execute();
+    await db
+      .insertInto('letters')
+      .values(lettersValue)
+      .execute();
+  } /*else if(dataToResume === "atc1"){
+    await createResumeATC1Definition();
+  }*/
+  return true;
+}
+
+createResumeDataFromBDPM();

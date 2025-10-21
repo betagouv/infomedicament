@@ -20,6 +20,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
     [DataTypeEnum.PATHOLOGY]: [],
     [DataTypeEnum.ATCCLASS]: [],
   }
+
   const pregnancyPlanAlerts = await getPregnancyPlanAlerts();
   const extendedResults = await Promise.all(
     results.map(async (result: SearchResultItem) => {
@@ -31,7 +32,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
         return {
           type: DataTypeEnum.SUBSTANCE,
           result: {
-            medicaments: specialitiesGroups.map((spec: MedicamentGroup) => spec[0]),
+            medicaments: specialitiesGroups.map((spec: MedicamentGroup) => spec[0]).length,
             ...result
           }
         };
@@ -49,8 +50,9 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
         return {
           type: DataTypeEnum.PATHOLOGY,
           result: {
-            medicaments: medicaments.map((spec: MedicamentGroup) => spec[0]),
-            ...result
+            codePatho: result.codePatho,
+            NomPatho: result.NomPatho,
+            medicaments: medicaments.map((spec: MedicamentGroup) => spec[0]).length,
           }
         };
       } else {

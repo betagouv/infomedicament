@@ -6,6 +6,8 @@ import { SubstanceNom } from "../pdbmMySQL/types";
 import { cache } from "react";
 import { withOneSubstance } from "./query";
 import { SpecialiteWithSubstance } from "@/types/MedicamentTypes";
+import { ResumeSubstance } from "../types";
+import db from "..";
 
 export const getSubstances = cache(async function (
   ids: string[]
@@ -34,6 +36,7 @@ export const getAllSubsWithSpecialites = cache(async function () {
 export const getSubstanceAllSpecialites = unstable_cache(async function (
   substanceIDs: string[]
 ): Promise<SpecialiteWithSubstance[]> {
+  if(substanceIDs.length === 0) return [];
   return pdbmMySQL
     .selectFrom("Specialite")
     .innerJoin("Composant", "Specialite.SpecId", "Composant.SpecId")
@@ -46,4 +49,25 @@ export const getSubstanceAllSpecialites = unstable_cache(async function (
     .orderBy("Subs_Nom.NomId")
     .distinct()
     .execute();
+});
+
+export const getSubstancesResumeWithLetter = cache(async function(letter: string): Promise<ResumeSubstance[]> {
+  const result:ResumeSubstance[] = await db
+    .selectFrom("resume_substances")
+    .selectAll()
+    .where("NomLib", "like", `${letter}%`)
+    .orderBy("NomLib")
+    .execute();
+  return result;
+});
+
+export const getSubstancesResume = cache(async function(substanceIDs: string[]): Promise<ResumeSubstance[]> {
+  if(substanceIDs.length === 0) return [];
+  const result:ResumeSubstance[] = await db
+    .selectFrom("resume_substances")
+    .selectAll()
+    .where("NomId", "in", substanceIDs)
+    .orderBy("NomLib")
+    .execute();
+  return result;
 });

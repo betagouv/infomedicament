@@ -17,6 +17,9 @@ export interface Database {
   notices: NoticeTable;
   notices_content: NoticeContentTable;
   rating: RatingTable;
+  resume_pathologies: ResumePathosTable;
+  resume_substances: ResumeSubstancesTable;
+  letters: LettersTable;
 }
 
 interface SearchIndexTable {
@@ -142,6 +145,25 @@ interface RatingTable {
   question2?: number,
 }
 
+export type LetterType = "patho" | "substances" | "specialites";
+interface LettersTable{
+  type: LetterType;
+  letters: string[];
+}
+
+interface ResumePathosTable {
+  codePatho: string;
+  NomPatho: string;
+  medicaments: number;
+}
+
+interface ResumeSubstancesTable {
+  SubsId: string;
+  NomId: string;
+  NomLib: string;
+  medicaments: number;
+}
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
@@ -151,3 +173,6 @@ export type DocBUDB = Selectable<DocBUTable>;
 export type RCPContent = Selectable<RcpContentTable>;
 export type Notice = Selectable<NoticeTable>;
 export type Rating = Selectable<RatingTable>;
+export type ResumePatho = Selectable<ResumePathosTable>;
+export type ResumeSubstance = Selectable<ResumeSubstancesTable>;
+export type Letters = Selectable<LettersTable>;

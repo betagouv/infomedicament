@@ -9,8 +9,8 @@ import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import { AdvancedMedicamentGroup, AdvancedSpecialite } from "@/types/MedicamentTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import { AdvancedATCClass, AdvancedData, DataTypeEnum } from "@/types/DataTypes";
-import { PathologyResume } from "@/types/PathologyTypes";
 import { ATC } from "@/types/ATCTypes";
+import { ResumePatho } from "@/db/types";
 
 export async function getArticles() {
   const records = await getGristTableData("Articles", [
@@ -114,7 +114,7 @@ export async function getArticlesFromSearchResults(results: ExtendedSearchResult
         )
       }
       else if(result.type === DataTypeEnum.PATHOLOGY)
-        articlesFilters.pathologiesList.push((result.result as PathologyResume).codePatho.trim());
+        articlesFilters.pathologiesList.push((result.result as ResumePatho).codePatho.trim());
       else if(result.type === DataTypeEnum.SUBSTANCE) 
         articlesFilters.substancesList.push((result.result as SubstanceNom).SubsId.trim());
       else if(result.type === DataTypeEnum.ATCCLASS) {

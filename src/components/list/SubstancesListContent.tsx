@@ -1,13 +1,12 @@
 "use client";
 
 import * as Sentry from "@sentry/nextjs";
-import { HTMLAttributes, useCallback, useEffect, useMemo, useState } from "react";
+import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { DataTypeEnum } from "@/types/DataTypes";
 import PageListContent from "@/components/list/PageListContent";
-import { getSpecialiteGroupName } from "@/utils/specialites";
-import { getAllSubsWithSpecialites } from "@/db/utils/substances";
-import { SubstanceResume } from "@/types/SubstanceTypes";
-import { getNormalizeLetter } from "@/utils/alphabeticNav";
+import { getSubstancesResumeWithLetter } from "@/db/utils/substances";
+import { getLetters } from "@/db/utils/letters";
+import { ResumeSubstance } from "@/db/types";
 
 interface SubstancesListContentProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
@@ -19,56 +18,36 @@ function SubstancesListContent({
   letter,
 }: SubstancesListContentProps ) {
 
-  const [allSubs, setAllSubs] = useState<any[]>([]);
+  const [filteredSubs, setFilteredSubs] = useState<ResumeSubstance[]>([]);
+  const [letters, setLetters] = useState<string[]>([]);
 
   const getFilteredSubstances = useCallback(
-    async () => {
+    async (letter: string) => {
       try {
-        const newAllSubs = await getAllSubsWithSpecialites();
-        setAllSubs(newAllSubs);
+        const newAllSubs = await getSubstancesResumeWithLetter(letter);
+        setFilteredSubs(newAllSubs);
       } catch(e) {
         Sentry.captureException(e);
       }
     },
-    [setAllSubs]
+    [setFilteredSubs]
   );
 
-  const letters: string[] = useMemo(() => {
-    const newLetters: string[] = [];
-    allSubs.forEach((sub) => {
-      const subLetter = getNormalizeLetter(sub.NomLib.substring(0,1));
-      if(!newLetters.includes(subLetter)) newLetters.push(subLetter);
-    })
-    return newLetters;
-  }, [allSubs]);
-
-  const filteredSubs: SubstanceResume[] = useMemo(() => {
-    const newFilteredSubs: SubstanceResume[] = [];
-    allSubs.forEach((sub) => {
-      const subLetter = getNormalizeLetter(sub.NomLib.substring(0,1));
-      if(subLetter !== letter) return;
-
-      const index = newFilteredSubs.findIndex((filteredSub) => filteredSub.SubsId === sub.SubsId);
-      if(index !== -1) {
-        const specGroupName = getSpecialiteGroupName(sub.SpecDenom01);
-        if(!newFilteredSubs[index].medicaments.includes(specGroupName)){
-          newFilteredSubs[index].medicaments.push(specGroupName);
-        }
-      } else newFilteredSubs.push({
-        SubsId: sub.SubsId,
-        NomId: sub.NomId,
-        NomLib: sub.NomLib,
-        medicaments: [
-          getSpecialiteGroupName(sub.SpecDenom01),
-        ],
-      });
-    });
-    return newFilteredSubs;
-  }, [allSubs, letter]);
+  const getSubstancesLetters = useCallback(
+    async () => {
+      try {
+        const newLetters = await getLetters("substances");
+        setLetters(newLetters);
+      } catch(e) {
+        Sentry.captureException(e);
+      }
+    }, [setLetters]
+  );
 
   useEffect(() => {
-    getFilteredSubstances();
-  }, [getFilteredSubstances]);
+    getSubstancesLetters();
+    getFilteredSubstances(letter);
+  }, [letter, getFilteredSubstances]);
 
   return (
     <PageListContent
