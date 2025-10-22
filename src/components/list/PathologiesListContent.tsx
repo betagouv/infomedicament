@@ -25,7 +25,7 @@ function PathologiesListContent({
     async (letter: string) => {
       try {
         const newAllPathos = await getPathologiesResumeWithLetter(letter);
-        setFilteredPathos(newAllPathos);
+        setFilteredPathos(newAllPathos.sort((a,b) => a.NomPatho.localeCompare(b.NomPatho)));
       } catch(e) {
         Sentry.captureException(e);
       }

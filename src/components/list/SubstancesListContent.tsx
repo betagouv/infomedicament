@@ -25,7 +25,7 @@ function SubstancesListContent({
     async (letter: string) => {
       try {
         const newAllSubs = await getSubstancesResumeWithLetter(letter);
-        setFilteredSubs(newAllSubs);
+        setFilteredSubs(newAllSubs.sort((a,b) => a.NomLib.localeCompare(b.NomLib)));
       } catch(e) {
         Sentry.captureException(e);
       }

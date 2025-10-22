@@ -21,7 +21,7 @@ export const getSubstances = cache(async function (
 });
 
 export const getAllSubsWithSpecialites = cache(async function () {
-  return pdbmMySQL
+  return await pdbmMySQL
     .selectFrom("Subs_Nom")
     .innerJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
     .innerJoin("Specialite", "Composant.SpecId", "Specialite.SpecId")    

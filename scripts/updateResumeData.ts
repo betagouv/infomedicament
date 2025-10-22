@@ -81,7 +81,7 @@ async function createResumeSubstances(): Promise<string[]>{
   const rawResumeData: RawResumeSubstance[] = [];
   const letters: string[] = [];
   allSubs.forEach((sub) => {
-    const index = rawResumeData.findIndex((resumeData) => resumeData.SubsId.trim() === sub.SubsId.trim());
+    const index = rawResumeData.findIndex((resumeData) => resumeData.NomId.trim() === sub.NomId.trim());
     const specGroupName = getSpecialiteGroupName(sub.SpecDenom01);
     if(index !== -1) {
       if(!rawResumeData[index].medicaments.includes(specGroupName)){
