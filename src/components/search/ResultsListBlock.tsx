@@ -63,6 +63,7 @@ function ResultsListBlock({
                   item={data.result as AdvancedMedicamentGroup}
                   filterPregnancy={filterPregnancy}
                   filterPediatric={filterPediatric}
+                  withAlert
                 />
               ) : (
                 <DataBlockGeneric 

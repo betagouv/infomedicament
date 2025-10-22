@@ -12,8 +12,8 @@ import {
   SubstanceNom,
 } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { Nullable } from "kysely";
-import { PresentationDetail } from "@/db/types";
+import { Nullable, sql } from "kysely";
+import { PresentationDetail, ResumeSpecialite } from "@/db/types";
 import db from "@/db";
 import { getPresentations } from "@/db/utils";
 
@@ -112,12 +112,22 @@ export const getSpecialite = cache(async (CIS: string) => {
   };
 });
 
-export const getSpecialitesWithLetter = cache(async function (letter: string): Promise<Specialite[]> {
-  return pdbmMySQL
+export const getAllSpecialites = cache(async function() {
+  return await pdbmMySQL
     .selectFrom("Specialite")
-    .selectAll("Specialite")
-    .where("SpecDenom01", "like", `${letter}%`)
+    .selectAll()
     .distinct()
     .orderBy("SpecDenom01")
+    .execute();
+})
+
+export const getSpecialitesResumeWithLetter = cache(async function (letter: string): Promise<ResumeSpecialite[]> {
+  return await db
+    .selectFrom("resume_specialites")
+    .where(({eb, ref}) => eb(
+      sql<string>`upper(${ref("groupName")})`, "like", `${letter.toUpperCase()}%`
+    ))
+    .selectAll()
+    .orderBy("groupName")
     .execute();
 });

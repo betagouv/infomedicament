@@ -5,6 +5,8 @@ import atcOfficialLabels from "@/data/ATC 2024 02 15.json";
 import { getGristTableData } from "@/data/grist/index";
 import { ATCError } from "@/utils/atc";
 import { ATC, ATC1 } from "@/types/ATCTypes";
+import { ResumeSpecialite } from "@/db/types";
+import { ResumeSpecialiteATC } from "@/types/SpecialiteTypes";
 
 export const getAtc = async function (): Promise<ATC1[]> {
   const data = await getGristTableData("Table_Niveau_1", [
@@ -109,3 +111,43 @@ export const getAtc2 = async function (code: string, tableNiveau2?: any): Promis
       })),
   };
 };
+
+export const getResumeSpecsATCLabels = async function (specialites: ResumeSpecialite[]): Promise<ResumeSpecialiteATC[]> {
+  const allATC1 = await getGristTableData("Table_Niveau_1", [
+    "Lettre_1_ATC_1",
+    "Libelles_niveau_1",
+    "Definition_Classe",
+  ]);
+  const allATC2 = await getGristTableData("Table_Niveau_2", [
+    "Libelles_niveau_2",
+    "Lettre_2_ATC2",
+  ]);
+  const allATC2Labels = await getGristTableData("Intitules_possibles", [
+    "Libelles_niveau_2",
+    "Definition_sous_classe",
+  ]);
+  return specialites.map((spec: ResumeSpecialite) => {
+    let atc1Label = "";
+    let atc2Label = "";
+    if(spec.atc1Code){
+      const atc1 = allATC1.find(
+        (record) => record.fields.Lettre_1_ATC_1 === spec.atc1Code
+      )
+      if(atc1) atc1Label = atc1.fields.Libelles_niveau_1 as string;
+    }
+    if(spec.atc2Code){
+      const atc2 = allATC2.find(
+        (record) => record.fields.Lettre_2_ATC2 === spec.atc2Code
+      )
+      if(atc2){      
+        const atc2LabelData = allATC2Labels.find((record) => record.id === atc2.fields.Libelles_niveau_2);
+        if(atc2LabelData) atc2Label = atc2LabelData.fields.Libelles_niveau_2 as string;
+      }
+    }
+    return {
+      atc1Label: atc1Label,
+      atc2Label: atc2Label,
+      ...spec,
+    }
+  });
+}

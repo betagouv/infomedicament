@@ -2,8 +2,8 @@ import { cache } from "react";
 import { SpecComposant, SubstanceNom } from "../pdbmMySQL/types";
 import { pdbmMySQL } from "../pdbmMySQL";
 
-export const getComposants = cache(async (CIS: string) => {
-  return getComposantsList([CIS]);
+export const getComposants = cache(async function (CIS: string) {
+  return await getComposantsList([CIS]);
 });
 
 export const getComposantsList = cache(async (CISList: string[]) => {

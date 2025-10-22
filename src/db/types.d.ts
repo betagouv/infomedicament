@@ -19,6 +19,7 @@ export interface Database {
   rating: RatingTable;
   resume_pathologies: ResumePathosTable;
   resume_substances: ResumeSubstancesTable;
+  resume_specialites: ResumeSpecialitesTable;
   letters: LettersTable;
 }
 
@@ -164,6 +165,14 @@ interface ResumeSubstancesTable {
   medicaments: number;
 }
 
+interface ResumeSpecialitesTable {
+  groupName: string;
+  composants: string;
+  specialites: string[][];//SpecId, SpecDenom01
+  atc1Code?: string;
+  atc2Code?: string;
+}
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
@@ -175,4 +184,5 @@ export type Notice = Selectable<NoticeTable>;
 export type Rating = Selectable<RatingTable>;
 export type ResumePatho = Selectable<ResumePathosTable>;
 export type ResumeSubstance = Selectable<ResumeSubstancesTable>;
+export type ResumeSpecialite = Selectable<ResumeSpecialitesTable>;
 export type Letters = Selectable<LettersTable>;
