@@ -7,6 +7,7 @@ import { Patho } from "../pdbmMySQL/types";
 import { cache } from "react";
 import db from "..";
 import { ResumePatho } from "../types";
+import { sql } from "kysely";
 
 export async function getPatho(code: string): Promise<Patho | undefined> {
   return await pdbmMySQL
@@ -55,11 +56,13 @@ export const getAllPathoWithSpecialites = cache(async function() {
     .execute();
 });
 
-export const getPathologiesResume = cache(async function(letter: string): Promise<ResumePatho[]> {
+export const getPathologiesResumeWithLetter = cache(async function(letter: string): Promise<ResumePatho[]> {
   const result:ResumePatho[] = await db
     .selectFrom("resume_pathologies")
     .selectAll()
-    .where("NomPatho", "like", `${letter}%`)
+    .where(({eb, ref}) => eb(
+      sql<string>`upper(${ref("NomPatho")})`, "like", `${letter.toUpperCase()}%`
+    ))
     .orderBy("NomPatho")
     .execute();
   return result;

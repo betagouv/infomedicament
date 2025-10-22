@@ -8,6 +8,7 @@ import { withOneSubstance } from "./query";
 import { SpecialiteWithSubstance } from "@/types/MedicamentTypes";
 import { ResumeSubstance } from "../types";
 import db from "..";
+import { sql } from "kysely";
 
 export const getSubstances = cache(async function (
   ids: string[]
@@ -20,11 +21,11 @@ export const getSubstances = cache(async function (
 });
 
 export const getAllSubsWithSpecialites = cache(async function () {
-  //"use cache";
   return pdbmMySQL
     .selectFrom("Subs_Nom")
     .innerJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
-    .innerJoin("Specialite", "Composant.SpecId", "Specialite.SpecId")
+    .innerJoin("Specialite", "Composant.SpecId", "Specialite.SpecId")    
+    .where((eb) => withOneSubstance(eb.ref("Specialite.SpecId"), eb.ref("Subs_Nom.NomId")))
     .selectAll("Subs_Nom")
     .select("Specialite.SpecDenom01")
     .distinct()
@@ -54,8 +55,10 @@ export const getSubstanceAllSpecialites = unstable_cache(async function (
 export const getSubstancesResumeWithLetter = cache(async function(letter: string): Promise<ResumeSubstance[]> {
   const result:ResumeSubstance[] = await db
     .selectFrom("resume_substances")
+    .where(({eb, ref}) => eb(
+      sql<string>`upper(${ref("NomLib")})`, "like", `${letter.toUpperCase()}%`
+    ))
     .selectAll()
-    .where("NomLib", "like", `${letter}%`)
     .orderBy("NomLib")
     .execute();
   return result;

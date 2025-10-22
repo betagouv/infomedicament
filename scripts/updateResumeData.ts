@@ -75,23 +75,24 @@ async function createResumeSubstances(): Promise<string[]>{
   await db
     .deleteFrom('resume_substances')
     .execute();
-  //TODO trier avec les substances qui ont bien le bon nombre.
+
   const allSubs = await getAllSubsWithSpecialites();
+
   const rawResumeData: RawResumeSubstance[] = [];
   const letters: string[] = [];
   allSubs.forEach((sub) => {
-     const index = rawResumeData.findIndex((resumeData) => resumeData.SubsId === sub.SubsId);
+    const index = rawResumeData.findIndex((resumeData) => resumeData.SubsId.trim() === sub.SubsId.trim());
+    const specGroupName = getSpecialiteGroupName(sub.SpecDenom01);
     if(index !== -1) {
-      const specGroupName = getSpecialiteGroupName(sub.SpecDenom01);
       if(!rawResumeData[index].medicaments.includes(specGroupName)){
         rawResumeData[index].medicaments.push(specGroupName);
       }
     } else rawResumeData.push({
-      SubsId: sub.SubsId,
-      NomId: sub.NomId,
+      SubsId: sub.SubsId.trim(),
+      NomId: sub.NomId.trim(),
       NomLib: sub.NomLib,
       medicaments: [
-        getSpecialiteGroupName(sub.SpecDenom01),
+        specGroupName,
       ],
     });
     const subLetter = getNormalizeLetter(sub.NomLib.substring(0,1));

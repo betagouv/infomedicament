@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { DataTypeEnum } from "@/types/DataTypes";
 import PageListContent from "@/components/list/PageListContent";
-import { getPathologiesResume } from "@/db/utils/pathologies";
+import { getPathologiesResumeWithLetter } from "@/db/utils/pathologies";
 import { ResumePatho } from "@/db/types";
 import { getLetters } from "@/db/utils/letters";
 
@@ -24,7 +24,7 @@ function PathologiesListContent({
   const getFilteredPathos = useCallback(
     async (letter: string) => {
       try {
-        const newAllPathos = await getPathologiesResume(letter);
+        const newAllPathos = await getPathologiesResumeWithLetter(letter);
         setFilteredPathos(newAllPathos);
       } catch(e) {
         Sentry.captureException(e);
