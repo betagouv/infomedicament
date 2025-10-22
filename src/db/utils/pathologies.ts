@@ -5,6 +5,9 @@ import { unstable_cache } from "next/cache";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { Patho } from "../pdbmMySQL/types";
 import { cache } from "react";
+import db from "..";
+import { ResumePatho } from "../types";
+import { sql } from "kysely";
 
 export async function getPatho(code: string): Promise<Patho | undefined> {
   return await pdbmMySQL
@@ -35,13 +38,32 @@ export const getSpecialitesPatho = unstable_cache(async function (CIS: string) {
   return rawCodePatho.map((code) => code.codePatho);
 });
 
+export const getAllPathos = cache(async function(): Promise<Patho[]> {
+  return await pdbmMySQL
+    .selectFrom("Patho")
+    .selectAll()
+    .execute();
+});
+
 export const getAllPathoWithSpecialites = cache(async function() {
-  //"use cache";
-  return pdbmMySQL
+  return await pdbmMySQL
     .selectFrom("Patho")
     .innerJoin("Spec_Patho", "Patho.codePatho", "Spec_Patho.codePatho")
     .innerJoin("Specialite", "Spec_Patho.SpecId", "Specialite.SpecId")
     .selectAll("Patho")
     .select("Specialite.SpecDenom01")
+    .orderBy("Specialite.SpecDenom01")
     .execute();
+});
+
+export const getPathologiesResumeWithLetter = cache(async function(letter: string): Promise<ResumePatho[]> {
+  const result:ResumePatho[] = await db
+    .selectFrom("resume_pathologies")
+    .selectAll()
+    .where(({eb, ref}) => eb(
+      sql<string>`upper(${ref("NomPatho")})`, "like", `${letter.toUpperCase()}%`
+    ))
+    .orderBy("NomPatho")
+    .execute();
+  return result;
 });
