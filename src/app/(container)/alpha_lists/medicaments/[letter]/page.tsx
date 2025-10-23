@@ -13,10 +13,6 @@ export default async function Page(props: {
 }) {
   const { letter } = await props.params;
 
-  const letters = ['1', '5', 'A', 'B', 'C', 'D', 'E',
-    'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-    'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-
   return (
     <ContentContainer frContainer>
       <Fragment>
@@ -27,7 +23,6 @@ export default async function Page(props: {
         <MedicamentsListContent
           title={PAGE_LABEL}
           letter={letter}
-          letters={letters}
         />
       </Fragment>
       <RatingToaster

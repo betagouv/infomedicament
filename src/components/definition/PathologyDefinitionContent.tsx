@@ -3,15 +3,14 @@
 import * as Sentry from "@sentry/nextjs";
 import React, { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { DataTypeEnum } from "@/types/DataTypes";
-import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import { Patho } from "@/db/pdbmMySQL/types";
 import { getArticlesFromPatho } from "@/data/grist/articles";
 import PageDefinitionContent from "./PageDefinitionContent";
-import { groupSpecialites } from "@/utils/specialites";
-import { getAdvancedMedicamentFromGroup } from "@/db/utils/medicaments";
 import { getPathologyDefinition } from "@/data/grist/pathologies";
-import { getPathoSpecialites } from "@/db/utils/pathologies";
+import { getResumeSpecialitesWithPatho } from "@/db/utils/specialities";
+import { getResumeSpecsATCLabels } from "@/data/grist/atc";
+import { ResumeSpecialite } from "@/types/SpecialiteTypes";
 
 interface PathologyDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
   patho: Patho;
@@ -23,7 +22,7 @@ function PathologyDefinitionContent({
 
   const [title, setTitle] = useState<string>("");
   const [definition, setDefinition] = useState<string | { title: string; desc: string }[]>("");
-  const [dataList, setDataList] = useState<AdvancedMedicamentGroup[]>([]);
+  const [dataList, setDataList] = useState<ResumeSpecialite[]>([]);
   const [articles, setArticles] = useState<ArticleCardResume[]>([]);
 
   const loadDefinitionData = useCallback(
@@ -35,10 +34,11 @@ function PathologyDefinitionContent({
         const definition = await getPathologyDefinition(patho.codePatho);
         setDefinition(definition);
 
-        const specialites = await getPathoSpecialites(patho.codePatho);
-        const medicaments = specialites && (groupSpecialites(specialites, true));
-        const detailedMedicaments = medicaments && (await getAdvancedMedicamentFromGroup(medicaments));
-        setDataList(detailedMedicaments);
+        const newAllSpecs = await getResumeSpecialitesWithPatho(patho.codePatho);
+        if(newAllSpecs.length > 0){
+          const allSpecsWithATC: ResumeSpecialite[] = await getResumeSpecsATCLabels(newAllSpecs);
+          setDataList(allSpecsWithATC);
+        }
       } catch(e) {
         Sentry.captureException(e);
       }

@@ -3,15 +3,13 @@
 import * as Sentry from "@sentry/nextjs";
 import React, { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { DataTypeEnum } from "@/types/DataTypes";
-import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
-import { Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import { getArticlesFromSubstances } from "@/data/grist/articles";
-import { getSubstanceDefinition } from "@/data/grist/substances";
 import PageDefinitionContent from "./PageDefinitionContent";
-import { getSubstanceSpecialites } from "@/db/utils/search";
-import { groupSpecialites } from "@/utils/specialites";
-import { getAdvancedMedicamentFromGroup } from "@/db/utils/medicaments";
+import { getResumeSpecialitesWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
+import { ResumeSpecialite } from "@/types/SpecialiteTypes";
+import { getResumeSpecsATCLabels } from "@/data/grist/atc";
 
 interface SubstanceDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
   ids: string[];
@@ -25,7 +23,7 @@ function SubstanceDefinitionContent({
 
   const [title, setTitle] = useState<string>("");
   const [definition, setDefinition] = useState<string | { title: string; desc: string }[]>("");
-  const [dataList, setDataList] = useState<AdvancedMedicamentGroup[]>([]);
+  const [dataList, setDataList] = useState<ResumeSpecialite[]>([]);
   const [articles, setArticles] = useState<ArticleCardResume[]>([]);
 
   const loadDefinitionData = useCallback(
@@ -34,17 +32,12 @@ function SubstanceDefinitionContent({
         const newArticles: ArticleCardResume[] = await getArticlesFromSubstances(ids);
         setArticles(newArticles);
 
-        const subsIds = substances.map((subs: SubstanceNom) => (subs.SubsId).trim());
-        const definitions = await getSubstanceDefinition(ids, subsIds);
-        setDefinition(definitions.map((d: any) => ({
-          title: d.fields.SA,
-          desc: d.fields.Definition,
-        })));
-
-        const specialites: Specialite[] = await getSubstanceSpecialites(ids);
-        const medicaments = (specialites.length > 0) ? (groupSpecialites(specialites, true)) : [];
-        const detailedMedicaments = (medicaments.length > 0) ? (await getAdvancedMedicamentFromGroup(medicaments)) : [];
-        setDataList(detailedMedicaments);
+        const CISList: string[] = await getSubstanceSpecialitesCIS(ids);
+        const newAllSpecs = await getResumeSpecialitesWithCIS(CISList);
+        if(newAllSpecs.length > 0){
+          const allSpecsWithATC: ResumeSpecialite[] = await getResumeSpecsATCLabels(newAllSpecs);
+          setDataList(allSpecsWithATC);
+        }
       } catch(e) {
         Sentry.captureException(e);
       }

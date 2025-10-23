@@ -36,7 +36,7 @@ function PathologiesListContent({
   const getPathosLetters = useCallback(
     async () => {
       try {
-        const newLetters = await getLetters("patho");
+        const newLetters = await getLetters("pathos");
         setLetters(newLetters);
       } catch(e) {
         Sentry.captureException(e);

@@ -2,6 +2,7 @@ import { Patho, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { AdvancedMedicamentGroup } from "./MedicamentTypes";
 import { ATC, ATC1 } from "./ATCTypes";
 import { ResumePatho, ResumeSubstance } from "@/db/types";
+import { ResumeSpecialite } from "./SpecialiteTypes";
 
 export enum DataTypeEnum {
   MEDGROUP = "Médicament",
@@ -29,8 +30,9 @@ export type AdvancedATCClass = {
 export type AdvancedData = {
   result: (
     | ResumeSubstance
-    | AdvancedMedicamentGroup
     | ResumePatho
+    | AdvancedMedicamentGroup
+    | ResumeSpecialite
     | AdvancedATCClass 
   ),
   type: DataTypeEnum,

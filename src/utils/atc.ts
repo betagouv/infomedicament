@@ -24,3 +24,13 @@ export function getAtcCode(CIS: string) {
 
   return atc[1];
 }
+
+//From ATC Code
+export function getAtc1Code (atcCode:string): string {
+  return atcCode.slice(0, 1);
+}
+
+//From ATC Code
+export function getAtc2Code (atcCode:string): string {
+  return atcCode.slice(0, 3);
+}

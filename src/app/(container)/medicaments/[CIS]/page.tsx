@@ -20,7 +20,7 @@ import { getArticlesFromFilters } from "@/data/grist/articles";
 import { getMarr } from "@/data/grist/marr";
 import { Marr } from "@/types/MarrTypes";
 import Link from "next/link";
-import { getSpecialitesPatho } from "@/db/utils/pathologies";
+import { getSpecialitePatho } from "@/db/utils/pathologies";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
@@ -113,7 +113,7 @@ export default async function Page(props: {
     ATCList: atcList,
     substancesList: composants.map((compo) => compo.SubsId.trim()),
     specialitesList: [CIS],
-    pathologiesList: await getSpecialitesPatho(CIS),
+    pathologiesList: await getSpecialitePatho(CIS),
   };
   const articles = await getArticlesFromFilters(articlesFilters);
   const marr: Marr = await getMarr(CIS);

@@ -37,11 +37,11 @@ export default function PediatricsTags({
   info, 
   lastTagElement 
 }: { 
-  info: PediatricsInfo, 
+  info?: PediatricsInfo, 
   lastTagElement?: TagTypeEnum
 }) {
   const hideSeparator = !lastTagElement;
-  return (
+  return info && (
     <>
       {info.indication && (
         <div>

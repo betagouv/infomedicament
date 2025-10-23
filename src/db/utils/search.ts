@@ -11,7 +11,6 @@ import { unstable_cache } from "next/cache";
 import { getAtc1, getAtc2 } from "@/data/grist/atc";
 import { groupSpecialites } from "@/utils/specialites";
 import { ATC, ATC1 } from "@/types/ATCTypes";
-import { withSubstances } from "./query";
 
 export type SearchResultItem =
   | SubstanceNom
@@ -59,17 +58,6 @@ const getSubstances = unstable_cache(async function getSubstances(
   return substances;
 });
 
-export const getSubstanceSpecialites = unstable_cache(async function (
-  substanceIDs: (string | string[])
-): Promise<Specialite[]> {
-  const ids: string[] = !Array.isArray(substanceIDs) ? [substanceIDs] : substanceIDs;
-  return pdbmMySQL
-    .selectFrom("Specialite")
-    .selectAll("Specialite")
-    .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
-    .groupBy("Specialite.SpecId")
-    .execute();
-});
 
 //TODO quand base maj ajouter tous les calculs ici
 const getPathologies = unstable_cache(async function (pathologiesId: string[]) {

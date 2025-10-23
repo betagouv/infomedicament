@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { AdvancedATC, AdvancedATCClass, AdvancedData, DataTypeEnum } from "@/types/DataTypes";
 import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 import { ResumePatho, ResumeSubstance } from "@/db/types";
+import { ResumeSpecialite } from "@/types/SpecialiteTypes";
 
 const Container = styled.div`
   border: var(--border-open-blue-france) 1px solid;
@@ -50,7 +51,7 @@ function DataBlockGeneric({
   useEffect(() => {
     function getLink(
       dataType: DataTypeEnum, 
-      data: ResumeSubstance | AdvancedMedicamentGroup | ResumePatho | AdvancedATCClass
+      data: ResumeSubstance | ResumePatho | AdvancedMedicamentGroup | ResumeSpecialite | AdvancedATCClass
     ){
       if(dataType === DataTypeEnum.SUBSTANCE){
         setCurrentLink(`/substances/${(data as ResumeSubstance).NomId}`);
@@ -64,7 +65,7 @@ function DataBlockGeneric({
 
     function getFormatSpecName(
       dataType: DataTypeEnum, 
-      data: ResumeSubstance | AdvancedMedicamentGroup | ResumePatho | AdvancedATCClass
+      data: ResumeSubstance | ResumePatho | AdvancedMedicamentGroup | ResumeSpecialite | AdvancedATCClass
     ){
       if(dataType === DataTypeEnum.SUBSTANCE){
         setCurrentFormatSpecName(formatSpecName((data as ResumeSubstance).NomLib));
@@ -78,7 +79,7 @@ function DataBlockGeneric({
 
     function getDetails(
       dataType: DataTypeEnum, 
-      data: ResumeSubstance | AdvancedMedicamentGroup | ResumePatho | AdvancedATCClass
+      data: ResumeSubstance | ResumePatho | AdvancedMedicamentGroup | ResumeSpecialite | AdvancedATCClass
     ){
       if(dataType === DataTypeEnum.SUBSTANCE){
         setCurrentDetails(`${(data as ResumeSubstance).medicaments} ${(data as ResumeSubstance).medicaments > 1 ? "médicaments" : "médicament"}`);
