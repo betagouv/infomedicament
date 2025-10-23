@@ -7,7 +7,7 @@ export function getSpecialiteGroupName(
   const specName =
     typeof specialite === "string" ? specialite : specialite.SpecDenom01;
   const regexMatch = specName.match(/^[^0-9,]+/);
-  return regexMatch ? regexMatch[0] : specName;
+  return (regexMatch ? regexMatch[0] : specName).trim();
 }
 
 export function groupSpecialites<T extends Specialite>(

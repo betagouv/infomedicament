@@ -1,6 +1,6 @@
-import { ResumeSpecialite } from "@/db/types";
+import { ResumeSpecialiteDB } from "@/db/types";
 
-export type ResumeSpecialiteATC = ResumeSpecialite & {
+export type ResumeSpecialite = ResumeSpecialiteDB & {
   atc1Label: string,
   atc2Label: string,
 }

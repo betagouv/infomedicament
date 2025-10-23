@@ -1,7 +1,7 @@
 import db from "@/db";
 import { Letters, ResumePatho, ResumeSubstance } from "@/db/types";
 import { getComposants } from "@/db/utils/composants";
-import { getAllPathoWithSpecialites } from "@/db/utils/pathologies";
+import { getAllPathoWithSpecialites, getSpecialitesPatho } from "@/db/utils/pathologies";
 import { getAllSpecialites } from "@/db/utils/specialities";
 import { getAllSubsWithSpecialites } from "@/db/utils/substances";
 import { displaySimpleComposants, MedicamentGroup } from "@/displayUtils";
@@ -9,7 +9,7 @@ import { getNormalizeLetter } from "@/utils/alphabeticNav";
 import { getAtc1Code, getAtc2Code, getAtcCode } from "@/utils/atc";
 import { getSpecialiteGroupName, groupSpecialites } from "@/utils/specialites";
 
-type DataToResumeType = "patho" | "substances" | "specialites" | "atc1" | "atc2";
+type DataToResumeType = "pathos" | "substances" | "specialites" | "atc1" | "atc2";
 
 type RawResumePatho = {
   codePatho: string;
@@ -50,7 +50,7 @@ async function createResumePathologies(): Promise<string[]>{
       NomPatho: patho.NomPatho,
       medicaments: [
         getSpecialiteGroupName(patho.SpecDenom01),
-      ],
+      ]
     });
     const pathoLetter = getNormalizeLetter(patho.NomPatho.substring(0,1));
     if(!letters.includes(pathoLetter)) letters.push(pathoLetter);
@@ -137,6 +137,8 @@ async function createResumeSpecialites(): Promise<string[]>{
         .map((s) => s.NomLib.trim())
         .join(", ");
       const specialites: string[][] = rawSpecialites.map((spec) => [spec.SpecId, spec.SpecDenom01]);
+      const CISList: string[] = rawSpecialites.map((spec) => spec.SpecId.trim());
+      const pathosCodes: string[] = await getSpecialitesPatho(CISList);
       const atc = getAtcCode(rawSpecialites[0].SpecId);
       const atc1: string | undefined = atc ? getAtc1Code(atc) : undefined;
       const atc2: string | undefined = atc ? getAtc2Code(atc) : undefined;
@@ -149,9 +151,11 @@ async function createResumeSpecialites(): Promise<string[]>{
         .values({
           groupName: groupName,
           composants: composants,
+          pathosCodes: pathosCodes,
           specialites: specialites,
           atc1Code: atc1,
           atc2Code: atc2,
+          CISList: CISList,
         })
         .execute();
       return true;
@@ -163,9 +167,9 @@ async function createResumeSpecialites(): Promise<string[]>{
 }
 
 async function createResumeDataFromBDPM(){
-  if(dataToResume === "patho" || dataToResume === "substances" || dataToResume === "specialites") {
+  if(dataToResume === "pathos" || dataToResume === "substances" || dataToResume === "specialites") {
     let letters: string[] = [];
-    if(dataToResume === "patho") {
+    if(dataToResume === "pathos") {
       letters = await createResumePathologies(); 
     } else if(dataToResume === "substances"){
       letters = await createResumeSubstances();
@@ -186,7 +190,9 @@ async function createResumeDataFromBDPM(){
       .insertInto('letters')
       .values(lettersValue)
       .execute();
-  } /* else if(dataToResume === "atc1"){
+  } else {
+    
+  }/* else if(dataToResume === "atc1"){
     await createResumeATC1Definition();
   }*/
   return true;

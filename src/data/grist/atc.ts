@@ -5,8 +5,8 @@ import atcOfficialLabels from "@/data/ATC 2024 02 15.json";
 import { getGristTableData } from "@/data/grist/index";
 import { ATCError } from "@/utils/atc";
 import { ATC, ATC1 } from "@/types/ATCTypes";
-import { ResumeSpecialite } from "@/db/types";
-import { ResumeSpecialiteATC } from "@/types/SpecialiteTypes";
+import { ResumeSpecialiteDB } from "@/db/types";
+import { ResumeSpecialite } from "@/types/SpecialiteTypes";
 
 export const getAtc = async function (): Promise<ATC1[]> {
   const data = await getGristTableData("Table_Niveau_1", [
@@ -112,7 +112,7 @@ export const getAtc2 = async function (code: string, tableNiveau2?: any): Promis
   };
 };
 
-export const getResumeSpecsATCLabels = async function (specialites: ResumeSpecialite[]): Promise<ResumeSpecialiteATC[]> {
+export const getResumeSpecsATCLabels = async function (specialites: ResumeSpecialiteDB[]): Promise<ResumeSpecialite[]> {
   const allATC1 = await getGristTableData("Table_Niveau_1", [
     "Lettre_1_ATC_1",
     "Libelles_niveau_1",
@@ -126,7 +126,7 @@ export const getResumeSpecsATCLabels = async function (specialites: ResumeSpecia
     "Libelles_niveau_2",
     "Definition_sous_classe",
   ]);
-  return specialites.map((spec: ResumeSpecialite) => {
+  return specialites.map((spec: ResumeSpecialiteDB) => {
     let atc1Label = "";
     let atc2Label = "";
     if(spec.atc1Code){

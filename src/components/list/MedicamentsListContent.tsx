@@ -4,9 +4,9 @@ import * as Sentry from "@sentry/nextjs";
 import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { DataTypeEnum } from "@/types/DataTypes";
 import PageListContent from "@/components/list/PageListContent";
-import { getSpecialitesResumeWithLetter } from "@/db/utils/specialities";
+import { getResumeSpecialitesWithLetter } from "@/db/utils/specialities";
 import { getLetters } from "@/db/utils/letters";
-import { ResumeSpecialiteATC } from "@/types/SpecialiteTypes";
+import { ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { getResumeSpecsATCLabels } from "@/data/grist/atc";
 
 interface MedicamentsListContentProps extends HTMLAttributes<HTMLDivElement> {
@@ -19,14 +19,14 @@ function MedicamentsListContent({
   letter,
 }: MedicamentsListContentProps ) {
 
-  const [filteredMedicaments, setFilteredMedicaments] = useState<ResumeSpecialiteATC[]>([]);
+  const [filteredMedicaments, setFilteredMedicaments] = useState<ResumeSpecialite[]>([]);
   const [letters, setLetters] = useState<string[]>([]);
 
   const getFilteredMedicaments = useCallback(
     async (letter: string) => {
       try {
-        const newAllSpecs = await getSpecialitesResumeWithLetter(letter);
-        const allSpecsWithATC: ResumeSpecialiteATC[] = await getResumeSpecsATCLabels(newAllSpecs);
+        const newAllSpecs = await getResumeSpecialitesWithLetter(letter);
+        const allSpecsWithATC: ResumeSpecialite[] = await getResumeSpecsATCLabels(newAllSpecs);
         setFilteredMedicaments(allSpecsWithATC.sort((a,b) => a.groupName.localeCompare(b.groupName)));
       } catch(e) {
         Sentry.captureException(e);

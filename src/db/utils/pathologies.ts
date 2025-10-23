@@ -28,12 +28,16 @@ export const getPathoSpecialites = unstable_cache(async function (code: string) 
 });
 
 //Get the code patho list from specialite code CIS
-export const getSpecialitesPatho = unstable_cache(async function (CIS: string) {
+export const getSpecialitePatho = unstable_cache(async function (CIS: string): Promise<string[]> {
+  return getSpecialitesPatho([CIS]);
+});
+export const getSpecialitesPatho = cache(async function (CIS: string[]): Promise<string[]> {
   const rawCodePatho = await pdbmMySQL
     .selectFrom("Spec_Patho")
     .select("Spec_Patho.codePatho")
     .leftJoin("Specialite", "Spec_Patho.SpecId", "Specialite.SpecId")
-    .where("Specialite.SpecId", "=", CIS)
+    .where("Specialite.SpecId", "in", CIS)
+    .distinct()
     .execute();
   return rawCodePatho.map((code) => code.codePatho);
 });

@@ -11,7 +11,7 @@ import { AdvancedMedicamentGroup, AdvancedSpecialite } from "@/types/MedicamentT
 import { PediatricsInfo } from "@/data/grist/pediatrics";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
-import { ResumeSpecialiteATC } from "@/types/SpecialiteTypes";
+import { ResumeSpecialite } from "@/types/SpecialiteTypes";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
@@ -80,7 +80,7 @@ const FiltersTagContainer = styled.div`
 `;
 
 interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
-  item: AdvancedMedicamentGroup | ResumeSpecialiteATC;
+  item: AdvancedMedicamentGroup | ResumeSpecialite;
   filterPregnancy?: boolean;
   filterPediatric?: boolean;
   withAlert?: boolean;
@@ -95,8 +95,8 @@ function DataBlockAccordion({
 }: DataBlockAccordionProps) {
 
   //If with alert --> item === AdvancedMedicamentGroup
-  //Else item === ResumeSpecialiteATC
-  const [advancedMedicamentGroup, setAdvancedMedicamentGroup] = useState<AdvancedMedicamentGroup | ResumeSpecialiteATC>();
+  //Else item === ResumeSpecialite
+  const [advancedMedicamentGroup, setAdvancedMedicamentGroup] = useState<AdvancedMedicamentGroup | ResumeSpecialite>();
   const [groupName, setGroupName] = useState<string>("");
   const [specialites, setSpecialites] = useState<string[][] | AdvancedSpecialite[]>();
   const [listeComposants, setListeComposants] = useState<string>("");
@@ -128,11 +128,11 @@ function DataBlockAccordion({
       if(tempItem.atc2 && tempItem.atc2.label)
         setAtc2Label(tempItem.atc2.label);
     } else {
-      //ResumeSpecialiteATC
-      setSpecialites((item as ResumeSpecialiteATC).specialites);
-      setListeComposants((item as ResumeSpecialiteATC).composants);
-      setAtc1Label((item as ResumeSpecialiteATC).atc1Label);
-      setAtc2Label((item as ResumeSpecialiteATC).atc2Label);
+      //ResumeSpecialite
+      setSpecialites((item as ResumeSpecialite).specialites);
+      setListeComposants((item as ResumeSpecialite).composants);
+      setAtc1Label((item as ResumeSpecialite).atc1Label);
+      setAtc2Label((item as ResumeSpecialite).atc2Label);
     }
   }, [item, setAdvancedMedicamentGroup, setGroupName, setSpecialites, setListeComposants]);
 

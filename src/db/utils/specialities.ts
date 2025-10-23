@@ -13,9 +13,11 @@ import {
 } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { Nullable, sql } from "kysely";
-import { PresentationDetail, ResumeSpecialite } from "@/db/types";
+import { PresentationDetail, ResumeSpecialiteDB } from "@/db/types";
 import db from "@/db";
 import { getPresentations } from "@/db/utils";
+import { unstable_cache } from "next/cache";
+import { withSubstances } from "./query";
 
 export const getSpecialite = cache(async (CIS: string) => {
   const specialiteP: Promise<Specialite | undefined> = pdbmMySQL
@@ -121,7 +123,7 @@ export const getAllSpecialites = cache(async function() {
     .execute();
 })
 
-export const getSpecialitesResumeWithLetter = cache(async function (letter: string): Promise<ResumeSpecialite[]> {
+export const getResumeSpecialitesWithLetter = cache(async function (letter: string): Promise<ResumeSpecialiteDB[]> {
   return await db
     .selectFrom("resume_specialites")
     .where(({eb, ref}) => eb(
@@ -130,4 +132,48 @@ export const getSpecialitesResumeWithLetter = cache(async function (letter: stri
     .selectAll()
     .orderBy("groupName")
     .execute();
+});
+
+export const getResumeSpecialitesWithPatho = cache(async function (codePatho: string): Promise<ResumeSpecialiteDB[]> {
+  return await db
+    .selectFrom("resume_specialites")
+    .where("pathosCodes", "&&", Array([codePatho]))
+    .selectAll()
+    .orderBy("groupName")
+    .execute();
+});
+
+export const getResumeSpecialitesWithCIS = cache(async function (CISList: string[]): Promise<ResumeSpecialiteDB[]> {
+  if(CISList.length === 0) return [];
+  return await db
+    .selectFrom("resume_specialites")
+    .where("CISList", "&&", Array(CISList))
+    .selectAll()
+    .orderBy("groupName")
+    .execute();
+});
+
+export const getSubstanceSpecialites = unstable_cache(async function (
+  subsNomsIDs: (string | string[])
+): Promise<Specialite[]> {
+  const ids: string[] = !Array.isArray(subsNomsIDs) ? [subsNomsIDs] : subsNomsIDs;
+  return pdbmMySQL
+    .selectFrom("Specialite")
+    .selectAll("Specialite")
+    .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
+    .groupBy("Specialite.SpecId")
+    .execute();
+});
+
+export const getSubstanceSpecialitesCIS = unstable_cache(async function (
+  subsNomsIDs: (string | string[])
+): Promise<string[]> {
+  const ids: string[] = !Array.isArray(subsNomsIDs) ? [subsNomsIDs] : subsNomsIDs;
+  const rawCISList = await pdbmMySQL
+    .selectFrom("Specialite")
+    .select("Specialite.SpecId")
+    .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
+    .groupBy("Specialite.SpecId")
+    .execute();
+  return rawCISList.map((CIS) => CIS.SpecId);
 });
