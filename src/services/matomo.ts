@@ -68,7 +68,6 @@ export const bulkFetchRangeFromMatomo = async <Result>(
   }));
 };
 
-
 function isMatomoErrorResult<Result>(bulkResults: Result[][] | MatomoErrorResult[]): bulkResults is MatomoErrorResult[] {
   return (bulkResults[0] as any).result === 'error';
 }
