@@ -18,12 +18,25 @@ import db from "@/db";
 import { getPresentations } from "@/db/utils";
 import { unstable_cache } from "next/cache";
 import { withSubstances } from "./query";
+import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 
-export const getSpecialite = cache(async (CIS: string) => {
-  const specialiteP: Promise<Specialite | undefined> = pdbmMySQL
+export async function getSpecialiteName(CIS: string): Promise<string>{
+  const result = await pdbmMySQL
     .selectFrom("Specialite")
     .where("SpecId", "=", CIS)
-    .selectAll()
+    .select("SpecDenom01")
+    .executeTakeFirst();
+
+  return result ? result.SpecDenom01 : "";
+}
+
+export const getSpecialite = cache(async (CIS: string) => {
+  const specialiteP: Promise<DetailedSpecialite | undefined> = pdbmMySQL
+    .selectFrom("Specialite")
+    .leftJoin("VUEmaEpar", "VUEmaEpar.SpecId", "Specialite.SpecId")
+    .where("Specialite.SpecId", "=", CIS)
+    .selectAll("Specialite")
+    .select("VUEmaEpar.UrlEpar")
     .executeTakeFirst();
 
   const presentationsP: Promise<

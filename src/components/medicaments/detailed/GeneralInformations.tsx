@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import GenericTag from "@/components/tags/GenericTag";
 import { Presentation, PresInfoTarif, SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
-import { PediatricsInfo } from "@/data/grist/pediatrics";
 import PediatricsTags from "@/components/tags/PediatricsTags";
 import Link from "next/link";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
@@ -21,6 +20,7 @@ import { FicheInfos, NoticeRCPContentBlock } from "@/types/MedicamentTypes";
 import { displayInfosImportantes, getContent } from "@/utils/notices/noticesUtils";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
+import { PediatricsInfo } from "@/types/PediatricTypes";
 
 const SummaryLineContainer = styled.div `
   display: flex;
@@ -76,7 +76,7 @@ function SummaryLine(
 
 interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   updateVisiblePart: (visiblePart: DetailsNoticePartsEnum) => void;
-  CIS: string;
+  CIS?: string;
   atcCode?: string;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
@@ -146,7 +146,7 @@ function GeneralInformations({
       <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Résumé</h2>
         <SummaryLine categoryName="Code CIS">
-          {formatCIS(CIS)}
+          {CIS ? formatCIS(CIS) : ""}
         </SummaryLine>
         {atcCode && (
           <SummaryLine categoryName="Classe ATC">
@@ -161,7 +161,7 @@ function GeneralInformations({
         </SummaryLine>
         <SummaryLine categoryName="Statut générique">
           <>
-            {isPrinceps ? (
+            {(isPrinceps && CIS) ? (
               <PrincepsTag CIS={CIS} />
             ) : (
               SpecGeneId 

@@ -1,9 +1,20 @@
 "use client";
 
-import { HTMLAttributes, PropsWithChildren } from "react";
+import * as Sentry from "@sentry/nextjs";
+import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
 import { questionsList, questionKeys } from "@/data/pages/notices_anchors";
 import { QuestionsListFormat } from "@/types/NoticesAnchors";
+import { fr } from "@codegouvfr/react-dsfr";
+import ContentContainer from "../generic/ContentContainer";
+import { RcpNoticeContainer } from "./blocks/GenericBlocks";
+import { Notice } from "@/types/MedicamentTypes";
+import { DetailedSpecialite } from "@/types/SpecialiteTypes";
+import { getContent } from "@/utils/notices/noticesUtils";
+import { Definition } from "@/types/GlossaireTypes";
+import getGlossaryDefinitions from "@/data/grist/glossary";
+import { isCentralise } from "@/utils/specialites";
+import CentraliseBlock from "./blocks/CentraliseBlock";
 
 const Container = styled.div<{ $questionsList: QuestionsListFormat; $questionKeys: string[]}> `
   ${props => props.$questionKeys.map(key => { 
@@ -30,14 +41,48 @@ const Container = styled.div<{ $questionsList: QuestionsListFormat; $questionKey
 `;
 
 interface NoticeBlockProps extends HTMLAttributes<HTMLDivElement> {
+  notice?: Notice,
+  specialite?: DetailedSpecialite,
 }
 
-function NoticeBlock(
-  {children, ...props}: PropsWithChildren<NoticeBlockProps>
-) {
+function NoticeBlock({
+  notice,
+  specialite,
+  ...props
+}: NoticeBlockProps ) {
+
+  const [definitions, setDefinitions] = useState<Definition[]>();
+
+  const loadDefinitions = useCallback(() => {
+    async () => {
+      try {
+        const newDefinitions = (await getGlossaryDefinitions()).filter(
+          (d) => d.fields.A_publier,
+        );
+        setDefinitions(newDefinitions)
+      } catch (e) {
+        Sentry.captureException(e);
+      }
+    }
+  }, [setDefinitions]);
+
+  useEffect(() => {
+    if(notice) {
+      loadDefinitions();
+    }
+  }, [notice, loadDefinitions]);
+
   return (
-    <Container $questionsList={questionsList} $questionKeys={questionKeys} {...props}>
-      {children}
+    <Container $questionsList={questionsList} $questionKeys={questionKeys} className={fr.cx("fr-mt-3w")}>
+      <ContentContainer id="noticeContainer">
+        {(specialite && isCentralise(specialite)) ? (
+          <CentraliseBlock
+            pdfURL={specialite.UrlEpar ? specialite.UrlEpar : undefined}
+          />
+        ) : (notice && notice.children) && (
+          <RcpNoticeContainer>{getContent(notice.children, definitions)}</RcpNoticeContainer>
+        )}
+      </ContentContainer>
     </Container>
   );
 };

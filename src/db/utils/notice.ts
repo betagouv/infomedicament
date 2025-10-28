@@ -1,10 +1,11 @@
+"use server";
+
 import db from '@/db';
-import { Rcp, NoticeRCPContentBlock } from '@/types/MedicamentTypes';
-import { NextRequest, NextResponse } from "next/server";
+import { Notice, NoticeRCPContentBlock } from '@/types/MedicamentTypes';
 
 async function getContent(children: number[]): Promise<any[]>{
   const childrenData = await db
-    .selectFrom("rcp_content")
+    .selectFrom("notices_content")
     .selectAll()
     .where("id", "in", children)
     .execute();
@@ -30,34 +31,27 @@ async function getContent(children: number[]): Promise<any[]>{
   );
 }
 
-export async function GET(req: NextRequest) {
-  const params = req.nextUrl.searchParams;
-  const CIS = params.get("cis");
-
-  if (!CIS) {
-    return NextResponse.json(
-      { error: "Missing CIS parameter" },
-      { status: 400 },
-    );
+export async function getNotice(CIS: string): Promise<Notice | undefined> {
+  const notice:Notice = {
+    codeCIS: parseInt(CIS),
+    title: "",
+    dateNotif: "",
+    children: [],
   }
 
-  const rcpRaw = await db
-    .selectFrom("rcp")
+  const noticeRaw = await db
+    .selectFrom("notices")
     .selectAll()
     .where("codeCIS", "=", parseInt(CIS))
     .executeTakeFirst();
 
-  if(!rcpRaw) return NextResponse.json(undefined);
+  if(!noticeRaw) return undefined;
 
-  const rcp:Rcp = {
-    codeCIS: rcpRaw.codeCIS,
-    title: rcpRaw.title,
-    dateNotif: rcpRaw.dateNotif,
-    children: [],
-  }
+  notice.title = noticeRaw.title;
+  notice.dateNotif = noticeRaw.dateNotif;
   
-  if(rcpRaw.children && rcpRaw.children.length > 0) 
-    rcp.children = await getContent(rcpRaw.children);
+  if(noticeRaw.children && noticeRaw.children.length > 0) 
+    notice.children = await getContent(noticeRaw.children);
 
-  return NextResponse.json(rcp);
+  return notice;
 };

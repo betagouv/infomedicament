@@ -1,5 +1,5 @@
 import WithGlossary from "@/components/glossary/WithGlossary";
-import { TitulaireAddressContainer, TitulaireNomContainer } from "@/components/medicaments/Blocks/GenericBlocks";
+import { TitulaireAddressContainer, TitulaireNomContainer } from "@/components/medicaments/blocks/GenericBlocks";
 import { Definition } from "@/types/GlossaireTypes";
 import { FicheInfos, NoticeRCPContentBlock } from "@/types/MedicamentTypes";
 import { fr } from "@codegouvfr/react-dsfr";

@@ -4,11 +4,12 @@ import { getAtc1, getAtc2 } from "@/data/grist/atc";
 import { getAllPregnancyMentionAlerts, getPregnancyMentionAlert, getPregnancyPlanAlerts } from "@/data/grist/pregnancy";
 import { MedicamentGroup } from "@/displayUtils";
 import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
-import { AllPediatricsInfo, getAllPediatrics, getPediatrics } from "@/data/grist/pediatrics";
+import { getAllPediatrics, getPediatrics } from "@/data/grist/pediatrics";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 import { SpecComposant, Specialite, SubstanceNom } from "../pdbmMySQL/types";
 import { getComposants, getComposantsList } from "./composants";
 import { getAtcCode } from "@/utils/atc";
+import { AllPediatricsInfo } from "@/types/PediatricTypes";
 
 export async function getAdvancedMedicamentGroupFromGroupNameSpecialites(
   groupName: string,

@@ -14,6 +14,7 @@ export interface PdbmMySQL {
   Patho: PathoTable;
   Spec_Patho: Spec_PathoTable;
   GroupeGene: GroupeGeneTable;
+  VUEmaEpar: VUEmaEparTable; //Documents Centralisés
 }
 
 interface SpecialiteTable {
@@ -133,6 +134,12 @@ interface GroupeGeneTable {
   SpecId: string;
   codeStat: number;
   rangSpec: number;
+}
+
+interface VUEmaEparTable {
+  SpecId: string;
+  Product_Number: string;
+  UrlEpar: string;
 }
 
 export type Specialite = Selectable<SpecialiteTable>;

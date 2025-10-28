@@ -1,5 +1,6 @@
 import { Specialite } from "@/db/pdbmMySQL/types";
 import { MedicamentGroup } from "@/displayUtils";
+import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 
 export function getSpecialiteGroupName(
   specialite: Specialite | string,
@@ -29,3 +30,9 @@ export function groupSpecialites<T extends Specialite>(
   }
   return allGroups;
 }
+
+export function isCentralise(specialite: DetailedSpecialite){
+  if(specialite.ProcId && specialite.ProcId === "20") return true;
+  if(specialite.ProcId && specialite.ProcId === "100") return true;
+  return false;
+};

@@ -8,10 +8,10 @@ import styled, {css} from 'styled-components';
 import Button from "@codegouvfr/react-dsfr/Button";
 import PediatricsTags from "../tags/PediatricsTags";
 import { AdvancedMedicamentGroup, AdvancedSpecialite } from "@/types/MedicamentTypes";
-import { PediatricsInfo } from "@/data/grist/pediatrics";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { ResumeSpecialite } from "@/types/SpecialiteTypes";
+import { PediatricsInfo } from "@/types/PediatricTypes";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`

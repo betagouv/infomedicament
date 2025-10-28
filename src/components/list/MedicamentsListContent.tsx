@@ -49,7 +49,7 @@ function MedicamentsListContent({
   useEffect(() => {
     getSpecialitesLetters();
     getFilteredMedicaments(letter);
-  }, [letter, getFilteredMedicaments]);
+  }, [letter, getSpecialitesLetters, getFilteredMedicaments]);
 
   return (
     <PageListContent

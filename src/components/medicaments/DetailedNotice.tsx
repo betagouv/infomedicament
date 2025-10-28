@@ -5,15 +5,16 @@ import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
-import GeneralInformations from "./DetailedNotice/GeneralInformations";
+import GeneralInformations from "./detailed/GeneralInformations";
 import { Presentation, PresInfoTarif, SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
-import { PediatricsInfo } from "@/data/grist/pediatrics";
 import { PresentationDetail } from "@/db/types";
 import { Nullable } from "kysely";
-import DocumentHas from "./DetailedNotice/DocumentHas";
+import DocumentHas from "./detailed/DocumentHas";
 import { Marr } from "@/types/MarrTypes";
-import { FicheInfos, NoticeRCPContentBlock, Rcp } from "@/types/MedicamentTypes";
-import RcpBlock from "./DetailedNotice/RcpBlock";
+import { FicheInfos, NoticeRCPContentBlock } from "@/types/MedicamentTypes";
+import RcpBlock from "./detailed/RcpBlock";
+import { PediatricsInfo } from "@/types/PediatricTypes";
+import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 
 const DetailedNoticeContainer = styled.div<{ $visible: boolean; }> `
   ${props => !props.$visible && css`
@@ -23,40 +24,37 @@ const DetailedNoticeContainer = styled.div<{ $visible: boolean; }> `
 
 interface DetailedNoticeProps extends HTMLAttributes<HTMLDivElement> {
   currentVisiblePart: DetailsNoticePartsEnum;
-  CIS: string;
   atcCode?: string;
+  specialite?: DetailedSpecialite;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
-  SpecGeneId?: string;
   isPregnancyPlanAlert: boolean;
   isPregnancyMentionAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
   presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
   marr?: Marr;
-  rcp?: Rcp;
   ficheInfos?: FicheInfos
   indicationBlock?: NoticeRCPContentBlock;
 }
 
 function DetailedNotice({
   currentVisiblePart, 
-  CIS,
   atcCode,
+  specialite,
   composants,
   isPrinceps,
-  SpecGeneId,
   isPregnancyPlanAlert,
   isPregnancyMentionAlert,
   pediatrics,
   presentations,
   marr,
   onResetCapture,
-  rcp,
   ficheInfos,
   indicationBlock,
   ...props 
 }: DetailedNoticeProps) {
 
+  const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite>();
   const [visiblePart, setVisiblePart] = useState<DetailsNoticePartsEnum>(currentVisiblePart);
   const [currentIndicationBlock, setCurrentIndicationBlock] = useState<NoticeRCPContentBlock>();
 
@@ -68,15 +66,19 @@ function DetailedNotice({
     setCurrentIndicationBlock(indicationBlock);
   }, [indicationBlock, setCurrentIndicationBlock]);
 
+  useEffect(() => {
+    setCurrentSpec(specialite);
+  }, [specialite, setCurrentSpec]);
+
   return (
     <>
       <DetailedNoticeContainer id="informations-generales" $visible={visiblePart === DetailsNoticePartsEnum.INFORMATIONS_GENERALES}>
         <GeneralInformations 
-          CIS={CIS}
+          CIS={currentSpec && currentSpec.SpecId}
           atcCode={atcCode}
           composants={composants}
           isPrinceps={isPrinceps}
-          SpecGeneId={SpecGeneId}
+          SpecGeneId={currentSpec ? currentSpec.SpecGeneId : ""}
           isPregnancyPlanAlert={isPregnancyPlanAlert}
           isPregnancyMentionAlert={isPregnancyMentionAlert}
           pediatrics={pediatrics}
@@ -89,7 +91,7 @@ function DetailedNotice({
       </DetailedNoticeContainer>
       <DetailedNoticeContainer id="rcp-denomiation" $visible={visiblePart === DetailsNoticePartsEnum.RCP}>
         <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-          <RcpBlock rcp={rcp} />
+          <RcpBlock specialite={currentSpec} />
         </ContentContainer>
       </DetailedNoticeContainer>
       <DetailedNoticeContainer id="document-has-bon-usage" $visible={visiblePart === DetailsNoticePartsEnum.HAS}>
