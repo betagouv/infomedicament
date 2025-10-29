@@ -1,7 +1,7 @@
 "use server";
 
 import db from '@/db';
-import { Notice, NoticeRCPContentBlock } from '@/types/MedicamentTypes';
+import { NoticeData, NoticeRCPContentBlock } from '@/types/SpecialiteTypes';
 
 async function getContent(children: number[]): Promise<any[]>{
   const childrenData = await db
@@ -31,8 +31,8 @@ async function getContent(children: number[]): Promise<any[]>{
   );
 }
 
-export async function getNotice(CIS: string): Promise<Notice | undefined> {
-  const notice:Notice = {
+export async function getNotice(CIS: string): Promise<NoticeData | undefined> {
+  const notice:NoticeData = {
     codeCIS: parseInt(CIS),
     title: "",
     dateNotif: "",

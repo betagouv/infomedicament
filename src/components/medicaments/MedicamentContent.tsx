@@ -7,15 +7,13 @@ import TagContainer from "../tags/TagContainer";
 import ClassTag from "../tags/ClassTag";
 import { fr } from "@codegouvfr/react-dsfr";
 import SubstanceTag from "../tags/SubstanceTag";
-import { Presentation, PresInfoTarif, SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { TagTypeEnum } from "@/types/TagType";
 import PrincepsTag from "../tags/PrincepsTag";
 import GenericTag from "../tags/GenericTag";
 import PrescriptionTag from "../tags/PrescriptionTag";
 import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "../PresentationsList";
-import { Nullable } from "kysely";
-import { PresentationDetail } from "@/db/types";
 import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import styled from 'styled-components';
 import DetailedSubMenu from "./detailed/DetailedSubMenu";
@@ -24,7 +22,7 @@ import { ArticleCardResume } from "@/types/ArticlesTypes";
 import ArticlesResumeList from "../articles/ArticlesResumeList";
 import MarrNotice from "../marr/MarrNotice";
 import { Marr } from "@/types/MarrTypes";
-import { FicheInfos, Notice, NoticeRCPContentBlock } from "@/types/MedicamentTypes";
+import { FicheInfos, NoticeData, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import DetailedNotice from "./DetailedNotice";
 import ShareButtons from "../generic/ShareButtons";
 import QuestionsBox from "./QuestionsBox";
@@ -46,7 +44,9 @@ import { getArticlesFromFilters } from "@/data/grist/articles";
 import { getFicheInfos } from "@/db/utils/ficheInfos";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { formatSpecName } from "@/displayUtils";
-import { isCentralise } from "@/utils/specialites";
+import { isCentralisee, isCommercialisee } from "@/utils/specialites";
+import { Presentation } from "@/types/PresentationTypes";
+import Alert from "@codegouvfr/react-dsfr/Alert";
 
 const ToggleSwitchContainer = styled.div`
   background-color: var(--background-contrast-info);
@@ -105,7 +105,7 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   isPregnancyPlanAlert: boolean;
   isPregnancyMentionAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
-  presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
+  presentations: Presentation[];
   marr?: Marr;
 }
 
@@ -126,12 +126,13 @@ function MedicamentContent({
 }: MedicamentContentProps) {
 
   const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite>();
-  const [notice, setNotice] = useState<Notice>();
+  const [currentPresentations, setCurrentPresentations] = useState<Presentation[]>([]);
+
+  const [notice, setNotice] = useState<NoticeData>();
   const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock>();
   const [ficheInfos, setFicheInfos] = useState<FicheInfos>();
   const [articles, setArticles] = useState<ArticleCardResume[]>([]);
   const [currentMarr, setCurrentMarr] = useState<Marr>();
-
   const [loaded, setLoaded] = useState<boolean>(false);
 
   const [currentPart, setcurrentPart] = useState<DetailsNoticePartsEnum>(DetailsNoticePartsEnum.INFORMATIONS_GENERALES);
@@ -200,12 +201,12 @@ function MedicamentContent({
           ATCList: atcList,
           substancesList: composants.map((compo) => compo.SubsId.trim()),
           specialitesList: [spec.SpecId],
-          pathologiesList: await getSpecialitePatho(spec.SpecId), //TODO à changer ça
+          pathologiesList: await getSpecialitePatho(spec.SpecId),
         };
         const articles = await getArticlesFromFilters(articlesFilters);
         setArticles(articles);
 
-        if(!isCentralise(spec)) {
+        if(!isCentralisee(spec)) {
           const newNotice = await getNotice(spec.SpecId);
           setNotice(newNotice);
           if(newNotice) {
@@ -229,11 +230,16 @@ function MedicamentContent({
   );
 
   useEffect(() => {
-    if(specialite && !currentSpec && composants) {
+    if(specialite && composants) {
       setCurrentSpec(specialite);
       loadData(specialite, composants);
     }
   }, [specialite, composants, setCurrentSpec, loadData]);
+
+  useEffect(() => {
+    if(presentations) 
+      setCurrentPresentations(presentations);
+  }, [presentations, setCurrentPresentations]);
 
   // Use to display or not the separator after a tag (left column)
   const lastTagElement: TagTypeEnum = (
@@ -348,7 +354,7 @@ function MedicamentContent({
                     questionID={currentQuestion}/>
                 )}
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                  <PresentationsList presentations={presentations} />
+                  <PresentationsList presentations={currentPresentations} />
                 </ContentContainer>
                 {articles && articles.length > 0 && (
                   <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
@@ -367,7 +373,18 @@ function MedicamentContent({
             }
         </ContentContainer>
         <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")].join(" ",)}>
-          {(currentSpec && isCentralise(currentSpec)) && (
+          {(currentPresentations && !isCommercialisee(currentPresentations)) && (
+            <ContentContainer whiteContainer className={fr.cx("fr-mb-4w")}>
+            <Alert
+              description="Si vous prenez actuellement ce médicament, il vous est recommandé d'en parler avec votre médecin ou avec votre pharmacien qui pourra vous orienter vers un autre traitement."
+              severity="info"
+              title="Ce médicament n'est ou ne sera bientôt plus disponible sur le marché."
+              small
+              style={{ backgroundColor: "white"}}
+            />
+            </ContentContainer>
+          )}
+          {(currentSpec && isCentralisee(currentSpec)) && (
             <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
               <b>
                 Les informations sur ce médicament font l’objet d’une procédure centralisée au niveau européen.<br/>
@@ -392,7 +409,7 @@ function MedicamentContent({
               isPregnancyPlanAlert={isPregnancyPlanAlert}
               isPregnancyMentionAlert={isPregnancyMentionAlert}
               pediatrics={pediatrics}
-              presentations={presentations}
+              presentations={currentPresentations}
               marr={currentMarr}
               ficheInfos={ficheInfos}
               indicationBlock={indicationBlock}
@@ -415,7 +432,7 @@ function MedicamentContent({
                     </NoticeTitle>
                     {loaded && (
                       <>
-                        {(currentSpec && (notice || isCentralise(currentSpec))) ? (
+                        {(currentSpec && (notice || isCentralisee(currentSpec))) ? (
                           <>
                             {(notice && notice.children && notice.children.length > 0) && (
                               <>

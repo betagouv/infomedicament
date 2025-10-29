@@ -9,7 +9,7 @@ import ArticlesSearchList from "@/components/articles/ArticlesSearchList";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import DataListPagination from "../data/DataListPagination";
 import { ResumeSubstance } from "@/db/types";
-import { ResumeSpecialite } from "@/types/SpecialiteTypes";
+import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 
 interface PageDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
@@ -17,7 +17,7 @@ interface PageDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
   definitionType: string;
   definitionTitle: string;
   definitionDisclaimer?: string;
-  dataList: ResumeSubstance[] | ResumeSpecialite[] | AdvancedATCClass[];
+  dataList: ResumeSubstance[] | ResumeSpecGroup[] | AdvancedATCClass[];
   dataType: DataTypeEnum;
   articles: ArticleCardResume[];
 }
@@ -36,7 +36,7 @@ function PageDefinitionContent({
   const PAGINATION_LENGTH = 10;
   const [currentDefinition, setCurrentDefinition] = useState<string | { title: string; desc: string }[]>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumeSpecialite[] | AdvancedATCClass[]>([]);
+  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumeSpecGroup[] | AdvancedATCClass[]>([]);
   const [currentTitle, setCurrentTitle] = useState<string>();
   const [currentArticles, setCurrentArticles] = useState<ArticleCardResume[]>();
 

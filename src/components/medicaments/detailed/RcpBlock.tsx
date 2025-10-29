@@ -3,12 +3,12 @@
 import * as Sentry from "@sentry/nextjs";
 import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, useCallback, useEffect, useState } from "react";
-import { Rcp } from "@/types/MedicamentTypes";
+import { RcpData } from "@/types/SpecialiteTypes";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { getContent } from "@/utils/notices/noticesUtils";
 import { RcpNoticeContainer } from "../blocks/GenericBlocks";
 import { getRCP } from "@/db/utils/rcp";
-import { isCentralise } from "@/utils/specialites";
+import { isCentralisee } from "@/utils/specialites";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import CentraliseBlock from "../blocks/CentraliseBlock";
 
@@ -22,7 +22,7 @@ function RcpBlock({
 }: RCPProps) {
 
   const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite>();
-  const [currentRcp, setCurrentRcp] = useState<Rcp>();
+  const [currentRcp, setCurrentRcp] = useState<RcpData>();
   const [loaded, setLoaded] = useState<boolean>(false);
 
   const loadRCP = useCallback(
@@ -30,7 +30,7 @@ function RcpBlock({
       spec: DetailedSpecialite,
     ) => {
       try {
-        if(!isCentralise(spec)) {
+        if(!isCentralisee(spec)) {
           const newNotice = await getRCP(spec.SpecId);
           setCurrentRcp(newNotice);
         }
@@ -51,7 +51,7 @@ function RcpBlock({
   return (
     <>
       <h2>Résumé des caractéristiques du produit</h2>
-      {(currentSpec && isCentralise(currentSpec)) ? (
+      {(currentSpec && isCentralisee(currentSpec)) ? (
           <CentraliseBlock
             pdfURL={currentSpec.UrlEpar ? currentSpec.UrlEpar : undefined}
           />

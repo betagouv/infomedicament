@@ -2,7 +2,7 @@
 
 import db from '@/db';
 import { PresentationDetail } from '@/db/types';
-import { Asmr, Composant, ComposantElement, DocBonUsage, FicheInfos, GroupeGenerique, Smr } from '@/types/MedicamentTypes';
+import { Asmr, Composant, ComposantElement, DocBonUsage, FicheInfos, GroupeGenerique, Smr } from '@/types/SpecialiteTypes';
 
 async function getListeGroupesGeneriques(ids: number[]): Promise<GroupeGenerique[]>{
   const data = await db

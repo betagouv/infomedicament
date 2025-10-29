@@ -8,12 +8,12 @@ import { QuestionsListFormat } from "@/types/NoticesAnchors";
 import { fr } from "@codegouvfr/react-dsfr";
 import ContentContainer from "../generic/ContentContainer";
 import { RcpNoticeContainer } from "./blocks/GenericBlocks";
-import { Notice } from "@/types/MedicamentTypes";
+import { NoticeData } from "@/types/SpecialiteTypes";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { getContent } from "@/utils/notices/noticesUtils";
 import { Definition } from "@/types/GlossaireTypes";
 import getGlossaryDefinitions from "@/data/grist/glossary";
-import { isCentralise } from "@/utils/specialites";
+import { isCentralisee } from "@/utils/specialites";
 import CentraliseBlock from "./blocks/CentraliseBlock";
 
 const Container = styled.div<{ $questionsList: QuestionsListFormat; $questionKeys: string[]}> `
@@ -41,7 +41,7 @@ const Container = styled.div<{ $questionsList: QuestionsListFormat; $questionKey
 `;
 
 interface NoticeBlockProps extends HTMLAttributes<HTMLDivElement> {
-  notice?: Notice,
+  notice?: NoticeData,
   specialite?: DetailedSpecialite,
 }
 
@@ -75,7 +75,7 @@ function NoticeBlock({
   return (
     <Container $questionsList={questionsList} $questionKeys={questionKeys} className={fr.cx("fr-mt-3w")}>
       <ContentContainer id="noticeContainer">
-        {(specialite && isCentralise(specialite)) ? (
+        {(specialite && isCentralisee(specialite)) ? (
           <CentraliseBlock
             pdfURL={specialite.UrlEpar ? specialite.UrlEpar : undefined}
           />

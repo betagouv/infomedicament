@@ -6,8 +6,8 @@ import Tag from "@codegouvfr/react-dsfr/Tag";
 import styled from 'styled-components';
 import DataBlockGeneric from "../data/DataBlockGeneric";
 import DataBlockAccordion from "../data/DataBlockAccordion";
-import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 import { AdvancedData, DataTypeEnum } from "@/types/DataTypes";
+import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 
 const TagContainer = styled.div `
   text-align: center;
@@ -31,6 +31,7 @@ const blockTitlesPlural = {
   [DataTypeEnum.SUBSTANCE]: "Substances actives",
   [DataTypeEnum.ATCCLASS]: "Classes et sous-classes",
   [DataTypeEnum.PATHOLOGY]: "Pathologies",
+  [DataTypeEnum.EXPIRED]: "Médicaments non commercialisés",
 }
 
 function ResultsListBlock({
@@ -57,10 +58,10 @@ function ResultsListBlock({
         if((isAllList && index < 4) || !isAllList) {
           return (
             <Fragment key={index}>
-              {type === DataTypeEnum.MEDGROUP 
+              {(type === DataTypeEnum.MEDGROUP || type === DataTypeEnum.EXPIRED)
               ? (
                 <DataBlockAccordion 
-                  item={data.result as AdvancedMedicamentGroup}
+                  item={data.result as ResumeSpecGroup}
                   filterPregnancy={filterPregnancy}
                   filterPediatric={filterPediatric}
                   withAlert

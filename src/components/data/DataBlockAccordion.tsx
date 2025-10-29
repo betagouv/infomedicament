@@ -3,14 +3,14 @@
 import { HTMLAttributes, useEffect, useState } from "react";
 import Link from "next/link";
 import { fr } from "@codegouvfr/react-dsfr";
-import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
+import { formatSpecName } from "@/displayUtils";
 import styled, {css} from 'styled-components';
 import Button from "@codegouvfr/react-dsfr/Button";
+import { Tooltip } from "@codegouvfr/react-dsfr/Tooltip";
 import PediatricsTags from "../tags/PediatricsTags";
-import { AdvancedMedicamentGroup, AdvancedSpecialite } from "@/types/MedicamentTypes";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
-import { ResumeSpecialite } from "@/types/SpecialiteTypes";
+import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
@@ -80,7 +80,7 @@ const FiltersTagContainer = styled.div`
 `;
 
 interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
-  item: AdvancedMedicamentGroup | ResumeSpecialite;
+  item: ResumeSpecGroup;
   filterPregnancy?: boolean;
   filterPediatric?: boolean;
   withAlert?: boolean;
@@ -94,11 +94,9 @@ function DataBlockAccordion({
   withAlert
 }: DataBlockAccordionProps) {
 
-  //If with alert --> item === AdvancedMedicamentGroup
-  //Else item === ResumeSpecialite
-  const [advancedMedicamentGroup, setAdvancedMedicamentGroup] = useState<AdvancedMedicamentGroup | ResumeSpecialite>();
+  const [specialitesGroup, setSpecialitesGroup] = useState< ResumeSpecGroup>();
   const [groupName, setGroupName] = useState<string>("");
-  const [specialites, setSpecialites] = useState<string[][] | AdvancedSpecialite[]>();
+  const [specialites, setSpecialites] = useState<ResumeSpecialite[]>();
   const [listeComposants, setListeComposants] = useState<string>("");
 
   const [atc1Label, setAtc1Label] = useState<string | undefined>(undefined);
@@ -112,53 +110,47 @@ function DataBlockAccordion({
   const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(false);
 
   useEffect(() => {
-    setAdvancedMedicamentGroup(item);
+    setSpecialitesGroup(item);
     setGroupName(formatSpecName(item.groupName));
-    if(withAlert) {
-      const tempItem: AdvancedMedicamentGroup = item as AdvancedMedicamentGroup;
-      //AdvancedMedicamentGroup
-      setSpecialites((item as AdvancedMedicamentGroup).specialites);
-      setListeComposants(
-        displaySimpleComposants((item as AdvancedMedicamentGroup).composants)
-          .map((s) => s.NomLib.trim())
-          .join(", ")
-      );
-      if(tempItem.atc1 && tempItem.atc1.label)
-        setAtc1Label(tempItem.atc1.label);
-      if(tempItem.atc2 && tempItem.atc2.label)
-        setAtc2Label(tempItem.atc2.label);
-    } else {
-      //ResumeSpecialite
-      setSpecialites((item as ResumeSpecialite).specialites);
-      setListeComposants((item as ResumeSpecialite).composants);
-      setAtc1Label((item as ResumeSpecialite).atc1Label);
-      setAtc2Label((item as ResumeSpecialite).atc2Label);
-    }
-  }, [item, setAdvancedMedicamentGroup, setGroupName, setSpecialites, setListeComposants]);
+    setSpecialites(item.resumeSpecialites);
+    setListeComposants(item.composants);
+    setAtc1Label(item.atc1Label);
+    setAtc2Label(item.atc2Label);
+  }, [item, setSpecialitesGroup, setGroupName, setSpecialites, setListeComposants, setAtc1Label, setAtc2Label]);
 
   useEffect(() => {
-    if(withAlert && advancedMedicamentGroup && filterPregnancy){
-      if ((advancedMedicamentGroup as AdvancedMedicamentGroup).pregnancyPlanAlert) setPregnancyPlanAlert(true)
+    if(withAlert 
+      && specialitesGroup 
+      && specialitesGroup.alerts 
+      && filterPregnancy
+      && (specialitesGroup.alerts.pregnancyPlanAlert || specialitesGroup.alerts.pregnancyMentionAlert)
+    ){
+      if (specialitesGroup.alerts.pregnancyPlanAlert) setPregnancyPlanAlert(true)
       else setPregnancyPlanAlert(false);
 
-      if ((advancedMedicamentGroup as AdvancedMedicamentGroup).pregnancyMentionAlert) setPregnancyMentionAlert(true);
+      if (specialitesGroup.alerts.pregnancyMentionAlert) setPregnancyMentionAlert(true);
       else setPregnancyMentionAlert(false);
     } else {
       setPregnancyPlanAlert(false);
       setPregnancyMentionAlert(false);
     }
 
-  }, [withAlert, filterPregnancy, advancedMedicamentGroup, setPregnancyPlanAlert, setPregnancyMentionAlert]);
+  }, [withAlert, filterPregnancy, specialitesGroup, setPregnancyPlanAlert, setPregnancyMentionAlert]);
 
   useEffect(() => {
-    if(withAlert && advancedMedicamentGroup && filterPediatric && (advancedMedicamentGroup as AdvancedMedicamentGroup).pediatrics)
-      setPediatricsInfo((advancedMedicamentGroup as AdvancedMedicamentGroup).pediatrics);
+    if(withAlert 
+      && specialitesGroup 
+      && specialitesGroup.alerts
+      && filterPediatric 
+      && specialitesGroup.alerts.pediatrics
+    )
+      setPediatricsInfo(specialitesGroup.alerts.pediatrics);
     else
       setPediatricsInfo(undefined);
 
-  }, [withAlert, filterPediatric, advancedMedicamentGroup, setPediatricsInfo]);
+  }, [withAlert, filterPediatric, specialitesGroup, setPediatricsInfo]);
 
-  return advancedMedicamentGroup && (
+  return specialitesGroup && (
     <Container className={fr.cx("fr-mb-1w")}>
       <GreyContainer 
         className={fr.cx("fr-p-1w")}
@@ -233,21 +225,53 @@ function DataBlockAccordion({
             {specialites.map((specialite, i) => (
               <li key={i} className={fr.cx("fr-mb-1v")}>
                 <Link
-                  href={`/medicaments/${withAlert ? (specialite as AdvancedSpecialite).SpecId : (specialite as string[])[0]}`}
+                  href={`/medicaments/${specialite.SpecId}`}
                   className={fr.cx("fr-text--sm", "fr-link")}
                 >
-                  {withAlert ? formatSpecName((specialite as AdvancedSpecialite).SpecDenom01) : formatSpecName((specialite as string[])[1])}
+                  {formatSpecName(specialite.SpecDenom01)}
                 </Link>
-                {(withAlert && (pregnancyPlanAlert && (specialite as AdvancedSpecialite).pregnancyPlanAlert) || (pregnancyMentionAlert && (specialite as AdvancedSpecialite).pregnancyMentionAlert) || (pediatricsInfo && (specialite as AdvancedSpecialite).pediatrics)) && (
+                {(!specialite.isCommercialisee || specialite.isCentralisee) && (
+                  <>
+                  {!specialite.isCommercialisee && (
+                    <Tooltip
+                      title="Ce médicament n'est ou ne sera bientôt plus disponible sur le marché."
+                      kind="hover"
+                      className={fr.cx("fr-ml-2w")}
+                    >
+                      <i 
+                        className={fr.cx("fr-icon-close-circle-line")} 
+                        style={{color: "var(--text-action-high-blue-france)"}}
+                      />
+                    </Tooltip>
+                  )}
+                  {specialite.isCentralisee && (
+                    <Tooltip
+                      title="Ce médicament fait l'objet d'une information importante ou il est sous surveillance renforcée."
+                      kind="hover"
+                      className={fr.cx("fr-ml-2w")}
+                    >
+                      <i 
+                        className={fr.cx("fr-icon-information-line")} 
+                        style={{color: "var(--warning-425-625)"}}
+                      />
+                    </Tooltip>
+                  )}
+                  </>
+                )}
+                {(withAlert 
+                  && (pregnancyPlanAlert && specialite.alerts && specialite.alerts.pregnancyPlanAlert) 
+                  || (pregnancyMentionAlert && specialite.alerts && specialite.alerts.pregnancyMentionAlert)
+                  || (pediatricsInfo && specialite.alerts && specialite.alerts.pediatrics)
+                ) && (
                   <FiltersTagContainer>
-                    {(pregnancyPlanAlert && (specialite as AdvancedSpecialite).pregnancyPlanAlert) && (
+                    {(pregnancyPlanAlert && specialite.alerts.pregnancyPlanAlert) && (
                       <PregnancyPlanTag />
                     )}
-                    {((!pregnancyPlanAlert && !(specialite as AdvancedSpecialite).pregnancyPlanAlert) && pregnancyMentionAlert && (specialite as AdvancedSpecialite).pregnancyMentionAlert) && (
+                    {((!pregnancyPlanAlert && !specialite.alerts.pregnancyPlanAlert) && pregnancyMentionAlert && specialite.alerts.pregnancyMentionAlert) && (
                       <PregnancyMentionTag />
                     )}
-                    {(pediatricsInfo && (specialite as AdvancedSpecialite).pediatrics) && (
-                      <PediatricsTags info={(specialite as AdvancedSpecialite).pediatrics} />
+                    {(pediatricsInfo && specialite.alerts.pediatrics) && (
+                      <PediatricsTags info={specialite.alerts.pediatrics} />
                     )}
                   </FiltersTagContainer>
                 )}

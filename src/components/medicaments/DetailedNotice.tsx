@@ -6,15 +6,14 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
 import GeneralInformations from "./detailed/GeneralInformations";
-import { Presentation, PresInfoTarif, SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
-import { PresentationDetail } from "@/db/types";
-import { Nullable } from "kysely";
+import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
 import DocumentHas from "./detailed/DocumentHas";
 import { Marr } from "@/types/MarrTypes";
-import { FicheInfos, NoticeRCPContentBlock } from "@/types/MedicamentTypes";
+import { FicheInfos, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import RcpBlock from "./detailed/RcpBlock";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
+import { Presentation } from "@/types/PresentationTypes";
 
 const DetailedNoticeContainer = styled.div<{ $visible: boolean; }> `
   ${props => !props.$visible && css`
@@ -31,7 +30,7 @@ interface DetailedNoticeProps extends HTMLAttributes<HTMLDivElement> {
   isPregnancyPlanAlert: boolean;
   isPregnancyMentionAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
-  presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
+  presentations: Presentation[];
   marr?: Marr;
   ficheInfos?: FicheInfos
   indicationBlock?: NoticeRCPContentBlock;

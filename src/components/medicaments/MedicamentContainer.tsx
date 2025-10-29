@@ -3,21 +3,20 @@
 import * as Sentry from "@sentry/nextjs";
 import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
-import { Presentation, PresInfoTarif, SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { getPediatrics } from "@/data/grist/pediatrics";
-import { Nullable } from "kysely";
-import { PresentationDetail } from "@/db/types";
 import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { Marr } from "@/types/MarrTypes";
 import Link from "next/link";
 import { ATC } from "@/types/ATCTypes";
 import Alert from "@codegouvfr/react-dsfr/Alert";
-import { getPregnancyMentionAlert, getPregnancyPlanAlerts } from "@/data/grist/pregnancy";
+import { getPregnancyMentionAlert, getAllPregnancyPlanAlerts } from "@/data/grist/pregnancy";
 import MedicamentContent from "./MedicamentContent";
 import { getMarr } from "@/data/grist/marr";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
+import { Presentation } from "@/types/PresentationTypes";
 
 
 interface MedicamentContainerProps extends HTMLAttributes<HTMLDivElement> {
@@ -28,7 +27,7 @@ interface MedicamentContainerProps extends HTMLAttributes<HTMLDivElement> {
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
   delivrance: SpecDelivrance[];
-  presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
+  presentations: Presentation[];
 }
 
 function MedicamentContainer({
@@ -63,7 +62,6 @@ function MedicamentContainer({
         const marr: Marr = await getMarr(CIS);
         setMarr(marr);
       } catch (e) {
-        console.log(e);
         Sentry.captureException(e);
       }
     },
@@ -75,12 +73,11 @@ function MedicamentContainer({
       composants: Array<SpecComposant & SubstanceNom>
     ) => {
       try {
-        const pregnancyPlanAlert = (await getPregnancyPlanAlerts()).find((s) =>
+        const pregnancyPlanAlert = (await getAllPregnancyPlanAlerts()).find((s) =>
             composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
         );
         setIsPregnancyPlanAlert(pregnancyPlanAlert);
       } catch (e) {
-        console.log(e);
         Sentry.captureException(e);
       }
     }, [setIsPregnancyPlanAlert,]
