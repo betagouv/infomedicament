@@ -1,6 +1,8 @@
+"use server";
+
 import "server-only";
 import { getGristTableData } from "@/data/grist/index";
-import { Marr, MarrPdf } from "@/types/MarrTypes";
+import { Marr } from "@/types/MarrTypes";
 
 export async function getMarr(CIS: string): Promise<Marr> {
   const marrCis = await getGristTableData("MARR_URL_CIS", [

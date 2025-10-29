@@ -47,7 +47,7 @@ function PathologiesListContent({
   useEffect(() => {
     getPathosLetters();
     getFilteredPathos(letter);
-  }, [letter, getFilteredPathos]);
+  }, [letter, getPathosLetters, getFilteredPathos]);
 
   return (
     <PageListContent

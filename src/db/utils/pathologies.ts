@@ -71,3 +71,14 @@ export const getPathologiesResumeWithLetter = cache(async function(letter: strin
     .execute();
   return result;
 });
+
+export const getPathologiesResume = cache(async function(pathoCodes: string[]): Promise<ResumePatho[]> {
+  if(pathoCodes.length === 0) return [];
+    const result:ResumePatho[] = await db
+      .selectFrom("resume_pathologies")
+      .selectAll()
+      .where("codePatho", "in", pathoCodes)
+      .orderBy("codePatho")
+      .execute();
+    return result;
+});

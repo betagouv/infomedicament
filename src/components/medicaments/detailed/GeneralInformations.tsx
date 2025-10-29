@@ -5,22 +5,21 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, PropsWithChildren, useEffect, useState } from "react";
 import styled from 'styled-components';
 import GenericTag from "@/components/tags/GenericTag";
-import { Presentation, PresInfoTarif, SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
-import { PediatricsInfo } from "@/data/grist/pediatrics";
 import PediatricsTags from "@/components/tags/PediatricsTags";
 import Link from "next/link";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } from "@/displayUtils";
 import PrincepsTag from "@/components/tags/PrincepsTag";
-import { PresentationDetail } from "@/db/types";
-import { Nullable } from "kysely";
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
-import { FicheInfos, NoticeRCPContentBlock } from "@/types/MedicamentTypes";
+import { FicheInfos, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import { displayInfosImportantes, getContent } from "@/utils/notices/noticesUtils";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
+import { PediatricsInfo } from "@/types/PediatricTypes";
+import { Presentation } from "@/types/PresentationTypes";
 
 const SummaryLineContainer = styled.div `
   display: flex;
@@ -76,7 +75,7 @@ function SummaryLine(
 
 interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   updateVisiblePart: (visiblePart: DetailsNoticePartsEnum) => void;
-  CIS: string;
+  CIS?: string;
   atcCode?: string;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
@@ -84,7 +83,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   isPregnancyPlanAlert: boolean;
   isPregnancyMentionAlert: boolean;
   pediatrics: PediatricsInfo | undefined;  
-  presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
+  presentations: Presentation[];
   marr?: Marr;
   ficheInfos?: FicheInfos;
   indicationBlock?: NoticeRCPContentBlock;
@@ -146,7 +145,7 @@ function GeneralInformations({
       <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Résumé</h2>
         <SummaryLine categoryName="Code CIS">
-          {formatCIS(CIS)}
+          {CIS ? formatCIS(CIS) : ""}
         </SummaryLine>
         {atcCode && (
           <SummaryLine categoryName="Classe ATC">
@@ -161,7 +160,7 @@ function GeneralInformations({
         </SummaryLine>
         <SummaryLine categoryName="Statut générique">
           <>
-            {isPrinceps ? (
+            {(isPrinceps && CIS) ? (
               <PrincepsTag CIS={CIS} />
             ) : (
               SpecGeneId 

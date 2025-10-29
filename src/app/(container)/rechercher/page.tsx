@@ -1,17 +1,14 @@
 import { getSearchResults } from "@/db/utils";
 import { ExtendedOrderResults, ExtendedSearchResults } from "@/types/SearchTypes";
 import { SearchResultItem } from "@/db/utils/search";
-import { getPregnancyPlanAlerts } from "@/data/grist/pregnancy";
-import { getAdvancedMedicamentGroupFromGroupNameSpecialites } from "@/db/utils/medicaments";
 import { getArticlesFromSearchResults } from "@/data/grist/articles";
 import { AdvancedATC, DataTypeEnum } from "@/types/DataTypes";
-import { getPathoSpecialites } from "@/db/utils/pathologies";
 import SearchPage from "./SearchPage";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { MedicamentGroup } from "@/displayUtils";
 import { groupSpecialites } from "@/utils/specialites";
 import { getSubstancesByAtc } from "@/db/utils/atc";
 import { getSubstanceSpecialites } from "@/db/utils/specialities";
+import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 
 async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<ExtendedOrderResults> {
   let counter = 0;
@@ -20,41 +17,16 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
     [DataTypeEnum.SUBSTANCE]: [],
     [DataTypeEnum.PATHOLOGY]: [],
     [DataTypeEnum.ATCCLASS]: [],
+    [DataTypeEnum.EXPIRED]: [],
   }
 
-  const pregnancyPlanAlerts = await getPregnancyPlanAlerts();
   const extendedResults = await Promise.all(
     results.map(async (result: SearchResultItem) => {
       counter ++;
-      if("NomLib" in result) {
-        //Substance
-        const specialites = await getSubstanceSpecialites(result.NomId);
-        const specialitiesGroups = await groupSpecialites(specialites);
+      if("NomLib" in result || "groupName" in result || "NomPatho" in result) {
         return {
-          type: DataTypeEnum.SUBSTANCE,
-          result: {
-            medicaments: specialitiesGroups.map((spec: MedicamentGroup) => spec[0]).length,
-            ...result
-          }
-        };
-      } else if("groupName" in result){
-        //Med Group
-        const advancedMedicamentGroup = await getAdvancedMedicamentGroupFromGroupNameSpecialites(result.groupName, result.specialites, pregnancyPlanAlerts);
-        return {
-          type: DataTypeEnum.MEDGROUP,
-          result: advancedMedicamentGroup
-        };
-      } else if("NomPatho" in result) {
-        //Pathology
-        const specialites = await getPathoSpecialites(result.codePatho);
-        const medicaments = specialites && (groupSpecialites(specialites));
-        return {
-          type: DataTypeEnum.PATHOLOGY,
-          result: {
-            codePatho: result.codePatho,
-            NomPatho: result.NomPatho,
-            medicaments: medicaments.map((spec: MedicamentGroup) => spec[0]).length,
-          }
+          type: "NomLib" in result ? DataTypeEnum.SUBSTANCE : ("groupName" in result ? DataTypeEnum.MEDGROUP : DataTypeEnum.PATHOLOGY),
+          result: {...result}
         };
       } else {
         //ATC Class
@@ -97,8 +69,37 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
     })
   );
   extendedResults.forEach((result) => {
-    extentedOrderedResults[result.type].push(result);
-  }); 
+    if(result.type === DataTypeEnum.MEDGROUP){
+      const specGroup: ResumeSpecGroup = (result.result as ResumeSpecGroup);
+      const expired: ResumeSpecialite[] = [];
+      const notExpired: ResumeSpecialite[] = [];
+      specGroup.resumeSpecialites.forEach((spec) => {
+        if(!spec.isCommercialisee){
+          expired.push(spec);
+        }
+        else notExpired.push(spec);
+      })
+      if(expired.length > 0) {
+        extentedOrderedResults[DataTypeEnum.EXPIRED].push({
+          type: DataTypeEnum.EXPIRED,
+          result: {
+            ...specGroup,
+            resumeSpecialites: expired,
+          }
+        });
+      }
+      if(notExpired.length > 0) {
+        extentedOrderedResults[result.type].push({
+          type: result.type,
+          result: {
+            ...specGroup,
+            resumeSpecialites: notExpired,
+          }
+        });
+      }
+    } else
+      extentedOrderedResults[result.type].push(result);
+  });
 
   return {
     counter,
@@ -112,9 +113,7 @@ export default async function Page(props: {
   const searchParams = await props.searchParams;
   const search = searchParams && "s" in searchParams && searchParams["s"];
   const results = search && (await getSearchResults(searchParams["s"]));
-
   const extendedResults = results && (await getExtendedOrderedResults(results));
-
   const articlesList = extendedResults 
     ? (await getArticlesFromSearchResults(extendedResults.results))
     : [];

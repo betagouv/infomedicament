@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import Link from "next/link";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { Table } from "@codegouvfr/react-dsfr/Table";
-import { FicheInfos } from "@/types/MedicamentTypes";
+import { FicheInfos } from "@/types/SpecialiteTypes";
 
 const DocBonUsage = styled.div`
   border: var(--border-open-blue-france) 1px solid;

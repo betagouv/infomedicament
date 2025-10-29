@@ -1,22 +1,13 @@
-import { Patho, SubstanceNom } from "@/db/pdbmMySQL/types";
-import { AdvancedMedicamentGroup } from "./MedicamentTypes";
 import { ATC, ATC1 } from "./ATCTypes";
 import { ResumePatho, ResumeSubstance } from "@/db/types";
-import { ResumeSpecialite } from "./SpecialiteTypes";
+import { ResumeSpecGroup } from "./SpecialiteTypes";
 
 export enum DataTypeEnum {
   MEDGROUP = "Médicament",
   SUBSTANCE = "Substance active",
   ATCCLASS = "Classe et sous-classe",
   PATHOLOGY = "Pathologie",
-};
-
-export type AdvancedSubstanceNom = SubstanceNom & {
-  nbSpecs: number;
-};
-
-export type AdvancedPatho = Patho & {
-  nbSpecs: number;
+  EXPIRED = "Médicament non commercialisé",
 };
 
 export type AdvancedATC1 = ATC1 & {nbSubstances: number};
@@ -31,8 +22,7 @@ export type AdvancedData = {
   result: (
     | ResumeSubstance
     | ResumePatho
-    | AdvancedMedicamentGroup
-    | ResumeSpecialite
+    | ResumeSpecGroup
     | AdvancedATCClass 
   ),
   type: DataTypeEnum,

@@ -1,5 +1,6 @@
 import db from "@/db";
 import { Letters, ResumePatho, ResumeSubstance } from "@/db/types";
+import { getPresentations } from "@/db/utils";
 import { getComposants } from "@/db/utils/composants";
 import { getAllPathoWithSpecialites, getSpecialitesPatho } from "@/db/utils/pathologies";
 import { getAllSpecialites } from "@/db/utils/specialities";
@@ -7,21 +8,21 @@ import { getAllSubsWithSpecialites } from "@/db/utils/substances";
 import { displaySimpleComposants, MedicamentGroup } from "@/displayUtils";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
 import { getAtc1Code, getAtc2Code, getAtcCode } from "@/utils/atc";
-import { getSpecialiteGroupName, groupSpecialites } from "@/utils/specialites";
+import { getSpecialiteGroupName, groupSpecialites, isCentralisee, isCommercialisee } from "@/utils/specialites";
 
 type DataToResumeType = "pathos" | "substances" | "specialites" | "atc1" | "atc2";
 
 type RawResumePatho = {
   codePatho: string;
   NomPatho: string;
-  medicaments: string[];
+  specialites: string[];
 }
 
 type RawResumeSubstance = {
   SubsId: string;
   NomId: string;
   NomLib: string;
-  medicaments: string[];
+  specialites: string[];
 }
 
 if (process.argv.length !== 3) {
@@ -42,13 +43,13 @@ async function createResumePathologies(): Promise<string[]>{
     const index = rawResumeData.findIndex((resumePatho) => resumePatho.codePatho === patho.codePatho);
     if(index !== -1) {
       const specGroupName = getSpecialiteGroupName(patho.SpecDenom01);
-      if(!rawResumeData[index].medicaments.includes(specGroupName)){
-        rawResumeData[index].medicaments.push(specGroupName);
+      if(!rawResumeData[index].specialites.includes(specGroupName)){
+        rawResumeData[index].specialites.push(specGroupName);
       }
     } else rawResumeData.push({
       codePatho: patho.codePatho,
       NomPatho: patho.NomPatho,
-      medicaments: [
+      specialites: [
         getSpecialiteGroupName(patho.SpecDenom01),
       ]
     });
@@ -61,10 +62,10 @@ async function createResumePathologies(): Promise<string[]>{
       return {
         codePatho: resumePatho.codePatho,
         NomPatho: resumePatho.NomPatho,
-        medicaments: resumePatho.medicaments.length,
+        specialites: resumePatho.specialites.length,
       }
     })
-    .filter((resumePatho) => resumePatho.medicaments > 0);
+    .filter((resumePatho) => resumePatho.specialites > 0);
   
   const result = await db
     .insertInto('resume_pathologies')
@@ -88,14 +89,14 @@ async function createResumeSubstances(): Promise<string[]>{
     const index = rawResumeData.findIndex((resumeData) => resumeData.NomId.trim() === sub.NomId.trim());
     const specGroupName = getSpecialiteGroupName(sub.SpecDenom01);
     if(index !== -1) {
-      if(!rawResumeData[index].medicaments.includes(specGroupName)){
-        rawResumeData[index].medicaments.push(specGroupName);
+      if(!rawResumeData[index].specialites.includes(specGroupName)){
+        rawResumeData[index].specialites.push(specGroupName);
       }
     } else rawResumeData.push({
       SubsId: sub.SubsId.trim(),
       NomId: sub.NomId.trim(),
       NomLib: sub.NomLib,
-      medicaments: [
+      specialites: [
         specGroupName,
       ],
     });
@@ -108,10 +109,10 @@ async function createResumeSubstances(): Promise<string[]>{
         SubsId: resumeSub.SubsId,
         NomId: resumeSub.NomId,
         NomLib: resumeSub.NomLib,
-        medicaments: resumeSub.medicaments.length,
+        specialites: resumeSub.specialites.length,
       }
     })
-    .filter((resumeSub) => resumeSub.medicaments > 0);
+    .filter((resumeSub) => resumeSub.specialites > 0);
   const result = await db
     .insertInto('resume_substances')
     .values(resumeData)
@@ -123,7 +124,7 @@ async function createResumeSubstances(): Promise<string[]>{
 
 async function createResumeSpecialites(): Promise<string[]>{
   await db
-    .deleteFrom('resume_specialites')
+    .deleteFrom('resume_medicaments')
     .execute();
 
   const allSpecialites = await getAllSpecialites();
@@ -136,7 +137,15 @@ async function createResumeSpecialites(): Promise<string[]>{
       const composants: string = displaySimpleComposants(rawComposants)
         .map((s) => s.NomLib.trim())
         .join(", ");
-      const specialites: string[][] = rawSpecialites.map((spec) => [spec.SpecId, spec.SpecDenom01]);
+      const subsIds: string[] = rawComposants.map((subs) => subs.SubsId.trim())
+      const specialites: string[][] = await Promise.all(
+        rawSpecialites.map(async (spec) => {
+            const presentations = await getPresentations(spec.SpecId);
+            const isComm: string = isCommercialisee(presentations) ? "true" : "false";
+            const isCent: string = isCentralisee(spec) ? "true" : "false";
+            return [spec.SpecId, spec.SpecDenom01, isComm, isCent];
+        })
+      );
       const CISList: string[] = rawSpecialites.map((spec) => spec.SpecId.trim());
       const pathosCodes: string[] = await getSpecialitesPatho(CISList);
       const atc = getAtcCode(rawSpecialites[0].SpecId);
@@ -147,7 +156,7 @@ async function createResumeSpecialites(): Promise<string[]>{
       if(!letters.includes(subLetter)) letters.push(subLetter);
 
       await db
-        .insertInto('resume_specialites')
+        .insertInto('resume_medicaments')
         .values({
           groupName: groupName,
           composants: composants,
@@ -156,6 +165,7 @@ async function createResumeSpecialites(): Promise<string[]>{
           atc1Code: atc1,
           atc2Code: atc2,
           CISList: CISList,
+          subsIds: subsIds,
         })
         .execute();
       return true;

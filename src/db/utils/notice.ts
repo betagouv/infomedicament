@@ -1,7 +1,7 @@
-import db from '@/db';
-import { Notice, NoticeRCPContentBlock } from '@/types/MedicamentTypes';
-import { NextRequest, NextResponse } from "next/server";
+"use server";
 
+import db from '@/db';
+import { NoticeData, NoticeRCPContentBlock } from '@/types/SpecialiteTypes';
 
 async function getContent(children: number[]): Promise<any[]>{
   const childrenData = await db
@@ -31,18 +31,8 @@ async function getContent(children: number[]): Promise<any[]>{
   );
 }
 
-export async function GET(req: NextRequest) {
-  const params = req.nextUrl.searchParams;
-  const CIS = params.get("cis");
-
-  if (!CIS) {
-    return NextResponse.json(
-      { error: "Missing CIS parameter" },
-      { status: 400 },
-    );
-  }
-
-  const notice:Notice = {
+export async function getNotice(CIS: string): Promise<NoticeData | undefined> {
+  const notice:NoticeData = {
     codeCIS: parseInt(CIS),
     title: "",
     dateNotif: "",
@@ -55,7 +45,7 @@ export async function GET(req: NextRequest) {
     .where("codeCIS", "=", parseInt(CIS))
     .executeTakeFirst();
 
-  if(!noticeRaw) return NextResponse.json(notice);
+  if(!noticeRaw) return undefined;
 
   notice.title = noticeRaw.title;
   notice.dateNotif = noticeRaw.dateNotif;
@@ -63,5 +53,5 @@ export async function GET(req: NextRequest) {
   if(noticeRaw.children && noticeRaw.children.length > 0) 
     notice.children = await getContent(noticeRaw.children);
 
-  return NextResponse.json(notice);
+  return notice;
 };

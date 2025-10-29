@@ -1,47 +1,52 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import ContentContainer from "../generic/ContentContainer";
 import { ToggleSwitch } from "@codegouvfr/react-dsfr/ToggleSwitch";
 import TagContainer from "../tags/TagContainer";
 import ClassTag from "../tags/ClassTag";
 import { fr } from "@codegouvfr/react-dsfr";
 import SubstanceTag from "../tags/SubstanceTag";
-import { Presentation, PresInfoTarif, SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { TagTypeEnum } from "@/types/TagType";
 import PrincepsTag from "../tags/PrincepsTag";
 import GenericTag from "../tags/GenericTag";
 import PrescriptionTag from "../tags/PrescriptionTag";
-import { PediatricsInfo } from "@/data/grist/pediatrics";
 import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "../PresentationsList";
-import { Nullable } from "kysely";
-import { PresentationDetail } from "@/db/types";
 import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import styled from 'styled-components';
-import DetailedSubMenu from "./DetailedSubMenu";
+import DetailedSubMenu from "./detailed/DetailedSubMenu";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import ArticlesResumeList from "../articles/ArticlesResumeList";
 import MarrNotice from "../marr/MarrNotice";
 import { Marr } from "@/types/MarrTypes";
-import useSWR from "swr";
-import { FicheInfos, Notice, NoticeRCPContentBlock, Rcp } from "@/types/MedicamentTypes";
-import { fetchJSON } from "@/utils/network";
+import { FicheInfos, NoticeData, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import DetailedNotice from "./DetailedNotice";
 import ShareButtons from "../generic/ShareButtons";
 import QuestionsBox from "./QuestionsBox";
 import QuestionKeywordsBox from "./QuestionKeywordsBox";
 import GoTopButton from "../generic/GoTopButton";
-import { RcpNoticeContainer } from "./Blocks/GenericBlocks";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { displayInfosImportantes, getContent } from "@/utils/notices/noticesUtils";
+import { displayInfosImportantes } from "@/utils/notices/noticesUtils";
 import { questionsList } from "@/data/pages/notices_anchors";
-import { Definition } from "@/types/GlossaireTypes";
 import NoticeBlock from "./NoticeBlock";
 import PregnancyMentionTag from "../tags/PregnancyMentionTag";
 import PregnancyPlanTag from "../tags/PregnancyPlanTag";
 import Link from "next/link";
 import { ATC } from "@/types/ATCTypes";
+import { PediatricsInfo } from "@/types/PediatricTypes";
+import { getNotice } from "@/db/utils/notice";
+import { SearchArticlesFilters } from "@/types/SearchTypes";
+import { getSpecialitePatho } from "@/db/utils/pathologies";
+import { getArticlesFromFilters } from "@/data/grist/articles";
+import { getFicheInfos } from "@/db/utils/ficheInfos";
+import { DetailedSpecialite } from "@/types/SpecialiteTypes";
+import { formatSpecName } from "@/displayUtils";
+import { isCentralisee, isCommercialisee } from "@/utils/specialites";
+import { Presentation } from "@/types/PresentationTypes";
+import Alert from "@codegouvfr/react-dsfr/Alert";
 
 const ToggleSwitchContainer = styled.div`
   background-color: var(--background-contrast-info);
@@ -89,48 +94,49 @@ const NoticeTitle = styled.div`
   }
 `;
 
-interface SwitchNoticeProps extends HTMLAttributes<HTMLDivElement> {
-  CIS: string;
-  name: string;
+interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
+  atcList: string[];
   atc2?: ATC;
   atcCode?: string;
+  specialite?: DetailedSpecialite;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
-  SpecGeneId?: string;
   delivrance: SpecDelivrance[];
   isPregnancyPlanAlert: boolean;
   isPregnancyMentionAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
-  presentations: (Presentation & Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
-  articles?: ArticleCardResume[];
+  presentations: Presentation[];
   marr?: Marr;
 }
 
-function SwitchNotice({
-  CIS,
-  name,
+function MedicamentContent({
+  atcList,
   atc2,
   atcCode,
+  specialite,
   composants,
   isPrinceps,
-  SpecGeneId,
   delivrance,
   isPregnancyPlanAlert,
   isPregnancyMentionAlert,
   pediatrics,
   presentations,
-  articles,
   marr,
   ...props
-}: SwitchNoticeProps) {
+}: MedicamentContentProps) {
 
-  const [currentNotice, setCurrentNotice] = useState<Notice>();
-  const [loaded, setLoaded] = useState<boolean>(false);
+  const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite>();
+  const [currentPresentations, setCurrentPresentations] = useState<Presentation[]>([]);
+
+  const [notice, setNotice] = useState<NoticeData>();
+  const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock>();
+  const [ficheInfos, setFicheInfos] = useState<FicheInfos>();
+  const [articles, setArticles] = useState<ArticleCardResume[]>([]);
   const [currentMarr, setCurrentMarr] = useState<Marr>();
+  const [loaded, setLoaded] = useState<boolean>(false);
 
   const [currentPart, setcurrentPart] = useState<DetailsNoticePartsEnum>(DetailsNoticePartsEnum.INFORMATIONS_GENERALES);
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
-  const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock>();
 
   const [currentQuestion, setCurrentQuestion] = useState<string>();
   const [showKeywordsBox, setShowKeywordsBox] = useState<boolean>(false);
@@ -185,48 +191,55 @@ function SwitchNotice({
       setCurrentQuestion("");
     }
   };
+  const loadData = useCallback(
+    async (
+      spec: DetailedSpecialite,
+      composants: Array<SpecComposant & SubstanceNom>
+    ) => {
+      try {
+        const articlesFilters:SearchArticlesFilters = {
+          ATCList: atcList,
+          substancesList: composants.map((compo) => compo.SubsId.trim()),
+          specialitesList: [spec.SpecId],
+          pathologiesList: await getSpecialitePatho(spec.SpecId),
+        };
+        const articles = await getArticlesFromFilters(articlesFilters);
+        setArticles(articles);
 
-  const { data: rcp } = useSWR<Rcp>(
-    `/medicaments/notices/rcp?cis=${CIS}`,
-    fetchJSON,
-    { onError: (err) => console.warn('errorRCP >>', err), }
-  );
-
-  const { data: notice } = useSWR<Notice>(
-    `/medicaments/notices?cis=${CIS}`,
-    fetchJSON,
-    { onError: (err) => {
+        if(!isCentralisee(spec)) {
+          const newNotice = await getNotice(spec.SpecId);
+          setNotice(newNotice);
+          if(newNotice) {
+            if(newNotice.children){
+              newNotice.children.forEach((child: NoticeRCPContentBlock) => {
+                if(child.anchor === "Ann3bQuestceque"){
+                  setIndicationBlock(child);
+                }
+              })
+            }
+          }
+        }
+        const newFicheInfos = await getFicheInfos(spec.SpecId);
+        setFicheInfos(newFicheInfos);
         setLoaded(true);
-        console.warn('errorNotice >>', err);
+      } catch (e) {
+        Sentry.captureException(e);
       }
-    }
-  );
-
-  const { data: definitions } = useSWR<Definition[]>(
-    `/glossaire/definitions`,
-    fetchJSON,
-    { onError: (err) => console.warn('errorDefinitions >>', err), }
-  );
-
-  const { data: ficheInfos } = useSWR<FicheInfos>(
-    `/medicaments/notices/ficheInfos?cis=${CIS}`,
-    fetchJSON,
-    { onError: (err) => console.warn('errorFicheInfos >>', err), }
+    },
+    [atcList, setArticles, setNotice, setIndicationBlock, setFicheInfos, setLoaded]
   );
 
   useEffect(() => {
-    if(notice) {
-      setCurrentNotice(notice);
-      setLoaded(true);
-      if(notice.children){
-        notice.children.forEach((child: NoticeRCPContentBlock) => {
-          if(child.anchor === "Ann3bQuestceque"){
-            setIndicationBlock(child);
-          }
-        })
-      }
+    if(specialite && composants) {
+      setCurrentSpec(specialite);
+      loadData(specialite, composants);
     }
-  }, [notice, setIndicationBlock, setCurrentNotice, setLoaded]);
+  }, [specialite, composants, setCurrentSpec, loadData]);
+
+  useEffect(() => {
+    if(presentations) 
+      setCurrentPresentations(presentations);
+  }, [presentations, setCurrentPresentations]);
 
   // Use to display or not the separator after a tag (left column)
   const lastTagElement: TagTypeEnum = (
@@ -244,7 +257,7 @@ function SwitchNotice({
                 ? TagTypeEnum.PREGNANCY_MENTION 
                 : (!!delivrance.length 
                   ? TagTypeEnum.PRESCRIPTION 
-                  : (!!SpecGeneId 
+                  : ((currentSpec && !!currentSpec.SpecGeneId)
                     ? TagTypeEnum.GENERIC 
                     : (isPrinceps
                       ? TagTypeEnum. PRINCEPS
@@ -264,7 +277,7 @@ function SwitchNotice({
       <Container className={["mobile-display-contents", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ",)}>
         <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")].join(" ",)}>
           <ShareButtons 
-            pageName={name}
+            pageName={currentSpec ? formatSpecName(currentSpec.SpecDenom01) : ''}
           />
           <ToggleSwitchContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
             <ToggleSwitch 
@@ -298,14 +311,14 @@ function SwitchNotice({
                       <SubstanceTag composants={composants} />
                     </TagContainer>
                   )}
-                  {isPrinceps && 
+                  {(currentSpec && isPrinceps) && 
                     <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRINCEPS}>
-                      <PrincepsTag CIS={CIS} />
+                      <PrincepsTag CIS={currentSpec.SpecId} />
                     </TagContainer>
                   }
-                  {!!SpecGeneId && (
+                  {(currentSpec && !!currentSpec.SpecGeneId) && (
                     <TagContainer hideSeparator={lastTagElement === TagTypeEnum.GENERIC}>
-                      <GenericTag specGeneId={SpecGeneId} />
+                      <GenericTag specGeneId={currentSpec.SpecGeneId} />
                     </TagContainer>
                   )}
                   {!!delivrance.length && (
@@ -325,7 +338,7 @@ function SwitchNotice({
                   )}
                   {pediatrics && <PediatricsTags info={pediatrics} lastTagElement={lastTagElement}/>}
                 </ContentContainer>
-                {(currentNotice && currentNotice.children) && (
+                {(notice && notice.children) && (
                   <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-pt-1w", "fr-px-1w", "fr-hidden-md")}>
                     <QuestionsBox 
                       noBorder
@@ -341,7 +354,7 @@ function SwitchNotice({
                     questionID={currentQuestion}/>
                 )}
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                  <PresentationsList presentations={presentations} />
+                  <PresentationsList presentations={currentPresentations} />
                 </ContentContainer>
                 {articles && articles.length > 0 && (
                   <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
@@ -360,42 +373,44 @@ function SwitchNotice({
             }
         </ContentContainer>
         <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")].join(" ",)}>
-          {ficheInfos && ficheInfos.libelleCourtProcedure === "Centralisée" && (
+          {(currentPresentations && !isCommercialisee(currentPresentations)) && (
+            <ContentContainer whiteContainer className={fr.cx("fr-mb-4w")}>
+            <Alert
+              description="Si vous prenez actuellement ce médicament, il vous est recommandé d'en parler avec votre médecin ou avec votre pharmacien qui pourra vous orienter vers un autre traitement."
+              severity="info"
+              title="Ce médicament n'est ou ne sera bientôt plus disponible sur le marché."
+              small
+              style={{ backgroundColor: "white"}}
+            />
+            </ContentContainer>
+          )}
+          {(currentSpec && isCentralisee(currentSpec)) && (
             <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
               <b>
-                Les informations sur ce médicament font l’objet d’une procédure centralisée au niveau européen. Leur intégration sur notre site est en cours.<br/>
-                En attendant, vous pouvez consulter la notice, le RCP et les données complètes sur le site de l’
+                Les informations sur ce médicament font l’objet d’une procédure centralisée au niveau européen.<br/>
                 <Link 
-                  href="https://www.ema.europa.eu/en/search"
+                  href="https://ansm.sante.fr/qui-sommes-nous/nos-missions/assurer-la-securite-des-produits-de-sante/p/surveiller-les-medicaments"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-description="Lien vers le site de l'ANSM sur les médicaments sous surveillance"
                 >
-                    EMA
-                </Link>{" "}(
-                <Link 
-                  href="https://www.ema.europa.eu/en/search"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Agence européenne des médicaments
-                </Link>).
+                  En savoir plus sur le site de l’ANSM
+                </Link>.
               </b>
             </ContentContainer>
           )}
           {isAdvanced ? (
             <DetailedNotice 
               currentVisiblePart={currentPart}
-              CIS={CIS}
               atcCode={atcCode}
+              specialite={currentSpec}
               composants={composants}
               isPrinceps={isPrinceps}
-              SpecGeneId={SpecGeneId}
               isPregnancyPlanAlert={isPregnancyPlanAlert}
               isPregnancyMentionAlert={isPregnancyMentionAlert}
               pediatrics={pediatrics}
-              presentations={presentations}
+              presentations={currentPresentations}
               marr={currentMarr}
-              rcp={rcp}
               ficheInfos={ficheInfos}
               indicationBlock={indicationBlock}
             />
@@ -410,34 +425,41 @@ function SwitchNotice({
                         <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice complète</h2>
                       </div>
                       <ContentContainer>
-                        {(currentNotice && currentNotice.dateNotif) && (
-                          <Badge severity={"info"}>{currentNotice.dateNotif}</Badge>
+                        {(notice && notice.dateNotif) && (
+                          <Badge severity={"info"}>{notice.dateNotif}</Badge>
                         )}
                       </ContentContainer>
                     </NoticeTitle>
-                    {(loaded && currentNotice && currentNotice.children && currentNotice.children.length > 0) ? (
+                    {loaded && (
                       <>
-                        <ContentContainer className={fr.cx("fr-hidden", "fr-unhidden-md")}>
-                          <QuestionsBox 
-                            currentQuestion={currentQuestion}
-                            updateCurrentQuestion={updateCurrentQuestion}
-                          />
-                        </ContentContainer>
-                        {showKeywordsBox && currentQuestion && (
-                          <QuestionKeywordsBox
-                            className={fr.cx("fr-hidden", "fr-unhidden-md")}
-                            onClose={() => onCloseQuestionKeywordsBox()}
-                            questionID={currentQuestion}
-                          />
-                        )}
-                        <NoticeBlock className={fr.cx("fr-mt-3w")}>
-                          <ContentContainer id="noticeContainer">
-                            <RcpNoticeContainer>{getContent(currentNotice.children, definitions)}</RcpNoticeContainer>
-                          </ContentContainer>
-                        </NoticeBlock>
+                        {(currentSpec && (notice || isCentralisee(currentSpec))) ? (
+                          <>
+                            {(notice && notice.children && notice.children.length > 0) && (
+                              <>
+                                <ContentContainer className={fr.cx("fr-hidden", "fr-unhidden-md")}>
+                                  <QuestionsBox 
+                                    currentQuestion={currentQuestion}
+                                    updateCurrentQuestion={updateCurrentQuestion}
+                                  />
+                                </ContentContainer>
+                                {showKeywordsBox && currentQuestion && (
+                                  <QuestionKeywordsBox
+                                    className={fr.cx("fr-hidden", "fr-unhidden-md")}
+                                    onClose={() => onCloseQuestionKeywordsBox()}
+                                    questionID={currentQuestion}
+                                  />
+                                )}
+                              </>
+                            )}
+                            <NoticeBlock
+                              notice={notice}
+                              specialite={currentSpec}
+                            />
+                          </>
+                        ) : 
+                          (<span>La notice n&rsquo;est pas disponible pour ce médicament.</span>)
+                        }
                       </>
-                    ) : (
-                      loaded && (<span>La notice n&rsquo;est pas disponible pour ce médicament.</span>)
                     )}
                   </NoticeContainer>
                 </ContentContainer>
@@ -451,4 +473,4 @@ function SwitchNotice({
   );
 };
 
-export default SwitchNotice;
+export default MedicamentContent;

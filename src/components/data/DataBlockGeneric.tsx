@@ -5,9 +5,8 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { formatSpecName } from "@/displayUtils";
 import styled from 'styled-components';
 import { AdvancedATC, AdvancedATCClass, AdvancedData, DataTypeEnum } from "@/types/DataTypes";
-import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 import { ResumePatho, ResumeSubstance } from "@/db/types";
-import { ResumeSpecialite } from "@/types/SpecialiteTypes";
+import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 
 const Container = styled.div`
   border: var(--border-open-blue-france) 1px solid;
@@ -51,7 +50,7 @@ function DataBlockGeneric({
   useEffect(() => {
     function getLink(
       dataType: DataTypeEnum, 
-      data: ResumeSubstance | ResumePatho | AdvancedMedicamentGroup | ResumeSpecialite | AdvancedATCClass
+      data: ResumeSubstance | ResumePatho | ResumeSpecGroup | AdvancedATCClass
     ){
       if(dataType === DataTypeEnum.SUBSTANCE){
         setCurrentLink(`/substances/${(data as ResumeSubstance).NomId}`);
@@ -65,7 +64,7 @@ function DataBlockGeneric({
 
     function getFormatSpecName(
       dataType: DataTypeEnum, 
-      data: ResumeSubstance | ResumePatho | AdvancedMedicamentGroup | ResumeSpecialite | AdvancedATCClass
+      data: ResumeSubstance | ResumePatho | ResumeSpecGroup | AdvancedATCClass
     ){
       if(dataType === DataTypeEnum.SUBSTANCE){
         setCurrentFormatSpecName(formatSpecName((data as ResumeSubstance).NomLib));
@@ -79,12 +78,12 @@ function DataBlockGeneric({
 
     function getDetails(
       dataType: DataTypeEnum, 
-      data: ResumeSubstance | ResumePatho | AdvancedMedicamentGroup | ResumeSpecialite | AdvancedATCClass
+      data: ResumeSubstance | ResumePatho | ResumeSpecGroup | AdvancedATCClass
     ){
       if(dataType === DataTypeEnum.SUBSTANCE){
-        setCurrentDetails(`${(data as ResumeSubstance).medicaments} ${(data as ResumeSubstance).medicaments > 1 ? "médicaments" : "médicament"}`);
+        setCurrentDetails(`${(data as ResumeSubstance).specialites} ${(data as ResumeSubstance).specialites > 1 ? "médicaments" : "médicament"}`);
       } else if(dataType === DataTypeEnum.PATHOLOGY){
-        setCurrentDetails(`${(data as ResumePatho).medicaments} ${(data as ResumePatho).medicaments > 1 ? "médicaments" : "médicament"}`);
+        setCurrentDetails(`${(data as ResumePatho).specialites} ${(data as ResumePatho).specialites > 1 ? "médicaments" : "médicament"}`);
       } else if(dataType === DataTypeEnum.ATCCLASS){
         setCurrentDetails(`${(data as AdvancedATCClass).class.nbSubstances} ${(data as AdvancedATCClass).class.nbSubstances > 1 ? "substances actives" : "substance active"}`);
       } else 

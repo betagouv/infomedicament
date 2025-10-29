@@ -5,7 +5,7 @@ import { pdbmMySQL } from "../pdbmMySQL";
 import { SubstanceNom } from "../pdbmMySQL/types";
 import { cache } from "react";
 import { withOneSubstance } from "./query";
-import { SpecialiteWithSubstance } from "@/types/MedicamentTypes";
+import { SpecialiteWithSubstance } from "@/types/SpecialiteTypes";
 import { ResumeSubstance } from "../types";
 import db from "..";
 import { sql } from "kysely";

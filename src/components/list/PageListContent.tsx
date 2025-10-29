@@ -5,16 +5,15 @@ import AlphabeticNav from "@/components/AlphabeticNav";
 import DataList from "@/components/data/DataList";
 import { HTMLAttributes, useEffect, useState } from "react";
 import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
-import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
 import DataListPagination from "../data/DataListPagination";
 import { ResumePatho, ResumeSubstance } from "@/db/types";
-import { ResumeSpecialite } from "@/types/SpecialiteTypes";
+import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 
 interface PageListContentProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
   letters: string[];
   urlPrefix: string;
-  dataList: ResumeSubstance[] |  ResumePatho[] | AdvancedMedicamentGroup[] | ResumeSpecialite[] | AdvancedATCClass[];
+  dataList: ResumeSubstance[] |  ResumePatho[] | ResumeSpecGroup[] | AdvancedATCClass[];
   type: DataTypeEnum;
   currentLetter: string;
 }
@@ -30,7 +29,7 @@ function PageListContent({
 
   const PAGINATION_LENGTH:number = 10;
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumePatho[] | AdvancedMedicamentGroup[] | ResumeSpecialite[] | AdvancedATCClass[]>([]);
+  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumePatho[] | ResumeSpecGroup[] | AdvancedATCClass[]>([]);
 
   useEffect(() => {
     setCurrentDataList(dataList);

@@ -3,7 +3,7 @@
 import * as Sentry from "@sentry/nextjs";
 import React, { HTMLAttributes, useCallback, useEffect, useMemo, useState } from "react";
 import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
-import { SpecialiteWithSubstance } from "@/types/MedicamentTypes";
+import { SpecialiteWithSubstance } from "@/types/SpecialiteTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import { getArticlesFromATC } from "@/data/grist/articles";
 import PageDefinitionContent from "./PageDefinitionContent";

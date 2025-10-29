@@ -1,4 +1,3 @@
-import { PediatricsInfo } from "@/data/grist/pediatrics";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import React from "react";
 import type { FrIconClassName } from "@codegouvfr/react-dsfr/src/fr/generatedFromCss/classNames";
@@ -9,6 +8,7 @@ import TagContainer from "./TagContainer";
 import { TagTypeEnum } from "@/types/TagType";
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import styled from 'styled-components';
+import { PediatricsInfo } from "@/types/PediatricTypes";
 
 const modalIndication = createModal({
   id: "pregnancy-subs-modal", 
