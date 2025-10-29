@@ -52,7 +52,7 @@ function SubstanceDefinitionContent({
       } catch(e) {
         Sentry.captureException(e);
       }
-  },[ids, setArticles, setDefinition, setDataList]);
+  },[setArticles, setDefinition, setDataList]);
 
   useEffect(() => {
     if(ids && substances)
