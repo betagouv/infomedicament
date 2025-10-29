@@ -226,7 +226,7 @@ function MedicamentContent({
         Sentry.captureException(e);
       }
     },
-    [setNotice, setIndicationBlock, setFicheInfos, setLoaded]
+    [atcList, setArticles, setNotice, setIndicationBlock, setFicheInfos, setLoaded]
   );
 
   useEffect(() => {

@@ -10,6 +10,7 @@ import PageDefinitionContent from "./PageDefinitionContent";
 import { getResumeSpecsGroupsWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 import { getResumeSpecsGroupsATCLabels } from "@/data/grist/atc";
+import { getSubstanceDefinition } from "@/data/grist/substances";
 
 interface SubstanceDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
   ids: string[];
@@ -27,10 +28,20 @@ function SubstanceDefinitionContent({
   const [articles, setArticles] = useState<ArticleCardResume[]>([]);
 
   const loadDefinitionData = useCallback(
-    async () => {
+    async (
+      ids: string[],
+      substances: SubstanceNom[], 
+    ) => {
       try {
         const newArticles: ArticleCardResume[] = await getArticlesFromSubstances(ids);
         setArticles(newArticles);
+
+        const subsIds = substances.map((subs: SubstanceNom) => (subs.SubsId).trim());
+        const definitions = await getSubstanceDefinition(ids, subsIds);
+        setDefinition(definitions.map((d: any) => ({
+          title: d.fields.SA,
+          desc: d.fields.Definition,
+        })));
 
         const CISList: string[] = await getSubstanceSpecialitesCIS(ids);
         const newAllSpecsGroups = await getResumeSpecsGroupsWithCIS(CISList);
@@ -41,10 +52,11 @@ function SubstanceDefinitionContent({
       } catch(e) {
         Sentry.captureException(e);
       }
-  },[ids, substances, setArticles, setDefinition, setDataList]);
+  },[ids, setArticles, setDefinition, setDataList]);
 
   useEffect(() => {
-    loadDefinitionData();
+    if(ids && substances)
+      loadDefinitionData(ids, substances);
   }, [ids, substances, loadDefinitionData]);
 
   useEffect(() => {

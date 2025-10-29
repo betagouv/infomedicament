@@ -90,7 +90,7 @@ function MedicamentContainer({
   }, [composants, loadPregnancyPlanAlert]);
 
   useEffect(() => {
-    if(specialite && !currentSpec){
+    if(specialite){
       setCurrentSpec(specialite);
       loadSpecData(specialite.SpecId);
     }
