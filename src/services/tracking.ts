@@ -39,5 +39,5 @@ export const trackSearchEvent = (keyword: string) => {
 };
 
 export const trackEvent = (category: string, action: string) => {
-  push(['trackSiteSearch', category, action]);
+  push(['trackEvent', category, action]);
 };
