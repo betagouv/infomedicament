@@ -64,6 +64,7 @@ function PathologyDefinitionContent({
       dataList={dataList}
       dataType={DataTypeEnum.MEDGROUP}
       articles={articles}
+      articleTrackingFrom="Page pathologie"
     />
   );
 };

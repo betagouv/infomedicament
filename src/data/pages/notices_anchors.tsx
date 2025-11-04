@@ -11,6 +11,7 @@ export const questionsList: QuestionsListFormat = {
     ),
     headerId: "Ann3bQuestceque",
     unique: true,
+    tracking: "À quoi sert-il",
   },
   commentPrendre: {
     id: "commentPrendre",
@@ -31,6 +32,7 @@ export const questionsList: QuestionsListFormat = {
       "Prise du médicament",
     ],
     unique: false,
+    tracking: "Comment le prendre ?",
   },  
   combienPrendre: {
     id: "combienPrendre",
@@ -49,6 +51,7 @@ export const questionsList: QuestionsListFormat = {
       "tableau posologique",
     ],
     unique: false,
+    tracking: "Combien en prendre ?",
   },
   pediatrie: {
     id: "pediatrie",
@@ -68,6 +71,7 @@ export const questionsList: QuestionsListFormat = {
       "réservé à l'adulte",
     ],
     unique: false,
+    tracking: "Puis-je le donner à mon enfant ?",
   },
   grossesse: {
     id: "grossesse",
@@ -86,6 +90,7 @@ export const questionsList: QuestionsListFormat = {
       "Enceinte",
     ],
     unique: false,
+    tracking: "Puis-je le prendre si je suis enceinte ou prévoit de l'être ?",
   },
   duree: {
     id: "duree",
@@ -100,6 +105,7 @@ export const questionsList: QuestionsListFormat = {
       "Durée",
     ],
     unique: false,
+    tracking: "Quelle est la durée du traitement ?",
   },
   allergies: {
     id: "allergies",
@@ -116,6 +122,7 @@ export const questionsList: QuestionsListFormat = {
       "Allergique",
     ],
     unique: false,
+    tracking: "Puis-je le prendre si j’ai des allergies ?",
   },
   boireManger: {
     id: "boireManger",
@@ -138,6 +145,7 @@ export const questionsList: QuestionsListFormat = {
       "Aliment",
     ],
     unique: false,
+    tracking: "Que puis-je boire et manger avec ?",
   },
   conduite: {
     id: "conduite",
@@ -157,6 +165,7 @@ export const questionsList: QuestionsListFormat = {
       "machine",
     ],
     unique: true,
+    tracking: "Est-ce dangereux de conduire avec ?",
   },
   interactions: {
     id: "interactions",
@@ -175,6 +184,7 @@ export const questionsList: QuestionsListFormat = {
       "si vous prenez",
     ],
     unique: false,
+    tracking: "Puis-je le prendre avec d’autres médicaments ?",
   },
   effetsIndesirables: {
     id: "effetsIndesirables",
@@ -186,6 +196,7 @@ export const questionsList: QuestionsListFormat = {
     ),
     headerId: "Ann3bEffetsIndesirables",
     unique: true,
+    tracking: "Quels sont les effets indésirables ?",
   },
   conservation: {
     id: "conservation",
@@ -197,6 +208,7 @@ export const questionsList: QuestionsListFormat = {
     ),
     headerId:"Ann3bConservation",
     unique: true,
+    tracking: "Comment le conserver ?",
   },
   contenu: {
     id: "contenu",
@@ -211,6 +223,7 @@ export const questionsList: QuestionsListFormat = {
       "Ce que contient",
     ],
     unique: true,
+    tracking: "Que contient ce médicament ?",
   },
 };
 export const questionKeys: string[] = Object.keys(questionsList);

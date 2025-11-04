@@ -42,6 +42,7 @@ import PregnancyMentionTag from "../tags/PregnancyMentionTag";
 import PregnancyPlanTag from "../tags/PregnancyPlanTag";
 import Link from "next/link";
 import { ATC } from "@/types/ATCTypes";
+import { trackEvent } from "@/services/tracking";
 
 const ToggleSwitchContainer = styled.div`
   background-color: var(--background-contrast-info);
@@ -127,10 +128,10 @@ function SwitchNotice({
   const [currentNotice, setCurrentNotice] = useState<Notice>();
   const [loaded, setLoaded] = useState<boolean>(false);
   const [currentMarr, setCurrentMarr] = useState<Marr>();
+  const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock>();
 
   const [currentPart, setcurrentPart] = useState<DetailsNoticePartsEnum>(DetailsNoticePartsEnum.INFORMATIONS_GENERALES);
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
-  const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock>();
 
   const [currentQuestion, setCurrentQuestion] = useState<string>();
   const [showKeywordsBox, setShowKeywordsBox] = useState<boolean>(false);
@@ -157,6 +158,7 @@ function SwitchNotice({
   const onSwitchAdvanced = useCallback(
     (enabled: boolean) => {
       setIsAdvanced(enabled);
+      if(enabled) trackEvent("Page médicament", "Version avancée");
     },
     [setIsAdvanced]
   );
@@ -228,6 +230,19 @@ function SwitchNotice({
     }
   }, [notice, setIndicationBlock, setCurrentNotice, setLoaded]);
 
+ const onScrollEvent = useCallback(() => {
+    if(window.pageYOffset > window.innerHeight){
+      trackEvent("Page médicament", "Scroll");
+      window.removeEventListener("scroll", onScrollEvent);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.addEventListener("scroll", onScrollEvent);
+    }
+  });
+
   // Use to display or not the separator after a tag (left column)
   const lastTagElement: TagTypeEnum = (
     pediatrics && pediatrics.mention
@@ -290,22 +305,22 @@ function SwitchNotice({
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                   {atc2 && (
                     <TagContainer category="Sous-classe">
-                      <ClassTag atc2={atc2} />
+                      <ClassTag atc2={atc2} fromMedicament/>
                     </TagContainer>
                   )}
                   {composants && (
                     <TagContainer category="Substance active" hideSeparator={lastTagElement === TagTypeEnum.SUBSTANCE}>
-                      <SubstanceTag composants={composants} />
+                      <SubstanceTag composants={composants} fromMedicament/>
                     </TagContainer>
                   )}
                   {isPrinceps && 
                     <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRINCEPS}>
-                      <PrincepsTag CIS={CIS} />
+                      <PrincepsTag CIS={CIS} fromMedicament/>
                     </TagContainer>
                   }
                   {!!SpecGeneId && (
                     <TagContainer hideSeparator={lastTagElement === TagTypeEnum.GENERIC}>
-                      <GenericTag specGeneId={SpecGeneId} />
+                      <GenericTag specGeneId={SpecGeneId} fromMedicament/>
                     </TagContainer>
                   )}
                   {!!delivrance.length && (
@@ -315,15 +330,21 @@ function SwitchNotice({
                   )}
                   {isPregnancyPlanAlert && (
                     <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY_PLAN}>
-                      <PregnancyPlanTag />
+                      <PregnancyPlanTag fromMedicament/>
                     </TagContainer>
                   )}
                   {(!isPregnancyPlanAlert && isPregnancyMentionAlert) && (
                     <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY_MENTION}>
-                      <PregnancyMentionTag />
+                      <PregnancyMentionTag fromMedicament/>
                     </TagContainer>
                   )}
-                  {pediatrics && <PediatricsTags info={pediatrics} lastTagElement={lastTagElement}/>}
+                  {pediatrics && (
+                    <PediatricsTags 
+                      info={pediatrics} 
+                      lastTagElement={lastTagElement}
+                      fromMedicament
+                    />
+                  )}
                 </ContentContainer>
                 {(currentNotice && currentNotice.children) && (
                   <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-pt-1w", "fr-px-1w", "fr-hidden-md")}>
@@ -345,7 +366,10 @@ function SwitchNotice({
                 </ContentContainer>
                 {articles && articles.length > 0 && (
                   <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                    <ArticlesResumeList articles={articles} />
+                    <ArticlesResumeList 
+                      articles={articles} 
+                      trackingFrom="Page médicament"
+                    />
                   </ContentContainer>
                 )}
                 {(currentMarr && currentMarr.pdf.length > 0) && (

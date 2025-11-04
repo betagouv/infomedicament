@@ -5,6 +5,7 @@ import Link from "next/link";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { trackEvent } from "@/services/tracking";
 
 export const dynamic = "error";
 const PAGE_LABEL:string = "Liste des articles";
@@ -47,6 +48,7 @@ export default async function Page() {
                           "fr-link--icon-left",
                           "fr-icon-arrow-right-line",
                         )}
+                        onClick={() => trackEvent("Article", "Liste articles")}
                       >
                         {title}
                       </Link>

@@ -4,6 +4,7 @@ import AutocompleteSearch from "@/components/AutocompleteSearch";
 import Link from "next/link";
 import { getArticles } from "@/data/grist/articles";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { trackEvent } from "@/services/tracking";
 
 const PAGE_LABEL:string = "Accueil";
 
@@ -67,6 +68,7 @@ export default async function Page() {
                       "fr-link--icon-left",
                       "fr-icon-arrow-right-line",
                     )}
+                    onClick={() => trackEvent("Article", "Page d'accueil")}
                   >
                     {title}
                   </Link>

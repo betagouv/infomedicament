@@ -6,7 +6,7 @@ import DefinitionBanner from "@/components/DefinitionBanner";
 import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import DataList from "@/components/data/DataList";
 import ArticlesSearchList from "@/components/articles/ArticlesSearchList";
-import { ArticleCardResume } from "@/types/ArticlesTypes";
+import { ArticleCardResume, ArticleTrackingFromType } from "@/types/ArticlesTypes";
 import DataListPagination from "../data/DataListPagination";
 import { ResumeSubstance } from "@/db/types";
 import { ResumeSpecialite } from "@/types/SpecialiteTypes";
@@ -20,6 +20,7 @@ interface PageDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
   dataList: ResumeSubstance[] | ResumeSpecialite[] | AdvancedATCClass[];
   dataType: DataTypeEnum;
   articles: ArticleCardResume[];
+  articleTrackingFrom: ArticleTrackingFromType;
 }
 
 function PageDefinitionContent({
@@ -31,6 +32,7 @@ function PageDefinitionContent({
     dataList,
     dataType,
     articles,
+    articleTrackingFrom,
   }: PageDefinitionContentProps) {
 
   const PAGINATION_LENGTH = 10;
@@ -80,7 +82,9 @@ function PageDefinitionContent({
       {(currentArticles && currentArticles.length > 0) && (
         <div className={fr.cx("fr-col-12", "fr-col-md-3")}>
           <ArticlesSearchList 
-            articles={currentArticles} />
+            articles={currentArticles} 
+            trackingFrom={articleTrackingFrom}
+          />
         </div>
       )}
       <DataListPagination
