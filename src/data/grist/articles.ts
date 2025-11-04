@@ -5,13 +5,13 @@ import { getGristTableData } from "@/data/grist/index";
 import slugify from "slugify";
 import { ImageProps } from "next/image";
 import { ExtendedSearchResults, SearchArticlesFilters, } from "@/types/SearchTypes";
-import { ArticleCardResume } from "@/types/ArticlesTypes";
+import { Article, ArticleCardResume } from "@/types/ArticlesTypes";
 import { AdvancedATCClass, AdvancedData, DataTypeEnum } from "@/types/DataTypes";
 import { ATC } from "@/types/ATCTypes";
 import { ResumePatho, ResumeSubstance } from "@/db/types";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 
-export async function getArticles() {
+export async function getArticles(): Promise<Article[]> {
   const records = await getGristTableData("Articles", [
     "Titre",
     "Source",

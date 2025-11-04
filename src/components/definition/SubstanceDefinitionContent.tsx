@@ -78,6 +78,7 @@ function SubstanceDefinitionContent({
       dataList={dataList}
       dataType={DataTypeEnum.MEDGROUP}
       articles={articles}
+      articleTrackingFrom="Page substance"
     />
   );
 };

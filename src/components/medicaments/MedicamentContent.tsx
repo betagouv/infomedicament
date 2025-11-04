@@ -47,6 +47,7 @@ import { formatSpecName } from "@/displayUtils";
 import { isCentralisee, isCommercialisee } from "@/utils/specialites";
 import { Presentation } from "@/types/PresentationTypes";
 import Alert from "@codegouvfr/react-dsfr/Alert";
+import { trackEvent } from "@/services/tracking";
 
 const ToggleSwitchContainer = styled.div`
   background-color: var(--background-contrast-info);
@@ -163,6 +164,7 @@ function MedicamentContent({
   const onSwitchAdvanced = useCallback(
     (enabled: boolean) => {
       setIsAdvanced(enabled);
+      if(enabled) trackEvent("Page médicament", "Version avancée");
     },
     [setIsAdvanced]
   );
@@ -241,6 +243,19 @@ function MedicamentContent({
       setCurrentPresentations(presentations);
   }, [presentations, setCurrentPresentations]);
 
+ const onScrollEvent = useCallback(() => {
+    if(window.pageYOffset > window.innerHeight){
+      trackEvent("Page médicament", "Scroll");
+      window.removeEventListener("scroll", onScrollEvent);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.addEventListener("scroll", onScrollEvent);
+    }
+  });
+
   // Use to display or not the separator after a tag (left column)
   const lastTagElement: TagTypeEnum = (
     pediatrics && pediatrics.mention
@@ -303,22 +318,22 @@ function MedicamentContent({
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                   {atc2 && (
                     <TagContainer category="Sous-classe">
-                      <ClassTag atc2={atc2} />
+                      <ClassTag atc2={atc2} fromMedicament/>
                     </TagContainer>
                   )}
                   {composants && (
                     <TagContainer category="Substance active" hideSeparator={lastTagElement === TagTypeEnum.SUBSTANCE}>
-                      <SubstanceTag composants={composants} />
+                      <SubstanceTag composants={composants} fromMedicament/>
                     </TagContainer>
                   )}
                   {(currentSpec && isPrinceps) && 
                     <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRINCEPS}>
-                      <PrincepsTag CIS={currentSpec.SpecId} />
+                      <PrincepsTag CIS={currentSpec.SpecId} fromMedicament/>
                     </TagContainer>
                   }
                   {(currentSpec && !!currentSpec.SpecGeneId) && (
                     <TagContainer hideSeparator={lastTagElement === TagTypeEnum.GENERIC}>
-                      <GenericTag specGeneId={currentSpec.SpecGeneId} />
+                      <GenericTag specGeneId={currentSpec.SpecGeneId} fromMedicament/>
                     </TagContainer>
                   )}
                   {!!delivrance.length && (
@@ -328,15 +343,21 @@ function MedicamentContent({
                   )}
                   {isPregnancyPlanAlert && (
                     <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY_PLAN}>
-                      <PregnancyPlanTag />
+                      <PregnancyPlanTag fromMedicament/>
                     </TagContainer>
                   )}
                   {(!isPregnancyPlanAlert && isPregnancyMentionAlert) && (
                     <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY_MENTION}>
-                      <PregnancyMentionTag />
+                      <PregnancyMentionTag fromMedicament/>
                     </TagContainer>
                   )}
-                  {pediatrics && <PediatricsTags info={pediatrics} lastTagElement={lastTagElement}/>}
+                  {pediatrics && (
+                    <PediatricsTags 
+                      info={pediatrics} 
+                      lastTagElement={lastTagElement}
+                      fromMedicament
+                    />
+                  )}
                 </ContentContainer>
                 {(notice && notice.children) && (
                   <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-pt-1w", "fr-px-1w", "fr-hidden-md")}>
@@ -358,7 +379,10 @@ function MedicamentContent({
                 </ContentContainer>
                 {articles && articles.length > 0 && (
                   <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                    <ArticlesResumeList articles={articles} />
+                    <ArticlesResumeList 
+                      articles={articles} 
+                      trackingFrom="Page médicament"
+                    />
                   </ContentContainer>
                 )}
                 {(currentMarr && currentMarr.pdf.length > 0) && (

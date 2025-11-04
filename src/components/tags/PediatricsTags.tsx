@@ -1,5 +1,5 @@
 import Tag from "@codegouvfr/react-dsfr/Tag";
-import React from "react";
+import React, { HTMLAttributes } from "react";
 import type { FrIconClassName } from "@codegouvfr/react-dsfr/src/fr/generatedFromCss/classNames";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import { fr } from "@codegouvfr/react-dsfr";
@@ -9,6 +9,7 @@ import { TagTypeEnum } from "@/types/TagType";
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import styled from 'styled-components';
 import { PediatricsInfo } from "@/types/PediatricTypes";
+import { trackEvent } from "@/services/tracking";
 
 const modalIndication = createModal({
   id: "pregnancy-subs-modal", 
@@ -33,14 +34,24 @@ const ModalContent = styled.div`
   }
 `;
 
+interface PediatricsTagsProps extends HTMLAttributes<HTMLDivElement> {
+  info?: PediatricsInfo;
+  lastTagElement?: TagTypeEnum;
+  fromMedicament?: boolean;
+}
+
 export default function PediatricsTags({ 
   info, 
-  lastTagElement 
-}: { 
-  info?: PediatricsInfo, 
-  lastTagElement?: TagTypeEnum
-}) {
+  lastTagElement,
+  fromMedicament
+}: PediatricsTagsProps) {
   const hideSeparator = !lastTagElement;
+
+  const onTrackEvent = (event: string) => {
+    if(fromMedicament)
+      trackEvent("Page médicament", event);
+  };
+
   return info && (
     <>
       {info.indication && (
@@ -61,7 +72,10 @@ export default function PediatricsTags({
             <Tag
               linkProps={{
                 href: `#`,
-                onClick: () => modalIndication.open(),
+                onClick: () => {
+                  onTrackEvent("Tag Enfant selon l'âge");
+                  modalIndication.open();
+                },
                 className: cx("fr-tag--custom-alt-pediatrics-indication"),
               }}
             >
@@ -89,7 +103,10 @@ export default function PediatricsTags({
             <Tag
               linkProps={{
                 href: `#`,
-                onClick: () => modalContraindication.open(),
+                onClick: () => {
+                  onTrackEvent("Tag Contre-indication chez l'enfant");
+                  modalContraindication.open();
+                },
                 className: cx("fr-tag--custom-alt-contraindication"),
               }}
             >
@@ -117,7 +134,10 @@ export default function PediatricsTags({
             <Tag
               linkProps={{
                 href: `#`,
-                onClick: () => modalDoctorAdvice.open(),
+                onClick: () => {
+                  onTrackEvent("Tag Enfant avis professionnel de santé");
+                  modalDoctorAdvice.open();
+                },
                 className: cx("fr-tag--custom-alt-pediatrics-advice"),
               }}
             >
@@ -145,7 +165,10 @@ export default function PediatricsTags({
             <Tag
               linkProps={{
                 href: `#`,
-                onClick: () => modalMention.open(),
+                onClick: () => {
+                  onTrackEvent("Tag Mention contre-indication enfant");
+                  modalMention.open();
+                },
                 className: cx("fr-tag--custom-alt-pediatrics-indication"),
               }}
             >

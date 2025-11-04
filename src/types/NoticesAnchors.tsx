@@ -12,6 +12,7 @@ export type QuestionAnchors = {
   headerId?: string;
   keywords?: string[];
   unique: boolean;
+  tracking: string;
 };
 
 export interface QuestionsListFormat {

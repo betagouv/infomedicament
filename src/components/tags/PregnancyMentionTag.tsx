@@ -2,13 +2,14 @@
 
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import type { FrIconClassName } from "@codegouvfr/react-dsfr/src/fr/generatedFromCss/classNames";
-import React from "react";
+import React, { HTMLAttributes } from "react";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import { fr } from "@codegouvfr/react-dsfr";
 import "./dsfr-custom-tags.css";
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import styled from 'styled-components';
 import TagContainer from "./TagContainer";
+import { trackEvent } from "@/services/tracking";
 
 const modal = createModal({
   id: "pregnancy-cis-modal", 
@@ -21,7 +22,18 @@ const ModalContent = styled.div`
   }
 `;
 
-function PregnancyMentionTag() {
+interface PregnancyMentionTagProps extends HTMLAttributes<HTMLDivElement> {
+  fromMedicament?: boolean;
+}
+
+function PregnancyMentionTag({
+  fromMedicament,
+}: PregnancyMentionTagProps) {
+
+  const onTrackEvent = () => {
+    if(fromMedicament)
+      trackEvent("Page médicament", "Tag Mention contre-indication grossesse");
+  };
 
   return (
     <div>
@@ -41,7 +53,10 @@ function PregnancyMentionTag() {
         <Tag
           linkProps={{
             href: "#",
-            onClick: () => modal.open(),
+            onClick: () => {
+              onTrackEvent();
+              modal.open();
+            },
             className: cx("fr-tag--custom-alt-contraindication"),
           }}
         >

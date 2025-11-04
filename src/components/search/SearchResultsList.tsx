@@ -157,7 +157,9 @@ function SearchResultsList({
         {(articles && articles.length > 0) && (
           <div className={fr.cx("fr-col-12", "fr-col-md-3")}>
             <ArticlesSearchList 
-              articles={articles} />
+              articles={articles} 
+              trackingFrom="Recherche"
+            />
           </div>
         )}
       </ResultsListBlockContainer>
