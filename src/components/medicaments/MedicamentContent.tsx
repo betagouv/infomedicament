@@ -419,6 +419,14 @@ function MedicamentContent({
                   aria-description="Lien vers le site de l'ANSM sur les médicaments sous surveillance"
                 >
                   En savoir plus sur le site de l’ANSM
+                </Link>.<br/><br/>
+                <Link 
+                  href="https://www.ema.europa.eu/en/search"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-description="Lien vers le site de l'EMA"
+                >
+                  Voir les données complètes sur le site de l'EMA (Agence européenne des médicaments).
                 </Link>.
               </b>
             </ContentContainer>
