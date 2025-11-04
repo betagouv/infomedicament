@@ -20,6 +20,7 @@ export interface Database {
   resume_pathologies: ResumePathosTable;
   resume_substances: ResumeSubstancesTable;
   resume_medicaments: ResumeMedicamentsTable;
+  resume_generiques: ResumeGenericsTable;
   letters: LettersTable;
 }
 
@@ -146,7 +147,7 @@ interface RatingTable {
   question2?: number,
 }
 
-export type LetterType = "pathos" | "substances" | "specialites";
+export type LetterType = "pathos" | "substances" | "specialites" | "generiques";
 interface LettersTable{
   type: LetterType;
   letters: string[];
@@ -176,6 +177,11 @@ interface ResumeMedicamentsTable {
   subsIds: string[];
 }
 
+interface ResumeGenericsTable {
+  SpecId: string;
+  SpecName: string;
+}
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
@@ -187,4 +193,5 @@ export type Rating = Selectable<RatingTable>;
 export type ResumePatho = Selectable<ResumePathosTable>;
 export type ResumeSubstance = Selectable<ResumeSubstancesTable>;
 export type ResumeSpecGroupDB = Selectable<ResumeMedicamentsTable>;
+export type ResumeGeneric = Selectable<ResumeGenericsTable>;
 export type Letters = Selectable<LettersTable>;

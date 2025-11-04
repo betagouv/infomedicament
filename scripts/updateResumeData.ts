@@ -1,16 +1,17 @@
 import db from "@/db";
-import { Letters, ResumePatho, ResumeSubstance } from "@/db/types";
-import { getPresentations } from "@/db/utils";
+import { pdbmMySQL } from "@/db/pdbmMySQL";
+import { Letters, LetterType, ResumeGeneric, ResumePatho, ResumeSubstance } from "@/db/types";
+import { getPresentations, groupGeneNameToDCI } from "@/db/utils";
 import { getComposants } from "@/db/utils/composants";
 import { getAllPathoWithSpecialites, getSpecialitesPatho } from "@/db/utils/pathologies";
 import { getAllSpecialites } from "@/db/utils/specialities";
 import { getAllSubsWithSpecialites } from "@/db/utils/substances";
-import { displaySimpleComposants, MedicamentGroup } from "@/displayUtils";
+import { displaySimpleComposants, formatSpecName, MedicamentGroup } from "@/displayUtils";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
 import { getAtc1Code, getAtc2Code, getAtcCode } from "@/utils/atc";
 import { getSpecialiteGroupName, groupSpecialites, isCentralisee, isCommercialisee } from "@/utils/specialites";
 
-type DataToResumeType = "pathos" | "substances" | "specialites" | "atc1" | "atc2";
+type DataToResumeType = "pathos" | "substances" | "specialites" | "atc1" | "atc2" | "generiques";
 
 type RawResumePatho = {
   codePatho: string;
@@ -171,35 +172,78 @@ async function createResumeSpecialites(): Promise<string[]>{
       return true;
     })
   );
-  console.log(`Nombre de médicaments ajoutées: ${results.length}`);
+  console.log(`Nombre de médicaments ajoutés: ${results.length}`);
 
   return letters;
 }
 
+async function createResumeGeneriques(): Promise<string[]>{
+  await db
+    .deleteFrom('resume_generiques')
+    .execute();
+
+  const allGenerics = await pdbmMySQL
+    .selectFrom("GroupeGene")
+    .select(["GroupeGene.LibLong", "GroupeGene.SpecId"])
+    .leftJoin("Specialite", "GroupeGene.SpecId", "Specialite.SpecGeneId")
+    .groupBy(["GroupeGene.LibLong", "GroupeGene.SpecId"])
+    .orderBy("GroupeGene.LibLong")
+    .execute();
+
+  const letters: string[] = [];
+  const resumeData: ResumeGeneric[] = allGenerics
+    .map((generic) => {
+      const genericName:string = formatSpecName(groupGeneNameToDCI(generic.LibLong));
+      const subLetter = getNormalizeLetter(genericName.substring(0,1));
+      if(!letters.includes(subLetter)) letters.push(subLetter);
+      return {
+          SpecId: generic.SpecId,
+          SpecName: genericName,
+      }
+    });
+  const result = await db
+    .insertInto('resume_generiques')
+    .values(resumeData)
+    .execute();
+  console.log(`Nombre de génériques ajoutées: ${result[0].numInsertedOrUpdatedRows}`);
+
+  return letters;
+}
+
+async function saveResumeLetters(
+  dataToResume: LetterType,
+  letters: string[]
+): Promise<boolean>{
+  console.log("Ajout des letters");
+  const lettersValue: Letters = {
+    type: dataToResume,
+    letters: letters,
+  }
+  await db
+    .deleteFrom('letters')
+    .where("type", "=", dataToResume)
+    .execute();
+  await db
+    .insertInto('letters')
+    .values(lettersValue)
+    .execute();
+
+  return true;
+}
+
 async function createResumeDataFromBDPM(){
-  if(dataToResume === "pathos" || dataToResume === "substances" || dataToResume === "specialites") {
+  if(dataToResume === "pathos" || dataToResume === "substances" || dataToResume === "specialites" || dataToResume === "generiques") {
     let letters: string[] = [];
     if(dataToResume === "pathos") {
-      letters = await createResumePathologies(); 
+      const letters = await createResumePathologies(); 
     } else if(dataToResume === "substances"){
       letters = await createResumeSubstances();
     } else if(dataToResume === "specialites"){
       letters = await createResumeSpecialites();
+    } else if(dataToResume === "generiques"){
+      letters = await createResumeGeneriques();
     }
-
-    console.log("Ajout des letters");
-    const lettersValue: Letters = {
-      type: dataToResume,
-      letters: letters,
-    }
-    await db
-      .deleteFrom('letters')
-      .where("type", "=", dataToResume)
-      .execute();
-    await db
-      .insertInto('letters')
-      .values(lettersValue)
-      .execute();
+    saveResumeLetters(dataToResume, letters);
   } else {
     
   }/* else if(dataToResume === "atc1"){

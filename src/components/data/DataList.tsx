@@ -3,11 +3,11 @@ import { HTMLAttributes, useEffect, useState } from "react";
 import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import DataBlockGeneric from "./DataBlockGeneric";
 import DataBlockAccordion from "./DataBlockAccordion";
-import { ResumePatho, ResumeSubstance } from "@/db/types";
+import { ResumeGeneric, ResumePatho, ResumeSubstance } from "@/db/types";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 
 function getCurrentDataList(
-  dataList: ResumeSubstance[] | ResumePatho [] | ResumeSpecGroup[] | AdvancedATCClass[],
+  dataList: ResumeSubstance[] | ResumePatho [] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[],
   paginationLength: number,
   currentPage: number,
 ){
@@ -22,7 +22,7 @@ function getCurrentDataList(
 }
 
 interface DataListProps extends HTMLAttributes<HTMLDivElement> {
-  dataList: ResumeSubstance[] | ResumePatho[] | ResumeSpecGroup[] | AdvancedATCClass[];
+  dataList: ResumeSubstance[] | ResumePatho[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[];
   type: DataTypeEnum;
   paginationLength: number;
   currentPage: number;
@@ -35,7 +35,7 @@ function DataList({
   currentPage,
 }: DataListProps) {
 
-  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumePatho[] | ResumeSpecGroup[] | AdvancedATCClass[]>([]);
+  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumePatho[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[]>([]);
   const [currentType, setCurrentType] = useState<DataTypeEnum>();
 
   useEffect(() => {
@@ -54,19 +54,17 @@ function DataList({
     <>
       {currentType && currentDataList && currentDataList.map((data, index) => {
         return ( 
-          type !== DataTypeEnum.MEDGROUP 
+          (type === DataTypeEnum.MEDGROUP || type === DataTypeEnum.EXPIRED)
           ? (
-            <DataBlockGeneric
-              key={index}
-              item={{
-                result: data,
-                type: currentType,
-              }}
-            />
-          ) : (
             <DataBlockAccordion
               key={index}
               item={data as ResumeSpecGroup}
+            />
+          ) : (
+            <DataBlockGeneric
+              key={index}
+              type={currentType}
+              item={data as ResumeSubstance | ResumePatho | AdvancedATCClass | ResumeGeneric}
             />
           )
         )

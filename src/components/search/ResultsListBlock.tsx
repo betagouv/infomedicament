@@ -6,8 +6,9 @@ import Tag from "@codegouvfr/react-dsfr/Tag";
 import styled from 'styled-components';
 import DataBlockGeneric from "../data/DataBlockGeneric";
 import DataBlockAccordion from "../data/DataBlockAccordion";
-import { AdvancedData, DataTypeEnum } from "@/types/DataTypes";
+import { AdvancedATCClass, AdvancedData, DataTypeEnum } from "@/types/DataTypes";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
+import { ResumeGeneric, ResumePatho, ResumeSubstance } from "@/db/types";
 
 const TagContainer = styled.div `
   text-align: center;
@@ -32,6 +33,7 @@ const blockTitlesPlural = {
   [DataTypeEnum.ATCCLASS]: "Classes et sous-classes",
   [DataTypeEnum.PATHOLOGY]: "Pathologies",
   [DataTypeEnum.EXPIRED]: "Médicaments non commercialisés",
+  [DataTypeEnum.GENERIC]: "Médicaments génériques",
 }
 
 function ResultsListBlock({
@@ -68,10 +70,8 @@ function ResultsListBlock({
                 />
               ) : (
                 <DataBlockGeneric 
-                  item={{
-                    result: data.result,
-                    type: type
-                  }}
+                  type={type}
+                  item={data.result as ResumeSubstance | ResumePatho | AdvancedATCClass | ResumeGeneric}
                 />
               )}
             </Fragment>
