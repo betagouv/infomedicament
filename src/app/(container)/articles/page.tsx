@@ -1,11 +1,10 @@
 import { getArticles } from "@/data/grist/articles";
 import { fr } from "@codegouvfr/react-dsfr";
 import { Fragment } from "react";
-import Link from "next/link";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { trackEvent } from "@/services/tracking";
+import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
 
 export const dynamic = "error";
 const PAGE_LABEL:string = "Liste des articles";
@@ -33,28 +32,13 @@ export default async function Page() {
           {categories.map((category) => (
             <Fragment key={category}>
               <h2 className={fr.cx("fr-h4", "fr-mb-1w")}>{category}</h2>
-              <ul className={fr.cx("fr-raw-list", "fr-mb-5w")}>
-                {articles
-                  .filter(
-                    ({ category: articleCategory }) =>
-                      articleCategory === category,
-                  )
-                  .map(({ title, slug }) => (
-                    <li key={slug} className={"fr-mb-1w"}>
-                      <Link
-                        href={`/articles/${slug}`}
-                        className={fr.cx(
-                          "fr-link",
-                          "fr-link--icon-left",
-                          "fr-icon-arrow-right-line",
-                        )}
-                        onClick={() => trackEvent("Article", "Liste articles")}
-                      >
-                        {title}
-                      </Link>
-                    </li>
-                  ))}
-              </ul>
+
+              <ArticlesSimpleList
+                articles={articles.filter(({ category: articleCategory }) => articleCategory === category)}
+                trackingFrom="Liste articles"
+                listClassName={fr.cx("fr-mb-5w")}
+                articleClassName={fr.cx("fr-mb-1w")}
+              />
             </Fragment>
           ))}
         </div>

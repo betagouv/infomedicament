@@ -1,15 +1,15 @@
 import Image from "next/image";
 import { fr } from "@codegouvfr/react-dsfr";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
-import Link from "next/link";
 import { getArticles } from "@/data/grist/articles";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { trackEvent } from "@/services/tracking";
+import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
+import { Article } from "@/types/ArticlesTypes";
 
 const PAGE_LABEL:string = "Accueil";
 
 export default async function Page() {
-  const articles = (await getArticles()).filter(({ homepage }) => homepage);
+  const articles: Article[] = (await getArticles()).filter(({ homepage }) => homepage);
 
   return (
     <>
@@ -58,28 +58,13 @@ export default async function Page() {
               width={2000}
               height={2000}
             />
-            <ul role="nav" className={fr.cx("fr-raw-list")}>
-              {articles.map(({ title, slug }) => (
-                <li key={slug} className={fr.cx("fr-mb-3w")}>
-                  <Link
-                    href={`/articles/${slug}`}
-                    className={fr.cx(
-                      "fr-link",
-                      "fr-link--icon-left",
-                      "fr-icon-arrow-right-line",
-                    )}
-                    onClick={() => trackEvent("Article", "Page d'accueil")}
-                  >
-                    {title}
-                  </Link>
-                </li>
-              ))}              
-              <li key={"all"}>
-                <Link href="/articles" className={fr.cx("fr-link")}>
-                  Voir tous les articles
-                </Link>
-              </li>
-            </ul>
+            <ArticlesSimpleList
+              listRole="nav"
+              articles={articles}
+              trackingFrom="Page d'accueil"
+              articleClassName={fr.cx("fr-mb-3w")}
+              linkAll
+            />
           </div>
           <div
             className={fr.cx(

@@ -7,12 +7,12 @@ import { ImageProps } from "next/image";
 import { ExtendedSearchResults, SearchArticlesFilters, } from "@/types/SearchTypes";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import { AdvancedMedicamentGroup, AdvancedSpecialite } from "@/types/MedicamentTypes";
-import { ArticleCardResume } from "@/types/ArticlesTypes";
+import { Article, ArticleCardResume } from "@/types/ArticlesTypes";
 import { AdvancedATCClass, AdvancedData, DataTypeEnum } from "@/types/DataTypes";
 import { ATC } from "@/types/ATCTypes";
 import { ResumePatho } from "@/db/types";
 
-export async function getArticles() {
+export async function getArticles(): Promise<Article[]> {
   const records = await getGristTableData("Articles", [
     "Titre",
     "Source",
