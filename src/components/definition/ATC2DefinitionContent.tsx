@@ -61,6 +61,7 @@ function ATC2DefinitionContent({
       dataList={dataList}
       dataType={DataTypeEnum.SUBSTANCE}
       articles={articles}
+      articleTrackingFrom="Page ATC2"
     />
   );
 };

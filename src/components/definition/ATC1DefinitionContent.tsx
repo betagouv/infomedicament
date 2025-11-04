@@ -97,6 +97,7 @@ function ATC1DefinitionContent({
       dataList={dataList}
       dataType={DataTypeEnum.ATCCLASS}
       articles={articles}
+      articleTrackingFrom="Page ATC1"
     />
   );
 };
