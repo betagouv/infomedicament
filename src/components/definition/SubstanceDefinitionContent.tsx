@@ -76,7 +76,7 @@ function SubstanceDefinitionContent({
       definitionTitle={substances.map((s) => s.NomLib).join(", ")}
       definitionDisclaimer={"Les définitions proposées sont fournies à titre informatif. Elles n'ont pas de valeur d'avis médical ou d’indication clinique. En cas de doute ou pour toute décision liée à votre santé, consultez un professionnel de santé."}
       dataList={dataList}
-      dataType={DataTypeEnum.MEDGROUP}
+      dataType={DataTypeEnum.MEDICAMENT}
       articles={articles}
       articleTrackingFrom="Page substance"
     />

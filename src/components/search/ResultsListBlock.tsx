@@ -28,12 +28,11 @@ interface ResultsListBlockProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const blockTitlesPlural = {
-  [DataTypeEnum.MEDGROUP]: "Médicaments",
+  [DataTypeEnum.MEDICAMENT]: "Médicaments",
   [DataTypeEnum.SUBSTANCE]: "Substances actives",
   [DataTypeEnum.ATCCLASS]: "Classes et sous-classes",
   [DataTypeEnum.PATHOLOGY]: "Pathologies",
   [DataTypeEnum.EXPIRED]: "Médicaments non commercialisés",
-  [DataTypeEnum.GENERIC]: "Médicaments génériques",
 }
 
 function ResultsListBlock({
@@ -60,7 +59,7 @@ function ResultsListBlock({
         if((isAllList && index < 4) || !isAllList) {
           return (
             <Fragment key={index}>
-              {(type === DataTypeEnum.MEDGROUP || type === DataTypeEnum.EXPIRED)
+              {(type === DataTypeEnum.MEDICAMENT || type === DataTypeEnum.EXPIRED)
               ? (
                 <DataBlockAccordion 
                   item={data.result as ResumeSpecGroup}

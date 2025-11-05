@@ -26,6 +26,7 @@ interface DataListProps extends HTMLAttributes<HTMLDivElement> {
   type: DataTypeEnum;
   paginationLength: number;
   currentPage: number;
+  isGeneric?: boolean;
 }
 
 function DataList({
@@ -33,6 +34,7 @@ function DataList({
   type,
   paginationLength,
   currentPage,
+  isGeneric,
 }: DataListProps) {
 
   const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumePatho[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[]>([]);
@@ -54,7 +56,7 @@ function DataList({
     <>
       {currentType && currentDataList && currentDataList.map((data, index) => {
         return ( 
-          (type === DataTypeEnum.MEDGROUP || type === DataTypeEnum.EXPIRED)
+          (!isGeneric && (type === DataTypeEnum.MEDICAMENT || type === DataTypeEnum.EXPIRED))
           ? (
             <DataBlockAccordion
               key={index}

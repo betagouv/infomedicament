@@ -62,7 +62,7 @@ function PathologyDefinitionContent({
       definitionType="Pathologie"
       definitionTitle={patho.NomPatho}
       dataList={dataList}
-      dataType={DataTypeEnum.MEDGROUP}
+      dataType={DataTypeEnum.MEDICAMENT}
       articles={articles}
       articleTrackingFrom="Page pathologie"
     />

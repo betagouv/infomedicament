@@ -17,6 +17,7 @@ interface PageListContentProps extends HTMLAttributes<HTMLDivElement> {
   dataList: ResumeSubstance[] |  ResumePatho[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[];
   type: DataTypeEnum;
   currentLetter: string;
+  isGeneric?: boolean;
 }
 
 function PageListContent({
@@ -26,6 +27,7 @@ function PageListContent({
   dataList,
   type,
   currentLetter,
+  isGeneric,
 }: PageListContentProps ) {
 
   const PAGINATION_LENGTH:number = 10;
@@ -40,7 +42,7 @@ function PageListContent({
     <div className={fr.cx("fr-grid-row")}>
       <div className={fr.cx("fr-col-md-8")}>
         <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>{title}</h1>
-        {type === DataTypeEnum.GENERIC && (
+        {isGeneric && (
           <GenericAccordion className={fr.cx("fr-mb-4w")} />
         )}
         <AlphabeticNav
@@ -55,6 +57,7 @@ function PageListContent({
           type={type}
           paginationLength={PAGINATION_LENGTH}
           currentPage={currentPage}
+          isGeneric={isGeneric || false}
         />
       </div>
       <DataListPagination 

@@ -57,7 +57,7 @@ function MedicamentsListContent({
       letters={letters}
       urlPrefix="/medicaments/"
       dataList={filteredSpecsGroups}
-      type={DataTypeEnum.MEDGROUP}
+      type={DataTypeEnum.MEDICAMENT}
       currentLetter={letter}
     />
   );

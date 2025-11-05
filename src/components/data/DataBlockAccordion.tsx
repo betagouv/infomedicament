@@ -86,7 +86,7 @@ interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
   withAlert?: boolean;
 }
 
-//For now only for type === DataTypeEnum.MEDGROUP
+//For now only for type === DataTypeEnum.MEDICAMENT
 function DataBlockAccordion({
   item,
   filterPregnancy,

@@ -3,12 +3,11 @@ import { ResumePatho, ResumeSubstance } from "@/db/types";
 import { ResumeSpecGroup } from "./SpecialiteTypes";
 
 export enum DataTypeEnum {
-  MEDGROUP = "Médicament",
+  MEDICAMENT = "Médicament",
   SUBSTANCE = "Substance active",
   ATCCLASS = "Classe et sous-classe",
   PATHOLOGY = "Pathologie",
   EXPIRED = "Médicament non commercialisé",
-  GENERIC = "Génériques",
 };
 
 export type AdvancedATC1 = ATC1 & {nbSubstances: number};

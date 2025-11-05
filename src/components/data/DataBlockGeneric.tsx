@@ -59,7 +59,7 @@ function DataBlockGeneric({
         setCurrentLink(`/pathologies/${(data as ResumePatho).codePatho}`);
       } else if(dataType === DataTypeEnum.ATCCLASS){
         setCurrentLink(`/atc/${(data as AdvancedATCClass).class.code}`);
-      } else if(dataType === DataTypeEnum.GENERIC){
+      } else if(dataType === DataTypeEnum.MEDICAMENT){
         setCurrentLink(`/generiques/${(data as ResumeGeneric).SpecId}`);
       } else 
         setCurrentLink("#");
@@ -75,7 +75,7 @@ function DataBlockGeneric({
         setCurrentFormatSpecName(formatSpecName((data as ResumePatho).NomPatho));
       } else if(dataType === DataTypeEnum.ATCCLASS){
         setCurrentFormatSpecName(formatSpecName((data as AdvancedATCClass).class.label));
-      } else if(dataType === DataTypeEnum.GENERIC){
+      } else if(dataType === DataTypeEnum.MEDICAMENT){
         setCurrentFormatSpecName((data as ResumeGeneric).SpecName);
       }  else 
         setCurrentFormatSpecName("Autre");
@@ -106,7 +106,7 @@ function DataBlockGeneric({
         }
       }
     }
-  }, [item, setCurrentType, setCurrentSubClasses]);
+  }, [type, item, setCurrentType, setCurrentSubClasses]);
   
   return (
     <>

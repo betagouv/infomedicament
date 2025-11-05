@@ -13,7 +13,7 @@ import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<ExtendedOrderResults> {
   let counter = 0;
   const extentedOrderedResults: ExtendedSearchResults = {
-    [DataTypeEnum.MEDGROUP]: [],
+    [DataTypeEnum.MEDICAMENT]: [],
     [DataTypeEnum.SUBSTANCE]: [],
     [DataTypeEnum.PATHOLOGY]: [],
     [DataTypeEnum.ATCCLASS]: [],
@@ -25,7 +25,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
       counter ++;
       if("NomLib" in result || "groupName" in result || "NomPatho" in result) {
         return {
-          type: "NomLib" in result ? DataTypeEnum.SUBSTANCE : ("groupName" in result ? DataTypeEnum.MEDGROUP : DataTypeEnum.PATHOLOGY),
+          type: "NomLib" in result ? DataTypeEnum.SUBSTANCE : ("groupName" in result ? DataTypeEnum.MEDICAMENT : DataTypeEnum.PATHOLOGY),
           result: {...result}
         };
       } else {
@@ -69,7 +69,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
     })
   );
   extendedResults.forEach((result) => {
-    if(result.type === DataTypeEnum.MEDGROUP){
+    if(result.type === DataTypeEnum.MEDICAMENT){
       const specGroup: ResumeSpecGroup = (result.result as ResumeSpecGroup);
       const expired: ResumeSpecialite[] = [];
       const notExpired: ResumeSpecialite[] = [];

@@ -56,8 +56,9 @@ function GenericsListContent({
         letters={letters}
         urlPrefix="/generiques/"
         dataList={filteredGenerics}
-        type={DataTypeEnum.GENERIC}
+        type={DataTypeEnum.MEDICAMENT}
         currentLetter={letter}
+        isGeneric
       />
     </>
   );
