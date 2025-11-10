@@ -4,10 +4,10 @@ import * as Sentry from "@sentry/nextjs";
 import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { DataTypeEnum } from "@/types/DataTypes";
 import PageListContent from "@/components/list/PageListContent";
-import { getResumeSpecialitesWithLetter } from "@/db/utils/specialities";
+import { getResumeSpecsGroupsWithLetter } from "@/db/utils/specialities";
 import { getLetters } from "@/db/utils/letters";
-import { ResumeSpecialite } from "@/types/SpecialiteTypes";
-import { getResumeSpecsATCLabels } from "@/data/grist/atc";
+import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
+import { getResumeSpecsGroupsATCLabels } from "@/data/grist/atc";
 
 interface MedicamentsListContentProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
@@ -19,20 +19,20 @@ function MedicamentsListContent({
   letter,
 }: MedicamentsListContentProps ) {
 
-  const [filteredMedicaments, setFilteredMedicaments] = useState<ResumeSpecialite[]>([]);
+  const [filteredSpecsGroups, setFilteredSpecsGroups] = useState<ResumeSpecGroup[]>([]);
   const [letters, setLetters] = useState<string[]>([]);
 
   const getFilteredMedicaments = useCallback(
     async (letter: string) => {
       try {
-        const newAllSpecs = await getResumeSpecialitesWithLetter(letter);
-        const allSpecsWithATC: ResumeSpecialite[] = await getResumeSpecsATCLabels(newAllSpecs);
-        setFilteredMedicaments(allSpecsWithATC.sort((a,b) => a.groupName.localeCompare(b.groupName)));
+        const newAllSpecsGroups = await getResumeSpecsGroupsWithLetter(letter);
+        const allSpecsGroupsWithATC: ResumeSpecGroup[] = await getResumeSpecsGroupsATCLabels(newAllSpecsGroups);
+        setFilteredSpecsGroups(allSpecsGroupsWithATC.sort((a,b) => a.groupName.localeCompare(b.groupName)));
       } catch(e) {
         Sentry.captureException(e);
       }
     },
-    [setFilteredMedicaments]
+    [setFilteredSpecsGroups]
   );
 
   const getSpecialitesLetters = useCallback(
@@ -49,15 +49,15 @@ function MedicamentsListContent({
   useEffect(() => {
     getSpecialitesLetters();
     getFilteredMedicaments(letter);
-  }, [letter, getFilteredMedicaments]);
+  }, [letter, getSpecialitesLetters, getFilteredMedicaments]);
 
   return (
     <PageListContent
       title={title}
       letters={letters}
       urlPrefix="/medicaments/"
-      dataList={filteredMedicaments}
-      type={DataTypeEnum.MEDGROUP}
+      dataList={filteredSpecsGroups}
+      type={DataTypeEnum.MEDICAMENT}
       currentLetter={letter}
     />
   );

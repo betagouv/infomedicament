@@ -103,7 +103,7 @@ function SearchResultsList({
       </div>
       {nbResults > 0 && (
         <div className={fr.cx("fr-grid-row", "fr-mb-5w")}>
-          <FiltersContainer className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
+          <FiltersContainer className={fr.cx("fr-col-12")}>
             <span className={["display-inline", fr.cx("fr-mr-2w", "fr-text--md", "fr-mb-1w")].join(" ")}>Filtrer</span>
             <ul className={["display-inline", fr.cx("fr-tags-group")].join(" ")}>
               <Tag

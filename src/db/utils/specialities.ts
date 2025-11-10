@@ -3,60 +3,45 @@
 import "server-cli-only";
 import { cache } from "react";
 import {
-  Presentation,
-  PresInfoTarif,
   SpecComposant,
   SpecDelivrance,
-  SpecElement,
   Specialite,
   SubstanceNom,
 } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { Nullable, sql } from "kysely";
-import { PresentationDetail, ResumeSpecialiteDB } from "@/db/types";
+import { sql } from "kysely";
 import db from "@/db";
 import { getPresentations } from "@/db/utils";
 import { unstable_cache } from "next/cache";
 import { withSubstances } from "./query";
+import { DetailedSpecialite, ResumeSpecGroup } from "@/types/SpecialiteTypes";
+import { Presentation } from "@/types/PresentationTypes";
+import { getComposants } from "./composants";
+import { formatSpecialitesResumeFromGroups } from "@/utils/specialites";
 
-export const getSpecialite = cache(async (CIS: string) => {
-  const specialiteP: Promise<Specialite | undefined> = pdbmMySQL
+export async function getSpecialiteName(CIS: string): Promise<string>{
+  const result = await pdbmMySQL
     .selectFrom("Specialite")
     .where("SpecId", "=", CIS)
-    .selectAll()
+    .select("SpecDenom01")
     .executeTakeFirst();
 
-  const presentationsP: Promise<
-    (Presentation &
-      Nullable<PresInfoTarif> & { details?: PresentationDetail })[]
-  > = getPresentations(CIS);
-  const elementsP: Promise<SpecElement[]> = pdbmMySQL
-    .selectFrom("Element")
-    .where("SpecId", "=", CIS)
-    .selectAll()
-    .execute();
+  return result ? result.SpecDenom01 : "";
+}
 
-  const [specialite, presentations, elements] = await Promise.all([
-    specialiteP,
-    presentationsP,
-    elementsP,
-  ]);
+export const getSpecialite = cache(async (CIS: string) => {
 
-  const composants: Array<SpecComposant & SubstanceNom> = (
-    await Promise.all(
-      elements.map((el) =>
-        pdbmMySQL
-          .selectFrom("Composant")
-          .where((eb) =>
-            eb.and([eb("SpecId", "=", CIS), eb("ElmtNum", "=", el.ElmtNum)]),
-          )
-          .innerJoin("Subs_Nom", "Composant.NomId", "Subs_Nom.NomId")
-          .selectAll()
-          .execute(),
-      ),
-    )
-  ).flat();
+  const specialite: DetailedSpecialite | undefined = await pdbmMySQL
+    .selectFrom("Specialite")
+    .leftJoin("VUEmaEpar", "VUEmaEpar.SpecId", "Specialite.SpecId")
+    .where("Specialite.SpecId", "=", CIS)
+    .selectAll("Specialite")
+    .select("VUEmaEpar.UrlEpar")
+    .executeTakeFirst();
 
+  const composants: Array<SpecComposant & SubstanceNom> = await getComposants(CIS);
+
+  const presentations: Presentation[] = await getPresentations(CIS);
   const presentationsDetails = presentations.length
     ? await db
         .selectFrom("presentations")
@@ -123,34 +108,59 @@ export const getAllSpecialites = cache(async function() {
     .execute();
 })
 
-export const getResumeSpecialitesWithLetter = cache(async function (letter: string): Promise<ResumeSpecialiteDB[]> {
-  return await db
-    .selectFrom("resume_specialites")
+export const getResumeSpecsGroupsWithLetter = cache(async function (letter: string): Promise<ResumeSpecGroup[]> {
+  const result = await db
+    .selectFrom("resume_medicaments")
     .where(({eb, ref}) => eb(
       sql<string>`upper(${ref("groupName")})`, "like", `${letter.toUpperCase()}%`
     ))
     .selectAll()
     .orderBy("groupName")
     .execute();
+  return formatSpecialitesResumeFromGroups(result);
 });
 
-export const getResumeSpecialitesWithPatho = cache(async function (codePatho: string): Promise<ResumeSpecialiteDB[]> {
-  return await db
-    .selectFrom("resume_specialites")
+export const getResumeSpecsGroupsWithPatho = cache(async function (codePatho: string): Promise<ResumeSpecGroup[]> {
+  const result = await db
+    .selectFrom("resume_medicaments")
     .where("pathosCodes", "&&", Array([codePatho]))
     .selectAll()
     .orderBy("groupName")
     .execute();
+  return formatSpecialitesResumeFromGroups(result);
 });
 
-export const getResumeSpecialitesWithCIS = cache(async function (CISList: string[]): Promise<ResumeSpecialiteDB[]> {
+export const getResumeSpecsGroupsWithCIS = cache(async function (CISList: string[]): Promise<ResumeSpecGroup[]> {
   if(CISList.length === 0) return [];
-  return await db
-    .selectFrom("resume_specialites")
+  const result = await db
+    .selectFrom("resume_medicaments")
     .where("CISList", "&&", Array(CISList))
     .selectAll()
     .orderBy("groupName")
     .execute();
+  return formatSpecialitesResumeFromGroups(result);
+});
+
+export const getResumeSpecsGroupsWithCISSubsIds = cache(
+  async function (
+    CISList: string[], 
+    SubsIds: string[]
+  ): Promise<ResumeSpecGroup[]> {
+    if(CISList.length === 0) return [];
+    const result = await db
+      .selectFrom("resume_medicaments")
+      .where(({ eb }) =>
+        SubsIds.length
+          ? eb.or([
+              eb("CISList", "&&", Array(CISList)),
+              eb("subsIds", "&&", Array(SubsIds)),
+            ])
+          : eb("CISList", "&&", Array(CISList)),
+      )
+      .selectAll()
+      .orderBy("groupName")
+      .execute();
+  return formatSpecialitesResumeFromGroups(result);
 });
 
 export const getSubstanceSpecialites = unstable_cache(async function (

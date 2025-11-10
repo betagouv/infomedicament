@@ -7,9 +7,10 @@ import { ArticleCardResume } from "@/types/ArticlesTypes";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import { getArticlesFromSubstances } from "@/data/grist/articles";
 import PageDefinitionContent from "./PageDefinitionContent";
-import { getResumeSpecialitesWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
-import { ResumeSpecialite } from "@/types/SpecialiteTypes";
-import { getResumeSpecsATCLabels } from "@/data/grist/atc";
+import { getResumeSpecsGroupsWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
+import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
+import { getResumeSpecsGroupsATCLabels } from "@/data/grist/atc";
+import { getSubstanceDefinition } from "@/data/grist/substances";
 
 interface SubstanceDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
   ids: string[];
@@ -23,28 +24,39 @@ function SubstanceDefinitionContent({
 
   const [title, setTitle] = useState<string>("");
   const [definition, setDefinition] = useState<string | { title: string; desc: string }[]>("");
-  const [dataList, setDataList] = useState<ResumeSpecialite[]>([]);
+  const [dataList, setDataList] = useState<ResumeSpecGroup[]>([]);
   const [articles, setArticles] = useState<ArticleCardResume[]>([]);
 
   const loadDefinitionData = useCallback(
-    async () => {
+    async (
+      ids: string[],
+      substances: SubstanceNom[], 
+    ) => {
       try {
         const newArticles: ArticleCardResume[] = await getArticlesFromSubstances(ids);
         setArticles(newArticles);
 
+        const subsIds = substances.map((subs: SubstanceNom) => (subs.SubsId).trim());
+        const definitions = await getSubstanceDefinition(ids, subsIds);
+        setDefinition(definitions.map((d: any) => ({
+          title: d.fields.SA,
+          desc: d.fields.Definition,
+        })));
+
         const CISList: string[] = await getSubstanceSpecialitesCIS(ids);
-        const newAllSpecs = await getResumeSpecialitesWithCIS(CISList);
-        if(newAllSpecs.length > 0){
-          const allSpecsWithATC: ResumeSpecialite[] = await getResumeSpecsATCLabels(newAllSpecs);
+        const newAllSpecsGroups = await getResumeSpecsGroupsWithCIS(CISList);
+        if(newAllSpecsGroups.length > 0){
+          const allSpecsWithATC: ResumeSpecGroup[] = await getResumeSpecsGroupsATCLabels(newAllSpecsGroups);
           setDataList(allSpecsWithATC);
         }
       } catch(e) {
         Sentry.captureException(e);
       }
-  },[ids, substances, setArticles, setDefinition, setDataList]);
+  },[setArticles, setDefinition, setDataList]);
 
   useEffect(() => {
-    loadDefinitionData();
+    if(ids && substances)
+      loadDefinitionData(ids, substances);
   }, [ids, substances, loadDefinitionData]);
 
   useEffect(() => {
@@ -64,7 +76,7 @@ function SubstanceDefinitionContent({
       definitionTitle={substances.map((s) => s.NomLib).join(", ")}
       definitionDisclaimer={"Les définitions proposées sont fournies à titre informatif. Elles n'ont pas de valeur d'avis médical ou d’indication clinique. En cas de doute ou pour toute décision liée à votre santé, consultez un professionnel de santé."}
       dataList={dataList}
-      dataType={DataTypeEnum.MEDGROUP}
+      dataType={DataTypeEnum.MEDICAMENT}
       articles={articles}
       articleTrackingFrom="Page substance"
     />

@@ -1,16 +1,14 @@
 import {
-  Presentation,
   PresentationComm,
   PresentationStat,
-  PresInfoTarif,
 } from "@/db/pdbmMySQL/types";
-import { Nullable } from "kysely";
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
 import React from "react";
 import { PresentationDetail } from "@/db/types";
 import { capitalize } from "tsafe";
+import { Presentation } from "@/types/PresentationTypes";
 
 const unitesMesures = [
   "cm2",
@@ -65,8 +63,7 @@ function presentationDetailName(p: PresentationDetail): string {
 }
 
 export function PresentationsList(props: {
-  presentations: (Presentation &
-    Nullable<PresInfoTarif> & { details?: PresentationDetail })[];
+  presentations: Presentation[];
 }) {
   return (
     <>

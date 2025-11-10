@@ -1,7 +1,8 @@
+"use server";
+
 import db from '@/db';
 import { PresentationDetail } from '@/db/types';
-import { Asmr, Composant, ComposantElement, DocBonUsage, FicheInfos, GroupeGenerique, Smr } from '@/types/MedicamentTypes';
-import { NextRequest, NextResponse } from "next/server";
+import { Asmr, Composant, ComposantElement, DocBonUsage, FicheInfos, GroupeGenerique, Smr } from '@/types/SpecialiteTypes';
 
 async function getListeGroupesGeneriques(ids: number[]): Promise<GroupeGenerique[]>{
   const data = await db
@@ -162,24 +163,14 @@ async function getListeElements(ids: number[]): Promise<ComposantElement[]>{
   return [];
 }
 
-export async function GET(req: NextRequest) {
-  const params = req.nextUrl.searchParams;
-  const CIS = params.get("cis");
-
-  if (!CIS) {
-    return NextResponse.json(
-      { error: "Missing CIS parameter" },
-      { status: 400 },
-    );
-  }
-
+export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined> {
   const ficheInfoRaw = await db
     .selectFrom("fiches_infos")
     .selectAll()
     .where("specId", "=", CIS)
     .executeTakeFirst();
 
-  if(!ficheInfoRaw) return NextResponse.json(undefined);
+  if(!ficheInfoRaw) return undefined;
 
   const ficheInfos:FicheInfos = {
     specId: ficheInfoRaw.specId,
@@ -218,5 +209,5 @@ export async function GET(req: NextRequest) {
   if(ficheInfoRaw.listeElements && ficheInfoRaw.listeElements.length > 0) 
     ficheInfos.listeElements = await getListeElements(ficheInfoRaw.listeElements);
 
-  return NextResponse.json(ficheInfos);
+  return ficheInfos;
 };

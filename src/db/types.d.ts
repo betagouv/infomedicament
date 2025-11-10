@@ -1,4 +1,4 @@
-import { NoticeBlockType } from "@/types/MedicamentTypes";
+import { NoticeBlockType } from "@/types/SpecialiteTypes";
 import { Selectable } from "kysely";
 
 export interface Database {
@@ -19,7 +19,8 @@ export interface Database {
   rating: RatingTable;
   resume_pathologies: ResumePathosTable;
   resume_substances: ResumeSubstancesTable;
-  resume_specialites: ResumeSpecialitesTable;
+  resume_medicaments: ResumeMedicamentsTable;
+  resume_generiques: ResumeGenericsTable;
   letters: LettersTable;
 }
 
@@ -146,7 +147,7 @@ interface RatingTable {
   question2?: number,
 }
 
-export type LetterType = "pathos" | "substances" | "specialites";
+export type LetterType = "pathos" | "substances" | "specialites" | "generiques";
 interface LettersTable{
   type: LetterType;
   letters: string[];
@@ -155,24 +156,30 @@ interface LettersTable{
 interface ResumePathosTable {
   codePatho: string;
   NomPatho: string;
-  medicaments: number;
+  specialites: number;
 }
 
 interface ResumeSubstancesTable {
   SubsId: string;
   NomId: string;
   NomLib: string;
-  medicaments: number;
+  specialites: number;
 }
 
-interface ResumeSpecialitesTable {
+interface ResumeMedicamentsTable {
   groupName: string;
   composants: string;
-  specialites: string[][];//SpecId, SpecDenom01
+  specialites: string[][];//SpecId, SpecDenom01, isCommercialisee, isCentralisee
   pathosCodes: string[];
   atc1Code?: string;
   atc2Code?: string;
   CISList: string[];
+  subsIds: string[];
+}
+
+interface ResumeGenericsTable {
+  SpecId: string;
+  SpecName: string;
 }
 
 export type LeafletImage = Selectable<LeafletImagesTable>;
@@ -182,9 +189,9 @@ export type FichesInfosDB = Selectable<FicheInfoTable>;
 export type GroupeGeneriqueDB = Selectable<GroupeGeneriqueTable>;
 export type DocBUDB = Selectable<DocBUTable>;
 export type RCPContent = Selectable<RcpContentTable>;
-export type Notice = Selectable<NoticeTable>;
 export type Rating = Selectable<RatingTable>;
 export type ResumePatho = Selectable<ResumePathosTable>;
 export type ResumeSubstance = Selectable<ResumeSubstancesTable>;
-export type ResumeSpecialiteDB = Selectable<ResumeSpecialitesTable>;
+export type ResumeSpecGroupDB = Selectable<ResumeMedicamentsTable>;
+export type ResumeGeneric = Selectable<ResumeGenericsTable>;
 export type Letters = Selectable<LettersTable>;

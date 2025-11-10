@@ -1,7 +1,9 @@
+"use server";
+
 import { getGristTableData } from "@/data/grist/index";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 
-export async function getPregnancyPlanAlerts(): Promise <PregnancyAlert[]> {
+export async function getAllPregnancyPlanAlerts(): Promise <PregnancyAlert[]> {
   const records = await getGristTableData(
     "Grossesse_substances_contre_indiquees",
     ["SubsId", "Lien_site_ANSM"],

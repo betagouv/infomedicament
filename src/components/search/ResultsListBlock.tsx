@@ -6,8 +6,9 @@ import Tag from "@codegouvfr/react-dsfr/Tag";
 import styled from 'styled-components';
 import DataBlockGeneric from "../data/DataBlockGeneric";
 import DataBlockAccordion from "../data/DataBlockAccordion";
-import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
-import { AdvancedData, DataTypeEnum } from "@/types/DataTypes";
+import { AdvancedATCClass, AdvancedData, DataTypeEnum } from "@/types/DataTypes";
+import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
+import { ResumeGeneric, ResumePatho, ResumeSubstance } from "@/db/types";
 
 const TagContainer = styled.div `
   text-align: center;
@@ -27,10 +28,11 @@ interface ResultsListBlockProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const blockTitlesPlural = {
-  [DataTypeEnum.MEDGROUP]: "Médicaments",
+  [DataTypeEnum.MEDICAMENT]: "Médicaments",
   [DataTypeEnum.SUBSTANCE]: "Substances actives",
   [DataTypeEnum.ATCCLASS]: "Classes et sous-classes",
   [DataTypeEnum.PATHOLOGY]: "Pathologies",
+  [DataTypeEnum.EXPIRED]: "Médicaments non commercialisés",
 }
 
 function ResultsListBlock({
@@ -57,20 +59,18 @@ function ResultsListBlock({
         if((isAllList && index < 4) || !isAllList) {
           return (
             <Fragment key={index}>
-              {type === DataTypeEnum.MEDGROUP 
+              {(type === DataTypeEnum.MEDICAMENT || type === DataTypeEnum.EXPIRED)
               ? (
                 <DataBlockAccordion 
-                  item={data.result as AdvancedMedicamentGroup}
+                  item={data.result as ResumeSpecGroup}
                   filterPregnancy={filterPregnancy}
                   filterPediatric={filterPediatric}
                   withAlert
                 />
               ) : (
                 <DataBlockGeneric 
-                  item={{
-                    result: data.result,
-                    type: type
-                  }}
+                  type={type}
+                  item={data.result as ResumeSubstance | ResumePatho | AdvancedATCClass | ResumeGeneric}
                 />
               )}
             </Fragment>
