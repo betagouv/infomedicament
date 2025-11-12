@@ -47,7 +47,6 @@ function DetailedNotice({
   pediatrics,
   presentations,
   marr,
-  onResetCapture,
   ficheInfos,
   indicationBlock,
   ...props 

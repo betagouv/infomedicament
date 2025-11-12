@@ -59,7 +59,7 @@ export default async function Page(props: {
           <h1>{PAGE_LABEL}</h1>
           <AlphabeticNav
             letters={letters}
-            url={(letter) => `/glossaire/${letter}`}
+            urlPrefix={`/glossaire/`}
             currentLetter={letter}
           />
           {definitions.map((definition) => (

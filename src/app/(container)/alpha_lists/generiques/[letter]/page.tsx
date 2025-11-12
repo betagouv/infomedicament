@@ -14,7 +14,6 @@ export default async function Page(props: {
 
   return (
     <ContentContainer frContainer>
-      {" "}
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
         currentPageLabel={PAGE_LABEL}
