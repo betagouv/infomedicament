@@ -47,7 +47,7 @@ function PageListContent({
         )}
         <AlphabeticNav
           letters={letters}
-          url={(letter) => `${urlPrefix}${letter}`}
+          urlPrefix={urlPrefix}
           currentLetter={currentLetter}
         />
       </div>
