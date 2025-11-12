@@ -300,14 +300,25 @@ function GeneralInformations({
                     />
                     {pres.details ? (
                       <span className={fr.cx("fr-mr-2w")}>
-                        <b>
-                          {pres.details.qtecontenance}{" "}
-                          {pres.details.qtecontenance > 1 
-                            ? pres.details.unitecontenance.replaceAll("(s)", "s")
-                            : pres.details.unitecontenance.replaceAll("(s)", "")
-                          }
-                        </b>
-                        {" - "}{pres.details.recipient.replaceAll("thermoformée", "").replaceAll("(s)", "")}
+                        {pres.details.qtecontenance && (
+                          <b>
+                            {pres.details.qtecontenance}{" "}
+                            {pres.details.unitecontenance && (
+                              <span>
+                                {pres.details.qtecontenance > 1 
+                                  ? pres.details.unitecontenance.replaceAll("(s)", "s")
+                                  : pres.details.unitecontenance.replaceAll("(s)", "")
+                                }
+                              </span>
+                            )}
+                          </b>
+                        )}
+                        {(pres.details.qtecontenance && pres.details.recipient) && (
+                          <span>{" - "}</span>
+                        )}
+                        {pres.details.recipient && (
+                          <span>{pres.details.recipient.replaceAll("thermoformée", "").replaceAll("(s)", "")}</span>
+                        )}
                       </span>
                     ) : (
                       <b>{pres.PresNom01}</b>
