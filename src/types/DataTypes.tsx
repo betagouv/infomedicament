@@ -7,7 +7,6 @@ export enum DataTypeEnum {
   SUBSTANCE = "Substance active",
   ATCCLASS = "Classe et sous-classe",
   PATHOLOGY = "Pathologie",
-  EXPIRED = "Médicament non commercialisé",
 };
 
 export type AdvancedATC1 = ATC1 & {nbSubstances: number};

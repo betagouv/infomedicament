@@ -107,7 +107,7 @@ export async function getArticlesFromSearchResults(results: ExtendedSearchResult
   const extendedSearchResultsKeys: DataTypeEnum[] = Object.keys(results) as DataTypeEnum[];
   extendedSearchResultsKeys.forEach((key) => {
     results[key].forEach((result: AdvancedData) => {
-      if(result.type === DataTypeEnum.MEDICAMENT || result.type === DataTypeEnum.EXPIRED){
+      if(result.type === DataTypeEnum.MEDICAMENT){
         (result.result as ResumeSpecGroup).CISList.forEach((CIS: string) => {
           if(!articlesFilters.specialitesList.includes(CIS.trim())) articlesFilters.specialitesList.push(CIS.trim());
         });

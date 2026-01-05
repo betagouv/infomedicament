@@ -17,7 +17,6 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
     [DataTypeEnum.SUBSTANCE]: [],
     [DataTypeEnum.PATHOLOGY]: [],
     [DataTypeEnum.ATCCLASS]: [],
-    [DataTypeEnum.EXPIRED]: [],
   }
 
   const extendedResults = await Promise.all(
@@ -69,36 +68,7 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
     })
   );
   extendedResults.forEach((result) => {
-    if(result.type === DataTypeEnum.MEDICAMENT){
-      const specGroup: ResumeSpecGroup = (result.result as ResumeSpecGroup);
-      const expired: ResumeSpecialite[] = [];
-      const notExpired: ResumeSpecialite[] = [];
-      specGroup.resumeSpecialites.forEach((spec) => {
-        if(!spec.isCommercialisee){
-          expired.push(spec);
-        }
-        else notExpired.push(spec);
-      })
-      if(expired.length > 0) {
-        extentedOrderedResults[DataTypeEnum.EXPIRED].push({
-          type: DataTypeEnum.EXPIRED,
-          result: {
-            ...specGroup,
-            resumeSpecialites: expired,
-          }
-        });
-      }
-      if(notExpired.length > 0) {
-        extentedOrderedResults[result.type].push({
-          type: result.type,
-          result: {
-            ...specGroup,
-            resumeSpecialites: notExpired,
-          }
-        });
-      }
-    } else
-      extentedOrderedResults[result.type].push(result);
+    extentedOrderedResults[result.type].push(result);
   });
 
   return {

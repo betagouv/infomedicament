@@ -404,7 +404,6 @@ function MedicamentContent({
               severity="info"
               title="Ce médicament n'est ou ne sera bientôt plus disponible sur le marché."
               small
-              style={{ backgroundColor: "white"}}
             />
             </ContentContainer>
           )}

@@ -32,7 +32,6 @@ const blockTitlesPlural = {
   [DataTypeEnum.SUBSTANCE]: "Substances actives",
   [DataTypeEnum.ATCCLASS]: "Classes et sous-classes",
   [DataTypeEnum.PATHOLOGY]: "Pathologies",
-  [DataTypeEnum.EXPIRED]: "Médicaments non commercialisés",
 }
 
 function ResultsListBlock({
@@ -59,7 +58,7 @@ function ResultsListBlock({
         if((isAllList && index < 4) || !isAllList) {
           return (
             <Fragment key={index}>
-              {(type === DataTypeEnum.MEDICAMENT || type === DataTypeEnum.EXPIRED)
+              {(type === DataTypeEnum.MEDICAMENT)
               ? (
                 <DataBlockAccordion 
                   item={data.result as ResumeSpecGroup}
