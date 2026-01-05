@@ -411,15 +411,7 @@ function MedicamentContent({
           {(currentSpec && isCentralisee(currentSpec)) && (
             <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
               <b>
-                Les informations sur ce médicament font l’objet d’une procédure centralisée au niveau européen.<br/>
-                <Link 
-                  href="https://ansm.sante.fr/qui-sommes-nous/nos-missions/assurer-la-securite-des-produits-de-sante/p/surveiller-les-medicaments"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-description="Lien vers le site de l'ANSM sur les médicaments sous surveillance"
-                >
-                  En savoir plus sur le site de l’ANSM
-                </Link>.<br/><br/>
+                Les informations sur ce médicament font l’objet d’une procédure centralisée au niveau européen.<br/><br/>
                 <Link 
                   href="https://www.ema.europa.eu/en/search"
                   target="_blank"

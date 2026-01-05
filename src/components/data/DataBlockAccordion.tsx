@@ -230,33 +230,17 @@ function DataBlockAccordion({
                 >
                   {formatSpecName(specialite.SpecDenom01)}
                 </Link>
-                {(!specialite.isCommercialisee || specialite.isCentralisee) && (
-                  <>
-                  {!specialite.isCommercialisee && (
-                    <Tooltip
-                      title="Ce médicament n'est ou ne sera bientôt plus disponible sur le marché."
-                      kind="hover"
-                      className={fr.cx("fr-ml-2w")}
-                    >
-                      <i 
-                        className={fr.cx("fr-icon-close-circle-line")} 
-                        style={{color: "var(--text-action-high-blue-france)"}}
-                      />
-                    </Tooltip>
-                  )}
-                  {specialite.isCentralisee && (
-                    <Tooltip
-                      title="Ce médicament fait l'objet d'une information importante ou il est sous surveillance renforcée."
-                      kind="hover"
-                      className={fr.cx("fr-ml-2w")}
-                    >
-                      <i 
-                        className={fr.cx("fr-icon-information-line")} 
-                        style={{color: "var(--warning-425-625)"}}
-                      />
-                    </Tooltip>
-                  )}
-                  </>
+                {!specialite.isCommercialisee && (
+                  <Tooltip
+                    title="Ce médicament n'est ou ne sera bientôt plus disponible sur le marché."
+                    kind="hover"
+                    className={fr.cx("fr-ml-2w")}
+                  >
+                    <i 
+                      className={fr.cx("fr-icon-close-circle-line")} 
+                      style={{color: "var(--text-action-high-blue-france)"}}
+                    />
+                  </Tooltip>
                 )}
                 {(withAlert 
                   && (pregnancyPlanAlert && specialite.alerts && specialite.alerts.pregnancyPlanAlert) 

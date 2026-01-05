@@ -12,6 +12,7 @@ export const getGenericsResumeWithLetter = cache(async function(letter: string):
     .where(({eb, ref}) => eb(
       sql<string>`upper(${ref("SpecName")})`, "like", `${letter.toUpperCase()}%`
     ))
+    .distinct()
     .orderBy("SpecName")
     .execute();
   return result;
