@@ -1,10 +1,5 @@
 import { JSX } from "react";
 
-type NoticesAnchorsSearchTerms = {
-  begin: string;
-  end: string;
-}
-
 export type QuestionAnchors = {
   id: string;
   highlightClass: string;

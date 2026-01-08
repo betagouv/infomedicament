@@ -53,7 +53,7 @@ function NoticeBlock({
 
   const [definitions, setDefinitions] = useState<Definition[]>();
 
-  const loadDefinitions = useCallback(() => {
+  const loadDefinitions = useCallback(
     async () => {
       try {
         const newDefinitions = (await getGlossaryDefinitions()).filter(
@@ -63,8 +63,8 @@ function NoticeBlock({
       } catch (e) {
         Sentry.captureException(e);
       }
-    }
-  }, [setDefinitions]);
+    }, [setDefinitions]
+  );
 
   useEffect(() => {
     if(notice) {
