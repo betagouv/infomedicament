@@ -13,10 +13,7 @@ Deux bases de données sont utilisées :
 * MySQL pour héberger une copie de la base de données publique des médicaments originale de l'ANSM.
 Ces données sont utilisés à l'identique et la base MySQL n'est pas modifiée.
 
-Pour démarrer
-facilement un environnement de développement
-avec un service MySQL et un service PostgreSQL,
-vous pouvez utiliser la configuration Dev Containers fournie.
+Pour démarrer facilement un environnement de développement avec un service MySQL et un service PostgreSQL,vous pouvez utiliser la configuration Dev Containers fournie.
 
 ## Installation
 
