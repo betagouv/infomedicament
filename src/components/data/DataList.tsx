@@ -56,7 +56,7 @@ function DataList({
     <>
       {currentType && currentDataList && currentDataList.map((data, index) => {
         return ( 
-          (!isGeneric && (type === DataTypeEnum.MEDICAMENT || type === DataTypeEnum.EXPIRED))
+          (!isGeneric && type === DataTypeEnum.MEDICAMENT)
           ? (
             <DataBlockAccordion
               key={index}
