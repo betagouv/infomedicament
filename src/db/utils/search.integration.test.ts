@@ -4,9 +4,9 @@ import { getSearchResults } from "@/db/utils/search";
 // disable cache for testing
 vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
 
-describe("Legacy Search Engine (Integration)", () => {
+describe("Search engine (Integration) -- Functional Tests", () => {
 
-    it("must return at least one result for 'Paracétamol'", async () => {
+    it("must return at least one result for valid search terms", async () => {
         const results = await getSearchResults("Paracétamol");
 
         // Check that we have some results
@@ -23,6 +23,29 @@ describe("Legacy Search Engine (Integration)", () => {
         expect(results).toEqual([]);
     });
 
+    it("must return results when there is a typo in the search term", async () => {
+        const results = await getSearchResults("Paracetmol");
+
+        // Check that we have some results
+        expect(results.length).toBeGreaterThan(0);
+
+        // Check that at least one of the results has paracétamol as a composant
+        const paracetamolGroup = results.find((item) => {
+            return "composants" in item && /paracétamol/i.test(item.composants);
+        });
+
+        expect(paracetamolGroup).toBeDefined();
+    });
+
+    it("must return results for one-character search terms", async () => {
+        // this is useful for autocompletion in the search bar
+        const results = await getSearchResults("a");
+        expect(results.length).toBeGreaterThan(0);
+    });
+
+});
+
+describe("Search engine (Integration) -- Business Logic Tests", () => {
     it("must return results for 'Doliprane'", async () => {
         const results = await getSearchResults("Doliprane");
 
@@ -49,25 +72,4 @@ describe("Legacy Search Engine (Integration)", () => {
 
         expect(doliGroup).toBeDefined();
     });
-
-    it("must return results when there is a typo in the search term 'Paracetmol'", async () => {
-        const results = await getSearchResults("Paracetmol");
-
-        // Check that we have some results
-        expect(results.length).toBeGreaterThan(0);
-
-        // Check that at least one of the results has paracétamol as a composant
-        const paracetamolGroup = results.find((item) => {
-            return "composants" in item && /paracétamol/i.test(item.composants);
-        });
-
-        expect(paracetamolGroup).toBeDefined();
-    });
-
-    it("must return results for one-character search terms", async () => {
-        // this is useful for autocompletion in the search bar
-        const results = await getSearchResults("a");
-        expect(results.length).toBeGreaterThan(0);
-    });
-
 });
