@@ -20,8 +20,8 @@ export type SearchResultItem =
   | { class: ATC1; subclasses: ATC[] };
 
 function getSearchScore(
-  query: string, 
-  match: SearchResult & {sml: number},
+  query: string,
+  match: SearchResult & { sml: number },
   specFromSub?: boolean,
 ): number {
   const cleanQuery = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -29,20 +29,20 @@ function getSearchScore(
   const indexOf = cleanToken.toLowerCase().indexOf(cleanQuery);
 
   let score: number = match.sml;
-  if(match.sml === 1){
+  if (match.sml === 1) {
     //Mot entier non contenu dans un autre
-    if(indexOf !== 0) score -= 0.01; //Pas en début de phrase
+    if (indexOf !== 0) score -= 0.01; //Pas en début de phrase
   } else {
-    if(indexOf !== -1){
-      if(indexOf === 0) score -= 0.02;
+    if (indexOf !== -1) {
+      if (indexOf === 0) score -= 0.02;
       else score -= 0.03;
 
     } else {
-      if(specFromSub){
+      if (specFromSub) {
         score -= 0.03;
       }
       else score -= 0.04; //Pas trouvé : faute d'orthographe
-    } 
+    }
   }
   return score;
 }
@@ -214,30 +214,29 @@ export const getSearchResults = unstable_cache(async function (
   return acc
     .sort((a, b) => b.score - a.score)
     .sort(
-      (a, b) => 
-        { 
-          if(a.score !== b.score ) return 1;
-          else {
-            const valA: string = (a.item as ResumeSubstance).NomLib 
-              ? (a.item as ResumeSubstance).NomLib
-              : (a.item as ResumePatho).NomPatho
-                ? (a.item as ResumePatho).NomPatho
-                : (a.item as { class: ATC1; subclasses: ATC[] }).class && (a.item as { class: ATC1; subclasses: ATC[] }).class.label
-                  ? (a.item as { class: ATC1; subclasses: ATC[] }).class.label
-                  : (a.item as ResumeSpecGroup).groupName
-                    ? (a.item as ResumeSpecGroup).groupName
-                    : "";
-            const valB: string = (b.item as ResumeSubstance).NomLib 
-              ? (b.item as ResumeSubstance).NomLib
-              : (b.item as ResumePatho).NomPatho
-                ? (b.item as ResumePatho).NomPatho
-                : (b.item as { class: ATC1; subclasses: ATC[] }).class && (b.item as { class: ATC1; subclasses: ATC[] }).class.label
-                  ? (b.item as { class: ATC1; subclasses: ATC[] }).class.label
-                  : (b.item as ResumeSpecGroup).groupName
-                    ? (b.item as ResumeSpecGroup).groupName
-                    : "";
-            return valA.localeCompare(valB);
-          }
+      (a, b) => {
+        if (a.score !== b.score) return 1;
+        else {
+          const valA: string = (a.item as ResumeSubstance).NomLib
+            ? (a.item as ResumeSubstance).NomLib
+            : (a.item as ResumePatho).NomPatho
+              ? (a.item as ResumePatho).NomPatho
+              : (a.item as { class: ATC1; subclasses: ATC[] }).class && (a.item as { class: ATC1; subclasses: ATC[] }).class.label
+                ? (a.item as { class: ATC1; subclasses: ATC[] }).class.label
+                : (a.item as ResumeSpecGroup).groupName
+                  ? (a.item as ResumeSpecGroup).groupName
+                  : "";
+          const valB: string = (b.item as ResumeSubstance).NomLib
+            ? (b.item as ResumeSubstance).NomLib
+            : (b.item as ResumePatho).NomPatho
+              ? (b.item as ResumePatho).NomPatho
+              : (b.item as { class: ATC1; subclasses: ATC[] }).class && (b.item as { class: ATC1; subclasses: ATC[] }).class.label
+                ? (b.item as { class: ATC1; subclasses: ATC[] }).class.label
+                : (b.item as ResumeSpecGroup).groupName
+                  ? (b.item as ResumeSpecGroup).groupName
+                  : "";
+          return valA.localeCompare(valB);
         }
+      }
     ).map(({ item }) => item);
 });
