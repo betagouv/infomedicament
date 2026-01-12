@@ -63,23 +63,33 @@ export const getSearchResults = unstable_cache(async function (
   { onlyDirectMatches = false } = {},
 ): Promise<SearchResultItem[]> {
 
+  // empty query returns no results
+  if (!query || query.trim().length === 0) {
+    return [];
+  }
+
   const dbQuery = db
     .selectFrom("search_index")
     .selectAll()
     .select(({ fn, val }) => [
       fn("word_similarity", [fn("unaccent", [val(query)]), "token"]).as("sml"),
     ])
-    .where(
-      query.length > 2 // if the query is too short, we don't do ilike search to avoid too many results
-        ? ({ eb }) =>
-            eb.or([
-              sql<boolean>`token %> unaccent(${query})`,
-              eb("token", "ilike", `%${query}%`),
-            ])
-        : sql<boolean>`token %> unaccent(${query})`,
-    )
+    .where((eb) => {
+      if (query.length <= 3) {
+        // for very short queries, only match from the beginning to limit the number of results
+        return eb("token", "ilike", `${query}%`);
+      }
+      if (query.length <= 5) {
+        // if the query is short, we only do ilike search to avoid too many results
+        return eb("token", "ilike", `%${query}%`);
+      }
+      return eb.or([
+        sql<boolean>`token %> unaccent(${query})`, // fuzzy-search using pg_trgm
+        eb("token", "ilike", `%${query}%`), // exact match using ilike
+      ])
+    })
     .orderBy("sml", "desc")
-    .orderBy(({ fn }) => fn("length", ["token"]));
+    .orderBy(({ fn }) => fn("length", ["token"]))
 
   const matches = (await dbQuery.execute()) as (SearchResult & {
     sml: number;
