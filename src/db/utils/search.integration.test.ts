@@ -43,6 +43,15 @@ describe("Search engine (Integration) -- Functional Tests", () => {
         expect(results.length).toBeGreaterThan(0);
     });
 
+    it("must not allow for typos in short search terms", async () => {
+        const results = await getSearchResults("acne");
+        // Check that all results contain 'acne' in their token (no typo allowed)
+        for (const result of results) {
+            if ("groupName" in result) { // TODO: fixme when types are refactored and made simpler
+                expect(result.groupName.toLowerCase()).toContain("acne");
+            }
+        }
+    });
 });
 
 describe("Search engine (Integration) -- Business Logic Tests", () => {
