@@ -80,7 +80,7 @@ describe("Search engine (Integration) -- Functional Tests", () => {
         }
     });
 
-    it("must search in the beginning of words in name, components or ATC for short terms (<= 3 chars)", async () => {
+    it("must search in the beginning of specialite names for short terms (<= 3 chars)", async () => {
         const query = "ac";
         const results = await getSearchResults(query);
 
@@ -92,27 +92,13 @@ describe("Search engine (Integration) -- Functional Tests", () => {
         for (const result of results) {
             let matchFound = false;
 
-            // ignore objects that are not ResumeSpecGroup since we'll drop them soon
-            if (!("groupName" in result)) {
-                continue;
-            }
-
-            // 1. Check Group Name (ex: "ACTIFED")
+            // Check Group Name (ex: "ACTIFED")
+            // For short queries, we only search in specialite names
             if ("groupName" in result && result.groupName && queryRegex.test(result.groupName)) {
                 matchFound = true;
             }
-            // 2. Check Composants (ex: "acide alendronique")
-            else if ("composants" in result && typeof result.composants === 'string' && queryRegex.test(result.composants)) {
-                matchFound = true;
-            }
-            // 3. Check ATC Labels
-            else if ("atc1Label" in result && result.atc1Label && queryRegex.test(result.atc1Label)) {
-                matchFound = true;
-            }
-            else if ("atc2Label" in result && result.atc2Label && queryRegex.test(result.atc2Label)) {
-                matchFound = true;
-            }
 
+            // useful to debug failing tests
             if (!matchFound) {
                 console.log(result);
             }

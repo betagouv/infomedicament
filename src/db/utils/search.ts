@@ -77,7 +77,11 @@ export const getSearchResults = unstable_cache(async function (
     .where((eb) => {
       if (query.length <= 3) {
         // for very short queries, only match from the beginning to limit the number of results
-        return eb("token", "ilike", `${query}%`);
+        // also, we only match specialities
+        return eb.and([
+          eb("token", "ilike", `${query}%`),
+          eb("table_name", "in", ["Specialite"])
+        ]);
       }
       if (query.length <= 5) {
         // if the query is short, we only do ilike search to avoid too many results
