@@ -9,20 +9,28 @@ et utilise le [DSFR](https://www.systeme-de-design.gouv.fr/)
 via [react-dsfr](https://github.com/codegouvfr/react-dsfr).
 
 Deux bases de données sont utilisées :
-* PostgreSQL pour toutes les données propres au projet Info Médicament;
-* MySQL pour héberger une copie de la base de données publique des médicaments originale de l'ANSM.
-Ces données sont utilisés à l'identique et la base MySQL n'est pas modifiée.
+
+- PostgreSQL pour toutes les données propres au projet Info Médicament;
+- MySQL pour héberger une copie de la base de données publique des médicaments originale de l'ANSM.
+  Ces données sont utilisés à l'identique et la base MySQL n'est pas modifiée.
 
 Pour démarrer facilement un environnement de développement avec un service MySQL et un service PostgreSQL,vous pouvez utiliser la configuration Dev Containers fournie.
 
 ## Installation
 
-```bash
 ### Lancer le serveur NextJS
 
 ```bash
 npm install
 npm run dev
+```
+
+### Lancer les tests
+
+_NB: certains tests d'intégration nécessitent un accès aux bases de données en local._
+
+```
+npm test
 ```
 
 ### Charger les données issue de la BDPM
@@ -41,8 +49,9 @@ de la base de données publique des médicaments.
 
 Info Médicament utilise une base de données PostgreSQL
 pour stocker les données spécifiques à l'application :
-* les images des notices (pour éviter d'avoir à les stocker dans un système de fichiers)
-* les index de recherche plein texte
+
+- les images des notices (pour éviter d'avoir à les stocker dans un système de fichiers)
+- les index de recherche plein texte
 
 Vous devez d'abord jouer les migrations pour créer les tables,
 puis charger les données. La base MySQL doit être accessible préalablement.

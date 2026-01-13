@@ -9,7 +9,11 @@
     "lint": "next lint",
     "predev": "only-include-used-icons",
     "prebuild": "only-include-used-icons && kysely migrate:latest && kysely seed run --specific 1725439927263_searchIndex",
-    "test": "vitest"
+    "test": "npm run test:unit",
+    "test:unit": "vitest --exclude '**/*.integration.test.ts'",
+    "test:integration": "vitest run 'integration.test.ts'",
+    "test:all": "vitest run",
+    "test:watch": "vitest --watch"
   },
   "dependencies": {
     "@codegouvfr/react-dsfr": "^1.16.0",
