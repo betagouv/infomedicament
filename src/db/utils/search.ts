@@ -1,129 +1,27 @@
+"use server";
+
 import "server-cli-only";
-import { pdbmMySQL } from "@/db/pdbmMySQL";
-import liste_CIS_MVP from "@/liste_CIS_MVP.json";
 import db from "@/db";
-import { SearchResult } from "@/db/types";
-import { Expression, expressionBuilder, sql, SqlBool } from "kysely";
-import { groupSpecialites, presentationIsComm } from "@/db/utils/index";
-import { Patho, PdbmMySQL, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { ResumePatho, ResumeSubstance, SearchResult } from "@/db/types";
+import { sql } from "kysely";
 import { unstable_cache } from "next/cache";
-import { ATC, ATC1, getAtc1, getAtc2 } from "@/data/grist/atc";
+import { getAtc1, getAtc2, getResumeSpecsGroupsATCLabels } from "@/data/grist/atc";
+import { ATC, ATC1 } from "@/types/ATCTypes";
+import { getSubstancesResume } from "./substances";
+import { getPathologiesResume } from "./pathologies";
+import { getResumeSpecsGroupsWithCISSubsIds } from "./specialities";
+import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
+import { getResumeSpecsGroupsAlerts } from "@/data/grist/specialites";
 
 export type SearchResultItem =
-  | SubstanceNom
-  | { groupName: string; specialites: Specialite[] }
-  | Patho
+  | ResumeSubstance
+  | ResumeSpecGroup
+  | ResumePatho
   | { class: ATC1; subclasses: ATC[] };
 
-const getSpecialites = unstable_cache(async function (
-  specialitesId: string[],
-  substancesId: string[],
-) {
-  return specialitesId.length
-    ? await pdbmMySQL
-        .selectFrom("Specialite")
-        .leftJoin("Composant", "Specialite.SpecId", "Composant.SpecId")
-        .where(({ eb }) =>
-          substancesId.length
-            ? eb.or([
-                eb("Specialite.SpecId", "in", specialitesId),
-                eb("Composant.NomId", "in", substancesId),
-              ])
-            : eb("Specialite.SpecId", "in", specialitesId),
-        )
-        .leftJoin("Presentation", "Specialite.SpecId", "Presentation.SpecId")
-        .where(presentationIsComm())
-        .where("Specialite.SpecId", "in", liste_CIS_MVP)
-        .selectAll("Specialite")
-        .select(({ fn }) => [
-          fn<Array<string>>("json_arrayagg", ["NomId"]).as("SubsNomId"),
-        ])
-        .groupBy("Specialite.SpecId")
-        .execute()
-    : [];
-});
-
-//TODO quand base maj ajouter ces calcules dans getSubstances - doublon
-function withSubstances(
-  specId: Expression<string>,
-  nomIds: string[],
-): Expression<SqlBool> {
-  const eb = expressionBuilder<PdbmMySQL, never>();
-
-  return eb.exists(
-    eb
-      .selectFrom("Composant")
-      .select("Composant.SpecId")
-      .where("Composant.NomId", "in", nomIds)
-      .where("Composant.SpecId", "=", specId)
-      .where(({ eb, selectFrom }) =>
-        eb(
-          "Composant.SpecId",
-          "not in",
-          selectFrom("Composant as subquery")
-            .select("SpecId")
-            .where("subquery.NomId", "not in", nomIds)
-            .whereRef(
-              "subquery.CompNum",
-              "not in",
-              selectFrom("Composant as subquery2")
-                .select("CompNum")
-                .where("subquery2.SpecId", "=", specId)
-                .where("subquery2.NomId", "in", nomIds),
-            ),
-        ),
-      )
-      .groupBy("Composant.SpecId")
-      .having((eb) =>
-        eb(
-          eb.fn.count("Composant.CompNum").distinct(),
-          "=",
-          eb.val(nomIds.length),
-        ),
-      ),
-  );
-}
-
-const getSubstances = unstable_cache(async function getSubstances(
-  substancesId: string[],
-) {
-  const substances: SubstanceNom[] = substancesId.length
-    ? await pdbmMySQL
-        .selectFrom("Subs_Nom")
-        .where("NomId", "in", substancesId)
-        .selectAll()
-        .execute()
-    : [];
-  return substances;
-});
-
-export const getSubstanceSpecialites = unstable_cache(async function (
-  substanceIDs: (string | string[])
-): Promise<Specialite[]> {
-  const ids: string[] = !Array.isArray(substanceIDs) ? [substanceIDs] : substanceIDs;
-  return pdbmMySQL
-  .selectFrom("Specialite")
-  .selectAll("Specialite")
-  .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
-  .where("Specialite.SpecId", "in", liste_CIS_MVP)
-  .groupBy("Specialite.SpecId")
-  .execute();
-});
-
-//TODO quand base maj ajouter tous les calculs ici
-const getPathologies = unstable_cache(async function (pathologiesId: string[]) {
-  return pathologiesId.length
-    ? await pdbmMySQL
-        .selectFrom("Patho")
-        .selectAll()
-        .where("codePatho", "in", pathologiesId)
-        .execute()
-    : [];
-});
-
 function getSearchScore(
-  query: string, 
-  match: SearchResult & {sml: number},
+  query: string,
+  match: SearchResult & { sml: number },
   specFromSub?: boolean,
 ): number {
   const cleanQuery = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -131,20 +29,20 @@ function getSearchScore(
   const indexOf = cleanToken.toLowerCase().indexOf(cleanQuery);
 
   let score: number = match.sml;
-  if(match.sml === 1){
+  if (match.sml === 1) {
     //Mot entier non contenu dans un autre
-    if(indexOf !== 0) score -= 0.01; //Pas en début de phrase
+    if (indexOf !== 0) score -= 0.01; //Pas en début de phrase
   } else {
-    if(indexOf !== -1){
-      if(indexOf === 0) score -= 0.02;
+    if (indexOf !== -1) {
+      if (indexOf === 0) score -= 0.02;
       else score -= 0.03;
 
     } else {
-      if(specFromSub){
+      if (specFromSub) {
         score -= 0.03;
       }
       else score -= 0.04; //Pas trouvé : faute d'orthographe
-    } 
+    }
   }
   return score;
 }
@@ -165,23 +63,37 @@ export const getSearchResults = unstable_cache(async function (
   { onlyDirectMatches = false } = {},
 ): Promise<SearchResultItem[]> {
 
+  // empty query returns no results
+  if (!query || query.trim().length === 0) {
+    return [];
+  }
+
   const dbQuery = db
     .selectFrom("search_index")
     .selectAll()
     .select(({ fn, val }) => [
       fn("word_similarity", [fn("unaccent", [val(query)]), "token"]).as("sml"),
     ])
-    .where(
-      query.length > 2 // if the query is too short, we don't do ilike search to avoid too many results
-        ? ({ eb }) =>
-            eb.or([
-              sql<boolean>`token %> unaccent(${query})`,
-              eb("token", "ilike", `%${query}%`),
-            ])
-        : sql<boolean>`token %> unaccent(${query})`,
-    )
+    .where((eb) => {
+      if (query.length <= 3) {
+        // for very short queries, only match from the beginning to limit the number of results
+        // also, we only match specialities
+        return eb.and([
+          eb("token", "ilike", `${query}%`),
+          eb("table_name", "in", ["Specialite"])
+        ]);
+      }
+      if (query.length <= 5) {
+        // if the query is short, we only do ilike search to avoid too many results
+        return eb("token", "ilike", `%${query}%`);
+      }
+      return eb.or([
+        sql<boolean>`token %> unaccent(${query})`, // fuzzy-search using pg_trgm
+        eb("token", "ilike", `%${query}%`), // exact match using ilike
+      ])
+    })
     .orderBy("sml", "desc")
-    .orderBy(({ fn }) => fn("length", ["token"]));
+    .orderBy(({ fn }) => fn("length", ["token"]))
 
   const matches = (await dbQuery.execute()) as (SearchResult & {
     sml: number;
@@ -191,21 +103,22 @@ export const getSearchResults = unstable_cache(async function (
 
   const specialitesId = matches
     .filter((r) => r.table_name === "Specialite")
-    .map((r) => r.id);
+    .map((r) => r.id.trim());
   const substancesId = matches
     .filter((r) => r.table_name === "Subs_Nom")
-    .map((r) => r.id);
+    .map((r) => r.id.trim());
   const pathologiesId = matches
     .filter((r) => r.table_name === "Patho")
-    .map((r) => r.id);
+    .map((r) => r.id.trim());
   const ATCCodes = matches
     .filter((r) => r.table_name === "ATC")
-    .map((r) => r.id);
+    .map((r) => r.id.trim());
 
-  const specialites = await getSpecialites(specialitesId, substancesId);
-  const specialiteGroups = groupSpecialites(specialites);
-  const substances = await getSubstances(substancesId);
-  const pathologies = await getPathologies(pathologiesId);
+  const resumeSpecsGroups = await getResumeSpecsGroupsWithCISSubsIds(specialitesId, substancesId);
+  const specsGroupsWithATC: ResumeSpecGroup[] = await getResumeSpecsGroupsATCLabels(resumeSpecsGroups);
+  const specsGroups: ResumeSpecGroup[] = await getResumeSpecsGroupsAlerts(specsGroupsWithATC);
+  const substances = await getSubstancesResume(substancesId);
+  const pathologies = await getPathologiesResume(pathologiesId);
   const ATCClasses = await Promise.all(
     ATCCodes.map((code) => (code.length === 1 ? getAtc1(code) : getAtc2(code))),
   );
@@ -215,39 +128,35 @@ export const getSearchResults = unstable_cache(async function (
     if (match.table_name === "Subs_Nom") {
       const substance = substances.find(
         (s) => s.NomId.trim() === match.id.trim(),
-      ); // if undefined, the substance is not in one of the 500 CIS list
+      );
       if (substance) {
         acc.push({ score: getSearchScore(query, match), item: substance });
 
         if (onlyDirectMatches) continue;
 
-        specialiteGroups
-          .filter(([, specialites]) =>
-            specialites.find(
-              (s) =>
-                s.SubsNomId &&
-                s.SubsNomId.map((id) => id.trim()).includes(
-                  substance.NomId.trim(),
-                ),
+        specsGroups
+          .filter((specGroup) =>
+            specGroup.subsIds.find(
+              (subsId) => subsId === substance.NomId.trim(),
             ),
           )
-          .forEach(([groupName, specialites]) => {
+          .forEach((specGroup) => {
             if (
               !acc.find(
                 ({ item }) =>
-                  "groupName" in item && item.groupName === groupName,
+                  "groupName" in item && item.groupName === specGroup.groupName,
               )
             ) {
               let directMatch = matches.find(
                 (m) =>
                   m.table_name === "Specialite" &&
-                  specialites.find((s) => s.SpecId.trim() === m.id.trim()),
+                  specGroup.CISList.find((CIS) => CIS.trim() === m.id.trim()),
               );
               //Avant : directMatch ? directMatch.sml + match.sml : match.sml
               //Si vient de substance, on fait passer en avant
               acc.push({
                 score: directMatch ? getSearchScore(query, directMatch, true) : 0.3,
-                item: { groupName, specialites },
+                item: specGroup,
               });
             }
           });
@@ -255,18 +164,15 @@ export const getSearchResults = unstable_cache(async function (
     }
 
     if (match.table_name === "Specialite") {
-      const specialiteGroup = specialiteGroups.find(([, specialites]) =>
-        specialites.find((s) => s.SpecId.trim() === match.id.trim()),
-      ); // if undefined, the specialite is not in the 500 CIS list
+      const specialiteGroup = specsGroups.find((specGroup) => specGroup.CISList.includes(match.id.trim()));
       if (
         specialiteGroup &&
         !acc.find(
           ({ item }) =>
-            "groupName" in item && item.groupName === specialiteGroup[0],
+            "groupName" in item && item.groupName === specialiteGroup.groupName,
         )
       ) {
-        const [groupName, specialites] = specialiteGroup;
-        acc.push({ score: getSearchScore(query, match), item: { groupName, specialites } });
+        acc.push({ score: getSearchScore(query, match), item: specialiteGroup });
       }
     }
 
@@ -312,30 +218,29 @@ export const getSearchResults = unstable_cache(async function (
   return acc
     .sort((a, b) => b.score - a.score)
     .sort(
-      (a, b) => 
-        { 
-          if(a.score !== b.score ) return 1;
-          else {
-            const valA: string = (a.item as SubstanceNom).NomLib 
-              ? (a.item as SubstanceNom).NomLib
-              : (a.item as Patho).NomPatho
-                ? (a.item as Patho).NomPatho
-                : (a.item as { class: ATC1; subclasses: ATC[] }).class && (a.item as { class: ATC1; subclasses: ATC[] }).class.label
-                  ? (a.item as { class: ATC1; subclasses: ATC[] }).class.label
-                  : (a.item as { groupName: string; specialites: Specialite[] }).groupName
-                    ? (a.item as { groupName: string; specialites: Specialite[] }).groupName
-                    : "";
-            const valB: string = (b.item as SubstanceNom).NomLib 
-              ? (b.item as SubstanceNom).NomLib
-              : (b.item as Patho).NomPatho
-                ? (b.item as Patho).NomPatho
-                : (b.item as { class: ATC1; subclasses: ATC[] }).class && (b.item as { class: ATC1; subclasses: ATC[] }).class.label
-                  ? (b.item as { class: ATC1; subclasses: ATC[] }).class.label
-                  : (b.item as { groupName: string; specialites: Specialite[] }).groupName
-                    ? (b.item as { groupName: string; specialites: Specialite[] }).groupName
-                    : "";
-            return valA.localeCompare(valB);
-          }
+      (a, b) => {
+        if (a.score !== b.score) return 1;
+        else {
+          const valA: string = (a.item as ResumeSubstance).NomLib
+            ? (a.item as ResumeSubstance).NomLib
+            : (a.item as ResumePatho).NomPatho
+              ? (a.item as ResumePatho).NomPatho
+              : (a.item as { class: ATC1; subclasses: ATC[] }).class && (a.item as { class: ATC1; subclasses: ATC[] }).class.label
+                ? (a.item as { class: ATC1; subclasses: ATC[] }).class.label
+                : (a.item as ResumeSpecGroup).groupName
+                  ? (a.item as ResumeSpecGroup).groupName
+                  : "";
+          const valB: string = (b.item as ResumeSubstance).NomLib
+            ? (b.item as ResumeSubstance).NomLib
+            : (b.item as ResumePatho).NomPatho
+              ? (b.item as ResumePatho).NomPatho
+              : (b.item as { class: ATC1; subclasses: ATC[] }).class && (b.item as { class: ATC1; subclasses: ATC[] }).class.label
+                ? (b.item as { class: ATC1; subclasses: ATC[] }).class.label
+                : (b.item as ResumeSpecGroup).groupName
+                  ? (b.item as ResumeSpecGroup).groupName
+                  : "";
+          return valA.localeCompare(valB);
         }
+      }
     ).map(({ item }) => item);
 });

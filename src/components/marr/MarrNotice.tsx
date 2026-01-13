@@ -1,3 +1,5 @@
+"use client";
+
 import { HTMLAttributes } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import MarrResumeList from "./MarrResumeList";

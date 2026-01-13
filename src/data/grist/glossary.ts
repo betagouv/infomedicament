@@ -1,3 +1,5 @@
+"use server";
+
 import { getGristTableData } from "@/data/grist/index";
 import { Definition } from "@/types/GlossaireTypes";
 

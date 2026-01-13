@@ -1,3 +1,5 @@
+import { ImageProps } from "next/image";
+
 export type ArticleCardResume = {
   slug: string,
   title: string,
@@ -7,4 +9,19 @@ export type ArticleCardResume = {
   specialites: string[],
   pathologies: number[],
   atc: number[],
-}
+};
+
+export type ArticleTrackingFromType = "Page substance" | "Page pathologie" | "Page ATC1" 
+  | "Page ATC2" | "Page médicament" | "Recherche" | "Page d'accueil" | "Liste articles";
+  
+export type Article = {
+  slug: string,
+  title: string,
+  source: string,
+  content: string,
+  category: string,
+  homepage: boolean,
+  canonicalUrl: string,
+  description: string,
+  image?: Omit<ImageProps, "alt">
+};

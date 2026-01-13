@@ -1,18 +1,37 @@
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
-import React from "react";
-import { ATC } from "@/data/grist/atc";
+import React, { HTMLAttributes } from "react";
 import "./dsfr-custom-tags.css";
+import { ATC } from "@/types/ATCTypes";
+import { trackEvent } from "@/services/tracking";
 
-export default function ClassTag(props: { atc2: ATC }) {
+interface ClassTagProps extends HTMLAttributes<HTMLDivElement> {
+  atc2: ATC;
+  fromMedicament?: boolean;
+}
+
+function ClassTag({
+  atc2,
+  fromMedicament,
+}: ClassTagProps) {
+
+  const onTrackEvent = () => {
+    if(fromMedicament)
+      trackEvent("Page médicament", "Tag Classe ATC2");
+  };
+
   return (
     <Tag
       linkProps={{
-        href: `/atc/${props.atc2.code}`,
+        href: `/atc/${atc2.code}`,
         className: cx("fr-tag--custom-alt-class"),
+        target: "_blank",
+        onClick: () => onTrackEvent(),
       }}
     >
-      {props.atc2.label}
+      {atc2.label}
     </Tag>
   );
-}
+};
+
+export default ClassTag;

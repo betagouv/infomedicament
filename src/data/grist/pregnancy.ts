@@ -1,7 +1,9 @@
+"use server";
+
 import { getGristTableData } from "@/data/grist/index";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 
-export async function getPregnancyPlanAlerts(): Promise <PregnancyAlert[]> {
+export async function getAllPregnancyPlanAlerts(): Promise <PregnancyAlert[]> {
   const records = await getGristTableData(
     "Grossesse_substances_contre_indiquees",
     ["SubsId", "Lien_site_ANSM"],
@@ -11,6 +13,13 @@ export async function getPregnancyPlanAlerts(): Promise <PregnancyAlert[]> {
     id: fields.SubsId as string,
     link: fields.Lien_site_ANSM as string,
   }));
+}
+export async function getAllPregnancyMentionAlerts(): Promise <string[]> {
+  const records = await getGristTableData(
+    "Grossesse_mention",
+    ["CIS"],
+  );
+  return records.map(({ fields }) => fields.CIS as string );
 }
 
 export async function getPregnancyMentionAlert(

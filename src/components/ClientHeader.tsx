@@ -4,9 +4,9 @@ import { Header } from "@codegouvfr/react-dsfr/Header";
 import Image from "next/image";
 import { AutocompleteSearchInput } from "@/components/AutocompleteSearch";
 import { useRouter } from "next/navigation";
-import { ATC1 } from "@/data/grist/atc";
 import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 import { useTracking } from "@/services/tracking";
+import { ATC1 } from "@/types/ATCTypes";
 
 export default function ClientHeader({
   atcs,
@@ -58,11 +58,11 @@ export default function ClientHeader({
           menuLinks: [
             {
               text: "Tous les médicaments",
-              linkProps: { href: "/medicaments/A" },
+              linkProps: { href: "/medicaments/1" },
             },
             {
               text: "Toutes les substances actives",
-              linkProps: { href: "/substances/A" },
+              linkProps: { href: "/substances/(" },
             },
             {
               text: "Toutes les pathologies",

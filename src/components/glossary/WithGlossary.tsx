@@ -1,9 +1,11 @@
+"use client";
+
 import React, { Fragment } from "react";
 import WithDefinition from "@/components/glossary/WithDefinition";
 import { Definition } from "@/types/GlossaireTypes";
 import { questionKeys, questionsList } from "@/data/pages/notices_anchors";
 import QuestionKeyword from "../medicaments/QuestionKeyword";
-import { QuestionAnchors, QuestionsListFormat } from "@/types/NoticesAnchors";
+import { QuestionAnchors } from "@/types/NoticesAnchors";
 
 function escapeRegExp(text: string) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -77,8 +79,6 @@ function WithGlossary({
   headerId?: string;
 }): React.JSX.Element {
 
-  if(!definitions) return (<>{text}</>);
-
   let elements: (React.JSX.Element | string)[] = text;
 
   if(headerId){
@@ -104,15 +104,17 @@ function WithGlossary({
       });
     });
 
-    //Find definitions
-    definitions.forEach((definition) => {
-      elements = elements
-        .map((element) => {
-          if (typeof element !== "string") return element;
-          return withDefinition(element, definition);
-        })
-        .flat();
-    });
+    if(definitions){
+      //Find definitions
+      definitions.forEach((definition) => {
+        elements = elements
+          .map((element) => {
+            if (typeof element !== "string") return element;
+            return withDefinition(element, definition);
+          })
+          .flat();
+      });
+    }
   }
 
   return (

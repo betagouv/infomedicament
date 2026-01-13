@@ -2,6 +2,7 @@
 
 import { init, push } from '@socialgouv/matomo-next';
 import { useEffect } from 'react';
+import * as Sentry from "@sentry/nextjs";
 
 const trackingConfig = {
   matomoServerURL: process.env.NEXT_PUBLIC_MATOMO_URL,
@@ -22,6 +23,7 @@ export const useTracking = () => {
         siteId: trackingConfig.matomoSiteId,
         disableCookies: true,
         onScriptLoadingError() {
+          Sentry.captureException('Error loading Matomo');
           console.log('Error loading Matomo');
         },
       });
@@ -30,9 +32,12 @@ export const useTracking = () => {
 };
 
 export const trackSearchEvent = (keyword: string) => {
-  console.log("search -- Matomo");
   if (!keyword) {
     return;
   }
   push(['trackSiteSearch', keyword]);
+};
+
+export const trackEvent = (category: string, action: string) => {
+  push(['trackEvent', category, action]);
 };

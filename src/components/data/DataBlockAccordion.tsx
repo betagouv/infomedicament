@@ -3,14 +3,15 @@
 import { HTMLAttributes, useEffect, useState } from "react";
 import Link from "next/link";
 import { fr } from "@codegouvfr/react-dsfr";
-import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
+import { formatSpecName } from "@/displayUtils";
 import styled, {css} from 'styled-components';
 import Button from "@codegouvfr/react-dsfr/Button";
+import { Tooltip } from "@codegouvfr/react-dsfr/Tooltip";
 import PediatricsTags from "../tags/PediatricsTags";
-import { AdvancedMedicamentGroup, AdvancedSpecialite } from "@/types/MedicamentTypes";
-import { PediatricsInfo } from "@/data/grist/pediatrics";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
+import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
+import { PediatricsInfo } from "@/types/PediatricTypes";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
@@ -79,65 +80,81 @@ const FiltersTagContainer = styled.div`
 `;
 
 interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
-  item: AdvancedMedicamentGroup;
+  item: ResumeSpecGroup;
   filterPregnancy?: boolean;
   filterPediatric?: boolean;
+  withAlert?: boolean;
 }
 
-//For now only for type === DataTypeEnum.MEDGROUP
+//For now only for type === DataTypeEnum.MEDICAMENT
 function DataBlockAccordion({
   item,
   filterPregnancy,
-  filterPediatric
+  filterPediatric,
+  withAlert
 }: DataBlockAccordionProps) {
 
   const COMPOSANTS_TRUNC_LENGTH = window.innerWidth <= 768 ? 150 : 250;
 
-  const [advancedMedicamentGroup, setAdvancedMedicamentGroup] = useState<AdvancedMedicamentGroup>();
+  const [specialitesGroup, setSpecialitesGroup] = useState< ResumeSpecGroup>();
   const [groupName, setGroupName] = useState<string>("");
-  const [specialites, setSpecialites] = useState<AdvancedSpecialite[]>();
+  const [specialites, setSpecialites] = useState<ResumeSpecialite[]>();
+  const [fullListeComposants, setFullListeComposants] = useState<string>("");
+  const [listeComposants, setListeComposants] = useState<string>("");
+
+  const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(false);
+  
+  const [atc1Label, setAtc1Label] = useState<string | undefined>(undefined);
+  const [atc2Label, setAtc2Label] = useState<string | undefined>(undefined);
+
+  //withAlert
   const [pregnancyPlanAlert, setPregnancyPlanAlert] = useState<boolean>(false);
   const [pregnancyMentionAlert, setPregnancyMentionAlert] = useState<boolean>(false);
   const [pediatricsInfo, setPediatricsInfo] = useState<PediatricsInfo>();
 
-  const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(false);
 
-  const [fullListeComposants, setFullListeComposants] = useState<string>("");
-  const [listeComposants, setListeComposants] = useState<string>("");
 
   useEffect(() => {
-    setAdvancedMedicamentGroup(item);
+    setSpecialitesGroup(item);
     setGroupName(formatSpecName(item.groupName));
-    setSpecialites(item.specialites);
-    const composants = 
-      displaySimpleComposants(item.composants)
-        .map((s) => s.NomLib.trim())
-        .join(", ");
-    setFullListeComposants(composants);
-    setListeComposants(composants.slice(0, COMPOSANTS_TRUNC_LENGTH) + (composants.length > COMPOSANTS_TRUNC_LENGTH ? "..." : ""));
-  }, [item, setAdvancedMedicamentGroup, setGroupName, setSpecialites, setFullListeComposants, setListeComposants]);
+    setSpecialites(item.resumeSpecialites);
+    setFullListeComposants(item.composants);
+    setListeComposants(item.composants.slice(0, COMPOSANTS_TRUNC_LENGTH) + (item.composants.length > COMPOSANTS_TRUNC_LENGTH ? "..." : ""));
+    setAtc1Label(item.atc1Label);
+    setAtc2Label(item.atc2Label);
+  }, [item, setSpecialitesGroup, setGroupName, setSpecialites, setFullListeComposants, setListeComposants, setAtc1Label, setAtc2Label]);
 
   useEffect(() => {
-    if(advancedMedicamentGroup && filterPregnancy){
-      if (advancedMedicamentGroup.pregnancyPlanAlert) setPregnancyPlanAlert(true)
+    if(withAlert 
+      && specialitesGroup 
+      && specialitesGroup.alerts 
+      && filterPregnancy
+      && (specialitesGroup.alerts.pregnancyPlanAlert || specialitesGroup.alerts.pregnancyMentionAlert)
+    ){
+      if (specialitesGroup.alerts.pregnancyPlanAlert) setPregnancyPlanAlert(true)
       else setPregnancyPlanAlert(false);
 
-      if (advancedMedicamentGroup.pregnancyMentionAlert) setPregnancyMentionAlert(true);
+      if (specialitesGroup.alerts.pregnancyMentionAlert) setPregnancyMentionAlert(true);
       else setPregnancyMentionAlert(false);
     } else {
       setPregnancyPlanAlert(false);
       setPregnancyMentionAlert(false);
     }
 
-  }, [filterPregnancy, advancedMedicamentGroup, setPregnancyPlanAlert, setPregnancyMentionAlert]);
+  }, [withAlert, filterPregnancy, specialitesGroup, setPregnancyPlanAlert, setPregnancyMentionAlert]);
 
   useEffect(() => {
-    if(advancedMedicamentGroup && filterPediatric && advancedMedicamentGroup.pediatrics)
-      setPediatricsInfo(advancedMedicamentGroup.pediatrics);
+    if(withAlert 
+      && specialitesGroup 
+      && specialitesGroup.alerts
+      && filterPediatric 
+      && specialitesGroup.alerts.pediatrics
+    )
+      setPediatricsInfo(specialitesGroup.alerts.pediatrics);
     else
       setPediatricsInfo(undefined);
 
-  }, [filterPediatric, advancedMedicamentGroup, setPediatricsInfo]);
+  }, [withAlert, filterPediatric, specialitesGroup, setPediatricsInfo]);
 
   function onDetailsVisibles(isVisible: boolean) {
     setIsDetailsVisible(isVisible);
@@ -148,7 +165,7 @@ function DataBlockAccordion({
     }
   }
 
-  return advancedMedicamentGroup && (
+  return specialitesGroup && (
     <Container className={fr.cx("fr-mb-1w")}>
       <GreyContainer 
         className={fr.cx("fr-p-1w")}
@@ -164,13 +181,13 @@ function DataBlockAccordion({
         <DetailsContainer>
           <div style={{width: "100%"}}>
             <RowToColumnContainer>
-              {(advancedMedicamentGroup.atc1 || advancedMedicamentGroup.atc2) && (
+              {(atc1Label || atc2Label) && (
                 <span className={fr.cx("fr-text--sm", "fr-mr-2w")}>
                   <GreyText>Classe</GreyText>&nbsp;
                   <DarkGreyText>
-                    {advancedMedicamentGroup.atc1 && advancedMedicamentGroup.atc1.label}
-                    {(advancedMedicamentGroup.atc1 && advancedMedicamentGroup.atc2) && ' > '}
-                    {advancedMedicamentGroup.atc2 && advancedMedicamentGroup.atc2.label}
+                    {atc1Label && atc1Label}
+                    {(atc1Label && atc2Label) && ' > '}
+                    {atc2Label && atc2Label}
                   </DarkGreyText>
                 </span>
               )}
@@ -181,7 +198,7 @@ function DataBlockAccordion({
                 </DarkGreyText>
               </span>
             </RowToColumnContainer>
-            {(pregnancyPlanAlert || pregnancyMentionAlert || pediatricsInfo) && (
+            {(withAlert && (pregnancyPlanAlert || pregnancyMentionAlert || pediatricsInfo)) && (
               <div>
                 {pregnancyPlanAlert && (
                   <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Plan de prévention grossesse pour certains des médicaments</RedText>
@@ -229,16 +246,32 @@ function DataBlockAccordion({
                 >
                   {formatSpecName(specialite.SpecDenom01)}
                 </Link>
-                {((pregnancyPlanAlert && specialite.pregnancyPlanAlert) || (pregnancyMentionAlert && specialite.pregnancyMentionAlert) || (pediatricsInfo && specialite.pediatrics)) && (
+                {!specialite.isCommercialisee && (
+                  <Tooltip
+                    title="Ce médicament n'est ou ne sera bientôt plus disponible sur le marché."
+                    kind="hover"
+                    className={fr.cx("fr-ml-2w")}
+                  >
+                    <i 
+                      className={fr.cx("fr-icon-close-circle-line")} 
+                      style={{color: "var(--text-action-high-blue-france)"}}
+                    />
+                  </Tooltip>
+                )}
+                {(withAlert 
+                  && (pregnancyPlanAlert && specialite.alerts && specialite.alerts.pregnancyPlanAlert) 
+                  || (pregnancyMentionAlert && specialite.alerts && specialite.alerts.pregnancyMentionAlert)
+                  || (pediatricsInfo && specialite.alerts && specialite.alerts.pediatrics)
+                ) && (
                   <FiltersTagContainer>
-                    {(pregnancyPlanAlert && specialite.pregnancyPlanAlert) && (
+                    {(pregnancyPlanAlert && specialite.alerts.pregnancyPlanAlert) && (
                       <PregnancyPlanTag />
                     )}
-                    {((!pregnancyPlanAlert && !specialite.pregnancyPlanAlert) && pregnancyMentionAlert && specialite.pregnancyMentionAlert) && (
+                    {((!pregnancyPlanAlert && !specialite.alerts.pregnancyPlanAlert) && pregnancyMentionAlert && specialite.alerts.pregnancyMentionAlert) && (
                       <PregnancyMentionTag />
                     )}
-                    {(pediatricsInfo && specialite.pediatrics) && (
-                      <PediatricsTags info={specialite.pediatrics} />
+                    {(pediatricsInfo && specialite.alerts.pediatrics) && (
+                      <PediatricsTags info={specialite.alerts.pediatrics} />
                     )}
                   </FiltersTagContainer>
                 )}

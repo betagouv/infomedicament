@@ -1,32 +1,41 @@
 import Tag from "@codegouvfr/react-dsfr/Tag";
-import React from "react";
+import React, { HTMLAttributes } from "react";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import "./dsfr-custom-tags.css";
-import Link from "next/link";
+import { trackEvent } from "@/services/tracking";
 
-export default function GenericTag(
-  props: { 
-    specGeneId: string,
-    hideIcon?: boolean
-  }
-) {
+interface GenericTagProps extends HTMLAttributes<HTMLDivElement> {
+  specGeneId: string;
+  hideIcon?: boolean;
+  fromMedicament?: boolean;
+}
+
+function GenericTag({ 
+  specGeneId,
+  hideIcon,
+  fromMedicament,
+} : GenericTagProps) {
+
+  const onTrackEvent = () => {
+    if(fromMedicament)
+      trackEvent("Page médicament", "Tag Generic");
+  };
+
   return (
     <div>
       <Tag
-        iconId={!props.hideIcon ? "fr-icon-capsule-fill" : undefined}
+        iconId={!hideIcon ? "fr-icon-capsule-fill" : undefined}
         linkProps={{
           className: cx("fr-tag--custom-alt-blue"),
-          href: `/generiques/${props.specGeneId}`,
+          href: `/generiques/${specGeneId}`,
+          target: "_blank",
+          onClick: () => onTrackEvent(),
         }}
       >
-        Générique
+        Voir les Génériques
       </Tag>{" "}
-      <div style={{display: "inline"}}>
-        <Link href={`/generiques/${props.specGeneId}`} className={cx("fr-link", "fr-link--sm")}>
-          <span className={cx("fr-hidden-md")}>Voir le groupe générique</span>
-          <span className={cx("fr-hidden", "fr-unhidden-md")} style={{whiteSpace: "nowrap"}}>Voir alternatives</span>
-        </Link>
-      </div>
     </div>
   );
 }
+
+export default GenericTag;

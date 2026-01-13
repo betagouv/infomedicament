@@ -1,30 +1,11 @@
-import "server-cli-only";
+"use server";
 
+import "server-cli-only";
 import atcOfficialLabels from "@/data/ATC 2024 02 15.json";
 import { getGristTableData } from "@/data/grist/index";
-import { parse as csvParse } from "csv-parse/sync";
-import { readFileSync } from "node:fs";
-import path from "node:path";
-import { SubstanceNom } from "@/db/pdbmMySQL/types";
-import liste_CIS_MVP from "@/liste_CIS_MVP.json";
-import { pdbmMySQL } from "@/db/pdbmMySQL";
-
-export interface ATC1 extends ATC {
-  children: ATC[];
-}
-
-export interface ATC {
-  code: string;
-  label: string;
-  description: string;
-  children?: ATC[];
-}
-
-export class ATCError extends Error {
-  constructor(code: string) {
-    super(`ATC code not found: ${code}`);
-  }
-}
+import { ATCError } from "@/utils/atc";
+import { ATC, ATC1 } from "@/types/ATCTypes";
+import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 
 export const getAtc = async function (): Promise<ATC1[]> {
   const data = await getGristTableData("Table_Niveau_1", [
@@ -50,7 +31,7 @@ export const getAtc = async function (): Promise<ATC1[]> {
             ),
           )
           .map(async (record) =>
-            getAtc2(record.fields.Lettre_2_ATC2 as string),
+            getAtc2(record.fields.Lettre_2_ATC2 as string, childrenData),
           ),
       ),
     })),
@@ -79,7 +60,7 @@ export const getAtc1 = async function (code: string): Promise<ATC1> {
       .filter((record) =>
         (record.fields.Lettre_2_ATC2 as string).startsWith(code.slice(0, 1)),
       )
-      .map(async (record) => getAtc2(record.fields.Lettre_2_ATC2 as string)),
+      .map(async (record) => getAtc2(record.fields.Lettre_2_ATC2 as string, childrenData)),
   );
 
   return {
@@ -90,13 +71,15 @@ export const getAtc1 = async function (code: string): Promise<ATC1> {
   };
 };
 
-export const getAtc2 = async function (code: string): Promise<ATC> {
-  const data = await getGristTableData("Table_Niveau_2", [
-    "Libelles_niveau_2",
-    "Lettre_2_ATC2",
-  ]);
+export const getAtc2 = async function (code: string, tableNiveau2?: any): Promise<ATC> {
+  const data = tableNiveau2 
+    ? tableNiveau2 
+    : await getGristTableData("Table_Niveau_2", [
+      "Libelles_niveau_2",
+      "Lettre_2_ATC2",
+    ]);
   const record = data.find(
-    (record) => record.fields.Lettre_2_ATC2 === code.slice(0, 3),
+    (record: any) => record.fields.Lettre_2_ATC2 === code.slice(0, 3),
   );
 
   if (!record) {
@@ -128,40 +111,42 @@ export const getAtc2 = async function (code: string): Promise<ATC> {
   };
 };
 
-export const atcData = csvParse(
-  readFileSync(
-    path.join(process.cwd(), "src", "data", "CIS-ATC_2024-04-07.csv"),
-  ),
-) as [CIS: string, ATC: string][];
-
-export const getSubstancesByAtc = async function (
-  atc2: ATC,
-): Promise<SubstanceNom[] | undefined> {
-  const CIS = (atc2.children as ATC[])
-    .map((atc3) => atcData.filter((row) => row[1] === atc3.code))
-    .map((rows) => rows.map((row) => row[0]))
-    .flat()
-    .filter((cis) => liste_CIS_MVP.includes(cis));
-
-  if (!CIS.length) return;
-
-  return pdbmMySQL
-    .selectFrom("Subs_Nom")
-    .leftJoin("Composant", "Composant.NomId", "Subs_Nom.NomId")
-    .where("Composant.SpecId", "in", CIS)
-    .selectAll("Subs_Nom")
-    .groupBy(["Subs_Nom.NomId", "Subs_Nom.NomLib", "Subs_Nom.SubsId"])
-    .orderBy("Subs_Nom.NomLib")
-    .execute();
-};
-
-export function getAtcCode(CIS: string) {
-  const atc = atcData.find((row) => row[0] === CIS);
-
-  if (!atc) {
-    return atc;
-    //throw new ATCError(CIS);
-  }
-
-  return atc[1];
+export const getResumeSpecsGroupsATCLabels = async function (specsGroups: ResumeSpecGroup[]): Promise<ResumeSpecGroup[]> {
+  const allATC1 = await getGristTableData("Table_Niveau_1", [
+    "Lettre_1_ATC_1",
+    "Libelles_niveau_1",
+    "Definition_Classe",
+  ]);
+  const allATC2 = await getGristTableData("Table_Niveau_2", [
+    "Libelles_niveau_2",
+    "Lettre_2_ATC2",
+  ]);
+  const allATC2Labels = await getGristTableData("Intitules_possibles", [
+    "Libelles_niveau_2",
+    "Definition_sous_classe",
+  ]);
+  return specsGroups.map((spec: ResumeSpecGroup) => {
+    let atc1Label = "";
+    let atc2Label = "";
+    if(spec.atc1Code){
+      const atc1 = allATC1.find(
+        (record) => record.fields.Lettre_1_ATC_1 === spec.atc1Code
+      )
+      if(atc1) atc1Label = atc1.fields.Libelles_niveau_1 as string;
+    }
+    if(spec.atc2Code){
+      const atc2 = allATC2.find(
+        (record) => record.fields.Lettre_2_ATC2 === spec.atc2Code
+      )
+      if(atc2){      
+        const atc2LabelData = allATC2Labels.find((record) => record.id === atc2.fields.Libelles_niveau_2);
+        if(atc2LabelData) atc2Label = atc2LabelData.fields.Libelles_niveau_2 as string;
+      }
+    }
+    return {
+      atc1Label: atc1Label,
+      atc2Label: atc2Label,
+      ...spec,
+    }
+  });
 }

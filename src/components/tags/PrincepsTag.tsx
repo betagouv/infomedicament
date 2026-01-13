@@ -1,27 +1,37 @@
 import Tag from "@codegouvfr/react-dsfr/Tag";
-import React from "react";
+import React, { HTMLAttributes } from "react";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import "./dsfr-custom-tags.css";
-import Link from "next/link";
+import { trackEvent } from "@/services/tracking";
 
-export default function PrincepsTag(props: { CIS: string }) {
+interface PrincepsTagProps extends HTMLAttributes<HTMLDivElement> {
+  CIS: string;
+  fromMedicament?: boolean;
+}
+
+export default function PrincepsTag({ 
+  CIS,
+  fromMedicament,
+ }: PrincepsTagProps) {
+
+  const onTrackEvent = () => {
+    if(fromMedicament)
+      trackEvent("Page médicament", "Tag Princeps");
+  };
+
   return (
     <div>
       <Tag
         iconId="fr-icon-capsule-fill"
         linkProps={{
           className: cx("fr-tag--custom-alt-blue"),
-          href: `/generiques/${props.CIS}`,
+          href: `/generiques/${CIS}`,
+          target: "_blank",
+          onClick: () => onTrackEvent(),
         }}
       >
-        Princeps
-      </Tag>{" "}
-      <div style={{display: "inline"}}>
-        <Link href={`/generiques/${props.CIS}`} className={cx("fr-link", "fr-link--sm")}>
-          <span className={cx("fr-hidden-md")}>Voir le groupe générique</span>
-          <span className={cx("fr-hidden", "fr-unhidden-md")} style={{whiteSpace: "nowrap"}}>Voir alternatives</span>
-        </Link>
-      </div>
+        Voir les Princeps
+      </Tag>
     </div>
   );
 }

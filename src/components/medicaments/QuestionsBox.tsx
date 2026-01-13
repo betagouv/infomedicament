@@ -5,6 +5,7 @@ import { HTMLAttributes } from "react";
 import styled, { css } from 'styled-components';
 import { questionsList, questionKeys } from "@/data/pages/notices_anchors";
 import { QuestionAnchors } from "@/types/NoticesAnchors";
+import { trackEvent } from "@/services/tracking";
 
 const Container = styled.div<{ $noBorder?: boolean; }> `
   ${props => !props.$noBorder && css`
@@ -59,6 +60,7 @@ function QuestionsBox({
       noticeContainer.className = "highlight-" + anchorData.id;
       updateCurrentQuestion(anchorData.id);
     }
+    trackEvent("Boîte questions", anchorData.tracking);
   };
 
   //href on the question is the first element of the anchors list

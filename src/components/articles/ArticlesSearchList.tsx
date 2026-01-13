@@ -2,7 +2,7 @@
 
 import { HTMLAttributes, useEffect, useState } from "react";
 import styled from 'styled-components';
-import { ArticleCardResume } from "@/types/ArticlesTypes";
+import { ArticleCardResume, ArticleTrackingFromType } from "@/types/ArticlesTypes";
 import ArticlesResumeList from "./ArticlesResumeList";
 
 const Container = styled.div`
@@ -14,10 +14,12 @@ const Container = styled.div`
 
 interface ArticlesSearchListProps extends HTMLAttributes<HTMLDivElement> {
   articles: ArticleCardResume[];
+  trackingFrom: ArticleTrackingFromType;
 }
 
 function ArticlesSearchList({
   articles,
+  trackingFrom,
 }: ArticlesSearchListProps) {
 
   const [articlesList, setArticlesList] = useState<ArticleCardResume[]>([]);
@@ -30,7 +32,10 @@ function ArticlesSearchList({
   return (
     articlesList.length > 0 && (
       <Container>
-        <ArticlesResumeList articles={articlesList} />
+        <ArticlesResumeList 
+          articles={articlesList} 
+          trackingFrom={trackingFrom}
+        />
       </Container>
     )
   );

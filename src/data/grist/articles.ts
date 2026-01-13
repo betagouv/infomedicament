@@ -1,15 +1,17 @@
+"use server";
+
 import "server-only";
 import { getGristTableData } from "@/data/grist/index";
 import slugify from "slugify";
 import { ImageProps } from "next/image";
 import { ExtendedSearchResults, SearchArticlesFilters, } from "@/types/SearchTypes";
-import { SubstanceNom } from "@/db/pdbmMySQL/types";
-import { AdvancedMedicamentGroup, AdvancedSpecialite } from "@/types/MedicamentTypes";
-import { ArticleCardResume } from "@/types/ArticlesTypes";
-import { ATC } from "./atc";
-import { AdvancedATCClass, AdvancedData, AdvancedPatho, DataTypeEnum } from "@/types/DataTypes";
+import { Article, ArticleCardResume } from "@/types/ArticlesTypes";
+import { AdvancedATCClass, AdvancedData, DataTypeEnum } from "@/types/DataTypes";
+import { ATC } from "@/types/ATCTypes";
+import { ResumePatho, ResumeSubstance } from "@/db/types";
+import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 
-export async function getArticles() {
+export async function getArticles(): Promise<Article[]> {
   const records = await getGristTableData("Articles", [
     "Titre",
     "Source",
@@ -105,15 +107,15 @@ export async function getArticlesFromSearchResults(results: ExtendedSearchResult
   const extendedSearchResultsKeys: DataTypeEnum[] = Object.keys(results) as DataTypeEnum[];
   extendedSearchResultsKeys.forEach((key) => {
     results[key].forEach((result: AdvancedData) => {
-      if(result.type === DataTypeEnum.MEDGROUP) {
-        (result.result as AdvancedMedicamentGroup).specialites.forEach(
-          (spec:AdvancedSpecialite) => articlesFilters.specialitesList.push(spec.SpecId)
-        )
+      if(result.type === DataTypeEnum.MEDICAMENT){
+        (result.result as ResumeSpecGroup).CISList.forEach((CIS: string) => {
+          if(!articlesFilters.specialitesList.includes(CIS.trim())) articlesFilters.specialitesList.push(CIS.trim());
+        });
       }
       else if(result.type === DataTypeEnum.PATHOLOGY)
-        articlesFilters.pathologiesList.push((result.result as AdvancedPatho).codePatho.trim());
+        articlesFilters.pathologiesList.push((result.result as ResumePatho).codePatho.trim());
       else if(result.type === DataTypeEnum.SUBSTANCE) 
-        articlesFilters.substancesList.push((result.result as SubstanceNom).SubsId.trim());
+        articlesFilters.substancesList.push((result.result as ResumeSubstance).SubsId.trim());
       else if(result.type === DataTypeEnum.ATCCLASS) {
         articlesFilters.ATCList.push((result.result as AdvancedATCClass).class.code.trim());
         (result.result as AdvancedATCClass).subclasses.map((subclass: ATC) => {
@@ -122,18 +124,7 @@ export async function getArticlesFromSearchResults(results: ExtendedSearchResult
       }
     })
   });
-
   return await getArticlesFromFilters(articlesFilters);
-}
-
-export async function getArticlesFromPatho(codePatho: string): Promise<ArticleCardResume[]> {
-  const articlesFilters:SearchArticlesFilters = {
-    ATCList: [],
-    substancesList: [],
-    specialitesList: [],
-    pathologiesList: [codePatho],
-  };
-  return getArticlesFromFilters(articlesFilters);
 }
 
 export async function getArticlesFromATC(codeATC: string): Promise<ArticleCardResume[]> {
@@ -147,6 +138,16 @@ export async function getArticlesFromATC(codeATC: string): Promise<ArticleCardRe
   return getArticlesFromFilters(articlesFilters);
 }
 
+export async function getArticlesFromPatho(codePatho: string): Promise<ArticleCardResume[]> {
+  const articlesFilters:SearchArticlesFilters = {
+    ATCList: [],
+    substancesList: [],
+    specialitesList: [],
+    pathologiesList: [codePatho],
+  };
+  return getArticlesFromFilters(articlesFilters);
+}
+
 export async function getArticlesFromSubstances(ids: string[]): Promise<ArticleCardResume[]> {
   const articlesFilters:SearchArticlesFilters = {
     ATCList: [],
@@ -157,3 +158,4 @@ export async function getArticlesFromSubstances(ids: string[]): Promise<ArticleC
 
   return getArticlesFromFilters(articlesFilters);
 }
+

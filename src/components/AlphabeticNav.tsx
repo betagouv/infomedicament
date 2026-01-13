@@ -1,30 +1,43 @@
+"use client";
+
 import { fr } from "@codegouvfr/react-dsfr";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
+import { getNormalizeLetter } from "@/utils/alphabeticNav";
 
 function AlphabeticNav({
   letters,
-  url,
+  urlPrefix,
+  currentLetter,
 }: {
   letters: string[];
-  url: (letter: string) => string;
+  urlPrefix: string;
+  currentLetter: string;
 }) {
+
+  const [currentLetters, setCurrentLetters] = useState<string[]>([]);
+
+  useEffect(() => {
+    setCurrentLetters(letters);
+  }, [letters, setCurrentLetters])
+
   return (
     <p className={fr.cx("fr-text--lg")}>
-      {letters
-        .map((a) => a.normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
-        .map((a) => (
-          <Fragment key={a}>
+      {currentLetters
+        .map((letter) => letter && getNormalizeLetter(letter))
+        .map((letter) => (letter && letter !== "\t") && (
+          <Fragment key={letter}>
             <Link
-              href={url(a.toUpperCase())}
+              href={`${urlPrefix}${letter}`}
               className={fr.cx(
                 "fr-link",
                 "fr-link--lg",
                 "fr-mr-3w",
                 "fr-mb-3w",
               )}
+              style={{background: currentLetter === letter ? "none" : ""}}
             >
-              {a.toUpperCase()}
+              {letter}
             </Link>{" "}
           </Fragment>
         ))}

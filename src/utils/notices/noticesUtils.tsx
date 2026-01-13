@@ -1,7 +1,7 @@
 import WithGlossary from "@/components/glossary/WithGlossary";
-import { TitulaireAddressContainer, TitulaireNomContainer } from "@/components/medicaments/Blocks/GenericBlocks";
+import { TitulaireAddressContainer, TitulaireNomContainer } from "@/components/medicaments/blocks/GenericBlocks";
 import { Definition } from "@/types/GlossaireTypes";
-import { FicheInfos, NoticeRCPContentBlock } from "@/types/MedicamentTypes";
+import { FicheInfos, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import { fr } from "@codegouvfr/react-dsfr";
 import { CSSProperties } from "react";
 
@@ -113,11 +113,13 @@ function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definitio
         <ul key={content.id} className={fr.cx("fr-ml-2w")} style={styles}>
           {content.content.map((li, index) => {
             const text = li.charAt(0) === '·' ? li.substring(1) : li;
-            return (
-              <li className={fr.cx("fr-text--md", "fr-mb-1w")} key={content.id+'-'+index}>
-                <WithGlossary definitions={definitions} key={content.id} text={[text]} />
-              </li>
-            )
+            if(text.trim().length > 0){
+              return (
+                <li className={fr.cx("fr-text--md", "fr-mb-1w")} key={content.id+'-'+index}>
+                  <WithGlossary definitions={definitions} key={content.id} text={[text.trim()]} />
+                </li>
+              )
+            }
           })}
         </ul>
       );

@@ -1,15 +1,26 @@
+"use server"
+
 import { getGristTableData } from "@/data/grist/index";
+import { AllPediatricsInfo, PediatricsInfo } from "@/types/PediatricTypes";
+import { isOuiOrNon } from "@/utils/pediatrics";
 
-export interface PediatricsInfo {
-  indication: boolean;
-  contraindication: boolean;
-  doctorAdvice: boolean;
-  mention:boolean;
+export async function getAllPediatrics(): Promise<AllPediatricsInfo[]> {
+  const records = await getGristTableData("Pediatrie", [
+    "CIS",
+    "indication",
+    "contre_indication",
+    "avis",
+    "mention",
+  ]);
+  
+  return records.map(({ fields }) => ({
+    CIS: fields.CIS.toString().trim(),
+    indication: fields.indication.toString().trim() === "oui",
+    contraindication: fields.contre_indication.toString().trim() === "oui",
+    doctorAdvice: fields.avis.toString().trim() === "oui",
+    mention: fields.mention.toString().trim() === "oui",
+  }));
 }
-
-const isOuiOrNon = (value: any): value is "oui" | "non" =>
-  typeof value === "string" &&
-  (value.trim() === "oui" || value.trim() === "non");
 
 export async function getPediatrics(
   CIS: string,

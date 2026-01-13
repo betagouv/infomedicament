@@ -2,14 +2,12 @@ import "server-cli-only";
 import { cache } from "react";
 import {
   PdbmMySQL,
-  Presentation,
   PresentationComm,
   PresentationStat,
-  PresInfoTarif,
 } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { expressionBuilder, Nullable, sql } from "kysely";
-import { PresentationDetail } from "@/db/types";
+import { expressionBuilder, sql } from "kysely";
+import { Presentation } from "@/types/PresentationTypes";
 
 export const presentationIsComm = () => {
   const eb = expressionBuilder<PdbmMySQL, "Presentation">();
@@ -44,20 +42,22 @@ export const presentationIsComm = () => {
 export const getPresentations = cache(
   async (
     CIS: string,
-  ): Promise<
-    (Presentation &
-      Nullable<PresInfoTarif> & { details?: PresentationDetail })[]
-  > => {
-    return (
+  ): Promise<Presentation[]> => {
+    const result = (
       await pdbmMySQL
         .selectFrom("Presentation")
         .where("SpecId", "=", CIS)
         .where(presentationIsComm())
         .leftJoin("CEPS_Prix", "Presentation.codeCIP13", "CEPS_Prix.Cip13")
         .selectAll()
+      //  .select(({ fn, val }) => [
+      //     fn<boolean>("", [val(presentationIsComm())]).as("isCommercialisee"),
+      //   ])
         .execute()
-    ).sort((a, b) =>
+    )
+    .sort((a, b) =>
       a.PPF && b.PPF ? a.PPF - b.PPF : a.PPF ? -1 : b.PPF ? 1 : 0,
     );
+    return result;
   },
 );

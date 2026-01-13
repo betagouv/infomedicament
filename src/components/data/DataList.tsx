@@ -1,15 +1,32 @@
 "use client";
 import { HTMLAttributes, useEffect, useState } from "react";
-import { AdvancedATCClass, AdvancedPatho, AdvancedSubstanceNom, DataTypeEnum } from "@/types/DataTypes";
-import { AdvancedMedicamentGroup } from "@/types/MedicamentTypes";
+import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import DataBlockGeneric from "./DataBlockGeneric";
 import DataBlockAccordion from "./DataBlockAccordion";
+import { ResumeGeneric, ResumePatho, ResumeSubstance } from "@/db/types";
+import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
+
+function getCurrentDataList(
+  dataList: ResumeSubstance[] | ResumePatho [] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[],
+  paginationLength: number,
+  currentPage: number,
+){
+  if(dataList && dataList.length > 0 && paginationLength && paginationLength > 0) {
+    const list = dataList.slice(
+      (currentPage - 1) * paginationLength,
+      currentPage * paginationLength,
+    );
+    return list;
+  }
+  return [];
+}
 
 interface DataListProps extends HTMLAttributes<HTMLDivElement> {
-  dataList: AdvancedSubstanceNom[] | AdvancedMedicamentGroup[] | AdvancedPatho[] | AdvancedATCClass[];
+  dataList: ResumeSubstance[] | ResumePatho[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[];
   type: DataTypeEnum;
   paginationLength: number;
   currentPage: number;
+  isGeneric?: boolean;
 }
 
 function DataList({
@@ -17,9 +34,10 @@ function DataList({
   type,
   paginationLength,
   currentPage,
+  isGeneric,
 }: DataListProps) {
 
-  const [currentDataList, setCurrentDataList] = useState<AdvancedSubstanceNom[] | AdvancedMedicamentGroup[] | AdvancedPatho[] | AdvancedATCClass[]>(dataList);
+  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumePatho[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[]>([]);
   const [currentType, setCurrentType] = useState<DataTypeEnum>();
 
   useEffect(() => {
@@ -30,32 +48,25 @@ function DataList({
   }, [type, setCurrentType]);
 
   useEffect(() => {
-    if(dataList && paginationLength && paginationLength > 0) {
-      const list = dataList.slice(
-        (currentPage - 1) * paginationLength,
-        currentPage * paginationLength,
-      );
-      setCurrentDataList(list);
-    } else setCurrentDataList(dataList);
-  }, [currentPage, setCurrentDataList]);
+    const list = getCurrentDataList(dataList, paginationLength, currentPage);
+    setCurrentDataList(list);
+  }, [dataList, paginationLength, currentPage, setCurrentDataList]);
   
   return (
     <>
       {currentType && currentDataList && currentDataList.map((data, index) => {
         return ( 
-          type !== DataTypeEnum.MEDGROUP 
+          (!isGeneric && type === DataTypeEnum.MEDICAMENT)
           ? (
-            <DataBlockGeneric
-              key={index}
-              item={{
-                result: data,
-                type: currentType,
-              }}
-            />
-          ) : (
             <DataBlockAccordion
               key={index}
-              item={data as AdvancedMedicamentGroup}
+              item={data as ResumeSpecGroup}
+            />
+          ) : (
+            <DataBlockGeneric
+              key={index}
+              type={currentType}
+              item={data as ResumeSubstance | ResumePatho | AdvancedATCClass | ResumeGeneric}
             />
           )
         )

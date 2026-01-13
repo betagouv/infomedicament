@@ -1,5 +1,6 @@
 "use client";
 
+import { trackEvent } from "@/services/tracking";
 import { fr } from "@codegouvfr/react-dsfr";
 import Link from "next/link";
 import { HTMLAttributes, useEffect, useState } from "react";
@@ -55,6 +56,7 @@ function ShareButtons({
               target="_blank" 
               rel="noopener noreferrer" 
               className={fr.cx("fr-btn--mail", "fr-btn")}
+              onClick={() => trackEvent("Partage", "Email")}
             >
               Partager par email
             </Link>
@@ -67,8 +69,9 @@ function ShareButtons({
                       function() {
                         setIsCopied(true);
                       }
-                    )}
-                  }
+                    );
+                    trackEvent("Partage", "Copie");
+                  }}
                   className={fr.cx("fr-btn--copy", "fr-btn")}
                   href=""
                 >

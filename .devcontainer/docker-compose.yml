@@ -10,16 +10,16 @@ services:
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
 
-    # Runs app on the same network as the mysql container, allows "forwardPorts" in devcontainer.json function.
-    network_mode: service:db-mysql
+    networks:
+      - dev-network
 
-    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
+    env_file:
+      - ../.env.local
 
   # We use PostgreSQL as the database for the application data.
   db-postgres:
     image: postgres:15
-    restart: unless-stopped
+    restart: on-failure
     volumes:
       - postgres-data:/var/lib/postgresql/data
     environment:
@@ -30,12 +30,14 @@ services:
     # (Adding the "ports" property to this file will not forward from a Codespace.)
     ports:
       - "5432:5432"
+    networks:
+      - dev-network
 
 
   # This is the container for the legacy BDPM MySQL database.
   db-mysql:
     image: mysql:9
-    restart: unless-stopped
+    restart: on-failure
     volumes:
       - mysql-data:/var/lib/mysql
     environment:
@@ -46,6 +48,12 @@ services:
     # (Adding the "ports" property to this file will not forward from a Codespace.)
     ports:
       - "3306:3306"
+    networks:
+      - dev-network
+
+networks:
+  dev-network:
+    driver: bridge
 
 volumes:
   mysql-data:

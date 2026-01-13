@@ -85,7 +85,6 @@ export function AutocompleteSearchInput({
           } else {
             value && trackSearchEvent(value);
             router.push(`/rechercher?s=${value}`);
-            //console.log("search -- Matomo - 3");
           }
         }
       }}
@@ -140,7 +139,6 @@ export default function AutocompleteSearch({
 
   const onButtonClick = (search: string) => {
     search && trackSearchEvent(search);
-    //console.log("search -- Matomo - 4");
     router.push(`/rechercher?g=${currentFilterPregnancy}&p=${currentFilterPediatric}&s=${search}`);
   };
 
