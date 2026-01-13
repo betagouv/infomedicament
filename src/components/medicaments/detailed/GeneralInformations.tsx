@@ -3,7 +3,7 @@
 import ContentContainer from "../../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, PropsWithChildren, useEffect, useState } from "react";
-import styled from 'styled-components';
+import styled, {css} from 'styled-components';
 import GenericTag from "@/components/tags/GenericTag";
 import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
@@ -21,10 +21,12 @@ import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
 
-const SummaryLineContainer = styled.div `
+const SummaryLineContainer = styled.div<{ $hideBorder?: boolean; }>`
   display: flex;
   align-items: center;
-  border-bottom: var(--border-open-blue-france) 1px solid;
+  ${props => !props.$hideBorder && css`
+    border-bottom: var(--border-open-blue-france) 1px solid;
+  `}
 `;
 
 const SummaryCat = styled.span `
@@ -56,13 +58,17 @@ const IndicationBlock = styled.div`
 
 interface SummaryLineProps extends HTMLAttributes<HTMLDivElement> {
   categoryName: string;
+  hideBorder?: boolean;
 }
 
-function SummaryLine(
-  {categoryName, children, ...props} :PropsWithChildren<SummaryLineProps>
-){
+function SummaryLine({
+  categoryName,
+  hideBorder,
+  children,
+  ...props
+} :PropsWithChildren<SummaryLineProps>){
   return (
-    <SummaryLineContainer className={fr.cx("fr-mb-1w", "fr-pb-1w", "fr-mt-1w", "fr-text--sm")}>
+    <SummaryLineContainer className={fr.cx("fr-mb-1w", "fr-pb-1w", "fr-mt-1w", "fr-text--sm")} $hideBorder={hideBorder}>
       <ContentContainer className={fr.cx("fr-col-4", "fr-col-sm-3")}>
         <SummaryCat>{categoryName}</SummaryCat>
       </ContentContainer>
@@ -142,7 +148,7 @@ function GeneralInformations({
           })}
         </ContentContainer>
       )}
-      <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+      <ContentContainer id="informations-resume" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Résumé</h2>
         <SummaryLine categoryName="Code CIS">
           {CIS ? formatCIS(CIS) : ""}
@@ -233,7 +239,7 @@ function GeneralInformations({
             )
           ) }
         </SummaryLine>
-        <SummaryLine categoryName="Conditions de prescription et de délivrance">
+        <SummaryLine categoryName="Conditions de prescription et de délivrance" hideBorder>
           {(ficheInfos.listeConditionsDelivrance && ficheInfos.listeConditionsDelivrance.length > 0) ? (
             <ContentContainer>
               <PrescriptionTag hideIcon/>
@@ -302,10 +308,10 @@ function GeneralInformations({
                       <span className={fr.cx("fr-mr-2w")}>
                         {pres.details.qtecontenance && (
                           <b>
-                            {pres.details.qtecontenance}{" "}
+                            {pres.details.qtecontenance.toLocaleString('fr-FR')}{" "}
                             {pres.details.unitecontenance && (
                               <span>
-                                {pres.details.qtecontenance > 1 
+                                {pres.details.qtecontenance > 1
                                   ? pres.details.unitecontenance.replaceAll("(s)", "s")
                                   : pres.details.unitecontenance.replaceAll("(s)", "")
                                 }

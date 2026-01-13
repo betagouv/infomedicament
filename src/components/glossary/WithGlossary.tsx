@@ -120,7 +120,12 @@ function WithGlossary({
   return (
     <>
       {elements.map((element, i) => (
-        <Fragment key={i}>{element}</Fragment>
+        <>
+          {typeof element === 'string' 
+            ? (<div key={i} dangerouslySetInnerHTML={{__html: element}}></div>)
+            : (<Fragment key={i}>{element}</Fragment>)
+          }          
+        </>
       ))}
     </>
   );

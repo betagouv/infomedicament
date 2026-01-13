@@ -11,6 +11,7 @@ import { getRCP } from "@/db/utils/rcp";
 import { isCentralisee } from "@/utils/specialites";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import CentraliseBlock from "../blocks/CentraliseBlock";
+import GoTopButton from "@/components/generic/GoTopButton";
 
 interface RCPProps extends HTMLAttributes<HTMLDivElement> {
   specialite?: DetailedSpecialite;
@@ -67,6 +68,7 @@ function RcpBlock({
         ) : (
           loaded && (<span>Le résumé des caractéristiques du produit n&rsquo;est pas disponible pour ce médicament.</span>)
         )}
+        <GoTopButton />
     </>
   );
 };

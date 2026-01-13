@@ -34,6 +34,7 @@ interface DetailedNoticeProps extends HTMLAttributes<HTMLDivElement> {
   marr?: Marr;
   ficheInfos?: FicheInfos
   indicationBlock?: NoticeRCPContentBlock;
+  currentAnchor?: string;
 }
 
 function DetailedNotice({
@@ -49,6 +50,7 @@ function DetailedNotice({
   marr,
   ficheInfos,
   indicationBlock,
+  currentAnchor,
   ...props 
 }: DetailedNoticeProps) {
 
@@ -92,7 +94,7 @@ function DetailedNotice({
           <RcpBlock specialite={currentSpec} />
         </ContentContainer>
       </DetailedNoticeContainer>
-      <DetailedNoticeContainer id="document-has-bon-usage" $visible={visiblePart === DetailsNoticePartsEnum.HAS}>
+      <DetailedNoticeContainer id="document-has" $visible={visiblePart === DetailsNoticePartsEnum.HAS}>
         <DocumentHas ficheInfos={ficheInfos}/>
       </DetailedNoticeContainer>
     </>

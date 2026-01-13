@@ -35,6 +35,7 @@ export type NoticeRCPContentBlock = {
   styles?: string[],
   anchor?: string,
   content?: string[];
+  html?: string;
   children?: NoticeRCPContentBlock[];
   tag?: string,
   rowspan?: number,

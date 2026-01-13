@@ -16,7 +16,7 @@ import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "../PresentationsList";
 import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import styled from 'styled-components';
-import DetailedSubMenu from "./detailed/DetailedSubMenu";
+import DetailedSubMenu, { AnchorMenu } from "./detailed/DetailedSubMenu";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import ArticlesResumeList from "../articles/ArticlesResumeList";
@@ -138,6 +138,7 @@ function MedicamentContent({
 
   const [currentPart, setcurrentPart] = useState<DetailsNoticePartsEnum>(DetailsNoticePartsEnum.INFORMATIONS_GENERALES);
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
+  const [advancedAnchor, setAdvancedAnchor] = useState<AnchorMenu>();
 
   const [currentQuestion, setCurrentQuestion] = useState<string>();
   const [showKeywordsBox, setShowKeywordsBox] = useState<boolean>(false);
@@ -170,10 +171,13 @@ function MedicamentContent({
   );
 
   const onGoToAdvanced = useCallback(
-    (ancre: string) => {
+    (anchor?: AnchorMenu) => {
+      if(anchor){
+        setAdvancedAnchor(anchor);
+      } 
       setIsAdvanced(true);
     },
-    [setIsAdvanced]
+    [setAdvancedAnchor, setIsAdvanced]
   );
 
   const updateCurrentQuestion = (questionId: string) => {
@@ -313,6 +317,7 @@ function MedicamentContent({
                 updateVisiblePart={setcurrentPart} 
                 isMarr={(currentMarr && currentMarr.pdf.length > 0)}
                 isInfosImportantes={displayInfosImportantes(ficheInfos)}
+                anchor={advancedAnchor}
               />
             : <section className={["mobile-display-contents", fr.cx("fr-mb-4w")].join(" ",)}>
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
