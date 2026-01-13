@@ -65,3 +65,21 @@ kysele migrate:latest
 # avec la variable d'environnement LEAFLET_IMAGES
 LEAFLET_IMAGES=/path/to/folder kysely seed run
 ```
+
+## Déploiement
+
+L'application est déployée sur Scalingo.
+
+### Review Apps
+
+Chaque pull request déploie automatiquement une review app sur Scalingo.
+
+### Staging
+
+Scalingo est paramétré pour déployer automatiquement la branche `staging` de GitHub sur https://staging.infomedicament.incubateur.net/
+
+### Production
+
+Scalingo est paramétré pour déployer automatiquement la branche `production` de GitHub sur https://infomedicament.beta.gouv.fr
+
+La branche "production" est protégée et nécessite de faire une pull request pour pouvoir être mise à jour.
