@@ -43,6 +43,69 @@ describe("Search engine (Integration) -- Functional Tests", () => {
         expect(results.length).toBeGreaterThan(0);
     });
 
+    it("must not allow for typos in short search terms (between 3 and 5 characters)", async () => {
+        const results = await getSearchResults("acne");
+        // Check with regex that each result contains the query without typo
+        const queryRegex = new RegExp(`acn[eé]`, 'i');
+
+        for (const result of results) {
+            let matchFound = false;
+
+            // ignore objects that are not ResumeSpecGroup since we'll drop them soon
+            if (!("groupName" in result)) {
+                continue;
+            }
+
+            // 1. Check Group Name
+            if ("groupName" in result && result.groupName && queryRegex.test(result.groupName)) {
+                matchFound = true;
+            }
+            // 2. Check Composants
+            else if ("composants" in result && typeof result.composants === 'string' && queryRegex.test(result.composants)) {
+                matchFound = true;
+            }
+            // 3. Check ATC Labels
+            else if ("atc1Label" in result && result.atc1Label && queryRegex.test(result.atc1Label)) {
+                matchFound = true;
+            }
+            else if ("atc2Label" in result && result.atc2Label && queryRegex.test(result.atc2Label)) {
+                matchFound = true;
+            }
+
+            if (!matchFound) {
+                console.log(result);
+            }
+
+            expect(matchFound).toBe(true);
+        }
+    });
+
+    it("must search in the beginning of specialite names for short terms (<= 3 chars)", async () => {
+        const query = "ac";
+        const results = await getSearchResults(query);
+
+        expect(results.length).toBeGreaterThan(0);
+
+        // Check with regex that each result contains the query at the beginning of a word
+        const queryRegex = new RegExp(`\\b${query}`, 'i');
+
+        for (const result of results) {
+            let matchFound = false;
+
+            // Check Group Name (ex: "ACTIFED")
+            // For short queries, we only search in specialite names
+            if ("groupName" in result && result.groupName && queryRegex.test(result.groupName)) {
+                matchFound = true;
+            }
+
+            // useful to debug failing tests
+            if (!matchFound) {
+                console.log(result);
+            }
+
+            expect(matchFound).toBe(true);
+        }
+    });
 });
 
 describe("Search engine (Integration) -- Business Logic Tests", () => {
