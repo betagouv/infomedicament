@@ -74,20 +74,30 @@ export async function seed(db: Kysely<any>): Promise<void> {
   });
 
   // Get ATC classes
-  const atc = await getAtc();
-  await db.transaction().execute(async (db) => {
-    await db
-      .deleteFrom("search_index")
-      .where("table_name", "=", "ATC")
-      .execute();
-
-    for (const atcClass of atc) {
-      await addIndex("ATC", atcClass.code, atcClass.label);
-      for (const atcSubClass of atcClass.children) {
-        await addIndex("ATC", atcSubClass.code, atcSubClass.label);
-      }
+  try {
+    console.log("Trying to get ATC classes from Grist...");
+    const atc = await getAtc();
+    if (!atc || atc.length === 0) {
+      throw new Error("Got no ATC data from Grist");
     }
-  });
+    await db.transaction().execute(async (db) => {
+      await db
+        .deleteFrom("search_index")
+        .where("table_name", "=", "ATC")
+        .execute();
+
+      for (const atcClass of atc) {
+        await addIndex("ATC", atcClass.code, atcClass.label);
+        for (const atcSubClass of atcClass.children) {
+          await addIndex("ATC", atcSubClass.code, atcSubClass.label);
+        }
+      }
+    })
+  } catch (error) {
+    console.warn("Failed to get ATC classes from Grist:", error);
+    console.warn("Continuing without updating ATC search index.");
+  }
+
 
   await pdbmMySQL.destroy();
 }
