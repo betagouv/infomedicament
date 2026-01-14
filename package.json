@@ -13,7 +13,8 @@
     "test:unit": "vitest --exclude '**/*.integration.test.ts'",
     "test:integration": "vitest run 'integration.test.ts'",
     "test:all": "vitest run",
-    "test:watch": "vitest --watch"
+    "test:watch": "vitest --watch",
+    "db:sync-grist": "npx tsx scripts/syncWithGrist.ts"
   },
   "dependencies": {
     "@codegouvfr/react-dsfr": "^1.16.0",
