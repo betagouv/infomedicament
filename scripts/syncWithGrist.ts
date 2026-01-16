@@ -124,7 +124,7 @@ async function main() {
         );
 
         // 8. ATC Friendly
-        await syncTable('ref_atc_friendly_niveau_1', 'Table_Niveau_1',
+        await syncTable('ref_atc_friendly_niveau_1', 'ATC_friendly_1',
             ['Lettre_1_ATC_1', 'Libelles_niveau_1', 'Definition_Classe'],
             (r) => ({
                 code: r.fields.Lettre_1_ATC_1,
@@ -133,7 +133,7 @@ async function main() {
             })
         );
 
-        await syncTable('ref_atc_friendly_niveau_2', 'Table_Niveau_2',
+        await syncTable('ref_atc_friendly_niveau_2', 'ATC_friendly_2',
             ['Lettre_2_ATC2', 'Libelles_niveau_2', 'Libelles_niveau_2_Definition_sous_classe'],
             (r) => ({
                 code: r.fields.Lettre_2_ATC2,
