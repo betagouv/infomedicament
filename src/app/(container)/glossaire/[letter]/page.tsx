@@ -1,5 +1,4 @@
-import db from "@/db";
-import { sql } from "kysely";
+import { getGlossaryLetters, getGlossaryDefinitionsByFirstLetter } from "@/db/utils/glossary";
 import { fr } from "@codegouvfr/react-dsfr";
 import { notFound } from "next/navigation";
 import AlphabeticNav from "@/components/AlphabeticNav";
@@ -13,34 +12,15 @@ export const dynamic = "error";
 export const dynamicParams = true;
 const PAGE_LABEL: string = "Glossaire";
 
-async function getDefinitions(firstLetter: string) {
-  const definitions = await db.selectFrom("ref_glossaire")
-    .select(["nom", "definition", "source"])
-    .where("nom", "ilike", `${firstLetter}%`)
-    .execute();
-
-  return definitions;
-}
-
-async function getLetters() {
-  const letters = await db.selectFrom("ref_glossaire")
-    .select(sql<string>`upper(substring(nom, 1, 1))`.as("letter"))
-    .distinct()
-    .orderBy("letter")
-    .execute();
-
-  return letters.map((row) => row.letter);
-}
-
 export default async function Page(props: {
   params: Promise<{ letter: string }>;
 }) {
   const { letter } = await props.params;
 
-  const letters = await getLetters();
+  const letters = await getGlossaryLetters();
   if (!letters.includes(letter)) return notFound();
 
-  const definitions = await getDefinitions(letter);
+  const definitions = await getGlossaryDefinitionsByFirstLetter(letter);
 
   return (
     <ContentContainer frContainer>
