@@ -56,7 +56,10 @@ async function main() {
 
         // 2. ARTICLES
         await syncTable('ref_articles', 'Articles',
-            ['Titre', 'Source', 'Contenu', 'Theme', 'Lien', 'Homepage', 'Image', 'Metadescription'],
+            ['Titre', 'Source', 'Contenu', 'Theme', 'Lien', 'Homepage', 'Image', 'Metadescription', 'Classes_ATC',
+                'Substances',
+                'Specialites',
+                'Pathologies'],
             (r) => ({
                 titre: r.fields.Titre,
                 source: r.fields.Source,
@@ -66,6 +69,10 @@ async function main() {
                 metadescription: r.fields.Metadescription,
                 homepage: Boolean(r.fields.Homepage),
                 image: r.fields.Image, // for now, an internal ID in Grist
+                atc_classe: r.fields.Classes_ATC,
+                substances: r.fields.Substances,
+                specialites: r.fields.Specialites,
+                pathologies: r.fields.Pathologies,
             })
         );
 

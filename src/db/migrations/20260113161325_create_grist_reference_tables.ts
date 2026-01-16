@@ -24,6 +24,10 @@ export async function up(db: Kysely<any>): Promise<void> {
 		.addColumn('metadescription', 'text') // empty in grist
 		.addColumn('homepage', 'boolean')
 		.addColumn('image', 'text') // Todo: it's an image, could we store it in the codebase ?
+		.addColumn('atc_classe', 'text')
+		.addColumn('substances', 'text')
+		.addColumn('specialites', 'text')
+		.addColumn('pathologies', 'text')
 		.execute()
 
 	await db.schema

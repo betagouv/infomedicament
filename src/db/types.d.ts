@@ -206,6 +206,10 @@ export interface RefArticles {
   source: string | null;
   theme: string | null;
   titre: string | null;
+  atc_classe: string | null;
+  substances: string | null;
+  specialites: string | null;
+  pathologies: string | null;
 }
 
 export interface RefAtcFriendlyNiveau1 {
@@ -227,6 +231,7 @@ export interface RefGlossaire {
   id: Generated<number>;
   nom: string | null;
   source: string | null;
+  a_souligner: boolean | null;
 }
 
 export interface RefGrossesseMention {
