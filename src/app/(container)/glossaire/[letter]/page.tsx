@@ -1,4 +1,5 @@
-import { getGristTableData } from "@/data/grist";
+import db from "@/db";
+import { sql } from "kysely";
 import { fr } from "@codegouvfr/react-dsfr";
 import { notFound } from "next/navigation";
 import AlphabeticNav from "@/components/AlphabeticNav";
@@ -10,36 +11,25 @@ import RatingToaster from "@/components/rating/RatingToaster";
 
 export const dynamic = "error";
 export const dynamicParams = true;
-const PAGE_LABEL:string = "Glossaire";
+const PAGE_LABEL: string = "Glossaire";
 
 async function getDefinitions(firstLetter: string) {
-  const definitions = await getGristTableData("Glossaire", [
-    "Nom_glossaire",
-    "Definition_glossaire",
-    "Source",
-  ]);
+  const definitions = await db.selectFrom("ref_glossaire")
+    .select(["nom", "definition", "source"])
+    .where("nom", "ilike", `${firstLetter}%`)
+    .execute();
 
-  return definitions
-    .filter((definition) =>
-      (definition.fields.Nom_glossaire as string).startsWith(firstLetter),
-    )
-    .map((definition) => definition.fields as { [key: string]: string });
+  return definitions;
 }
 
 async function getLetters() {
-  const definitions = await getGristTableData("Glossaire", [
-    "Nom_glossaire",
-    "Definition_glossaire",
-    "Source",
-  ]);
+  const letters = await db.selectFrom("ref_glossaire")
+    .select(sql<string>`upper(substring(nom, 1, 1))`.as("letter"))
+    .distinct()
+    .orderBy("letter")
+    .execute();
 
-  return Array.from(
-    new Set(
-      definitions
-        .map((definition) => (definition.fields.Nom_glossaire as string)[0])
-        .filter((letter) => letter && letter.match(/[A-Z]/)),
-    ),
-  );
+  return letters.map((row) => row.letter);
 }
 
 export default async function Page(props: {
@@ -64,24 +54,24 @@ export default async function Page(props: {
           />
           {definitions.map((definition) => (
             <Fragment
-              key={slugify(definition.Nom_glossaire as string, {
+              key={slugify(definition.nom as string, {
                 lower: true,
                 strict: true,
               })}
             >
               <h2
                 className={fr.cx("fr-h6", "fr-mt-4w", "fr-mb-1w")}
-                id={slugify(definition.Nom_glossaire as string, {
+                id={slugify(definition.nom as string, {
                   lower: true,
                   strict: true,
                 })}
               >
-                {definition.Nom_glossaire}
+                {definition.nom}
               </h2>
               <div
                 dangerouslySetInnerHTML={{
                   __html: sanitizeHtml(
-                    definition.Definition_glossaire as string,
+                    definition.definition as string,
                     {
                       allowedTags: ["p", "br", "ul", "ol", "li"],
                     },
