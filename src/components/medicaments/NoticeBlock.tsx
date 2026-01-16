@@ -12,32 +12,32 @@ import { NoticeData } from "@/types/SpecialiteTypes";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { getContent } from "@/utils/notices/noticesUtils";
 import { Definition } from "@/types/GlossaireTypes";
-import getGlossaryDefinitions from "@/data/grist/glossary";
+import getGlossaryDefinitions from "@/db/utils/glossary";
 import { isCentralisee } from "@/utils/specialites";
 import CentraliseBlock from "./blocks/CentraliseBlock";
 
-const Container = styled.div<{ $questionsList: QuestionsListFormat; $questionKeys: string[]}> `
-  ${props => props.$questionKeys.map(key => { 
-    //First time for header
-    return props.$questionsList[key].id && (
-      css`
+const Container = styled.div<{ $questionsList: QuestionsListFormat; $questionKeys: string[] }> `
+  ${props => props.$questionKeys.map(key => {
+  //First time for header
+  return props.$questionsList[key].id && (
+    css`
       .highlight-${key} .highlight-keyword-${props.$questionsList[key].id} {
         background-color: var(--green-tilleul-verveine-950-100);
       }`
-    )
-  })};
-  ${props => props.$questionKeys.map(key => { 
-    //Second time for keywords
-    if(props.$questionsList[key].keywords){
-      return css`
+  )
+})};
+  ${props => props.$questionKeys.map(key => {
+  //Second time for keywords
+  if (props.$questionsList[key].keywords) {
+    return css`
       .highlight-${key} .highlight-keyword-${key} {
         background-color: var(--green-tilleul-verveine-950-100);
       }
       .highlight-${key} .highlight-keyword-${key}.active{
         background-color: orange;
       }`;
-    }
-  })};
+  }
+})};
 `;
 
 interface NoticeBlockProps extends HTMLAttributes<HTMLDivElement> {
@@ -57,7 +57,7 @@ function NoticeBlock({
     async () => {
       try {
         const newDefinitions = (await getGlossaryDefinitions()).filter(
-          (d) => d.fields.A_souligner,
+          (d) => d.a_souligner,
         );
         setDefinitions(newDefinitions)
       } catch (e) {
@@ -67,7 +67,7 @@ function NoticeBlock({
   );
 
   useEffect(() => {
-    if(notice) {
+    if (notice) {
       loadDefinitions();
     }
   }, [notice, loadDefinitions]);
