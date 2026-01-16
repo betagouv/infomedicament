@@ -8,7 +8,7 @@ export default async function getGlossaryDefinitions(): Promise<Definition[]> {
     "Nom_glossaire",
     "Definition_glossaire",
     "Source",
-    "A_publier",
+    "A_souligner",
   ])) as Definition[];
 
   // Deduplicates the definitions

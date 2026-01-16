@@ -49,15 +49,15 @@ function NoticeBlock({
   notice,
   specialite,
   ...props
-}: NoticeBlockProps ) {
+}: NoticeBlockProps) {
 
-  const [definitions, setDefinitions] = useState<Definition[]>();
+  const [definitions, setDefinitions] = useState<Definition[]>([]);
 
   const loadDefinitions = useCallback(
     async () => {
       try {
         const newDefinitions = (await getGlossaryDefinitions()).filter(
-          (d) => d.fields.A_publier,
+          (d) => d.fields.A_souligner,
         );
         setDefinitions(newDefinitions)
       } catch (e) {
