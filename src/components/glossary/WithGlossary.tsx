@@ -46,9 +46,9 @@ function withKeyword(
   const { before, word, after } = match.groups;
   return [
     before,
-    <QuestionKeyword 
+    <QuestionKeyword
       key={word}
-      keyword={word} 
+      keyword={word}
       questionId={questionId}
     />,
     ...withKeyword(after, keyword, questionId),
@@ -61,9 +61,9 @@ function withHeaderAnchor(
   questionDetails: QuestionAnchors,
 ): (React.JSX.Element | string)[] {
 
-  if(questionDetails.headerId && (headerId === questionDetails.headerId)){
+  if (questionDetails.headerId && (headerId === questionDetails.headerId)) {
     return [
-      <span key={questionDetails.headerId}  className={`highlight-keyword-${questionDetails.id} highlight-header scroll-m-150`}>{text}</span>,
+      <span key={questionDetails.headerId} className={`highlight-keyword-${questionDetails.id} highlight-header scroll-m-150`}>{text}</span>,
     ];
   }
   return [text];
@@ -81,9 +81,9 @@ function WithGlossary({
 
   let elements: (React.JSX.Element | string)[] = text;
 
-  if(headerId){
+  if (headerId) {
     questionKeys.forEach((key: string) => {
-      if(!questionsList[key].headerId) return elements;
+      if (!questionsList[key].headerId) return elements;
       elements = elements
         .map((element) => {
           if (typeof element !== "string") return element;
@@ -104,7 +104,7 @@ function WithGlossary({
       });
     });
 
-    if(definitions){
+    if (definitions) {
       //Find definitions
       definitions.forEach((definition) => {
         elements = elements
