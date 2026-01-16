@@ -10,6 +10,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 		.addColumn('nom', 'text')
 		.addColumn('definition', 'text')
 		.addColumn('source', 'text')
+		.addColumn('a_souligner', 'boolean')
 		.execute()
 
 	await db.schema

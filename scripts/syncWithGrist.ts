@@ -47,10 +47,11 @@ async function main() {
 
     try {
         // 1. GLOSSAIRE
-        await syncTable('ref_glossaire', 'Glossaire', ['Nom_glossaire', 'Definition_glossaire', 'Source'], (r) => ({
+        await syncTable('ref_glossaire', 'Glossaire', ['Nom_glossaire', 'Definition_glossaire', 'Source', 'A_souligner'], (r) => ({
             nom: r.fields.Nom_glossaire,
             definition: r.fields.Definition_glossaire,
             source: r.fields.Source || null,
+            a_souligner: Boolean(r.fields.A_souligner),
         }));
 
         // 2. ARTICLES
