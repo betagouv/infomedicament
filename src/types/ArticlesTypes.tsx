@@ -23,5 +23,5 @@ export type Article = {
   homepage: boolean,
   canonicalUrl: string,
   description: string,
-  image?: Omit<ImageProps, "alt">
+  image?: string,
 };

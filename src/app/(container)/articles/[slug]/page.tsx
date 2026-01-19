@@ -84,11 +84,14 @@ export default async function Page(props0: {
               "fr-mb-6w",
             )}
           >
-            <Image
-              alt="Image décorative"
-              className={fr.cx("fr-responsive-img", "fr-col-12")}
-              {...image}
-            />
+            <div style={{ position: "relative", aspectRatio: "16/9", width: "100%" }}>
+              <Image
+                alt="Image décorative"
+                fill
+                style={{ objectFit: "cover" }}
+                src={`/img/article_covers/${image}.webp`}
+              />
+            </div>
           </div>
         </div>
       )}

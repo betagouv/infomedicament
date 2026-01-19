@@ -3,7 +3,6 @@
 import "server-only";
 import { getGristTableData } from "@/data/grist/index";
 import slugify from "slugify";
-import { ImageProps } from "next/image";
 import { ExtendedSearchResults, SearchArticlesFilters, } from "@/types/SearchTypes";
 import { Article, ArticleCardResume } from "@/types/ArticlesTypes";
 import { AdvancedATCClass, AdvancedData, DataTypeEnum } from "@/types/DataTypes";
@@ -20,7 +19,7 @@ export async function getArticles(): Promise<Article[]> {
     "Lien",
     "Metadescription",
     "Homepage",
-    "Image",
+    "ImageId",
   ]);
 
   return records.map(({ fields }) => {
@@ -33,8 +32,8 @@ export async function getArticles(): Promise<Article[]> {
       homepage: fields.Homepage as boolean,
       canonicalUrl: fields.Lien as string,
       description: fields.Metadescription as string,
-      ...(fields.Image
-        ? { image: fields.Image as Omit<ImageProps, "alt"> }
+      ...(fields.ImageId
+        ? { image: fields.ImageId as string }
         : {}),
     };
   });
