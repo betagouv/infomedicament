@@ -72,13 +72,30 @@ export const getPathologiesResumeWithLetter = cache(async function(letter: strin
   return result;
 });
 
-export const getPathologiesResume = cache(async function(pathoCodes: string[]): Promise<ResumePatho[]> {
-  if(pathoCodes.length === 0) return [];
-    const result:ResumePatho[] = await db
-      .selectFrom("resume_pathologies")
-      .selectAll()
-      .where("codePatho", "in", pathoCodes)
-      .orderBy("codePatho")
-      .execute();
-    return result;
+export const getPathologiesResume = cache(async function (pathoCodes: string[]): Promise<ResumePatho[]> {
+  if (pathoCodes.length === 0) return [];
+  const result: ResumePatho[] = await db
+    .selectFrom("resume_pathologies")
+    .selectAll()
+    .where("codePatho", "in", pathoCodes)
+    .orderBy("codePatho")
+    .execute();
+  return result;
 });
+
+export async function getPathologyDefinition(
+  code: string,
+): Promise<string> {
+  const rows = await db
+    .selectFrom("ref_pathologies")
+    .select("definition")
+    .where("code_patho", "=", code)
+    .execute();
+
+  if (rows.length === 0) {
+    throw new Error(`Pathology code not found: ${code}`);
+  }
+
+  return rows[0].definition as string;
+
+}

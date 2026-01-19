@@ -34,7 +34,7 @@ describe("PathologyDefinitionContent (UI Integration)", () => {
             <PathologyDefinitionContent patho={patho} />
         );
 
-        // The component fetches: definition (Grist), articles (Grist), specialites (DB)
+        // The component fetches: definition (DB), articles (Grist), specialites (DB)
         await waitFor(() => {
             expect(container).toBeDefined();
             // Should display the pathology name

@@ -7,7 +7,7 @@ import { ArticleCardResume } from "@/types/ArticlesTypes";
 import { Patho } from "@/db/pdbmMySQL/types";
 import { getArticlesFromPatho } from "@/data/grist/articles";
 import PageDefinitionContent from "./PageDefinitionContent";
-import { getPathologyDefinition } from "@/data/grist/pathologies";
+import { getPathologyDefinition } from "@/db/utils/pathologies";
 import { getResumeSpecsGroupsWithPatho } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/data/grist/atc";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
