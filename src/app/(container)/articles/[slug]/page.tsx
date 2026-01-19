@@ -67,7 +67,7 @@ export default async function Page(props0: {
       </div>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12")}>
-          <ShareButtons 
+          <ShareButtons
             pageName={title}
             className={fr.cx("fr-mb-4w")}
           />

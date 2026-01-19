@@ -55,32 +55,32 @@ export async function getArticlesFromFilters(articlesFilters: SearchArticlesFilt
 
   records.map((record) => {
     let find = false;
-    if(record.fields.Substances && articlesFilters.substancesList.length > 0){
+    if (record.fields.Substances && articlesFilters.substancesList.length > 0) {
       const substancesArticle = (record.fields.Substances as string).split(",");
       const index = substancesArticle.find((articleSubsId: string) => articlesFilters.substancesList.find((subsId: string) => subsId === articleSubsId.trim()));
-      if(index) find = true;
+      if (index) find = true;
     }
-    if(!find && record.fields.Pathologies && articlesFilters.pathologiesList.length > 0){
+    if (!find && record.fields.Pathologies && articlesFilters.pathologiesList.length > 0) {
       const pathosArticle = (record.fields.Pathologies as string).split(",");
       const index = pathosArticle.find((articleCodePatho: string) => articlesFilters.pathologiesList.find((codePatho: string) => codePatho === articleCodePatho.trim()));
-      if(index) find = true;
+      if (index) find = true;
     }
-    if(!find && record.fields.Specialites && articlesFilters.specialitesList.length > 0){
+    if (!find && record.fields.Specialites && articlesFilters.specialitesList.length > 0) {
       const specsArticle = (record.fields.Specialites as string).split(",");
       const index = specsArticle.find((articleCodeCIS: string) => articlesFilters.specialitesList.find((codeCIS: string) => codeCIS === articleCodeCIS.trim()));
-      if(index) find = true;
+      if (index) find = true;
     }
-    if(!find && record.fields.Classes_ATC && articlesFilters.ATCList.length > 0){
+    if (!find && record.fields.Classes_ATC && articlesFilters.ATCList.length > 0) {
       const atcArticle = (record.fields.Classes_ATC as string).split(",");
       const index = atcArticle.find((articleCodeATC: string) => articlesFilters.ATCList.find((codeATC: string) => codeATC === articleCodeATC.trim()));
-      if(index) find = true;
+      if (index) find = true;
     }
-    if(find) articles.push(record);
+    if (find) articles.push(record);
   })
 
   const articlesList = articles.map(({ fields }) => {
-    const substances:string[] = fields.Substances.split(',').map((subsID: string) => subsID.trim());
-    const specialites:string[] = fields.Specialites.split(',').map((subsID: string) => subsID.trim());
+    const substances: string[] = fields.Substances.split(',').map((subsID: string) => subsID.trim());
+    const specialites: string[] = fields.Specialites.split(',').map((subsID: string) => subsID.trim());
     return {
       slug: slugify(fields.Titre as string, { lower: true, strict: true }),
       title: fields.Titre as string,
@@ -96,7 +96,7 @@ export async function getArticlesFromFilters(articlesFilters: SearchArticlesFilt
 }
 
 export async function getArticlesFromSearchResults(results: ExtendedSearchResults): Promise<ArticleCardResume[]> {
-  const articlesFilters:SearchArticlesFilters = {
+  const articlesFilters: SearchArticlesFilters = {
     ATCList: [],
     substancesList: [],
     specialitesList: [],
@@ -106,16 +106,16 @@ export async function getArticlesFromSearchResults(results: ExtendedSearchResult
   const extendedSearchResultsKeys: DataTypeEnum[] = Object.keys(results) as DataTypeEnum[];
   extendedSearchResultsKeys.forEach((key) => {
     results[key].forEach((result: AdvancedData) => {
-      if(result.type === DataTypeEnum.MEDICAMENT){
+      if (result.type === DataTypeEnum.MEDICAMENT) {
         (result.result as ResumeSpecGroup).CISList.forEach((CIS: string) => {
-          if(!articlesFilters.specialitesList.includes(CIS.trim())) articlesFilters.specialitesList.push(CIS.trim());
+          if (!articlesFilters.specialitesList.includes(CIS.trim())) articlesFilters.specialitesList.push(CIS.trim());
         });
       }
-      else if(result.type === DataTypeEnum.PATHOLOGY)
+      else if (result.type === DataTypeEnum.PATHOLOGY)
         articlesFilters.pathologiesList.push((result.result as ResumePatho).codePatho.trim());
-      else if(result.type === DataTypeEnum.SUBSTANCE) 
+      else if (result.type === DataTypeEnum.SUBSTANCE)
         articlesFilters.substancesList.push((result.result as ResumeSubstance).SubsId.trim());
-      else if(result.type === DataTypeEnum.ATCCLASS) {
+      else if (result.type === DataTypeEnum.ATCCLASS) {
         articlesFilters.ATCList.push((result.result as AdvancedATCClass).class.code.trim());
         (result.result as AdvancedATCClass).subclasses.map((subclass: ATC) => {
           articlesFilters.ATCList.push((subclass).code.trim());
@@ -127,7 +127,7 @@ export async function getArticlesFromSearchResults(results: ExtendedSearchResult
 }
 
 export async function getArticlesFromATC(codeATC: string): Promise<ArticleCardResume[]> {
-  const articlesFilters:SearchArticlesFilters = {
+  const articlesFilters: SearchArticlesFilters = {
     ATCList: [codeATC],
     substancesList: [],
     specialitesList: [],
@@ -138,7 +138,7 @@ export async function getArticlesFromATC(codeATC: string): Promise<ArticleCardRe
 }
 
 export async function getArticlesFromPatho(codePatho: string): Promise<ArticleCardResume[]> {
-  const articlesFilters:SearchArticlesFilters = {
+  const articlesFilters: SearchArticlesFilters = {
     ATCList: [],
     substancesList: [],
     specialitesList: [],
@@ -148,7 +148,7 @@ export async function getArticlesFromPatho(codePatho: string): Promise<ArticleCa
 }
 
 export async function getArticlesFromSubstances(ids: string[]): Promise<ArticleCardResume[]> {
-  const articlesFilters:SearchArticlesFilters = {
+  const articlesFilters: SearchArticlesFilters = {
     ATCList: [],
     substancesList: ids,
     specialitesList: [],
