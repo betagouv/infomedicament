@@ -17,8 +17,8 @@ interface PathologyDefinitionContentProps extends HTMLAttributes<HTMLDivElement>
 }
 
 function PathologyDefinitionContent({
-    patho,
-  }: PathologyDefinitionContentProps) {
+  patho,
+}: PathologyDefinitionContentProps) {
 
   const [title, setTitle] = useState<string>("");
   const [definition, setDefinition] = useState<string | { title: string; desc: string }[]>("");
@@ -35,22 +35,22 @@ function PathologyDefinitionContent({
         setDefinition(definition);
 
         const newAllSpecsGroups = await getResumeSpecsGroupsWithPatho(patho.codePatho);
-        if(newAllSpecsGroups.length > 0){
+        if (newAllSpecsGroups.length > 0) {
           const allSpecsWithATC: ResumeSpecGroup[] = await getResumeSpecsGroupsATCLabels(newAllSpecsGroups);
           setDataList(allSpecsWithATC);
         }
-      } catch(e) {
+      } catch (e) {
         Sentry.captureException(e);
       }
-  },[patho, setArticles, setDefinition, setDataList]);
+    }, [patho, setArticles, setDefinition, setDataList]);
 
   useEffect(() => {
     loadDefinitionData();
   }, [patho, loadDefinitionData]);
 
   useEffect(() => {
-    if(patho && dataList) {
-        setTitle(`${dataList.length} ${dataList.length > 1 ? "médicaments" : "médicament"} traitant la pathologie « 
+    if (patho && dataList) {
+      setTitle(`${dataList.length} ${dataList.length > 1 ? "médicaments" : "médicament"} traitant la pathologie « 
           ${patho.NomPatho} »`);
     }
   }, [patho, dataList, setTitle]);

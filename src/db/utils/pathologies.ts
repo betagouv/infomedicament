@@ -42,14 +42,14 @@ export const getSpecialitesPatho = cache(async function (CIS: string[]): Promise
   return rawCodePatho.map((code) => code.codePatho);
 });
 
-export const getAllPathos = cache(async function(): Promise<Patho[]> {
+export const getAllPathos = cache(async function (): Promise<Patho[]> {
   return await pdbmMySQL
     .selectFrom("Patho")
     .selectAll()
     .execute();
 });
 
-export const getAllPathoWithSpecialites = cache(async function() {
+export const getAllPathoWithSpecialites = cache(async function () {
   return await pdbmMySQL
     .selectFrom("Patho")
     .innerJoin("Spec_Patho", "Patho.codePatho", "Spec_Patho.codePatho")
@@ -60,11 +60,11 @@ export const getAllPathoWithSpecialites = cache(async function() {
     .execute();
 });
 
-export const getPathologiesResumeWithLetter = cache(async function(letter: string): Promise<ResumePatho[]> {
-  const result:ResumePatho[] = await db
+export const getPathologiesResumeWithLetter = cache(async function (letter: string): Promise<ResumePatho[]> {
+  const result: ResumePatho[] = await db
     .selectFrom("resume_pathologies")
     .selectAll()
-    .where(({eb, ref}) => eb(
+    .where(({ eb, ref }) => eb(
       sql<string>`upper(${ref("NomPatho")})`, "like", `${letter.toUpperCase()}%`
     ))
     .orderBy("NomPatho")
