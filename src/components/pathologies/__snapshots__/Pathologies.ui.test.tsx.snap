@@ -1,0 +1,939 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PathologyDefinitionContent (UI Integration) > should render pathology definition with correct content 1`] = `
+<div>
+  <div
+    class="fr-grid-row"
+    style="justify-content: space-between;"
+  >
+    <div
+      class="fr-col-12 fr-col-md-8"
+    >
+      <div
+        class="sc-dVBluf fSyEPz"
+      >
+        <div
+          class="fr-grid-row"
+        >
+          <div
+            class="fr-col-12"
+          >
+            <p
+              class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+              id="fr-badge-:r0:"
+            >
+              Pathologie
+            </p>
+            <h1
+              class="fr-h1 fr-mt-1w fr-mb-0"
+            >
+              Diabète
+            </h1>
+            <div
+              class="sc-FEMpB iNkwjQ fr-mb-6w fr-mt-2w"
+            >
+              <div
+                class="fr-share"
+              >
+                <p
+                  class="fr-share__title"
+                >
+                  Partager via :
+                </p>
+                <ul
+                  class="fr-btns-group"
+                >
+                  <li>
+                    <a
+                      class="fr-btn--mail fr-btn"
+                      href="mailto:?subject=Diabète - Info Médicament&body=Voici un lien vers la page Diabète sur le site Info Médicament : http://localhost:3000/"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      Partager par email
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      class="fr-btn--copy fr-btn"
+                      href=""
+                    >
+                      Copier dans le presse-papier
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div
+            class="fr-col-md-8"
+          >
+            <div
+              class="fr-grid-row"
+            >
+              <div
+                class="fr-col"
+              >
+                <div
+                  class="fr-card"
+                  id="fr-card-:r2:"
+                >
+                  <div
+                    class="fr-card__body"
+                  >
+                    <div
+                      class="fr-card__content"
+                    >
+                      <h6
+                        class="fr-card__title"
+                      >
+                        Définition
+                      </h6>
+                      <p
+                        class="fr-card__desc"
+                      >
+                        Maladie chronique où le corps ne produit pas assez d'insuline ou devient résistant à l'insuline, entraînant une élévation du taux de sucre dans le sang.
+                      </p>
+                      <div
+                        class="fr-card__start"
+                      />
+                      <div
+                        class="fr-card__end"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2
+        class="fr-h6 fr-mt-4w"
+      >
+        417 médicaments traitant la pathologie « 
+          Diabète »
+      </h2>
+    </div>
+    <div
+      class="fr-col-12 fr-col-md-8"
+    >
+      <div
+        class="sc-deSjom gCyfqo fr-mb-1w"
+      >
+        <div
+          class="sc-jUkaYT NuYyY fr-p-1w"
+        >
+          <div
+            class="sc-cSaEAk jACPYJ"
+          >
+            <span
+              class="sc-jZTQcj eAPGWP fr-text--md fr-mr-2w"
+            >
+              Abasaglar
+            </span>
+            <span
+              class="sc-dkBYrC cXlKdI fr-text--sm"
+            >
+              3
+               
+              formats de médicament
+            </span>
+          </div>
+          <div
+            class="sc-jHswkR iVvuim"
+          >
+            <div>
+              <div
+                class="sc-cSaEAk jACPYJ"
+              >
+                <span
+                  class="fr-text--sm"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Substance active
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    insuline glargine
+                  </span>
+                </span>
+              </div>
+            </div>
+            <button
+              class="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-down-s-line"
+              id="fr-button-:r4:"
+              title="Liens vers les notices"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        class="sc-deSjom gCyfqo fr-mb-1w"
+      >
+        <div
+          class="sc-jUkaYT NuYyY fr-p-1w"
+        >
+          <div
+            class="sc-cSaEAk jACPYJ"
+          >
+            <span
+              class="sc-jZTQcj eAPGWP fr-text--md fr-mr-2w"
+            >
+              Acarbose Arrow
+            </span>
+            <span
+              class="sc-dkBYrC cXlKdI fr-text--sm"
+            >
+              4
+               
+              formats de médicament
+            </span>
+          </div>
+          <div
+            class="sc-jHswkR iVvuim"
+          >
+            <div>
+              <div
+                class="sc-cSaEAk jACPYJ"
+              >
+                <span
+                  class="fr-text--sm"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Substance active
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    acarbose
+                  </span>
+                </span>
+              </div>
+            </div>
+            <button
+              class="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-down-s-line"
+              id="fr-button-:r5:"
+              title="Liens vers les notices"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        class="sc-deSjom gCyfqo fr-mb-1w"
+      >
+        <div
+          class="sc-jUkaYT NuYyY fr-p-1w"
+        >
+          <div
+            class="sc-cSaEAk jACPYJ"
+          >
+            <span
+              class="sc-jZTQcj eAPGWP fr-text--md fr-mr-2w"
+            >
+              Acarbose Arrow Lab
+            </span>
+            <span
+              class="sc-dkBYrC cXlKdI fr-text--sm"
+            >
+              2
+               
+              formats de médicament
+            </span>
+          </div>
+          <div
+            class="sc-jHswkR iVvuim"
+          >
+            <div>
+              <div
+                class="sc-cSaEAk jACPYJ"
+              >
+                <span
+                  class="fr-text--sm fr-mr-2w"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Classe
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    Système digestif
+                     &gt; 
+                    Diabète
+                  </span>
+                </span>
+                <span
+                  class="fr-text--sm"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Substance active
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    acarbose
+                  </span>
+                </span>
+              </div>
+            </div>
+            <button
+              class="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-down-s-line"
+              id="fr-button-:r6:"
+              title="Liens vers les notices"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        class="sc-deSjom gCyfqo fr-mb-1w"
+      >
+        <div
+          class="sc-jUkaYT NuYyY fr-p-1w"
+        >
+          <div
+            class="sc-cSaEAk jACPYJ"
+          >
+            <span
+              class="sc-jZTQcj eAPGWP fr-text--md fr-mr-2w"
+            >
+              Acarbose Bayer
+            </span>
+            <span
+              class="sc-dkBYrC cXlKdI fr-text--sm"
+            >
+              2
+               
+              formats de médicament
+            </span>
+          </div>
+          <div
+            class="sc-jHswkR iVvuim"
+          >
+            <div>
+              <div
+                class="sc-cSaEAk jACPYJ"
+              >
+                <span
+                  class="fr-text--sm"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Substance active
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    acarbose
+                  </span>
+                </span>
+              </div>
+            </div>
+            <button
+              class="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-down-s-line"
+              id="fr-button-:r7:"
+              title="Liens vers les notices"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        class="sc-deSjom gCyfqo fr-mb-1w"
+      >
+        <div
+          class="sc-jUkaYT NuYyY fr-p-1w"
+        >
+          <div
+            class="sc-cSaEAk jACPYJ"
+          >
+            <span
+              class="sc-jZTQcj eAPGWP fr-text--md fr-mr-2w"
+            >
+              Acarbose Biogaran
+            </span>
+            <span
+              class="sc-dkBYrC cXlKdI fr-text--sm"
+            >
+              2
+               
+              formats de médicament
+            </span>
+          </div>
+          <div
+            class="sc-jHswkR iVvuim"
+          >
+            <div>
+              <div
+                class="sc-cSaEAk jACPYJ"
+              >
+                <span
+                  class="fr-text--sm fr-mr-2w"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Classe
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    Système digestif
+                     &gt; 
+                    Diabète
+                  </span>
+                </span>
+                <span
+                  class="fr-text--sm"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Substance active
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    acarbose
+                  </span>
+                </span>
+              </div>
+            </div>
+            <button
+              class="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-down-s-line"
+              id="fr-button-:r8:"
+              title="Liens vers les notices"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        class="sc-deSjom gCyfqo fr-mb-1w"
+      >
+        <div
+          class="sc-jUkaYT NuYyY fr-p-1w"
+        >
+          <div
+            class="sc-cSaEAk jACPYJ"
+          >
+            <span
+              class="sc-jZTQcj eAPGWP fr-text--md fr-mr-2w"
+            >
+              Acarbose Eg
+            </span>
+            <span
+              class="sc-dkBYrC cXlKdI fr-text--sm"
+            >
+              2
+               
+              formats de médicament
+            </span>
+          </div>
+          <div
+            class="sc-jHswkR iVvuim"
+          >
+            <div>
+              <div
+                class="sc-cSaEAk jACPYJ"
+              >
+                <span
+                  class="fr-text--sm fr-mr-2w"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Classe
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    Système digestif
+                     &gt; 
+                    Diabète
+                  </span>
+                </span>
+                <span
+                  class="fr-text--sm"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Substance active
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    acarbose
+                  </span>
+                </span>
+              </div>
+            </div>
+            <button
+              class="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-down-s-line"
+              id="fr-button-:r9:"
+              title="Liens vers les notices"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        class="sc-deSjom gCyfqo fr-mb-1w"
+      >
+        <div
+          class="sc-jUkaYT NuYyY fr-p-1w"
+        >
+          <div
+            class="sc-cSaEAk jACPYJ"
+          >
+            <span
+              class="sc-jZTQcj eAPGWP fr-text--md fr-mr-2w"
+            >
+              Acarbose Sandoz
+            </span>
+            <span
+              class="sc-dkBYrC cXlKdI fr-text--sm"
+            >
+              2
+               
+              formats de médicament
+            </span>
+          </div>
+          <div
+            class="sc-jHswkR iVvuim"
+          >
+            <div>
+              <div
+                class="sc-cSaEAk jACPYJ"
+              >
+                <span
+                  class="fr-text--sm fr-mr-2w"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Classe
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    Système digestif
+                     &gt; 
+                    Diabète
+                  </span>
+                </span>
+                <span
+                  class="fr-text--sm"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Substance active
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    acarbose
+                  </span>
+                </span>
+              </div>
+            </div>
+            <button
+              class="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-down-s-line"
+              id="fr-button-:ra:"
+              title="Liens vers les notices"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        class="sc-deSjom gCyfqo fr-mb-1w"
+      >
+        <div
+          class="sc-jUkaYT NuYyY fr-p-1w"
+        >
+          <div
+            class="sc-cSaEAk jACPYJ"
+          >
+            <span
+              class="sc-jZTQcj eAPGWP fr-text--md fr-mr-2w"
+            >
+              Acarbose Viatris
+            </span>
+            <span
+              class="sc-dkBYrC cXlKdI fr-text--sm"
+            >
+              2
+               
+              formats de médicament
+            </span>
+          </div>
+          <div
+            class="sc-jHswkR iVvuim"
+          >
+            <div>
+              <div
+                class="sc-cSaEAk jACPYJ"
+              >
+                <span
+                  class="fr-text--sm fr-mr-2w"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Classe
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    Système digestif
+                     &gt; 
+                    Diabète
+                  </span>
+                </span>
+                <span
+                  class="fr-text--sm"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Substance active
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    acarbose
+                  </span>
+                </span>
+              </div>
+            </div>
+            <button
+              class="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-down-s-line"
+              id="fr-button-:rb:"
+              title="Liens vers les notices"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        class="sc-deSjom gCyfqo fr-mb-1w"
+      >
+        <div
+          class="sc-jUkaYT NuYyY fr-p-1w"
+        >
+          <div
+            class="sc-cSaEAk jACPYJ"
+          >
+            <span
+              class="sc-jZTQcj eAPGWP fr-text--md fr-mr-2w"
+            >
+              Acarbose Zentiva
+            </span>
+            <span
+              class="sc-dkBYrC cXlKdI fr-text--sm"
+            >
+              2
+               
+              formats de médicament
+            </span>
+          </div>
+          <div
+            class="sc-jHswkR iVvuim"
+          >
+            <div>
+              <div
+                class="sc-cSaEAk jACPYJ"
+              >
+                <span
+                  class="fr-text--sm fr-mr-2w"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Classe
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    Système digestif
+                     &gt; 
+                    Diabète
+                  </span>
+                </span>
+                <span
+                  class="fr-text--sm"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Substance active
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    acarbose
+                  </span>
+                </span>
+              </div>
+            </div>
+            <button
+              class="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-down-s-line"
+              id="fr-button-:rc:"
+              title="Liens vers les notices"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        class="sc-deSjom gCyfqo fr-mb-1w"
+      >
+        <div
+          class="sc-jUkaYT NuYyY fr-p-1w"
+        >
+          <div
+            class="sc-cSaEAk jACPYJ"
+          >
+            <span
+              class="sc-jZTQcj eAPGWP fr-text--md fr-mr-2w"
+            >
+              Actos
+            </span>
+            <span
+              class="sc-dkBYrC cXlKdI fr-text--sm"
+            >
+              3
+               
+              formats de médicament
+            </span>
+          </div>
+          <div
+            class="sc-jHswkR iVvuim"
+          >
+            <div>
+              <div
+                class="sc-cSaEAk jACPYJ"
+              >
+                <span
+                  class="fr-text--sm fr-mr-2w"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Classe
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    Système digestif
+                     &gt; 
+                    Diabète
+                  </span>
+                </span>
+                <span
+                  class="fr-text--sm"
+                >
+                  <span
+                    class="sc-kXOizl eWmNNY"
+                  >
+                    Substance active
+                  </span>
+                   
+                  <span
+                    class="sc-eiwqOE cnYzsF"
+                  >
+                    pioglitazone base
+                  </span>
+                </span>
+              </div>
+            </div>
+            <button
+              class="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-down-s-line"
+              id="fr-button-:rd:"
+              title="Liens vers les notices"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="fr-col-12 fr-col-md-3"
+    >
+      <div
+        class="sc-fAomSb bSEqyv"
+      >
+        <h3
+          class="fr-h6 fr-mb-1w"
+        >
+          En savoir plus
+        </h3>
+        <div>
+          <div
+            class="sc-dVupuq kaLoAZ fr-mb-2w"
+          >
+            <a
+              class="fr-text--sm fr-link"
+              href="/articles/medicaments-et-chaleur-preserver-leur-efficacite"
+              target="_blank"
+            >
+              Médicaments et chaleur : préserver leur efficacité !
+            </a>
+            <div
+              class="fr-mt-1w"
+            >
+              <p
+                class="fr-badge fr-badge--info fr-badge--no-icon"
+                id="fr-badge-:r1:"
+              >
+                ARTICLE
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="fr-col-12"
+    >
+      <nav
+        aria-label="Pagination"
+        class="fr-pagination fr-mt-1w"
+        id="fr-pagination-:r3:"
+        role="navigation"
+      >
+        <ul
+          class="fr-pagination__list"
+        >
+          <li>
+            <a
+              aria-disabled="true"
+              class="fr-pagination__link fr-pagination__link--first"
+              role="link"
+            >
+              Première page
+            </a>
+          </li>
+          <li>
+            <a
+              aria-disabled="true"
+              class="fr-pagination__link fr-pagination__link--prev fr-pagination__link--lg-label"
+              role="link"
+            >
+              Page précédente
+            </a>
+          </li>
+          <li>
+            <button
+              aria-current="true"
+              class="fr-link fr-pagination__link"
+              title="Page 1"
+            >
+              1
+            </button>
+          </li>
+          <li>
+            <button
+              class="fr-link fr-pagination__link"
+              title="Page 2"
+            >
+              2
+            </button>
+          </li>
+          <li>
+            <button
+              class="fr-link fr-pagination__link"
+              title="Page 3"
+            >
+              3
+            </button>
+          </li>
+          <li>
+            <button
+              class="fr-link fr-pagination__link"
+              title="Page 4"
+            >
+              4
+            </button>
+          </li>
+          <li>
+            <a
+              class="fr-pagination__link"
+            >
+              ...
+            </a>
+          </li>
+          <li>
+            <button
+              class="fr-link fr-pagination__link"
+              title="Page 39"
+            >
+              39
+            </button>
+          </li>
+          <li>
+            <button
+              class="fr-link fr-pagination__link"
+              title="Page 40"
+            >
+              40
+            </button>
+          </li>
+          <li>
+            <button
+              class="fr-link fr-pagination__link"
+              title="Page 41"
+            >
+              41
+            </button>
+          </li>
+          <li>
+            <button
+              class="fr-link fr-pagination__link"
+              title="Page 42"
+            >
+              42
+            </button>
+          </li>
+          <li>
+            <button
+              class="fr-link fr-pagination__link fr-pagination__link--next fr-pagination__link--lg-label"
+              role="link"
+            >
+              Page suivante
+            </button>
+          </li>
+          <li>
+            <button
+              class="fr-link fr-pagination__link fr-pagination__link--last"
+            >
+              Dernière page
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+`;
