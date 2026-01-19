@@ -12,7 +12,10 @@ export default async function getGlossaryDefinitions(): Promise<Definition[]> {
         .execute();
 
     // Map database fields to Definition interface which does not allow nulls
-    return rows.map((row) => (mapDataBaseToDefinition(row)));
+    const typedRows = rows.map((row) => mapDataBaseToDefinition(row));
+
+    // Return sorted by nom (case insensitive, French locale)
+    return typedRows.sort((a, b) => a.nom.localeCompare(b.nom, 'fr', { sensitivity: 'base' }));
 };
 
 export async function getGlossaryDefinitionsByFirstLetter(firstLetter: string): Promise<Definition[]> {
@@ -22,7 +25,10 @@ export async function getGlossaryDefinitionsByFirstLetter(firstLetter: string): 
         .execute();
 
     // Map database fields to Definition interface which does not allow nulls
-    return rows.map((row) => (mapDataBaseToDefinition(row)));
+    const typedRows = rows.map((row) => mapDataBaseToDefinition(row));
+
+    // Return sorted by nom (case insensitive, French locale)
+    return typedRows.sort((a, b) => a.nom.localeCompare(b.nom, 'fr', { sensitivity: 'base' }));
 };
 
 export async function getGlossaryLetters() {
