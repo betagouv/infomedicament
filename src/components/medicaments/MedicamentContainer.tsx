@@ -12,7 +12,7 @@ import { ATC } from "@/types/ATCTypes";
 import Alert from "@codegouvfr/react-dsfr/Alert";
 import { getPregnancyMentionAlert, getAllPregnancyPlanAlerts } from "@/data/grist/pregnancy";
 import MedicamentContent from "./MedicamentContent";
-import { getMarr } from "@/data/grist/marr";
+import { getMarr } from "@/db/utils/marr";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
