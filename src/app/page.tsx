@@ -45,7 +45,7 @@ export default async function Page() {
               Articles
             </h2>
             <Image
-              src="/homepage_illu.svg"
+              src="/img/homepage_illu.svg"
               alt="Un dessin d'une personne regardant une boîte de médicaments."
               className={fr.cx(
                 "fr-responsive-img",
@@ -78,7 +78,7 @@ export default async function Page() {
             )}
           >
             <Image
-              src="/homepage_illu.svg"
+              src="/img/homepage_illu.svg"
               alt="Un dessin d'une personne regardant une boîte de médicaments."
               className={fr.cx("fr-responsive-img")}
               width={2000}
