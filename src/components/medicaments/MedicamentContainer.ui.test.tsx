@@ -55,4 +55,115 @@ describe("Medicament Container component(UI Integration)", () => {
         // Snapshot
         expect(container).toMatchSnapshot();
     });
+
+    it("should render the correct content for medicament with pediatric indication", async () => {
+        // Augmentin 1 g/125 mg, poudre pour suspension buvable en sachet-dose (rapport amoxicilline/acide clavulanique : 8/1)
+        const TEST_CIS = "66053338";
+        const { specialite, composants, presentations, delivrance } = await getSpecialite(TEST_CIS);
+
+        const atcCode = getAtcCode(TEST_CIS);
+        const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
+        const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
+
+        const atcList = [];
+        if (atc1) atcList.push(atc1.code.trim());
+        if (atc2) atcList.push(atc2.code.trim());
+
+        // Render with real data
+        const { container } = render(
+            <MedicamentContainer
+                atcList={atcList}
+                atc2={atc2}
+                atcCode={atcCode}
+                specialite={specialite}
+                composants={composants}
+                isPrinceps={true}
+                delivrance={delivrance}
+                presentations={presentations}
+            />
+        );
+
+        // Wait for data to load
+        await waitFor(() => {
+            expect(container).toBeDefined();
+            expect(container.textContent).toContain("Peut être utilisé chez l'enfant selon l'âge");
+        });
+
+        // Snapshot
+        expect(container).toMatchSnapshot();
+    });
+
+    it("should render the correct content for medicament with pediatric 'sur avis d'un médecin'", async () => {
+        // Atepadene 30 mg, gélule
+        const TEST_CIS = "60453083";
+        const { specialite, composants, presentations, delivrance } = await getSpecialite(TEST_CIS);
+
+        const atcCode = getAtcCode(TEST_CIS);
+        const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
+        const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
+
+        const atcList = [];
+        if (atc1) atcList.push(atc1.code.trim());
+        if (atc2) atcList.push(atc2.code.trim());
+
+        // Render with real data
+        const { container } = render(
+            <MedicamentContainer
+                atcList={atcList}
+                atc2={atc2}
+                atcCode={atcCode}
+                specialite={specialite}
+                composants={composants}
+                isPrinceps={true}
+                delivrance={delivrance}
+                presentations={presentations}
+            />
+        );
+
+        // Wait for data to load
+        await waitFor(() => {
+            expect(container).toBeDefined();
+            expect(container.textContent).toContain("Utilisation chez l'enfant sur avis d'un professionnel de santé");
+        });
+
+        // Snapshot
+        expect(container).toMatchSnapshot();
+    });
+
+    it("should render the correct content for medicament with pediatric contre-indication", async () => {
+        // Bactrim, suspension buvable
+        const TEST_CIS = "65880598";
+        const { specialite, composants, presentations, delivrance } = await getSpecialite(TEST_CIS);
+
+        const atcCode = getAtcCode(TEST_CIS);
+        const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
+        const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
+
+        const atcList = [];
+        if (atc1) atcList.push(atc1.code.trim());
+        if (atc2) atcList.push(atc2.code.trim());
+
+        // Render with real data
+        const { container } = render(
+            <MedicamentContainer
+                atcList={atcList}
+                atc2={atc2}
+                atcCode={atcCode}
+                specialite={specialite}
+                composants={composants}
+                isPrinceps={true}
+                delivrance={delivrance}
+                presentations={presentations}
+            />
+        );
+
+        // Wait for data to load
+        await waitFor(() => {
+            expect(container).toBeDefined();
+            expect(container.textContent).toContain("Il existe une contre-indication pédiatrique");
+        });
+
+        // Snapshot
+        expect(container).toMatchSnapshot();
+    });
 });
