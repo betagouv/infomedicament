@@ -1,5 +1,166 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`MARR Components (UI Integration) > should render inline layout when inLine prop is true 1`] = `
+<div>
+  <div>
+    <div
+      class="sc-FEMpB crtxUN"
+    >
+      <a
+        class="fr-text--sm"
+        href="https://ansm.sante.fr/uploads/2022/11/07/20221107-marr-vizamyl-introduction-medecins-v1-2022-10.pdf"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Introduction (07/11/2022)
+      </a>
+      <div
+        class="sc-gjcoXW gNpZhT"
+      >
+        <p
+          class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+          id="fr-badge-:rl:"
+        >
+          Professionnels
+        </p>
+      </div>
+    </div>
+    <div
+      class="sc-FEMpB crtxUN"
+    >
+      <a
+        class="fr-text--sm"
+        href="https://ansm.sante.fr/uploads/2022/11/07/20221107-marr-vizamyl-module1-medecins-v1-2022-10.pdf"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Module 1 : anatomie du cerveau et imagerie TEP avec Vizamyl (07/11/2022)
+      </a>
+      <div
+        class="sc-gjcoXW gNpZhT"
+      >
+        <p
+          class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+          id="fr-badge-:rm:"
+        >
+          Professionnels
+        </p>
+      </div>
+    </div>
+    <div
+      class="sc-FEMpB crtxUN"
+    >
+      <a
+        class="fr-text--sm"
+        href="https://ansm.sante.fr/uploads/2022/11/07/20221107-marr-vizamyl-module2-medecins-v1-2022-10.pdf"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Module 2 : orientation, affichage des images et autoévaluation (07/11/2022)
+      </a>
+      <div
+        class="sc-gjcoXW gNpZhT"
+      >
+        <p
+          class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+          id="fr-badge-:rn:"
+        >
+          Professionnels
+        </p>
+      </div>
+    </div>
+    <div
+      class="sc-FEMpB crtxUN"
+    >
+      <a
+        class="fr-text--sm"
+        href="https://ansm.sante.fr/uploads/2022/11/07/20221107-marr-vizamyl-module3-medecins-v1-2022-10.pdf"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Module 3 : interprétation des images, limites d'utilisation et autoévaluation (07/11/2022)
+      </a>
+      <div
+        class="sc-gjcoXW gNpZhT"
+      >
+        <p
+          class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+          id="fr-badge-:ro:"
+        >
+          Professionnels
+        </p>
+      </div>
+    </div>
+    <div
+      class="sc-FEMpB crtxUN"
+    >
+      <a
+        class="fr-text--sm"
+        href="https://ansm.sante.fr/uploads/2022/11/07/20221107-marr-vizamyl-module4-medecins-v1-2022-10.pdf"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Module 4 : test préliminaires et évaluation finale (autoévaluation ou évaluation avec formateur) (07/11/2022)
+      </a>
+      <div
+        class="sc-gjcoXW gNpZhT"
+      >
+        <p
+          class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+          id="fr-badge-:rp:"
+        >
+          Professionnels
+        </p>
+      </div>
+    </div>
+    <div
+      class="sc-FEMpB crtxUN"
+    >
+      <a
+        class="fr-text--sm"
+        href="https://ansm.sante.fr/uploads/2022/11/07/20221107-marr-vizamyl-modulecomplementaire-medecin-v1-2022-10.pdf"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Module complémentaire (optionnel) : Analyse quantitative des images Vizamyl (07/11/2022)
+      </a>
+      <div
+        class="sc-gjcoXW gNpZhT"
+      >
+        <p
+          class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+          id="fr-badge-:rq:"
+        >
+          Professionnels
+        </p>
+      </div>
+    </div>
+    <div
+      class="sc-FEMpB crtxUN"
+    >
+      <a
+        class="fr-text--sm"
+        href="https://ansm.sante.fr/uploads/2023/07/20/vizamyl-modulesupplementaire-medecin-v1-2023-06.pdf"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Module supplémentaire : Remise à niveau (20/07/2023)
+      </a>
+      <div
+        class="sc-gjcoXW gNpZhT"
+      >
+        <p
+          class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+          id="fr-badge-:rr:"
+        >
+          Professionnels
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`MARR Components (UI Integration) > should render the correct MarrNotice content 1`] = `
 <div>
   <h3
@@ -363,6 +524,167 @@ exports[`MARR Components (UI Integration) > should render the correct MarrNotice
         <p
           class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
           id="fr-badge-:rd:"
+        >
+          Professionnels
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`MARR Components (UI Integration) > should render the correct list of MARR documents 1`] = `
+<div>
+  <div>
+    <div
+      class="sc-FEMpB kuDvAZ"
+    >
+      <a
+        class="fr-text--sm"
+        href="https://ansm.sante.fr/uploads/2022/11/07/20221107-marr-vizamyl-introduction-medecins-v1-2022-10.pdf"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Introduction (07/11/2022)
+      </a>
+      <div
+        class="sc-gjcoXW gNpZhT"
+      >
+        <p
+          class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+          id="fr-badge-:re:"
+        >
+          Professionnels
+        </p>
+      </div>
+    </div>
+    <div
+      class="sc-FEMpB kuDvAZ"
+    >
+      <a
+        class="fr-text--sm"
+        href="https://ansm.sante.fr/uploads/2022/11/07/20221107-marr-vizamyl-module1-medecins-v1-2022-10.pdf"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Module 1 : anatomie du cerveau et imagerie TEP avec Vizamyl (07/11/2022)
+      </a>
+      <div
+        class="sc-gjcoXW gNpZhT"
+      >
+        <p
+          class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+          id="fr-badge-:rf:"
+        >
+          Professionnels
+        </p>
+      </div>
+    </div>
+    <div
+      class="sc-FEMpB kuDvAZ"
+    >
+      <a
+        class="fr-text--sm"
+        href="https://ansm.sante.fr/uploads/2022/11/07/20221107-marr-vizamyl-module2-medecins-v1-2022-10.pdf"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Module 2 : orientation, affichage des images et autoévaluation (07/11/2022)
+      </a>
+      <div
+        class="sc-gjcoXW gNpZhT"
+      >
+        <p
+          class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+          id="fr-badge-:rg:"
+        >
+          Professionnels
+        </p>
+      </div>
+    </div>
+    <div
+      class="sc-FEMpB kuDvAZ"
+    >
+      <a
+        class="fr-text--sm"
+        href="https://ansm.sante.fr/uploads/2022/11/07/20221107-marr-vizamyl-module3-medecins-v1-2022-10.pdf"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Module 3 : interprétation des images, limites d'utilisation et autoévaluation (07/11/2022)
+      </a>
+      <div
+        class="sc-gjcoXW gNpZhT"
+      >
+        <p
+          class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+          id="fr-badge-:rh:"
+        >
+          Professionnels
+        </p>
+      </div>
+    </div>
+    <div
+      class="sc-FEMpB kuDvAZ"
+    >
+      <a
+        class="fr-text--sm"
+        href="https://ansm.sante.fr/uploads/2022/11/07/20221107-marr-vizamyl-module4-medecins-v1-2022-10.pdf"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Module 4 : test préliminaires et évaluation finale (autoévaluation ou évaluation avec formateur) (07/11/2022)
+      </a>
+      <div
+        class="sc-gjcoXW gNpZhT"
+      >
+        <p
+          class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+          id="fr-badge-:ri:"
+        >
+          Professionnels
+        </p>
+      </div>
+    </div>
+    <div
+      class="sc-FEMpB kuDvAZ"
+    >
+      <a
+        class="fr-text--sm"
+        href="https://ansm.sante.fr/uploads/2022/11/07/20221107-marr-vizamyl-modulecomplementaire-medecin-v1-2022-10.pdf"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Module complémentaire (optionnel) : Analyse quantitative des images Vizamyl (07/11/2022)
+      </a>
+      <div
+        class="sc-gjcoXW gNpZhT"
+      >
+        <p
+          class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+          id="fr-badge-:rj:"
+        >
+          Professionnels
+        </p>
+      </div>
+    </div>
+    <div
+      class="sc-FEMpB kuDvAZ"
+    >
+      <a
+        class="fr-text--sm"
+        href="https://ansm.sante.fr/uploads/2023/07/20/vizamyl-modulesupplementaire-medecin-v1-2023-06.pdf"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Module supplémentaire : Remise à niveau (20/07/2023)
+      </a>
+      <div
+        class="sc-gjcoXW gNpZhT"
+      >
+        <p
+          class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+          id="fr-badge-:rk:"
         >
           Professionnels
         </p>
