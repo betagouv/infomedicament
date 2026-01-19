@@ -1,0 +1,248 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Medicament Container component(UI Integration) > should render the correct content for medicament container 1`] = `
+<div>
+  <div
+    class="sc-FEMpB korYns  fr-container fr-pt-1w fr-pb-2w"
+  >
+    <div
+      class="fr-grid-row fr-grid-row--gutters"
+    >
+      <div
+        class="sc-gQJZgv caevfI fr-col-12 fr-mt-2w"
+      >
+        <div
+          class="sc-gQJZgv caevfI mobile-display-contents fr-grid-row fr-grid-row--gutters"
+        >
+          <div
+            class="sc-FEMpB korYns mobile-display-contents fr-col-12 fr-col-lg-3 fr-col-md-3"
+          >
+            <div
+              class="sc-eiwqOE bTPPKc"
+            >
+              <div
+                class="fr-share"
+              >
+                <p
+                  class="fr-share__title"
+                >
+                  Partager via :
+                </p>
+                <ul
+                  class="fr-btns-group"
+                >
+                  <li>
+                    <a
+                      class="fr-btn--mail fr-btn"
+                      href="mailto:?subject=Vizamyl 400 Mbq/ml, solution injectable - Info Médicament&body=Voici un lien vers la page Vizamyl 400 Mbq/ml, solution injectable sur le site Info Médicament : http://localhost:3000/"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      Partager par email
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      class="fr-btn--copy fr-btn"
+                      href=""
+                    >
+                      Copier dans le presse-papier
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div
+              class="sc-flQbIK gBVMLf fr-mb-4w fr-p-2w"
+            >
+              <div
+                class="fr-toggle fr-toggle--label-left medicament-toggle-switch"
+                id="fr-toggle-:r0:"
+              >
+                <input
+                  aria-describedby="fr-toggle-:r0:-hint-text"
+                  class="fr-toggle__input"
+                  id="fr-toggle-:r0:-input"
+                  title="Version détaillée"
+                  type="checkbox"
+                />
+                <label
+                  class="fr-toggle__label"
+                  for="fr-toggle-:r0:-input"
+                >
+                  Version détaillée
+                </label>
+                <p
+                  class="fr-hint-text"
+                  id="fr-toggle-:r0:-hint-text"
+                >
+                  Afficher RCP, données HAS, CNAM...
+                </p>
+              </div>
+            </div>
+            <section
+              class="mobile-display-contents fr-mb-4w"
+            >
+              <div
+                class="sc-FEMpB lfcJZZ fr-mb-4w fr-p-2w"
+              >
+                <div>
+                  <div
+                    class="sc-gjcoXW ChmUM"
+                  >
+                    Sous-classe
+                  </div>
+                  <a
+                    class="fr-tag--custom-alt-class fr-tag fr-tag--custom-alt-class"
+                    href="/atc/V09"
+                    id="fr-tag-:r2:"
+                    target="_blank"
+                  >
+                    Produits de radiologie pour examen
+                  </a>
+                  <hr
+                    class="fr-pb-1w fr-mt-1w"
+                  />
+                </div>
+                <div>
+                  <div
+                    class="sc-gjcoXW ChmUM"
+                  >
+                    Substance active
+                  </div>
+                  <a
+                    class="fr-tag--custom-alt-substance fr-tag fr-tag--custom-alt-substance"
+                    href="/substances/31045"
+                    id="fr-tag-:r3:"
+                    target="_blank"
+                  >
+                    flutémétamol (18F)
+                  </a>
+                  <hr
+                    class="fr-pb-1w fr-mt-1w"
+                  />
+                </div>
+                <div>
+                  <div>
+                    <a
+                      class="fr-tag--custom-alt-blue fr-tag fr-icon-capsule-fill fr-tag--icon-left fr-tag--custom-alt-blue"
+                      href="/generiques/67652999"
+                      id="fr-tag-:r5:"
+                      target="_blank"
+                    >
+                      Voir les Princeps
+                    </a>
+                  </div>
+                  <hr
+                    class="fr-pb-1w fr-mt-1w"
+                  />
+                </div>
+                <div>
+                  <button
+                    class="fr-tag--custom-alt-blue fr-tag fr-icon-file-text-fill fr-tag--icon-left"
+                    id="fr-tag-:r4:"
+                  >
+                    Sur ordonnance
+                  </button>
+                </div>
+              </div>
+              <div
+                class="sc-FEMpB lfcJZZ fr-mb-4w fr-p-2w"
+              >
+                <h3
+                  class="fr-h6"
+                >
+                  <span
+                    class="fr-hidden-md"
+                  >
+                    Conditionnement
+                  </span>
+                  <span
+                    class="fr-hidden fr-unhidden-md"
+                  >
+                    Conditionnement et prix
+                  </span>
+                </h3>
+                <ul
+                  class="fr-raw-list"
+                >
+                  <li
+                    class="fr-mb-1w"
+                  >
+                    <span
+                      class="fr-icon--custom-box fr-mr-1w"
+                    />
+                    <b>
+                      Flacon de 15 ml
+                    </b>
+                    <div>
+                      Prix libre - non remboursable
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </section>
+          </div>
+          <div
+            class="sc-FEMpB korYns mobile-display-contents fr-col-12 fr-col-lg-9 fr-col-md-9"
+          >
+            <div
+              class="sc-FEMpB lfcJZZ fr-mb-4w fr-p-4w"
+            >
+              <b>
+                Les informations sur ce médicament font l’objet d’une procédure centralisée au niveau européen.
+                <br />
+                <br />
+                <a
+                  aria-description="Lien vers le site de l'EMA"
+                  href="https://www.ema.europa.eu/en/search"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Voir les données complètes sur le site de l'EMA (Agence européenne des médicaments).
+                </a>
+                .
+              </b>
+            </div>
+            <article>
+              <div
+                class="sc-FEMpB lfcJZZ fr-mb-4w"
+              >
+                <div
+                  class="sc-bCjwNj exnKRS"
+                >
+                  <div
+                    class="sc-iXqmyu eCoJpd fr-mb-4w"
+                  >
+                    <div
+                      style="display: flex;"
+                    >
+                      <span
+                        class="fr-icon--custom-notice fr-mr-1w fr-hidden fr-unhidden-md"
+                      />
+                      <h2
+                        class="fr-h3 fr-mb-1w"
+                      >
+                        Notice complète
+                      </h2>
+                    </div>
+                    <div
+                      class="sc-FEMpB korYns"
+                    />
+                  </div>
+                </div>
+              </div>
+            </article>
+            <a
+              class="fr-btn fr-icon-arrow-up-line go-top-button"
+              href="#"
+              id="fr-button-:r1:"
+              title="Haut de page"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
