@@ -82,8 +82,8 @@ async function main() {
             cis: safeString(r.fields.CIS),
         }));
 
-        await syncTable('ref_marr_url_pdf', 'MARR_URL_PDF', ['URL', 'Nom_document', 'URL_document', 'Type'], (r) => ({
-            url: safeString(r.fields.URL), // This is a ref to ref_marr_url_cis, so it will be an ID
+        await syncTable('ref_marr_url_pdf', 'MARR_URL_PDF', ['URL_text', 'Nom_document', 'URL_document', 'Type'], (r) => ({
+            url: safeString(r.fields.URL_text), // This is a foreign key to MARR_URL_CIS.URL
             nom_document: r.fields.Nom_document,
             url_document: r.fields.URL_document,
             type: r.fields.Type,

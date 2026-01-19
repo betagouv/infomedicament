@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from "vitest";
 import MarrNotice from "./MarrNotice";
 import MarrNoticeAdvanced from "./MarrNoticeAdvanced";
 import MarrResumeList from "./MarrResumeList";
-import { getMarr } from "@/db/utils/marr"; // Will be replaced with DB version
+import { getMarr } from "@/db/utils/marr";
 
 // Mock the dark mode hook to always return light mode for consistent snapshots
 vi.mock("@codegouvfr/react-dsfr/useIsDark", () => ({
