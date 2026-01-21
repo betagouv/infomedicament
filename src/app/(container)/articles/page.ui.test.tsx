@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
-import { getArticles } from "@/data/grist/articles";
+import { getArticles } from "@/db/utils/articles";
 import Page from "./page";
 
 // Mock the dark mode hook

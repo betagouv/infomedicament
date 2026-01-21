@@ -1,7 +1,7 @@
 import { getSearchResults } from "@/db/utils";
 import { ExtendedOrderResults, ExtendedSearchResults } from "@/types/SearchTypes";
 import { SearchResultItem } from "@/db/utils/search";
-import { getArticlesFromSearchResults } from "@/data/grist/articles";
+import { getArticlesFromSearchResults } from "@/db/utils/articles";
 import { AdvancedATC, DataTypeEnum } from "@/types/DataTypes";
 import SearchPage from "./SearchPage";
 import RatingToaster from "@/components/rating/RatingToaster";

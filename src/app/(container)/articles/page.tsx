@@ -1,4 +1,4 @@
-import { getArticles } from "@/data/grist/articles";
+import { getArticles } from "@/db/utils/articles";
 import { fr } from "@codegouvfr/react-dsfr";
 import { Fragment } from "react";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";

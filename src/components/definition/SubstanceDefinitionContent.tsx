@@ -5,7 +5,7 @@ import React, { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
-import { getArticlesFromSubstances } from "@/data/grist/articles";
+import { getArticlesFromSubstances } from "@/db/utils/articles";
 import PageDefinitionContent from "./PageDefinitionContent";
 import { getResumeSpecsGroupsWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";

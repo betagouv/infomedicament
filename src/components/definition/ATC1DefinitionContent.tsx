@@ -5,7 +5,7 @@ import React, { HTMLAttributes, useCallback, useEffect, useMemo, useState } from
 import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import { SpecialiteWithSubstance } from "@/types/SpecialiteTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
-import { getArticlesFromATC } from "@/data/grist/articles";
+import { getArticlesFromATC } from "@/db/utils/articles";
 import PageDefinitionContent from "./PageDefinitionContent";
 import { groupSpecialites } from "@/utils/specialites";
 import { ATC1, ATCSubsSpecs } from "@/types/ATCTypes";

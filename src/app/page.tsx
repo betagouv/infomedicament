@@ -1,12 +1,12 @@
 import Image from "next/image";
 import { fr } from "@codegouvfr/react-dsfr";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
-import { getArticles } from "@/data/grist/articles";
+import { getArticles } from "@/db/utils/articles";
 import RatingToaster from "@/components/rating/RatingToaster";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
 import { Article } from "@/types/ArticlesTypes";
 
-const PAGE_LABEL:string = "Accueil";
+const PAGE_LABEL: string = "Accueil";
 
 export default async function Page() {
   const articles: Article[] = (await getArticles()).filter(({ homepage }) => homepage);

@@ -40,7 +40,7 @@ import { PediatricsInfo } from "@/types/PediatricTypes";
 import { getNotice } from "@/db/utils/notice";
 import { SearchArticlesFilters } from "@/types/SearchTypes";
 import { getSpecialitePatho } from "@/db/utils/pathologies";
-import { getArticlesFromFilters } from "@/data/grist/articles";
+import { getArticlesFromFilters } from "@/db/utils/articles";
 import { getFicheInfos } from "@/db/utils/ficheInfos";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { formatSpecName } from "@/displayUtils";

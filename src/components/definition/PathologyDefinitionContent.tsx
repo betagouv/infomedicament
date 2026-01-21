@@ -5,7 +5,7 @@ import React, { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import { Patho } from "@/db/pdbmMySQL/types";
-import { getArticlesFromPatho } from "@/data/grist/articles";
+import { getArticlesFromPatho } from "@/db/utils/articles";
 import PageDefinitionContent from "./PageDefinitionContent";
 import { getPathologyDefinition } from "@/db/utils/pathologies";
 import { getResumeSpecsGroupsWithPatho } from "@/db/utils/specialities";

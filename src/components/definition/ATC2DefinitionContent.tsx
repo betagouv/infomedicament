@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 import React, { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
-import { getArticlesFromATC } from "@/data/grist/articles";
+import { getArticlesFromATC } from "@/db/utils/articles";
 import PageDefinitionContent from "./PageDefinitionContent";
 import { ATC } from "@/types/ATCTypes";
 import { getSubstancesByAtc } from "@/db/utils/atc";
