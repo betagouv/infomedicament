@@ -74,3 +74,33 @@ export const getSubstancesResume = cache(async function(substanceIDs: string[]):
     .execute();
   return result;
 });
+
+export async function getSubstanceDefinition(
+  ids: string[],
+  subsIds: string[],
+) {
+  const rows = await db.selectFrom("ref_substance_active_definitions")
+    .select(["nom_id", "subs_id", "sa", "definition"])
+    .execute();
+
+  // First try to match by NomId
+  let definitions = rows.filter((row) =>
+    row.nom_id && ids.includes(row.nom_id.trim())
+  );
+
+  // If no match, try matching by SubsId
+  if (definitions.length === 0) {
+    definitions = rows.filter((row) =>
+      row.subs_id && subsIds.includes(row.subs_id.trim())
+    );
+  }
+
+  // Map to the expected format (matching Grist structure)
+  return definitions.map((row) => (
+    {
+      NomId: row.nom_id?.trim() || "",
+      SA: row.sa?.trim() || "",
+      Definition: row.definition?.trim() || "",
+    }
+  ));
+}
