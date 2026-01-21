@@ -18,9 +18,9 @@ interface SubstanceDefinitionContentProps extends HTMLAttributes<HTMLDivElement>
 }
 
 function SubstanceDefinitionContent({
-    ids,
-    substances,
-  }: SubstanceDefinitionContentProps) {
+  ids,
+  substances,
+}: SubstanceDefinitionContentProps) {
 
   const [title, setTitle] = useState<string>("");
   const [definition, setDefinition] = useState<string | { title: string; desc: string }[]>("");
@@ -30,7 +30,7 @@ function SubstanceDefinitionContent({
   const loadDefinitionData = useCallback(
     async (
       ids: string[],
-      substances: SubstanceNom[], 
+      substances: SubstanceNom[],
     ) => {
       try {
         const newArticles: ArticleCardResume[] = await getArticlesFromSubstances(ids);
@@ -39,32 +39,32 @@ function SubstanceDefinitionContent({
         const subsIds = substances.map((subs: SubstanceNom) => (subs.SubsId).trim());
         const definitions = await getSubstanceDefinition(ids, subsIds);
         setDefinition(definitions.map((d: any) => ({
-          title: d.fields.SA,
-          desc: d.fields.Definition,
+          title: d.SA,
+          desc: d.Definition,
         })));
 
         const CISList: string[] = await getSubstanceSpecialitesCIS(ids);
         const newAllSpecsGroups = await getResumeSpecsGroupsWithCIS(CISList);
-        if(newAllSpecsGroups.length > 0){
+        if (newAllSpecsGroups.length > 0) {
           const allSpecsWithATC: ResumeSpecGroup[] = await getResumeSpecsGroupsATCLabels(newAllSpecsGroups);
           setDataList(allSpecsWithATC);
         }
-      } catch(e) {
+      } catch (e) {
         Sentry.captureException(e);
       }
-  },[setArticles, setDefinition, setDataList]);
+    }, [setArticles, setDefinition, setDataList]);
 
   useEffect(() => {
-    if(ids && substances)
+    if (ids && substances)
       loadDefinitionData(ids, substances);
   }, [ids, substances, loadDefinitionData]);
 
   useEffect(() => {
-    if(substances && dataList) {
-        setTitle(`${dataList.length} ${dataList.length > 1 ? "médicaments" : "médicament"} contenant 
+    if (substances && dataList) {
+      setTitle(`${dataList.length} ${dataList.length > 1 ? "médicaments" : "médicament"} contenant 
           ${substances.length < 2
-            ? `uniquement la substance « ${substances[0].NomLib} »`
-            : `les substances « ${substances.map((s) => s.NomLib).join(", ")} »`}`);
+          ? `uniquement la substance « ${substances[0].NomLib} »`
+          : `les substances « ${substances.map((s) => s.NomLib).join(", ")} »`}`);
     }
   }, [substances, dataList, setTitle]);
 

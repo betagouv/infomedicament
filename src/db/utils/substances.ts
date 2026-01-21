@@ -24,7 +24,7 @@ export const getAllSubsWithSpecialites = cache(async function () {
   return await pdbmMySQL
     .selectFrom("Subs_Nom")
     .innerJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
-    .innerJoin("Specialite", "Composant.SpecId", "Specialite.SpecId")    
+    .innerJoin("Specialite", "Composant.SpecId", "Specialite.SpecId")
     .where((eb) => withOneSubstance(eb.ref("Specialite.SpecId"), eb.ref("Subs_Nom.NomId")))
     .selectAll("Subs_Nom")
     .select("Specialite.SpecDenom01")
@@ -37,11 +37,11 @@ export const getAllSubsWithSpecialites = cache(async function () {
 export const getSubstanceAllSpecialites = unstable_cache(async function (
   substanceIDs: string[]
 ): Promise<SpecialiteWithSubstance[]> {
-  if(substanceIDs.length === 0) return [];
+  if (substanceIDs.length === 0) return [];
   return pdbmMySQL
     .selectFrom("Specialite")
     .innerJoin("Composant", "Specialite.SpecId", "Composant.SpecId")
-    .innerJoin("Subs_Nom", "Composant.NomId", "Subs_Nom.NomId" )
+    .innerJoin("Subs_Nom", "Composant.NomId", "Subs_Nom.NomId")
     .where("Composant.NomId", "in", substanceIDs)
     .where((eb) => withOneSubstance(eb.ref("Specialite.SpecId"), eb.ref("Subs_Nom.NomId")))
     .selectAll("Specialite")
@@ -52,10 +52,10 @@ export const getSubstanceAllSpecialites = unstable_cache(async function (
     .execute();
 });
 
-export const getSubstancesResumeWithLetter = cache(async function(letter: string): Promise<ResumeSubstance[]> {
-  const result:ResumeSubstance[] = await db
+export const getSubstancesResumeWithLetter = cache(async function (letter: string): Promise<ResumeSubstance[]> {
+  const result: ResumeSubstance[] = await db
     .selectFrom("resume_substances")
-    .where(({eb, ref}) => eb(
+    .where(({ eb, ref }) => eb(
       sql<string>`upper(${ref("NomLib")})`, "like", `${letter.toUpperCase()}%`
     ))
     .selectAll()
@@ -64,9 +64,9 @@ export const getSubstancesResumeWithLetter = cache(async function(letter: string
   return result;
 });
 
-export const getSubstancesResume = cache(async function(substanceIDs: string[]): Promise<ResumeSubstance[]> {
-  if(substanceIDs.length === 0) return [];
-  const result:ResumeSubstance[] = await db
+export const getSubstancesResume = cache(async function (substanceIDs: string[]): Promise<ResumeSubstance[]> {
+  if (substanceIDs.length === 0) return [];
+  const result: ResumeSubstance[] = await db
     .selectFrom("resume_substances")
     .selectAll()
     .where("NomId", "in", substanceIDs)
