@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
-import { getPediatrics } from "@/data/grist/pediatrics";
+import { getPediatrics } from "@/db/utils/pediatrics";
 import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { Marr } from "@/types/MarrTypes";
 import Link from "next/link";
