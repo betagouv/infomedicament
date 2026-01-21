@@ -88,8 +88,8 @@ export async function getArticlesFromFilters(articlesFilters: SearchArticlesFilt
       description: fields.Metadescription as string,
       substances: substances,
       specialites: specialites,
-      pathologies: fields.Pathologies as number[],
-      atc: fields.Classes_ATC as number[],
+      pathologies: fields.Pathologies as string[],
+      atc: fields.Classes_ATC as string[],
     };
   });
   return articlesList;

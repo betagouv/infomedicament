@@ -7,8 +7,8 @@ export type ArticleCardResume = {
   description: string,
   substances: string[],
   specialites: string[],
-  pathologies: number[],
-  atc: number[],
+  pathologies: string[],
+  atc: string[],
 };
 
 export type ArticleTrackingFromType = "Page substance" | "Page pathologie" | "Page ATC1"
