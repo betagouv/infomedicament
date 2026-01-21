@@ -5,7 +5,7 @@ import { getGristTableData } from "@/data/grist";
 import { type Insertable } from "kysely";
 
 // We're converting some values that are numeric in Grist to strings in our DB
-const safeString = (val: any) => (val === null || val === undefined) ? null : String(val);
+const safeString = (val: any) => (val === null || val === undefined) ? null : String(val).trim();
 
 async function syncTable<TN extends keyof Database>(
     tableName: TN,
