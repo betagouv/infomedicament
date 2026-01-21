@@ -10,7 +10,7 @@ import { Marr } from "@/types/MarrTypes";
 import Link from "next/link";
 import { ATC } from "@/types/ATCTypes";
 import Alert from "@codegouvfr/react-dsfr/Alert";
-import { getPregnancyMentionAlert, getAllPregnancyPlanAlerts } from "@/data/grist/pregnancy";
+import { getPregnancyMentionAlert, getAllPregnancyPlanAlerts } from "@/db/utils/pregnancy";
 import MedicamentContent from "./MedicamentContent";
 import { getMarr } from "@/db/utils/marr";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";

@@ -1,5 +1,5 @@
 import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
-import { getAllPregnancyMentionAlerts, getAllPregnancyPlanAlerts } from "./pregnancy";
+import { getAllPregnancyMentionAlerts, getAllPregnancyPlanAlerts } from "@/db/utils/pregnancy";
 import { getAllPediatrics } from "@/db/utils/pediatrics";
 
 export const getResumeSpecsGroupsAlerts = async function (specsGroups: ResumeSpecGroup[]): Promise<ResumeSpecGroup[]> {
