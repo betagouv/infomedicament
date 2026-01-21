@@ -11,9 +11,9 @@ export type ArticleCardResume = {
   atc: number[],
 };
 
-export type ArticleTrackingFromType = "Page substance" | "Page pathologie" | "Page ATC1" 
+export type ArticleTrackingFromType = "Page substance" | "Page pathologie" | "Page ATC1"
   | "Page ATC2" | "Page médicament" | "Recherche" | "Page d'accueil" | "Liste articles";
-  
+
 export type Article = {
   slug: string,
   title: string,
@@ -23,5 +23,5 @@ export type Article = {
   homepage: boolean,
   canonicalUrl: string,
   description: string,
-  image?: Omit<ImageProps, "alt">
+  image?: string,
 };
