@@ -16,8 +16,8 @@ interface ATC2DefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function ATC2DefinitionContent({
-    atc,
-  }: ATC2DefinitionContentProps) {
+  atc,
+}: ATC2DefinitionContentProps) {
 
   const [title, setTitle] = useState<string>("");
   const [dataList, setDataList] = useState<ResumeSubstance[]>([]);
@@ -35,17 +35,17 @@ function ATC2DefinitionContent({
           .filter((value, index, self) => self.indexOf(value) === index);
         const newDataList: ResumeSubstance[] = await getSubstancesResume(subsNomID);
         setDataList(newDataList);
-      } catch(e) {
+      } catch (e) {
         Sentry.captureException(e);
       }
-  },[atc, setArticles, setDataList]);
+    }, [atc, setArticles, setDataList]);
 
   useEffect(() => {
     loadDefinitionData();
   }, [atc, loadDefinitionData]);
 
   useEffect(() => {
-    if(atc && dataList) {
+    if (atc && dataList) {
       setTitle(`${dataList.length.toString()} ${(
         dataList.length > 1 ? "substances actives" : "substance active"
       )}`)

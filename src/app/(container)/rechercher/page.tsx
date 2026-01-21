@@ -21,11 +21,11 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
 
   const extendedResults = await Promise.all(
     results.map(async (result: SearchResultItem) => {
-      counter ++;
-      if("NomLib" in result || "groupName" in result || "NomPatho" in result) {
+      counter++;
+      if ("NomLib" in result || "groupName" in result || "NomPatho" in result) {
         return {
           type: "NomLib" in result ? DataTypeEnum.SUBSTANCE : ("groupName" in result ? DataTypeEnum.MEDICAMENT : DataTypeEnum.PATHOLOGY),
-          result: {...result}
+          result: { ...result }
         };
       } else {
         //ATC Class
@@ -33,8 +33,8 @@ async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<E
           result.subclasses.map(async (atc2) => {
             const substances = await getSubstancesByAtc(atc2);
             let nbSpecialitiesGroupes: number[] = [];
-            if(substances) {
-              nbSpecialitiesGroupes = await Promise.all( 
+            if (substances) {
+              nbSpecialitiesGroupes = await Promise.all(
                 substances.map(async (substance) => {
                   const specialites = await getSubstanceSpecialites(substance.NomId);
                   const specialitiesGroups = groupSpecialites(specialites);
@@ -84,11 +84,11 @@ export default async function Page(props: {
   const search = searchParams && "s" in searchParams && searchParams["s"];
   const results = search && (await getSearchResults(searchParams["s"]));
   const extendedResults = results && (await getExtendedOrderedResults(results));
-  const articlesList = extendedResults 
+  const articlesList = extendedResults
     ? (await getArticlesFromSearchResults(extendedResults.results))
     : [];
-  const filterPregnancy:boolean = (searchParams && "g" in searchParams && searchParams["g"] === "true") ? true : false; 
-  const filterPediatric:boolean = (searchParams && "p" in searchParams && searchParams["p"] === "true") ? true : false; 
+  const filterPregnancy: boolean = (searchParams && "g" in searchParams && searchParams["g"] === "true") ? true : false;
+  const filterPediatric: boolean = (searchParams && "p" in searchParams && searchParams["p"] === "true") ? true : false;
 
   return (
     <>

@@ -17,8 +17,8 @@ interface ATC1DefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function ATC1DefinitionContent({
-    atc,
-  }: ATC1DefinitionContentProps) {
+  atc,
+}: ATC1DefinitionContentProps) {
 
   const [title, setTitle] = useState<string>("");
   const [allATC, setAllATC] = useState<ATCSubsSpecs[]>([]);
@@ -47,24 +47,24 @@ function ATC1DefinitionContent({
           )
         );
         setAllATC(newAllATC);
-      } catch(e) {
+      } catch (e) {
         Sentry.captureException(e);
       }
-  },[atc, setArticles]);
+    }, [atc, setArticles]);
 
   useEffect(() => {
     loadDefinitionData();
   }, [atc, loadDefinitionData]);
 
   const dataList: AdvancedATCClass[] = useMemo(() => {
-    if(allATC) {
+    if (allATC) {
       const filteredATC: AdvancedATCClass[] = allATC.map((atcSubsSpecs: ATCSubsSpecs) => {
         let nbSubs = 0;
         atcSubsSpecs.substances.forEach((sub) => {
           const subSepcs = atcSubsSpecs.specialites
-              .filter((spec: SpecialiteWithSubstance) => spec.NomId.trim() === sub.NomId.trim() );
-              const specialitiesGroups = groupSpecialites(subSepcs);
-              if(specialitiesGroups.length > 0) nbSubs ++;
+            .filter((spec: SpecialiteWithSubstance) => spec.NomId.trim() === sub.NomId.trim());
+          const specialitiesGroups = groupSpecialites(subSepcs);
+          if (specialitiesGroups.length > 0) nbSubs++;
         });
         return {
           class: {
@@ -72,16 +72,16 @@ function ATC1DefinitionContent({
             ...atcSubsSpecs.atc,
             children: atcSubsSpecs.atc.children ? atcSubsSpecs.atc.children : []
           },
-          subclasses:[],
+          subclasses: [],
         }
       });
       return filteredATC.filter((data) => data.class.nbSubstances > 0);
     }
-    return [];          
+    return [];
   }, [allATC]);
 
   useEffect(() => {
-    if(atc && dataList) {
+    if (atc && dataList) {
       setTitle(`${dataList.length.toString()} ${(
         dataList.length > 1 ? "sous-classes de médicament" : "sous-classe de médicament"
       )}`);

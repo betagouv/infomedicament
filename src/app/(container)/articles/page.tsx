@@ -7,7 +7,7 @@ import RatingToaster from "@/components/rating/RatingToaster";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
 
 export const dynamic = "error";
-const PAGE_LABEL:string = "Liste des articles";
+const PAGE_LABEL: string = "Liste des articles";
 
 export default async function Page() {
   const articles = await getArticles();
