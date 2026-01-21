@@ -1,5 +1,370 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Medicament Container component(UI Integration) > should render pregnancy plan alert for medicament with pregnancy plan 1`] = `
+<div>
+  <div
+    class="sc-FEMpB korYns  fr-container fr-pt-1w fr-pb-2w"
+  >
+    <div
+      class="fr-grid-row fr-grid-row--gutters"
+    >
+      <div
+        class="sc-FEMpB korYns fr-col-12"
+      >
+        <div
+          class="sc-FEMpB lfcJZZ"
+        >
+          <div
+            class="fr-alert fr-alert--warning"
+            id="fr-alert-:r1a:"
+          >
+            <h3
+              class="fr-alert__title"
+            >
+              Mention contre-indication grossesse
+            </h3>
+            <div>
+              <p>
+                Ce médicament peut présenter des précautions d’usage pendant la grossesse ou l’allaitement. Il peut être autorisé, déconseillé ou contre-indiqué selon les cas.
+                <br />
+                Lisez la notice et demandez l’avis d’un professionnel de santé avant toute prise.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="sc-gQJZgv caevfI fr-col-12 fr-mt-2w"
+      >
+        <div
+          class="sc-gQJZgv caevfI mobile-display-contents fr-grid-row fr-grid-row--gutters"
+        >
+          <div
+            class="sc-FEMpB korYns mobile-display-contents fr-col-12 fr-col-lg-3 fr-col-md-3"
+          >
+            <div
+              class="sc-eiwqOE bTPPKc"
+            >
+              <div
+                class="fr-share"
+              >
+                <p
+                  class="fr-share__title"
+                >
+                  Partager via :
+                </p>
+                <ul
+                  class="fr-btns-group"
+                >
+                  <li>
+                    <a
+                      class="fr-btn--mail fr-btn"
+                      href="mailto:?subject=Anastrozole Accord 1 mg, comprimé pelliculé - Info Médicament&body=Voici un lien vers la page Anastrozole Accord 1 mg, comprimé pelliculé sur le site Info Médicament : http://localhost:3000/"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      Partager par email
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      class="fr-btn--copy fr-btn"
+                      href=""
+                    >
+                      Copier dans le presse-papier
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div
+              class="sc-flQbIK gBVMLf fr-mb-4w fr-p-2w"
+            >
+              <div
+                class="fr-toggle fr-toggle--label-left medicament-toggle-switch"
+                id="fr-toggle-:r13:"
+              >
+                <input
+                  aria-describedby="fr-toggle-:r13:-hint-text"
+                  class="fr-toggle__input"
+                  id="fr-toggle-:r13:-input"
+                  title="Version détaillée"
+                  type="checkbox"
+                />
+                <label
+                  class="fr-toggle__label"
+                  for="fr-toggle-:r13:-input"
+                >
+                  Version détaillée
+                </label>
+                <p
+                  class="fr-hint-text"
+                  id="fr-toggle-:r13:-hint-text"
+                >
+                  Afficher RCP, données HAS, CNAM...
+                </p>
+              </div>
+            </div>
+            <section
+              class="mobile-display-contents fr-mb-4w"
+            >
+              <div
+                class="sc-FEMpB lfcJZZ fr-mb-4w fr-p-2w"
+              >
+                <div>
+                  <div
+                    class="sc-gjcoXW ChmUM"
+                  >
+                    Sous-classe
+                  </div>
+                  <a
+                    class="fr-tag--custom-alt-class fr-tag fr-tag--custom-alt-class"
+                    href="/atc/L02"
+                    id="fr-tag-:r15:"
+                    target="_blank"
+                  >
+                    Endocrinologie
+                  </a>
+                  <hr
+                    class="fr-pb-1w fr-mt-1w"
+                  />
+                </div>
+                <div>
+                  <div
+                    class="sc-gjcoXW ChmUM"
+                  >
+                    Substance active
+                  </div>
+                  <a
+                    class="fr-tag--custom-alt-substance fr-tag fr-tag--custom-alt-substance"
+                    href="/substances/42215"
+                    id="fr-tag-:r16:"
+                    target="_blank"
+                  >
+                    anastrozole
+                  </a>
+                  <hr
+                    class="fr-pb-1w fr-mt-1w"
+                  />
+                </div>
+                <div>
+                  <div>
+                    <a
+                      class="fr-tag--custom-alt-blue fr-tag fr-icon-capsule-fill fr-tag--icon-left fr-tag--custom-alt-blue"
+                      href="/generiques/60002283"
+                      id="fr-tag-:r18:"
+                      target="_blank"
+                    >
+                      Voir les Princeps
+                    </a>
+                  </div>
+                  <hr
+                    class="fr-pb-1w fr-mt-1w"
+                  />
+                </div>
+                <div>
+                  <div>
+                    <a
+                      class="fr-tag--custom-alt-blue fr-tag fr-icon-capsule-fill fr-tag--icon-left fr-tag--custom-alt-blue"
+                      href="/generiques/62303214"
+                      id="fr-tag-:r19:"
+                      target="_blank"
+                    >
+                      Voir les Génériques
+                    </a>
+                     
+                  </div>
+                  <hr
+                    class="fr-pb-1w fr-mt-1w"
+                  />
+                </div>
+                <div>
+                  <button
+                    class="fr-tag--custom-alt-blue fr-tag fr-icon-file-text-fill fr-tag--icon-left"
+                    id="fr-tag-:r17:"
+                  >
+                    Sur ordonnance
+                  </button>
+                </div>
+                <div>
+                  <div>
+                    <button
+                      aria-controls="pregnancy-cis-modal"
+                      aria-hidden="true"
+                      class="fr-btn fr-hidden"
+                      data-fr-opened="false"
+                      id="pregnancy-cis-modal-hidden-control-button"
+                      tabindex="-1"
+                      type="button"
+                    >
+                       
+                    </button>
+                    <dialog
+                      aria-labelledby="fr-modal-title-pregnancy-cis-modal"
+                      class="fr-modal"
+                      data-fr-concealing-backdrop="true"
+                      id="pregnancy-cis-modal"
+                    >
+                      <div
+                        class="fr-container fr-container--fluid fr-container-md"
+                      >
+                        <div
+                          class="fr-grid-row fr-grid-row--center"
+                        >
+                          <div
+                            class="fr-col-12 fr-col-md-8 fr-col-lg-6"
+                          >
+                            <div
+                              class="fr-modal__body"
+                            >
+                              <div
+                                class="fr-modal__header"
+                              >
+                                <button
+                                  aria-controls="pregnancy-cis-modal"
+                                  class="fr-btn--close fr-btn"
+                                  title="Fermer"
+                                  type="button"
+                                >
+                                  Fermer
+                                </button>
+                              </div>
+                              <div
+                                class="fr-modal__content"
+                              >
+                                <h1
+                                  class="fr-modal__title"
+                                  id="fr-modal-title-pregnancy-cis-modal"
+                                />
+                                <div
+                                  class="sc-cMqPwU exNbfJ"
+                                >
+                                  <h4
+                                    class="fr-icon--custom-pregnancy"
+                                  >
+                                    Mention contre-indication grossesse
+                                  </h4>
+                                  <span>
+                                    Ce tag indique que ce médicament peut présenter des précautions d’usage pendant la grossesse ou l’allaitement. Il peut être autorisé, déconseillé ou contre-indiqué selon les cas.
+                                    <br />
+                                    Lisez la notice et demandez l’avis d’un professionnel de santé avant toute prise.
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </dialog>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="sc-FEMpB lfcJZZ fr-mb-4w fr-p-2w"
+              >
+                <h3
+                  class="fr-h6"
+                >
+                  <span
+                    class="fr-hidden-md"
+                  >
+                    Conditionnement
+                  </span>
+                  <span
+                    class="fr-hidden fr-unhidden-md"
+                  >
+                    Conditionnement et prix
+                  </span>
+                </h3>
+                <ul
+                  class="fr-raw-list"
+                >
+                  <li
+                    class="fr-mb-1w"
+                  >
+                    <span
+                      class="fr-icon--custom-box fr-mr-1w"
+                    />
+                    <b>
+                      Plaquette de 30 comprimés
+                    </b>
+                    <div>
+                      Prix
+                       
+                      32,61 €
+                       
+                      - remboursé à 
+                      100%
+                    </div>
+                  </li>
+                  <li
+                    class="fr-mb-1w"
+                  >
+                    <span
+                      class="fr-icon--custom-box fr-mr-1w"
+                    />
+                    <b>
+                      Plaquette de 90 comprimés
+                    </b>
+                    <div>
+                      Prix
+                       
+                      88,12 €
+                       
+                      - remboursé à 
+                      100%
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </section>
+          </div>
+          <div
+            class="sc-FEMpB korYns mobile-display-contents fr-col-12 fr-col-lg-9 fr-col-md-9"
+          >
+            <article>
+              <div
+                class="sc-FEMpB lfcJZZ fr-mb-4w"
+              >
+                <div
+                  class="sc-bCjwNj exnKRS"
+                >
+                  <div
+                    class="sc-iXqmyu eCoJpd fr-mb-4w"
+                  >
+                    <div
+                      style="display: flex;"
+                    >
+                      <span
+                        class="fr-icon--custom-notice fr-mr-1w fr-hidden fr-unhidden-md"
+                      />
+                      <h2
+                        class="fr-h3 fr-mb-1w"
+                      >
+                        Notice complète
+                      </h2>
+                    </div>
+                    <div
+                      class="sc-FEMpB korYns"
+                    />
+                  </div>
+                </div>
+              </div>
+            </article>
+            <a
+              class="fr-btn fr-icon-arrow-up-line go-top-button"
+              href="#"
+              id="fr-button-:r14:"
+              title="Haut de page"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Medicament Container component(UI Integration) > should render the correct content for medicament container 1`] = `
 <div>
   <div
