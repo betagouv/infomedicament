@@ -157,10 +157,11 @@ describe("Medicament Container component(UI Integration)", () => {
             />
         );
 
-        // Wait for data to load
+        // Wait for alert AND pediatric tags to appear
         await waitFor(() => {
-            expect(container).toBeDefined();
             expect(container.textContent).toContain("Il existe une contre-indication pédiatrique");
+            expect(container.textContent).toContain("Contre-indication chez l'enfant selon l'âge");
+            expect(container.textContent).toContain("Mention contre-indication enfant");
         });
 
         // Snapshot
