@@ -1,0 +1,451 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Articles (UI Integration) > Should render the page with expected content 1`] = `
+<div>
+  <div
+    class="sc-FEMpB korYns  fr-container fr-pt-1w fr-pb-2w"
+  >
+    <nav
+      aria-label="vous êtes ici :"
+      class="fr-breadcrumb"
+      id="fr-breadcrumb-:r0:"
+      role="navigation"
+    >
+      <button
+        aria-controls="breadcrumb-:r1:"
+        aria-expanded="false"
+        class="fr-breadcrumb__button"
+      >
+        Voir le fil d’Ariane
+      </button>
+      <div
+        class="fr-collapse"
+        id="breadcrumb-:r1:"
+      >
+        <ol
+          class="fr-breadcrumb__list"
+        >
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/"
+            >
+              Accueil
+            </a>
+          </li>
+          <li>
+            <a
+              aria-current="page"
+              class="fr-breadcrumb__link"
+            >
+              Liste des articles
+            </a>
+          </li>
+        </ol>
+      </div>
+    </nav>
+    <div
+      class="fr-grid-row"
+    >
+      <div
+        class="fr-col-md-8"
+      >
+        <h1>
+          Articles
+        </h1>
+        <h2
+          class="fr-h4 fr-mb-1w"
+        >
+          Grossesse et allaitement
+        </h2>
+        <ul
+          class="fr-raw-list fr-mb-5w"
+          role=""
+        >
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/je-suis-enceinte-quelles-precautions-prendre"
+            >
+              Je suis enceinte, quelles précautions prendre ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/vaccins-et-grossesse-ce-quil-faut-savoir-avant-et-pendant-la-grossesse"
+            >
+              Vaccins et grossesse : ce qu’il faut savoir avant et pendant la grossesse
+            </a>
+          </li>
+        </ul>
+        <h2
+          class="fr-h4 fr-mb-1w"
+        >
+          Généralités
+        </h2>
+        <ul
+          class="fr-raw-list fr-mb-5w"
+          role=""
+        >
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/comment-bien-utiliser-les-medicaments"
+            >
+              Comment bien utiliser les médicaments ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/comprendre-une-notice"
+            >
+              Comprendre une notice
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/pourquoi-respecter-lordonnance-medicale"
+            >
+              Pourquoi respecter l’ordonnance médicale ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/generiques-et-medicaments-de-marque-y-a-t-il-une-difference"
+            >
+              Génériques et médicaments de marque : y a-t-il une différence ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/bon-usage-des-medicaments-comment-eviter-les-erreurs"
+            >
+              Bon usage des médicaments : Comment éviter les erreurs ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/que-faire-en-cas-de-surdosage"
+            >
+              Que faire en cas de surdosage ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/pourquoi-les-doses-de-medicaments-sont-elles-differentes-selon-le-poids"
+            >
+              Pourquoi les doses de médicaments sont-elles différentes selon le poids ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/que-faire-si-joublie-de-prendre-mon-medicament"
+            >
+              Que faire si j’oublie de prendre mon médicament ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/anxiolytique-ce-quil-est-utile-de-savoir"
+            >
+              Anxiolytique : ce qu’il est utile de savoir
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/numeros-utiles-and-reperes-pratiques-autour-des-medicaments"
+            >
+              Numéros utiles & repères pratiques autour des médicaments
+            </a>
+          </li>
+        </ul>
+        <h2
+          class="fr-h4 fr-mb-1w"
+        >
+          Grippe saisonnière
+        </h2>
+        <ul
+          class="fr-raw-list fr-mb-5w"
+          role=""
+        >
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/le-vaccin-pour-la-grippe-cest-a-partir-de-quel-age"
+            >
+              Le vaccin pour la grippe, c’est à partir de quel âge ?
+            </a>
+          </li>
+        </ul>
+        <h2
+          class="fr-h4 fr-mb-1w"
+        >
+          Antibiotiques
+        </h2>
+        <ul
+          class="fr-raw-list fr-mb-5w"
+          role=""
+        >
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/jai-un-rhume-et-il-me-reste-des-antibiotiques-est-ce-que-je-peux-prendre"
+            >
+              J’ai un rhume et il me reste des antibiotiques, est-ce que je peux prendre ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/pourquoi-ne-peut-on-pas-prendre-un-antibiotique-sans-ordonnance"
+            >
+              Pourquoi ne peut-on pas prendre un antibiotique sans ordonnance ?
+            </a>
+          </li>
+        </ul>
+        <h2
+          class="fr-h4 fr-mb-1w"
+        >
+          Été et chaleur
+        </h2>
+        <ul
+          class="fr-raw-list fr-mb-5w"
+          role=""
+        >
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/medicaments-et-soleil-quels-sont-les-risques"
+            >
+              Médicaments et soleil : quels sont les risques ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/medicaments-et-chaleur-preserver-leur-efficacite"
+            >
+              Médicaments et chaleur : préserver leur efficacité !
+            </a>
+          </li>
+        </ul>
+        <h2
+          class="fr-h4 fr-mb-1w"
+        >
+          Effets indésirables
+        </h2>
+        <ul
+          class="fr-raw-list fr-mb-5w"
+          role=""
+        >
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/effets-secondaires-quand-faut-il-consulter"
+            >
+              Effets secondaires : quand faut-il consulter ?
+            </a>
+          </li>
+        </ul>
+        <h2
+          class="fr-h4 fr-mb-1w"
+        >
+          Personnes âgées
+        </h2>
+        <ul
+          class="fr-raw-list fr-mb-5w"
+          role=""
+        >
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/medicaments-et-personnes-agees-attention-aux-interactions"
+            >
+              Médicaments et personnes âgées : attention aux interactions !
+            </a>
+          </li>
+        </ul>
+        <h2
+          class="fr-h4 fr-mb-1w"
+        >
+          Auto-médication
+        </h2>
+        <ul
+          class="fr-raw-list fr-mb-5w"
+          role=""
+        >
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/paracetamol-ou-ibuprofene-quelles-differences"
+            >
+              Paracétamol ou ibuprofène : quelles différences ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/pourquoi-laspirine-est-elle-deconseillee-aux-enfants"
+            >
+              Pourquoi l’aspirine est-elle déconseillée aux enfants ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/la-pharmacie-familiale-comment-bien-la-gerer"
+            >
+              La pharmacie “familiale” : comment bien la gérer ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/automedication-ce-que-vous-devez-savoir"
+            >
+              Automédication : ce que vous devez savoir
+            </a>
+          </li>
+        </ul>
+        <h2
+          class="fr-h4 fr-mb-1w"
+        >
+          Enfants
+        </h2>
+        <ul
+          class="fr-raw-list fr-mb-5w"
+          role=""
+        >
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/fievre-chez-lenfant-faut-il-donner-un-medicament"
+            >
+              Fièvre chez l’enfant : faut-il donner un médicament ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/mon-enfant-a-vomi-apres-avoir-pris-son-medicament-que-faire"
+            >
+              Mon enfant a vomi après avoir pris son médicament. Que faire ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/mon-enfant-refuse-de-prendre-son-medicament-que-faire"
+            >
+              Mon enfant refuse de prendre son médicament, que faire ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/sirops-contre-la-toux-chez-lenfant-que-faut-il-savoir"
+            >
+              Sirops contre la toux chez l’enfant : que faut-il savoir ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/antibiotiques-et-enfants-pourquoi-faut-il-respecter-la-prescription"
+            >
+              Antibiotiques et enfants : pourquoi faut-il respecter la prescription ?
+            </a>
+          </li>
+          <li
+            class="fr-mb-1w"
+          >
+            <a
+              class="fr-link fr-link--icon-left fr-icon-arrow-right-line"
+              href="/articles/fievre-chez-un-tout-petit-quand-faut-il-sinquieter"
+            >
+              Fièvre chez un tout-petit : quand faut-il s’inquiéter ?
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div
+      class="sc-gNZgCX kkohqz"
+    >
+      <section
+        aria-atomic="false"
+        aria-label="Notifications Alt+T"
+        aria-live="polite"
+        aria-relevant="additions text"
+        class="Toastify"
+      />
+    </div>
+  </div>
+</div>
+`;

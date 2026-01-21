@@ -1,0 +1,193 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Article Page (UI Integration) > should render article 'medicaments-et-chaleur-preserver-leur-efficacite' with correct content (Snapshot) 1`] = `
+<div>
+  <div
+    class="sc-FEMpB korYns  fr-container fr-pt-1w fr-pb-2w"
+  >
+    <nav
+      aria-label="vous êtes ici :"
+      class="fr-breadcrumb"
+      id="fr-breadcrumb-:r0:"
+      role="navigation"
+    >
+      <button
+        aria-controls="breadcrumb-:r1:"
+        aria-expanded="false"
+        class="fr-breadcrumb__button"
+      >
+        Voir le fil d’Ariane
+      </button>
+      <div
+        class="fr-collapse"
+        id="breadcrumb-:r1:"
+      >
+        <ol
+          class="fr-breadcrumb__list"
+        >
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/"
+            >
+              Accueil
+            </a>
+          </li>
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/articles"
+            >
+              Liste des articles
+            </a>
+          </li>
+          <li>
+            <a
+              aria-current="page"
+              class="fr-breadcrumb__link"
+            >
+              Médicaments et chaleur : préserver leur efficacité !
+            </a>
+          </li>
+        </ol>
+      </div>
+    </nav>
+    <div
+      class="fr-grid-row"
+    >
+      <div
+        class="fr-col-12 fr-col-md-10 fr-col-lg-9"
+      >
+        <h1
+          class="fr-mb-1w"
+        >
+          Médicaments et chaleur : préserver leur efficacité !
+        </h1>
+        <p
+          class="fr-text--light fr-mb-2w"
+        >
+          Source : 
+          infomedicament.beta.gouv.fr
+        </p>
+      </div>
+    </div>
+    <div
+      class="fr-grid-row"
+    >
+      <div
+        class="fr-col-12"
+      >
+        <div
+          class="sc-gjcoXW gTmDFW fr-mb-4w"
+        >
+          <div
+            class="fr-share"
+          >
+            <p
+              class="fr-share__title"
+            >
+              Partager via :
+            </p>
+            <ul
+              class="fr-btns-group"
+            >
+              <li>
+                <a
+                  class="fr-btn--mail fr-btn"
+                  href="mailto:?subject=Médicaments et chaleur : préserver leur efficacité ! - Info Médicament&body=Voici un lien vers la page Médicaments et chaleur : préserver leur efficacité ! sur le site Info Médicament : http://localhost:3000/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Partager par email
+                </a>
+              </li>
+              <li>
+                <a
+                  class="fr-btn--copy fr-btn"
+                  href=""
+                >
+                  Copier dans le presse-papier
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="fr-grid-row"
+    >
+      <div
+        class="fr-col-12 fr-col-sm-9 fr-col-md-8 fr-col-lg-7 fr-mb-6w"
+      >
+        <div
+          style="position: relative; aspect-ratio: 16/9; width: 100%;"
+        >
+          <img
+            alt="Image décorative"
+            data-nimg="fill"
+            decoding="async"
+            loading="lazy"
+            sizes="100vw"
+            src="/_next/image?url=%2Fimg%2Farticle_covers%2F03.webp&w=3840&q=75"
+            srcset="/_next/image?url=%2Fimg%2Farticle_covers%2F03.webp&w=640&q=75 640w, /_next/image?url=%2Fimg%2Farticle_covers%2F03.webp&w=750&q=75 750w, /_next/image?url=%2Fimg%2Farticle_covers%2F03.webp&w=828&q=75 828w, /_next/image?url=%2Fimg%2Farticle_covers%2F03.webp&w=1080&q=75 1080w, /_next/image?url=%2Fimg%2Farticle_covers%2F03.webp&w=1200&q=75 1200w, /_next/image?url=%2Fimg%2Farticle_covers%2F03.webp&w=1920&q=75 1920w, /_next/image?url=%2Fimg%2Farticle_covers%2F03.webp&w=2048&q=75 2048w, /_next/image?url=%2Fimg%2Farticle_covers%2F03.webp&w=3840&q=75 3840w"
+            style="position: absolute; height: 100%; width: 100%; left: 0px; top: 0px; right: 0px; bottom: 0px; object-fit: cover; color: transparent;"
+          />
+        </div>
+      </div>
+    </div>
+    <div
+      class="fr-grid-row"
+    >
+      <div
+        class="fr-col-12 fr-col-md-10 fr-col-lg-9"
+      >
+        <div
+          data-testid="mdx-content"
+        >
+          &gt;### À retenir :
+&gt;- La chaleur peut altérer la conservation des médicaments.
+&gt;- Certains traitements aggravent les effets de la chaleur sur le corps.
+&gt;- Soyez particulièrement prudent en cas de vague de chaleur ou canicule.
+
+# Pourquoi la chaleur pose deux problèmes différents ?  
+
+- Certains médicaments perdent en efficacité s’ils sont exposés à des températures élevées.
+- Et d’autre part, certains médicaments peuvent aggraver les effets de la chaleur : baisse de tension, déshydratation, troubles rénaux…
+
+# Quels médicaments peuvent aggraver les effets de la chaleur ?
+
+Les plus concernés sont :
+- Les diurétiques
+- Certains antihypertenseurs
+- Les neuroleptiques
+- Les traitements de la thyroïde ou du diabète
+
+Consultez la notice : la température de conservation idéale est toujours précisée.
+
+# Les bons réflexes à adopter
+
+- Ne laissez jamais un médicament en plein soleil ou dans une voiture.
+- Conservez-les dans un endroit frais, à l’abri de la lumière.
+- Surveillez les signes de déshydratation dont la soif, la sensation de malaise…
+- Adaptez les traitements si nécessaire avec l’aide de votre médecin.
+- Buvez régulièrement et évitez les efforts physiques en période de forte chaleur.
+
+### N'hésitez pas à consulter un professionnel de santé en cas de doute ou de question.
+        </div>
+      </div>
+    </div>
+    <div
+      class="sc-hRDKVd cNunAP"
+    >
+      <section
+        aria-atomic="false"
+        aria-label="Notifications Alt+T"
+        aria-live="polite"
+        aria-relevant="additions text"
+        class="Toastify"
+      />
+    </div>
+  </div>
+</div>
+`;
