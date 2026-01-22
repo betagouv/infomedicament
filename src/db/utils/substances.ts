@@ -50,7 +50,10 @@ export const getSubstanceAllSpecialites = unstable_cache(async function (
     .orderBy("Subs_Nom.NomId")
     .distinct()
     .execute();
-});
+},
+  ["substance-specialites-cis"],
+  { revalidate: 3600 } // cache for one hour
+);
 
 export const getSubstancesResumeWithLetter = cache(async function (letter: string): Promise<ResumeSubstance[]> {
   const result: ResumeSubstance[] = await db

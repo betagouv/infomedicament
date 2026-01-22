@@ -18,19 +18,27 @@ export async function getPatho(code: string): Promise<Patho | undefined> {
 }
 
 // Get the specialites list from code patho
-export const getPathoSpecialites = unstable_cache(async function (code: string) {
-  return pdbmMySQL
-    .selectFrom("Specialite")
-    .selectAll("Specialite")
-    .leftJoin("Spec_Patho", "Specialite.SpecId", "Spec_Patho.SpecId")
-    .where("Spec_Patho.codePatho", "=", code)
-    .execute();
-});
+export const getPathoSpecialites = unstable_cache(
+  async function (code: string) {
+    return pdbmMySQL
+      .selectFrom("Specialite")
+      .selectAll("Specialite")
+      .leftJoin("Spec_Patho", "Specialite.SpecId", "Spec_Patho.SpecId")
+      .where("Spec_Patho.codePatho", "=", code)
+      .execute();
+  },
+  ["patho-specialites"],
+  { revalidate: 3600 } // cache for 1hour
+);
 
 //Get the code patho list from specialite code CIS
-export const getSpecialitePatho = unstable_cache(async function (CIS: string): Promise<string[]> {
-  return getSpecialitesPatho([CIS]);
-});
+export const getSpecialitePatho = unstable_cache(
+  async function (CIS: string): Promise<string[]> {
+    return getSpecialitesPatho([CIS]);
+  },
+  ["specialite-patho"],
+  { revalidate: 3600 } // cache for 1 hour
+);
 export const getSpecialitesPatho = cache(async function (CIS: string[]): Promise<string[]> {
   const rawCodePatho = await pdbmMySQL
     .selectFrom("Spec_Patho")
