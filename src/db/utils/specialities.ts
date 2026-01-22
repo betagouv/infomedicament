@@ -173,7 +173,10 @@ export const getSubstanceSpecialites = unstable_cache(async function (
     .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
     .groupBy("Specialite.SpecId")
     .execute();
-});
+},
+  ["substance-specialites"],
+  { revalidate: 3600 } // cache for one hour
+);
 
 export const getSubstanceSpecialitesCIS = unstable_cache(async function (
   subsNomsIDs: (string | string[])
@@ -186,4 +189,7 @@ export const getSubstanceSpecialitesCIS = unstable_cache(async function (
     .groupBy("Specialite.SpecId")
     .execute();
   return rawCISList.map((CIS) => CIS.SpecId);
-});
+},
+  ["substance-specialites-cis"],
+  { revalidate: 3600 } // cache for one hour
+);
