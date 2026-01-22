@@ -142,6 +142,8 @@ function MedicamentContent({
   const [currentQuestion, setCurrentQuestion] = useState<string>();
   const [showKeywordsBox, setShowKeywordsBox] = useState<boolean>(false);
 
+  const [lastLeftTagElement, setLastLeftTagElement] = useState<TagTypeEnum>(TagTypeEnum.SUBSTANCE);
+
   useEffect(() => {
     if(marr){
       if(!isAdvanced){
@@ -256,36 +258,39 @@ function MedicamentContent({
     }
   });
 
-  // Use to display or not the separator after a tag (left column)
-  const lastTagElement: TagTypeEnum = (
-    pediatrics && pediatrics.mention
-      ? TagTypeEnum.PEDIATRIC_MENTION 
-      : (pediatrics && pediatrics.doctorAdvice
-        ? TagTypeEnum.PEDIATRIC_DOCTOR_ADVICE 
-        : (pediatrics && pediatrics.contraindication
-          ? TagTypeEnum.PEDIATRIC_CONTRAINDICATION
-          : (pediatrics && pediatrics.indication
-            ? TagTypeEnum.PEDIATRIC_INDICATION
-            : (isPregnancyPlanAlert 
-              ? TagTypeEnum.PREGNANCY_PLAN 
-              : (isPregnancyMentionAlert 
-                ? TagTypeEnum.PREGNANCY_MENTION 
-                : (!!delivrance.length 
-                  ? TagTypeEnum.PRESCRIPTION 
-                  : ((currentSpec && !!currentSpec.SpecGeneId)
-                    ? TagTypeEnum.GENERIC 
-                    : (isPrinceps
-                      ? TagTypeEnum. PRINCEPS
-                      : TagTypeEnum.SUBSTANCE
+  useEffect(() => {
+    // Use to display or not the separator after a tag (left column)
+    const lastTagElement: TagTypeEnum = 
+      (pediatrics && pediatrics.mention
+        ? TagTypeEnum.PEDIATRIC_MENTION 
+        : (pediatrics && pediatrics.doctorAdvice
+          ? TagTypeEnum.PEDIATRIC_DOCTOR_ADVICE 
+          : (pediatrics && pediatrics.contraindication
+            ? TagTypeEnum.PEDIATRIC_CONTRAINDICATION
+            : (pediatrics && pediatrics.indication
+              ? TagTypeEnum.PEDIATRIC_INDICATION
+              : (isPregnancyPlanAlert 
+                ? TagTypeEnum.PREGNANCY_PLAN 
+                : (isPregnancyMentionAlert 
+                  ? TagTypeEnum.PREGNANCY_MENTION 
+                  : (!!delivrance.length 
+                    ? TagTypeEnum.PRESCRIPTION 
+                    : ((currentSpec && !!currentSpec.SpecGeneId)
+                      ? TagTypeEnum.GENERIC 
+                      : (isPrinceps
+                        ? TagTypeEnum. PRINCEPS
+                        : TagTypeEnum.SUBSTANCE
+                      )
+                    )
                   )
                 )
               )
             )
           )
         )
-      )
-    )
-  );
+      );
+    setLastLeftTagElement(lastTagElement);
+  }, [pediatrics, isPregnancyPlanAlert, isPregnancyMentionAlert, delivrance, currentSpec, isPrinceps])
 
   return (
     <Container className={fr.cx("fr-col-12", 'fr-mt-2w')}>
@@ -322,40 +327,41 @@ function MedicamentContent({
                     </TagContainer>
                   )}
                   {composants && (
-                    <TagContainer category="Substance active" hideSeparator={lastTagElement === TagTypeEnum.SUBSTANCE}>
+                    <TagContainer category="Substance active" hideSeparator={lastLeftTagElement === TagTypeEnum.SUBSTANCE}>
                       <SubstanceTag composants={composants} fromMedicament/>
                     </TagContainer>
                   )}
                   {(currentSpec && isPrinceps) && 
-                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRINCEPS}>
+                    <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.PRINCEPS}>
                       <PrincepsTag CIS={currentSpec.SpecId} fromMedicament/>
                     </TagContainer>
                   }
                   {(currentSpec && !!currentSpec.SpecGeneId) && (
-                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.GENERIC}>
+                    <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.GENERIC}>
                       <GenericTag specGeneId={currentSpec.SpecGeneId} fromMedicament/>
                     </TagContainer>
                   )}
                   {!!delivrance.length && (
-                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PRESCRIPTION}>
+                    <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.PRESCRIPTION}>
                       <PrescriptionTag />
                     </TagContainer>
                   )}
                   {isPregnancyPlanAlert && (
-                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY_PLAN}>
+                    <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.PREGNANCY_PLAN}>
                       <PregnancyPlanTag fromMedicament/>
                     </TagContainer>
                   )}
                   {(!isPregnancyPlanAlert && isPregnancyMentionAlert) && (
-                    <TagContainer hideSeparator={lastTagElement === TagTypeEnum.PREGNANCY_MENTION}>
+                    <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.PREGNANCY_MENTION}>
                       <PregnancyMentionTag fromMedicament/>
                     </TagContainer>
                   )}
                   {pediatrics && (
                     <PediatricsTags 
                       info={pediatrics} 
-                      lastTagElement={lastTagElement}
                       fromMedicament
+                      withSeparator
+                      hideLast
                     />
                   )}
                 </ContentContainer>
