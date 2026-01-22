@@ -1,0 +1,129 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`SubstanceDefinitionContent (UI Integration) > should render substance definition with correct content 1`] = `
+<div>
+  <div
+    class="fr-grid-row"
+    style="justify-content: space-between;"
+  >
+    <div
+      class="fr-col-12 fr-col-md-8"
+    >
+      <div
+        class="sc-dVBluf fSyEPz"
+      >
+        <div
+          class="fr-grid-row"
+        >
+          <div
+            class="fr-col-12"
+          >
+            <p
+              class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+              id="fr-badge-:r0:"
+            >
+              Substance active
+            </p>
+            <h1
+              class="fr-h1 fr-mt-1w fr-mb-0"
+            >
+              acétylleucine
+            </h1>
+            <div
+              class="sc-FEMpB iNkwjQ fr-mb-6w fr-mt-2w"
+            >
+              <div
+                class="fr-share"
+              >
+                <p
+                  class="fr-share__title"
+                >
+                  Partager via :
+                </p>
+                <ul
+                  class="fr-btns-group"
+                >
+                  <li>
+                    <a
+                      class="fr-btn--mail fr-btn"
+                      href="mailto:?subject=acétylleucine - Info Médicament&body=Voici un lien vers la page acétylleucine sur le site Info Médicament : http://localhost:3000/"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      Partager par email
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      class="fr-btn--copy fr-btn"
+                      href=""
+                    >
+                      Copier dans le presse-papier
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div
+            class="fr-col-md-8"
+          >
+            <div
+              class="fr-grid-row fr-mb-1w"
+            >
+              <div
+                class="fr-col"
+              >
+                <div
+                  class="fr-card"
+                  id="fr-card-:r1:"
+                >
+                  <div
+                    class="fr-card__body"
+                  >
+                    <div
+                      class="fr-card__content"
+                    >
+                      <h6
+                        class="fr-card__title"
+                      >
+                        acétylleucine
+                      </h6>
+                      <p
+                        class="fr-card__desc"
+                      >
+                        Traite les signes des vertiges.
+                      </p>
+                      <div
+                        class="fr-card__start"
+                      />
+                      <div
+                        class="fr-card__end"
+                      >
+                        <p
+                          class="fr-card__detail fr-icon-information-line"
+                        >
+                          Les définitions proposées sont fournies à titre informatif. Elles n'ont pas de valeur d'avis médical ou d’indication clinique. En cas de doute ou pour toute décision liée à votre santé, consultez un professionnel de santé.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2
+        class="fr-h6 fr-mt-4w"
+      >
+        0 médicament contenant 
+          uniquement la substance « acétylleucine »
+      </h2>
+    </div>
+    <div
+      class="fr-col-12 fr-col-md-8"
+    />
+  </div>
+</div>
+`;

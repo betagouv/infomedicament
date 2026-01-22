@@ -1,12 +1,12 @@
 import Image from "next/image";
 import { fr } from "@codegouvfr/react-dsfr";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
-import { getArticles } from "@/data/grist/articles";
+import { getArticles } from "@/db/utils/articles";
 import RatingToaster from "@/components/rating/RatingToaster";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
 import { Article } from "@/types/ArticlesTypes";
 
-const PAGE_LABEL:string = "Accueil";
+const PAGE_LABEL: string = "Accueil";
 
 export default async function Page() {
   const articles: Article[] = (await getArticles()).filter(({ homepage }) => homepage);
@@ -45,7 +45,7 @@ export default async function Page() {
               Articles
             </h2>
             <Image
-              src="/homepage_illu.svg"
+              src="/img/homepage_illu.svg"
               alt="Un dessin d'une personne regardant une boîte de médicaments."
               className={fr.cx(
                 "fr-responsive-img",
@@ -78,7 +78,7 @@ export default async function Page() {
             )}
           >
             <Image
-              src="/homepage_illu.svg"
+              src="/img/homepage_illu.svg"
               alt="Un dessin d'une personne regardant une boîte de médicaments."
               className={fr.cx("fr-responsive-img")}
               width={2000}

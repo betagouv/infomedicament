@@ -38,7 +38,7 @@ export default async function Page() {
           )}
         >
           <Image
-            src="/apropos_illu.webp"
+            src="/img/apropos_illu.webp"
             alt="Un dessin d'une personne examinant une notice de médicament."
             className={fr.cx("fr-responsive-img", "fr-col-12")}
             width={1236}

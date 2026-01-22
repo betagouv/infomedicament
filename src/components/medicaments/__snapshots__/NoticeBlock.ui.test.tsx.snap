@@ -1,0 +1,32 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`NoticeBlock (UI Integration) > should render the correct content for effet indésirable (Snapshot) 1`] = `
+<div>
+  <div
+    class="sc-dycHyt cttKDi fr-mt-3w"
+  >
+    <div
+      class="sc-FEMpB korYns"
+      id="noticeContainer"
+    >
+      <div
+        class="sc-fLDLck loDyNL"
+      >
+        <div
+          class="fr-mb-2w"
+        >
+          Si vous ressentez un quelconque 
+          <a
+            aria-describedby="Definition-Effet-indesirable"
+            href="#Definition-Effet-indesirable"
+            role="button"
+          >
+            effet indésirable
+          </a>
+          , parlez-en à votre médecin.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

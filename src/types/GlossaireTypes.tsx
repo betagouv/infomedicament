@@ -1,8 +1,6 @@
 export interface Definition {
-  fields: {
-    Nom_glossaire: string;
-    Definition_glossaire: string;
-    Source: string;
-    A_publier: boolean;
-  };
+  nom: string;
+  definition: string;
+  source: string;
+  a_souligner: boolean;
 }
