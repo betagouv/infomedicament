@@ -10,10 +10,12 @@
     "predev": "only-include-used-icons",
     "prebuild": "only-include-used-icons && kysely migrate:latest && kysely seed run --specific 1725439927263_searchIndex",
     "test": "npm run test:unit",
-    "test:unit": "vitest --exclude '**/*.integration.test.ts'",
+    "test:unit": "vitest --exclude '**/*.integration.test.ts' --exclude '**/*.ui.test.tsx'",
     "test:integration": "vitest run 'integration.test.ts'",
+    "test:ui": "vitest run 'ui.test.tsx'",
     "test:all": "vitest run",
-    "test:watch": "vitest --watch"
+    "test:watch": "vitest --watch",
+    "db:sync-grist": "npx tsx scripts/syncWithGrist.ts"
   },
   "dependencies": {
     "@codegouvfr/react-dsfr": "^1.16.0",

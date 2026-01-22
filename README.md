@@ -83,3 +83,13 @@ Scalingo est paramétré pour déployer automatiquement la branche `staging` de 
 Scalingo est paramétré pour déployer automatiquement la branche `production` de GitHub sur https://infomedicament.beta.gouv.fr
 
 La branche "production" est protégée et nécessite de faire une pull request pour pouvoir être mise à jour.
+
+## Tests
+
+On utilise différents types de tests.
+
+- des tests unitaires (*.test.ts)
+- des tests d'integration (*.integration.test.ts) qui nécessitent d'avoir une copie locale des données de staging
+- des tests d'UI (snapshots) (*.ui.test.tsx) qui stockent l'état attendu de certaines pages et nous prévient en cas de régressions
+
+Chacuns de ces types de tests peuvent être exécutés séparemments (voir les commandes dédiées dans le package.json)

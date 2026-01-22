@@ -17,7 +17,7 @@ export const GlossaryContext = createContext<{
   getDefinitionModalAndUpdateGlossary: (definition: Definition) =>
     createModal({
       isOpenedByDefault: false,
-      id: `Definition-${definition.fields.Nom_glossaire}`,
+      id: `Definition-${definition.nom}`,
     }),
 });
 
@@ -39,23 +39,23 @@ export default function GlossaryContextProvider({
   ): ReturnType<typeof createModal> => {
     if (
       !definitions.find(
-        (def) => def.fields.Nom_glossaire === definition.fields.Nom_glossaire,
+        (def) => def.nom === definition.nom,
       )
     ) {
       setGlossary([...definitions, definition]);
     }
 
-    if (!modals[definition.fields.Nom_glossaire]) {
+    if (!modals[definition.nom]) {
       setModals({
         ...modals,
-        [definition.fields.Nom_glossaire]: createModal({
+        [definition.nom]: createModal({
           isOpenedByDefault: false,
-          id: `Definition-${definition.fields.Nom_glossaire}`,
+          id: `Definition-${definition.nom}`,
         }),
       });
     }
 
-    return modals[definition.fields.Nom_glossaire];
+    return modals[definition.nom];
   };
 
   return (

@@ -1,4 +1,4 @@
-import { getArticles } from "@/data/grist/articles";
+import { getArticles } from "@/db/utils/articles";
 import { fr } from "@codegouvfr/react-dsfr";
 import { Fragment } from "react";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
@@ -7,7 +7,7 @@ import RatingToaster from "@/components/rating/RatingToaster";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
 
 export const dynamic = "error";
-const PAGE_LABEL:string = "Liste des articles";
+const PAGE_LABEL: string = "Liste des articles";
 
 export default async function Page() {
   const articles = await getArticles();
