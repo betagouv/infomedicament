@@ -102,7 +102,7 @@ export function PresentationsList(props: {
               {p.StatId && Number(p.StatId) === PresentationStat.Abrogation && (
                 <Badge severity="error" className={fr.cx("fr-ml-1v")}>
                   {PresentationStat[p.StatId]}
-                  {p.PresStatDate && ` (${dateShortFormat(p.PresStatDate)})`}
+                  {p.PresStatDAte && ` (${dateShortFormat(p.PresStatDAte)})`}
                 </Badge>
               )}
             </li>

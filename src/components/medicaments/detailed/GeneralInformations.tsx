@@ -5,7 +5,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, PropsWithChildren, useEffect, useState } from "react";
 import styled from 'styled-components';
 import GenericTag from "@/components/tags/GenericTag";
-import { PresentationComm, PresentationStat, SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { PresentationStat, SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import PediatricsTags from "@/components/tags/PediatricsTags";
 import Link from "next/link";
@@ -204,7 +204,7 @@ function GeneralInformations({
             ? (
               <>
                 <span>{currentSpec.statutAutorisation}</span>
-                {(currentSpec.StatId && currentSpec.StatId.toString() === SpecialiteStat.Abrogée.toString() && currentSpec.SpecStatDate) && (
+                {(currentSpec.StatId && Number(currentSpec.StatId) === SpecialiteStat.Abrogée && currentSpec.SpecStatDate) && (
                   <span className={fr.cx("fr-text--sm")}>{" "}le {(currentSpec.SpecStatDate).toLocaleDateString('fr-FR')}</span>
                 )}
               </>
@@ -431,12 +431,33 @@ function GeneralInformations({
                       )}
                     </div>
                   )}
-                  <div className={fr.cx("fr-mb-0")}>
-                    Cette présentation est{" "}
-                    <Link href="https://base-donnees-publique.medicaments.gouv.fr/glossaire.php#agrecol" target="_blank" rel="noopener noreferrer">
-                      agréée aux collectivités
-                    </Link>.
-                  </div>
+                  {pres.StatId && Number(pres.StatId) === PresentationStat.Abrogation && (
+                    <div className={fr.cx("fr-mb-0")}>
+                      Abrogée
+                      {pres.PresStatDAte && ` le ${dateShortFormat(pres.PresStatDAte)}`}
+                    </div>
+                  )}
+                  {(pres.AgreColl && pres.AgreColl === 1) ? (
+                    <div className={fr.cx("fr-mb-0")}>
+                      Cette présentation est{" "}
+                      <Link href="https://base-donnees-publique.medicaments.gouv.fr/glossaire.php#agrecol" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
+                        agréée aux collectivités
+                      </Link>.
+                    </div>
+                  ) : (
+                    <div className={fr.cx("fr-mb-0")}>
+                      Cette présentation n'est pas {" "}
+                      <Link href="https://base-donnees-publique.medicaments.gouv.fr/glossaire.php#agrecol" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
+                        agréée aux collectivités
+                      </Link>.
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>

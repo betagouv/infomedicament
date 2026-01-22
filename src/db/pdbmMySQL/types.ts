@@ -7,6 +7,7 @@ export interface PdbmMySQL {
   Subs_Nom: Subs_NomTable;
   Presentation: PresentationTable;
   CEPS_Prix: CEPSPrixTable;
+  CNAM_AgreColl: CNAMAgreCollTable;
   Spec_Delivrance: SpecDelivranceTable;
   DicoDelivrance: DicoDelivranceTable;
   StatutComm: StatutCommTable;
@@ -83,7 +84,7 @@ interface PresentationTable {
   CommId: PresentationComm;
   StatId: PresentationStat | null;
   PresCommDate: Date | null;
-  PresStatDate: Date | null;
+  PresStatDAte: Date | null;
   codeCIP13: string;
   PresCodeCip: string;
 }
@@ -94,6 +95,12 @@ interface CEPSPrixTable {
   PPF: number;
   Ppttc: number;
   HonoDisp: number;
+}
+
+interface CNAMAgreCollTable {
+  Cip13: string;
+  AgreColl: number;
+  DateJO: Date;
 }
 
 interface SpecDelivranceTable {
@@ -208,6 +215,7 @@ export type SpecComposant = Selectable<SpecComposantTable>;
 export type SubstanceNom = Selectable<Subs_NomTable>;
 export type PresentationLight = Selectable<PresentationTable>;
 export type PresInfoTarif = Selectable<CEPSPrixTable>;
+export type PresAgreColl = Selectable<CNAMAgreCollTable>;
 export type SpecDelivrance = Selectable<SpecDelivranceTable> &
   Selectable<DicoDelivranceTable>;
 export type Patho = Selectable<PathoTable>;

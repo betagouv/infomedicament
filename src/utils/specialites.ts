@@ -44,7 +44,7 @@ export function isCommercialisee(presentations: Presentation[]){
   let isComm: boolean = false;
   presentations.forEach((pres) => {
     if(pres 
-      && pres.CommId.toString() === PresentationComm.Commercialisation.toString()
+      && Number(pres.CommId) === PresentationComm.Commercialisation
       && (!pres.StatId || pres.StatId.toString() !== PresentationStat.Abrogation.toString())
     ) {
       isComm = true;

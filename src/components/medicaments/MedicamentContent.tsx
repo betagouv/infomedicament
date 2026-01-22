@@ -371,7 +371,7 @@ function MedicamentContent({
                     {currentSpec.statutAutorisation && (
                       <TagContainer category="Statut de l'autorisation" hideSeparator={!currentSpec.SpecDateAMM}>
                         <span className={fr.cx("fr-text--sm", 'fr-ml-1w')}>{currentSpec.statutAutorisation}</span>
-                        {(currentSpec.StatId && currentSpec.StatId.toString() === SpecialiteStat.Abrogée.toString() && currentSpec.SpecStatDate) && (
+                        {(currentSpec.StatId && Number(currentSpec.StatId) === SpecialiteStat.Abrogée && currentSpec.SpecStatDate) && (
                           <span className={fr.cx("fr-text--sm")}>{" "}le {(currentSpec.SpecStatDate).toLocaleDateString('fr-FR')}</span>
                         )}
                       </TagContainer>
