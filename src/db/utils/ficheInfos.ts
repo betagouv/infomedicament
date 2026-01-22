@@ -103,6 +103,12 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
 
   if(!ficheInfoRaw) return undefined;
 
+  const infosImportantesRaw = await pdbmMySQL
+    .selectFrom("VUEvnts")
+    .where("VUEvnts.SpecId", "=", CIS)
+    .select("VUEvnts.remCommentaire")
+    .execute();
+
   const hasSMR: Smr[] = await pdbmMySQL
     .selectFrom("HAS_SMR")
     .leftJoin("HAS_LiensPageCT", "HAS_LiensPageCT.CodeEvamed", "HAS_SMR.CodeEvamed")
@@ -130,7 +136,7 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
 
   const ficheInfos:FicheInfos = {
     specId: ficheInfoRaw.specId,
-    listeInformationsImportantes: ficheInfoRaw.listeInformationsImportantes,
+    listeInformationsImportantes: infosImportantesRaw.map((row) => row.remCommentaire),
     listeGroupesGeneriques: [], 
     listeComposants: [],
     listeTitulaires: ficheInfoRaw.listeTitulaires,

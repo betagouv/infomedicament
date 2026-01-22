@@ -140,7 +140,6 @@ async function importFichesInfos(){
       //Fiche info
       const ficheInfo: FichesInfosDB = {
         specId: ficheInfoRaw.Specialite.SpecId,
-        listeInformationsImportantes: ficheInfoRaw.InformationsImportantes.listeInformationsImportantes ? ficheInfoRaw.InformationsImportantes.listeInformationsImportantes : undefined,
         listeGroupesGeneriquesIds: groupesGeneriquesIds,
         listeComposants: composantsIDs,
         listeTitulaires: ficheInfoRaw.Titulaires.listeTitulaires ? ficheInfoRaw.Titulaires.listeTitulaires : undefined,

@@ -56,7 +56,7 @@ interface ElementTable {
 
 interface FicheInfoTable {
   specId: string;
-  listeInformationsImportantes?: string[];
+  listeInformationsImportantes?: string[]; //TODO A supprimer
   listeGroupesGeneriquesIds?: number[];
   listeComposants?: number[];
   listeTitulaires?: string[];
@@ -64,6 +64,8 @@ interface FicheInfoTable {
   libelleCourtAutorisation?: string;
   libelleCourtProcedure?: string;
   listeDocumentsBonUsageIds?: number[], //TODO A supprimer
+  listeASMR?: number[]; //TODO A supprimer
+  listeSMR?: number[]; //TODO A supprimer
   presentations?: string[];
   listeElements?: number[];
 }

@@ -15,6 +15,7 @@ export interface PdbmMySQL {
   Spec_Patho: Spec_PathoTable;
   GroupeGene: GroupeGeneTable;
   VUEmaEpar: VUEmaEparTable; //Documents Centralisés
+  VUEvnts: VUEvntsTable; //Informations Importantes
   HAS_SMR: HASSMRTable; //SMR informations
   HAS_ASMR: HASASMRTable; //ASMR informations
   HAS_LiensPageCT: HASLiensPageCTTable; //Lines pour SMR et ASMR
@@ -146,6 +147,14 @@ interface VUEmaEparTable {
   UrlEpar: string;
 }
 
+interface VUEvntsTable {
+  SpecId: string;
+  codeEvnt: string;
+  dateEvnt: Date;
+  dateEcheance: Date;
+  remCommentaire: string;
+  codeTypeInfo: number;
+}
 interface HASSMRTable {
   SpecId: string;
   CodeEvamed: string;
