@@ -478,6 +478,7 @@ function MedicamentContent({
               marr={currentMarr}
               ficheInfos={ficheInfos}
               indicationBlock={indicationBlock}
+              delivrance={delivrance}
             />
           ) : (
             <>

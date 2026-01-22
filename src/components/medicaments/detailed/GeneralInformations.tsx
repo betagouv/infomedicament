@@ -5,7 +5,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, PropsWithChildren, useEffect, useState } from "react";
 import styled from 'styled-components';
 import GenericTag from "@/components/tags/GenericTag";
-import { SpecComposant, SpecialiteComm, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { PresentationComm, PresentationStat, SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import PediatricsTags from "@/components/tags/PediatricsTags";
 import Link from "next/link";
@@ -87,6 +87,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   marr?: Marr;
   ficheInfos?: FicheInfos;
   indicationBlock?: NoticeRCPContentBlock;
+  delivrance: SpecDelivrance[];
 }
 
 function GeneralInformations({ 
@@ -102,6 +103,7 @@ function GeneralInformations({
   marr,
   ficheInfos,
   indicationBlock,
+  delivrance,
   ...props 
 }: GeneralInformationsProps) {
 
@@ -235,14 +237,14 @@ function GeneralInformations({
           }
         </SummaryLine>
         <SummaryLine categoryName="Conditions de prescription et de délivrance">
-          {(currentSpec.deliveranceList && currentSpec.deliveranceList.length > 0) ? (
+          {(delivrance && delivrance.length > 0) ? (
             <ContentContainer>
               <PrescriptionTag hideIcon/>
               <ul>
-                {currentSpec.deliveranceList.map((line: string, index) => {
+                {delivrance.map((line: SpecDelivrance, index) => {
                   return (
                     <li key={index}>
-                      {line}
+                      {line.DelivLong}
                     </li>
                   );
                 })}

@@ -27,7 +27,6 @@ export type DetailedSpecialite = Specialite & {
   urlCentralise: string | null,
   statutAutorisation: string | null,
   statutComm: string | null,
-  deliveranceList?: string[],
   titulairesList?: string,
   generiqueName: string | null,
 }
@@ -101,13 +100,10 @@ export type Asmr = {
 }
 
 export type FicheInfos = {
-  specId: string;
   listeInformationsImportantes?: string[];
-  listeGroupesGeneriques?: GroupeGenerique[];
   listeDocumentsBonUsage?: DocBonUsage[],
   listeASMR?: Asmr[];
   listeSMR?: Smr[];
-  presentations?: PresentationDetail[];
   listeElements: ElementComposition[];
 }
 

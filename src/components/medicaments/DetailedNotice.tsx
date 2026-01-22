@@ -6,7 +6,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
 import GeneralInformations from "./detailed/GeneralInformations";
-import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
 import DocumentHas from "./detailed/DocumentHas";
 import { Marr } from "@/types/MarrTypes";
 import { FicheInfos, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
@@ -34,6 +34,7 @@ interface DetailedNoticeProps extends HTMLAttributes<HTMLDivElement> {
   marr?: Marr;
   ficheInfos?: FicheInfos
   indicationBlock?: NoticeRCPContentBlock;
+  delivrance: SpecDelivrance[];
 }
 
 function DetailedNotice({
@@ -49,6 +50,7 @@ function DetailedNotice({
   marr,
   ficheInfos,
   indicationBlock,
+  delivrance,
   ...props 
 }: DetailedNoticeProps) {
 
@@ -84,6 +86,7 @@ function DetailedNotice({
           marr={marr}
           ficheInfos={ficheInfos}
           indicationBlock={currentIndicationBlock}
+          delivrance={delivrance}
         />
       </DetailedNoticeContainer>
       <DetailedNoticeContainer id="rcp-denomiation" $visible={visiblePart === DetailsNoticePartsEnum.RCP}>

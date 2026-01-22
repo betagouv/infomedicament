@@ -37,8 +37,6 @@ export const getDetailedSpecialite = cache(
     .selectFrom("Specialite")
     .leftJoin("StatutAdm", "StatutAdm.StatId", "Specialite.StatId")
     .leftJoin("StatutComm", "StatutComm.CommId", "Specialite.CommId")
-    .leftJoin("Spec_Delivrance", "Spec_Delivrance.SpecId", "Specialite.SpecId")
-    .leftJoin("DicoDelivrance", "DicoDelivrance.DelivId", "Spec_Delivrance.DelivId")
     .leftJoin("Spec_Titu", "Spec_Titu.SpecId", "Specialite.SpecId")
     .leftJoin("Titulaire", "Titulaire.TituId", "Spec_Titu.TituId")
     .leftJoin ("Specialite as GenSpecialite", "GenSpecialite.SpecId", "Specialite.SpecId")
@@ -56,9 +54,6 @@ export const getDetailedSpecialite = cache(
     ]) // Il n'y en a qu'un
     .select(({ fn }) => [
       fn<string>("GROUP_CONCAT", ["Titulaire.TituRSLong"]).as("titulairesList"),
-    ])
-    .select(({ fn }) => [
-      fn<string[]>("JSON_ARRAYAGG", ["DicoDelivrance.DelivCourt"]).as("deliveranceList"),
     ])
     .groupBy(["Specialite.SpecId"]) //Nécessaire pour le JSON_ARRAYAGG
     .distinct()
@@ -121,6 +116,7 @@ export const getSpecialite = cache(async (CIS: string) => {
       "DicoDelivrance.DelivId",
     )
     .selectAll()
+    .orderBy("DicoDelivrance.DelivLong")
     .execute();
 
   return {

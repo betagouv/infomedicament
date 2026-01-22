@@ -5,9 +5,6 @@ export interface Database {
   search_index: SearchIndexTable;
   leaflet_images: LeafletImagesTable;
   presentations: PresentationTable;
-  fiches_infos: FicheInfoTable;
-  groupes_generiques: GroupeGeneriqueTable;
-  elements: ElementTable;
   rcp: RcpTable;
   rcp_content: RcpContentTable;
   notices: NoticeTable;
@@ -53,33 +50,6 @@ interface PresentationTable {
   caraccomplrecip: string;
   qtecontenance: number;
   unitecontenance: string;
-}
-
-interface ElementTable {
-  id?: number;
-  nomElement: string;
-  referenceDosage: string;
-}
-
-interface FicheInfoTable {
-  specId: string;
-  listeInformationsImportantes?: string[]; //TODO A supprimer
-  listeGroupesGeneriquesIds?: number[];
-  listeComposants?: number[]; //TODO A supprimer
-  listeTitulaires?: string[]; //TODO A supprimer
-  listeDocumentsBonUsageIds?: number[], //TODO A supprimer
-  listeASMR?: number[]; //TODO A supprimer
-  listeSMR?: number[]; //TODO A supprimer
-  listeConditionsDelivrance?: string[]; //TODO A supprimer
-  libelleCourtAutorisation?: string; //TODO A supprimer
-  libelleCourtProcedure?: string; //TODO A supprimer
-  presentations?: string[];
-  listeElements?: number[]; //TODO A supprimer
-}
-
-interface GroupeGeneriqueTable {
-  idGroupeGenerique: number;
-  libelleGroupeGenerique: string;
 }
 
 interface RcpTable {
@@ -271,8 +241,6 @@ export interface CisAtc {
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
-export type FichesInfosDB = Selectable<FicheInfoTable>;
-export type GroupeGeneriqueDB = Selectable<GroupeGeneriqueTable>;
 export type RCPContent = Selectable<RcpContentTable>;
 export type Rating = Selectable<RatingTable>;
 export type ResumePatho = Selectable<ResumePathosTable>;

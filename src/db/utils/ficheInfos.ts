@@ -1,67 +1,10 @@
 "use server";
 
-import db from '@/db';
-import { PresentationDetail } from '@/db/types';
-import { Asmr, ComposantComposition, DocBonUsage, ElementComposition, FicheInfos, GroupeGenerique, Smr } from '@/types/SpecialiteTypes';
+import { Asmr, ComposantComposition, DocBonUsage, ElementComposition, FicheInfos, Smr } from '@/types/SpecialiteTypes';
 import { pdbmMySQL } from '../pdbmMySQL';
 import { ComposantNatureId, SpecComposant, SpecElement } from '../pdbmMySQL/types';
 
-async function getListeGroupesGeneriques(ids: number[]): Promise<GroupeGenerique[]>{
-  const data = await db
-    .selectFrom("groupes_generiques")
-    .selectAll()
-    .where("idGroupeGenerique", "in", ids)
-    .execute();
-  
-  if(data && data.length > 0) {
-    return await Promise.all(
-      data.map(async (child) => {
-        const data:GroupeGenerique = {
-          id: child.idGroupeGenerique,
-          libelle: child.libelleGroupeGenerique,
-        }
-        return data;
-      })
-    );
-  }
-  return [];
-}
-
-async function getListePresentations(ids: string[]): Promise<PresentationDetail[]>{
-  const data = await db
-    .selectFrom("presentations")
-    .selectAll()
-    .where("codecip13", "in", ids)
-    .execute();
-  
-  if(data && data.length > 0) {
-    return await Promise.all(
-      data.map(async (child) => {
-        const data:PresentationDetail = {
-          codecip13: child.codecip13,
-          nomelement: child.nomelement,
-          nbrrecipient: child.nbrrecipient,
-          recipient: child.recipient,
-          caraccomplrecip: child.caraccomplrecip,
-          qtecontenance: child.qtecontenance,
-          unitecontenance: child.unitecontenance,
-        }
-        return data;
-      })
-    );
-  }
-  return [];
-}
-
 export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined> {
-  const ficheInfoRaw = await db
-    .selectFrom("fiches_infos")
-    .selectAll()
-    .where("specId", "=", CIS)
-    .executeTakeFirst();
-
-  if(!ficheInfoRaw) return undefined;
-
   const infosImportantesRaw = await pdbmMySQL
     .selectFrom("VUEvnts")
     .where("VUEvnts.SpecId", "=", CIS)
@@ -145,21 +88,12 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
   })
   
   const ficheInfos:FicheInfos = {
-    specId: ficheInfoRaw.specId,
     listeInformationsImportantes: infosImportantesRaw.map((row) => row.remCommentaire),
-    listeGroupesGeneriques: [], 
     listeDocumentsBonUsage: hasDocsBU,
     listeASMR: hasASMR,
     listeSMR: hasSMR,
-    presentations: [],
     listeElements: elementsComposition,
   }
-  
-  if(ficheInfoRaw.listeGroupesGeneriquesIds && ficheInfoRaw.listeGroupesGeneriquesIds.length > 0) 
-    ficheInfos.listeGroupesGeneriques = await getListeGroupesGeneriques(ficheInfoRaw.listeGroupesGeneriquesIds);
-
-  if(ficheInfoRaw.presentations && ficheInfoRaw.presentations.length > 0) 
-    ficheInfos.presentations = await getListePresentations(ficheInfoRaw.presentations);
 
   return ficheInfos;
 };
