@@ -7,7 +7,6 @@ export interface Database {
   presentations: PresentationTable;
   fiches_infos: FicheInfoTable;
   groupes_generiques: GroupeGeneriqueTable;
-  composants: ComposantTable;
   elements: ElementTable;
   rcp: RcpTable;
   rcp_content: RcpContentTable;
@@ -42,12 +41,6 @@ interface PresentationTable {
   unitecontenance: string;
 }
 
-interface ComposantTable {
-  id?: number;
-  dosage: string;
-  nomComposant: string;
-}
-
 interface ElementTable {
   id?: number;
   nomElement: string;
@@ -58,16 +51,16 @@ interface FicheInfoTable {
   specId: string;
   listeInformationsImportantes?: string[]; //TODO A supprimer
   listeGroupesGeneriquesIds?: number[];
-  listeComposants?: number[];
   listeTitulaires?: string[];
   listeConditionsDelivrance?: string[];
   libelleCourtAutorisation?: string;
   libelleCourtProcedure?: string;
+  listeComposants?: number[]; //TODO A supprimer
   listeDocumentsBonUsageIds?: number[], //TODO A supprimer
   listeASMR?: number[]; //TODO A supprimer
   listeSMR?: number[]; //TODO A supprimer
   presentations?: string[];
-  listeElements?: number[];
+  listeElements?: number[]; //TODO A supprimer
 }
 
 interface GroupeGeneriqueTable {

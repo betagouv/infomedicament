@@ -262,30 +262,52 @@ function GeneralInformations({
         </ContentContainer>
       )}
       
-      {((ficheInfos.listeElements && ficheInfos.listeElements.length > 0) || (ficheInfos.listeComposants && ficheInfos.listeComposants.length > 0)) && (
-        <ContentContainer id="informations-composition" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-          <h2 className={fr.cx("fr-h6")}>Composition</h2>
-          {(ficheInfos.listeElements && ficheInfos.listeElements.length > 0) && (
-            <div className={fr.cx("fr-mb-0")}>
-              {ficheInfos.listeElements.map((element, index) => {
-                return (
-                  <span key={index}>
-                    {index > 1 && ", "}
+      <ContentContainer id="informations-composition" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+        <h2 className={fr.cx("fr-h6")}>Composition</h2>
+        {(ficheInfos.listeElements && ficheInfos.listeElements.length > 0) 
+        ? (
+          <div className={fr.cx("fr-mb-0")}>
+            {ficheInfos.listeElements.map((element, index) => {
+              return (
+                <div 
+                  key={index}
+                  className={fr.cx("fr-mb-2w")}
+                >
+                  <div className={fr.cx("fr-mb-1w")}>
                     {element.referenceDosage.charAt(0).toUpperCase()}{element.referenceDosage.substring(1)}
-                  </span>
-                )
-              })}
-            </div>
-          )}
-          {(ficheInfos.listeComposants && ficheInfos.listeComposants.length > 0) && (
-            <div className={fr.cx("fr-mb-0")}>
-              {ficheInfos.listeComposants.map((composant, index) => {
-                return (<span key={index}>{" > "}{composant.nom}{" "}{composant.dosage}</span>)
-              })}
-            </div>
-          )}
-        </ContentContainer>
-      )}
+                  </div>
+                  {element.composants.map((composant, indexComp) => {
+                    return (
+                      <div 
+                        key={indexComp} 
+                        className={fr.cx("fr-ml-1w", "fr-mb-1w")}
+                      >
+                        {" > "}{composant.NomLib}{" "}{composant.dosage}
+                        {composant.composants && composant.composants.length > 0 && (
+                          <div>
+                            {composant.composants.map((subComposant, indexSubComposant) => {
+                              return (
+                                <div 
+                                  key={indexSubComposant} 
+                                  className={fr.cx("fr-ml-3w")}
+                                >
+                                  sous forme de : {subComposant.NomLib}{" "}{subComposant.dosage}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <span>La composition n'est pas communiquée</span>
+        )}
+      </ContentContainer>
       
       {(presentations && presentations.length > 0) && (
         <ContentContainer id="informations-presentations" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>

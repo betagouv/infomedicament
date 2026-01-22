@@ -2,8 +2,9 @@
 
 import db from '@/db';
 import { PresentationDetail } from '@/db/types';
-import { Asmr, Composant, ComposantElement, DocBonUsage, FicheInfos, GroupeGenerique, Smr } from '@/types/SpecialiteTypes';
+import { Asmr, ComposantComposition, DocBonUsage, ElementComposition, FicheInfos, GroupeGenerique, Smr } from '@/types/SpecialiteTypes';
 import { pdbmMySQL } from '../pdbmMySQL';
+import { ComposantNatureId, SpecComposant, SpecElement } from '../pdbmMySQL/types';
 
 async function getListeGroupesGeneriques(ids: number[]): Promise<GroupeGenerique[]>{
   const data = await db
@@ -18,27 +19,6 @@ async function getListeGroupesGeneriques(ids: number[]): Promise<GroupeGenerique
         const data:GroupeGenerique = {
           id: child.idGroupeGenerique,
           libelle: child.libelleGroupeGenerique,
-        }
-        return data;
-      })
-    );
-  }
-  return [];
-}
-
-async function getListeComposants(ids: number[]): Promise<Composant[]>{
-  const data = await db
-    .selectFrom("composants")
-    .selectAll()
-    .where("id", "in", ids)
-    .execute();
-  
-  if(data && data.length > 0) {
-    return await Promise.all(
-      data.map(async (child) => {
-        const data:Composant = {
-          dosage: child.dosage,
-          nom: child.nomComposant,
         }
         return data;
       })
@@ -65,27 +45,6 @@ async function getListePresentations(ids: string[]): Promise<PresentationDetail[
           caraccomplrecip: child.caraccomplrecip,
           qtecontenance: child.qtecontenance,
           unitecontenance: child.unitecontenance,
-        }
-        return data;
-      })
-    );
-  }
-  return [];
-}
-
-async function getListeElements(ids: number[]): Promise<ComposantElement[]>{
-  const data = await db
-    .selectFrom("elements")
-    .selectAll()
-    .where("id", "in", ids)
-    .execute();
-  
-  if(data && data.length > 0) {
-    return await Promise.all(
-      data.map(async (child) => {
-        const data:ComposantElement = {
-          nom: child.nomElement,
-          referenceDosage: child.referenceDosage,
         }
         return data;
       })
@@ -134,11 +93,61 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
     .distinct()
     .execute();
 
+  const elementsRaw: SpecElement[] = await pdbmMySQL
+    .selectFrom("Element")
+    .where("Element.SpecId", "=", CIS)
+    .selectAll()
+    .distinct()
+    .execute();
+  const composantsRaw: any[] = await pdbmMySQL
+    .selectFrom("Composant")
+    .leftJoin(
+      "Subs_Nom", 
+      (join) => join
+        .onRef('Subs_Nom.NomId', '=', 'Composant.NomId')
+        .onRef('Subs_Nom.SubsId', '=', 'Composant.SubsId')
+    )
+    .where("Composant.SpecId", "=", CIS)
+    .selectAll()
+    .distinct()
+    .orderBy("CompNum asc")
+    .execute();
+  const elementsComposition: ElementComposition[] = [];
+  elementsRaw.forEach((element: SpecElement) => {
+    const composantsList = composantsRaw.filter((composantRaw: SpecComposant) => composantRaw.ElmtNum === element.ElmtNum && composantRaw.NatuId === ComposantNatureId.Substance);
+    const fractionsList = composantsRaw.filter((composantRaw: SpecComposant) => composantRaw.ElmtNum === element.ElmtNum && composantRaw.NatuId === ComposantNatureId.Fraction);
+    const composantsComposition: ComposantComposition[] = [];
+    if(fractionsList && fractionsList.length > 0){
+      fractionsList.forEach((fraction) => {
+        composantsComposition.push({
+          NomLib: fraction.NomLib,
+          dosage: fraction.CompDosage,
+          composants: composantsList.map((composant) => { 
+            return {
+              NomLib: composant.NomLib,
+              dosage: composant.CompDosage
+            }
+          })
+        })
+      });
+    } else {
+      composantsList.forEach((composant) => 
+        composantsComposition.push({
+          NomLib: composant.NomLib,
+          dosage: composant.CompDosage
+        }),
+      );
+    }
+    elementsComposition.push({
+      referenceDosage: element.ElmtRefDosage ? element.ElmtRefDosage : element.ElmtNom,
+      composants: composantsComposition,
+    })
+  })
+  
   const ficheInfos:FicheInfos = {
     specId: ficheInfoRaw.specId,
     listeInformationsImportantes: infosImportantesRaw.map((row) => row.remCommentaire),
     listeGroupesGeneriques: [], 
-    listeComposants: [],
     listeTitulaires: ficheInfoRaw.listeTitulaires,
     listeConditionsDelivrance: ficheInfoRaw.listeConditionsDelivrance,
     libelleCourtAutorisation: ficheInfoRaw.libelleCourtAutorisation, 
@@ -147,20 +156,14 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
     listeASMR: hasASMR,
     listeSMR: hasSMR,
     presentations: [],
-    listeElements: [],
+    listeElements: elementsComposition,
   }
   
   if(ficheInfoRaw.listeGroupesGeneriquesIds && ficheInfoRaw.listeGroupesGeneriquesIds.length > 0) 
     ficheInfos.listeGroupesGeneriques = await getListeGroupesGeneriques(ficheInfoRaw.listeGroupesGeneriquesIds);
 
-  if(ficheInfoRaw.listeComposants && ficheInfoRaw.listeComposants.length > 0) 
-    ficheInfos.listeComposants = await getListeComposants(ficheInfoRaw.listeComposants);
-
   if(ficheInfoRaw.presentations && ficheInfoRaw.presentations.length > 0) 
     ficheInfos.presentations = await getListePresentations(ficheInfoRaw.presentations);
-
-  if(ficheInfoRaw.listeElements && ficheInfoRaw.listeElements.length > 0) 
-    ficheInfos.listeElements = await getListeElements(ficheInfoRaw.listeElements);
 
   return ficheInfos;
 };

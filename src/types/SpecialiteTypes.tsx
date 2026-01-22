@@ -59,11 +59,6 @@ export type GroupeGenerique = {
   libelle: string;
 }
 
-export type Composant = {
-  dosage: string;
-  nom: string;
-}
-
 export type DocBonUsage = {
   Url?: string;
   DateMAJ: Date;
@@ -71,13 +66,18 @@ export type DocBonUsage = {
   TitreDoc?: string;
 }
 
+export type SubstanceComposition = {
+  NomLib: string,
+  dosage: string,
 }
 
+export type ComposantComposition = SubstanceComposition & {
+  composants?: SubstanceComposition[];
 }
 
-export type ComposantElement = {
-  nom: string;
+export type ElementComposition = {
   referenceDosage: string;
+  composants: ComposantComposition[];
 }
 
 export type Smr = {
@@ -99,7 +99,6 @@ export type FicheInfos = {
   specId: string;
   listeInformationsImportantes?: string[];
   listeGroupesGeneriques?: GroupeGenerique[];
-  listeComposants?: Composant[];
   listeTitulaires?: string[];
   listeDocumentsBonUsage?: DocBonUsage[],
   listeASMR?: Asmr[];
@@ -108,7 +107,7 @@ export type FicheInfos = {
   libelleCourtAutorisation?: string;
   libelleCourtProcedure?: string;
   presentations?: PresentationDetail[];
-  listeElements: ComposantElement[];
+  listeElements: ElementComposition[];
 }
 
 export type SpecialiteWithSubstance = Specialite & {

@@ -103,33 +103,6 @@ async function importFichesInfos(){
         };
       }
 
-
-      //Composants
-      const composantsIDs: number[] = [];
-      if(ficheInfoRaw.Composants.listeComposants){
-        const listeComposants = ficheInfoRaw.Composants.listeComposants;
-        if(listeComposants){
-          const ids = await db.insertInto("composants")
-            .values(listeComposants)
-            .returning('id')
-            .execute()
-          ids.forEach((id) => (id && id.id !== undefined) && composantsIDs.push(id.id));
-        };
-      }
-
-      //Elements
-      const elementsIDs: number[] = [];
-      if(ficheInfoRaw.Elements.listeElements){
-        const listeElements = ficheInfoRaw.Elements.listeElements;
-        if(listeElements){
-          const ids = await db.insertInto("elements")
-            .values(listeElements)
-            .returning('id')
-            .execute()
-          ids.forEach((id) => (id && id.id !== undefined) && elementsIDs.push(id.id));
-        };
-      }
-
       const presentations: string[] = [];
       if(ficheInfoRaw.Presentations.presentations){
         (ficheInfoRaw.Presentations.presentations).forEach((pres: any) => {
@@ -141,13 +114,11 @@ async function importFichesInfos(){
       const ficheInfo: FichesInfosDB = {
         specId: ficheInfoRaw.Specialite.SpecId,
         listeGroupesGeneriquesIds: groupesGeneriquesIds,
-        listeComposants: composantsIDs,
         listeTitulaires: ficheInfoRaw.Titulaires.listeTitulaires ? ficheInfoRaw.Titulaires.listeTitulaires : undefined,
         listeConditionsDelivrance: ficheInfoRaw.ConditionsDelivrancePrescription.listeConditionsDelivrance ? ficheInfoRaw.ConditionsDelivrancePrescription.listeConditionsDelivrance : undefined,
         libelleCourtAutorisation: ficheInfoRaw.StatutAutorisation.libelleCourtAutorisation ? ficheInfoRaw.StatutAutorisation.libelleCourtAutorisation : undefined,
         libelleCourtProcedure: ficheInfoRaw.TypeProcedure.libelleCourtProcedure ? ficheInfoRaw.TypeProcedure.libelleCourtProcedure : undefined,
         presentations: presentations,
-        listeElements: elementsIDs,
       };
       
       db.insertInto("fiches_infos")
