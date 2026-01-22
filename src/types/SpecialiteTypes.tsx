@@ -24,7 +24,12 @@ export type ResumeSpecGroup = ResumeSpecGroupDB & {
 }
 
 export type DetailedSpecialite = Specialite & {
-  UrlEpar: string | null,
+  urlCentralise: string | null,
+  statutAutorisation: string | null,
+  statutComm: string | null,
+  deliveranceList?: string[],
+  titulairesList?: string,
+  generiqueName: string | null,
 }
 
 export type NoticeBlockType = "generalites" | "usage" | "warnings" | "howTo" | "sideEffects" | "storage" | "composition";
@@ -99,13 +104,9 @@ export type FicheInfos = {
   specId: string;
   listeInformationsImportantes?: string[];
   listeGroupesGeneriques?: GroupeGenerique[];
-  listeTitulaires?: string[];
   listeDocumentsBonUsage?: DocBonUsage[],
   listeASMR?: Asmr[];
   listeSMR?: Smr[];
-  listeConditionsDelivrance?: string[];
-  libelleCourtAutorisation?: string;
-  libelleCourtProcedure?: string;
   presentations?: PresentationDetail[];
   listeElements: ElementComposition[];
 }

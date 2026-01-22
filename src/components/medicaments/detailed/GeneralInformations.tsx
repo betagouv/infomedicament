@@ -5,7 +5,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, PropsWithChildren, useEffect, useState } from "react";
 import styled from 'styled-components';
 import GenericTag from "@/components/tags/GenericTag";
-import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecComposant, SpecialiteComm, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import PediatricsTags from "@/components/tags/PediatricsTags";
 import Link from "next/link";
@@ -14,12 +14,13 @@ import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } f
 import PrincepsTag from "@/components/tags/PrincepsTag";
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
-import { FicheInfos, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, FicheInfos, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import { displayInfosImportantes, getContent } from "@/utils/notices/noticesUtils";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
+import { getProcedureLibLong } from "@/utils/specialites";
 
 const SummaryLineContainer = styled.div `
   display: flex;
@@ -75,11 +76,10 @@ function SummaryLine(
 
 interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   updateVisiblePart: (visiblePart: DetailsNoticePartsEnum) => void;
-  CIS?: string;
+  specialite?: DetailedSpecialite;
   atcCode?: string;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
-  SpecGeneId?: string;
   isPregnancyPlanAlert: boolean;
   isPregnancyMentionAlert: boolean;
   pediatrics: PediatricsInfo | undefined;  
@@ -91,11 +91,10 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
 
 function GeneralInformations({ 
   updateVisiblePart,
-  CIS,
+  specialite,
   atcCode,
   composants,
   isPrinceps,
-  SpecGeneId,
   isPregnancyPlanAlert,
   isPregnancyMentionAlert,
   pediatrics,
@@ -106,7 +105,12 @@ function GeneralInformations({
   ...props 
 }: GeneralInformationsProps) {
 
+  const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite>();
   const [currentIndicationBlock, setCurrentIndicationBlock] = useState<NoticeRCPContentBlock>();
+
+  useEffect(() => {
+    setCurrentSpec(specialite);
+  }, [specialite, setCurrentSpec]);
 
   useEffect(() => {
     setCurrentIndicationBlock(indicationBlock);
@@ -128,7 +132,7 @@ function GeneralInformations({
   }
 
   return (
-    ficheInfos && (
+    (ficheInfos && currentSpec) && (
     <>
       {ficheInfos.listeInformationsImportantes && displayInfosImportantes(ficheInfos) && (
         <ContentContainer id="informations-importantes" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
@@ -145,7 +149,7 @@ function GeneralInformations({
       <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Résumé</h2>
         <SummaryLine categoryName="Code CIS">
-          {CIS ? formatCIS(CIS) : ""}
+          {formatCIS(currentSpec.SpecId)}
         </SummaryLine>
         {atcCode && (
           <SummaryLine categoryName="Classe ATC">
@@ -182,7 +186,6 @@ function GeneralInformations({
           ) : ( 
             <span>Aucune information pédiatrique disponible</span>
           )}
-          {/* <Link href="#">Voir dans le RCP</Link> */}
         </SummaryLine>
         <SummaryLine categoryName="Grossesse">
           {(isPregnancyMentionAlert || isPregnancyPlanAlert) ? (
@@ -193,52 +196,50 @@ function GeneralInformations({
           ) : (
             <span>Aucune contre-indication grossesse</span>
           )}
-          {/* <Link 
-            href="#rcp-fertilite-grossesse-allaitement"
-            onClick={() => updateVisiblePart(DetailsNoticePartsEnum.RCP)}
-          >
-            Voir dans le RCP
-          </Link> */}
         </SummaryLine>
         <SummaryLine categoryName="Statut de l’autorisation">
-          {ficheInfos.libelleCourtAutorisation}
+          {currentSpec.statutAutorisation 
+            ? (
+              <>
+                <span>{currentSpec.statutAutorisation}</span>
+                {(currentSpec.StatId && currentSpec.StatId.toString() === SpecialiteStat.Abrogée.toString() && currentSpec.SpecStatDate) && (
+                  <span className={fr.cx("fr-text--sm")}>{" "}le {(currentSpec.SpecStatDate).toLocaleDateString('fr-FR')}</span>
+                )}
+              </>
+            )
+            : (<span>Non communiqué</span>)
+          }
+        </SummaryLine>
+        <SummaryLine categoryName="Date d'autorisation de mise sur le marché">
+          {currentSpec.SpecDateAMM 
+            ? (<span>Le&nbsp;{(currentSpec.SpecDateAMM).toLocaleDateString('fr-FR')}</span>)
+            : (<span>Non communiquée</span>)
+          }
         </SummaryLine>
         <SummaryLine categoryName="Titulaire de l’autorisation">
-          {ficheInfos.listeTitulaires?.join(", ")}
+          {currentSpec.titulairesList 
+            ? (<span>{currentSpec.titulairesList}</span>)
+            : (<span>Non communiqué</span>)
+          }
         </SummaryLine>
-        {/* <SummaryLine categoryName="Date de l’autorisation">
-        </SummaryLine> */}
-        {/* <SummaryLine categoryName="Statut de commercialisation">
-          {ficheInfos.libelleCourtAutorisation}
-        </SummaryLine> */}
+        <SummaryLine categoryName="Statut de commercialisation">
+          {currentSpec.statutComm 
+            ? (<span>{currentSpec.statutComm}</span>)
+            : (<span>Non communiqué</span>)
+          }
+        </SummaryLine>
         <SummaryLine categoryName="Type de procédure">
-          {(ficheInfos.libelleCourtProcedure === "Enreg homéo (Proc. Nat.)" 
-            || ficheInfos.libelleCourtProcedure === "Enreg phyto (Proc. Nat.)" || ficheInfos.libelleCourtProcedure === "Nationale") ? (
-            <span>Procédure nationale</span>
-          ) : ( 
-            ficheInfos.libelleCourtProcedure === "Reconnaissance mutuelle" ? (
-              <span>Procédure de reconnaissance mutuelle</span>
-            ) : (
-              ficheInfos.libelleCourtProcedure === "Centralisée" ? (
-                <span>Procédure centralisée</span>
-              ) : (
-                (ficheInfos.libelleCourtProcedure === "Enreg phyto (Proc. Dec.)"
-                  || ficheInfos.libelleCourtProcedure === "Décentralisée"
-                ) ? (
-                  <span>Procédure décentralisée</span>
-                ) : (
-                  <span>{ficheInfos.libelleCourtProcedure}</span>
-                )
-              )
-            )
-          ) }
+          {currentSpec.ProcId 
+            ? (<span>{getProcedureLibLong(Number(currentSpec.ProcId))}</span>)
+            : (<span>Non communiqué</span>)
+          }
         </SummaryLine>
         <SummaryLine categoryName="Conditions de prescription et de délivrance">
-          {(ficheInfos.listeConditionsDelivrance && ficheInfos.listeConditionsDelivrance.length > 0) ? (
+          {(currentSpec.deliveranceList && currentSpec.deliveranceList.length > 0) ? (
             <ContentContainer>
               <PrescriptionTag hideIcon/>
               <ul>
-                {ficheInfos.listeConditionsDelivrance.map((line: string, index) => {
+                {currentSpec.deliveranceList.map((line: string, index) => {
                   return (
                     <li key={index}>
                       {line}

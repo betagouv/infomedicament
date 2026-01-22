@@ -29,15 +29,47 @@ export async function getSpecialiteName(CIS: string): Promise<string>{
   return result ? result.SpecDenom01 : "";
 }
 
-export const getSpecialite = cache(async (CIS: string) => {
-
+export const getDetailedSpecialite = cache(
+  async (
+    CIS: string
+  ) : Promise<DetailedSpecialite | undefined> => {
   const specialite: DetailedSpecialite | undefined = await pdbmMySQL
     .selectFrom("Specialite")
-    .leftJoin("VUEmaEpar", "VUEmaEpar.SpecId", "Specialite.SpecId")
+    .leftJoin("StatutAdm", "StatutAdm.StatId", "Specialite.StatId")
+    .leftJoin("StatutComm", "StatutComm.CommId", "Specialite.CommId")
+    .leftJoin("Spec_Delivrance", "Spec_Delivrance.SpecId", "Specialite.SpecId")
+    .leftJoin("DicoDelivrance", "DicoDelivrance.DelivId", "Spec_Delivrance.DelivId")
+    .leftJoin("Spec_Titu", "Spec_Titu.SpecId", "Specialite.SpecId")
+    .leftJoin("Titulaire", "Titulaire.TituId", "Spec_Titu.TituId")
+    .leftJoin ("Specialite as GenSpecialite", "GenSpecialite.SpecId", "Specialite.SpecId")
     .where("Specialite.SpecId", "=", CIS)
     .selectAll("Specialite")
-    .select("VUEmaEpar.UrlEpar")
+    .select("StatutAdm.StatLibCourt as statutAutorisation")
+    .select("StatutComm.CommLibCourt as statutComm")
+    .select("GenSpecialite.SpecDenom01 as generiqueName")
+    .select(({ selectFrom }) => [
+      selectFrom("VUEmaEpar")
+        .whereRef("Specialite.SpecId", "=", "VUEmaEpar.SpecId")
+        .select("VUEmaEpar.UrlEpar")
+        .limit(1)
+        .as("urlCentralise")
+    ]) // Il n'y en a qu'un
+    .select(({ fn }) => [
+      fn<string>("GROUP_CONCAT", ["Titulaire.TituRSLong"]).as("titulairesList"),
+    ])
+    .select(({ fn }) => [
+      fn<string[]>("JSON_ARRAYAGG", ["DicoDelivrance.DelivCourt"]).as("deliveranceList"),
+    ])
+    .groupBy(["Specialite.SpecId"]) //Nécessaire pour le JSON_ARRAYAGG
+    .distinct()
     .executeTakeFirst();
+
+  return specialite;
+});
+
+export const getSpecialite = cache(async (CIS: string) => {
+
+  const specialite: DetailedSpecialite | undefined = await getDetailedSpecialite(CIS);
 
   const composants: Array<SpecComposant & SubstanceNom> = await getComposants(CIS);
 

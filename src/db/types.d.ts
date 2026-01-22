@@ -51,14 +51,14 @@ interface FicheInfoTable {
   specId: string;
   listeInformationsImportantes?: string[]; //TODO A supprimer
   listeGroupesGeneriquesIds?: number[];
-  listeTitulaires?: string[];
-  listeConditionsDelivrance?: string[];
-  libelleCourtAutorisation?: string;
-  libelleCourtProcedure?: string;
   listeComposants?: number[]; //TODO A supprimer
+  listeTitulaires?: string[]; //TODO A supprimer
   listeDocumentsBonUsageIds?: number[], //TODO A supprimer
   listeASMR?: number[]; //TODO A supprimer
   listeSMR?: number[]; //TODO A supprimer
+  listeConditionsDelivrance?: string[]; //TODO A supprimer
+  libelleCourtAutorisation?: string; //TODO A supprimer
+  libelleCourtProcedure?: string; //TODO A supprimer
   presentations?: string[];
   listeElements?: number[]; //TODO A supprimer
 }

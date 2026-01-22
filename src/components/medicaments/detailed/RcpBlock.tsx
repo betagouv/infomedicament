@@ -53,7 +53,7 @@ function RcpBlock({
       <h2>Résumé des caractéristiques du produit</h2>
       {(currentSpec && isCentralisee(currentSpec)) ? (
           <CentraliseBlock
-            pdfURL={currentSpec.UrlEpar ? currentSpec.UrlEpar : undefined}
+            pdfURL={currentSpec.urlCentralise ? currentSpec.urlCentralise : undefined}
           />
         ) : currentRcp ? (
           <>

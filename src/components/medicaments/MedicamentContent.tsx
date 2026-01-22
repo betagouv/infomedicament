@@ -7,7 +7,7 @@ import TagContainer from "../tags/TagContainer";
 import ClassTag from "../tags/ClassTag";
 import { fr } from "@codegouvfr/react-dsfr";
 import SubstanceTag from "../tags/SubstanceTag";
-import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { TagTypeEnum } from "@/types/TagType";
 import PrincepsTag from "../tags/PrincepsTag";
 import GenericTag from "../tags/GenericTag";
@@ -48,6 +48,7 @@ import { isCentralisee, isCommercialisee } from "@/utils/specialites";
 import { Presentation } from "@/types/PresentationTypes";
 import Alert from "@codegouvfr/react-dsfr/Alert";
 import { trackEvent } from "@/services/tracking";
+import Image from "next/image";
 
 const ToggleSwitchContainer = styled.div`
   background-color: var(--background-contrast-info);
@@ -365,6 +366,23 @@ function MedicamentContent({
                     />
                   )}
                 </ContentContainer>
+                {(currentSpec && (currentSpec.StatId || currentSpec.SpecDateAMM)) && (
+                  <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                    {currentSpec.statutAutorisation && (
+                      <TagContainer category="Statut de l'autorisation" hideSeparator={!currentSpec.SpecDateAMM}>
+                        <span className={fr.cx("fr-text--sm", 'fr-ml-1w')}>{currentSpec.statutAutorisation}</span>
+                        {(currentSpec.StatId && currentSpec.StatId.toString() === SpecialiteStat.Abrogée.toString() && currentSpec.SpecStatDate) && (
+                          <span className={fr.cx("fr-text--sm")}>{" "}le {(currentSpec.SpecStatDate).toLocaleDateString('fr-FR')}</span>
+                        )}
+                      </TagContainer>
+                    )}
+                    {currentSpec.SpecDateAMM && (
+                      <TagContainer category="Date d'autorisation de mise sur le marché" hideSeparator>
+                        <span className={fr.cx("fr-text--sm", 'fr-ml-1w')}>{(currentSpec.SpecDateAMM).toLocaleDateString('fr-FR')}</span>
+                      </TagContainer>
+                    )}
+                  </ContentContainer>
+                )}
                 {(notice && notice.children) && (
                   <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-pt-1w", "fr-px-1w", "fr-hidden-md")}>
                     <QuestionsBox 
@@ -380,9 +398,11 @@ function MedicamentContent({
                     onClose={() => onCloseQuestionKeywordsBox()}
                     questionID={currentQuestion}/>
                 )}
-                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                  <PresentationsList presentations={currentPresentations} />
-                </ContentContainer>
+                {currentPresentations && (
+                  <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                    <PresentationsList presentations={currentPresentations} />
+                  </ContentContainer>
+                )}
                 {articles && articles.length > 0 && (
                   <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                     <ArticlesResumeList 

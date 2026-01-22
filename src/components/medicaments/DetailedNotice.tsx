@@ -72,11 +72,10 @@ function DetailedNotice({
     <>
       <DetailedNoticeContainer id="informations-generales" $visible={visiblePart === DetailsNoticePartsEnum.INFORMATIONS_GENERALES}>
         <GeneralInformations 
-          CIS={currentSpec && currentSpec.SpecId}
+          specialite={currentSpec}
           atcCode={atcCode}
           composants={composants}
           isPrinceps={isPrinceps}
-          SpecGeneId={currentSpec ? currentSpec.SpecGeneId : ""}
           isPregnancyPlanAlert={isPregnancyPlanAlert}
           isPregnancyMentionAlert={isPregnancyMentionAlert}
           pediatrics={pediatrics}

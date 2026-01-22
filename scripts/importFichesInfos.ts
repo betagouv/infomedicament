@@ -114,10 +114,6 @@ async function importFichesInfos(){
       const ficheInfo: FichesInfosDB = {
         specId: ficheInfoRaw.Specialite.SpecId,
         listeGroupesGeneriquesIds: groupesGeneriquesIds,
-        listeTitulaires: ficheInfoRaw.Titulaires.listeTitulaires ? ficheInfoRaw.Titulaires.listeTitulaires : undefined,
-        listeConditionsDelivrance: ficheInfoRaw.ConditionsDelivrancePrescription.listeConditionsDelivrance ? ficheInfoRaw.ConditionsDelivrancePrescription.listeConditionsDelivrance : undefined,
-        libelleCourtAutorisation: ficheInfoRaw.StatutAutorisation.libelleCourtAutorisation ? ficheInfoRaw.StatutAutorisation.libelleCourtAutorisation : undefined,
-        libelleCourtProcedure: ficheInfoRaw.TypeProcedure.libelleCourtProcedure ? ficheInfoRaw.TypeProcedure.libelleCourtProcedure : undefined,
         presentations: presentations,
       };
       
