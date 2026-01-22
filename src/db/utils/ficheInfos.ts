@@ -47,30 +47,6 @@ async function getListeComposants(ids: number[]): Promise<Composant[]>{
   return [];
 }
 
-async function getListeDocuments(ids: number[]): Promise<DocBonUsage[]>{
-  const data = await db
-    .selectFrom("documents_bon_usage")
-    .selectAll()
-    .where("id", "in", ids)
-    .execute();
-  
-  if(data && data.length > 0) {
-    return await Promise.all(
-      data.map(async (child) => {
-        const data:DocBonUsage = {
-          url: child.urlBU,
-          auteur: child.auteurBU,
-          dateMaj: child.dateMajBU,
-          typeDoc: child.typeDocBU,
-          titreDoc: child.titreDocBU,
-        }
-        return data;
-      })
-    );
-  }
-  return [];
-}
-
 async function getListePresentations(ids: string[]): Promise<PresentationDetail[]>{
   const data = await db
     .selectFrom("presentations")
@@ -145,16 +121,23 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
     .distinct()
     .execute();
 
+  const hasDocsBU: DocBonUsage[] = await pdbmMySQL
+    .selectFrom("HAS_DocsBonUsage")
+    .where("HAS_DocsBonUsage.SpecId", "=", CIS)
+    .select(["HAS_DocsBonUsage.TypeDoc", "HAS_DocsBonUsage.DateMAJ", "HAS_DocsBonUsage.TitreDoc", "HAS_DocsBonUsage.Url"])
+    .distinct()
+    .execute();
+
   const ficheInfos:FicheInfos = {
     specId: ficheInfoRaw.specId,
     listeInformationsImportantes: ficheInfoRaw.listeInformationsImportantes,
     listeGroupesGeneriques: [], 
     listeComposants: [],
     listeTitulaires: ficheInfoRaw.listeTitulaires,
-    listeDocumentsBonUsage: [],
     listeConditionsDelivrance: ficheInfoRaw.listeConditionsDelivrance,
     libelleCourtAutorisation: ficheInfoRaw.libelleCourtAutorisation, 
     libelleCourtProcedure: ficheInfoRaw.libelleCourtProcedure,
+    listeDocumentsBonUsage: hasDocsBU,
     listeASMR: hasASMR,
     listeSMR: hasSMR,
     presentations: [],
@@ -166,9 +149,6 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
 
   if(ficheInfoRaw.listeComposants && ficheInfoRaw.listeComposants.length > 0) 
     ficheInfos.listeComposants = await getListeComposants(ficheInfoRaw.listeComposants);
-
-  if(ficheInfoRaw.listeDocumentsBonUsageIds && ficheInfoRaw.listeDocumentsBonUsageIds.length > 0) 
-    ficheInfos.listeDocumentsBonUsage = await getListeDocuments(ficheInfoRaw.listeDocumentsBonUsageIds);
 
   if(ficheInfoRaw.presentations && ficheInfoRaw.presentations.length > 0) 
     ficheInfos.presentations = await getListePresentations(ficheInfoRaw.presentations);

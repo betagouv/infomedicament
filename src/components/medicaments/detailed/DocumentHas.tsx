@@ -62,20 +62,22 @@ function DocumentHas({
           ? (
             <>
               {ficheInfos && ficheInfos.listeDocumentsBonUsage.map((document, index) => {
-                const date = new Date(document.dateMaj);
+                const date = document.DateMAJ ? new Date(document.DateMAJ) : "";
                 return (
                   <DocBonUsage key={index} className={fr.cx("fr-text--sm", "fr-mb-1w")}>
-                    <Link 
-                      href={document.url}
-                      target="_blank"
-                      className={fr.cx("fr-mb-2w")}
-                      rel="noopener noreferrer"
-                    >
-                      {document.titreDoc}
-                    </Link>
+                    {document.Url && (
+                      <Link 
+                        href={document.Url}
+                        target="_blank"
+                        className={fr.cx("fr-mb-2w")}
+                        rel="noopener noreferrer"
+                      >
+                        {document.TitreDoc}
+                      </Link>
+                    )}
                     <div className={fr.cx("fr-mt-1w")}>
-                      <i className={fr.cx("fr-text--xs", "fr-mb-0")} style={{textTransform:"capitalize"}}>{date.toLocaleDateString('fr-FR', {month: 'long', year: 'numeric'})}</i>
-                      <Badge className={fr.cx("fr-badge--purple-glycine")} small>{document.typeDoc}</Badge>
+                      {date && (<i className={fr.cx("fr-text--xs", "fr-mb-0")} style={{textTransform:"capitalize"}}>{date.toLocaleDateString('fr-FR', {month: 'long', year: 'numeric'})}</i>)}
+                      {document.TypeDoc && (<Badge className={fr.cx("fr-badge--purple-glycine")} small>{document.TypeDoc}</Badge>)}
                     </div>
                   </DocBonUsage>
                 );

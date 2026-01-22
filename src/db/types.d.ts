@@ -7,7 +7,6 @@ export interface Database {
   presentations: PresentationTable;
   fiches_infos: FicheInfoTable;
   groupes_generiques: GroupeGeneriqueTable;
-  documents_bon_usage: DocBUTable;
   composants: ComposantTable;
   elements: ElementTable;
   rcp: RcpTable;
@@ -61,10 +60,10 @@ interface FicheInfoTable {
   listeGroupesGeneriquesIds?: number[];
   listeComposants?: number[];
   listeTitulaires?: string[];
-  listeDocumentsBonUsageIds?: number[],
   listeConditionsDelivrance?: string[];
   libelleCourtAutorisation?: string;
   libelleCourtProcedure?: string;
+  listeDocumentsBonUsageIds?: number[], //TODO A supprimer
   presentations?: string[];
   listeElements?: number[];
 }
@@ -72,15 +71,6 @@ interface FicheInfoTable {
 interface GroupeGeneriqueTable {
   idGroupeGenerique: number;
   libelleGroupeGenerique: string;
-}
-
-interface DocBUTable {
-  id?: number,
-  urlBU: string,
-  auteurBU: string,
-  dateMajBU: string,
-  typeDocBU: string,
-  titreDocBU: string
 }
 
 interface RcpTable {
@@ -167,7 +157,6 @@ export type SearchResult = Selectable<SearchIndexTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
 export type FichesInfosDB = Selectable<FicheInfoTable>;
 export type GroupeGeneriqueDB = Selectable<GroupeGeneriqueTable>;
-export type DocBUDB = Selectable<DocBUTable>;
 export type RCPContent = Selectable<RcpContentTable>;
 export type Rating = Selectable<RatingTable>;
 export type ResumePatho = Selectable<ResumePathosTable>;

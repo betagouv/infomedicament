@@ -18,6 +18,7 @@ export interface PdbmMySQL {
   HAS_SMR: HASSMRTable; //SMR informations
   HAS_ASMR: HASASMRTable; //ASMR informations
   HAS_LiensPageCT: HASLiensPageCTTable; //Lines pour SMR et ASMR
+  HAS_DocsBonUsage: HASDocsBonUsageTable; //Documents bon usage
 }
 
 interface SpecialiteTable {
@@ -166,6 +167,16 @@ interface HASASMRTable {
 interface HASLiensPageCTTable {
   CodeEvamed: string;
   HASLiensPageCT: string;
+}
+
+interface HASDocsBonUsageTable {
+  SpecId: string;
+  Auteur: string;
+  TypeDoc: string;
+  DateMAJ: Date;
+  TitreDoc?: string;
+  Url?: string;
+  Resume?: string;
 }
 
 export type Specialite = Selectable<SpecialiteTable>;

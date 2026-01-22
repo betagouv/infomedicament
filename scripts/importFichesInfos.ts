@@ -103,17 +103,6 @@ async function importFichesInfos(){
         };
       }
 
-      //Documents bon usage
-      const docsBUIDs: number[] = [];
-      if(ficheInfoRaw.DocumentsBonUsage.listeDocumentsBonUsage) {
-        const docsBU = ficheInfoRaw.DocumentsBonUsage.listeDocumentsBonUsage;
-        const ids = await db.insertInto("documents_bon_usage")
-          .values(docsBU)
-          .returning('id')
-          .execute();
-        ids.forEach((id) => (id && id.id !== undefined) && docsBUIDs.push(id.id));
-      }
-
 
       //Composants
       const composantsIDs: number[] = [];
@@ -155,7 +144,6 @@ async function importFichesInfos(){
         listeGroupesGeneriquesIds: groupesGeneriquesIds,
         listeComposants: composantsIDs,
         listeTitulaires: ficheInfoRaw.Titulaires.listeTitulaires ? ficheInfoRaw.Titulaires.listeTitulaires : undefined,
-        listeDocumentsBonUsageIds: docsBUIDs,
         listeConditionsDelivrance: ficheInfoRaw.ConditionsDelivrancePrescription.listeConditionsDelivrance ? ficheInfoRaw.ConditionsDelivrancePrescription.listeConditionsDelivrance : undefined,
         libelleCourtAutorisation: ficheInfoRaw.StatutAutorisation.libelleCourtAutorisation ? ficheInfoRaw.StatutAutorisation.libelleCourtAutorisation : undefined,
         libelleCourtProcedure: ficheInfoRaw.TypeProcedure.libelleCourtProcedure ? ficheInfoRaw.TypeProcedure.libelleCourtProcedure : undefined,

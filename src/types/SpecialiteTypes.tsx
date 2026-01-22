@@ -65,11 +65,10 @@ export type Composant = {
 }
 
 export type DocBonUsage = {
-  url: string;
-  auteur: string;
-  dateMaj: string;
-  typeDoc: string;
-  titreDoc: string;
+  Url?: string;
+  DateMAJ: Date;
+  TypeDoc?: string;
+  TitreDoc?: string;
 }
 
 }
