@@ -183,9 +183,9 @@ async function createResumeGeneriques(): Promise<string[]>{
     .execute();
 
   const allGenerics = await pdbmMySQL
-    .selectFrom("GroupeGene")
-    .select(["GroupeGene.LibLong", "GroupeGene.SpecId"])
-    .leftJoin("Specialite", "GroupeGene.SpecId", "Specialite.SpecGeneId")
+    .selectFrom("Specialite")
+    .innerJoin("GroupeGene", "Specialite.SpecGeneId", "GroupeGene.SpecId")
+    .select(["Specialite.SpecGeneId", "GroupeGene.LibLong"])
     .groupBy(["GroupeGene.LibLong", "GroupeGene.SpecId"])
     .orderBy("GroupeGene.LibLong")
     .execute();
@@ -197,7 +197,7 @@ async function createResumeGeneriques(): Promise<string[]>{
       const subLetter = getNormalizeLetter(genericName.substring(0,1));
       if(!letters.includes(subLetter)) letters.push(subLetter);
       return {
-          SpecId: generic.SpecId,
+          SpecId: generic.SpecGeneId,
           SpecName: genericName,
       }
     });
