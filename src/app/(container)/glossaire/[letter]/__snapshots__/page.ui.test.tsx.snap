@@ -1,0 +1,417 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Glossaire Page (Integration with DB) > should render the correct content for letter A (Snapshot) 1`] = `
+<div>
+  <div
+    class="sc-FEMpB korYns  fr-container fr-pt-1w fr-pb-2w"
+  >
+    <div
+      class="fr-grid-row fr-mb-3w"
+    >
+      <div
+        class="fr-col-md-8"
+      >
+        <h1>
+          Glossaire
+        </h1>
+        <p
+          class="fr-text--lg"
+        >
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/A"
+            style="background: none;"
+          >
+            A
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/B"
+          >
+            B
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/C"
+          >
+            C
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/D"
+          >
+            D
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/E"
+          >
+            E
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/F"
+          >
+            F
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/G"
+          >
+            G
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/H"
+          >
+            H
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/I"
+          >
+            I
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/L"
+          >
+            L
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/M"
+          >
+            M
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/N"
+          >
+            N
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/O"
+          >
+            O
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/P"
+          >
+            P
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/R"
+          >
+            R
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/S"
+          >
+            S
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/T"
+          >
+            T
+          </a>
+           
+          <a
+            class="fr-link fr-link--lg fr-mr-3w fr-mb-3w"
+            href="/glossaire/U"
+          >
+            U
+          </a>
+           
+        </p>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="abrogation"
+        >
+          Abrogation
+        </h2>
+        <div>
+          Décision du Directeur Général de l'ANSM rendant définitivement inactive l'autorisation.
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="abus-de-medicaments"
+        >
+          Abus de médicaments
+        </h2>
+        <div>
+          Usage excessif intentionnel, persistant ou sporadique, de médicaments ou de produits mentionnés à l'article R. 5121-150 du code de la santé publique (CSP), accompagné de réactions physiques ou psychologiques nocives.
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="acces-direct-ou-libre-acces-medicament-en"
+        >
+          Accès direct ou libre accès (médicament en)
+        </h2>
+        <div>
+          Les médicaments en "accès direct" ou "libre accès", appelés également "médicaments de médication officinale", peuvent être placés devant le comptoir de la pharmacie afin de permettre au patient de se servir lui-même. Ces médicaments, inscrits sur une liste fixée par le directeur général de l'ANSM, sont destinés à traiter des symptômes courants et bénins, pour une durée limitée, sans intervention d'un médecin pour le diagnostic, l'initiation et la surveillance du traitement mais avec le conseil du pharmacien. 
+          <br />
+           Ils disposent d'un conditionnement adapté à la posologie et à la durée de traitement ainsi que d'une notice d'information spécifiquement adaptée à cet usage.
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="addictovigilance"
+        >
+          Addictovigilance
+        </h2>
+        <div>
+          L'addictovigilance des substances psychoactives a pour objet la surveillance (identification, prévention, évaluation) de l'abus, de la dépendance et des usages détournés liés à la consommation de toutes les substances ou plantes ayant un effet psychoactif, ainsi que tous les médicaments ou autres produits en contenant, à l'exclusion de l'alcool éthylique et du tabac.
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="agrement-aux-collectivites"
+        >
+          Agrément aux collectivités
+        </h2>
+        <div>
+          Pour être achetés et utilisés à l'hôpital, les médicaments doivent être inscrits sur la liste des spécialités pharmaceutiques agréées à l'usage des collectivités et divers services publics.
+          <br />
+           Cette liste est établie par les ministres chargés de la santé et de la sécurité sociale, après avis de la Haute Autorité de Santé (HAS).
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="allopathique-medicament"
+        >
+          Allopathique (médicament)
+        </h2>
+        <div>
+          Médicament correspondant à la thérapeutique médicamenteuse classique et contenant des principes actifs destinés à contrer les effets que produit la maladie (contrairement à l'homéopathie).
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="amm"
+        >
+          AMM
+        </h2>
+        <div>
+          Autorisation de mise sur le marché : autorisation nationale ou européenne délivrée à un titulaire après évaluation de la qualité, de la sécurité et de l'efficacité d'une spécialité pharmaceutique. Ce document officiel est constitué d'une décision et d'annexes dont le RCP, la notice et l'étiquetage.
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="asmr"
+        >
+          ASMR
+        </h2>
+        <div>
+          L'amélioration du service médical rendu (ASMR) répond à la question : le médicament apporte-t-il un progrès par rapport aux traitements disponibles ? Si oui, il est quantifié.
+          <br />
+          <br />
+          Détermination de l'ASMR :
+          <ul>
+            <li>
+              Moyens de prise en charge médicale déjà disponibles
+            </li>
+            <li>
+              Définition du comparateur : le meilleur moyen thérapeutique existant pour cette indication
+            </li>
+            <li>
+              Détermine le niveau actuel de couverture du besoin thérapeutique
+            </li>
+            <li>
+              Comparaison entre le nouveau médicament et les traitements disponibles (efficacité, tolérance)
+            </li>
+          </ul>
+          L’ASMR est qualifiée de majeure, importante, modérée, mineure ou inexistante.
+          <ul>
+            <li>
+              ASMR I, II, III ou IV = progrès thérapeutique majeur, important, modéré ou mineur
+            </li>
+            <li>
+              ASMR V (inexistant) =  un produit que n'apporte pas de progrès thérapeutique ne peut être inscrit au remboursement que s'il apporte une économie dans les coûts de traitement
+            </li>
+          </ul>
+          L'ASMR est un des éléments pris en compte pour la fixation du prix du médicament lors de la négociation entre la firme et le Comité économique des produits de santé (CEPS).
+          <br />
+          <br />
+          (CSS : Art. R.163-18)
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="automedication"
+        >
+          Automédication
+        </h2>
+        <div>
+          L'automédication responsable consiste pour les patients à soigner certaines maladies grâce à des médicaments dûment autorisés, accessibles sans ordonnance, sûrs et efficaces dans les conditions d'utilisation indiquées. Elle peut ainsi permettre de traiter des symptômes courants et bénins (douleurs légères et modérées, fièvre, rhume, maux de gorge, herpès labial, etc.) pour une durée limitée, sans l'intervention du médecin mais avec le conseil du pharmacien.
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="autorisation"
+        >
+          Autorisation
+        </h2>
+        <div>
+          Une autorisation peut être une Autorisation de Mise sur le Marché (AMM) d'un médicament ou un enregistrement d'un médicament traditionnel à base de plantes ou un enregistrement d'une série de médicaments homéopathiques relative à une souche.
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="autorisation-active"
+        >
+          Autorisation active
+        </h2>
+        <div>
+          Une autorisation est déclarée active quand elle a été octroyée par les autorités compétentes (ANSM ou Commission Européenne) et quand elle n'est ni suspendue, ni retirée, ni abrogée. Une spécialité pharmaceutique ayant une autorisation active peut être commercialisée ou ne pas être commercialisée.
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="autorisation-archivee"
+        >
+          Autorisation archivée
+        </h2>
+        <div>
+          Désigne le statut d'une autorisation dans l'une des situations suivantes :
+          <br />
+          - Expirée par défaut de renouvellement : aucune demande de renouvellement de l'AMM n'a été reçue à l'issue des 5 ans de validité ;
+          <br />
+          - Expirée par refus de renouvellement suite à une demande de renouvellement quinquennal ;
+          <br />
+          - Caduque par défaut de commercialisation (Spécialité restée 3 ans sans commercialisation) ;
+          <br />
+          - Caduque pour non dépôt de dossier à la date requise (Médicaments de phytothérapie soumis au dépôt d'un dossier selon un calendrier défini).
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="autorisation-damm-abrogee"
+        >
+          Autorisation d'AMM abrogée
+        </h2>
+        <div>
+          A la demande du titulaire de l'autorisation de mise sur le marché (le plus souvent, un laboratoire pharmaceutique), une AMM peut être supprimée par l'Agence nationale de sécurité du médicament et des produits de santé (ANSM). Elle est dans ce cas dite "abrogée". Cette décision est généralement motivée par le titulaire pour des raisons commerciales (et non liées à des problèmes de santé publique) et est définitive.
+          <br />
+          <br />
+          (CSP : Art R5121-47)
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="autorisation-damm-archivee"
+        >
+          Autorisation d'AMM archivée
+        </h2>
+        <div>
+          L'autorisation de mise sur le marché d'un médicament est dite "archivée" notamment dans les situations suivantes : 
+          <ul>
+            <li>
+              le titulaire n'a pas demandé son renouvellement ;
+            </li>
+            <li>
+              le médicament n'a jamais été ou n'est plus commercialisé depuis au moins trois ans (sauf exceptions).
+            </li>
+          </ul>
+          Cette situation est généralement liée à des raisons commerciales (et non à des problèmes de santé publique) et est définitive.
+          <br />
+          <br />
+          (CSP : R.5121-36-2 et R.5121-45)
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="autorisation-damm-retiree"
+        >
+          Autorisation d'AMM retirée
+        </h2>
+        <div>
+          Le retrait d'une autorisation de mise sur le marché d'un médicament est une décision prise par la Commission européenne ou l'ANSM afin de faire cesser définitivement la distribution d'un médicament. Cette décision est prise pour des raisons de santé publique, notamment lorsqu'il apparaît que l'évaluation du bénéfice du médicament au regard des risques liés à sa qualité, à sa sécurité ou à son efficacité n'est pas considérée comme favorable. La décision de retrait d'autorisation est définitive.
+          <br />
+          <br />
+          (CSP : Art. R5121-47)
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="autorisation-damm-suspendue"
+        >
+          Autorisation d'AMM suspendue
+        </h2>
+        <div>
+          La suspension d'une autorisation de mise sur le marché est une mesure temporaire, le plus souvent urgente, prise par la Commission européenne ou l'ANSM, afin de faire cesser la mise à disposition d'un médicament, dans l'intérêt des patients. La durée de la suspension ne peut excéder 1 an et peut aboutir à son retrait.
+          <br />
+          <br />
+          En savoir plus : la décision de suspension d'AMM intervient notamment lorsqu'il apparaît que le médicament est nocif dans les conditions normales d'emploi ou que l'effet thérapeutique fait défaut ou que le médicament n'a pas la composition quantitative et qualitative déclarée.
+          <br />
+          <br />
+          La décision de suspension d'une AMM peut être levée ou l'AMM retirée définitivement, selon les données complémentaires alors disponibles.
+          <br />
+          <br />
+          (CSP : Art. R5121-47)
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="autorisation-dimportation-parallele"
+        >
+          Autorisation d'importation parallèle
+        </h2>
+        <div>
+          Elle représente le fait, pour un établissement pharmaceutique, de pouvoir acheter dans un autre pays un médicament qui est déjà présent en France.
+          <br />
+          Les opérations d'importation parallèle de médicaments résultent du principe de libre circulation des marchandises entre les Etats appartenant à l'Accord sur l'Espace économique européen. 
+          <br />
+          <br />
+          En savoir plus : Les opérations d'importation parallèle sont notamment soumises à une autorisation préalable délivrée par le directeur général de l'ANSM.
+          <br />
+          <br />
+          Voir la page sur les AIP sur le site de l'ANSM
+          <br />
+          <br />
+          (CSP : R.5121-115)
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="autorisation-de-mise-sur-le-marche"
+        >
+          Autorisation de mise sur le marché
+        </h2>
+        <div>
+          Il s'agit d'une autorisation délivrée à un titulaire (le plus souvent, un laboratoire pharmaceutique) pour un médicament afin qu'il puisse le commercialiser. Cette autorisation est délivrée soit par l'Agence nationale de sécurité du médicament et des produits de santé (ANSM), soit par la Commission européenne pour certains médicaments (notamment les médicaments innovants ou orphelins). Sauf exception, cette AMM est valable 5 ans au bout desquels elle peut être renouvelée pour une période illimitée à la demande du titulaire.
+          <br />
+          <br />
+          (CSP: Art. L.5121-8)
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w fr-mb-1w"
+          id="autorisation-temporaire-dutilisation"
+        >
+          Autorisation temporaire d'utilisation
+        </h2>
+        <div>
+          Une autorisation temporaire d'utilisation peut être délivrée exceptionnellement pour certains médicaments destinés à traiter des maladies graves ou rares, en l'absence d'autre traitement approprié, lorsque la mise en œuvre du traitement ne peut plus être différée. Ces médicaments, dont l'efficacité et la sécurité d'emploi sont présumées en l'état actuel des connaissances scientifiques, sont disponibles en établissements de santé avant leur autorisation de mise sur le marché (AMM) et pour une durée limitée.
+        </div>
+      </div>
+    </div>
+    <div
+      class="sc-gNZgCX kkohqz"
+    >
+      <section
+        aria-atomic="false"
+        aria-label="Notifications Alt+T"
+        aria-live="polite"
+        aria-relevant="additions text"
+        class="Toastify"
+      />
+    </div>
+  </div>
+</div>
+`;

@@ -24,9 +24,9 @@ export default function WithDefinition({
 
   return (
     <a
-      key={definition.fields.Nom_glossaire}
-      href={`#Definition-${slugify(definition.fields.Nom_glossaire)}`}
-      aria-describedby={`Definition-${slugify(definition.fields.Nom_glossaire)}`}
+      key={definition.nom}
+      href={`#Definition-${slugify(definition.nom)}`}
+      aria-describedby={`Definition-${slugify(definition.nom)}`}
       role="button"
       {...(modal ? { onClick: modal.open } : {})}
     >

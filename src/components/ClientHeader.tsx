@@ -36,7 +36,7 @@ export default function ClientHeader({
       }}
       serviceTitle={
         <Image
-          src={isDark ? "/logo_white.svg" : "/logo.svg"}
+          src={isDark ? "/img/logo_white.svg" : "/img/logo.svg"}
           alt="Info Médicament"
           width={285}
           height={33}

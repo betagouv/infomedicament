@@ -1,6 +1,6 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { fr } from "@codegouvfr/react-dsfr";
-import { getArticles } from "@/data/grist/articles";
+import { getArticles } from "@/db/utils/articles";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -67,7 +67,7 @@ export default async function Page(props0: {
       </div>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12")}>
-          <ShareButtons 
+          <ShareButtons
             pageName={title}
             className={fr.cx("fr-mb-4w")}
           />
@@ -84,11 +84,14 @@ export default async function Page(props0: {
               "fr-mb-6w",
             )}
           >
-            <Image
-              alt="Image décorative"
-              className={fr.cx("fr-responsive-img", "fr-col-12")}
-              {...image}
-            />
+            <div style={{ position: "relative", aspectRatio: "16/9", width: "100%" }}>
+              <Image
+                alt="Image décorative"
+                fill
+                style={{ objectFit: "cover" }}
+                src={`/img/article_covers/${image}.webp`}
+              />
+            </div>
           </div>
         </div>
       )}

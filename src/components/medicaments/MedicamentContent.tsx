@@ -40,7 +40,7 @@ import { PediatricsInfo } from "@/types/PediatricTypes";
 import { getNotice } from "@/db/utils/notice";
 import { SearchArticlesFilters } from "@/types/SearchTypes";
 import { getSpecialitePatho } from "@/db/utils/pathologies";
-import { getArticlesFromFilters } from "@/data/grist/articles";
+import { getArticlesFromFilters } from "@/db/utils/articles";
 import { getFicheInfos } from "@/db/utils/ficheInfos";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { formatSpecName } from "@/displayUtils";
@@ -146,8 +146,8 @@ function MedicamentContent({
   const [lastLeftTagElement, setLastLeftTagElement] = useState<TagTypeEnum>(TagTypeEnum.SUBSTANCE);
 
   useEffect(() => {
-    if(marr){
-      if(!isAdvanced){
+    if (marr) {
+      if (!isAdvanced) {
         //Que des patients
         const newMarr: Marr = {
           CIS: marr.CIS,
@@ -155,7 +155,7 @@ function MedicamentContent({
           pdf: [],
         };
         marr.pdf.forEach((marrLine) => {
-          if(marrLine.type === "Patients") newMarr.pdf.push(marrLine);
+          if (marrLine.type === "Patients") newMarr.pdf.push(marrLine);
         })
         setCurrentMarr(newMarr);
       } else {
@@ -163,11 +163,11 @@ function MedicamentContent({
       }
     }
   }, [isAdvanced, marr, setCurrentMarr]);
-  
+
   const onSwitchAdvanced = useCallback(
     (enabled: boolean) => {
       setIsAdvanced(enabled);
-      if(enabled) trackEvent("Page médicament", "Version avancée");
+      if (enabled) trackEvent("Page médicament", "Version avancée");
     },
     [setIsAdvanced]
   );
@@ -182,7 +182,7 @@ function MedicamentContent({
   const updateCurrentQuestion = (questionId: string) => {
     setCurrentQuestion(questionId);
     const question = questionsList[questionId];
-    if(question.keywords || question.headerId) {
+    if (question.keywords || question.headerId) {
       setShowKeywordsBox(true);
     } else {
       setShowKeywordsBox(false);
@@ -190,7 +190,7 @@ function MedicamentContent({
   };
   const onCloseQuestionKeywordsBox = () => {
     const noticeContainer = document.getElementById('noticeContainer');
-    if(noticeContainer){
+    if (noticeContainer) {
       noticeContainer.className = "";
       setShowKeywordsBox(false);
       setCurrentQuestion("");
@@ -202,7 +202,7 @@ function MedicamentContent({
       composants: Array<SpecComposant & SubstanceNom>
     ) => {
       try {
-        const articlesFilters:SearchArticlesFilters = {
+        const articlesFilters: SearchArticlesFilters = {
           ATCList: atcList,
           substancesList: composants.map((compo) => compo.SubsId.trim()),
           specialitesList: [spec.SpecId],
@@ -211,13 +211,13 @@ function MedicamentContent({
         const articles = await getArticlesFromFilters(articlesFilters);
         setArticles(articles);
 
-        if(!isCentralisee(spec)) {
+        if (!isCentralisee(spec)) {
           const newNotice = await getNotice(spec.SpecId);
           setNotice(newNotice);
-          if(newNotice) {
-            if(newNotice.children){
+          if (newNotice) {
+            if (newNotice.children) {
               newNotice.children.forEach((child: NoticeRCPContentBlock) => {
-                if(child.anchor === "Ann3bQuestceque"){
+                if (child.anchor === "Ann3bQuestceque") {
                   setIndicationBlock(child);
                 }
               })
@@ -235,19 +235,19 @@ function MedicamentContent({
   );
 
   useEffect(() => {
-    if(specialite && composants) {
+    if (specialite && composants) {
       setCurrentSpec(specialite);
       loadData(specialite, composants);
     }
   }, [specialite, composants, setCurrentSpec, loadData]);
 
   useEffect(() => {
-    if(presentations) 
+    if (presentations)
       setCurrentPresentations(presentations);
   }, [presentations, setCurrentPresentations]);
 
- const onScrollEvent = useCallback(() => {
-    if(window.pageYOffset > window.innerHeight){
+  const onScrollEvent = useCallback(() => {
+    if (window.pageYOffset > window.innerHeight) {
       trackEvent("Page médicament", "Scroll");
       window.removeEventListener("scroll", onScrollEvent);
     }
@@ -297,11 +297,11 @@ function MedicamentContent({
     <Container className={fr.cx("fr-col-12", 'fr-mt-2w')}>
       <Container className={["mobile-display-contents", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ",)}>
         <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-3", "fr-col-md-3")].join(" ",)}>
-          <ShareButtons 
+          <ShareButtons
             pageName={currentSpec ? formatSpecName(currentSpec.SpecDenom01) : ''}
           />
           <ToggleSwitchContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-            <ToggleSwitch 
+            <ToggleSwitch
               label="Version détaillée"
               labelPosition="left"
               inputTitle="Version détaillée"
@@ -314,12 +314,12 @@ function MedicamentContent({
               className="medicament-toggle-switch"
             />
           </ToggleSwitchContainer>
-          {isAdvanced 
-            ? <DetailedSubMenu 
-                updateVisiblePart={setcurrentPart} 
-                isMarr={(currentMarr && currentMarr.pdf.length > 0)}
-                isInfosImportantes={displayInfosImportantes(ficheInfos)}
-              />
+          {isAdvanced
+            ? <DetailedSubMenu
+              updateVisiblePart={setcurrentPart}
+              isMarr={(currentMarr && currentMarr.pdf.length > 0)}
+              isInfosImportantes={displayInfosImportantes(ficheInfos)}
+            />
             : <section className={["mobile-display-contents", fr.cx("fr-mb-4w")].join(" ",)}>
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                   {atc2 && (
@@ -425,12 +425,12 @@ function MedicamentContent({
         <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")].join(" ",)}>
           {(currentPresentations && !isCommercialisee(currentPresentations)) && (
             <ContentContainer whiteContainer className={fr.cx("fr-mb-4w")}>
-            <Alert
-              description="Si vous prenez actuellement ce médicament, il vous est recommandé d'en parler avec votre médecin ou avec votre pharmacien qui pourra vous orienter vers un autre traitement."
-              severity="info"
-              title="Ce médicament n'est ou ne sera bientôt plus disponible sur le marché."
-              small
-            />
+              <Alert
+                description="Si vous prenez actuellement ce médicament, il vous est recommandé d'en parler avec votre médecin ou avec votre pharmacien qui pourra vous orienter vers un autre traitement."
+                severity="info"
+                title="Ce médicament n'est ou ne sera bientôt plus disponible sur le marché."
+                small
+              />
             </ContentContainer>
           )}
           {(currentSpec && isAIP(currentSpec)) && (
@@ -465,7 +465,7 @@ function MedicamentContent({
             </ContentContainer>
           )}
           {isAdvanced ? (
-            <DetailedNotice 
+            <DetailedNotice
               currentVisiblePart={currentPart}
               atcCode={atcCode}
               specialite={currentSpec}
@@ -485,8 +485,8 @@ function MedicamentContent({
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w")}>
                   <NoticeContainer>
                     <NoticeTitle className={fr.cx("fr-mb-4w")}>
-                      <div style={{display: "flex"}}>
-                        <span className={["fr-icon--custom-notice", fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md")].join(" ")}/>
+                      <div style={{ display: "flex" }}>
+                        <span className={["fr-icon--custom-notice", fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md")].join(" ")} />
                         <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice complète</h2>
                       </div>
                       <ContentContainer>
@@ -502,7 +502,7 @@ function MedicamentContent({
                             {(notice && notice.children && notice.children.length > 0) && (
                               <>
                                 <ContentContainer className={fr.cx("fr-hidden", "fr-unhidden-md")}>
-                                  <QuestionsBox 
+                                  <QuestionsBox
                                     currentQuestion={currentQuestion}
                                     updateCurrentQuestion={updateCurrentQuestion}
                                   />
@@ -521,7 +521,7 @@ function MedicamentContent({
                               specialite={currentSpec}
                             />
                           </>
-                        ) : 
+                        ) :
                           (<span>La notice n&rsquo;est pas disponible pour ce médicament.</span>)
                         }
                       </>

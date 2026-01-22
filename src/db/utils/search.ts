@@ -58,6 +58,8 @@ function getSearchScore(
  * 4. The score of each result is the word similarity between the search query and the token,
  *    for specialities, we sum direct match score and substance match score
  */
+// Cache search results for 1 hour to prevent unbounded memory growth
+// from accumulating unique search queries over time
 export const getSearchResults = unstable_cache(async function (
   query: string,
   { onlyDirectMatches = false } = {},
@@ -243,4 +245,7 @@ export const getSearchResults = unstable_cache(async function (
         }
       }
     ).map(({ item }) => item);
-});
+},
+  ["search-results"],
+  { revalidate: 3600 } // 1 hour caching max
+);
