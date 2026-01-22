@@ -8,6 +8,8 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
   const infosImportantesRaw = await pdbmMySQL
     .selectFrom("VUEvnts")
     .where("VUEvnts.SpecId", "=", CIS)
+    .where("VUEvnts.remCommentaire", 'is not', null)
+    .where("VUEvnts.remCommentaire", '!=', '')
     .select("VUEvnts.remCommentaire")
     .execute();
 
@@ -62,10 +64,11 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
     const composantsComposition: ComposantComposition[] = [];
     if(fractionsList && fractionsList.length > 0){
       fractionsList.forEach((fraction) => {
+        const composantsFractionList = composantsList.filter((composantRaw: SpecComposant) => composantRaw.CompNum === fraction.CompNum);
         composantsComposition.push({
           NomLib: fraction.NomLib,
           dosage: fraction.CompDosage,
-          composants: composantsList.map((composant) => { 
+          composants: composantsFractionList.map((composant) => { 
             return {
               NomLib: composant.NomLib,
               dosage: composant.CompDosage
