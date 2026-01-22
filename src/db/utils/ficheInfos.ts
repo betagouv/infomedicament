@@ -3,6 +3,7 @@
 import db from '@/db';
 import { PresentationDetail } from '@/db/types';
 import { Asmr, Composant, ComposantElement, DocBonUsage, FicheInfos, GroupeGenerique, Smr } from '@/types/SpecialiteTypes';
+import { pdbmMySQL } from '../pdbmMySQL';
 
 async function getListeGroupesGeneriques(ids: number[]): Promise<GroupeGenerique[]>{
   const data = await db
@@ -70,52 +71,6 @@ async function getListeDocuments(ids: number[]): Promise<DocBonUsage[]>{
   return [];
 }
 
-async function getListeSmr(ids: number[]): Promise<Smr[]>{
-  const data = await db
-    .selectFrom("smr")
-    .selectAll()
-    .where("id", "in", ids)
-    .execute();
-  
-  if(data && data.length > 0) {
-    return await Promise.all(
-      data.map(async (child) => {
-        const data:Smr = {
-          date: child.date,
-          motif: child.motif,
-          valeur: child.valeur,
-          libelle: child.libelle,
-        }
-        return data;
-      })
-    );
-  }
-  return [];
-}
-
-async function getListeAsmr(ids: number[]): Promise<Asmr[]>{
-  const data = await db
-    .selectFrom("asmr")
-    .selectAll()
-    .where("id", "in", ids)
-    .execute();
-  
-  if(data && data.length > 0) {
-    return await Promise.all(
-      data.map(async (child) => {
-        const data:Asmr = {
-          date: child.date,
-          motif: child.motif,
-          valeur: child.valeur,
-          libelle: child.libelle,
-        }
-        return data;
-      })
-    );
-  }
-  return [];
-}
-
 async function getListePresentations(ids: string[]): Promise<PresentationDetail[]>{
   const data = await db
     .selectFrom("presentations")
@@ -172,6 +127,24 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
 
   if(!ficheInfoRaw) return undefined;
 
+  const hasSMR: Smr[] = await pdbmMySQL
+    .selectFrom("HAS_SMR")
+    .leftJoin("HAS_LiensPageCT", "HAS_LiensPageCT.CodeEvamed", "HAS_SMR.CodeEvamed")
+    .where("HAS_SMR.SpecId", "=", CIS)
+    .select(["HAS_SMR.DateAvis", "HAS_SMR.ValeurSmr", "HAS_SMR.MotifEval", "HAS_SMR.LibelleSmr"])
+    .select(["HAS_LiensPageCT.HASLiensPageCT"])
+    .distinct()
+    .execute();
+
+  const hasASMR: Asmr[] = await pdbmMySQL
+    .selectFrom("HAS_ASMR")
+    .leftJoin("HAS_LiensPageCT", "HAS_LiensPageCT.CodeEvamed", "HAS_ASMR.CodeEvamed")
+    .where("HAS_ASMR.SpecId", "=", CIS)
+    .select(["HAS_ASMR.DateAvis", "HAS_ASMR.ValeurAsmr", "HAS_ASMR.MotifEval", "HAS_ASMR.LibelleAsmr"])
+    .select(["HAS_LiensPageCT.HASLiensPageCT"])
+    .distinct()
+    .execute();
+
   const ficheInfos:FicheInfos = {
     specId: ficheInfoRaw.specId,
     listeInformationsImportantes: ficheInfoRaw.listeInformationsImportantes,
@@ -179,11 +152,11 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
     listeComposants: [],
     listeTitulaires: ficheInfoRaw.listeTitulaires,
     listeDocumentsBonUsage: [],
-    listeASMR: [],
-    listeSMR: [],
     listeConditionsDelivrance: ficheInfoRaw.listeConditionsDelivrance,
     libelleCourtAutorisation: ficheInfoRaw.libelleCourtAutorisation, 
     libelleCourtProcedure: ficheInfoRaw.libelleCourtProcedure,
+    listeASMR: hasASMR,
+    listeSMR: hasSMR,
     presentations: [],
     listeElements: [],
   }
@@ -196,12 +169,6 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
 
   if(ficheInfoRaw.listeDocumentsBonUsageIds && ficheInfoRaw.listeDocumentsBonUsageIds.length > 0) 
     ficheInfos.listeDocumentsBonUsage = await getListeDocuments(ficheInfoRaw.listeDocumentsBonUsageIds);
-
-  if(ficheInfoRaw.listeASMR && ficheInfoRaw.listeASMR.length > 0) 
-    ficheInfos.listeASMR = await getListeAsmr(ficheInfoRaw.listeASMR);
-
-  if(ficheInfoRaw.listeSMR && ficheInfoRaw.listeSMR.length > 0) 
-    ficheInfos.listeSMR = await getListeSmr(ficheInfoRaw.listeSMR);
 
   if(ficheInfoRaw.presentations && ficheInfoRaw.presentations.length > 0) 
     ficheInfos.presentations = await getListePresentations(ficheInfoRaw.presentations);

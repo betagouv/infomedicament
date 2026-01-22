@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import Link from "next/link";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { Table } from "@codegouvfr/react-dsfr/Table";
-import { FicheInfos } from "@/types/SpecialiteTypes";
+import { Asmr, FicheInfos, Smr } from "@/types/SpecialiteTypes";
 
 const DocBonUsage = styled.div`
   border: var(--border-open-blue-france) 1px solid;
@@ -22,6 +22,32 @@ const DocBonUsage = styled.div`
 
 interface DocumentHasProps extends HTMLAttributes<HTMLDivElement> {
   ficheInfos?: FicheInfos;
+}
+
+function getSmrAsmrFormattedValeur(value: string) {
+  if(value.trim() === "V")
+    return (<span>V&nbsp;(Inexistant)</span>);
+  return value;
+}
+
+function getSmrAsmrFormattedAvis(date?: Date, link?: string | null) {
+  const formattedDate = date ? new Date(date) : "";
+  if(formattedDate){
+    if(link)
+      return (
+        <a 
+          href="link"
+          target="_blank"
+          rel="noopener noreferrer"
+          title={`Lien vers l'avis complet de la commission de la transparence du ${formattedDate.toLocaleDateString('fr-FR')} - nouvelle fenêtre vers le site de la HAS`}
+          className={fr.cx("fr-link", "fr-link--sm")}
+        >
+          Avis&nbsp;du {formattedDate.toLocaleDateString('fr-FR')}
+        </a>
+      );
+    return formattedDate.toLocaleDateString('fr-FR');
+  }
+  return "";
 }
 
 function DocumentHas({ 
@@ -68,7 +94,7 @@ function DocumentHas({
             <div className={fr.cx("fr-mb-0")}>
               {" Les libellés affichés ci-dessous ne sont que des résumés ou extraits issus des avis rendus par la Commission de la Transparence. Seul l'avis complet de la Commission de la Transparence fait référence."}
               <br/><br/>
-              {"Cet avis est consultable à partir du lien \"Avis du jj/mm/aaaa\" ou encore sur demande auprès de la HAS ("}<Link href="https://base-donnees-publique.medicaments.gouv.fr/aide.php#titre16" target="_blank" rel="noopener noreferrer">{"plus d'informations dans l'aide"}</Link>{"). Les avis et synthèses d'avis contiennent un paragraphe sur la place du médicament dans la stratégie thérapeutique."}
+              {"Cet avis est consultable à partir du lien \"Avis du jj/mm/aaaa\" ou encore sur demande auprès de la HAS ("}<Link href="https://base-donnees-publique.medicaments.gouv.fr/aide#comment-acceder-a-avis-de-la-commission-de-la-transparence" target="_blank" rel="noopener noreferrer">{"plus d'informations dans l'aide"}</Link>{"). Les avis et synthèses d'avis contiennent un paragraphe sur la place du médicament dans la stratégie thérapeutique."}
               <br/>
               <Table
                 headers={[
@@ -78,13 +104,12 @@ function DocumentHas({
                   "Résumé de l'avis"
                 ]}
                 data={
-                  ficheInfos.listeSMR.map((smr) => {
-                    const date = smr.date ? new Date(smr.date) : "";
+                  ficheInfos.listeSMR.map((smr: Smr) => {
                     return [
-                      smr.valeur,
-                      date ? date.toLocaleDateString('fr-FR') : "",
-                      smr.motif,
-                      smr.libelle
+                      getSmrAsmrFormattedValeur(smr.ValeurSmr),
+                      getSmrAsmrFormattedAvis(smr.DateAvis, smr.HASLiensPageCT),
+                      smr.MotifEval,
+                      (<div dangerouslySetInnerHTML={{__html: smr.LibelleSmr}} className={fr.cx("fr-text--sm", "fr-mb-0")}></div>)
                     ];
                   })
                 }
@@ -103,23 +128,22 @@ function DocumentHas({
             <div className={fr.cx("fr-mb-0")}>
               {" Les libellés affichés ci-dessous ne sont que des résumés ou extraits issus des avis rendus par la Commission de la Transparence. Seul l'avis complet de la Commission de la Transparence fait référence."}
               <br/><br/>
-              {"Cet avis est consultable à partir du lien \"Avis du jj/mm/aaaa\" ou encore sur demande auprès de la HAS ("}<Link href="https://base-donnees-publique.medicaments.gouv.fr/aide.php#titre16" target="_blank" rel="noopener noreferrer">{"plus d'informations dans l'aide"}</Link>{"). Les avis et synthèses d'avis contiennent un paragraphe sur la place du médicament dans la stratégie thérapeutique."}
+              {"Cet avis est consultable à partir du lien \"Avis du jj/mm/aaaa\" ou encore sur demande auprès de la HAS ("}<Link href="https://base-donnees-publique.medicaments.gouv.fr/aide#comment-acceder-a-avis-de-la-commission-de-la-transparence" target="_blank" rel="noopener noreferrer">{"plus d'informations dans l'aide"}</Link>{"). Les avis et synthèses d'avis contiennent un paragraphe sur la place du médicament dans la stratégie thérapeutique."}
               <br/>
               <Table
                 headers={[
-                  "Valeur du SMR",
+                  "Valeur de l'ASMR",
                   "Avis",
                   "Motif de l'évaluation",
                   "Résumé de l'avis"
                 ]}
                 data={
-                  ficheInfos.listeASMR.map((asmr) => {
-                    const date = asmr.date ? new Date(asmr.date) : "";
+                  ficheInfos.listeASMR.map((asmr: Asmr) => {
                     return [
-                      asmr.valeur,
-                      date ? date.toLocaleString('fr-FR') : "",
-                      asmr.motif,
-                      asmr.libelle
+                      getSmrAsmrFormattedValeur(asmr.ValeurAsmr),
+                      getSmrAsmrFormattedAvis(asmr.DateAvis, asmr.HASLiensPageCT),
+                      asmr.MotifEval,
+                      (<div dangerouslySetInnerHTML={{__html: asmr.LibelleAsmr}} className={fr.cx("fr-text--sm", "fr-mb-0")}></div>)
                     ];
                   })
                 }

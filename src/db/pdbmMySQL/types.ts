@@ -15,6 +15,9 @@ export interface PdbmMySQL {
   Spec_Patho: Spec_PathoTable;
   GroupeGene: GroupeGeneTable;
   VUEmaEpar: VUEmaEparTable; //Documents Centralisés
+  HAS_SMR: HASSMRTable; //SMR informations
+  HAS_ASMR: HASASMRTable; //ASMR informations
+  HAS_LiensPageCT: HASLiensPageCTTable; //Lines pour SMR et ASMR
 }
 
 interface SpecialiteTable {
@@ -140,6 +143,29 @@ interface VUEmaEparTable {
   SpecId: string;
   Product_Number: string;
   UrlEpar: string;
+}
+
+interface HASSMRTable {
+  SpecId: string;
+  CodeEvamed: string;
+  MotifEval: string;
+  DateAvis: Date;
+  ValeurSmr: string;
+  LibelleSmr: string;
+}
+
+interface HASASMRTable {
+  SpecId: string;
+  CodeEvamed: string;
+  MotifEval: string;
+  DateAvis: Date;
+  ValeurAsmr: string;
+  LibelleAsmr: string;
+}
+
+interface HASLiensPageCTTable {
+  CodeEvamed: string;
+  HASLiensPageCT: string;
 }
 
 export type Specialite = Selectable<SpecialiteTable>;

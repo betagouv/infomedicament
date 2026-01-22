@@ -114,26 +114,6 @@ async function importFichesInfos(){
         ids.forEach((id) => (id && id.id !== undefined) && docsBUIDs.push(id.id));
       }
 
-      //SMR
-      const smrIDs: number[] = [];
-      if(ficheInfoRaw.SMR.listeSMR) {
-        const listeSMR = ficheInfoRaw.SMR.listeSMR;
-        const ids = await db.insertInto("smr")
-          .values(listeSMR)
-          .returning('id')
-          .execute();
-        ids.forEach((id) => (id && id.id !== undefined) && smrIDs.push(id.id));
-      }
-      //ASMR
-      const asmrIDs: number[] = [];
-      if(ficheInfoRaw.ASMR.listeASMR) {
-        const listeASMR = ficheInfoRaw.ASMR.listeASMR;
-        const ids = await db.insertInto("asmr")
-          .values(listeASMR)
-          .returning('id')
-          .execute();
-        ids.forEach((id) => (id && id.id !== undefined) && asmrIDs.push(id.id));
-      }
 
       //Composants
       const composantsIDs: number[] = [];
@@ -176,8 +156,6 @@ async function importFichesInfos(){
         listeComposants: composantsIDs,
         listeTitulaires: ficheInfoRaw.Titulaires.listeTitulaires ? ficheInfoRaw.Titulaires.listeTitulaires : undefined,
         listeDocumentsBonUsageIds: docsBUIDs,
-        listeASMR: asmrIDs,
-        listeSMR: smrIDs,
         listeConditionsDelivrance: ficheInfoRaw.ConditionsDelivrancePrescription.listeConditionsDelivrance ? ficheInfoRaw.ConditionsDelivrancePrescription.listeConditionsDelivrance : undefined,
         libelleCourtAutorisation: ficheInfoRaw.StatutAutorisation.libelleCourtAutorisation ? ficheInfoRaw.StatutAutorisation.libelleCourtAutorisation : undefined,
         libelleCourtProcedure: ficheInfoRaw.TypeProcedure.libelleCourtProcedure ? ficheInfoRaw.TypeProcedure.libelleCourtProcedure : undefined,

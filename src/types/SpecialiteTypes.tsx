@@ -72,23 +72,28 @@ export type DocBonUsage = {
   titreDoc: string;
 }
 
-export type Smr = {
-  date?: string;
-  motif?: number;
-  valeur?: string;
-  libelle?: string;
 }
 
-export type Asmr = {
-  date?: string;
-  motif?: number;
-  valeur?: string;
-  libelle?: string;
 }
 
 export type ComposantElement = {
   nom: string;
   referenceDosage: string;
+}
+
+export type Smr = {
+  DateAvis: Date;
+  ValeurSmr: string;
+  MotifEval: string;
+  LibelleSmr: string;
+  HASLiensPageCT: string | null;
+}
+export type Asmr = {
+  DateAvis: Date;
+  ValeurAsmr: string;
+  MotifEval: string;
+  LibelleAsmr: string;
+  HASLiensPageCT: string | null;
 }
 
 export type FicheInfos = {

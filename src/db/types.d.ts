@@ -10,8 +10,6 @@ export interface Database {
   documents_bon_usage: DocBUTable;
   composants: ComposantTable;
   elements: ElementTable;
-  smr: SmrTable;
-  asmr: AsmrTable;
   rcp: RcpTable;
   rcp_content: RcpContentTable;
   notices: NoticeTable;
@@ -57,22 +55,6 @@ interface ElementTable {
   referenceDosage: string;
 }
 
-interface SmrTable {
-  id?: number;
-  date?: string;
-  motif?: number;
-  valeur?: string;
-  libelle?: string;
-}
-
-interface AsmrTable {
-  id?: number;
-  date?: string;
-  motif?: number;
-  valeur?: string;
-  libelle?: string;
-}
-
 interface FicheInfoTable {
   specId: string;
   listeInformationsImportantes?: string[];
@@ -80,8 +62,6 @@ interface FicheInfoTable {
   listeComposants?: number[];
   listeTitulaires?: string[];
   listeDocumentsBonUsageIds?: number[],
-  listeASMR?: number[];
-  listeSMR?: number[];
   listeConditionsDelivrance?: string[];
   libelleCourtAutorisation?: string;
   libelleCourtProcedure?: string;
