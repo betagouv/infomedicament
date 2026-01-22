@@ -17,7 +17,7 @@ function withDefinition(
 ): (React.JSX.Element | string)[] {
   const match = text.match(
     new RegExp(
-      `(?<before>.*\\b)(?<word>${escapeRegExp(definition.fields.Nom_glossaire.toLowerCase())}s?)(?<after>\\b.*)`,
+      `(?<before>.*\\b)(?<word>${escapeRegExp(definition.nom.toLowerCase())}s?)(?<after>\\b.*)`,
       "i",
     ),
   );

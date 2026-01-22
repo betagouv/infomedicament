@@ -4,15 +4,15 @@ import * as Sentry from "@sentry/nextjs";
 import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
-import { getPediatrics } from "@/data/grist/pediatrics";
+import { getPediatrics } from "@/db/utils/pediatrics";
 import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { Marr } from "@/types/MarrTypes";
 import Link from "next/link";
 import { ATC } from "@/types/ATCTypes";
 import Alert from "@codegouvfr/react-dsfr/Alert";
-import { getPregnancyMentionAlert, getAllPregnancyPlanAlerts } from "@/data/grist/pregnancy";
+import { getPregnancyMentionAlert, getAllPregnancyPlanAlerts } from "@/db/utils/pregnancy";
 import MedicamentContent from "./MedicamentContent";
-import { getMarr } from "@/data/grist/marr";
+import { getMarr } from "@/db/utils/marr";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
@@ -74,7 +74,7 @@ function MedicamentContainer({
     ) => {
       try {
         const pregnancyPlanAlert = (await getAllPregnancyPlanAlerts()).find((s) =>
-            composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
+          composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
         );
         setIsPregnancyPlanAlert(pregnancyPlanAlert);
       } catch (e) {
@@ -84,27 +84,27 @@ function MedicamentContainer({
   );
 
   useEffect(() => {
-    if(composants){
+    if (composants) {
       loadPregnancyPlanAlert(composants);
     }
   }, [composants, loadPregnancyPlanAlert]);
 
   useEffect(() => {
-    if(specialite){
+    if (specialite) {
       setCurrentSpec(specialite);
       loadSpecData(specialite.SpecId);
     }
   }, [specialite, setCurrentSpec, loadSpecData]);
 
   return (
-    <ContentContainer frContainer>              
+    <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>
-        {(pregnancyPlanAlert || isPregnancyMentionAlert || pediatrics?.contraindication )&& (
+        {(pregnancyPlanAlert || isPregnancyMentionAlert || pediatrics?.contraindication) && (
           <ContentContainer className={fr.cx("fr-col-12")}>
             {pregnancyPlanAlert && (
-              <ContentContainer 
-                whiteContainer 
-                  className={(isPregnancyMentionAlert || pediatrics?.contraindication) ? fr.cx("fr-mb-2w") : ""}
+              <ContentContainer
+                whiteContainer
+                className={(isPregnancyMentionAlert || pediatrics?.contraindication) ? fr.cx("fr-mb-2w") : ""}
               >
                 <Alert
                   severity={"warning"}
@@ -114,8 +114,8 @@ function MedicamentContainer({
                       Ce médicament est concerné par un{" "}
                       <Link href="https://ansm.sante.fr/dossiers-thematiques/medicaments-et-grossesse/les-programmes-de-prevention-des-grossesses" target="_blank" rel="noopener noreferrer">
                         plan de prévention grossesse
-                      </Link>.<br/>
-                      Il peut présenter des risques pour le fœtus (malformations, effets toxiques).<br/>
+                      </Link>.<br />
+                      Il peut présenter des risques pour le fœtus (malformations, effets toxiques).<br />
                       Lisez attentivement la notice et parlez-en à un professionnel de santé avant toute utilisation.
                       <br />
                       <a target="_blank" href={pregnancyPlanAlert.link} rel="noopener noreferrer">
@@ -127,8 +127,8 @@ function MedicamentContainer({
               </ContentContainer>
             )}
             {(!pregnancyPlanAlert && isPregnancyMentionAlert) && (
-              <ContentContainer 
-                whiteContainer 
+              <ContentContainer
+                whiteContainer
                 className={pediatrics?.contraindication ? fr.cx("fr-mb-2w") : ""}
               >
                 <Alert
@@ -136,7 +136,7 @@ function MedicamentContainer({
                   title={"Mention contre-indication grossesse"}
                   description={
                     <p>
-                      Ce médicament peut présenter des précautions d’usage pendant la grossesse ou l’allaitement. Il peut être autorisé, déconseillé ou contre-indiqué selon les cas.<br/>
+                      Ce médicament peut présenter des précautions d’usage pendant la grossesse ou l’allaitement. Il peut être autorisé, déconseillé ou contre-indiqué selon les cas.<br />
                       Lisez la notice et demandez l’avis d’un professionnel de santé avant toute prise.
                     </p>
                   }
@@ -155,7 +155,7 @@ function MedicamentContainer({
             )}
           </ContentContainer>
         )}
-        <MedicamentContent 
+        <MedicamentContent
           atcList={atcList}
           atc2={atc2}
           atcCode={atcCode}

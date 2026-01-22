@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import WithGlossary from "./WithGlossary";
+import { Definition } from "@/types/GlossaireTypes";
 
 // Mock the WithDefinition component
 // if called, it means the word was detected by the regex
@@ -21,9 +22,11 @@ describe("WithGlossary Regex Logic", () => {
         const content = [`Attention, en cas d'effet secondaire, contactez votre médecin traitant.`];
 
         const mockDefinitions = [{
-            id: "1",
-            fields: { Nom_glossaire: TERM }
-        }] as any;
+            nom: TERM,
+            definition: "Un effet secondaire est un effet indésirable d'un médicament.",
+            source: "BDPM",
+            a_souligner: true,
+        }] as Definition[];
 
         render(<WithGlossary text={content} definitions={mockDefinitions} />);
 
@@ -36,9 +39,11 @@ describe("WithGlossary Regex Logic", () => {
         const content = ["Ce médicament contient des excipients."];
 
         const mockDefinitions = [{
-            id: "2",
-            fields: { Nom_glossaire: TERM }
-        }] as any;
+            nom: TERM,
+            definition: "Un excipient est une substance inactive dans un médicament.",
+            source: "BDPM",
+            a_souligner: true,
+        }] as Definition[];
 
         render(<WithGlossary text={content} definitions={mockDefinitions} />);
 

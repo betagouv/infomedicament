@@ -13,7 +13,7 @@ export default function GlossaryModals() {
       {definitions.map((definition) => (
         <DefinitionModal
           definition={definition}
-          key={`key-${slugify(definition.fields.Nom_glossaire)}`}
+          key={`key-${slugify(definition.nom)}`}
         />
       ))}
     </>

@@ -1,6 +1,6 @@
 import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
-import { getAllPregnancyMentionAlerts, getAllPregnancyPlanAlerts } from "./pregnancy";
-import { getAllPediatrics } from "./pediatrics";
+import { getAllPregnancyMentionAlerts, getAllPregnancyPlanAlerts } from "@/db/utils/pregnancy";
+import { getAllPediatrics } from "@/db/utils/pediatrics";
 
 export const getResumeSpecsGroupsAlerts = async function (specsGroups: ResumeSpecGroup[]): Promise<ResumeSpecGroup[]> {
   const allPregnancyPlanAlerts = await getAllPregnancyPlanAlerts();
@@ -21,14 +21,14 @@ export const getResumeSpecsGroupsAlerts = async function (specsGroups: ResumeSpe
     let pregnancyMentionAlert = false;
     const specialites: ResumeSpecialite[] = group.resumeSpecialites.map((spec: ResumeSpecialite) => {
       const pediatrics = allPediatricsInfo.find((info) => info.CIS === spec.SpecId);
-      if(pediatrics){
-        if(pediatrics.indication) pediatricsInfo.indication = true;
-        if(pediatrics.contraindication) pediatricsInfo.contraindication = true;
-        if(pediatrics.doctorAdvice) pediatricsInfo.doctorAdvice = true;
-        if(pediatrics.mention) pediatricsInfo.mention = true;
+      if (pediatrics) {
+        if (pediatrics.indication) pediatricsInfo.indication = true;
+        if (pediatrics.contraindication) pediatricsInfo.contraindication = true;
+        if (pediatrics.doctorAdvice) pediatricsInfo.doctorAdvice = true;
+        if (pediatrics.mention) pediatricsInfo.mention = true;
       }
       const pregnancyAlert = allPregnancyMentionAlerts.find((mentionCIS) => mentionCIS === spec.SpecId);
-      if(pregnancyAlert) pregnancyMentionAlert = true;
+      if (pregnancyAlert) pregnancyMentionAlert = true;
       return {
         ...spec,
         alerts: {
@@ -45,7 +45,7 @@ export const getResumeSpecsGroupsAlerts = async function (specsGroups: ResumeSpe
         pregnancyPlanAlert: !!pregnancyPlanAlert,
         pregnancyMentionAlert: pregnancyMentionAlert,
         pediatrics: (pediatricsInfo.indication || pediatricsInfo.contraindication || pediatricsInfo.doctorAdvice || pediatricsInfo.mention) ? pediatricsInfo : undefined
-      }, 
+      },
       resumeSpecialites: specialites,
     }
   })

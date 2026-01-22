@@ -24,10 +24,10 @@ export default function DefinitionModal({
   });
 
   return (
-    <modal.Component title={definition.fields.Nom_glossaire} topAnchor={false}>
+    <modal.Component title={definition.nom} topAnchor={false}>
       <div
         dangerouslySetInnerHTML={{
-          __html: sanitizeHtml(definition.fields.Definition_glossaire, {
+          __html: sanitizeHtml(definition.definition, {
             allowedTags: ["p", "br", "ul", "ol", "li"],
           }),
         }}
