@@ -35,7 +35,7 @@ function getSmrAsmrFormattedAvis(date?: Date, link?: string | null) {
   if(formattedDate){
     if(link)
       return (
-        <a 
+        <Link 
           href="link"
           target="_blank"
           rel="noopener noreferrer"
@@ -43,7 +43,7 @@ function getSmrAsmrFormattedAvis(date?: Date, link?: string | null) {
           className={fr.cx("fr-link", "fr-link--sm")}
         >
           Avis&nbsp;du {formattedDate.toLocaleDateString('fr-FR')}
-        </a>
+        </Link>
       );
     return formattedDate.toLocaleDateString('fr-FR');
   }
