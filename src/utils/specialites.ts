@@ -53,6 +53,11 @@ export function isCommercialisee(presentations: Presentation[]){
   return isComm;
 };
 
+export function isAIP(specialite: DetailedSpecialite | Specialite){
+  if(specialite.ProcId && specialite.ProcId === "50") return true;
+  return false;
+};
+
 //Format la liste des spécialités issus de la table résumé
 export function formatSpecialitesResume(specialites: string[][]): ResumeSpecialite[] {
   const formatSpecs: ResumeSpecialite[] = specialites.map((spec) => {

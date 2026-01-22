@@ -44,7 +44,7 @@ import { getArticlesFromFilters } from "@/data/grist/articles";
 import { getFicheInfos } from "@/db/utils/ficheInfos";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { formatSpecName } from "@/displayUtils";
-import { isCentralisee, isCommercialisee } from "@/utils/specialites";
+import { isAIP, isCentralisee, isCommercialisee } from "@/utils/specialites";
 import { Presentation } from "@/types/PresentationTypes";
 import Alert from "@codegouvfr/react-dsfr/Alert";
 import { trackEvent } from "@/services/tracking";
@@ -332,12 +332,12 @@ function MedicamentContent({
                       <SubstanceTag composants={composants} fromMedicament/>
                     </TagContainer>
                   )}
-                  {(currentSpec && isPrinceps) && 
+                  {(currentSpec && isPrinceps && !isAIP(currentSpec)) && 
                     <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.PRINCEPS}>
                       <PrincepsTag CIS={currentSpec.SpecId} fromMedicament/>
                     </TagContainer>
                   }
-                  {(currentSpec && !!currentSpec.SpecGeneId) && (
+                  {(currentSpec && !!currentSpec.SpecGeneId && !isAIP(currentSpec)) && (
                     <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.GENERIC}>
                       <GenericTag specGeneId={currentSpec.SpecGeneId} fromMedicament/>
                     </TagContainer>
@@ -433,19 +433,35 @@ function MedicamentContent({
             />
             </ContentContainer>
           )}
-          {(currentSpec && isCentralisee(currentSpec)) && (
-            <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
-              <b>
-                Les informations sur ce médicament font l’objet d’une procédure centralisée au niveau européen.<br/><br/>
-                <Link 
-                  href="https://www.ema.europa.eu/en/search"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-description="Lien vers le site de l'EMA"
-                >
-                  Voir les données complètes sur le site de l'EMA (Agence européenne des médicaments).
-                </Link>.
-              </b>
+          {(currentSpec && isAIP(currentSpec)) && (
+            <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")} style={{display: "flex"}}>
+              <Image
+                src="/icons/aip_aide.png"
+                alt="AIP"
+                width={32}
+                height={17}
+                className={fr.cx("fr-mr-1w", "fr-mt-1v")}
+              />
+              <div>
+                Ce médicament est mis sur le marché en France en tant qu'importation parallèle
+                {(currentSpec.generiqueName && currentSpec.SpecGeneId) && (
+                  <>
+                    {" "}du médicament{" "}
+                    <Link
+                      href={`/medicaments/${currentSpec.SpecGeneId}`}
+                      aria-description="Lien vers le médicament"
+                    >
+                      {currentSpec.generiqueName}
+                    </Link>
+                  </>
+                )}
+                .<br/>
+                L'importateur est{" "}
+                {currentSpec.titulairesList 
+                  ? (<span>{currentSpec.titulairesList}</span>)
+                  : "nconnu"
+                }.
+              </div>
             </ContentContainer>
           )}
           {isAdvanced ? (

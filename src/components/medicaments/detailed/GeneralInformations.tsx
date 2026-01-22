@@ -20,7 +20,7 @@ import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
-import { getProcedureLibLong } from "@/utils/specialites";
+import { getProcedureLibLong, isAIP } from "@/utils/specialites";
 
 const SummaryLineContainer = styled.div `
   display: flex;
@@ -164,13 +164,13 @@ function GeneralInformations({
         </SummaryLine>
         <SummaryLine categoryName="Statut générique">
           <>
-            {(isPrinceps && CIS) ? (
-              <PrincepsTag CIS={CIS} />
+            {(isPrinceps && !isAIP(currentSpec)) ? (
+              <PrincepsTag CIS={currentSpec.SpecId} />
             ) : (
-              SpecGeneId 
+              (currentSpec.SpecGeneId && !isAIP(currentSpec))
               ? (
                 <>
-                  <GenericTag specGeneId={SpecGeneId} hideIcon/>
+                  <GenericTag specGeneId={currentSpec.SpecGeneId} hideIcon/>
                   {/* <strong>Princeps: </strong> */}
                 </>
             
@@ -254,14 +254,33 @@ function GeneralInformations({
         </SummaryLine>
       </ContentContainer>
 
-      {(currentIndicationBlock && currentIndicationBlock.children) && (
-        <ContentContainer id="informations-indications" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-          <h2 className={fr.cx("fr-h6")}>Indications</h2>
-          <IndicationBlock className={fr.cx("fr-mb-0")}>
-            {getContent(currentIndicationBlock.children)}
-          </IndicationBlock>
-        </ContentContainer>
-      )}
+      <ContentContainer id="informations-indications" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+        <h2 className={fr.cx("fr-h6")}>Indications</h2>
+        <IndicationBlock className={fr.cx("fr-mb-0")}>
+          {(currentSpec && isAIP(currentSpec)) ? (
+            <span>              
+              Pour visualiser les indications thérapeutiques, consulter la fiche info de la spécialité de réfèrence de cette autorisation d'importation parallèle
+              {(currentSpec.generiqueName && currentSpec.SpecGeneId) && (
+                <>
+                  &nbsp;:&nbsp;
+                  <Link
+                    href={`/medicaments/${currentSpec.SpecGeneId}`}
+                    aria-description="Lien vers le médicament"
+                  >
+                    {currentSpec.generiqueName}
+                  </Link>
+                </>
+              )}.
+            </span>
+          ) : (
+            (currentIndicationBlock && currentIndicationBlock.children) ? (
+              <span>{getContent(currentIndicationBlock.children)}</span>
+            ) : (
+              <span>Les indications thérapeutiques ne sont pas disponibles.</span>
+            )
+          )}
+        </IndicationBlock>
+      </ContentContainer>
       
       <ContentContainer id="informations-composition" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Composition</h2>
