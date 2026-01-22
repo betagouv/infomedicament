@@ -20,7 +20,7 @@ import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
-import { getProcedureLibLong, isAIP } from "@/utils/specialites";
+import { getProcedureLibLong, isAIP, isCentralisee } from "@/utils/specialites";
 
 const SummaryLineContainer = styled.div `
   display: flex;
@@ -273,10 +273,27 @@ function GeneralInformations({
               )}.
             </span>
           ) : (
-            (currentIndicationBlock && currentIndicationBlock.children) ? (
-              <span>{getContent(currentIndicationBlock.children)}</span>
+            (currentSpec && isCentralisee(currentSpec)) ? (
+              <span>
+                Vous trouverez les indications thérapeutiques de ce médicament dans le paragraphe 4.1 du RCP ou dans le paragraphe 1 de la notice. 
+                {currentSpec.urlCentralise && (
+                  <span>
+                    {" "}Ces documents sont disponibles{" "}
+                    <Link href={currentSpec.urlCentralise} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      en cliquant ici.
+                    </Link>
+                  </span>
+                )}
+              </span>
             ) : (
-              <span>Les indications thérapeutiques ne sont pas disponibles.</span>
+              (currentIndicationBlock && currentIndicationBlock.children) ? (
+                <span>{getContent(currentIndicationBlock.children)}</span>
+              ) : (
+                <span>Les indications thérapeutiques ne sont pas disponibles.</span>
+              )
             )
           )}
         </IndicationBlock>
