@@ -1,16 +1,16 @@
 "use server";
 
-import { Asmr, ComposantComposition, DocBonUsage, ElementComposition, FicheInfos, Smr } from '@/types/SpecialiteTypes';
+import { Asmr, ComposantComposition, DocBonUsage, ElementComposition, FicheInfos, InfosImportantes, Smr } from '@/types/SpecialiteTypes';
 import { pdbmMySQL } from '../pdbmMySQL';
 import { ComposantNatureId, SpecComposant, SpecElement } from '../pdbmMySQL/types';
 
 export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined> {
-  const infosImportantesRaw = await pdbmMySQL
+  const infosImportantes: InfosImportantes[] = await pdbmMySQL
     .selectFrom("VUEvnts")
     .where("VUEvnts.SpecId", "=", CIS)
     .where("VUEvnts.remCommentaire", 'is not', null)
     .where("VUEvnts.remCommentaire", '!=', '')
-    .select("VUEvnts.remCommentaire")
+    .select(["VUEvnts.remCommentaire", "VUEvnts.dateEvnt"])
     .execute();
 
   const hasSMR: Smr[] = await pdbmMySQL
@@ -91,7 +91,7 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
   })
   
   const ficheInfos:FicheInfos = {
-    listeInformationsImportantes: infosImportantesRaw.map((row) => row.remCommentaire),
+    listeInformationsImportantes: infosImportantes,
     listeDocumentsBonUsage: hasDocsBU,
     listeASMR: hasASMR,
     listeSMR: hasSMR,

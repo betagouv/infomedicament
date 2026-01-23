@@ -14,7 +14,7 @@ import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } f
 import PrincepsTag from "@/components/tags/PrincepsTag";
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
-import { DetailedSpecialite, FicheInfos, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, FicheInfos, InfosImportantes, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import { displayInfosImportantes, getContent } from "@/utils/notices/noticesUtils";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
@@ -35,7 +35,7 @@ const SummaryCat = styled.span `
   color: var(--text-mention-grey);
 `;
 
-const InfosImportantes = styled.div`
+const InfosImportantesBlock = styled.div`
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
   padding: 0.5rem;
@@ -146,11 +146,14 @@ function GeneralInformations({
       {ficheInfos.listeInformationsImportantes && displayInfosImportantes(ficheInfos) && (
         <ContentContainer id="informations-importantes" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <h2 className={fr.cx("fr-h6")}>Informations importantes</h2>
-          {ficheInfos.listeInformationsImportantes.map((info, index) => {
+          {ficheInfos.listeInformationsImportantes.map((info: InfosImportantes, index) => {
             return (
-              <InfosImportantes key={index}>
-                <div dangerouslySetInnerHTML={{__html: info}} className={fr.cx("fr-text--sm", "fr-mb-0")}></div>
-              </InfosImportantes>
+              <InfosImportantesBlock key={index}>
+                <div dangerouslySetInnerHTML={{__html: info.remCommentaire}} className={fr.cx("fr-text--sm", "fr-mb-0")}></div>
+                <div className={fr.cx("fr-mt-1w")}>
+                  {info.dateEvnt && (<i className={fr.cx("fr-text--xs", "fr-mb-0")} style={{textTransform:"capitalize"}}>{info.dateEvnt.toLocaleDateString('fr-FR', {month: 'long', year: 'numeric'})}</i>)}
+                </div>
+              </InfosImportantesBlock>
             )
           })}
         </ContentContainer>

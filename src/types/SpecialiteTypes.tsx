@@ -70,6 +70,12 @@ export type DocBonUsage = {
   TitreDoc?: string;
 }
 
+export type InfosImportantes = {
+  remCommentaire: string;
+  dateEvnt: Date;
+}
+
+
 export type SubstanceComposition = {
   NomLib: string,
   dosage: string,
@@ -100,7 +106,7 @@ export type Asmr = {
 }
 
 export type FicheInfos = {
-  listeInformationsImportantes?: string[];
+  listeInformationsImportantes?: InfosImportantes[];
   listeDocumentsBonUsage?: DocBonUsage[],
   listeASMR?: Asmr[];
   listeSMR?: Smr[];
