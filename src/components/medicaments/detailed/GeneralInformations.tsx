@@ -370,7 +370,7 @@ function GeneralInformations({
                       <span className={fr.cx("fr-mr-2w")}>
                         {pres.details.qtecontenance && (
                           <b>
-                            {pres.details.qtecontenance}{" "}
+                            {pres.details.qtecontenance.toLocaleString('fr-FR')}{" "}
                             {pres.details.unitecontenance && (
                               <span>
                                 {pres.details.qtecontenance > 1 
