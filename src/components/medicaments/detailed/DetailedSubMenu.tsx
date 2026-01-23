@@ -4,6 +4,11 @@ import { SideMenu, SideMenuProps } from "@codegouvfr/react-dsfr/SideMenu";
 import { HTMLAttributes, useEffect, useState } from "react";
 import styled from 'styled-components';
 
+export type AnchorMenu = {
+  anchor?: string;
+  menuPart: DetailsNoticePartsEnum;
+}
+
 type SubMenuType = {
   href: string;
   text: string;
@@ -15,8 +20,8 @@ const infosGeneralesMenu: SubMenuType[] = [
     href: 'informations-importantes',
     text: 'Informations importantes',
   },
-  {
-    href: 'informations-generales',
+  {    
+    href: 'informations-resume',
     text: 'Résumé',
   },
   {
@@ -197,18 +202,44 @@ interface DetailedSubMenuProps extends HTMLAttributes<HTMLDivElement> {
   updateVisiblePart: (visiblePart: DetailsNoticePartsEnum) => void;
   isMarr?: boolean;
   isInfosImportantes?: boolean;
+  anchor?: AnchorMenu;
 }
 
 function DetailedSubMenu({
   updateVisiblePart,
   isMarr,
   isInfosImportantes,
+  anchor,
   ...props
 }: DetailedSubMenuProps
 ) {
+  const [loaded, setLoaded] = useState<boolean>(false);
 
-  const [currentSubMenu, setCurrentSubMenu] = useState<SubMenuType>(infosGeneralesMenu[0]);
+  const [currentSubMenu, setCurrentSubMenu] = useState<string>(infosGeneralesMenu[0].href);
   const [currentInfosGeneralesMenu, setCurrentInfosGeneralesMenu] = useState<SubMenuType[]>(infosGeneralesMenu);
+  const [currentMenuPart, setCurrentMenuPart] = useState<AnchorMenu | undefined>();
+  const [focusAnchor, setFocusAnchor] = useState<string | undefined>();
+
+  function getSubMenu(subMenuList: SubMenuType[]): SideMenuProps.Item[] {
+    return subMenuList.map((subMenu: SubMenuType) => {
+      const subMenuItem: SideMenuProps.Item = {
+        linkProps: {
+          href: `#${subMenu.href}`,
+          onClick: () => {subMenu.children ? setCurrentSubMenu(subMenu.children[0].href) : setCurrentSubMenu(subMenu.href)},
+        },
+        text: subMenu.text,
+        //isActive: isSubMenuActive(subMenu),
+      };
+      if(subMenu.children){
+        const childrenSubMenu = getSubMenu(subMenu.children);
+        (subMenuItem as SideMenuProps.Item.SubMenu).items = childrenSubMenu;
+        (subMenuItem as SideMenuProps.Item.SubMenu).isActive = childrenSubMenu.find((child) => child.isActive) ? true : false;
+      } else {
+        (subMenuItem as SideMenuProps.Item.SubMenu).isActive = currentSubMenu === subMenu.href;
+      }
+      return subMenuItem;
+    });
+  }
 
   useEffect(() => {
     if(isMarr){
@@ -231,35 +262,48 @@ function DetailedSubMenu({
     }
   }, [isInfosImportantes, setCurrentInfosGeneralesMenu]);
 
-  function menuOnClick(noticePart: DetailsNoticePartsEnum) {
-    updateVisiblePart(noticePart);
-    if(noticePart === DetailsNoticePartsEnum.INFORMATIONS_GENERALES){
-      setCurrentSubMenu(infosGeneralesMenu[0]);
-    } else if(noticePart === DetailsNoticePartsEnum.RCP){
-      setCurrentSubMenu(RCPMenu[0]);
-    } else {
-      setCurrentSubMenu(documentHASMenu[0]);
-    }
+  function goToFocus(anchor: string) {
+    const element = document.getElementById(anchor);
+    if(element) element.scrollIntoView({block: 'start'});
+
   }
 
-  function getSubMenu(subMenuList: SubMenuType[]): SideMenuProps.Item[] {
-    return subMenuList.map((subMenu) => {
-      const subMenuItem: SideMenuProps.Item = {
-        linkProps: {
-          href: `#${subMenu.href}`,
-          onClick: () => {subMenu.children ? setCurrentSubMenu(subMenu.children[0]) : setCurrentSubMenu(subMenu)},
-        },
-        text: subMenu.text,
-        isActive: currentSubMenu === subMenu,
-      };
-      if(subMenu.children){
-        (subMenuItem as SideMenuProps.Item.SubMenu).items = getSubMenu(subMenu.children);
+  useEffect(() => {
+    if(anchor)
+      setCurrentMenuPart(anchor);
+    else
+      setCurrentMenuPart({menuPart: DetailsNoticePartsEnum.INFORMATIONS_GENERALES});    
+    setLoaded(true);
+  }, [anchor, setCurrentMenuPart, setLoaded]);
+
+  useEffect(() => {
+    if(!loaded) return;
+    if(currentMenuPart) {
+      updateVisiblePart(currentMenuPart.menuPart);
+      if(currentMenuPart.anchor){
+        setCurrentSubMenu(currentMenuPart.anchor);
+        setFocusAnchor(currentMenuPart.anchor);
+      } else {
+        if(currentMenuPart.menuPart === DetailsNoticePartsEnum.INFORMATIONS_GENERALES){
+          setCurrentSubMenu(infosGeneralesMenu[0].href);
+        } else if(currentMenuPart.menuPart === DetailsNoticePartsEnum.RCP){
+          setCurrentSubMenu(RCPMenu[0].href);
+        } else {
+          setCurrentSubMenu(documentHASMenu[0].href);
+        }
+        window.scrollTo(0,0);
       }
-      return subMenuItem;
-    });
-  }
+    }
+  }, [loaded, currentMenuPart, setCurrentSubMenu, setFocusAnchor]);
 
-  return (
+  useEffect(() => {
+    if(!loaded) return;
+    if(focusAnchor){
+      goToFocus(focusAnchor);
+    }
+  }, [loaded, focusAnchor, goToFocus]);
+
+  return loaded && (
     <Container {...props}>
       <SideMenu
         align="left"
@@ -268,26 +312,28 @@ function DetailedSubMenu({
         className="detailed-side-menu"
         items={[
           {
-            expandedByDefault: true,
+            expandedByDefault: !currentMenuPart || (currentMenuPart && currentMenuPart.menuPart === DetailsNoticePartsEnum.INFORMATIONS_GENERALES),
             linkProps: {
-              href: '#informations-generales',
-              onClick: () => menuOnClick(DetailsNoticePartsEnum.INFORMATIONS_GENERALES),
+              href: '#informations-generales',              
+              onClick: () => setCurrentMenuPart({menuPart: DetailsNoticePartsEnum.INFORMATIONS_GENERALES}),
             },
             text: 'Informations générales',
             items: getSubMenu(currentInfosGeneralesMenu),
           },
           {
+            expandedByDefault: (currentMenuPart && currentMenuPart.menuPart === DetailsNoticePartsEnum.RCP),
             linkProps: {
               href: '#rcp-denomiation',
-              onClick: () => menuOnClick(DetailsNoticePartsEnum.RCP),
+              onClick: () => setCurrentMenuPart({menuPart: DetailsNoticePartsEnum.RCP}),
             },
             text: 'Résumé des caractéristiques du produit (RCP)',
             items: getSubMenu(RCPMenu),
           },
           {
+            expandedByDefault: (currentMenuPart && currentMenuPart.menuPart === DetailsNoticePartsEnum.HAS),
             linkProps: {
-              href: '#document-has-bon-usage',
-              onClick: () => menuOnClick(DetailsNoticePartsEnum.HAS),
+              href: '#document-has',
+              onClick: () => setCurrentMenuPart({menuPart: DetailsNoticePartsEnum.HAS}),
             },
             text: 'Documents HAS (Bon usage, SMR, ASMR)',
             items: getSubMenu(documentHASMenu),
