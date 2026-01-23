@@ -63,6 +63,21 @@ function presentationDetailName(p: PresentationDetail): string {
   );
 }
 
+function presentationName(presNom01: string): string {
+  const index = presNom01.indexOf("stylo prérempli");
+  if(index !== -1){
+    if(index === 0){
+      return capitalize(presNom01);
+    }
+    const qt = presNom01.substring(0, index).trim();
+    if(!isNaN(Number(qt)) && Number(qt) > 1){
+      return presNom01.replaceAll("stylo prérempli", "stylos préremplis");
+    }
+  }
+
+  return presNom01;
+}
+
 export function PresentationsList(props: {
   presentations: Presentation[];
 }) {
@@ -79,8 +94,8 @@ export function PresentationsList(props: {
               <span
                 className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
               />
-              <b>
-                {(p.details && presentationDetailName(p.details)) || p.PresNom01}
+              <b>            
+                {(p.details && presentationDetailName(p.details)) || presentationName(p.PresNom01)}
               </b>
               {p.PPF && p.TauxPriseEnCharge ? (
                 <div>
