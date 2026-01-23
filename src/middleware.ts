@@ -1,38 +1,33 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server";
+import { isRateLimited } from "@/utils/rate-limit";
 
-const WHITELIST = ['s', 'g', 'p']
+// Rate limit: 100 requests per minute per IP
+const RATE_LIMIT = 100;
+const RATE_WINDOW_MS = 60_000;
 
 export function middleware(req: NextRequest) {
-    const url = req.nextUrl
+    const url = req.nextUrl;
 
-    // Ignorer assets / API / fichiers statiques
+    // Skip static assets
     if (
-        url.pathname.startsWith('/_next') ||
-        url.pathname.startsWith('/api') ||
-        url.pathname.includes('.')
+        url.pathname.startsWith("/_next") ||
+        url.pathname.includes(".")
     ) {
-        return NextResponse.next()
+        return NextResponse.next();
     }
 
-    const originalParams = url.searchParams
-    const cleanParams = new URLSearchParams()
+    // Rate limiting
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown-ip";
+    const { limited, remaining } = isRateLimited(ip, RATE_LIMIT, RATE_WINDOW_MS);
 
-    let needsRedirect = false
-
-    for (const [key, value] of originalParams.entries()) {
-        if (WHITELIST.includes(key)) {
-            cleanParams.set(key, value)
-        } else {
-            needsRedirect = true
-        }
+    if (limited) {
+        return new NextResponse("Too Many Requests", {
+            status: 429,
+            headers: { "Retry-After": "60" },
+        });
     }
 
-    // Redirect to canonical URL if we found unexpected queryparams
-    if (needsRedirect) {
-        const redirectUrl = new URL(url.pathname, req.url)
-        redirectUrl.search = cleanParams.toString()
-        return NextResponse.redirect(redirectUrl, 308)
-    }
-
-    return NextResponse.next()
+    const response = NextResponse.next();
+    response.headers.set("X-RateLimit-Remaining", remaining.toString());
+    return response;
 }
