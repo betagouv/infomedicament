@@ -43,8 +43,8 @@ export default async function Page(props: {
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);
 
-  //if (!specialite) return notFound();
-  //if (!presentations.length) return notFound();
+  if (!specialite) return notFound();
+  if (!presentations.length) return notFound();
 
   const atcCode = getAtcCode(CIS);
   const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
