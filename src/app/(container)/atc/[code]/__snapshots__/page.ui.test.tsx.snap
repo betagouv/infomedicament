@@ -1,0 +1,375 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ATC Page (Integration with DB) > should render the correct content for ATC code G (Snapshot) 1`] = `
+<div>
+  <div
+    class="sc-FEMpB korYns  fr-container fr-pt-1w fr-pb-2w"
+  >
+    <div
+      class="fr-grid-row"
+    >
+      <div
+        class="fr-col-12"
+      >
+        <nav
+          aria-label="vous êtes ici :"
+          class="fr-breadcrumb"
+          id="fr-breadcrumb-:r0:"
+          role="navigation"
+        >
+          <button
+            aria-controls="breadcrumb-:r1:"
+            aria-expanded="false"
+            class="fr-breadcrumb__button"
+          >
+            Voir le fil d’Ariane
+          </button>
+          <div
+            class="fr-collapse"
+            id="breadcrumb-:r1:"
+          >
+            <ol
+              class="fr-breadcrumb__list"
+            >
+              <li>
+                <a
+                  class="fr-breadcrumb__link"
+                  href="/"
+                >
+                  Accueil
+                </a>
+              </li>
+              <li>
+                <a
+                  aria-current="page"
+                  class="fr-breadcrumb__link"
+                >
+                  Système génital, urinaire et hormones sexuelles
+                </a>
+              </li>
+            </ol>
+          </div>
+        </nav>
+      </div>
+    </div>
+    <div
+      class="fr-grid-row"
+      style="justify-content: space-between;"
+    >
+      <div
+        class="fr-col-12 fr-col-md-8"
+      >
+        <div
+          class="sc-jBIHhB koOnhf"
+        >
+          <div
+            class="fr-grid-row"
+          >
+            <div
+              class="fr-col-12"
+            >
+              <p
+                class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+                id="fr-badge-:r2:"
+              >
+                Classe de médicament
+              </p>
+              <h1
+                class="fr-h1 fr-mt-1w fr-mb-0"
+              >
+                Système génital, urinaire et hormones sexuelles
+              </h1>
+              <div
+                class="sc-kfeOyU fnOgMX fr-mb-6w fr-mt-2w"
+              >
+                <div
+                  class="fr-share"
+                >
+                  <p
+                    class="fr-share__title"
+                  >
+                    Partager via :
+                  </p>
+                  <ul
+                    class="fr-btns-group"
+                  >
+                    <li>
+                      <a
+                        class="fr-btn--mail fr-btn"
+                        href="mailto:?subject=Système génital, urinaire et hormones sexuelles - Info Médicament&body=Voici un lien vers la page Système génital, urinaire et hormones sexuelles sur le site Info Médicament : http://localhost:3000/"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        Partager par email
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        class="fr-btn--copy fr-btn"
+                        href=""
+                      >
+                        Copier dans le presse-papier
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div
+              class="fr-col-md-8"
+            >
+              <div
+                class="fr-grid-row"
+              >
+                <div
+                  class="fr-col"
+                >
+                  <div
+                    class="fr-card"
+                    id="fr-card-:r3:"
+                  >
+                    <div
+                      class="fr-card__body"
+                    >
+                      <div
+                        class="fr-card__content"
+                      >
+                        <h6
+                          class="fr-card__title"
+                        >
+                          Définition
+                        </h6>
+                        <p
+                          class="fr-card__desc"
+                        >
+                          Ce système concerne les organes génitaux, les voies urinaires et les hormones sexuelles (œstrogènes, testostérone) qui régulent la reproduction et le système hormonal. Les médicaments de cette classe traitent certaines infections locales telles que des infections urinaires ou génitales. On y trouve aussi des médicaments qui traitent certains troubles hormonaux, les dysfonctionnements sexuels, ainsi que les médicaments de contraception.
+                        </p>
+                        <div
+                          class="fr-card__start"
+                        />
+                        <div
+                          class="fr-card__end"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w"
+        >
+          0 sous-classe de médicament
+        </h2>
+      </div>
+      <div
+        class="fr-col-12 fr-col-md-8"
+      />
+    </div>
+    <div
+      class="sc-gNZgCX kkohqz"
+    >
+      <section
+        aria-atomic="false"
+        aria-label="Notifications Alt+T"
+        aria-live="polite"
+        aria-relevant="additions text"
+        class="Toastify"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ATC Page (Integration with DB) > should render the correct content for ATC2 code A10 (Snapshot) 1`] = `
+<div>
+  <div
+    class="sc-FEMpB korYns  fr-container fr-pt-1w fr-pb-2w"
+  >
+    <div
+      class="fr-grid-row"
+    >
+      <div
+        class="fr-col-12"
+      >
+        <nav
+          aria-label="vous êtes ici :"
+          class="fr-breadcrumb"
+          id="fr-breadcrumb-:r4:"
+          role="navigation"
+        >
+          <button
+            aria-controls="breadcrumb-:r5:"
+            aria-expanded="false"
+            class="fr-breadcrumb__button"
+          >
+            Voir le fil d’Ariane
+          </button>
+          <div
+            class="fr-collapse"
+            id="breadcrumb-:r5:"
+          >
+            <ol
+              class="fr-breadcrumb__list"
+            >
+              <li>
+                <a
+                  class="fr-breadcrumb__link"
+                  href="/"
+                >
+                  Accueil
+                </a>
+              </li>
+              <li>
+                <a
+                  class="fr-breadcrumb__link"
+                  href="/atc/A"
+                >
+                  Système digestif
+                </a>
+              </li>
+              <li>
+                <a
+                  aria-current="page"
+                  class="fr-breadcrumb__link"
+                >
+                  Diabète
+                </a>
+              </li>
+            </ol>
+          </div>
+        </nav>
+      </div>
+    </div>
+    <div
+      class="fr-grid-row"
+      style="justify-content: space-between;"
+    >
+      <div
+        class="fr-col-12 fr-col-md-8"
+      >
+        <div
+          class="sc-jBIHhB koOnhf"
+        >
+          <div
+            class="fr-grid-row"
+          >
+            <div
+              class="fr-col-12"
+            >
+              <p
+                class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+                id="fr-badge-:r6:"
+              >
+                Sous-classe de médicament
+              </p>
+              <h1
+                class="fr-h1 fr-mt-1w fr-mb-0"
+              >
+                Diabète
+              </h1>
+              <div
+                class="sc-kfeOyU fnOgMX fr-mb-6w fr-mt-2w"
+              >
+                <div
+                  class="fr-share"
+                >
+                  <p
+                    class="fr-share__title"
+                  >
+                    Partager via :
+                  </p>
+                  <ul
+                    class="fr-btns-group"
+                  >
+                    <li>
+                      <a
+                        class="fr-btn--mail fr-btn"
+                        href="mailto:?subject=Diabète - Info Médicament&body=Voici un lien vers la page Diabète sur le site Info Médicament : http://localhost:3000/"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        Partager par email
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        class="fr-btn--copy fr-btn"
+                        href=""
+                      >
+                        Copier dans le presse-papier
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div
+              class="fr-col-md-8"
+            >
+              <div
+                class="fr-grid-row"
+              >
+                <div
+                  class="fr-col"
+                >
+                  <div
+                    class="fr-card"
+                    id="fr-card-:r7:"
+                  >
+                    <div
+                      class="fr-card__body"
+                    >
+                      <div
+                        class="fr-card__content"
+                      >
+                        <h6
+                          class="fr-card__title"
+                        >
+                          Définition
+                        </h6>
+                        <p
+                          class="fr-card__desc"
+                        >
+                          Médicaments qui régulent la glycémie chez les personnes atteintes de diabète de type 1 ou de type 2.
+                        </p>
+                        <div
+                          class="fr-card__start"
+                        />
+                        <div
+                          class="fr-card__end"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <h2
+          class="fr-h6 fr-mt-4w"
+        >
+          0 substance active
+        </h2>
+      </div>
+      <div
+        class="fr-col-12 fr-col-md-8"
+      />
+    </div>
+    <div
+      class="sc-gNZgCX kkohqz"
+    >
+      <section
+        aria-atomic="false"
+        aria-label="Notifications Alt+T"
+        aria-live="polite"
+        aria-relevant="additions text"
+        class="Toastify"
+      />
+    </div>
+  </div>
+</div>
+`;
