@@ -254,7 +254,11 @@ function MedicamentContent({
     if (typeof window !== "undefined") {
       window.addEventListener("scroll", onScrollEvent);
     }
-  });
+    // Cleanup: remove listener on unmount to prevent memory leaks
+    return () => {
+      window.removeEventListener("scroll", onScrollEvent);
+    };
+  }, [onScrollEvent]);
 
   // Use to display or not the separator after a tag (left column)
   const lastTagElement: TagTypeEnum = (
