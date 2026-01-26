@@ -1,0 +1,522 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Generics Page (Integration with DB) > should render the correct content for CIS code 64404112 (Snapshot) 1`] = `
+<div>
+  <div
+    class="sc-FEMpB korYns  fr-container fr-pt-1w fr-pb-2w"
+  >
+    <nav
+      aria-label="vous êtes ici :"
+      class="fr-breadcrumb"
+      id="fr-breadcrumb-:r0:"
+      role="navigation"
+    >
+      <button
+        aria-controls="breadcrumb-:r1:"
+        aria-expanded="false"
+        class="fr-breadcrumb__button"
+      >
+        Voir le fil d’Ariane
+      </button>
+      <div
+        class="fr-collapse"
+        id="breadcrumb-:r1:"
+      >
+        <ol
+          class="fr-breadcrumb__list"
+        >
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/"
+            >
+              Accueil
+            </a>
+          </li>
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/generiques/A"
+            >
+              Liste des groupes génériques
+            </a>
+          </li>
+          <li>
+            <a
+              aria-current="page"
+              class="fr-breadcrumb__link"
+            >
+              Cetirizine (DICHLORHYDRATE De) 10 mg
+            </a>
+          </li>
+        </ol>
+      </div>
+    </nav>
+    <p
+      class="fr-badge fr-badge--no-icon fr-badge--purple-glycine"
+      id="fr-badge-:r2:"
+    >
+      Groupe générique
+    </p>
+    <h1
+      class="fr-h1 fr-mt-1w fr-mb-6w"
+    >
+      Cetirizine (DICHLORHYDRATE De) 10 mg
+    </h1>
+  </div>
+  <div
+    class="sc-FEMpB korYns  fr-container fr-pt-1w fr-pb-2w"
+  >
+    <ul
+      class="fr-tags-group fr-mb-1v"
+    >
+      <a
+        class="fr-tag--custom-alt-class fr-tag fr-tag--custom-alt-class"
+        href="/atc/R06"
+        id="fr-tag-:r3:"
+        target="_blank"
+      >
+        Allergies
+      </a>
+      <a
+        class="fr-tag--custom-alt-substance fr-tag fr-tag--custom-alt-substance"
+        href="/substances/60929"
+        id="fr-tag-:r4:"
+        target="_blank"
+      >
+        cétirizine (dichlorhydrate de)
+      </a>
+    </ul>
+    <div
+      class="fr-mb-1w"
+    >
+      <span
+        class="fr-icon--custom-molecule fr-mr-1w"
+      />
+      <b>
+        Substance active
+      </b>
+      <br />
+      cétirizine (dichlorhydrate de) (10 mg)
+    </div>
+    <div
+      class="fr-mb-2w"
+    >
+      <b>
+        Dénomination commune internationale (DCI)
+      </b>
+      <br />
+      CETIRIZINE (DICHLORHYDRATE DE)
+    </div>
+    <section
+      class="fr-accordion"
+    >
+      <h2
+        class="fr-accordion__title"
+      >
+        <button
+          aria-controls="fr-accordion-:r5:-collapse"
+          aria-expanded="false"
+          class="fr-accordion__btn"
+          id="fr-accordion-:r5:__toggle-btn"
+          type="button"
+        >
+          Princeps et générique, qu’est-ce que c’est ?
+        </button>
+      </h2>
+      <div
+        class="fr-collapse"
+        id="fr-accordion-:r5:-collapse"
+      >
+        <p>
+          Un médicament 
+          <b>
+            générique
+          </b>
+           est fabriqué à partir de la même molécule qu'un médicament déjà autorisé, dit médicament de référence ou
+           
+          <b>
+            princeps
+          </b>
+          . Le générique contient strictement la même quantité de la même substance active que son princeps et est équivalent sur le plan médical.
+        </p>
+        <p>
+          Le médicament de référence et les médicaments qui en sont génériques constituent un 
+          <b>
+            groupe générique
+          </b>
+          .
+        </p>
+        <p>
+          Sauf sur recommandation spécifique d'un médecin, un médicament générique peut être substitué par votre pharmacien·ne à un médicament de référence.
+        </p>
+      </div>
+    </section>
+    <h2
+      class="fr-h6 fr-mt-2w fr-mb-1w"
+    >
+      Médicament princeps
+    </h2>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/64404112"
+      >
+        Zyrtec 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <h2
+      class="fr-h6 fr-mt-4w"
+    >
+      33
+       médicament
+      s
+       générique
+      s
+    </h2>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/60807297"
+      >
+        Cetirizine Eg 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/61168849"
+      >
+        Cetirizine Ratiopharm Conseil 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/61232547"
+      >
+        Virlix 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/61505177"
+      >
+        Cetirizine Qualimed Generiques 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/61665908"
+      >
+        Cetirizine Biogaran 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/61788565"
+      >
+        Cetirizine Sandoz 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/62005883"
+      >
+        Cetirizine Almus 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/62008267"
+      >
+        Cetirizine Zydus 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/62161747"
+      >
+        Cetirizine Gnr 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/62295956"
+      >
+        Cetirizine Isomed 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/62394630"
+      >
+        Cetirizine Zentiva 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/62401434"
+      >
+        Cetirizine Teva 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/62437067"
+      >
+        Cetirizine Viatris Conseil 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/62475527"
+      >
+        Cetirizine Sandoz Conseil 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/62783247"
+      >
+        Cetirizine Cristers 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/62882327"
+      >
+        Cetirizine Actavis 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/63148172"
+      >
+        Cetirizine Biogaran Conseil 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/63338257"
+      >
+        Cetirizine Quiver 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/63455641"
+      >
+        Cetirizine Evolugen 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/64366131"
+      >
+        Cetirizine Teva Conseil 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/64378945"
+      >
+        Cetirizine Cll Pharma 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/64513193"
+      >
+        Cetirizine Salem France 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/64989281"
+      >
+        Cetirizine Viatris 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/66283563"
+      >
+        Cetirizine Teva Sante 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/66822733"
+      >
+        Cetirizine Rpg 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/66862806"
+      >
+        Cetirizine Ucb 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/68453644"
+      >
+        Cetirizine Qualimed 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/68709613"
+      >
+        Cetirizine Ratiopharm 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/68928112"
+      >
+        Cetirizine Arrow 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/69354916"
+      >
+        Cetirizine Arrow Lab 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/69483366"
+      >
+        Cetirizine Cristers Pharma 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/69835020"
+      >
+        Humex Allergie Cetirizine 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+    <p
+      class="fr-mb-1v"
+    >
+      <a
+        class="fr-link"
+        href="/medicaments/69942976"
+      >
+        Cetirizine Phr Lab 10 mg, comprimé pelliculé sécable
+      </a>
+    </p>
+  </div>
+  <div
+    class="sc-gNZgCX kkohqz"
+  >
+    <section
+      aria-atomic="false"
+      aria-label="Notifications Alt+T"
+      aria-live="polite"
+      aria-relevant="additions text"
+      class="Toastify"
+    />
+  </div>
+</div>
+`;
