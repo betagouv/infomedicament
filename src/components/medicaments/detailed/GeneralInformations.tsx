@@ -383,9 +383,9 @@ function GeneralInformations({
         )}
       </ContentContainer>
       
-      {(presentations && presentations.length > 0) && (
-        <ContentContainer id="informations-presentations" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-          <h2 className={fr.cx("fr-h6")}>Présentations</h2>
+      <ContentContainer id="informations-presentations" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+        <h2 className={fr.cx("fr-h6")}>Présentations</h2>
+        {(presentations && presentations.length > 0) ? (
           <div>
             <ul className={fr.cx("fr-raw-list")}>
               {presentations.map((pres, index) => (
@@ -396,24 +396,27 @@ function GeneralInformations({
                     />
                     {pres.details ? (
                       <span className={fr.cx("fr-mr-2w")}>
-                        {pres.details.qtecontenance && (
-                          <b>
-                            {pres.details.qtecontenance.toLocaleString('fr-FR')}{" "}
-                            {pres.details.unitecontenance && (
-                              <span>
-                                {pres.details.qtecontenance > 1 
-                                  ? pres.details.unitecontenance.replaceAll("(s)", "s")
-                                  : pres.details.unitecontenance.replaceAll("(s)", "")
-                                }
-                              </span>
-                            )}
-                          </b>
-                        )}
-                        {(pres.details.qtecontenance && pres.details.recipient) && (
-                          <span>{" - "}</span>
-                        )}
+                        <b>
+                          {pres.details.qtecontenance ? (
+                            <>
+                              {pres.details.qtecontenance.toLocaleString('fr-FR')}{" "}
+                              {pres.details.unitecontenance && (
+                                <span>
+                                  {pres.details.qtecontenance > 1 
+                                    ? pres.details.unitecontenance.replaceAll("(s)", "s")
+                                    : pres.details.unitecontenance.replaceAll("(s)", "")
+                                  }
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <span>{"1"}</span>
+                          )}
+                        </b>{" - "}
                         {pres.details.recipient && (
-                          <span>{pres.details.recipient.replaceAll("thermoformée", "").replaceAll("(s)", "")}</span>
+                          <span>
+                            {pres.details.recipient.replaceAll("thermoformée", "").replaceAll("(s)", "")}
+                          </span>
                         )}
                       </span>
                     ) : (
@@ -497,8 +500,11 @@ function GeneralInformations({
               ))}
             </ul>
           </div>
-        </ContentContainer>
-      )}
+        ) : (
+          <span>Pas de conditionnement à afficher</span>
+        )}
+      </ContentContainer>
+
 
       {(marr && marr.pdf.length > 0) && (
         <ContentContainer id="informations-marr" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>

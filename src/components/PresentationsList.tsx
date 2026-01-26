@@ -43,15 +43,18 @@ function caracCompDisplay(p: PresentationDetail): string {
 
 function presentationDetailName(p: PresentationDetail): string {
   if(!p.recipient) return "";
-  const recipient = p.recipient.replaceAll("thermoformée", "");
+  let recipient = p.recipient.replaceAll("thermoformée", "");
   const contentDisplayStr = contentDisplay(p);
 
   if (p.nbrrecipient > 1) {
+    if(recipient.indexOf("stylo prérempli") !== -1)
+      recipient = recipient.replaceAll("stylo prérempli", "stylos préremplis");
+
     if (
       p.qtecontenance > 1 &&
       p.unitecontenance &&
       !unitesMesures.includes(p.unitecontenance)
-    ) {      
+    ) {
       return `${totalDisplay(p)} - ${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)}${contentDisplayStr && ` de ${contentDisplayStr}`}`;
     }
 
@@ -63,14 +66,14 @@ function presentationDetailName(p: PresentationDetail): string {
   );
 }
 
-function presentationName(presNom01: string): string {
+function presentationName(presNom01: string, presNum: string): string {
   const index = presNom01.indexOf("stylo prérempli");
   if(index !== -1){
     if(index === 0){
       return capitalize(presNom01);
     }
     const qt = presNom01.substring(0, index).trim();
-    if(!isNaN(Number(qt)) && Number(qt) > 1){
+    if(!isNaN(Number(qt)) && Number(qt) > 1 && Number(presNum) <= 1){
       return presNom01.replaceAll("stylo prérempli", "stylos préremplis");
     }
   }
@@ -95,7 +98,7 @@ export function PresentationsList(props: {
                 className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
               />
               <b>            
-                {(p.details && presentationDetailName(p.details)) || presentationName(p.PresNom01)}
+                {(p.details && presentationDetailName(p.details)) || presentationName(p.PresNom01, p.PresNum)}
               </b>
               {p.PPF && p.TauxPriseEnCharge ? (
                 <div>
