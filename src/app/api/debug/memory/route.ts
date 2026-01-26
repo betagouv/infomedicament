@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
 
-// Don't allow calls to this API in production
+// Only allow calls when DEBUG_MEMORY is set (use value as token)
 export async function GET(request: Request) {
-  if (process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "Not available in production" }, { status: 403 });
+  const token = process.env.DEBUG_MEMORY;
+  if (!token) {
+    return NextResponse.json({ error: "Not available" }, { status: 403 });
   }
 
+  // Require token in query param: /api/debug/memory?token=xxx
   const url = new URL(request.url);
+  if (url.searchParams.get("token") !== token) {
+    return NextResponse.json({ error: "Invalid token" }, { status: 403 });
+  }
 
   // This will let us ask for a forced-garbage collection before returning the values
   const gc = url.searchParams.get("gc") === "true";
