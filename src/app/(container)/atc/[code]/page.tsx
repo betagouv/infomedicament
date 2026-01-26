@@ -1,5 +1,5 @@
 import { fr } from "@codegouvfr/react-dsfr";
-import { getAtc1, getAtc2 } from "@/data/grist/atc";
+import { getAtc1, getAtc2 } from "@/db/utils/atc";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
 import React from "react";

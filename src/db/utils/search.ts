@@ -5,7 +5,7 @@ import db from "@/db";
 import { ResumePatho, ResumeSubstance, SearchResult } from "@/db/types";
 import { sql } from "kysely";
 import { unstable_cache } from "next/cache";
-import { getAtc1, getAtc2, getResumeSpecsGroupsATCLabels } from "@/data/grist/atc";
+import { getAtc1, getAtc2, getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { ATC, ATC1 } from "@/types/ATCTypes";
 import { getSubstancesResume } from "./substances";
 import { getPathologiesResume } from "./pathologies";
