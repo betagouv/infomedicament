@@ -52,13 +52,14 @@ describe("Medicaments Page (Integration with DB)", () => {
         expect(container).toMatchSnapshot();
     });
 
-    it("should return a 404 for an invalid code", async () => {
-        const callPage = async () => {
-            await Page({
-                params: Promise.resolve({ CIS: "12300000" })
-            });
-        };
+    it("should return a page even with invalid code", async () => {
+        const jsx = await Page({
+            params: Promise.resolve({ CIS: "00000000" })
+        });
 
-        await expect(callPage()).rejects.toThrow("NEXT_NOT_FOUND");
+        // Render JSX and take snapshot
+        const { container } = render(jsx);
+
+        expect(container).toMatchSnapshot();
     });
 });
