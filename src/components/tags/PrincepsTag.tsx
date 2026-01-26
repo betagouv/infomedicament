@@ -16,6 +16,7 @@ export default function PrincepsTag({
   hideIcon,
   withLink,
   fromMedicament,
+  ...props
  }: PrincepsTagProps) {
 
   const onTrackEvent = () => {
@@ -24,9 +25,9 @@ export default function PrincepsTag({
   };
 
   return (
-    <div>
+    <div {...props}>
       <Tag
-        iconId="fr-icon-capsule-fill"
+        iconId={!hideIcon ? "fr-icon-capsule-fill" : undefined}
         {...(withLink ? {linkProps:{
           className: cx("fr-tag--custom-alt-blue"),
           href: `/generiques/${CIS}`,

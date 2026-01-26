@@ -177,7 +177,7 @@ function GeneralInformations({
         <SummaryLine categoryName="Statut générique">
           <>
             {(isPrinceps && !isAIP(currentSpec)) ? (
-              <>
+              <div>
                 <PrincepsTag 
                   CIS={currentSpec.SpecId} 
                   hideIcon
@@ -189,7 +189,7 @@ function GeneralInformations({
                 >
                   Voir les alternatives
                 </Link>
-              </>
+              </div>
             ) : (
               (currentSpec.SpecGeneId && !isAIP(currentSpec))
               ? (
