@@ -9,7 +9,7 @@ import { getArticlesFromSubstances } from "@/db/utils/articles";
 import PageDefinitionContent from "./PageDefinitionContent";
 import { getResumeSpecsGroupsWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
-import { getResumeSpecsGroupsATCLabels } from "@/data/grist/atc";
+import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { getSubstanceDefinition } from "@/db/utils/substances";
 
 interface SubstanceDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {

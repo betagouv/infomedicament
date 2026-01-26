@@ -4,7 +4,7 @@ import { getSearchResults } from "./search";
 import { getSubstancesResume } from "./substances";
 import { getPathologiesResume } from "./pathologies";
 import { getResumeSpecsGroupsWithCISSubsIds } from "./specialities";
-import { getResumeSpecsGroupsATCLabels } from "@/data/grist/atc";
+import { getResumeSpecsGroupsATCLabels } from "./atc";
 import { getResumeSpecsGroupsAlerts } from "@/data/grist/specialites";
 
 // Mocking the cache so it doesn't apply
@@ -40,7 +40,7 @@ vi.mock("@/db", () => ({
 vi.mock("./substances");
 vi.mock("./pathologies");
 vi.mock("./specialities");
-vi.mock("@/data/grist/atc");
+vi.mock("./atc");
 vi.mock("@/data/grist/specialites");
 
 describe("Legacy Search Engine (getSearchResults)", () => {
