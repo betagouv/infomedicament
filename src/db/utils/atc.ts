@@ -1,6 +1,7 @@
 "use server";
 
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { pdbmMySQL } from "../pdbmMySQL";
 import { atcData, ATCError } from "@/utils/atc";
 import { ATC, ATC1 } from "@/types/ATCTypes";
@@ -27,76 +28,78 @@ export const getSubstancesByAtc = cache(async (atc2: ATC): Promise<SubstanceNom[
     .execute();
 });
 
-export const getAtc = async function (): Promise<ATC1[]> {
+export const getAtc = unstable_cache(
+  async function (): Promise<ATC1[]> {
+    const rows = await db.selectFrom("ref_atc_friendly_niveau_1")
+      .select(["code", "definition_classe", "libelle"])
+      .execute();
 
-  const rows = await db.selectFrom("ref_atc_friendly_niveau_1")
-    .select(["code", "definition_classe", "libelle"])
-    .execute();
+    const childrenRows = await db.selectFrom("ref_atc_friendly_niveau_2")
+      .select(["code", "definition_sous_classe", "libelle"])
+      .execute();
 
-  const childrenRows = await db.selectFrom("ref_atc_friendly_niveau_2")
-    .select(["code", "definition_sous_classe", "libelle"])
-    .execute();
+    return Promise.all(
+      rows.map(async (record) => ({
+        code: record.code as string,
+        label: record.libelle as string,
+        description: record.definition_classe as string,
+        children: await Promise.all(
+          childrenRows
+            .filter((childRecord) =>
+              (childRecord.code as string).startsWith(
+                record.code as string,
+              ),
+            )
+            .map(async (record) =>
+              buildAtc2(record.code as string, childrenRows),
+            ),
+        ),
+      })),
+    );
+  },
+  ["atc-all"],
+  { revalidate: 86400 } // 24hrs cache
+);
 
-  return Promise.all(
-    rows.map(async (record) => ({
+export const getAtc1 = unstable_cache(
+  async function (code: string): Promise<ATC1> {
+    const rows = await db.selectFrom("ref_atc_friendly_niveau_1")
+      .select(["code", "definition_classe", "libelle"])
+      .execute();
+
+    const record = rows.find(
+      (record) => record.code === code.slice(0, 1),
+    );
+    if (!record) {
+      throw new ATCError(code.slice(0, 1));
+    }
+
+    const childrenRows = await db.selectFrom("ref_atc_friendly_niveau_2")
+      .select(["code", "definition_sous_classe", "libelle"])
+      .execute();
+
+    const children = await Promise.all(
+      childrenRows
+        .filter((record) =>
+          (record.code as string).startsWith(code.slice(0, 1)),
+        )
+        .map(async (record) => buildAtc2(record.code as string, childrenRows)),
+    );
+
+    return {
       code: record.code as string,
       label: record.libelle as string,
       description: record.definition_classe as string,
-      children: await Promise.all(
-        childrenRows
-          .filter((childRecord) =>
-            (childRecord.code as string).startsWith(
-              record.code as string,
-            ),
-          )
-          .map(async (record) =>
-            getAtc2(record.code as string, childrenRows),
-          ),
-      ),
-    })),
-  );
-};
+      children,
+    };
+  },
+  ["atc1"],
+  { revalidate: 86400 } // 24hrs cache
+);
 
-export const getAtc1 = async function (code: string): Promise<ATC1> {
-  const rows = await db.selectFrom("ref_atc_friendly_niveau_1")
-    .select(["code", "definition_classe", "libelle"])
-    .execute();
-
-  const record = rows.find(
-    (record) => record.code === code.slice(0, 1),
-  );
-  if (!record) {
-    throw new ATCError(code.slice(0, 1));
-  }
-
-  const childrenRows = await db.selectFrom("ref_atc_friendly_niveau_2")
-    .select(["code", "definition_sous_classe", "libelle"])
-    .execute();
-
-  const children = await Promise.all(
-    childrenRows
-      .filter((record) =>
-        (record.code as string).startsWith(code.slice(0, 1)),
-      )
-      .map(async (record) => getAtc2(record.code as string, childrenRows)),
-  );
-
-  return {
-    code: record.code as string,
-    label: record.libelle as string,
-    description: record.definition_classe as string,
-    children,
-  };
-};
-
-export const getAtc2 = async function (code: string, tableNiveau2?: any): Promise<ATC> {
-  // NB: here we only want 1 record max
-  const record = tableNiveau2
-    ? tableNiveau2.find((r: any) => r.code === code.slice(0, 3))
-    : await db.selectFrom("ref_atc_friendly_niveau_2")
-      .select(["code", "libelle", "definition_sous_classe"])
-      .where("code", "=", code.slice(0, 3))
-      .executeTakeFirst();
+/** Internal function used by getAtc and getAtc1 with JSON data */
+function buildAtc2(code: string, tableNiveau2: any[]): ATC {
+  const record = tableNiveau2.find((r: any) => r.code === code.slice(0, 3));
 
   if (!record) {
     throw new ATCError(code.slice(0, 3));
@@ -114,7 +117,35 @@ export const getAtc2 = async function (code: string, tableNiveau2?: any): Promis
         description: "",
       })),
   };
-};
+}
+
+export const getAtc2 = unstable_cache(
+  async function (code: string): Promise<ATC> {
+    const record = await db.selectFrom("ref_atc_friendly_niveau_2")
+      .select(["code", "libelle", "definition_sous_classe"])
+      .where("code", "=", code.slice(0, 3))
+      .executeTakeFirst();
+
+    if (!record) {
+      throw new ATCError(code.slice(0, 3));
+    }
+
+    return {
+      code: record.code as string,
+      label: record.libelle as string,
+      description: record.definition_sous_classe as string,
+      children: Object.keys(atcOfficialLabels)
+        .filter((key) => key.startsWith(code))
+        .map((key) => ({
+          code: key,
+          label: (atcOfficialLabels as Record<string, string>)[key],
+          description: "",
+        })),
+    };
+  },
+  ["atc2"],
+  { revalidate: 86400 } // 24hrs cache
+);
 
 export const getResumeSpecsGroupsATCLabels = async function (specsGroups: ResumeSpecGroup[]): Promise<ResumeSpecGroup[]> {
 
