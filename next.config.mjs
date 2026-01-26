@@ -9,9 +9,9 @@ const isDev = process.env.NODE_ENV === 'development'
 //
 const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''};
+    script-src 'self' 'unsafe-inline' ${process.env.NEXT_PUBLIC_MATOMO_URL}${isDev ? " 'unsafe-eval'" : ''};
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data:;
+    img-src 'self' blob: data: ${process.env.NEXT_PUBLIC_MATOMO_URL};
     font-src 'self';
     object-src 'none';
     base-uri 'self';
@@ -19,6 +19,7 @@ const cspHeader = `
     frame-ancestors 'none';
     upgrade-insecure-requests;
     media-src 'self';
+    connect-src 'self' ${process.env.NEXT_PUBLIC_MATOMO_URL};
 `
 
 /** @type {import('next').NextConfig} */
