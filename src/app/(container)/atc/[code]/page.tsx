@@ -41,11 +41,11 @@ export default async function Page(props: {
               },
               ...(atc2
                 ? [
-                    {
-                      label: atc1.label,
-                      linkProps: { href: `/atc/${atc1.code}` },
-                    },
-                  ]
+                  {
+                    label: atc1.label,
+                    linkProps: { href: `/atc/${atc1.code}` },
+                  },
+                ]
                 : []),
             ]}
             currentPageLabel={currentAtc.label}
