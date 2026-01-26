@@ -106,12 +106,12 @@ function DocumentHas({
                   "Résumé de l'avis"
                 ]}
                 data={
-                  ficheInfos.listeSMR.map((smr: Smr) => {
+                  ficheInfos.listeSMR.map((smr: Smr, index) => {
                     return [
                       getSmrAsmrFormattedValeur(smr.ValeurSmr),
                       getSmrAsmrFormattedAvis(smr.DateAvis, smr.HASLiensPageCT),
                       smr.MotifEval,
-                      (<div dangerouslySetInnerHTML={{__html: smr.LibelleSmr}} className={fr.cx("fr-text--sm", "fr-mb-0")}></div>)
+                      (<div key={index} dangerouslySetInnerHTML={{__html: smr.LibelleSmr}} className={fr.cx("fr-text--sm", "fr-mb-0")}></div>)
                     ];
                   })
                 }
@@ -140,12 +140,12 @@ function DocumentHas({
                   "Résumé de l'avis"
                 ]}
                 data={
-                  ficheInfos.listeASMR.map((asmr: Asmr) => {
+                  ficheInfos.listeASMR.map((asmr: Asmr, index) => {
                     return [
                       getSmrAsmrFormattedValeur(asmr.ValeurAsmr),
                       getSmrAsmrFormattedAvis(asmr.DateAvis, asmr.HASLiensPageCT),
                       asmr.MotifEval,
-                      (<div dangerouslySetInnerHTML={{__html: asmr.LibelleAsmr}} className={fr.cx("fr-text--sm", "fr-mb-0")}></div>)
+                      (<div key={index} dangerouslySetInnerHTML={{__html: asmr.LibelleAsmr}} className={fr.cx("fr-text--sm", "fr-mb-0")}></div>)
                     ];
                   })
                 }
