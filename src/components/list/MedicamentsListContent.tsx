@@ -7,7 +7,7 @@ import PageListContent from "@/components/list/PageListContent";
 import { getResumeSpecsGroupsWithLetter } from "@/db/utils/specialities";
 import { getLetters } from "@/db/utils/letters";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
-import { getResumeSpecsGroupsATCLabels } from "@/data/grist/atc";
+import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 
 interface MedicamentsListContentProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
@@ -17,7 +17,7 @@ interface MedicamentsListContentProps extends HTMLAttributes<HTMLDivElement> {
 function MedicamentsListContent({
   title,
   letter,
-}: MedicamentsListContentProps ) {
+}: MedicamentsListContentProps) {
 
   const [filteredSpecsGroups, setFilteredSpecsGroups] = useState<ResumeSpecGroup[]>([]);
   const [letters, setLetters] = useState<string[]>([]);
@@ -27,8 +27,8 @@ function MedicamentsListContent({
       try {
         const newAllSpecsGroups = await getResumeSpecsGroupsWithLetter(letter);
         const allSpecsGroupsWithATC: ResumeSpecGroup[] = await getResumeSpecsGroupsATCLabels(newAllSpecsGroups);
-        setFilteredSpecsGroups(allSpecsGroupsWithATC.sort((a,b) => a.groupName.localeCompare(b.groupName)));
-      } catch(e) {
+        setFilteredSpecsGroups(allSpecsGroupsWithATC.sort((a, b) => a.groupName.localeCompare(b.groupName)));
+      } catch (e) {
         Sentry.captureException(e);
       }
     },
@@ -40,7 +40,7 @@ function MedicamentsListContent({
       try {
         const newLetters = await getLetters("specialites");
         setLetters(newLetters);
-      } catch(e) {
+      } catch (e) {
         Sentry.captureException(e);
       }
     }, [setLetters]

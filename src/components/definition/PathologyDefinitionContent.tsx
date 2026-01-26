@@ -9,7 +9,7 @@ import { getArticlesFromPatho } from "@/db/utils/articles";
 import PageDefinitionContent from "./PageDefinitionContent";
 import { getPathologyDefinition } from "@/db/utils/pathologies";
 import { getResumeSpecsGroupsWithPatho } from "@/db/utils/specialities";
-import { getResumeSpecsGroupsATCLabels } from "@/data/grist/atc";
+import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 
 interface PathologyDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
