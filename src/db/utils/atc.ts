@@ -2,9 +2,12 @@
 
 import { cache } from "react";
 import { pdbmMySQL } from "../pdbmMySQL";
-import { atcData } from "@/utils/atc";
-import { ATC } from "@/types/ATCTypes";
+import { atcData, ATCError } from "@/utils/atc";
+import { ATC, ATC1 } from "@/types/ATCTypes";
 import { SubstanceNom } from "../pdbmMySQL/types";
+import atcOfficialLabels from "@/data/ATC 2024 02 15.json";
+import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
+import db from "@/db/";
 
 export const getSubstancesByAtc = cache(async (atc2: ATC): Promise<SubstanceNom[]> => {
   const CIS = (atc2.children as ATC[])
@@ -23,3 +26,125 @@ export const getSubstancesByAtc = cache(async (atc2: ATC): Promise<SubstanceNom[
     .orderBy("Subs_Nom.NomLib")
     .execute();
 });
+
+export const getAtc = async function (): Promise<ATC1[]> {
+
+  const rows = await db.selectFrom("ref_atc_friendly_niveau_1")
+    .select(["code", "definition_classe", "libelle"])
+    .execute();
+
+  const childrenRows = await db.selectFrom("ref_atc_friendly_niveau_2")
+    .select(["code", "definition_sous_classe", "libelle"])
+    .execute();
+
+  return Promise.all(
+    rows.map(async (record) => ({
+      code: record.code as string,
+      label: record.libelle as string,
+      description: record.definition_classe as string,
+      children: await Promise.all(
+        childrenRows
+          .filter((childRecord) =>
+            (childRecord.code as string).startsWith(
+              record.code as string,
+            ),
+          )
+          .map(async (record) =>
+            getAtc2(record.code as string, childrenRows),
+          ),
+      ),
+    })),
+  );
+};
+
+export const getAtc1 = async function (code: string): Promise<ATC1> {
+  const rows = await db.selectFrom("ref_atc_friendly_niveau_1")
+    .select(["code", "definition_classe", "libelle"])
+    .execute();
+
+  const record = rows.find(
+    (record) => record.code === code.slice(0, 1),
+  );
+  if (!record) {
+    throw new ATCError(code.slice(0, 1));
+  }
+
+  const childrenRows = await db.selectFrom("ref_atc_friendly_niveau_2")
+    .select(["code", "definition_sous_classe", "libelle"])
+    .execute();
+
+  const children = await Promise.all(
+    childrenRows
+      .filter((record) =>
+        (record.code as string).startsWith(code.slice(0, 1)),
+      )
+      .map(async (record) => getAtc2(record.code as string, childrenRows)),
+  );
+
+  return {
+    code: record.code as string,
+    label: record.libelle as string,
+    description: record.definition_classe as string,
+    children,
+  };
+};
+
+export const getAtc2 = async function (code: string, tableNiveau2?: any): Promise<ATC> {
+  // NB: here we only want 1 record max
+  const record = tableNiveau2
+    ? tableNiveau2.find((r: any) => r.code === code.slice(0, 3))
+    : await db.selectFrom("ref_atc_friendly_niveau_2")
+      .select(["code", "libelle", "definition_sous_classe"])
+      .where("code", "=", code.slice(0, 3))
+      .executeTakeFirst();
+
+  if (!record) {
+    throw new ATCError(code.slice(0, 3));
+  }
+
+  return {
+    code: record.code as string,
+    label: record.libelle as string,
+    description: record.definition_sous_classe as string,
+    children: Object.keys(atcOfficialLabels)
+      .filter((key) => key.startsWith(code))
+      .map((key) => ({
+        code: key,
+        label: (atcOfficialLabels as Record<string, string>)[key],
+        description: "",
+      })),
+  };
+};
+
+export const getResumeSpecsGroupsATCLabels = async function (specsGroups: ResumeSpecGroup[]): Promise<ResumeSpecGroup[]> {
+
+  const rowsATC1 = await db.selectFrom("ref_atc_friendly_niveau_1")
+    .select(["code", "definition_classe", "libelle"])
+    .execute();
+
+  const rowsATC2 = await db.selectFrom("ref_atc_friendly_niveau_2")
+    .select(["code", "definition_sous_classe", "libelle"])
+    .execute();
+
+  return specsGroups.map((spec: ResumeSpecGroup) => {
+    let atc1Label = "";
+    let atc2Label = "";
+    if (spec.atc1Code) {
+      const atc1 = rowsATC1.find(
+        (record) => record.code === spec.atc1Code
+      )
+      if (atc1) atc1Label = atc1.libelle as string;
+    }
+    if (spec.atc2Code) {
+      const atc2 = rowsATC2.find(
+        (record) => record.code === spec.atc2Code
+      )
+      if (atc2) atc2Label = atc2.libelle as string;
+    }
+    return {
+      atc1Label: atc1Label,
+      atc2Label: atc2Label,
+      ...spec,
+    }
+  });
+}

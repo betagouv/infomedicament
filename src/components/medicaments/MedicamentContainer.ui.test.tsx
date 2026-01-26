@@ -2,7 +2,7 @@ import { render, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import MedicamentContainer from "@/components/medicaments/MedicamentContainer";
 const { getSpecialite } = await import("@/db/utils");
-const { getAtc1, getAtc2 } = await import("@/data/grist/atc");
+const { getAtc1, getAtc2 } = await import("@/db/utils/atc");
 const { getAtcCode } = await import("@/utils/atc");
 
 // Mock the dark mode hook
