@@ -4,10 +4,13 @@ import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { pdbmMySQL } from "../pdbmMySQL";
 import { atcData, ATCError } from "@/utils/atc";
-import { ATC, ATC1 } from "@/types/ATCTypes";
+import { ATC, ATC1, ATCSubsSpecs } from "@/types/ATCTypes";
+import { ArticleCardResume } from "@/types/ArticlesTypes";
 import { SubstanceNom } from "../pdbmMySQL/types";
 import atcOfficialLabels from "@/data/ATC 2024 02 15.json";
-import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
+import { ResumeSpecGroup, SpecialiteWithSubstance } from "@/types/SpecialiteTypes";
+import { getArticlesFromATC } from "./articles";
+import { withOneSubstance } from "./query";
 import db from "@/db/";
 
 /**
@@ -187,4 +190,100 @@ export const getResumeSpecsGroupsATCLabels = async function (specsGroups: Resume
       ...spec,
     }
   });
+}
+
+/**
+ * Loads all data needed for ATC1 definition page in a single server call.
+ * Before, we were making 2 queries per ATC2 child !
+ */
+export async function getAtc1DefinitionData(atc1: ATC1): Promise<{
+  articles: ArticleCardResume[];
+  allATC: ATCSubsSpecs[];
+}> {
+  // Build map of ATC2 code -> CIS codes using the CSV
+  const atc2ToCIS = new Map<string, string[]>();
+  const allCIS: string[] = [];
+
+  for (const atc2 of atc1.children) {
+    const cisCodes = getCISCodesForAtc(atc2);
+    atc2ToCIS.set(atc2.code, cisCodes);
+    allCIS.push(...cisCodes);
+  }
+
+  const uniqueCIS = [...new Set(allCIS)];
+
+  // Fetch articles and substances in parallel
+  const [articles, substancesWithCIS] = await Promise.all([
+    getArticlesFromATC(atc1.code),
+    uniqueCIS.length > 0
+      ? pdbmMySQL
+        .selectFrom("Subs_Nom")
+        .leftJoin("Composant", "Composant.NomId", "Subs_Nom.NomId")
+        .where("Composant.SpecId", "in", uniqueCIS)
+        .selectAll("Subs_Nom")
+        .select("Composant.SpecId as SpecId")
+        .execute()
+      : Promise.resolve([]),
+  ]);
+
+  // Early return if no medications found
+  if (substancesWithCIS.length === 0) {
+    return {
+      articles,
+      allATC: atc1.children.map((atc2) => ({
+        atc: atc2,
+        substances: [],
+        specialites: [],
+      })),
+    };
+  }
+
+  // Group substances by ATC2
+  const atc2ToSubstances = new Map<string, SubstanceNom[]>();
+  for (const [atc2Code, cisList] of atc2ToCIS) {
+    const cisSet = new Set(cisList);
+    const substances = substancesWithCIS
+      .filter((s) => s.SpecId && cisSet.has(s.SpecId))
+      .map(({ SpecId, ...sub }) => sub as SubstanceNom);
+
+    // Deduplicate by NomId and sort
+    // TODO: check if deduplicating is needed !
+    const unique = substances.filter(
+      (sub, i, self) => self.findIndex((s) => s.NomId === sub.NomId) === i
+    );
+    unique.sort((a, b) => a.NomLib.localeCompare(b.NomLib));
+    atc2ToSubstances.set(atc2Code, unique);
+  }
+
+  // Fetch all specialites for all substances at once
+  const allSubstanceIDs = [...new Set(substancesWithCIS.map((s) => s.NomId.trim()))];
+
+  const allSpecialites = allSubstanceIDs.length > 0
+    ? await pdbmMySQL
+      .selectFrom("Specialite")
+      .innerJoin("Composant", "Specialite.SpecId", "Composant.SpecId")
+      .innerJoin("Subs_Nom", "Composant.NomId", "Subs_Nom.NomId")
+      .where("Composant.NomId", "in", allSubstanceIDs)
+      .where((eb) => withOneSubstance(eb.ref("Specialite.SpecId"), eb.ref("Subs_Nom.NomId")))
+      .selectAll("Specialite")
+      .select("Subs_Nom.NomId")
+      .groupBy(["Specialite.SpecId", "Subs_Nom.NomId"])
+      .orderBy("Subs_Nom.NomId")
+      .distinct()
+      .execute()
+    : [];
+
+  // Build result
+  const allATC: ATCSubsSpecs[] = atc1.children.map((atc2) => {
+    const substances = atc2ToSubstances.get(atc2.code) ?? [];
+    const substanceIDs = new Set(substances.map((s) => s.NomId.trim()));
+
+    return {
+      atc: atc2,
+      substances,
+      specialites: allSpecialites.filter((sp) => substanceIDs.has(sp.NomId.trim())),
+    };
+  });
+
+  return { articles, allATC };
 }
