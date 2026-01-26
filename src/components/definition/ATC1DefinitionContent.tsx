@@ -5,12 +5,10 @@ import React, { HTMLAttributes, useCallback, useEffect, useMemo, useState } from
 import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import { SpecialiteWithSubstance } from "@/types/SpecialiteTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
-import { getArticlesFromATC } from "@/db/utils/articles";
 import PageDefinitionContent from "./PageDefinitionContent";
 import { groupSpecialites } from "@/utils/specialites";
 import { ATC1, ATCSubsSpecs } from "@/types/ATCTypes";
-import { getSubstancesByAtc } from "@/db/utils/atc";
-import { getSubstanceAllSpecialites } from "@/db/utils/substances";
+import { getAtc1DefinitionData } from "@/db/utils/atc";
 
 interface ATC1DefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
   atc: ATC1;
@@ -24,33 +22,15 @@ function ATC1DefinitionContent({
   const [allATC, setAllATC] = useState<ATCSubsSpecs[]>([]);
   const [articles, setArticles] = useState<ArticleCardResume[]>([]);
 
-  const loadDefinitionData = useCallback(
-    async () => {
-      try {
-        const newArticles: ArticleCardResume[] = await getArticlesFromATC(atc.code);
-        setArticles(newArticles);
-
-        const newAllATC: ATCSubsSpecs[] = await Promise.all(
-          atc.children.map(
-            async (atc2): Promise<ATCSubsSpecs> => {
-              const substances = await getSubstancesByAtc(atc2);
-              const subsNomID: string[] = substances
-                .map((sub) => sub.NomId.trim())
-                .filter((value, index, self) => self.indexOf(value) === index);
-              const specialites: SpecialiteWithSubstance[] = await getSubstanceAllSpecialites(subsNomID);
-              return {
-                atc: atc2,
-                substances: substances,
-                specialites: specialites,
-              }
-            }
-          )
-        );
-        setAllATC(newAllATC);
-      } catch (e) {
-        Sentry.captureException(e);
-      }
-    }, [atc, setArticles]);
+  const loadDefinitionData = useCallback(async () => {
+    try {
+      const { articles, allATC } = await getAtc1DefinitionData(atc);
+      setArticles(articles);
+      setAllATC(allATC);
+    } catch (e) {
+      Sentry.captureException(e);
+    }
+  }, [atc, setArticles, setAllATC]);
 
   useEffect(() => {
     loadDefinitionData();
