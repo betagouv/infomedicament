@@ -339,12 +339,20 @@ function MedicamentContent({
                   )}
                   {(currentSpec && isPrinceps && !isAIP(currentSpec)) && 
                     <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.PRINCEPS}>
-                      <PrincepsTag CIS={currentSpec.SpecId} fromMedicament/>
+                      <PrincepsTag 
+                        CIS={currentSpec.SpecId} 
+                        fromMedicament
+                        withLink
+                      />
                     </TagContainer>
                   }
                   {(currentSpec && !!currentSpec.SpecGeneId && !isAIP(currentSpec)) && (
                     <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.GENERIC}>
-                      <GenericTag specGeneId={currentSpec.SpecGeneId} fromMedicament/>
+                      <GenericTag 
+                        specGeneId={currentSpec.SpecGeneId} 
+                        fromMedicament
+                        withLink
+                      />
                     </TagContainer>
                   )}
                   {!!delivrance.length && (

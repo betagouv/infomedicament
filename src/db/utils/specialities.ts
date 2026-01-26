@@ -1,6 +1,6 @@
 "use server";
-
 import "server-cli-only";
+
 import { cache } from "react";
 import {
   SpecComposant,
@@ -39,7 +39,7 @@ export const getDetailedSpecialite = cache(
     .leftJoin("StatutComm", "StatutComm.CommId", "Specialite.CommId")
     .leftJoin("Spec_Titu", "Spec_Titu.SpecId", "Specialite.SpecId")
     .leftJoin("Titulaire", "Titulaire.TituId", "Spec_Titu.TituId")
-    .leftJoin ("Specialite as GenSpecialite", "GenSpecialite.SpecId", "Specialite.SpecId")
+    .leftJoin ("Specialite as GenSpecialite", "GenSpecialite.SpecId", "Specialite.SpecGeneId")
     .where("Specialite.SpecId", "=", CIS)
     .selectAll("Specialite")
     .select("StatutAdm.StatLibCourt as statutAutorisation")
