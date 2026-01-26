@@ -10,11 +10,32 @@ import atcOfficialLabels from "@/data/ATC 2024 02 15.json";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 import db from "@/db/";
 
+/**
+ * Returns all CIS codes for an ATC class.
+ * ATCData is loaded from a local CSV
+ */
+function getCISCodesForAtc(atc: ATC): string[] {
+  if (!atc.children) return [];
+  return (atc.children as ATC[]).flatMap((child) =>
+    atcData.filter((row) => row[1] === child.code).map((row) => row[0])
+  );
+}
+
+/**
+ * Builds ATC children from the official labels JSON.
+ */
+function buildFullAtcChildren(atc2Code: string): ATC[] {
+  return Object.keys(atcOfficialLabels)
+    .filter((key) => key.startsWith(atc2Code))
+    .map((key) => ({
+      code: key,
+      label: (atcOfficialLabels as Record<string, string>)[key],
+      description: "",
+    }));
+}
+
 export const getSubstancesByAtc = cache(async (atc2: ATC): Promise<SubstanceNom[]> => {
-  const CIS = (atc2.children as ATC[])
-    .map((atc3) => atcData.filter((row: any) => row[1] === atc3.code))
-    .map((rows) => rows.map((row) => row[0]))
-    .flat();
+  const CIS = getCISCodesForAtc(atc2);
 
   if (!CIS.length) return [];
 
@@ -109,13 +130,7 @@ function buildAtc2(code: string, tableNiveau2: any[]): ATC {
     code: record.code as string,
     label: record.libelle as string,
     description: record.definition_sous_classe as string,
-    children: Object.keys(atcOfficialLabels)
-      .filter((key) => key.startsWith(code))
-      .map((key) => ({
-        code: key,
-        label: (atcOfficialLabels as Record<string, string>)[key],
-        description: "",
-      })),
+    children: buildFullAtcChildren(code),
   };
 }
 
@@ -134,13 +149,7 @@ export const getAtc2 = unstable_cache(
       code: record.code as string,
       label: record.libelle as string,
       description: record.definition_sous_classe as string,
-      children: Object.keys(atcOfficialLabels)
-        .filter((key) => key.startsWith(code))
-        .map((key) => ({
-          code: key,
-          label: (atcOfficialLabels as Record<string, string>)[key],
-          description: "",
-        })),
+      children: buildFullAtcChildren(code),
     };
   },
   ["atc2"],
