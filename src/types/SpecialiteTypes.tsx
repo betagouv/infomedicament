@@ -1,5 +1,5 @@
 import { Specialite } from "@/db/pdbmMySQL/types";
-import { PresentationDetail, ResumeSpecGroupDB } from "@/db/types";
+import { ResumeSpecGroupDB } from "@/db/types";
 import { PediatricsInfo } from "./PediatricTypes";
 
 export type SpecialiteAlerts = {
@@ -13,6 +13,7 @@ export type ResumeSpecialite = {
     SpecDenom01: string,
     isCommercialisee: boolean,
     isCentralisee: boolean,
+    isAIP: boolean,
     alerts?: SpecialiteAlerts,
 }
 

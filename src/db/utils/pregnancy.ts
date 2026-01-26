@@ -1,6 +1,6 @@
 "use server";
+import "server-cli-only";
 
-import "server-only";
 import db from '@/db';
 import { PregnancyAlert } from "@/types/PregancyTypes";
 

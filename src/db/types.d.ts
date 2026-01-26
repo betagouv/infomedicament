@@ -118,7 +118,7 @@ interface ResumeSubstancesTable {
 interface ResumeMedicamentsTable {
   groupName: string;
   composants: string;
-  specialites: string[][];//SpecId, SpecDenom01, isCommercialisee, isCentralisee
+  specialites: string[][];//SpecId, SpecDenom01, isCommercialisee, isCentralisee, isAIP
   pathosCodes: string[];
   atc1Code?: string;
   atc2Code?: string;

@@ -66,6 +66,7 @@ export function formatSpecialitesResume(specialites: string[][]): ResumeSpeciali
       SpecDenom01: spec[1],
       isCommercialisee: spec[2] === "true" ? true : false,
       isCentralisee: spec[3] === "true" ? true : false,
+      isAIP: spec[4] === "true" ? true : false,
     }
     return result;
   });

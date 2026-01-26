@@ -247,14 +247,23 @@ function DataBlockAccordion({
                 >
                   {formatSpecName(specialite.SpecDenom01)}
                 </Link>
+                {specialite.isAIP && (
+                  <Tooltip
+                    title="Ce médicament est en Autorisation d'Importation parallèle."
+                    kind="hover"
+                  >
+                    <b className={fr.cx("fr-ml-1v", "fr-text--sm")} style={{color: "#89BA12"}}>
+                      AIP
+                    </b>
+                  </Tooltip>
+                )}
                 {!specialite.isCommercialisee && (
                   <Tooltip
                     title="Ce médicament n'est ou ne sera bientôt plus disponible sur le marché."
                     kind="hover"
-                    className={fr.cx("fr-ml-2w")}
                   >
                     <i 
-                      className={fr.cx("fr-icon-close-circle-line")} 
+                      className={fr.cx("fr-icon-close-circle-line", "fr-ml-1v")} 
                       style={{color: "var(--text-action-high-blue-france)"}}
                     />
                   </Tooltip>

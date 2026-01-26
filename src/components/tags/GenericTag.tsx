@@ -7,13 +7,16 @@ import { trackEvent } from "@/services/tracking";
 interface GenericTagProps extends HTMLAttributes<HTMLDivElement> {
   specGeneId: string;
   hideIcon?: boolean;
+  withLink?: boolean;
   fromMedicament?: boolean;
 }
 
 function GenericTag({ 
   specGeneId,
   hideIcon,
+  withLink,
   fromMedicament,
+  ...props
 } : GenericTagProps) {
 
   const onTrackEvent = () => {
@@ -22,18 +25,26 @@ function GenericTag({
   };
 
   return (
-    <div>
+    <div {...props}>
       <Tag
         iconId={!hideIcon ? "fr-icon-capsule-fill" : undefined}
-        linkProps={{
+        {...(withLink ? {linkProps:{
           className: cx("fr-tag--custom-alt-blue"),
           href: `/generiques/${specGeneId}`,
           target: "_blank",
           onClick: () => onTrackEvent(),
-        }}
+        }} : {
+          nativeButtonProps: {
+            className: cx("fr-tag--custom-alt-blue"),
+          }
+        })}
       >
-        Voir les Génériques
-      </Tag>{" "}
+        {withLink ? (
+          <span>Voir les Generiques</span>
+        ) : (
+          <span>Generique</span>
+        )}
+      </Tag>
     </div>
   );
 }

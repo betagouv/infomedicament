@@ -9,7 +9,7 @@ import { getAllSubsWithSpecialites } from "@/db/utils/substances";
 import { displaySimpleComposants, formatSpecName, MedicamentGroup } from "@/displayUtils";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
 import { getAtc1Code, getAtc2Code, getAtcCode } from "@/utils/atc";
-import { getSpecialiteGroupName, groupSpecialites, isCentralisee, isCommercialisee } from "@/utils/specialites";
+import { getSpecialiteGroupName, groupSpecialites, isAIP, isCentralisee, isCommercialisee } from "@/utils/specialites";
 
 type DataToResumeType = "pathos" | "substances" | "specialites" | "atc1" | "atc2" | "generiques";
 
@@ -144,7 +144,8 @@ async function createResumeSpecialites(): Promise<string[]>{
             const presentations = await getPresentations(spec.SpecId);
             const isComm: string = isCommercialisee(presentations) ? "true" : "false";
             const isCent: string = isCentralisee(spec) ? "true" : "false";
-            return [spec.SpecId, spec.SpecDenom01, isComm, isCent];
+            const isSpecAIP: string = isAIP(spec) ? "true" : "false";
+            return [spec.SpecId, spec.SpecDenom01, isComm, isCent, isSpecAIP];
         })
       );
       const CISList: string[] = rawSpecialites.map((spec) => spec.SpecId.trim());
@@ -249,7 +250,7 @@ async function createResumeDataFromBDPM(){
   }/* else if(dataToResume === "atc1"){
     await createResumeATC1Definition();
   }*/
-  return true;
+  process.exit(0);
 }
 
 createResumeDataFromBDPM();
