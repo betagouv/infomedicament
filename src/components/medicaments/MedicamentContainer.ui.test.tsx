@@ -18,6 +18,9 @@ vi.mock("@sentry/nextjs", () => ({
 // Disable server-only for tests
 vi.mock("server-only", () => ({}));
 
+// Disable cache for testing
+vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
+
 describe("Medicament Container component(UI Integration)", () => {
     // Vizamyl 400 Mbq/ml, solution injectable
     const TEST_CIS = "67652999";
