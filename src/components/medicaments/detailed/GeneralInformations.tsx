@@ -308,7 +308,7 @@ function GeneralInformations({
                 )}
               </span>
             ) : (
-              (currentIndicationBlock && currentIndicationBlock.children) ? (
+              (currentIndicationBlock && currentIndicationBlock.children && currentIndicationBlock.children.length > 0) ? (
                 <span>{getContent(currentIndicationBlock.children)}</span>
               ) : (
                 <span>Les indications thérapeutiques ne sont pas disponibles.</span>
