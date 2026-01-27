@@ -5,11 +5,9 @@ import { unstable_cache } from "next/cache";
 import { pdbmMySQL } from "../pdbmMySQL";
 import { atcData, ATCError } from "@/utils/atc";
 import { ATC, ATC1, ATCSubsSpecs } from "@/types/ATCTypes";
-import { ArticleCardResume } from "@/types/ArticlesTypes";
 import { SubstanceNom } from "../pdbmMySQL/types";
 import atcOfficialLabels from "@/data/ATC 2024 02 15.json";
 import { ResumeSpecGroup, SpecialiteWithSubstance } from "@/types/SpecialiteTypes";
-import { getArticlesFromATC } from "./articles";
 import { withOneSubstance } from "./query";
 import db from "@/db/";
 
@@ -193,13 +191,10 @@ export const getResumeSpecsGroupsATCLabels = async function (specsGroups: Resume
 }
 
 /**
- * Loads all data needed for ATC1 definition page in a single server call.
+ * Loads substances and specialites for all ATC2 children in a single server call.
  * Before, we were making 2 queries per ATC2 child !
  */
-export async function getAtc1DefinitionData(atc1: ATC1): Promise<{
-  articles: ArticleCardResume[];
-  allATC: ATCSubsSpecs[];
-}> {
+export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubsSpecs[]> {
   // Build map of ATC2 code -> CIS codes using the CSV
   const atc2ToCIS = new Map<string, string[]>();
   const allCIS: string[] = [];
@@ -212,30 +207,30 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<{
 
   const uniqueCIS = [...new Set(allCIS)];
 
-  // Fetch articles and substances in parallel
-  const [articles, substancesWithCIS] = await Promise.all([
-    getArticlesFromATC(atc1.code),
-    uniqueCIS.length > 0
-      ? pdbmMySQL
-        .selectFrom("Subs_Nom")
-        .leftJoin("Composant", "Composant.NomId", "Subs_Nom.NomId")
-        .where("Composant.SpecId", "in", uniqueCIS)
-        .selectAll("Subs_Nom")
-        .select("Composant.SpecId as SpecId")
-        .execute()
-      : Promise.resolve([]),
-  ]);
-
   // Early return if no medications found
+  if (uniqueCIS.length === 0) {
+    return atc1.children.map((atc2) => ({
+      atc: atc2,
+      substances: [],
+      specialites: [],
+    }));
+  }
+
+  // Fetch all substances with their CIS for grouping
+  const substancesWithCIS = await pdbmMySQL
+    .selectFrom("Subs_Nom")
+    .leftJoin("Composant", "Composant.NomId", "Subs_Nom.NomId")
+    .where("Composant.SpecId", "in", uniqueCIS)
+    .selectAll("Subs_Nom")
+    .select("Composant.SpecId as SpecId")
+    .execute();
+
   if (substancesWithCIS.length === 0) {
-    return {
-      articles,
-      allATC: atc1.children.map((atc2) => ({
-        atc: atc2,
-        substances: [],
-        specialites: [],
-      })),
-    };
+    return atc1.children.map((atc2) => ({
+      atc: atc2,
+      substances: [],
+      specialites: [],
+    }));
   }
 
   // Group substances by ATC2
@@ -285,5 +280,5 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<{
     };
   });
 
-  return { articles, allATC };
+  return allATC;
 }
