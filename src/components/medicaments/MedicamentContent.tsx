@@ -342,7 +342,6 @@ function MedicamentContent({
                       <PrincepsTag 
                         CIS={currentSpec.SpecId} 
                         fromMedicament
-                        withLink
                       />
                     </TagContainer>
                   }
@@ -351,7 +350,6 @@ function MedicamentContent({
                       <GenericTag 
                         specGeneId={currentSpec.SpecGeneId} 
                         fromMedicament
-                        withLink
                       />
                     </TagContainer>
                   )}

@@ -177,36 +177,18 @@ function GeneralInformations({
         <SummaryLine categoryName="Statut générique">
           <>
             {(isPrinceps && !isAIP(currentSpec)) ? (
-              <div>
-                <PrincepsTag 
-                  CIS={currentSpec.SpecId} 
-                  hideIcon
-                  style={{display: "inline"}}
-                />
-                <Link
-                  href={`/generiques/${currentSpec.SpecId}`}
-                  className={fr.cx("fr-text--sm", "fr-link", "fr-ml-0-5v")}
-                >
-                  Voir les alternatives
-                </Link>
-              </div>
+              <PrincepsTag 
+                CIS={currentSpec.SpecId} 
+                hideIcon
+              />
             ) : (
               (currentSpec.SpecGeneId && !isAIP(currentSpec))
               ? (
                 <>
-                  <div>
-                    <GenericTag 
-                      specGeneId={currentSpec.SpecGeneId} 
-                      hideIcon
-                      style={{display: "inline"}}
-                    />
-                    <Link
-                      href={`/generiques/${currentSpec.SpecGeneId}`}
-                      className={fr.cx("fr-text--sm", "fr-link", "fr-ml-0-5v")}
-                    >
-                      Voir les alternatives
-                    </Link>
-                  </div>
+                  <GenericTag 
+                    specGeneId={currentSpec.SpecGeneId} 
+                    hideIcon
+                  />
                   <div>
                     <strong>Princeps:&nbsp;</strong>{currentSpec.generiqueName}
                   </div>
