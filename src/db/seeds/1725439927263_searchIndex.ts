@@ -1,6 +1,5 @@
 import type { Kysely } from "kysely";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { getAtc } from "@/db/utils/atc";
 
 export async function seed(db: Kysely<any>): Promise<void> {
   async function addIndex(table: string, id: string, token: string) {
@@ -73,28 +72,42 @@ export async function seed(db: Kysely<any>): Promise<void> {
     }
   });
 
-  // Get ATC classes
+  // Get ATC classes directly from database (not using getAtc() to avoid unstable_cache dependency)
   try {
-    console.log("Trying to get ATC classes from Grist...");
-    const atc = await getAtc();
-    if (!atc || atc.length === 0) {
-      throw new Error("Got no ATC data from Grist");
+    console.log("Indexing ATC classes...");
+    const atc1Rows = await db
+      .selectFrom("ref_atc_friendly_niveau_1")
+      .select(["code", "libelle"])
+      .execute();
+
+    const atc2Rows = await db
+      .selectFrom("ref_atc_friendly_niveau_2")
+      .select(["code", "libelle"])
+      .execute();
+
+    if (atc1Rows.length === 0 && atc2Rows.length === 0) {
+      throw new Error("No ATC data found in database");
     }
+
     await db.transaction().execute(async (db) => {
       await db
         .deleteFrom("search_index")
         .where("table_name", "=", "ATC")
         .execute();
 
-      for (const atcClass of atc) {
-        await addIndex("ATC", atcClass.code, atcClass.label);
-        for (const atcSubClass of atcClass.children) {
-          await addIndex("ATC", atcSubClass.code, atcSubClass.label);
+      for (const atcClass of atc1Rows) {
+        if (atcClass.code && atcClass.libelle) {
+          await addIndex("ATC", atcClass.code, atcClass.libelle);
         }
       }
-    })
+      for (const atcSubClass of atc2Rows) {
+        if (atcSubClass.code && atcSubClass.libelle) {
+          await addIndex("ATC", atcSubClass.code, atcSubClass.libelle);
+        }
+      }
+    });
   } catch (error) {
-    console.warn("Failed to get ATC classes from Grist:", error);
+    console.warn("Failed to index ATC classes:", error);
     console.warn("Continuing without updating ATC search index.");
   }
 
