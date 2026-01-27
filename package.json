@@ -8,7 +8,7 @@
     "start": "node .next/standalone/server.js",
     "lint": "next lint",
     "predev": "only-include-used-icons",
-    "prebuild": "only-include-used-icons && kysely migrate:latest && kysely seed run --specific 1725439927263_searchIndex",
+    "prebuild": "only-include-used-icons && kysely migrate:latest && kysely seed run --specific 1725439927263_searchIndex 1737990000000_atc",
     "test": "npm run test:unit",
     "test:unit": "vitest --exclude '**/*.integration.test.ts' --exclude '**/*.ui.test.tsx'",
     "test:integration": "vitest run 'integration.test.ts'",
