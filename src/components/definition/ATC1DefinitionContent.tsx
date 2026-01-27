@@ -9,6 +9,7 @@ import PageDefinitionContent from "./PageDefinitionContent";
 import { groupSpecialites } from "@/utils/specialites";
 import { ATC1, ATCSubsSpecs } from "@/types/ATCTypes";
 import { getAtc1DefinitionData } from "@/db/utils/atc";
+import { getArticlesFromATC } from "@/db/utils/articles";
 
 interface ATC1DefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
   atc: ATC1;
@@ -24,7 +25,10 @@ function ATC1DefinitionContent({
 
   const loadDefinitionData = useCallback(async () => {
     try {
-      const { articles, allATC } = await getAtc1DefinitionData(atc);
+      const [articles, allATC] = await Promise.all([
+        getArticlesFromATC(atc.code),
+        getAtc1DefinitionData(atc),
+      ]);
       setArticles(articles);
       setAllATC(allATC);
     } catch (e) {
