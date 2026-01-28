@@ -6,7 +6,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
 import GeneralInformations from "./detailed/GeneralInformations";
-import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
 import DocumentHas from "./detailed/DocumentHas";
 import { Marr } from "@/types/MarrTypes";
 import { FicheInfos, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
@@ -34,6 +34,7 @@ interface DetailedNoticeProps extends HTMLAttributes<HTMLDivElement> {
   marr?: Marr;
   ficheInfos?: FicheInfos
   indicationBlock?: NoticeRCPContentBlock;
+  delivrance: SpecDelivrance[];
 }
 
 function DetailedNotice({
@@ -49,6 +50,7 @@ function DetailedNotice({
   marr,
   ficheInfos,
   indicationBlock,
+  delivrance,
   ...props 
 }: DetailedNoticeProps) {
 
@@ -72,11 +74,10 @@ function DetailedNotice({
     <>
       <DetailedNoticeContainer id="informations-generales" $visible={visiblePart === DetailsNoticePartsEnum.INFORMATIONS_GENERALES}>
         <GeneralInformations 
-          CIS={currentSpec && currentSpec.SpecId}
+          specialite={currentSpec}
           atcCode={atcCode}
           composants={composants}
           isPrinceps={isPrinceps}
-          SpecGeneId={currentSpec ? currentSpec.SpecGeneId : ""}
           isPregnancyPlanAlert={isPregnancyPlanAlert}
           isPregnancyMentionAlert={isPregnancyMentionAlert}
           pediatrics={pediatrics}
@@ -85,6 +86,7 @@ function DetailedNotice({
           marr={marr}
           ficheInfos={ficheInfos}
           indicationBlock={currentIndicationBlock}
+          delivrance={delivrance}
         />
       </DetailedNoticeContainer>
       <DetailedNoticeContainer id="rcp-denomiation" $visible={visiblePart === DetailsNoticePartsEnum.RCP}>
@@ -92,7 +94,7 @@ function DetailedNotice({
           <RcpBlock specialite={currentSpec} />
         </ContentContainer>
       </DetailedNoticeContainer>
-      <DetailedNoticeContainer id="document-has-bon-usage" $visible={visiblePart === DetailsNoticePartsEnum.HAS}>
+      <DetailedNoticeContainer id="document-has" $visible={visiblePart === DetailsNoticePartsEnum.HAS}>
         <DocumentHas ficheInfos={ficheInfos}/>
       </DetailedNoticeContainer>
     </>

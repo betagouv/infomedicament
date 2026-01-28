@@ -48,7 +48,7 @@ export async function getNotice(CIS: string): Promise<NoticeData | undefined> {
   if(!noticeRaw) return undefined;
 
   notice.title = noticeRaw.title;
-  notice.dateNotif = noticeRaw.dateNotif;
+  notice.dateNotif = noticeRaw.dateNotif?.replace("ANSM - Mis à jour le : ", "Notice mise à jour le ");
   
   if(noticeRaw.children && noticeRaw.children.length > 0) 
     notice.children = await getContent(noticeRaw.children);

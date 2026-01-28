@@ -3,15 +3,19 @@ import React, { HTMLAttributes } from "react";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import "./dsfr-custom-tags.css";
 import { trackEvent } from "@/services/tracking";
+import Link from "next/link";
 
 interface PrincepsTagProps extends HTMLAttributes<HTMLDivElement> {
   CIS: string;
+  hideIcon?: boolean;
   fromMedicament?: boolean;
 }
 
 export default function PrincepsTag({ 
   CIS,
+  hideIcon,
   fromMedicament,
+  ...props
  }: PrincepsTagProps) {
 
   const onTrackEvent = () => {
@@ -20,18 +24,25 @@ export default function PrincepsTag({
   };
 
   return (
-    <div>
+    <div {...props}>
       <Tag
-        iconId="fr-icon-capsule-fill"
-        linkProps={{
+        iconId={!hideIcon ? "fr-icon-capsule-fill" : undefined}
+        nativeButtonProps= {{
           className: cx("fr-tag--custom-alt-blue"),
-          href: `/generiques/${CIS}`,
-          target: "_blank",
-          onClick: () => onTrackEvent(),
         }}
       >
-        Voir les Princeps
+        Princeps
       </Tag>
+      <div style={{display: "inline"}}>
+        <Link
+          href={`/generiques/${CIS}`} 
+          className={cx("fr-link", "fr-link--sm", "fr-ml-0-5v")}
+          onClick={() => onTrackEvent()}
+          style={{whiteSpace: "nowrap"}}
+        >
+          Voir les alternatives
+        </Link>
+      </div>
     </div>
   );
 }

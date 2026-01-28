@@ -43,7 +43,7 @@ export async function getRCP(CIS: string): Promise<RcpData | undefined> {
   const rcp:RcpData = {
     codeCIS: rcpRaw.codeCIS,
     title: rcpRaw.title,
-    dateNotif: rcpRaw.dateNotif,
+    dateNotif: rcpRaw.dateNotif?.replace("ANSM - Mis à jour le : ", "RCP mis à jour le "),
     children: [],
   }
   
