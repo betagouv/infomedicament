@@ -9,7 +9,7 @@ import React from "react";
 
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { formatSpecName } from "@/displayUtils";
-import { getAtc2 } from "@/data/grist/atc";
+import { getAtc2 } from "@/db/utils/atc";
 import { notFound } from "next/navigation";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";

@@ -1,5 +1,5 @@
 import ClientHeader from "@/components/ClientHeader";
-import { getAtc } from "@/data/grist/atc";
+import { getAtc } from "@/db/utils/atc";
 
 export const dynamic = "error";
 export const dynamicParams = true;
