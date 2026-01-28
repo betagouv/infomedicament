@@ -4,6 +4,9 @@ import { getSearchResults } from "@/db/utils/search";
 // disable cache for testing
 vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
 
+// Disable server-only for tests
+vi.mock("server-only", () => ({}));
+
 describe("Search engine (Integration) -- Functional Tests", () => {
 
     it("must return at least one result for valid search terms", async () => {
