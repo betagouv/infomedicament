@@ -43,6 +43,9 @@ vi.mock("./specialities");
 vi.mock("./atc");
 vi.mock("@/data/grist/specialites");
 
+// Disable server-only for tests
+vi.mock("server-only", () => ({}));
+
 describe("Legacy Search Engine (getSearchResults)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
