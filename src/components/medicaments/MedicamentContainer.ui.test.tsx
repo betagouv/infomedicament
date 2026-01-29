@@ -18,6 +18,9 @@ vi.mock("@sentry/nextjs", () => ({
 // Disable server-only for tests
 vi.mock("server-only", () => ({}));
 
+// Disable cache for testing
+vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
+
 describe("Medicament Container component(UI Integration)", () => {
     // Vizamyl 400 Mbq/ml, solution injectable
     const TEST_CIS = "67652999";
@@ -25,7 +28,7 @@ describe("Medicament Container component(UI Integration)", () => {
     it("should render the correct content for medicament container", async () => {
         const { specialite, composants, presentations, delivrance } = await getSpecialite(TEST_CIS);
 
-        const atcCode = getAtcCode(TEST_CIS);
+        const atcCode = await getAtcCode(TEST_CIS);
         const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
         const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
@@ -61,7 +64,7 @@ describe("Medicament Container component(UI Integration)", () => {
         const TEST_CIS = "66053338";
         const { specialite, composants, presentations, delivrance } = await getSpecialite(TEST_CIS);
 
-        const atcCode = getAtcCode(TEST_CIS);
+        const atcCode = await getAtcCode(TEST_CIS);
         const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
         const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
@@ -98,7 +101,7 @@ describe("Medicament Container component(UI Integration)", () => {
         const TEST_CIS = "60453083";
         const { specialite, composants, presentations, delivrance } = await getSpecialite(TEST_CIS);
 
-        const atcCode = getAtcCode(TEST_CIS);
+        const atcCode = await getAtcCode(TEST_CIS);
         const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
         const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
@@ -135,7 +138,7 @@ describe("Medicament Container component(UI Integration)", () => {
         const TEST_CIS = "65880598";
         const { specialite, composants, presentations, delivrance } = await getSpecialite(TEST_CIS);
 
-        const atcCode = getAtcCode(TEST_CIS);
+        const atcCode = await getAtcCode(TEST_CIS);
         const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
         const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
@@ -173,7 +176,7 @@ describe("Medicament Container component(UI Integration)", () => {
         const TEST_CIS = "60002283";
         const { specialite, composants, presentations, delivrance } = await getSpecialite(TEST_CIS);
 
-        const atcCode = getAtcCode(TEST_CIS);
+        const atcCode = await getAtcCode(TEST_CIS);
         const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
         const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 

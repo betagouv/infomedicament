@@ -43,7 +43,7 @@ export default async function Page(props: {
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);
 
-  const atcCode = getAtcCode(CIS);
+  const atcCode = await getAtcCode(CIS);
   const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
   const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
