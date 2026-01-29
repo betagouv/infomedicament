@@ -1,7 +1,7 @@
 import db from "@/db";
 import { Database } from "@/db/types";
 import path from "node:path";
-import { getCleanHTML } from "./utils/htmlParser";
+import { createAddContent } from "./utils/contentParser"
 
 type ImportType = "notice" | "rcp";
 type ImportData = {
@@ -10,17 +10,6 @@ type ImportData = {
   contentTable: keyof Database,
 };
 
-type ContentBlock = {
-  type?: string,
-  styles?: string[],
-  anchor?: string,
-  content?: string[],
-  html?: string,
-  children?: number[],
-  tag?: string,
-  rowspan?: number,
-  colspan?: number,
-}
 type Rcp = {
   codeCIS: number;
   title?: string;
@@ -37,7 +26,7 @@ const readline = require('readline');
 const fs = require('fs');
 
 const type = process.argv[2] as ImportType;
-const importData:ImportData = (type === "notice") 
+const importData: ImportData = (type === "notice")
   ? {
     filename: "notices_5000.jsonl",
     mainTable: "notices",
@@ -76,77 +65,12 @@ const pool: number[][] = [
   [4601, 4800], //23
   [4801, 5000], //24
 ];
-const poolNumber:number = parseInt(process.argv[3]);
-const poolBegin:number = pool[poolNumber][0];
-const poolEnd:number = pool[poolNumber][1];
+const poolNumber: number = parseInt(process.argv[3]);
+const poolBegin: number = pool[poolNumber][0];
+const poolEnd: number = pool[poolNumber][1];
 
-async function getContentFromData(data: any, isTable?: boolean): Promise<ContentBlock>{
-  const contentBlock:ContentBlock = {
-    type: "",
-    styles: [],
-    anchor: "",
-    content: [],
-    html: "",
-    children: [],
-    tag: "",
-    rowspan: undefined,
-    colspan: undefined,
-  }
-
-  if(data.type) contentBlock.type = data.type;
-  if(data.anchor) contentBlock.anchor = data.anchor;
-  if(data.styles) contentBlock.styles = !Array.isArray(data.styles) ? [data.styles] : data.styles;
-
-  if((data.type && data.type === "table") || isTable){
-    if(data.tag) contentBlock.tag = data.tag;
-    if(data.attributes){ 
-      if(data.attributes.class && (data.type === "table" || !data.type)) contentBlock.type = data.attributes.class;
-      if(data.attributes.colspan) contentBlock.colspan = parseInt(data.attributes.colspan);
-      if(data.attributes.rowspan) contentBlock.rowspan = parseInt(data.attributes.rowspan);
-    }
-    if(data.html) contentBlock.html = data.html;
-    // if(data.children && data.children.length > 0) contentBlock.children = await addContent(data.children, true);
-  } else {
-    if(data.content) contentBlock.content = !Array.isArray(data.content) ? [data.content] : data.content;
-    if(data.html){
-      contentBlock.html = getCleanHTML(data.html);
-    }
-    if(data.children) contentBlock.children = await addContent(data.children);
-  }
-  return contentBlock;
-}
-
-async function addContent(childrenData: any, isTable?: boolean): Promise<number[]>{
-  const childrenToInsert:(ContentBlock | boolean)[] =  await Promise.all(
-    childrenData.map(async(data: any) => {
-      if(data.content || data.children || data.text){
-        return await getContentFromData(data, isTable);
-      }
-      else return false;
-    })
-  );
-  const ids:number[] = [];
-  if(childrenToInsert.length > 0) {
-    const filteredChildren = childrenToInsert.filter((child) => child !== false);
-    if(filteredChildren.length > 0) {
-      try {
-        const rawIds = await db.insertInto(importData.contentTable)
-          .values(filteredChildren)
-          .returning('id')
-          .execute();
-        rawIds.forEach((id) => (id && id.id !== undefined) && ids.push(parseInt(id.id as string)) );
-      } catch(e){
-        console.log("childrenToInsert");
-        console.log(childrenToInsert);
-        console.log(e);
-      }
-    }
-  }
-  return ids;
-}
-
-async function importNoticeRcp(){
-  
+async function importNoticeRcp() {
+  const addContent = createAddContent(db, importData.contentTable);
   const pathfile = path.join(process.cwd(), "scripts", importData.filename);
 
   // create a readline interface for reading the file line by line
@@ -159,48 +83,38 @@ async function importNoticeRcp(){
   // read each line of the file and parse it as JSON
   await rl.on('line', async (line: any) => {
     lineNumber++;
-    if(poolBegin > lineNumber) return;
-    if(poolEnd < lineNumber) return;
+    if (poolBegin > lineNumber) return;
+    if (poolEnd < lineNumber) return;
     console.log(lineNumber);
 
     const rawLine = JSON.parse(line);
-    if(rawLine.source) {
+    if (rawLine.source) {
       const codeCIS = rawLine.source.cis;
-      if(!codeCIS){
+      if (!codeCIS) {
         console.log("Code CIS error : " + rawLine.source);
         return;
       }
 
-      const RCP:Rcp = {
+      const RCP: Rcp = {
         codeCIS: codeCIS,
         title: "",
         dateNotif: "",
         children: [],
       }
-      if(rawLine.content && Array.isArray(rawLine.content)) {
-        const childrenToInsert:(ContentBlock | boolean)[] = await Promise.all(
-          rawLine.content.map(async (data: any) => {
-            if(data.type === "DateNotif") RCP.dateNotif = data.content;
-            else if(data.type === "AmmAnnexeTitre") RCP.title = data.content;
-            else {
-              //Blocs de contenu
-              if(data.content || data.children){
-                return await getContentFromData(data);
-              }
-            }
-            return false;
-          })
+      if (rawLine.content && Array.isArray(rawLine.content)) {
+        // Extract metadata
+        for (const data of rawLine.content) {
+          if (data.type === "DateNotif") RCP.dateNotif = data.content;
+          else if (data.type === "AmmAnnexeTitre") RCP.title = data.content;
+        }
+
+        // Filter and process content blocks
+        const contentBlocks = rawLine.content.filter(
+          (data: any) => data.type !== "DateNotif" && data.type !== "AmmAnnexeTitre" && (data.content || data.children)
         );
 
-        if(childrenToInsert.length > 0) {
-          const filteredChildren = childrenToInsert.filter((child) => child !== false);
-          if(filteredChildren.length > 0) {
-            const ids = await db.insertInto(importData.contentTable)
-              .values(filteredChildren)
-              .returning('id')
-              .execute();
-            ids.forEach((id) => (id && id.id !== undefined) && RCP.children?.push(parseInt(id.id as string)) );
-          }
+        if (contentBlocks.length > 0) {
+          RCP.children = await addContent(contentBlocks);
         }
       }
 
