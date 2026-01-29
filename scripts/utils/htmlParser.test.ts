@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getCleanHTML } from "./utils/htmlParser";
+import { getCleanHTML } from "./htmlParser";
 
 describe("getCleanHTML", () => {
   it("should return unchanged HTML when no <a name=> tags present", () => {
