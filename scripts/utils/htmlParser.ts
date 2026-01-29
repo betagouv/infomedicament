@@ -11,8 +11,8 @@ export function getCleanHTML(htmlToClean: string): string {
     var indexAEmptyClose: number = cleanHTML.indexOf("</a>", indexAEmptyEnd);
     if (indexAEmptyClose === -1) break;
     const newCleanHTML =
-      cleanHTML.slice(0, indexAEmpty - 1) +
-      cleanHTML.slice(indexAEmptyEnd + 1, indexAEmptyClose - 1) +
+      cleanHTML.slice(0, indexAEmpty) +
+      cleanHTML.slice(indexAEmptyEnd + 1, indexAEmptyClose) +
       cleanHTML.slice(indexAEmptyClose + 4);
     cleanHTML = newCleanHTML;
     indexAEmpty = cleanHTML.indexOf("<a name=");
