@@ -1,6 +1,7 @@
 import db from "@/db";
 import { Database } from "@/db/types";
 import path from "node:path";
+import { getCleanHTML } from "./utils/htmlParser";
 
 type ImportType = "notice" | "rcp";
 type ImportData = {
@@ -78,21 +79,6 @@ const pool: number[][] = [
 const poolNumber:number = parseInt(process.argv[3]);
 const poolBegin:number = pool[poolNumber][0];
 const poolEnd:number = pool[poolNumber][1];
-
-function getCleanHTML(htmlToClean: string): string{
-  let cleanHTML: string = htmlToClean;
-  let indexAEmpty:number = cleanHTML.indexOf("<a name=");
-  while(indexAEmpty !== -1){
-    var indexAEmptyEnd:number = cleanHTML.indexOf(">", indexAEmpty);
-    if(indexAEmptyEnd === -1) break; 
-    var indexAEmptyClose:number = cleanHTML.indexOf("</a>", indexAEmptyEnd);
-    if(indexAEmptyClose === -1) break; 
-    const newCleanHTML = cleanHTML.slice(0, indexAEmpty - 1) + cleanHTML.slice(indexAEmptyEnd + 1, indexAEmptyClose - 1) + cleanHTML.slice(indexAEmptyClose + 4);
-    cleanHTML = newCleanHTML;
-    indexAEmpty = cleanHTML.indexOf("<a name=");
-  }
-  return cleanHTML;
-}
 
 async function getContentFromData(data: any, isTable?: boolean): Promise<ContentBlock>{
   const contentBlock:ContentBlock = {
