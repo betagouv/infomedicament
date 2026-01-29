@@ -20,7 +20,10 @@ const db = new Kysely<Database>({
             port: 5432,
           }),
       max: 3,
-      connectionTimeoutMillis: 5000,
+      connectionTimeoutMillis: 10000, // 10s to establish connection
+      idleTimeoutMillis: 30000, // close idle connections after 30s
+      keepAlive: true, // enable TCP keepalive
+      keepAliveInitialDelayMillis: 10000, // start keepalive probes after 10s
     }),
   }),
 });
