@@ -1,5 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
+import { Kysely } from "kysely";
+import { Database } from "@/db/types";
 import { getContentFromData, createAddContent } from "./contentParser";
+
 
 describe("getContentFromData", () => {
   it("should return empty ContentBlock for empty data", async () => {
@@ -142,14 +145,14 @@ describe("createAddContent", () => {
       }),
     };
 
-    const addContent = createAddContent(mockDb, "test_content");
+    const addContent = createAddContent(mockDb as unknown as Kysely<Database>, "notices_content");
     const result = await addContent([
       { content: "Bloc 1" },
       { content: "Bloc 2" },
       { content: "Bloc ABCD" },
     ]);
 
-    expect(mockDb.insertInto).toHaveBeenCalledWith("test_content");
+    expect(mockDb.insertInto).toHaveBeenCalledWith("notices_content");
     expect(result).toEqual([1, 2, 3]);
   });
 
@@ -166,7 +169,7 @@ describe("createAddContent", () => {
       }),
     };
 
-    const addContent = createAddContent(mockDb, "test_content");
+    const addContent = createAddContent(mockDb as unknown as Kysely<Database>, "notices_content");
     const result = await addContent([
       { content: "Valid item" },
       { type: "TypeOnly" }, // No content, children or text - should be filtered
@@ -187,7 +190,7 @@ describe("createAddContent", () => {
       insertInto: vi.fn(),
     };
 
-    const addContent = createAddContent(mockDb, "test_content");
+    const addContent = createAddContent(mockDb as unknown as Kysely<Database>, "notices_content");
     const result = await addContent([{ type: "empty" }, { html: "only html" }]);
 
     // The mock should not have been called
@@ -211,7 +214,7 @@ describe("createAddContent", () => {
       }),
     };
 
-    const addContent = createAddContent(mockDb, "test_content");
+    const addContent = createAddContent(mockDb as unknown as Kysely<Database>, "notices_content");
     const result = await addContent([
       {
         content: "Parent",
@@ -221,5 +224,6 @@ describe("createAddContent", () => {
 
     // Should have called insertInto twice (once for child, once for parent)
     expect(mockDb.insertInto).toHaveBeenCalledTimes(2);
+    expect(result).toEqual([2]);
   });
 });
