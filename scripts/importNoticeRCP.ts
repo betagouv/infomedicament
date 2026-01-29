@@ -2,6 +2,8 @@ import db from "@/db";
 import { Database } from "@/db/types";
 import path from "node:path";
 import { createAddContent } from "./utils/contentParser"
+import readline from "node:readline";
+import fs from "node:fs";
 
 type ImportType = "notice" | "rcp";
 type ImportData = {
@@ -21,9 +23,6 @@ if (process.argv.length !== 4) {
   console.info('Usage: npx tsx scripts/importNoticeRcp.ts importType poolNumber');
   process.exit(1);
 }
-
-const readline = require('readline');
-const fs = require('fs');
 
 const type = process.argv[2] as ImportType;
 const importData: ImportData = (type === "notice")
@@ -80,55 +79,54 @@ async function importNoticeRcp() {
   });
 
   let lineNumber = 0;
-  // read each line of the file and parse it as JSON
-  await rl.on('line', async (line: any) => {
+
+  // Read lines sequentially
+  for await (const line of rl) {
     lineNumber++;
-    if (poolBegin > lineNumber) return;
-    if (poolEnd < lineNumber) return;
-    console.log(lineNumber);
+    if (poolBegin > lineNumber) continue;
+    if (poolEnd < lineNumber) continue;
+    console.debug(lineNumber);
 
     const rawLine = JSON.parse(line);
-    if (rawLine.source) {
-      const codeCIS = rawLine.source.cis;
-      if (!codeCIS) {
-        console.log("Code CIS error : " + rawLine.source);
-        return;
-      }
+    if (!rawLine.source) continue;
 
-      const RCP: Rcp = {
-        codeCIS: codeCIS,
-        title: "",
-        dateNotif: "",
-        children: [],
-      }
-      if (rawLine.content && Array.isArray(rawLine.content)) {
-        // Extract metadata
-        for (const data of rawLine.content) {
-          if (data.type === "DateNotif") RCP.dateNotif = data.content;
-          else if (data.type === "AmmAnnexeTitre") RCP.title = data.content;
-        }
-
-        // Filter and process content blocks
-        const contentBlocks = rawLine.content.filter(
-          (data: any) => data.type !== "DateNotif" && data.type !== "AmmAnnexeTitre" && (data.content || data.children)
-        );
-
-        if (contentBlocks.length > 0) {
-          RCP.children = await addContent(contentBlocks);
-        }
-      }
-
-      //Même si RCP vide, j'insert
-      const result = await db.insertInto(importData.mainTable)
-        .values(RCP)
-        .execute();
-
+    const codeCIS = rawLine.source.cis;
+    if (!codeCIS) {
+      console.log("Code CIS error : " + rawLine.source);
+      continue;
     }
-  });
 
-  // log the parsed JSON objects once the file has been fully read
-  rl.on('close', () => {
-  });
-}
+    const RCP: Rcp = {
+      codeCIS: codeCIS,
+      title: "",
+      dateNotif: "",
+      children: [],
+    }
+    if (rawLine.content && Array.isArray(rawLine.content)) {
+      // Extract metadata
+      for (const data of rawLine.content) {
+        if (data.type === "DateNotif") RCP.dateNotif = data.content;
+        else if (data.type === "AmmAnnexeTitre") RCP.title = data.content;
+      }
+
+      // Filter and process content blocks
+      const contentBlocks = rawLine.content.filter(
+        (data: any) => data.type !== "DateNotif" && data.type !== "AmmAnnexeTitre" && (data.content || data.children)
+      );
+
+      if (contentBlocks.length > 0) {
+        RCP.children = await addContent(contentBlocks);
+      }
+    }
+
+    //Même si RCP vide, j'insert
+    const result = await db.insertInto(importData.mainTable)
+      .values(RCP)
+      .execute();
+
+  }
+};
+
+console.log("Import terminé")
 
 importNoticeRcp();
