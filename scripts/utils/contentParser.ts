@@ -1,3 +1,5 @@
+import { Kysely } from "kysely";
+import { Database } from "@/db/types";
 import { getCleanHTML } from "./htmlParser";
 
 export type ContentBlock = {
@@ -12,15 +14,6 @@ export type ContentBlock = {
   colspan?: number;
 };
 
-type DbInsert = {
-  insertInto: (table: string) => {
-    values: (data: any) => {
-      returning: (col: string) => {
-        execute: () => Promise<{ id: string | number }[]>;
-      };
-    };
-  };
-};
 
 export async function getContentFromData(
   data: any,
@@ -73,7 +66,7 @@ export async function getContentFromData(
 }
 
 // Returns an "addContent" function
-export function createAddContent(db: DbInsert, contentTable: string): Function {
+export function createAddContent(db: Kysely<Database>, contentTable: keyof Database) {
   const addContent = async (
     childrenData: any,
     isTable?: boolean,
