@@ -3,40 +3,49 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { pdbmMySQL } from "../pdbmMySQL";
-import { atcData, ATCError } from "@/utils/atc";
+import { ATCError } from "@/utils/atc";
 import { ATC, ATC1, ATCSubsSpecs } from "@/types/ATCTypes";
 import { SubstanceNom } from "../pdbmMySQL/types";
-import atcOfficialLabels from "@/data/ATC 2024 02 15.json";
 import { ResumeSpecGroup, SpecialiteWithSubstance } from "@/types/SpecialiteTypes";
 import { withOneSubstance } from "./query";
 import db from "@/db/";
 
 /**
  * Returns all CIS codes for an ATC class.
- * ATCData is loaded from a local CSV
  */
-function getCISCodesForAtc(atc: ATC): string[] {
+async function getCISCodesForAtc(atc: ATC): Promise<string[]> {
   if (!atc.children) return [];
-  return (atc.children as ATC[]).flatMap((child) =>
-    atcData.filter((row) => row[1] === child.code).map((row) => row[0])
-  );
+  const childCodes = (atc.children as ATC[]).map((child) => child.code);
+  if (childCodes.length === 0) return [];
+
+  const rows = await db
+    .selectFrom("cis_atc")
+    .select("code_cis")
+    .where("code_atc", "in", childCodes)
+    .execute();
+
+  return rows.map((row) => row.code_cis).filter((cis): cis is string => cis !== null);
 }
 
 /**
- * Builds ATC children from the official labels JSON.
+ * Builds ATC children from the database.
  */
-function buildFullAtcChildren(atc2Code: string): ATC[] {
-  return Object.keys(atcOfficialLabels)
-    .filter((key) => key.startsWith(atc2Code))
-    .map((key) => ({
-      code: key,
-      label: (atcOfficialLabels as Record<string, string>)[key],
-      description: "",
-    }));
+async function buildFullAtcChildren(atc2Code: string): Promise<ATC[]> {
+  const rows = await db
+    .selectFrom("atc")
+    .select(["code", "label"])
+    .where("code", "like", `${atc2Code}%`)
+    .execute();
+
+  return rows.map((row) => ({
+    code: row.code ?? "",
+    label: row.label ?? "",
+    description: "",
+  }));
 }
 
 export const getSubstancesByAtc = cache(async (atc2: ATC): Promise<SubstanceNom[]> => {
-  const CIS = getCISCodesForAtc(atc2);
+  const CIS = await getCISCodesForAtc(atc2);
 
   if (!CIS.length) return [];
 
@@ -119,8 +128,8 @@ export const getAtc1 = unstable_cache(
   { revalidate: 86400 } // 24hrs cache
 );
 
-/** Internal function used by getAtc and getAtc1 with JSON data */
-function buildAtc2(code: string, tableNiveau2: any[]): ATC {
+/** Internal function used by getAtc and getAtc1 */
+async function buildAtc2(code: string, tableNiveau2: any[]): Promise<ATC> {
   const record = tableNiveau2.find((r: any) => r.code === code.slice(0, 3));
 
   if (!record) {
@@ -131,7 +140,7 @@ function buildAtc2(code: string, tableNiveau2: any[]): ATC {
     code: record.code as string,
     label: record.libelle as string,
     description: record.definition_sous_classe as string,
-    children: buildFullAtcChildren(code),
+    children: await buildFullAtcChildren(code),
   };
 }
 
@@ -150,7 +159,7 @@ export const getAtc2 = unstable_cache(
       code: record.code as string,
       label: record.libelle as string,
       description: record.definition_sous_classe as string,
-      children: buildFullAtcChildren(code),
+      children: await buildFullAtcChildren(code),
     };
   },
   ["atc2"],
@@ -195,12 +204,12 @@ export const getResumeSpecsGroupsATCLabels = async function (specsGroups: Resume
  * Before, we were making 2 queries per ATC2 child !
  */
 export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubsSpecs[]> {
-  // Build map of ATC2 code -> CIS codes using the CSV
+  // Build map of ATC2 code -> CIS codes from the database
   const atc2ToCIS = new Map<string, string[]>();
   const allCIS: string[] = [];
 
   for (const atc2 of atc1.children) {
-    const cisCodes = getCISCodesForAtc(atc2);
+    const cisCodes = await getCISCodesForAtc(atc2);
     atc2ToCIS.set(atc2.code, cisCodes);
     allCIS.push(...cisCodes);
   }
