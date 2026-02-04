@@ -291,16 +291,32 @@ export interface RefSubstanceActiveDefinitions {
 }
 
 export interface Atc {
-  code: string | null;
   id: Generated<number>;
-  label: string | null;
+  code_terme: number | null;
+  code_terme_pere: number | null;
+  code: string | null;
+  label_court: string | null;
+  label_long: string | null;
+  label_anglais: string | null;
+  label_recherche: string | null;
+  num_ordre_edit: number | null;
+  date_creation: Date | null;
+  date_modification: Date | null;
+  date_inactivation: Date | null;
+  source_ref: string | null;
+  remarque: string | null;
 }
 
 export interface CisAtc {
-  code_atc: string | null;
-  code_cis: string | null;
   id: Generated<number>;
-  label_atc: string | null;
+  code_cis: string | null;
+  code_terme_atc: number | null;
+  est_valide: boolean | null;
+  est_certain: boolean | null;
+  commentaire: string | null;
+  date_creation: Date | null;
+  date_modification: Date | null;
+  code_modif: number | null;
 }
 
 export type LeafletImage = Selectable<LeafletImagesTable>;
