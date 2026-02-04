@@ -5,7 +5,6 @@ import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import { fr } from "@codegouvfr/react-dsfr";
 import "./dsfr-custom-tags.css";
 import TagContainer from "./TagContainer";
-import { TagTypeEnum } from "@/types/TagType";
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import styled from 'styled-components';
 import { PediatricsInfo } from "@/types/PediatricTypes";
@@ -36,16 +35,18 @@ const ModalContent = styled.div`
 
 interface PediatricsTagsProps extends HTMLAttributes<HTMLDivElement> {
   info?: PediatricsInfo;
-  lastTagElement?: TagTypeEnum;
   fromMedicament?: boolean;
+  withSeparator?: boolean;
+  hideLast?: boolean;
 }
 
 export default function PediatricsTags({ 
   info, 
-  lastTagElement,
-  fromMedicament
+  fromMedicament,
+  withSeparator,
+  hideLast
 }: PediatricsTagsProps) {
-  const hideSeparator = !lastTagElement;
+  
 
   const onTrackEvent = (event: string) => {
     if(fromMedicament)
@@ -67,7 +68,7 @@ export default function PediatricsTags({
           </modalIndication.Component>
           <TagContainer 
             className={fr.cx("fr-mt-1w", "fr-mr-1w")}
-            hideSeparator={hideSeparator || lastTagElement === TagTypeEnum.PEDIATRIC_INDICATION}
+            hideSeparator={!withSeparator || (hideLast && !info.contraindication && !info.doctorAdvice && !info.mention)}
           >
             <Tag
               linkProps={{
@@ -98,7 +99,7 @@ export default function PediatricsTags({
           </modalContraindication.Component>
           <TagContainer 
             className={fr.cx("fr-mt-1w", "fr-mr-1w")}
-            hideSeparator={hideSeparator || lastTagElement === TagTypeEnum.PEDIATRIC_CONTRAINDICATION}
+            hideSeparator={!withSeparator || (hideLast && !info.doctorAdvice && !info.mention)}
           >
             <Tag
               linkProps={{
@@ -129,7 +130,7 @@ export default function PediatricsTags({
           </modalDoctorAdvice.Component>
           <TagContainer
             className={fr.cx("fr-mt-1w", "fr-mr-1w")}
-            hideSeparator={hideSeparator || lastTagElement === TagTypeEnum.PEDIATRIC_DOCTOR_ADVICE}
+            hideSeparator={!withSeparator || (hideLast && !info.mention)}
           >
             <Tag
               linkProps={{
@@ -160,7 +161,7 @@ export default function PediatricsTags({
           </modalMention.Component>
           <TagContainer
             className={fr.cx("fr-mt-1w", "fr-mr-1w")}
-            hideSeparator={hideSeparator || lastTagElement === TagTypeEnum.PEDIATRIC_MENTION}
+            hideSeparator={!withSeparator || hideLast}
           >
             <Tag
               linkProps={{

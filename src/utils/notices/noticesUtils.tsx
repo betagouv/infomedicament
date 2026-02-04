@@ -8,8 +8,6 @@ import { CSSProperties } from "react";
 
 export function displayInfosImportantes(ficheInfos?:FicheInfos): boolean{
   if(ficheInfos && ficheInfos.listeInformationsImportantes && ficheInfos.listeInformationsImportantes.length > 0){
-    if(ficheInfos.listeInformationsImportantes.length === 1 && ficheInfos.listeInformationsImportantes[0] === "")
-      return false;
     return true;
   }
   return false;

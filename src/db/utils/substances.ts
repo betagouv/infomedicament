@@ -1,4 +1,5 @@
 "use server";
+import "server-cli-only";
 
 import { unstable_cache } from "next/cache";
 import { pdbmMySQL } from "../pdbmMySQL";

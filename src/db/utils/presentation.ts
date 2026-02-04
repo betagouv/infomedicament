@@ -31,7 +31,7 @@ export const presentationIsComm = () => {
       eb("Presentation.StatId", "is", null),
       eb("Presentation.StatId", "!=", PresentationStat.Abrogation),
       eb(
-        "Presentation.PresStatDate",
+        "Presentation.PresStatDAte",
         ">=",
         sql<Date>`DATE_ADD(NOW(),INTERVAL -730 DAY)`,
       ),
@@ -49,6 +49,7 @@ export const getPresentations = cache(
         .where("SpecId", "=", CIS)
         .where(presentationIsComm())
         .leftJoin("CEPS_Prix", "Presentation.codeCIP13", "CEPS_Prix.Cip13")
+        .leftJoin("CNAM_AgreColl", "Presentation.codeCIP13", "CNAM_AgreColl.Cip13")
         .selectAll()
       //  .select(({ fn, val }) => [
       //     fn<boolean>("", [val(presentationIsComm())]).as("isCommercialisee"),

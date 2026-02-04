@@ -33,7 +33,7 @@ function totalDisplay(p: PresentationDetail): string {
 
 function contentDisplay(p: PresentationDetail): string {
   if(p.qtecontenance && p.unitecontenance)
-    return `${p.qtecontenance} ${p.unitecontenance.replaceAll("(s)", p.qtecontenance && p.qtecontenance > 1 ? "s" : "")}`;
+    return `${p.qtecontenance.toLocaleString('fr-FR')} ${p.unitecontenance.replaceAll("(s)", p.qtecontenance && p.qtecontenance > 1 ? "s" : "")}`;
   else return "";
 }
 
@@ -43,23 +43,42 @@ function caracCompDisplay(p: PresentationDetail): string {
 
 function presentationDetailName(p: PresentationDetail): string {
   if(!p.recipient) return "";
-  const recipient = p.recipient.replaceAll("thermoformée", "");
+  let recipient = p.recipient.replaceAll("thermoformée", "");
+  const contentDisplayStr = contentDisplay(p);
 
   if (p.nbrrecipient > 1) {
+    if(recipient.indexOf("stylo prérempli") !== -1)
+      recipient = recipient.replaceAll("stylo prérempli", "stylos préremplis");
+
     if (
       p.qtecontenance > 1 &&
       p.unitecontenance &&
       !unitesMesures.includes(p.unitecontenance)
     ) {
-      return `${totalDisplay(p)} - ${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)} de ${contentDisplay(p)}`;
+      return `${totalDisplay(p)} - ${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)}${contentDisplayStr && ` de ${contentDisplayStr}`}`;
     }
 
-    return `${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)}${p.qtecontenance && p.qtecontenance ? ` de ${contentDisplay(p)}` : ""}`;
+    return `${p.nbrrecipient} ${recipient.replaceAll("(s)", "s")}${caracCompDisplay(p)}${contentDisplayStr && ` de ${contentDisplayStr}`}`;
   }
 
   return capitalize(
-    `${recipient.replaceAll("(s)", "")}${caracCompDisplay(p)} de ${contentDisplay(p)}`,
+    `${recipient.replaceAll("(s)", "")}${caracCompDisplay(p)}${contentDisplayStr && ` de ${contentDisplayStr}`}`,
   );
+}
+
+function presentationName(presNom01: string, presNum: string): string {
+  const index = presNom01.indexOf("stylo prérempli");
+  if(index !== -1){
+    if(index === 0){
+      return capitalize(presNom01);
+    }
+    const qt = presNom01.substring(0, index).trim();
+    if(!isNaN(Number(qt)) && Number(qt) > 1 && Number(presNum) <= 1){
+      return presNom01.replaceAll("stylo prérempli", "stylos préremplis");
+    }
+  }
+
+  return presNom01;
 }
 
 export function PresentationsList(props: {
@@ -78,8 +97,8 @@ export function PresentationsList(props: {
               <span
                 className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
               />
-              <b>
-                {(p.details && presentationDetailName(p.details)) || p.PresNom01}
+              <b>            
+                {(p.details && presentationDetailName(p.details)) || presentationName(p.PresNom01, p.PresNum)}
               </b>
               {p.PPF && p.TauxPriseEnCharge ? (
                 <div>
@@ -102,7 +121,7 @@ export function PresentationsList(props: {
               {p.StatId && Number(p.StatId) === PresentationStat.Abrogation && (
                 <Badge severity="error" className={fr.cx("fr-ml-1v")}>
                   {PresentationStat[p.StatId]}
-                  {p.PresStatDate && ` (${dateShortFormat(p.PresStatDate)})`}
+                  {p.PresStatDAte && ` (${dateShortFormat(p.PresStatDAte)})`}
                 </Badge>
               )}
             </li>

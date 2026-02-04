@@ -3,6 +3,7 @@ import React, { HTMLAttributes } from "react";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import "./dsfr-custom-tags.css";
 import { trackEvent } from "@/services/tracking";
+import Link from "next/link";
 
 interface GenericTagProps extends HTMLAttributes<HTMLDivElement> {
   specGeneId: string;
@@ -14,6 +15,7 @@ function GenericTag({
   specGeneId,
   hideIcon,
   fromMedicament,
+  ...props
 } : GenericTagProps) {
 
   const onTrackEvent = () => {
@@ -22,18 +24,23 @@ function GenericTag({
   };
 
   return (
-    <div>
+    <div {...props}>
       <Tag
         iconId={!hideIcon ? "fr-icon-capsule-fill" : undefined}
-        linkProps={{
+        nativeButtonProps= {{
           className: cx("fr-tag--custom-alt-blue"),
-          href: `/generiques/${specGeneId}`,
-          target: "_blank",
-          onClick: () => onTrackEvent(),
         }}
       >
-        Voir les Génériques
-      </Tag>{" "}
+        Générique
+      </Tag>
+      <Link
+        href={`/generiques/${specGeneId}`}
+        className={cx("fr-text--sm", "fr-link", "fr-ml-0-5v")}
+        onClick={() => onTrackEvent()}
+        style={{whiteSpace: "nowrap"}}
+      >
+        Voir les alternatives
+      </Link>
     </div>
   );
 }

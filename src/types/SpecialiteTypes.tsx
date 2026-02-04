@@ -1,5 +1,5 @@
 import { Specialite } from "@/db/pdbmMySQL/types";
-import { PresentationDetail, ResumeSpecGroupDB } from "@/db/types";
+import { ResumeSpecGroupDB } from "@/db/types";
 import { PediatricsInfo } from "./PediatricTypes";
 
 export type SpecialiteAlerts = {
@@ -13,6 +13,7 @@ export type ResumeSpecialite = {
     SpecDenom01: string,
     isCommercialisee: boolean,
     isCentralisee: boolean,
+    isAIP: boolean,
     alerts?: SpecialiteAlerts,
 }
 
@@ -24,7 +25,11 @@ export type ResumeSpecGroup = ResumeSpecGroupDB & {
 }
 
 export type DetailedSpecialite = Specialite & {
-  UrlEpar: string | null,
+  urlCentralise: string | null,
+  statutAutorisation: string | null,
+  statutComm: string | null,
+  titulairesList?: string,
+  generiqueName: string | null,
 }
 
 export type NoticeBlockType = "generalites" | "usage" | "warnings" | "howTo" | "sideEffects" | "storage" | "composition";
@@ -59,52 +64,54 @@ export type GroupeGenerique = {
   libelle: string;
 }
 
-export type Composant = {
-  dosage: string;
-  nom: string;
+export type DocBonUsage = {
+  Url?: string;
+  DateMAJ: Date;
+  TypeDoc?: string;
+  TitreDoc?: string;
 }
 
-export type DocBonUsage = {
-  url: string;
-  auteur: string;
-  dateMaj: string;
-  typeDoc: string;
-  titreDoc: string;
+export type InfosImportantes = {
+  remCommentaire: string;
+  dateEvnt: Date;
+}
+
+
+export type SubstanceComposition = {
+  NomLib: string,
+  dosage: string,
+}
+
+export type ComposantComposition = SubstanceComposition & {
+  composants?: SubstanceComposition[];
+}
+
+export type ElementComposition = {
+  referenceDosage: string;
+  composants: ComposantComposition[];
 }
 
 export type Smr = {
-  date?: string;
-  motif?: number;
-  valeur?: string;
-  libelle?: string;
+  DateAvis: Date;
+  ValeurSmr: string;
+  MotifEval: string;
+  LibelleSmr: string;
+  HASLiensPageCT: string | null;
 }
-
 export type Asmr = {
-  date?: string;
-  motif?: number;
-  valeur?: string;
-  libelle?: string;
-}
-
-export type ComposantElement = {
-  nom: string;
-  referenceDosage: string;
+  DateAvis: Date;
+  ValeurAsmr: string;
+  MotifEval: string;
+  LibelleAsmr: string;
+  HASLiensPageCT: string | null;
 }
 
 export type FicheInfos = {
-  specId: string;
-  listeInformationsImportantes?: string[];
-  listeGroupesGeneriques?: GroupeGenerique[];
-  listeComposants?: Composant[];
-  listeTitulaires?: string[];
+  listeInformationsImportantes?: InfosImportantes[];
   listeDocumentsBonUsage?: DocBonUsage[],
   listeASMR?: Asmr[];
   listeSMR?: Smr[];
-  listeConditionsDelivrance?: string[];
-  libelleCourtAutorisation?: string;
-  libelleCourtProcedure?: string;
-  presentations?: PresentationDetail[];
-  listeElements: ComposantElement[];
+  listeElements: ElementComposition[];
 }
 
 export type SpecialiteWithSubstance = Specialite & {

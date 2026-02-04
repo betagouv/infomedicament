@@ -112,15 +112,23 @@ function MedicamentContainer({
                   description={
                     <p>
                       Ce médicament est concerné par un{" "}
-                      <Link href="https://ansm.sante.fr/dossiers-thematiques/medicaments-et-grossesse/les-programmes-de-prevention-des-grossesses" target="_blank" rel="noopener noreferrer">
+                      <Link 
+                        href="https://ansm.sante.fr/dossiers-thematiques/medicaments-et-grossesse/les-programmes-de-prevention-des-grossesses"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         plan de prévention grossesse
                       </Link>.<br />
                       Il peut présenter des risques pour le fœtus (malformations, effets toxiques).<br />
                       Lisez attentivement la notice et parlez-en à un professionnel de santé avant toute utilisation.
                       <br />
-                      <a target="_blank" href={pregnancyPlanAlert.link} rel="noopener noreferrer">
+                      <Link 
+                        href={pregnancyPlanAlert.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         En savoir plus sur le site de l’ANSM
-                      </a>
+                      </Link>
                     </p>
                   }
                 />

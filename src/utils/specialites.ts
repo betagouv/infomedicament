@@ -44,13 +44,18 @@ export function isCommercialisee(presentations: Presentation[]){
   let isComm: boolean = false;
   presentations.forEach((pres) => {
     if(pres 
-      && pres.CommId.toString() === PresentationComm.Commercialisation.toString()
+      && Number(pres.CommId) === PresentationComm.Commercialisation
       && (!pres.StatId || pres.StatId.toString() !== PresentationStat.Abrogation.toString())
     ) {
       isComm = true;
     }
   });
   return isComm;
+};
+
+export function isAIP(specialite: DetailedSpecialite | Specialite){
+  if(specialite.ProcId && specialite.ProcId === "50") return true;
+  return false;
 };
 
 //Format la liste des spécialités issus de la table résumé
@@ -61,6 +66,7 @@ export function formatSpecialitesResume(specialites: string[][]): ResumeSpeciali
       SpecDenom01: spec[1],
       isCommercialisee: spec[2] === "true" ? true : false,
       isCentralisee: spec[3] === "true" ? true : false,
+      isAIP: spec[4] === "true" ? true : false,
     }
     return result;
   });
@@ -75,4 +81,21 @@ export function formatSpecialitesResumeFromGroups(specsGroups: ResumeSpecGroupDB
       resumeSpecialites: formatSpecialitesResume(group.specialites)
     }
   });
+}
+
+export function getProcedureLibLong(codeProcedure: number): string{
+  if (codeProcedure === 10 || codeProcedure === 60 || codeProcedure === 70 || codeProcedure === 100)
+    return "Procédure nationale";
+  if (codeProcedure === 20)
+    return "Procédure centralisée";
+  if (codeProcedure === 30)
+    return "Procédure de reconnaissance mutuelle";
+  if (codeProcedure === 40 || codeProcedure === 80)
+    return "Procédure décentralisée";
+  if (codeProcedure === 50)
+    return "Autorisation d'Importation Parallèle";
+  if (codeProcedure === 90)
+    return "Autorisation d'Importation";
+
+  return "Procédure non communiquée";
 }
