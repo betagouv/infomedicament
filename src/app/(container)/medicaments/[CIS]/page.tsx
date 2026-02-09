@@ -7,7 +7,7 @@ import {
   formatSpecName,
 } from "@/displayUtils";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import { getAtc1, getAtc2 } from "@/data/grist/atc";
+import { getAtc1, getAtc2 } from "@/db/utils/atc";
 import { getSpecialite } from "@/db/utils";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import ContentContainer from "@/components/generic/ContentContainer";
@@ -43,9 +43,6 @@ export default async function Page(props: {
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);
 
-  //if (!specialite) return notFound();
-  //if (!presentations.length) return notFound();
-
   const atcCode = getAtcCode(CIS);
   const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
   const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
@@ -66,15 +63,16 @@ export default async function Page(props: {
   const breadcrumb = [
     { label: "Accueil", linkProps: { href: "/" } },
   ];
-  if(atc1){
+  if (atc1) {
     atcList.push(atc1.code.trim());
     breadcrumb.push({ label: atc1.label, linkProps: { href: `/atc/${atc1.code}` } });
   }
-  if(atc2){
+  if (atc2) {
     atcList.push(atc2.code.trim());
     breadcrumb.push({ label: atc2.label, linkProps: { href: `/atc/${atc2.code}` } });
   }
-  if(composants.length > 0){
+
+  if (composants.length > 0) {
     breadcrumb.push({
       label: displaySimpleComposants(composants)
         .map((s) => s.NomLib.trim())
@@ -86,7 +84,7 @@ export default async function Page(props: {
       },
     });
   }
-  if(specialite){
+  if (specialite) {
     breadcrumb.push({
       label: formatSpecName(getSpecialiteGroupName(specialite)),
       linkProps: {

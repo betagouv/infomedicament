@@ -8,7 +8,7 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import React from "react";
 
 import { formatSpecName } from "@/displayUtils";
-import { getAtc2 } from "@/data/grist/atc";
+import { getAtc2 } from "@/db/utils/atc";
 import { notFound } from "next/navigation";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";

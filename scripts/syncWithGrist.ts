@@ -142,10 +142,10 @@ async function main() {
         );
 
         await syncTable('ref_atc_friendly_niveau_2', 'ATC_friendly_2',
-            ['Lettre_2_ATC2', 'Libelles_niveau_2', 'Libelles_niveau_2_Definition_sous_classe'],
+            ['Lettre_2_ATC2', 'libelle', 'Libelles_niveau_2_Definition_sous_classe'],
             (r) => ({
                 code: r.fields.Lettre_2_ATC2,
-                libelle: r.fields.Libelles_niveau_2,
+                libelle: r.fields.libelle,
                 definition_sous_classe: r.fields.Libelles_niveau_2_Definition_sous_classe,
             })
         );

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isRateLimited } from "@/utils/rate-limit";
 
-// Rate limit: 100 requests per minute per IP
-const RATE_LIMIT = 100;
+// Rate limit: 200 requests per minute per IP
+const RATE_LIMIT = 200; // TODO: we shouldn't need such a high limit
 const RATE_WINDOW_MS = 60_000;
 
 export function middleware(req: NextRequest) {

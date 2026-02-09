@@ -1,0 +1,882 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Medicaments Page (Integration with DB) > should render the correct content for CIS code 61959735 (Snapshot) 1`] = `
+<div>
+  <div
+    class="sc-FEMpB korYns  fr-container fr-pt-1w fr-pb-2w"
+  >
+    <nav
+      aria-label="vous êtes ici :"
+      class="fr-breadcrumb fr-mb-2w"
+      id="fr-breadcrumb-:r0:"
+      role="navigation"
+    >
+      <button
+        aria-controls="breadcrumb-:r1:"
+        aria-expanded="false"
+        class="fr-breadcrumb__button"
+      >
+        Voir le fil d’Ariane
+      </button>
+      <div
+        class="fr-collapse"
+        id="breadcrumb-:r1:"
+      >
+        <ol
+          class="fr-breadcrumb__list"
+        >
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/"
+            >
+              Accueil
+            </a>
+          </li>
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/atc/M"
+            >
+              Muscles et os
+            </a>
+          </li>
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/atc/M01"
+            >
+              Anti-inflammatoires et antirhumatismaux
+            </a>
+          </li>
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/substances/02092"
+            >
+              ibuprofène
+            </a>
+          </li>
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/rechercher?s=Advilcaps"
+            >
+              Advilcaps
+            </a>
+          </li>
+          <li>
+            <a
+              aria-current="page"
+              class="fr-breadcrumb__link"
+            >
+               400 mg, capsule molle
+            </a>
+          </li>
+        </ol>
+      </div>
+    </nav>
+    <h1
+      class="fr-h2"
+    >
+      Advilcaps 400 mg, capsule molle
+    </h1>
+  </div>
+  <div
+    class="sc-FEMpB korYns fr-pt-1w fr-pb-2w"
+    style="background-color: var(--background-alt-grey);"
+  >
+    <div
+      class="sc-FEMpB korYns  fr-container fr-pt-1w fr-pb-2w"
+    >
+      <div
+        class="fr-grid-row fr-grid-row--gutters"
+      >
+        <div
+          class="sc-jdabBK gvtBxP fr-col-12 fr-mt-2w"
+        >
+          <div
+            class="sc-jdabBK gvtBxP mobile-display-contents fr-grid-row fr-grid-row--gutters"
+          >
+            <div
+              class="sc-FEMpB korYns mobile-display-contents fr-col-12 fr-col-lg-3 fr-col-md-3"
+            >
+              <div
+                class="sc-fAomSb eLYScU"
+              >
+                <div
+                  class="fr-share"
+                >
+                  <p
+                    class="fr-share__title"
+                  >
+                    Partager via :
+                  </p>
+                  <ul
+                    class="fr-btns-group"
+                  >
+                    <li>
+                      <a
+                        class="fr-btn--mail fr-btn"
+                        href="mailto:?subject=Advilcaps 400 mg, capsule molle - Info Médicament&body=Voici un lien vers la page Advilcaps 400 mg, capsule molle sur le site Info Médicament : http://localhost:3000/"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        Partager par email
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        class="fr-btn--copy fr-btn"
+                        href=""
+                      >
+                        Copier dans le presse-papier
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div
+                class="sc-bHTlQz bCLZcZ fr-mb-4w fr-p-2w"
+              >
+                <div
+                  class="fr-toggle fr-toggle--label-left medicament-toggle-switch"
+                  id="fr-toggle-:r2:"
+                >
+                  <input
+                    aria-describedby="fr-toggle-:r2:-hint-text"
+                    class="fr-toggle__input"
+                    id="fr-toggle-:r2:-input"
+                    title="Version détaillée"
+                    type="checkbox"
+                  />
+                  <label
+                    class="fr-toggle__label"
+                    for="fr-toggle-:r2:-input"
+                  >
+                    Version détaillée
+                  </label>
+                  <p
+                    class="fr-hint-text"
+                    id="fr-toggle-:r2:-hint-text"
+                  >
+                    Afficher RCP, données HAS, CNAM...
+                  </p>
+                </div>
+              </div>
+              <section
+                class="mobile-display-contents fr-mb-4w"
+              >
+                <div
+                  class="sc-FEMpB lfcJZZ fr-mb-4w fr-p-2w"
+                >
+                  <div>
+                    <div
+                      class="sc-kfeOyU blwrId"
+                    >
+                      Sous-classe
+                    </div>
+                    <a
+                      class="fr-tag--custom-alt-class fr-tag fr-tag--custom-alt-class"
+                      href="/atc/M01"
+                      id="fr-tag-:r4:"
+                      target="_blank"
+                    >
+                      Anti-inflammatoires et antirhumatismaux
+                    </a>
+                    <hr
+                      class="fr-pb-1w fr-mt-1w"
+                    />
+                  </div>
+                  <div>
+                    <div
+                      class="sc-kfeOyU blwrId"
+                    >
+                      Substance active
+                    </div>
+                    <a
+                      class="fr-tag--custom-alt-substance fr-tag fr-tag--custom-alt-substance"
+                      href="/substances/02092"
+                      id="fr-tag-:r5:"
+                      target="_blank"
+                    >
+                      ibuprofène
+                    </a>
+                    <hr
+                      class="fr-pb-1w fr-mt-1w"
+                    />
+                  </div>
+                  <div>
+                    <div>
+                      <a
+                        class="fr-tag--custom-alt-blue fr-tag fr-icon-capsule-fill fr-tag--icon-left fr-tag--custom-alt-blue"
+                        href="/generiques/61959735"
+                        id="fr-tag-:r6:"
+                        target="_blank"
+                      >
+                        Voir les Princeps
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="sc-FEMpB lfcJZZ fr-mb-4w fr-p-2w"
+                >
+                  <h3
+                    class="fr-h6"
+                  >
+                    <span
+                      class="fr-hidden-md"
+                    >
+                      Conditionnement
+                    </span>
+                    <span
+                      class="fr-hidden fr-unhidden-md"
+                    >
+                      Conditionnement et prix
+                    </span>
+                  </h3>
+                  <ul
+                    class="fr-raw-list"
+                  >
+                    <li
+                      class="fr-mb-1w"
+                    >
+                      <span
+                        class="fr-icon--custom-box fr-mr-1w"
+                      />
+                      <b>
+                        Plaquette  de 14 capsules
+                      </b>
+                      <div>
+                        Prix libre - non remboursable
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </section>
+            </div>
+            <div
+              class="sc-FEMpB korYns mobile-display-contents fr-col-12 fr-col-lg-9 fr-col-md-9"
+            >
+              <article>
+                <div
+                  class="sc-FEMpB lfcJZZ fr-mb-4w"
+                >
+                  <div
+                    class="sc-dOUtaJ cEXnqb"
+                  >
+                    <div
+                      class="sc-lkbiLU iFdVkZ fr-mb-4w"
+                    >
+                      <div
+                        style="display: flex;"
+                      >
+                        <span
+                          class="fr-icon--custom-notice fr-mr-1w fr-hidden fr-unhidden-md"
+                        />
+                        <h2
+                          class="fr-h3 fr-mb-1w"
+                        >
+                          Notice complète
+                        </h2>
+                      </div>
+                      <div
+                        class="sc-FEMpB korYns"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </article>
+              <a
+                class="fr-btn fr-icon-arrow-up-line go-top-button"
+                href="#"
+                id="fr-button-:r3:"
+                title="Haut de page"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="sc-gNZgCX kkohqz"
+  >
+    <section
+      aria-atomic="false"
+      aria-label="Notifications Alt+T"
+      aria-live="polite"
+      aria-relevant="additions text"
+      class="Toastify"
+    />
+  </div>
+</div>
+`;
+
+exports[`Medicaments Page (Integration with DB) > should render the correct content for CIS code 62764332 (Snapshot) 1`] = `
+<div>
+  <div
+    class="sc-FEMpB korYns  fr-container fr-pt-1w fr-pb-2w"
+  >
+    <nav
+      aria-label="vous êtes ici :"
+      class="fr-breadcrumb fr-mb-2w"
+      id="fr-breadcrumb-:r7:"
+      role="navigation"
+    >
+      <button
+        aria-controls="breadcrumb-:r8:"
+        aria-expanded="false"
+        class="fr-breadcrumb__button"
+      >
+        Voir le fil d’Ariane
+      </button>
+      <div
+        class="fr-collapse"
+        id="breadcrumb-:r8:"
+      >
+        <ol
+          class="fr-breadcrumb__list"
+        >
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/"
+            >
+              Accueil
+            </a>
+          </li>
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/atc/V"
+            >
+              Divers
+            </a>
+          </li>
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/atc/V01"
+            >
+              Allergènes
+            </a>
+          </li>
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/substances/63153,73676,89185,26053,53541"
+            >
+              dactyle aggloméré (Extrait allergénique de pollen de), extrait allergénique de pollen d'ivraie vivace, extrait allergénique de pollen de fléole des prés, extrait allergénique de pollen de flouve odorante, extrait allergénique de pollen de pâturin des prés
+            </a>
+          </li>
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/rechercher?s=Oralair"
+            >
+              Oralair
+            </a>
+          </li>
+          <li>
+            <a
+              aria-current="page"
+              class="fr-breadcrumb__link"
+            >
+               300 Ir, comprimés sublinguaux
+            </a>
+          </li>
+        </ol>
+      </div>
+    </nav>
+    <h1
+      class="fr-h2"
+    >
+      Oralair 300 Ir, comprimés sublinguaux
+    </h1>
+  </div>
+  <div
+    class="sc-FEMpB korYns fr-pt-1w fr-pb-2w"
+    style="background-color: var(--background-alt-grey);"
+  >
+    <div
+      class="sc-FEMpB korYns  fr-container fr-pt-1w fr-pb-2w"
+    >
+      <div
+        class="fr-grid-row fr-grid-row--gutters"
+      >
+        <div
+          class="sc-jdabBK gvtBxP fr-col-12 fr-mt-2w"
+        >
+          <div
+            class="sc-jdabBK gvtBxP mobile-display-contents fr-grid-row fr-grid-row--gutters"
+          >
+            <div
+              class="sc-FEMpB korYns mobile-display-contents fr-col-12 fr-col-lg-3 fr-col-md-3"
+            >
+              <div
+                class="sc-fAomSb eLYScU"
+              >
+                <div
+                  class="fr-share"
+                >
+                  <p
+                    class="fr-share__title"
+                  >
+                    Partager via :
+                  </p>
+                  <ul
+                    class="fr-btns-group"
+                  >
+                    <li>
+                      <a
+                        class="fr-btn--mail fr-btn"
+                        href="mailto:?subject=Oralair 300 Ir, comprimés sublinguaux - Info Médicament&body=Voici un lien vers la page Oralair 300 Ir, comprimés sublinguaux sur le site Info Médicament : http://localhost:3000/"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        Partager par email
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        class="fr-btn--copy fr-btn"
+                        href=""
+                      >
+                        Copier dans le presse-papier
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div
+                class="sc-bHTlQz bCLZcZ fr-mb-4w fr-p-2w"
+              >
+                <div
+                  class="fr-toggle fr-toggle--label-left medicament-toggle-switch"
+                  id="fr-toggle-:r9:"
+                >
+                  <input
+                    aria-describedby="fr-toggle-:r9:-hint-text"
+                    class="fr-toggle__input"
+                    id="fr-toggle-:r9:-input"
+                    title="Version détaillée"
+                    type="checkbox"
+                  />
+                  <label
+                    class="fr-toggle__label"
+                    for="fr-toggle-:r9:-input"
+                  >
+                    Version détaillée
+                  </label>
+                  <p
+                    class="fr-hint-text"
+                    id="fr-toggle-:r9:-hint-text"
+                  >
+                    Afficher RCP, données HAS, CNAM...
+                  </p>
+                </div>
+              </div>
+              <section
+                class="mobile-display-contents fr-mb-4w"
+              >
+                <div
+                  class="sc-FEMpB lfcJZZ fr-mb-4w fr-p-2w"
+                >
+                  <div>
+                    <div
+                      class="sc-kfeOyU blwrId"
+                    >
+                      Sous-classe
+                    </div>
+                    <a
+                      class="fr-tag--custom-alt-class fr-tag fr-tag--custom-alt-class"
+                      href="/atc/V01"
+                      id="fr-tag-:rb:"
+                      target="_blank"
+                    >
+                      Allergènes
+                    </a>
+                    <hr
+                      class="fr-pb-1w fr-mt-1w"
+                    />
+                  </div>
+                  <div>
+                    <div
+                      class="sc-kfeOyU blwrId"
+                    >
+                      Substance active
+                    </div>
+                    <a
+                      class="fr-tag--custom-alt-substance fr-tag fr-tag--custom-alt-substance"
+                      href="/substances/63153,73676,89185,26053,53541"
+                      id="fr-tag-:rc:"
+                      target="_blank"
+                    >
+                      dactyle aggloméré (Extrait allergénique de pollen de), extrait allergénique de pollen d'ivraie vivace, extrait allergénique de pollen de fléole des prés, extrait allergénique de pollen de flouve odorante, extrait allergénique de pollen de pâturin des prés
+                    </a>
+                    <hr
+                      class="fr-pb-1w fr-mt-1w"
+                    />
+                  </div>
+                  <div>
+                    <button
+                      class="fr-tag--custom-alt-blue fr-tag fr-icon-file-text-fill fr-tag--icon-left"
+                      id="fr-tag-:rd:"
+                    >
+                      Sur ordonnance
+                    </button>
+                  </div>
+                </div>
+                <div
+                  class="sc-FEMpB lfcJZZ fr-mb-4w fr-p-2w"
+                >
+                  <h3
+                    class="fr-h6"
+                  >
+                    <span
+                      class="fr-hidden-md"
+                    >
+                      Conditionnement
+                    </span>
+                    <span
+                      class="fr-hidden fr-unhidden-md"
+                    >
+                      Conditionnement et prix
+                    </span>
+                  </h3>
+                  <ul
+                    class="fr-raw-list"
+                  >
+                    <li
+                      class="fr-mb-1w"
+                    >
+                      <span
+                        class="fr-icon--custom-box fr-mr-1w"
+                      />
+                      <b>
+                        Plaquette  de 30 comprimés
+                      </b>
+                      <div>
+                        Prix
+                         
+                        64,72 €
+                         
+                        - remboursé à 
+                        15%
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </section>
+            </div>
+            <div
+              class="sc-FEMpB korYns mobile-display-contents fr-col-12 fr-col-lg-9 fr-col-md-9"
+            >
+              <article>
+                <div
+                  class="sc-FEMpB lfcJZZ fr-mb-4w"
+                >
+                  <div
+                    class="sc-dOUtaJ cEXnqb"
+                  >
+                    <div
+                      class="sc-lkbiLU iFdVkZ fr-mb-4w"
+                    >
+                      <div
+                        style="display: flex;"
+                      >
+                        <span
+                          class="fr-icon--custom-notice fr-mr-1w fr-hidden fr-unhidden-md"
+                        />
+                        <h2
+                          class="fr-h3 fr-mb-1w"
+                        >
+                          Notice complète
+                        </h2>
+                      </div>
+                      <div
+                        class="sc-FEMpB korYns"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </article>
+              <a
+                class="fr-btn fr-icon-arrow-up-line go-top-button"
+                href="#"
+                id="fr-button-:ra:"
+                title="Haut de page"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="sc-gNZgCX kkohqz"
+  >
+    <section
+      aria-atomic="false"
+      aria-label="Notifications Alt+T"
+      aria-live="polite"
+      aria-relevant="additions text"
+      class="Toastify"
+    />
+  </div>
+</div>
+`;
+
+exports[`Medicaments Page (Integration with DB) > should return a page even with invalid code 1`] = `
+<div>
+  <div
+    class="sc-FEMpB korYns  fr-container fr-pt-1w fr-pb-2w"
+  >
+    <nav
+      aria-label="vous êtes ici :"
+      class="fr-breadcrumb fr-mb-2w"
+      id="fr-breadcrumb-:re:"
+      role="navigation"
+    >
+      <button
+        aria-controls="breadcrumb-:rf:"
+        aria-expanded="false"
+        class="fr-breadcrumb__button"
+      >
+        Voir le fil d’Ariane
+      </button>
+      <div
+        class="fr-collapse"
+        id="breadcrumb-:rf:"
+      >
+        <ol
+          class="fr-breadcrumb__list"
+        >
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/"
+            >
+              Accueil
+            </a>
+          </li>
+          <li>
+            <a
+              class="fr-breadcrumb__link"
+              href="/substances/"
+            />
+          </li>
+          <li>
+            <a
+              aria-current="page"
+              class="fr-breadcrumb__link"
+            />
+          </li>
+        </ol>
+      </div>
+    </nav>
+    <h1
+      class="fr-h2"
+    />
+  </div>
+  <div
+    class="sc-FEMpB korYns fr-pt-1w fr-pb-2w"
+    style="background-color: var(--background-alt-grey);"
+  >
+    <div
+      class="sc-FEMpB korYns  fr-container fr-pt-1w fr-pb-2w"
+    >
+      <div
+        class="fr-grid-row fr-grid-row--gutters"
+      >
+        <div
+          class="sc-jdabBK gvtBxP fr-col-12 fr-mt-2w"
+        >
+          <div
+            class="sc-jdabBK gvtBxP mobile-display-contents fr-grid-row fr-grid-row--gutters"
+          >
+            <div
+              class="sc-FEMpB korYns mobile-display-contents fr-col-12 fr-col-lg-3 fr-col-md-3"
+            >
+              <div
+                class="sc-fAomSb eLYScU"
+              >
+                <div
+                  class="fr-share"
+                >
+                  <p
+                    class="fr-share__title"
+                  >
+                    Partager via :
+                  </p>
+                  <ul
+                    class="fr-btns-group"
+                  >
+                    <li>
+                      <a
+                        class="fr-btn--mail fr-btn"
+                        href="mailto:?subject= - Info Médicament&body=Voici un lien vers la page  sur le site Info Médicament : http://localhost:3000/"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        Partager par email
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        class="fr-btn--copy fr-btn"
+                        href=""
+                      >
+                        Copier dans le presse-papier
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div
+                class="sc-bHTlQz bCLZcZ fr-mb-4w fr-p-2w"
+              >
+                <div
+                  class="fr-toggle fr-toggle--label-left medicament-toggle-switch"
+                  id="fr-toggle-:rg:"
+                >
+                  <input
+                    aria-describedby="fr-toggle-:rg:-hint-text"
+                    class="fr-toggle__input"
+                    id="fr-toggle-:rg:-input"
+                    title="Version détaillée"
+                    type="checkbox"
+                  />
+                  <label
+                    class="fr-toggle__label"
+                    for="fr-toggle-:rg:-input"
+                  >
+                    Version détaillée
+                  </label>
+                  <p
+                    class="fr-hint-text"
+                    id="fr-toggle-:rg:-hint-text"
+                  >
+                    Afficher RCP, données HAS, CNAM...
+                  </p>
+                </div>
+              </div>
+              <section
+                class="mobile-display-contents fr-mb-4w"
+              >
+                <div
+                  class="sc-FEMpB lfcJZZ fr-mb-4w fr-p-2w"
+                >
+                  <div>
+                    <div
+                      class="sc-kfeOyU blwrId"
+                    >
+                      Substance active
+                    </div>
+                    <a
+                      class="fr-tag--custom-alt-substance fr-tag fr-tag--custom-alt-substance"
+                      href="/substances/"
+                      id="fr-tag-:rj:"
+                      target="_blank"
+                    />
+                  </div>
+                </div>
+                <div
+                  class="sc-FEMpB lfcJZZ fr-mb-4w fr-p-2w"
+                >
+                  <h3
+                    class="fr-h6"
+                  >
+                    <span
+                      class="fr-hidden-md"
+                    >
+                      Conditionnement
+                    </span>
+                    <span
+                      class="fr-hidden fr-unhidden-md"
+                    >
+                      Conditionnement et prix
+                    </span>
+                  </h3>
+                  <span>
+                    Pas de conditionnement à afficher
+                  </span>
+                </div>
+              </section>
+            </div>
+            <div
+              class="sc-FEMpB korYns mobile-display-contents fr-col-12 fr-col-lg-9 fr-col-md-9"
+            >
+              <div
+                class="sc-FEMpB lfcJZZ fr-mb-4w"
+              >
+                <div
+                  class="fr-alert fr-alert--info fr-alert--sm"
+                  id="fr-alert-:ri:"
+                >
+                  <h3
+                    class="fr-alert__title"
+                  >
+                    Ce médicament n'est ou ne sera bientôt plus disponible sur le marché.
+                  </h3>
+                  <p>
+                    Si vous prenez actuellement ce médicament, il vous est recommandé d'en parler avec votre médecin ou avec votre pharmacien qui pourra vous orienter vers un autre traitement.
+                  </p>
+                </div>
+              </div>
+              <article>
+                <div
+                  class="sc-FEMpB lfcJZZ fr-mb-4w"
+                >
+                  <div
+                    class="sc-dOUtaJ cEXnqb"
+                  >
+                    <div
+                      class="sc-lkbiLU iFdVkZ fr-mb-4w"
+                    >
+                      <div
+                        style="display: flex;"
+                      >
+                        <span
+                          class="fr-icon--custom-notice fr-mr-1w fr-hidden fr-unhidden-md"
+                        />
+                        <h2
+                          class="fr-h3 fr-mb-1w"
+                        >
+                          Notice complète
+                        </h2>
+                      </div>
+                      <div
+                        class="sc-FEMpB korYns"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </article>
+              <a
+                class="fr-btn fr-icon-arrow-up-line go-top-button"
+                href="#"
+                id="fr-button-:rh:"
+                title="Haut de page"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="sc-gNZgCX kkohqz"
+  >
+    <section
+      aria-atomic="false"
+      aria-label="Notifications Alt+T"
+      aria-live="polite"
+      aria-relevant="additions text"
+      class="Toastify"
+    />
+  </div>
+</div>
+`;

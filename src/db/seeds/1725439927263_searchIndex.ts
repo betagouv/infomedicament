@@ -1,20 +1,11 @@
 import type { Kysely } from "kysely";
+import { sql } from "kysely";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { getAtc } from "@/data/grist/atc";
 
 export async function seed(db: Kysely<any>): Promise<void> {
-  async function addIndex(table: string, id: string, token: string) {
-    await db
-      .insertInto("search_index")
-      .values(({ fn, val }) => ({
-        token: fn("unaccent", [val(token)]),
-        table_name: table,
-        id,
-      }))
-      .execute();
-  }
+  // Fetch all data from MySQL BEFORE starting the PostgreSQL transaction
+  console.log("Fetching data from PDBM...");
 
-  // Get substances from PMDB
   const substances = await pdbmMySQL
     .selectFrom("Subs_Nom")
     .select(["Subs_Nom.NomLib", "Subs_Nom.NomId"])
@@ -23,37 +14,11 @@ export async function seed(db: Kysely<any>): Promise<void> {
     .groupBy(["Subs_Nom.NomLib", "Subs_Nom.NomId"])
     .execute();
 
-  await db.transaction().execute(async (db) => {
-    await db
-      .deleteFrom("search_index")
-      .where("table_name", "=", "Subs_Nom")
-      .execute();
-
-    // Insert substances into search_index
-    for (const substance of substances) {
-      await addIndex("Subs_Nom", substance.NomId, substance.NomLib);
-    }
-  });
-
-  // Get specialities from PMDB
   const specialities = await pdbmMySQL
     .selectFrom("Specialite")
     .select(["SpecDenom01", "SpecId"])
     .execute();
 
-  await db.transaction().execute(async (db) => {
-    await db
-      .deleteFrom("search_index")
-      .where("table_name", "=", "Specialite")
-      .execute();
-
-    // Insert specialities into search_index
-    for (const specialite of specialities) {
-      await addIndex("Specialite", specialite.SpecId, specialite.SpecDenom01);
-    }
-  });
-
-  // Get pathologies from PMDB
   const pathologies = await pdbmMySQL
     .selectFrom("Patho")
     .select(["Patho.NomPatho", "Patho.codePatho"])
@@ -62,42 +27,82 @@ export async function seed(db: Kysely<any>): Promise<void> {
     .groupBy(["Patho.NomPatho", "Patho.codePatho"])
     .execute();
 
-  await db.transaction().execute(async (db) => {
-    await db
-      .deleteFrom("search_index")
-      .where("table_name", "=", "Patho")
-      .execute();
+  console.log(`Fetched ${substances.length} substances, ${specialities.length} specialities, ${pathologies.length} pathologies`);
 
+  // Abort if we got no data from MySQL - don't truncate the existing index
+  if (substances.length === 0 || specialities.length === 0 || pathologies.length === 0) {
+    throw new Error("No data fetched from PDBM - aborting to preserve existing search index");
+  }
+
+  // Run everything in a transaction so TRUNCATE is rolled back if something fails
+  await db.transaction().execute(async (trx) => {
+    async function addIndex(table: string, id: string, token: string) {
+      await trx
+        .insertInto("search_index")
+        .values(({ fn, val }) => ({
+          token: fn("unaccent", [val(token)]),
+          table_name: table,
+          id,
+        }))
+        .execute();
+    }
+
+    // Clear the entire table at once (TRUNCATE is instant, DELETE without index is very slow)
+    console.log("Truncating search_index table...");
+    await sql`TRUNCATE TABLE search_index`.execute(trx);
+
+    // Insert substances
+    console.log(`Indexing ${substances.length} substances...`);
+    for (const substance of substances) {
+      await addIndex("Subs_Nom", substance.NomId, substance.NomLib);
+    }
+
+    // Insert specialities
+    console.log(`Indexing ${specialities.length} specialities...`);
+    for (const specialite of specialities) {
+      await addIndex("Specialite", specialite.SpecId, specialite.SpecDenom01);
+    }
+
+    // Insert pathologies
+    console.log(`Indexing ${pathologies.length} pathologies...`);
     for (const pathology of pathologies) {
       await addIndex("Patho", pathology.codePatho, pathology.NomPatho);
     }
-  });
 
-  // Get ATC classes
-  try {
-    console.log("Trying to get ATC classes from Grist...");
-    const atc = await getAtc();
-    if (!atc || atc.length === 0) {
-      throw new Error("Got no ATC data from Grist");
-    }
-    await db.transaction().execute(async (db) => {
-      await db
-        .deleteFrom("search_index")
-        .where("table_name", "=", "ATC")
+    // Get ATC classes from PostgreSQL
+    try {
+      console.log("Indexing ATC classes...");
+      const atc1Rows = await trx
+        .selectFrom("ref_atc_friendly_niveau_1")
+        .select(["code", "libelle"])
         .execute();
 
-      for (const atcClass of atc) {
-        await addIndex("ATC", atcClass.code, atcClass.label);
-        for (const atcSubClass of atcClass.children) {
-          await addIndex("ATC", atcSubClass.code, atcSubClass.label);
+      const atc2Rows = await trx
+        .selectFrom("ref_atc_friendly_niveau_2")
+        .select(["code", "libelle"])
+        .execute();
+
+      if (atc1Rows.length === 0 && atc2Rows.length === 0) {
+        throw new Error("No ATC data found in database");
+      }
+
+      console.log(`Indexing ${atc1Rows.length + atc2Rows.length} ATC classes...`);
+      for (const atcClass of atc1Rows) {
+        if (atcClass.code && atcClass.libelle) {
+          await addIndex("ATC", atcClass.code, atcClass.libelle);
         }
       }
-    })
-  } catch (error) {
-    console.warn("Failed to get ATC classes from Grist:", error);
-    console.warn("Continuing without updating ATC search index.");
-  }
+      for (const atcSubClass of atc2Rows) {
+        if (atcSubClass.code && atcSubClass.libelle) {
+          await addIndex("ATC", atcSubClass.code, atcSubClass.libelle);
+        }
+      }
+    } catch (error) {
+      console.warn("Failed to index ATC classes:", error);
+      console.warn("Continuing without updating ATC search index.");
+    }
+  });
 
-
+  console.log("Search index updated successfully.");
   await pdbmMySQL.destroy();
 }
