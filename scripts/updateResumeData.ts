@@ -171,6 +171,7 @@ async function createResumeSpecialites(): Promise<string[]>{
           specialites: specialites,
           atc1Code: atc1,
           atc2Code: atc2,
+          atc5Code: atc ?? undefined,
           CISList: CISList,
           subsIds: subsIds,
         })
