@@ -121,3 +121,24 @@ export function getProcedureLibLong(codeProcedure: number): string{
 
   return "Procédure non communiquée";
 }
+
+export function getTypeInfoTxt(codeTypeInfo: number): string{
+  if (codeTypeInfo === 1)
+    return "Lettre aux professionnels";
+  if (codeTypeInfo === 2)
+    return "Point d'information";
+  if (codeTypeInfo === 3)
+    return "Communiqué de presse";
+  if (codeTypeInfo === 4)
+    return "Rubrique Internet";
+  if (codeTypeInfo === 5)
+    return "Retrait lot";
+  if (codeTypeInfo === 6)
+    return "Vidéo";
+  if (codeTypeInfo === 7)
+    return "MARR";
+  if (codeTypeInfo === 8)
+    return "Dossiers thématiques";
+
+  return "Non catégorisée";
+}

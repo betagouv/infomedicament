@@ -20,7 +20,8 @@ import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
-import { getProcedureLibLong, isAIP, isCentralisee } from "@/utils/specialites";
+import { getProcedureLibLong, getTypeInfoTxt, isAIP, isCentralisee } from "@/utils/specialites";
+import Badge from "@codegouvfr/react-dsfr/Badge";
 
 const SummaryLineContainer = styled.div<{ $hideBorder?: boolean; }>`
   display: flex;
@@ -150,9 +151,18 @@ function GeneralInformations({
             return (
               <InfosImportantesBlock key={index}>
                 <div dangerouslySetInnerHTML={{__html: info.remCommentaire}} className={fr.cx("fr-text--sm", "fr-mb-0")}></div>
-                <div className={fr.cx("fr-mt-1w")}>
-                  {info.dateEvnt && (<i className={fr.cx("fr-text--xs", "fr-mb-0")} style={{textTransform:"capitalize"}}>{info.dateEvnt.toLocaleDateString('fr-FR', {month: 'long', year: 'numeric'})}</i>)}
-                </div>
+                {(info.dateEvnt || info.codeTypeInfo) && (
+                  <div className={fr.cx("fr-mt-1w")}>
+                    {info.dateEvnt && (
+                      <i className={fr.cx("fr-text--xs", "fr-mb-0")} style={{textTransform:"capitalize"}}>
+                        {info.dateEvnt.toLocaleDateString('fr-FR', {month: 'long', year: 'numeric'})}
+                      </i>
+                    )}
+                    {info.codeTypeInfo && (
+                      <Badge className={fr.cx("fr-badge--purple-glycine")} small>{getTypeInfoTxt(info.codeTypeInfo)}</Badge>
+                    )}
+                  </div>
+                )}
               </InfosImportantesBlock>
             )
           })}
