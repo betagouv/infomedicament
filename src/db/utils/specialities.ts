@@ -11,7 +11,7 @@ import {
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { sql } from "kysely";
 import db from "@/db";
-import { getPresentations } from "@/db/utils";
+import { getPresentations } from "@/db/utils/presentation";
 import { unstable_cache } from "next/cache";
 import { withSubstances } from "./query";
 import { DetailedSpecialite, ResumeSpecGroup } from "@/types/SpecialiteTypes";
