@@ -57,12 +57,12 @@ export default async function Page(props: {
 
   let atcCode;
   try {
-    atcCode = getAtcCode(CIS);
+    atcCode = await getAtcCode(CIS);
   } catch (e) {
     if (!(e instanceof ATCError)) throw e;
     for (const specialite of generiques) {
       try {
-        atcCode = getAtcCode(specialite.SpecId);
+        atcCode = await getAtcCode(specialite.SpecId);
         break;
       } catch (e) {
         if (!(e instanceof ATCError)) throw e;

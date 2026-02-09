@@ -149,7 +149,7 @@ async function createResumeSpecialites(): Promise<string[]>{
       );
       const CISList: string[] = rawSpecialites.map((spec) => spec.SpecId.trim());
       const pathosCodes: string[] = await getSpecialitesPatho(CISList);
-      const atc = getAtcCode(rawSpecialites[0].SpecId);
+      const atc = await getAtcCode(rawSpecialites[0].SpecId);
       const atc1: string | undefined = atc ? getAtc1Code(atc) : undefined;
       const atc2: string | undefined = atc ? getAtc2Code(atc) : undefined;
         
