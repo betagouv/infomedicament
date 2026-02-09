@@ -76,7 +76,7 @@ exports[`PathologyDefinitionContent (UI Integration) > should render pathology d
               >
                 <div
                   class="fr-card"
-                  id="fr-card-:r2:"
+                  id="fr-card-:r1:"
                 >
                   <div
                     class="fr-card__body"
@@ -805,7 +805,7 @@ exports[`PathologyDefinitionContent (UI Integration) > should render pathology d
             >
               <p
                 class="fr-badge fr-badge--info fr-badge--no-icon"
-                id="fr-badge-:r1:"
+                id="fr-badge-:r2:"
               >
                 ARTICLE
               </p>
