@@ -7,7 +7,6 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import React from "react";
 
-import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { formatSpecName } from "@/displayUtils";
 import { getAtc2 } from "@/data/grist/atc";
 import { notFound } from "next/navigation";
@@ -16,30 +15,10 @@ import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
 import { ATCError, getAtcCode } from "@/utils/atc";
 import MedicamentGeneriqueContainer from "@/components/medicamentsGeneriques/MedicamentGeneriqueContainer";
-import { Specialite } from "@/db/pdbmMySQL/types";
+import { getGeneriques, getGroupeGene } from "@/db/utils/generics";
 
 export const dynamic = "error";
 export const dynamicParams = true;
-
-async function getGroupeGene(CIS: string) {
-  return pdbmMySQL
-    .selectFrom("GroupeGene")
-    .selectAll()
-    .where("SpecId", "=", CIS)
-    .executeTakeFirst();
-}
-
-async function getGeneriques(CIS: string): Promise<Specialite[]> {
-  return (
-    pdbmMySQL
-      .selectFrom("Specialite")
-      .selectAll()
-      .where("SpecGeneId", "=", CIS)
-      .where("SpecId", "!=", CIS)
-      // Limit to 500 results
-      .execute()
-  );
-}
 
 export default async function Page(props: {
   params: Promise<{ CIS: string }>;
