@@ -14,6 +14,13 @@ describe("Search engine (Integration) -- Functional Tests", () => {
 
         // Check that we have some results
         expect(results.length).toBeGreaterThan(0);
+
+        // All results should be medication groups with matchReasons
+        for (const r of results) {
+            expect(r).toHaveProperty("groupName");
+            expect(r).toHaveProperty("matchReasons");
+            expect(r.matchReasons.length).toBeGreaterThan(0);
+        }
     });
 
     it("must handle a search with no results", async () => {
@@ -46,39 +53,21 @@ describe("Search engine (Integration) -- Functional Tests", () => {
         expect(results.length).toBeGreaterThan(0);
     });
 
-    // TODO: fix this test — ATC-linked specialités may not contain the query term in their name,
-    // need to also check inside specialites[][] array and handle ATC-expanded results
-    it.skip("must not allow for typos in short search terms (between 3 and 5 characters)", async () => {
+    it("must not allow for typos in short search terms (between 3 and 5 characters)", async () => {
         const results = await getSearchResults("acne");
         // Check with regex that each result contains the query without typo
         const queryRegex = new RegExp(`acn[eé]`, 'i');
 
         for (const result of results) {
-            let matchFound = false;
+            // Check Group Name, Composants, or match reason labels
+            const matchFound =
+                queryRegex.test(result.groupName) ||
+                queryRegex.test(result.composants) ||
+                result.matchReasons.some((r) => queryRegex.test(r.label));
 
-            // ignore objects that are not ResumeSpecGroup since we'll drop them soon
-            if (!("groupName" in result)) {
-                continue;
-            }
-
-            // 1. Check Group Name
-            if ("groupName" in result && result.groupName && queryRegex.test(result.groupName)) {
-                matchFound = true;
-            }
-            // 2. Check Composants
-            else if ("composants" in result && typeof result.composants === 'string' && queryRegex.test(result.composants)) {
-                matchFound = true;
-            }
-            // 3. Check ATC Labels
-            else if ("atc1Label" in result && result.atc1Label && queryRegex.test(result.atc1Label)) {
-                matchFound = true;
-            }
-            else if ("atc2Label" in result && result.atc2Label && queryRegex.test(result.atc2Label)) {
-                matchFound = true;
-            }
-
+            // useful to debug failing tests
             if (!matchFound) {
-                console.log(result);
+                console.log(result.groupName, result.matchReasons);
             }
 
             expect(matchFound).toBe(true);
@@ -99,7 +88,7 @@ describe("Search engine (Integration) -- Functional Tests", () => {
 
             // Check Group Name (ex: "ACTIFED")
             // For short queries, we only search in specialite names
-            if ("groupName" in result && result.groupName && queryRegex.test(result.groupName)) {
+            if (queryRegex.test(result.groupName)) {
                 matchFound = true;
             }
 
@@ -121,32 +110,29 @@ describe("Search engine (Integration) -- Business Logic Tests", () => {
         expect(results.length).toBeGreaterThan(0);
 
         // Check that at least one of the results is related to Doliprane
-        // In an object ResumeSpecGroup with key 'groupName'
-        const doliGroup = results.find((item) => {
-            return "groupName" in item && /doliprane/i.test(item.groupName);
-        });
+        const doliGroup = results.find((item) => /doliprane/i.test(item.groupName));
 
         expect(doliGroup).toBeDefined();
+        expect(doliGroup!.matchReasons.some((m) => m.type === "name")).toBe(true);
     });
 
     it("must return medications when searching for an ATC label like 'anxiolytiques'", async () => {
         const results = await getSearchResults("anxiolytiques");
         expect(results.length).toBeGreaterThan(0);
 
-        // Should return specialité groups (medications) linked to this ATC class
-        const specResult = results.find((r) => "groupName" in r);
-        expect(specResult).toBeDefined();
+        // At least one result should have matched via ATC
+        const atcMatch = results.find((r) => r.matchReasons.some((m) => m.type === "atc"));
+        expect(atcMatch).toBeDefined();
     });
 
     it("must return Doliprane when searching for 'Paracétamol'", async () => {
         const results = await getSearchResults("Paracétamol");
 
         // Check that at least one of the spécialité is related to Doliprane
-        // In an object ResumeSpecGroup with key 'groupName'
-        const doliGroup = results.find((item) => {
-            return "groupName" in item && /doliprane/i.test(item.groupName);
-        });
+        const doliGroup = results.find((item) => /doliprane/i.test(item.groupName));
 
         expect(doliGroup).toBeDefined();
+        // It should have matched via substance
+        expect(doliGroup!.matchReasons.some((m) => m.type === "substance")).toBe(true);
     });
 });

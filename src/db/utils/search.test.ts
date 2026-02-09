@@ -1,11 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { getSearchResults } from "./search";
-import { getSubstancesResume } from "./substances";
-import { getPathologiesResume } from "./pathologies";
-import { getResumeSpecsGroupsWithCISSubsIds } from "./specialities";
 import { getResumeSpecsGroupsATCLabels } from "./atc";
 import { getResumeSpecsGroupsAlerts } from "@/data/grist/specialites";
+import { formatSpecialitesResumeFromGroups } from "@/utils/specialites";
 
 // Mocking the cache so it doesn't apply
 vi.mock("next/cache", () => ({
@@ -36,26 +34,31 @@ vi.mock("@/db", () => ({
   default: dbMock,
 }));
 
-// auto-mocking data fetching modules and their functions
-vi.mock("./substances");
-vi.mock("./pathologies");
-vi.mock("./specialities");
 vi.mock("./atc");
 vi.mock("@/data/grist/specialites");
+vi.mock("@/utils/specialites");
 
 // Disable server-only for tests
 vi.mock("server-only", () => ({}));
 
-describe("Legacy Search Engine (getSearchResults)", () => {
+const makeGroup = (groupName: string) => ({
+  groupName,
+  specialites: [],
+  CISList: [],
+  subsIds: [],
+  pathosCodes: [],
+});
+
+describe("Search Engine (getSearchResults)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Default setup for data fetching functions to return empty arrays
-    vi.mocked(getResumeSpecsGroupsWithCISSubsIds).mockResolvedValue([]);
-    vi.mocked(getResumeSpecsGroupsATCLabels).mockResolvedValue([]);
-    vi.mocked(getResumeSpecsGroupsAlerts).mockResolvedValue([]);
-    vi.mocked(getSubstancesResume).mockResolvedValue([]);
-    vi.mocked(getPathologiesResume).mockResolvedValue([]);
+    // Pass-through mocks for enrichment functions
+    vi.mocked(formatSpecialitesResumeFromGroups).mockImplementation((groups) =>
+      groups.map((g: any) => ({ ...g, resumeSpecialites: [] })),
+    );
+    vi.mocked(getResumeSpecsGroupsATCLabels).mockImplementation(async (groups) => groups);
+    vi.mocked(getResumeSpecsGroupsAlerts).mockImplementation(async (groups) => groups);
   });
 
   it("should return an empty array if the DB finds nothing", async () => {
@@ -65,47 +68,61 @@ describe("Legacy Search Engine (getSearchResults)", () => {
     expect(results).toEqual([]);
   });
 
-  it("should find and format a Specialite (e.g., Doliprane 1000mg)", async () => {
-    // TODO: add unit tests for specialites (this is hell right now because of all the dependencies
-    expect(true).toBe(true);
+  it("should sort results by score descending", async () => {
+    // First call: search_index query
+    mockExecute.mockResolvedValueOnce([
+      { match_type: "name", group_name: "DOLIPRANE", match_label: "DOLIPRANE 1000 mg", token: "doliprane 1000 mg", sml: 0.9 },
+      { match_type: "substance", group_name: "EFFERALGAN", match_label: "PARACETAMOL", token: "paracetamol", sml: 0.3 },
+    ]);
+    // Second call: resume_medicaments query
+    mockExecute.mockResolvedValueOnce([makeGroup("DOLIPRANE"), makeGroup("EFFERALGAN")]);
+
+    const results = await getSearchResults("Doliprane");
+
+    expect(results).toHaveLength(2);
+    expect(results[0].groupName).toBe("DOLIPRANE");
+    expect(results[1].groupName).toBe("EFFERALGAN");
   });
 
-  it("should sort results by score", async () => {
-    mockExecute.mockResolvedValue([
-      {
-        id: "PATHO_1",
-        table_name: "Patho",
-        token: "Grippe B",
-        sml: 0.3,
-      },
-      {
-        id: "SUB_1",
-        table_name: "Subs_Nom",
-        token: "Grippe",
-        sml: 0.9,
-      },
-      {
-        id: "PATHO_2",
-        table_name: "Patho",
-        token: "Grippe A",
-        sml: 0.5,
-      },
+  it("should attach matchReasons to results", async () => {
+    mockExecute.mockResolvedValueOnce([
+      { match_type: "substance", group_name: "DOLIPRANE", match_label: "PARACETAMOL", token: "paracetamol", sml: 0.8 },
     ]);
+    mockExecute.mockResolvedValueOnce([makeGroup("DOLIPRANE")]);
 
-    (getSubstancesResume as any).mockResolvedValue([
-      { NomId: "SUB_1", NomLib: "Virus Grippe" },
+    const results = await getSearchResults("Paracetamol");
+
+    expect(results).toHaveLength(1);
+    expect(results[0].matchReasons).toEqual([{ type: "substance", label: "PARACETAMOL" }]);
+  });
+
+  it("should group multiple matches for the same group_name and keep best score", async () => {
+    mockExecute.mockResolvedValueOnce([
+      { match_type: "name", group_name: "DOLIPRANE", match_label: "DOLIPRANE 1000 mg", token: "doliprane 1000 mg", sml: 0.7 },
+      { match_type: "substance", group_name: "DOLIPRANE", match_label: "PARACETAMOL", token: "paracetamol", sml: 0.9 },
     ]);
-    (getPathologiesResume as any).mockResolvedValue([
-      { codePatho: "PATHO_1", NomPatho: "Grippe B (H2N2)" },
-      { codePatho: "PATHO_2", NomPatho: "Grippe A (H1N1)" },
+    mockExecute.mockResolvedValueOnce([makeGroup("DOLIPRANE")]);
+
+    const results = await getSearchResults("Doliprane");
+
+    expect(results).toHaveLength(1);
+    expect(results[0].groupName).toBe("DOLIPRANE");
+    expect(results[0].matchReasons).toEqual([
+      { type: "name", label: "DOLIPRANE 1000 mg" },
+      { type: "substance", label: "PARACETAMOL" },
     ]);
+  });
 
-    const results = await getSearchResults("Grippe");
+  it("should deduplicate identical match reasons (e.g. multiple subsIds for same substance)", async () => {
+    mockExecute.mockResolvedValueOnce([
+      { match_type: "substance", group_name: "ACTIFED RHUME", match_label: "paracétamol", token: "paracetamol", sml: 0.9 },
+      { match_type: "substance", group_name: "ACTIFED RHUME", match_label: "paracétamol", token: "paracetamol", sml: 0.8 },
+    ]);
+    mockExecute.mockResolvedValueOnce([makeGroup("ACTIFED RHUME")]);
 
-    expect(results).toHaveLength(3);
-    // Check order by score
-    expect((results[0] as any).NomLib).toBe("Virus Grippe");
-    expect((results[1] as any).NomPatho).toBe("Grippe A (H1N1)");
-    expect((results[2] as any).NomPatho).toBe("Grippe B (H2N2)");
+    const results = await getSearchResults("paracetamol");
+
+    expect(results).toHaveLength(1);
+    expect(results[0].matchReasons).toEqual([{ type: "substance", label: "paracétamol" }]);
   });
 });
