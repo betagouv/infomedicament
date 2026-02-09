@@ -187,6 +187,7 @@ async function createResumeGeneriques(): Promise<string[]>{
     .selectFrom("Specialite")
     .innerJoin("GroupeGene", "Specialite.SpecGeneId", "GroupeGene.SpecId")
     .where("Specialite.ProcId", "!=", "50")
+    .where("Specialite.IsBdm", "=", 1)
     .select(["Specialite.SpecGeneId", "GroupeGene.LibLong"])
     .groupBy(["GroupeGene.LibLong", "GroupeGene.SpecId"])
     .orderBy("GroupeGene.LibLong")

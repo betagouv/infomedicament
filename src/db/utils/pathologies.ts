@@ -62,6 +62,7 @@ export const getAllPathoWithSpecialites = cache(async function () {
     .selectFrom("Patho")
     .innerJoin("Spec_Patho", "Patho.codePatho", "Spec_Patho.codePatho")
     .innerJoin("Specialite", "Spec_Patho.SpecId", "Specialite.SpecId")
+    .where("Specialite.IsBdm", "=", 1)
     .selectAll("Patho")
     .select("Specialite.SpecDenom01")
     .orderBy("Specialite.SpecDenom01")

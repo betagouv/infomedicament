@@ -41,6 +41,7 @@ export const getDetailedSpecialite = cache(
     .leftJoin("Titulaire", "Titulaire.TituId", "Spec_Titu.TituId")
     .leftJoin ("Specialite as GenSpecialite", "GenSpecialite.SpecId", "Specialite.SpecGeneId")
     .where("Specialite.SpecId", "=", CIS)
+    .where("Specialite.IsBdm", "=", 1)
     .selectAll("Specialite")
     .select("StatutAdm.StatLibCourt as statutAutorisation")
     .select("StatutComm.CommLibCourt as statutComm")
@@ -66,37 +67,44 @@ export const getSpecialite = cache(async (CIS: string) => {
 
   const specialite: DetailedSpecialite | undefined = await getDetailedSpecialite(CIS);
 
-  const composants: Array<SpecComposant & SubstanceNom> = await getComposants(CIS);
+  const composants: Array<SpecComposant & SubstanceNom> = 
+    specialite 
+      ? await getComposants(CIS)
+      : [];
 
-  const presentations: Presentation[] = await getPresentations(CIS);
-  const presentationsDetails = presentations.length
-    ? await db
-      .selectFrom("presentations")
-      .select([
-        "codecip13",
-        "nomelement",
-        "nbrrecipient",
-        "recipient",
-        "caraccomplrecip",
-        "qtecontenance",
-        "unitecontenance",
-      ])
-      .where(
-        "presentations.codecip13",
-        "in",
-        presentations.map((p) => p.codeCIP13),
-      )
-      .groupBy([
-        "codecip13",
-        "nomelement",
-        "nbrrecipient",
-        "recipient",
-        "caraccomplrecip",
-        "qtecontenance",
-        "unitecontenance",
-      ])
-      .execute()
-    : [];
+  const presentations: Presentation[] = 
+    specialite 
+      ? await getPresentations(CIS)
+      : [];
+  const presentationsDetails = 
+    presentations.length
+      ? await db
+        .selectFrom("presentations")
+        .select([
+          "codecip13",
+          "nomelement",
+          "nbrrecipient",
+          "recipient",
+          "caraccomplrecip",
+          "qtecontenance",
+          "unitecontenance",
+        ])
+        .where(
+          "presentations.codecip13",
+          "in",
+          presentations.map((p) => p.codeCIP13),
+        )
+        .groupBy([
+          "codecip13",
+          "nomelement",
+          "nbrrecipient",
+          "recipient",
+          "caraccomplrecip",
+          "qtecontenance",
+          "unitecontenance",
+        ])
+        .execute()
+      : [];
 
   presentations.map((p) => {
     const details = presentationsDetails.find(
@@ -107,17 +115,20 @@ export const getSpecialite = cache(async (CIS: string) => {
     }
   });
 
-  const delivrance: SpecDelivrance[] = await pdbmMySQL
-    .selectFrom("Spec_Delivrance")
-    .where("SpecId", "=", CIS)
-    .innerJoin(
-      "DicoDelivrance",
-      "Spec_Delivrance.DelivId",
-      "DicoDelivrance.DelivId",
-    )
-    .selectAll()
-    .orderBy("DicoDelivrance.DelivLong")
-    .execute();
+  const delivrance: SpecDelivrance[] = 
+    specialite
+      ? await pdbmMySQL
+        .selectFrom("Spec_Delivrance")
+        .where("SpecId", "=", CIS)
+        .innerJoin(
+          "DicoDelivrance",
+          "Spec_Delivrance.DelivId",
+          "DicoDelivrance.DelivId",
+        )
+        .selectAll()
+        .orderBy("DicoDelivrance.DelivLong")
+        .execute()
+      : [];
 
   return {
     specialite,
@@ -130,6 +141,7 @@ export const getSpecialite = cache(async (CIS: string) => {
 export const getAllSpecialites = cache(async function () {
   return await pdbmMySQL
     .selectFrom("Specialite")
+    .where("Specialite.IsBdm", "=", 1)
     .selectAll()
     .distinct()
     .orderBy("SpecDenom01")
@@ -199,6 +211,7 @@ export const getSubstanceSpecialites = unstable_cache(async function (
     .selectFrom("Specialite")
     .selectAll("Specialite")
     .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
+    .where("Specialite.IsBdm", "=", 1)
     .groupBy("Specialite.SpecId")
     .execute();
 },
@@ -214,6 +227,7 @@ export const getSubstanceSpecialitesCIS = unstable_cache(async function (
     .selectFrom("Specialite")
     .select("Specialite.SpecId")
     .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
+    .where("Specialite.IsBdm", "=", 1)
     .groupBy("Specialite.SpecId")
     .execute();
   return rawCISList.map((CIS) => CIS.SpecId);
