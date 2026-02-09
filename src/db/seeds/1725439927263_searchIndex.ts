@@ -86,7 +86,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         throw new Error("No ATC data found in database");
       }
 
-      console.log(`Indexing ${atc1Rows.length + atc2Rows.length} ATC classes...`);
+      console.log(`Indexing ${atc1Rows.length + atc2Rows.length} renamed ATC classes...`);
       for (const atcClass of atc1Rows) {
         if (atcClass.code && atcClass.libelle) {
           await addIndex("ATC", atcClass.code, atcClass.libelle);
@@ -95,6 +95,20 @@ export async function seed(db: Kysely<any>): Promise<void> {
       for (const atcSubClass of atc2Rows) {
         if (atcSubClass.code && atcSubClass.libelle) {
           await addIndex("ATC", atcSubClass.code, atcSubClass.libelle);
+        }
+      }
+      // Index full ATC labels from the atc table
+      const atcRows = await trx
+        .selectFrom("atc")
+        .select(["code", "label_court"])
+        .where("code", "is not", null)
+        .where("label_court", "is not", null)
+        .execute();
+
+      console.log(`Indexing ${atcRows.length} ATC labels from atc table...`);
+      for (const row of atcRows) {
+        if (row.code && row.label_court) {
+          await addIndex("ATC", row.code, row.label_court);
         }
       }
     } catch (error) {
