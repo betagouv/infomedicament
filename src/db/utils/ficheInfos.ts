@@ -2,16 +2,30 @@
 
 import { Asmr, ComposantComposition, DocBonUsage, ElementComposition, FicheInfos, InfosImportantes, Smr } from '@/types/SpecialiteTypes';
 import { pdbmMySQL } from '../pdbmMySQL';
-import { ComposantNatureId, SpecComposant, SpecElement } from '../pdbmMySQL/types';
+import { ComposantNatureId, SpecComposant, SpecElement, VUEvnts } from '../pdbmMySQL/types';
+import { isSurveillanceRenforcee } from '@/utils/specialites';
 
-export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined> {
-  const infosImportantes: InfosImportantes[] = await pdbmMySQL
+export async function getEvents(CIS: string): Promise<VUEvnts[]> {
+  const events: VUEvnts[] = await pdbmMySQL
     .selectFrom("VUEvnts")
     .where("VUEvnts.SpecId", "=", CIS)
-    .where("VUEvnts.remCommentaire", 'is not', null)
-    .where("VUEvnts.remCommentaire", '!=', '')
-    .select(["VUEvnts.remCommentaire", "VUEvnts.dateEvnt"])
+    .selectAll()
     .execute();
+  return events;
+}
+
+export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined> {
+  const events = await getEvents(CIS);
+  const infosImportantes: InfosImportantes[] = [];
+  events.forEach((event: VUEvnts) => {
+    if(event.codeEvnt === '84' && event.remCommentaire){
+      infosImportantes.push({
+        remCommentaire: event.remCommentaire,
+        dateEvnt: event.dateEvnt,
+        codeTypeInfo: event.codeTypeInfo,
+      })
+    }
+  })
 
   const hasSMR: Smr[] = await pdbmMySQL
     .selectFrom("HAS_SMR")
@@ -96,6 +110,7 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
     listeASMR: hasASMR,
     listeSMR: hasSMR,
     listeElements: elementsComposition,
+    isSurveillanceRenforcee: isSurveillanceRenforcee(events),
   }
 
   return ficheInfos;

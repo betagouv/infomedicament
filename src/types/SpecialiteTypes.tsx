@@ -9,12 +9,12 @@ export type SpecialiteAlerts = {
 }
 
 export type ResumeSpecialite = {
-    SpecId: string,
-    SpecDenom01: string,
-    isCommercialisee: boolean,
-    isCentralisee: boolean,
-    isAIP: boolean,
-    alerts?: SpecialiteAlerts,
+  SpecId: string,
+  SpecDenom01: string,
+  StatutBdm: string,
+  ProcId: string,
+  isSurveillanceRenforcee: boolean,
+  alerts?: SpecialiteAlerts,
 }
 
 export type ResumeSpecGroup = ResumeSpecGroupDB & {
@@ -74,6 +74,7 @@ export type DocBonUsage = {
 export type InfosImportantes = {
   remCommentaire: string;
   dateEvnt: Date;
+  codeTypeInfo: number;
 }
 
 
@@ -112,6 +113,7 @@ export type FicheInfos = {
   listeASMR?: Asmr[];
   listeSMR?: Smr[];
   listeElements: ElementComposition[];
+  isSurveillanceRenforcee: boolean;
 }
 
 export type SpecialiteWithSubstance = Specialite & {

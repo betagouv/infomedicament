@@ -34,7 +34,6 @@ import { questionsList } from "@/data/pages/notices_anchors";
 import NoticeBlock from "./NoticeBlock";
 import PregnancyMentionTag from "../tags/PregnancyMentionTag";
 import PregnancyPlanTag from "../tags/PregnancyPlanTag";
-import Link from "next/link";
 import { ATC } from "@/types/ATCTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { getNotice } from "@/db/utils/notice";
@@ -44,11 +43,10 @@ import { getArticlesFromFilters } from "@/db/utils/articles";
 import { getFicheInfos } from "@/db/utils/ficheInfos";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { formatSpecName } from "@/displayUtils";
-import { isAIP, isCentralisee, isCommercialisee } from "@/utils/specialites";
+import { isAIP, isCentralisee } from "@/utils/specialites";
 import { Presentation } from "@/types/PresentationTypes";
-import Alert from "@codegouvfr/react-dsfr/Alert";
 import { trackEvent } from "@/services/tracking";
-import Image from "next/image";
+import MedicamentContentHeader from "./MedicamentContentHeader";
 
 const ToggleSwitchContainer = styled.div`
   background-color: var(--background-contrast-info);
@@ -434,47 +432,10 @@ function MedicamentContent({
             }
         </ContentContainer>
         <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")].join(" ",)}>
-          {(currentPresentations && !isCommercialisee(currentPresentations)) && (
-            <ContentContainer whiteContainer className={fr.cx("fr-mb-4w")}>
-              <Alert
-                description="Si vous prenez actuellement ce médicament, il vous est recommandé d'en parler avec votre médecin ou avec votre pharmacien qui pourra vous orienter vers un autre traitement."
-                severity="info"
-                title="Ce médicament n'est ou ne sera bientôt plus disponible sur le marché."
-                small
-              />
-            </ContentContainer>
-          )}
-          {(currentSpec && isAIP(currentSpec)) && (
-            <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")} style={{display: "flex"}}>
-              <Image
-                src="/icons/aip_aide.png"
-                alt="AIP"
-                width={32}
-                height={17}
-                className={fr.cx("fr-mr-1w", "fr-mt-1v")}
-              />
-              <div>
-                Ce médicament est mis sur le marché en France en tant qu'importation parallèle
-                {(currentSpec.generiqueName && currentSpec.SpecGeneId) && (
-                  <>
-                    {" "}du médicament{" "}
-                    <Link
-                      href={`/medicaments/${currentSpec.SpecGeneId}`}
-                      aria-description="Lien vers le médicament"
-                    >
-                      {currentSpec.generiqueName}
-                    </Link>
-                  </>
-                )}
-                .<br/>
-                L'importateur est{" "}
-                {currentSpec.titulairesList 
-                  ? (<span>{currentSpec.titulairesList}</span>)
-                  : "nconnu"
-                }.
-              </div>
-            </ContentContainer>
-          )}
+          <MedicamentContentHeader
+            specialite={currentSpec}
+            ficheInfos={ficheInfos}
+          />
           {isAdvanced ? (
             <DetailedNotice
               currentVisiblePart={currentPart}

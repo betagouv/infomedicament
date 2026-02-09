@@ -1,7 +1,6 @@
-import { Specialite, PresentationStat, PresentationComm } from "@/db/pdbmMySQL/types";
+import { Specialite, VUEvnts } from "@/db/pdbmMySQL/types";
 import { ResumeSpecGroupDB } from "@/db/types";
 import { MedicamentGroup } from "@/displayUtils";
-import { Presentation } from "@/types/PresentationTypes";
 import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 
 export function getSpecialiteGroupName(
@@ -33,30 +32,47 @@ export function groupSpecialites<T extends Specialite>(
   return allGroups;
 }
 
-export function isCentralisee(specialite: DetailedSpecialite | Specialite){
+export function isCentralisee(
+  specialite: DetailedSpecialite | Specialite
+): boolean {
   if(specialite.ProcId && specialite.ProcId === "20") return true;
   if(specialite.ProcId && specialite.ProcId === "100") return true;
   return false;
 };
 
-export function isCommercialisee(presentations: Presentation[]){
-  if(presentations.length === 0) return false;
-  let isComm: boolean = false;
-  presentations.forEach((pres) => {
-    if(pres 
-      && Number(pres.CommId) === PresentationComm.Commercialisation
-      && (!pres.StatId || pres.StatId.toString() !== PresentationStat.Abrogation.toString())
-    ) {
-      isComm = true;
-    }
-  });
-  return isComm;
+export function isCommercialisee(
+  specialite: DetailedSpecialite | Specialite | ResumeSpecialite
+): boolean {
+  if(specialite.StatutBdm.toString() === "2") return false;
+  return true;
 };
 
-export function isAIP(specialite: DetailedSpecialite | Specialite){
+export function isAIP(
+  specialite: DetailedSpecialite | Specialite | ResumeSpecialite
+): boolean {
   if(specialite.ProcId && specialite.ProcId === "50") return true;
   return false;
 };
+
+export function isAlerteSecurite(
+  specialite: DetailedSpecialite | Specialite | ResumeSpecialite
+): boolean {
+  if(specialite.StatutBdm.toString() === "3") return true;
+  return false;
+}
+
+export function isSurveillanceRenforcee(
+  events: VUEvnts[]
+): boolean {
+  const today = new Date();
+  let isSurveillanceRenforcee = false;
+  events.forEach((event: VUEvnts) => {
+    if(event.codeEvnt === '83' && today > event.dateEvnt && today < event.dateEcheance){
+      isSurveillanceRenforcee = true;
+    }
+  });
+  return isSurveillanceRenforcee;
+}
 
 //Format la liste des spécialités issus de la table résumé
 export function formatSpecialitesResume(specialites: string[][]): ResumeSpecialite[] {
@@ -64,9 +80,9 @@ export function formatSpecialitesResume(specialites: string[][]): ResumeSpeciali
     const result = {
       SpecId: spec[0],
       SpecDenom01: spec[1],
-      isCommercialisee: spec[2] === "true" ? true : false,
-      isCentralisee: spec[3] === "true" ? true : false,
-      isAIP: spec[4] === "true" ? true : false,
+      StatutBdm: spec[2],
+      ProcId: spec[3],
+      isSurveillanceRenforcee: spec[4] === "true" ? true : false,
     }
     return result;
   });
@@ -84,16 +100,22 @@ export function formatSpecialitesResumeFromGroups(specsGroups: ResumeSpecGroupDB
 }
 
 export function getProcedureLibLong(codeProcedure: number): string{
-  if (codeProcedure === 10 || codeProcedure === 60 || codeProcedure === 70 || codeProcedure === 100)
+  if (codeProcedure === 10 || codeProcedure === 100)
     return "Procédure nationale";
   if (codeProcedure === 20)
     return "Procédure centralisée";
   if (codeProcedure === 30)
     return "Procédure de reconnaissance mutuelle";
-  if (codeProcedure === 40 || codeProcedure === 80)
+  if (codeProcedure === 40)
     return "Procédure décentralisée";
   if (codeProcedure === 50)
     return "Autorisation d'Importation Parallèle";
+  if (codeProcedure === 60)
+    return "Enregistrement homéopathique en procédure nationale";
+  if (codeProcedure === 70)
+    return "Enregistrement phytothérapie en procédure nationale";
+  if (codeProcedure === 80)
+    return "Enregistrement phytothérapie en procédure décentralisée";
   if (codeProcedure === 90)
     return "Autorisation d'Importation";
 

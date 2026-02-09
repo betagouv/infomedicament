@@ -12,6 +12,7 @@ import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
+import { isAIP, isAlerteSecurite, isCommercialisee } from "@/utils/specialites";
 
 const COMPOSANTS_TRUNC_LENGTH = window.innerWidth <= 768 ? 150 : 250;
 
@@ -247,7 +248,7 @@ function DataBlockAccordion({
                 >
                   {formatSpecName(specialite.SpecDenom01)}
                 </Link>
-                {specialite.isAIP && (
+                {isAIP(specialite) && (
                   <Tooltip
                     title="Ce médicament est en Autorisation d'Importation parallèle."
                     kind="hover"
@@ -257,7 +258,7 @@ function DataBlockAccordion({
                     </b>
                   </Tooltip>
                 )}
-                {!specialite.isCommercialisee && (
+                {!isCommercialisee(specialite) && (
                   <Tooltip
                     title="Ce médicament n'est ou ne sera bientôt plus disponible sur le marché."
                     kind="hover"
@@ -265,6 +266,28 @@ function DataBlockAccordion({
                     <i 
                       className={fr.cx("fr-icon-close-circle-line", "fr-ml-1v")} 
                       style={{color: "var(--text-action-high-blue-france)"}}
+                    />
+                  </Tooltip>
+                )}
+                {isAlerteSecurite(specialite) && (
+                  <Tooltip
+                    title="Alerte de sécurité sanitaire sur ce médicament, veuillez consulter la notice pour en savoir plus."
+                    kind="hover"
+                  >
+                    <i 
+                      className={fr.cx("fr-icon-alert-line", "fr-ml-1v")} 
+                      style={{color: "var(--red-marianne-main-472)"}}
+                    />
+                  </Tooltip>
+                )}
+                {specialite.isSurveillanceRenforcee && (
+                  <Tooltip
+                    title="Ce médicament fait l'objet d'une information importante ou il est sous surveillance renforcée."
+                    kind="hover"
+                  >
+                    <i 
+                      className={fr.cx("fr-icon-information-line", "fr-ml-1v")} 
+                      style={{color: "var(--warning-425-625)"}}
                     />
                   </Tooltip>
                 )}

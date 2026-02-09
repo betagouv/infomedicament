@@ -220,6 +220,7 @@ export type SpecDelivrance = Selectable<SpecDelivranceTable> &
   Selectable<DicoDelivranceTable>;
 export type Patho = Selectable<PathoTable>;
 export type GroupeGene = Selectable<GroupeGeneTable>;
+export type VUEvnts = Selectable<VUEvntsTable>;
 
 // Those enums are store as small dictionary tables in the database
 // but to benefit from TypeScript type checking

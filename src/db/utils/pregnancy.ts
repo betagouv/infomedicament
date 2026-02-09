@@ -1,6 +1,5 @@
 "use server";
 import "server-cli-only";
-import "server-only";
 
 import { unstable_cache } from "next/cache";
 import db from '@/db';
