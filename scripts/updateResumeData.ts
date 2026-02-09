@@ -243,7 +243,7 @@ async function createResumeDataFromBDPM(){
   if(dataToResume === "pathos" || dataToResume === "substances" || dataToResume === "specialites" || dataToResume === "generiques") {
     let letters: string[] = [];
     if(dataToResume === "pathos") {
-      const letters = await createResumePathologies(); 
+      letters = await createResumePathologies(); 
     } else if(dataToResume === "substances"){
       letters = await createResumeSubstances();
     } else if(dataToResume === "specialites"){

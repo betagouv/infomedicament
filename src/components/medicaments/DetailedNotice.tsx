@@ -32,7 +32,7 @@ interface DetailedNoticeProps extends HTMLAttributes<HTMLDivElement> {
   pediatrics: PediatricsInfo | undefined;
   presentations: Presentation[];
   marr?: Marr;
-  ficheInfos?: FicheInfos
+  ficheInfos?: FicheInfos;
   indicationBlock?: NoticeRCPContentBlock;
   delivrance: SpecDelivrance[];
 }

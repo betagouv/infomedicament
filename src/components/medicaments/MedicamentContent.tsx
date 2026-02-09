@@ -293,7 +293,7 @@ function MedicamentContent({
         )
       );
     setLastLeftTagElement(lastTagElement);
-  }, [pediatrics, isPregnancyPlanAlert, isPregnancyMentionAlert, delivrance, currentSpec, isPrinceps])
+  }, [pediatrics, isPregnancyPlanAlert, isPregnancyMentionAlert, delivrance, currentSpec, isPrinceps]);
 
   return (
     <Container className={fr.cx("fr-col-12", 'fr-mt-2w')}>
