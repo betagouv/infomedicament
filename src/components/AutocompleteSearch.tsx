@@ -50,7 +50,7 @@ export function AutocompleteSearchInput({
   ) as { data: SearchResultItem[] };
 
   const options = searchResults
-    ? searchResults.map((result) => formatSpecName(result.groupName))
+    ? searchResults.map((result) => formatSpecName(result.groupName)).filter(Boolean)
     : [];
 
   return (
