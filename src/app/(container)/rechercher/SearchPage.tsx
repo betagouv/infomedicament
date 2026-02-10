@@ -12,7 +12,7 @@ interface SearchPageProps extends HTMLAttributes<HTMLDivElement> {
   search?: string;
   filterPregnancy?: boolean;
   filterPediatric?: boolean;
-  results?: SearchResultItem[];
+  searchResults?: SearchResultItem[];
   articlesList?: ArticleCardResume[];
 }
 
@@ -20,7 +20,7 @@ function SearchPage({
   search,
   filterPregnancy,
   filterPediatric,
-  results,
+  searchResults,
   articlesList
 }: SearchPageProps) {
 
@@ -54,10 +54,10 @@ function SearchPage({
           />
         </div>
       </div>
-      {results && results.length > 0 ? (
+      {searchResults && searchResults.length > 0 ? (
         <SearchResultsList
-          resultsList={results}
-          totalResults={results.length}
+          resultsList={searchResults}
+          totalResults={searchResults.length}
           searchTerms={search}
           articles={articlesList}
           setFilterPregnancy={setCurrentFilterPregnancy}
