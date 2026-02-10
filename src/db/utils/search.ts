@@ -75,8 +75,12 @@ export const getSearchResults = unstable_cache(async function (
     }
   }
 
-  // Fetch resume_medicaments for matched group names
-  const groupNames = [...groupMap.keys()];
+  // Keep only the top 100 groups by score to avoid oversized cache entries
+  // This will also help with performance
+  const groupNames = [...groupMap.entries()]
+    .sort((a, b) => b[1].score - a[1].score)
+    .slice(0, 100)
+    .map(([name]) => name);
   const rawGroups = await db
     .selectFrom("resume_medicaments")
     .where("groupName", "in", groupNames)
