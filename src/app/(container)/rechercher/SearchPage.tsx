@@ -5,14 +5,14 @@ import AutocompleteSearch from "@/components/AutocompleteSearch";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SearchResultsList from "@/components/search/SearchResultsList";
 import { HTMLAttributes, useEffect, useState } from "react";
-import { ExtendedOrderResults } from "@/types/SearchTypes";
+import { SearchResultItem } from "@/db/utils/search";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 
 interface SearchPageProps extends HTMLAttributes<HTMLDivElement> {
   search?: string;
   filterPregnancy?: boolean;
   filterPediatric?: boolean;
-  extendedResults?: ExtendedOrderResults;
+  results?: SearchResultItem[];
   articlesList?: ArticleCardResume[];
 }
 
@@ -20,7 +20,7 @@ function SearchPage({
   search,
   filterPregnancy,
   filterPediatric,
-  extendedResults,
+  results,
   articlesList
 }: SearchPageProps) {
 
@@ -54,11 +54,11 @@ function SearchPage({
           />
         </div>
       </div>
-      {extendedResults && extendedResults.counter > 0 ? (
-        <SearchResultsList 
-          resultsList={extendedResults.results} 
-          totalResults={extendedResults.counter} 
-          searchTerms={search} 
+      {results && results.length > 0 ? (
+        <SearchResultsList
+          resultsList={results}
+          totalResults={results.length}
+          searchTerms={search}
           articles={articlesList}
           setFilterPregnancy={setCurrentFilterPregnancy}
           setFilterPediatric={setCurrentFilterPediatric}
