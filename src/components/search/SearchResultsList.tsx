@@ -77,6 +77,7 @@ function SearchResultsList({
             <DataBlockAccordion
               key={index}
               item={result}
+              matchReasons={result.matchReasons}
               filterPregnancy={filterPregnancy}
               filterPediatric={filterPediatric}
               withAlert
