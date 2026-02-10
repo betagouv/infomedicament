@@ -50,21 +50,7 @@ export function AutocompleteSearchInput({
   ) as { data: SearchResultItem[] };
 
   const options = searchResults
-    ? searchResults
-        .map((result): string | string[] =>
-          "NomLib" in result
-            ? result.NomLib
-            : "groupName" in result
-              ? result.groupName
-              : "NomPatho" in result
-                ? result.NomPatho
-                : [
-                    result.class.label,
-                    ...result.subclasses.map((x) => x.label),
-                  ],
-        )
-        .flat()
-        .map(formatSpecName)
+    ? searchResults.map((result) => formatSpecName(result.groupName))
     : [];
 
   return (
