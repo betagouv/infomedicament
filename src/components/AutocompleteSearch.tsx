@@ -140,19 +140,19 @@ export default function AutocompleteSearch({
   filterPediatric?: boolean;
   filterPregnancy?: boolean;
 }) {
-  
+
   const router = useRouter();
   const [currentFilterPregnancy, setFilterPregnancy] = useState<boolean>(false);
   const [currentFilterPediatric, setFilterPediatric] = useState<boolean>(false);
 
   useEffect(() => {
-    if(filterPediatric)
+    if (filterPediatric)
       setFilterPediatric(filterPediatric)
     else setFilterPediatric(false);
   }, [filterPediatric, setFilterPediatric]);
 
   useEffect(() => {
-    if(filterPregnancy)
+    if (filterPregnancy)
       setFilterPregnancy(filterPregnancy)
     else setFilterPregnancy(false);
   }, [filterPregnancy, setFilterPregnancy]);
@@ -179,7 +179,7 @@ export default function AutocompleteSearch({
         className={fr.cx("fr-mb-2w")}
       />
       {!hideFilters && (
-        <PregnancyPediatricFilters 
+        <PregnancyPediatricFilters
           setFilterPregnancy={setFilterPregnancy}
           setFilterPediatric={setFilterPediatric}
           filterPregnancy={currentFilterPregnancy}
