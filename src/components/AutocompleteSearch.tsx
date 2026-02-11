@@ -12,6 +12,11 @@ import { useRouter } from "next/navigation";
 import { trackSearchEvent } from "@/services/tracking";
 import PregnancyPediatricFilters from "./search/PregnancyPediatricFilters";
 
+type AutocompleteOption = {
+  label: string;
+  CIS?: string;
+};
+
 type SearchInputProps = {
   name: string;
   initialValue?: string;
@@ -19,7 +24,7 @@ type SearchInputProps = {
   id: string;
   placeholder: string;
   type: "search";
-  onSearch?: (search:string) => void;
+  onSearch?: (search: string) => void;
 };
 
 export function AutocompleteSearchInput({
@@ -49,25 +54,36 @@ export function AutocompleteSearchInput({
     },
   ) as { data: SearchResultItem[] };
 
-  const options = searchResults
-    ? [
-      ...new Set(
-        searchResults
-          .flatMap((result) => [
-            result.groupName,
-            ...result.resumeSpecialites.map((s) => s.SpecDenom01),
-          ])
-          .filter(Boolean)
-          .map(formatSpecName),
-      ),
-    ]
-    : [];
+  // Build options with dedup by label, preferring specialites (which carry a CIS)
+  const options: AutocompleteOption[] = [];
+  if (searchResults) {
+    const seen = new Set<string>();
+    searchResults.forEach((result) => {
+      // Group name first (no CIS — navigates to search page)
+      const groupLabel = formatSpecName(result.groupName);
+      if (groupLabel && !seen.has(groupLabel)) {
+        seen.add(groupLabel);
+        options.push({ label: groupLabel });
+      }
+      // Then individual specialites (with CIS — navigates to /medicaments/{CIS})
+      result.resumeSpecialites?.forEach((s) => {
+        const specLabel = formatSpecName(s.SpecDenom01);
+        if (specLabel && !seen.has(specLabel)) {
+          seen.add(specLabel);
+          options.push({ label: specLabel, CIS: s.SpecId });
+        }
+      });
+    });
+  }
 
   return (
-    <Autocomplete
+    // Autocomplete<Value, Multiple, DisableClearable, FreeSolo>
+    <Autocomplete<AutocompleteOption, false, false, true>
       freeSolo
       id={id}
       options={options}
+      getOptionLabel={(option) => typeof option === "string" ? option : option.label}
+      isOptionEqualToValue={(option, value) => option.label === value.label}
       filterOptions={(x) => x}
       autoComplete
       inputValue={inputValue}
@@ -75,16 +91,24 @@ export function AutocompleteSearchInput({
         setInputValue(value);
       }}
       onChange={(_, value, reason) => {
-        if (reason === "selectOption") {
-          if(onSearch && value){
-            onSearch(value);
+        if (reason === "selectOption" && value) {
+          // value can be a string (freeSolo) or an AutocompleteOption object
+          const label = typeof value === "string" ? value : value.label;
+          const CIS = typeof value === "string"
+            ? options.find((o) => o.label === value)?.CIS
+            : value.CIS;
+
+          if (CIS) {
+            router.push(`/medicaments/${CIS}`);
+          } else if (onSearch) {
+            onSearch(label);
           } else {
-            value && trackSearchEvent(value);
-            router.push(`/rechercher?s=${value}`);
+            trackSearchEvent(label);
+            router.push(`/rechercher?s=${label}`);
           }
         }
       }}
-      disablePortal
+      slotProps={{ popper: { style: { zIndex: 1300 } } }}
       style={{ width: "100%" }}
       renderInput={(params) => (
         <div ref={params.InputProps.ref}>
