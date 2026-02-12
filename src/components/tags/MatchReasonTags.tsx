@@ -5,8 +5,6 @@ import { MatchReason } from "@/db/utils/search";
 import "./dsfr-custom-tags.css";
 
 const config: Record<string, { prefix: string; className: string }> = {
-  substance: { prefix: "Substance : ", className: "fr-tag--custom-alt-substance" },
-  atc: { prefix: "Classe : ", className: "fr-tag--custom-alt-class" },
   pathology: { prefix: "Pathologie : ", className: "fr-tag--custom-alt-blue" },
 };
 
