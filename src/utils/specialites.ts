@@ -74,6 +74,13 @@ export function isSurveillanceRenforcee(
   return isSurveillanceRenforcee;
 }
 
+export function isHomeopathie(
+  specialite: DetailedSpecialite | Specialite | ResumeSpecialite
+): boolean {
+  if(specialite.ProcId && specialite.ProcId === "60") return true;
+  return false;
+};
+
 //Format la liste des spécialités issus de la table résumé
 export function formatSpecialitesResume(specialites: string[][]): ResumeSpecialite[] {
   const formatSpecs: ResumeSpecialite[] = specialites.map((spec) => {

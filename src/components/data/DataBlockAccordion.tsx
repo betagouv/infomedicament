@@ -14,8 +14,6 @@ import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { isAIP, isAlerteSecurite, isCommercialisee } from "@/utils/specialites";
 
-const COMPOSANTS_TRUNC_LENGTH = window.innerWidth <= 768 ? 150 : 250;
-
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
     border-bottom: var(--border-open-blue-france) 1px solid;
@@ -114,16 +112,17 @@ function DataBlockAccordion({
   const [pediatricsInfo, setPediatricsInfo] = useState<PediatricsInfo>();
 
   const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(false);
+  const [composantsTruncLength, setComposantsTruncLength] = useState<number>(250);
 
   useEffect(() => {
     setSpecialitesGroup(item);
     setGroupName(formatSpecName(item.groupName));
     setSpecialites(item.resumeSpecialites);
     setFullListeComposants(item.composants);
-    setListeComposants(item.composants.slice(0, COMPOSANTS_TRUNC_LENGTH) + (item.composants.length > COMPOSANTS_TRUNC_LENGTH ? "..." : ""));
+    setListeComposants(item.composants.slice(0, composantsTruncLength) + (item.composants.length > composantsTruncLength ? "..." : ""));
     setAtc1Label(item.atc1Label);
     setAtc2Label(item.atc2Label);
-  }, [item, setSpecialitesGroup, setGroupName, setSpecialites, setListeComposants, setAtc1Label, setAtc2Label]);
+  }, [item, composantsTruncLength, setSpecialitesGroup, setGroupName, setSpecialites, setListeComposants, setAtc1Label, setAtc2Label]);
 
   useEffect(() => {
     if(withAlert 
@@ -162,9 +161,25 @@ function DataBlockAccordion({
     if(isVisible)
       setListeComposants(fullListeComposants);
     else {
-      setListeComposants(fullListeComposants.slice(0, COMPOSANTS_TRUNC_LENGTH) + (fullListeComposants.length > COMPOSANTS_TRUNC_LENGTH ? "..." : ""));
+      setListeComposants(fullListeComposants.slice(0, composantsTruncLength) + (fullListeComposants.length > composantsTruncLength ? "..." : ""));
     }
   }
+
+  function updateComposantsTruncLength() {
+    if (window.innerWidth <= 768) {
+      setComposantsTruncLength(150);
+    } else {
+      setComposantsTruncLength(250);
+    }
+  }
+
+  useEffect(() => {
+    updateComposantsTruncLength();
+    window.addEventListener('resize', updateComposantsTruncLength);
+    return () => {
+      window.removeEventListener('resize', updateComposantsTruncLength);
+    };
+  }, []);
 
 
   return specialitesGroup && (

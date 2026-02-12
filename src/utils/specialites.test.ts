@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isSurveillanceRenforcee } from "./specialites";
+import { isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isSurveillanceRenforcee } from "./specialites";
 import { getDetailedSpecialite } from "@/db/utils/specialities";
 import { getEvents } from "@/db/utils/ficheInfos";
 
@@ -54,5 +54,15 @@ describe("utils specialities", () => {
     if(specNotSurveillance)
       expect(isSurveillanceRenforcee(specNotSurveillance)).toBe(false);
   })
-  
+
+  it("isHomeopathie", async () => {
+    const specHomeo = await getDetailedSpecialite("60002746");
+    if(specHomeo)
+      expect(isHomeopathie(specHomeo)).toBe(true);
+    
+    const specNotHomeo = await getDetailedSpecialite("60007960");
+    if(specNotHomeo)
+      expect(isHomeopathie(specNotHomeo)).toBe(false);
+  })
+
 });

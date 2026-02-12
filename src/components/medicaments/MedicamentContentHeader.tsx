@@ -2,10 +2,10 @@
 
 import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes } from "react";
 import Link from "next/link";
 import { DetailedSpecialite, FicheInfos } from "@/types/SpecialiteTypes";
-import { isAIP, isAlerteSecurite, isCommercialisee } from "@/utils/specialites";
+import { isAIP, isAlerteSecurite, isCommercialisee, isHomeopathie } from "@/utils/specialites";
 import Alert from "@codegouvfr/react-dsfr/Alert";
 import Image from "next/image";
 
@@ -20,24 +20,10 @@ function MedicamentContentHeader({
   ...props
 }: MedicamentContentHeaderProps) {
 
-  const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite>();
-  const [currentFicheInfos, setCurrentFicheInfos] = useState<FicheInfos>();
-  
-  useEffect(() => {
-    if (specialite) {
-      setCurrentSpec(specialite);
-    }
-  }, [specialite, setCurrentSpec]);
-
-    useEffect(() => {
-    if (ficheInfos) {
-      setCurrentFicheInfos(ficheInfos);
-    }
-  }, [ficheInfos, setCurrentFicheInfos]);
 
   return (
     <div {...props}>
-      {(currentSpec && !isCommercialisee(currentSpec)) && (
+      {(specialite && !isCommercialisee(specialite)) && (
         <ContentContainer whiteContainer className={fr.cx("fr-mb-4w")}>
           <Alert
             description="Si vous prenez actuellement ce médicament, il vous est recommandé d'en parler avec votre médecin ou avec votre pharmacien qui pourra vous orienter vers un autre traitement."
@@ -47,7 +33,7 @@ function MedicamentContentHeader({
           />
         </ContentContainer>
       )}
-      {(currentSpec && isAIP(currentSpec)) && (
+      {(specialite && isAIP(specialite)) && (
         <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")} style={{display: "flex"}}>
           <Image
             src="/icons/aip.png"
@@ -58,27 +44,27 @@ function MedicamentContentHeader({
           />
           <div>
             Ce médicament est mis sur le marché en France en tant qu'importation parallèle
-            {(currentSpec.generiqueName && currentSpec.SpecGeneId) && (
+            {(specialite.generiqueName && specialite.SpecGeneId) && (
               <>
                 {" "}du médicament{" "}
                 <Link
-                  href={`/medicaments/${currentSpec.SpecGeneId}`}
+                  href={`/medicaments/${specialite.SpecGeneId}`}
                   aria-description="Lien vers le médicament"
                 >
-                  {currentSpec.generiqueName}
+                  {specialite.generiqueName}
                 </Link>
               </>
             )}
             .<br/>
             L'importateur est{" "}
-            {currentSpec.titulairesList 
-              ? (<span>{currentSpec.titulairesList}</span>)
+            {specialite.titulairesList 
+              ? (<span>{specialite.titulairesList}</span>)
               : "Inconnu"
             }.
           </div>
         </ContentContainer>
       )}
-      {(currentSpec && currentSpec.ProcId === "60") && (
+      {(specialite && isHomeopathie(specialite)) && (
         <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
           Ce médicament est un médicament homéopathique à nom commun soumis à enregistrement.
           <br/><br/>
@@ -88,10 +74,10 @@ function MedicamentContentHeader({
           (pathologies ou symptômes) et la posologie. 
           L'indication et la posologie sont ainsi adaptées à chaque patient en prenant en 
           compte les données de l'usage traditionnel homéopathique. Ces médicaments peuvent 
-          étre délivrés par le pharmacien sans prescription médicale. 
+          être délivrés par le pharmacien sans prescription médicale. 
         </ContentContainer>
       )}
-      {(currentSpec && isAlerteSecurite(currentSpec)) && (
+      {(specialite && isAlerteSecurite(specialite)) && (
         <ContentContainer whiteContainer className={fr.cx("fr-mb-4w")}>
           <Alert 
             severity="error"
@@ -104,7 +90,7 @@ function MedicamentContentHeader({
           />
         </ContentContainer>
       )}
-      {(currentFicheInfos && currentFicheInfos.isSurveillanceRenforcee) && (
+      {(ficheInfos && ficheInfos.isSurveillanceRenforcee) && (
         <ContentContainer whiteContainer className={fr.cx("fr-mb-4w")}>
           <Alert 
             severity="warning"

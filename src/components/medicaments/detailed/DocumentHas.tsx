@@ -36,7 +36,7 @@ function getSmrAsmrFormattedAvis(date?: Date, link?: string | null) {
     if(link)
       return (
         <Link 
-          href="link"
+          href={link}
           target="_blank"
           rel="noopener noreferrer"
           title={`Lien vers l'avis complet de la commission de la transparence du ${formattedDate.toLocaleDateString('fr-FR')} - nouvelle fenêtre vers le site de la HAS`}

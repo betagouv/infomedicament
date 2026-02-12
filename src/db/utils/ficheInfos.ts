@@ -18,6 +18,7 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
   const events = await getEvents(CIS);
   const infosImportantes: InfosImportantes[] = [];
   events.forEach((event: VUEvnts) => {
+    //84 is the code for events - infos importantes - on the specialite
     if(event.codeEvnt === '84' && event.remCommentaire){
       infosImportantes.push({
         remCommentaire: event.remCommentaire,

@@ -36,7 +36,6 @@ export async function getGeneriques(CIS: string): Promise<Specialite[]> {
       .where("SpecGeneId", "=", CIS)
       .where("SpecId", "!=", CIS)
       .where("Specialite.IsBdm", "=", 1)
-      // Limit to 500 results
       .execute()
   );
 }

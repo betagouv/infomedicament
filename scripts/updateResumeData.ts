@@ -251,7 +251,7 @@ async function createResumeDataFromBDPM(){
     } else if(dataToResume === "generiques"){
       letters = await createResumeGeneriques();
     }
-    saveResumeLetters(dataToResume, letters);
+    await saveResumeLetters(dataToResume, letters);
   } else {
     
   }/* else if(dataToResume === "atc1"){

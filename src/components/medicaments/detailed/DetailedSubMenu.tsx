@@ -265,7 +265,6 @@ function DetailedSubMenu({
   function goToFocus(anchor: string) {
     const element = document.getElementById(anchor);
     if(element) element.scrollIntoView({block: 'start'});
-
   }
 
   useEffect(() => {
@@ -294,14 +293,14 @@ function DetailedSubMenu({
         window.scrollTo(0,0);
       }
     }
-  }, [loaded, currentMenuPart, setCurrentSubMenu, setFocusAnchor]);
+  }, [loaded, currentMenuPart, setCurrentSubMenu, setFocusAnchor, updateVisiblePart]);
 
   useEffect(() => {
     if(!loaded) return;
     if(focusAnchor){
       goToFocus(focusAnchor);
     }
-  }, [loaded, focusAnchor, goToFocus]);
+  }, [loaded, focusAnchor]);
 
   return loaded && (
     <Container {...props}>

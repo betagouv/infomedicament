@@ -67,8 +67,7 @@ interface SummaryLineProps extends HTMLAttributes<HTMLDivElement> {
 function SummaryLine({
   categoryName, 
   hideBorder,
-  children, 
-  ...props
+  children
 } :PropsWithChildren<SummaryLineProps>){
   return (
     <SummaryLineContainer className={fr.cx("fr-mb-1w", "fr-pb-1w", "fr-mt-1w", "fr-text--sm")} $hideBorder={hideBorder}>
@@ -114,17 +113,6 @@ function GeneralInformations({
   delivrance,
   ...props 
 }: GeneralInformationsProps) {
-
-  const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite>();
-  const [currentIndicationBlock, setCurrentIndicationBlock] = useState<NoticeRCPContentBlock>();
-
-  useEffect(() => {
-    setCurrentSpec(specialite);
-  }, [specialite, setCurrentSpec]);
-
-  useEffect(() => {
-    setCurrentIndicationBlock(indicationBlock);
-  }, [indicationBlock, setCurrentIndicationBlock]);
   
   function formatCIS(CIS: string): string {
     const cutting = [1, 3, 3, 1];
@@ -142,8 +130,8 @@ function GeneralInformations({
   }
 
   return (
-    (ficheInfos && currentSpec) && (
-    <>
+    (ficheInfos && specialite) && (
+    <div {...props}>
       {ficheInfos.listeInformationsImportantes && displayInfosImportantes(ficheInfos) && (
         <ContentContainer id="informations-importantes" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
           <h2 className={fr.cx("fr-h6")}>Informations importantes</h2>
@@ -171,7 +159,7 @@ function GeneralInformations({
       <ContentContainer id="informations-resume" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Résumé</h2>
         <SummaryLine categoryName="Code CIS">
-          {formatCIS(currentSpec.SpecId)}
+          {formatCIS(specialite.SpecId)}
         </SummaryLine>
         {atcCode && (
           <SummaryLine categoryName="Classe ATC">
@@ -186,21 +174,21 @@ function GeneralInformations({
         </SummaryLine>
         <SummaryLine categoryName="Statut générique">
           <>
-            {(isPrinceps && !isAIP(currentSpec)) ? (
+            {(isPrinceps && !isAIP(specialite)) ? (
               <PrincepsTag 
-                CIS={currentSpec.SpecId} 
+                CIS={specialite.SpecId} 
                 hideIcon
               />
             ) : (
-              (currentSpec.SpecGeneId && !isAIP(currentSpec))
+              (specialite.SpecGeneId && !isAIP(specialite))
               ? (
                 <>
                   <GenericTag 
-                    specGeneId={currentSpec.SpecGeneId} 
+                    specGeneId={specialite.SpecGeneId} 
                     hideIcon
                   />
                   <div>
-                    <strong>Princeps:&nbsp;</strong>{currentSpec.generiqueName}
+                    <strong>Princeps:&nbsp;</strong>{specialite.generiqueName}
                   </div>
                 </>
               ) : (
@@ -227,12 +215,12 @@ function GeneralInformations({
           )}
         </SummaryLine>
         <SummaryLine categoryName="Statut de l’autorisation">
-          {currentSpec.statutAutorisation 
+          {specialite.statutAutorisation 
             ? (
               <>
-                <span>{currentSpec.statutAutorisation}</span>
-                {(currentSpec.StatId && Number(currentSpec.StatId) === SpecialiteStat.Abrogée && currentSpec.SpecStatDate) && (
-                  <span className={fr.cx("fr-text--sm")}>{" "}le {(currentSpec.SpecStatDate).toLocaleDateString('fr-FR')}</span>
+                <span>{specialite.statutAutorisation}</span>
+                {(specialite.StatId && Number(specialite.StatId) === SpecialiteStat.Abrogée && specialite.SpecStatDate) && (
+                  <span className={fr.cx("fr-text--sm")}>{" "}le {(specialite.SpecStatDate).toLocaleDateString('fr-FR')}</span>
                 )}
               </>
             )
@@ -240,26 +228,26 @@ function GeneralInformations({
           }
         </SummaryLine>
         <SummaryLine categoryName="Date d'autorisation de mise sur le marché">
-          {currentSpec.SpecDateAMM 
-            ? (<span>Le&nbsp;{(currentSpec.SpecDateAMM).toLocaleDateString('fr-FR')}</span>)
+          {specialite.SpecDateAMM 
+            ? (<span>Le&nbsp;{(specialite.SpecDateAMM).toLocaleDateString('fr-FR')}</span>)
             : (<span>Non communiquée</span>)
           }
         </SummaryLine>
         <SummaryLine categoryName="Titulaire de l’autorisation">
-          {currentSpec.titulairesList 
-            ? (<span>{currentSpec.titulairesList}</span>)
+          {specialite.titulairesList 
+            ? (<span>{specialite.titulairesList}</span>)
             : (<span>Non communiqué</span>)
           }
         </SummaryLine>
         <SummaryLine categoryName="Statut de commercialisation">
-          {currentSpec.statutComm 
-            ? (<span>{currentSpec.statutComm}</span>)
+          {specialite.statutComm 
+            ? (<span>{specialite.statutComm}</span>)
             : (<span>Non communiqué</span>)
           }
         </SummaryLine>
         <SummaryLine categoryName="Type de procédure">
-          {currentSpec.ProcId 
-            ? (<span>{getProcedureLibLong(Number(currentSpec.ProcId))}</span>)
+          {specialite.ProcId 
+            ? (<span>{getProcedureLibLong(Number(specialite.ProcId))}</span>)
             : (<span>Non communiqué</span>)
           }
         </SummaryLine>
@@ -286,29 +274,29 @@ function GeneralInformations({
       <ContentContainer id="informations-indications" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Indications</h2>
         <IndicationBlock className={fr.cx("fr-mb-0")}>
-          {(currentSpec && isAIP(currentSpec)) ? (
+          {(specialite && isAIP(specialite)) ? (
             <span>              
               Pour visualiser les indications thérapeutiques, consulter la fiche info de la spécialité de réfèrence de cette autorisation d'importation parallèle
-              {(currentSpec.generiqueName && currentSpec.SpecGeneId) && (
+              {(specialite.generiqueName && specialite.SpecGeneId) && (
                 <>
                   &nbsp;:&nbsp;
                   <Link
-                    href={`/medicaments/${currentSpec.SpecGeneId}`}
+                    href={`/medicaments/${specialite.SpecGeneId}`}
                     aria-description="Lien vers le médicament"
                   >
-                    {currentSpec.generiqueName}
+                    {specialite.generiqueName}
                   </Link>
                 </>
               )}.
             </span>
           ) : (
-            (currentSpec && isCentralisee(currentSpec)) ? (
+            (specialite && isCentralisee(specialite)) ? (
               <span>
                 Vous trouverez les indications thérapeutiques de ce médicament dans le paragraphe 4.1 du RCP ou dans le paragraphe 1 de la notice. 
-                {currentSpec.urlCentralise && (
+                {specialite.urlCentralise && (
                   <span>
                     {" "}Ces documents sont disponibles{" "}
-                    <Link href={currentSpec.urlCentralise} 
+                    <Link href={specialite.urlCentralise} 
                       target="_blank" 
                       rel="noopener noreferrer"
                     >
@@ -318,8 +306,8 @@ function GeneralInformations({
                 )}
               </span>
             ) : (
-              (currentIndicationBlock && currentIndicationBlock.children && currentIndicationBlock.children.length > 0) ? (
-                <span>{getContent(currentIndicationBlock.children)}</span>
+              (indicationBlock && indicationBlock.children && indicationBlock.children.length > 0) ? (
+                <span>{getContent(indicationBlock.children)}</span>
               ) : (
                 <span>Les indications thérapeutiques ne sont pas disponibles.</span>
               )
@@ -503,7 +491,7 @@ function GeneralInformations({
           <MarrNoticeAdvanced marr={marr} />
         </ContentContainer>
       )}
-    </>
+    </div>
     )
   );
 };
