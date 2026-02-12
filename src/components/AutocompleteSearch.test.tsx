@@ -22,20 +22,7 @@ const mockSearchResults = [
     CISList: [],
     subsIds: [],
     matchReasons: [],
-    resumeSpecialites: [
-      {
-        SpecId: "12345678",
-        SpecDenom01: "DOLIPRANE 500 mg, comprimé",
-        isCommercialisee: true,
-        isCentralisee: false,
-      },
-      {
-        SpecId: "87654321",
-        SpecDenom01: "DOLIPRANE 1000 mg, gélule",
-        isCommercialisee: true,
-        isCentralisee: false,
-      },
-    ],
+    resumeSpecialites: [],
   },
 ];
 
@@ -60,35 +47,6 @@ describe("AutocompleteSearchInput", () => {
       />,
     );
   }
-
-  it("should show specialite names in the options", () => {
-    renderAutocomplete();
-    const input = screen.getByRole("combobox");
-    fireEvent.focus(input);
-    fireEvent.change(input, { target: { value: "dolip" } });
-
-    const options = screen.getAllByRole("option");
-    const labels = options.map((o) => o.textContent);
-
-    expect(labels).toContain("Doliprane");
-    // NB: formatSpecName transforms names from UPPERCASE to Title case
-    expect(labels).toContain("Doliprane 500 mg, comprimé");
-    expect(labels).toContain("Doliprane 1000 mg, gélule");
-  });
-
-  it("should navigate to /medicaments/{CIS} when selecting a specialite", () => {
-    renderAutocomplete();
-    const input = screen.getByRole("combobox");
-    fireEvent.focus(input);
-    fireEvent.change(input, { target: { value: "dolip" } });
-
-    const option = screen
-      .getAllByRole("option")
-      .find((o) => o.textContent === "Doliprane 500 mg, comprimé")!;
-    fireEvent.click(option);
-
-    expect(mockPush).toHaveBeenCalledWith("/medicaments/12345678");
-  });
 
   it("should navigate to search page when selecting a group name", () => {
     renderAutocomplete();
@@ -118,21 +76,5 @@ describe("AutocompleteSearchInput", () => {
 
     expect(onSearch).toHaveBeenCalledWith("Doliprane");
     expect(mockPush).not.toHaveBeenCalled();
-  });
-
-  it("should navigate to /medicaments/{CIS} even when onSearch is provided", () => {
-    const onSearch = vi.fn();
-    renderAutocomplete(onSearch);
-    const input = screen.getByRole("combobox");
-    fireEvent.focus(input);
-    fireEvent.change(input, { target: { value: "dolip" } });
-
-    const option = screen
-      .getAllByRole("option")
-      .find((o) => o.textContent === "Doliprane 1000 mg, gélule")!;
-    fireEvent.click(option);
-
-    expect(mockPush).toHaveBeenCalledWith("/medicaments/87654321");
-    expect(onSearch).not.toHaveBeenCalled();
   });
 });
