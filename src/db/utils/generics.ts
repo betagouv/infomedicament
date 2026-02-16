@@ -32,10 +32,10 @@ export async function getGeneriques(CIS: string): Promise<Specialite[]> {
   return (
     pdbmMySQL
       .selectFrom("Specialite")
-      .selectAll()
       .where("SpecGeneId", "=", CIS)
       .where("SpecId", "!=", CIS)
-      .where("Specialite.IsBdm", "=", 1)
+      .where("IsBdm", "=", 1)
+      .selectAll()
       .execute()
   );
 }

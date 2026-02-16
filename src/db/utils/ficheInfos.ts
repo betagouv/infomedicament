@@ -1,6 +1,6 @@
 "use server";
 
-import { Asmr, ComposantComposition, DocBonUsage, ElementComposition, FicheInfos, InfosImportantes, Smr } from '@/types/SpecialiteTypes';
+import { Asmr, ComposantComposition, ComposantSubsNom, DocBonUsage, ElementComposition, FicheInfos, InfosImportantes, Smr } from '@/types/FicheInfoTypes';
 import { pdbmMySQL } from '../pdbmMySQL';
 import { ComposantNatureId, SpecComposant, SpecElement, VUEvnts } from '../pdbmMySQL/types';
 import { isSurveillanceRenforcee } from '@/utils/specialites';
@@ -59,9 +59,10 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
     .selectAll()
     .distinct()
     .execute();
-  const composantsRaw: any[] = await pdbmMySQL
+
+  const composantsRaw: ComposantSubsNom[] = await pdbmMySQL
     .selectFrom("Composant")
-    .leftJoin(
+    .innerJoin(
       "Subs_Nom", 
       (join) => join
         .onRef('Subs_Nom.NomId', '=', 'Composant.NomId')
@@ -74,12 +75,12 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
     .execute();
   const elementsComposition: ElementComposition[] = [];
   elementsRaw.forEach((element: SpecElement) => {
-    const composantsList = composantsRaw.filter((composantRaw: SpecComposant) => composantRaw.ElmtNum === element.ElmtNum && composantRaw.NatuId === ComposantNatureId.Substance);
-    const fractionsList = composantsRaw.filter((composantRaw: SpecComposant) => composantRaw.ElmtNum === element.ElmtNum && composantRaw.NatuId === ComposantNatureId.Fraction);
+    const composantsList = composantsRaw.filter((composantRaw: ComposantSubsNom) => composantRaw.ElmtNum === element.ElmtNum && composantRaw.NatuId === ComposantNatureId.Substance);
+    const fractionsList = composantsRaw.filter((composantRaw: ComposantSubsNom) => composantRaw.ElmtNum === element.ElmtNum && composantRaw.NatuId === ComposantNatureId.Fraction);
     const composantsComposition: ComposantComposition[] = [];
     if(fractionsList && fractionsList.length > 0){
       fractionsList.forEach((fraction) => {
-        const composantsFractionList = composantsList.filter((composantRaw: SpecComposant) => composantRaw.CompNum === fraction.CompNum);
+        const composantsFractionList = composantsList.filter((composantRaw: ComposantSubsNom) => composantRaw.CompNum === fraction.CompNum);
         composantsComposition.push({
           NomLib: fraction.NomLib,
           dosage: fraction.CompDosage,

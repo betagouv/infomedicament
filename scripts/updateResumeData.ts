@@ -225,7 +225,7 @@ async function saveResumeLetters(
   console.log("Ajout des letters");
   const lettersValue: Letters = {
     type: dataToResume,
-    letters: letters,
+    letters: letters.sort((a,b) => a.localeCompare(b)),
   }
   await db
     .deleteFrom('letters')
