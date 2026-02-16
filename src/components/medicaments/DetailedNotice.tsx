@@ -9,11 +9,12 @@ import GeneralInformations from "./detailed/GeneralInformations";
 import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
 import DocumentHas from "./detailed/DocumentHas";
 import { Marr } from "@/types/MarrTypes";
-import { FicheInfos, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
+import { NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import RcpBlock from "./detailed/RcpBlock";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
+import { FicheInfos } from "@/types/FicheInfoTypes";
 
 const DetailedNoticeContainer = styled.div<{ $visible: boolean; }> `
   ${props => !props.$visible && css`

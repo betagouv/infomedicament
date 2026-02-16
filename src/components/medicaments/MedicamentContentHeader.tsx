@@ -4,10 +4,11 @@ import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes } from "react";
 import Link from "next/link";
-import { DetailedSpecialite, FicheInfos } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { isAIP, isAlerteSecurite, isCommercialisee, isHomeopathie } from "@/utils/specialites";
 import Alert from "@codegouvfr/react-dsfr/Alert";
 import Image from "next/image";
+import { FicheInfos } from "@/types/FicheInfoTypes";
 
 interface MedicamentContentHeaderProps extends HTMLAttributes<HTMLDivElement> {
   specialite?: DetailedSpecialite;

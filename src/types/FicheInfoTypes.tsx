@@ -13,7 +13,6 @@ export type InfosImportantes = {
   codeTypeInfo: number;
 }
 
-
 export type SubstanceComposition = {
   NomLib: string,
   dosage: string,

@@ -22,7 +22,7 @@ import { ArticleCardResume } from "@/types/ArticlesTypes";
 import ArticlesResumeList from "../articles/ArticlesResumeList";
 import MarrNotice from "../marr/MarrNotice";
 import { Marr } from "@/types/MarrTypes";
-import { FicheInfos, NoticeData, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
+import { NoticeData, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import DetailedNotice from "./DetailedNotice";
 import ShareButtons from "../generic/ShareButtons";
 import QuestionsBox from "./QuestionsBox";
@@ -47,6 +47,7 @@ import { isAIP, isCentralisee } from "@/utils/specialites";
 import { Presentation } from "@/types/PresentationTypes";
 import { trackEvent } from "@/services/tracking";
 import MedicamentContentHeader from "./MedicamentContentHeader";
+import { FicheInfos } from "@/types/FicheInfoTypes";
 
 const ToggleSwitchContainer = styled.div`
   background-color: var(--background-contrast-info);

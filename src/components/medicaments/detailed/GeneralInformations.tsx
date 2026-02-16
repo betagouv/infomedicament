@@ -14,7 +14,7 @@ import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } f
 import PrincepsTag from "@/components/tags/PrincepsTag";
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
-import { DetailedSpecialite, FicheInfos, InfosImportantes, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import { displayInfosImportantes, getContent } from "@/utils/notices/noticesUtils";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
@@ -22,6 +22,7 @@ import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getProcedureLibLong, getTypeInfoTxt, isAIP, isCentralisee } from "@/utils/specialites";
 import Badge from "@codegouvfr/react-dsfr/Badge";
+import { FicheInfos, InfosImportantes } from "@/types/FicheInfoTypes";
 
 const SummaryLineContainer = styled.div<{ $hideBorder?: boolean; }>`
   display: flex;
