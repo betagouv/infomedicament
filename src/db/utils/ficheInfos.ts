@@ -2,7 +2,7 @@
 
 import { Asmr, ComposantComposition, ComposantSubsNom, DocBonUsage, ElementComposition, FicheInfos, InfosImportantes, Smr } from '@/types/FicheInfoTypes';
 import { pdbmMySQL } from '../pdbmMySQL';
-import { ComposantNatureId, SpecComposant, SpecElement, VUEvnts } from '../pdbmMySQL/types';
+import { ComposantNatureId, SpecElement, VUEvnts } from '../pdbmMySQL/types';
 import { isSurveillanceRenforcee } from '@/utils/specialites';
 
 export async function getEvents(CIS: string): Promise<VUEvnts[]> {
