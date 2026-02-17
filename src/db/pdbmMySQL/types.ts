@@ -7,6 +7,7 @@ export interface PdbmMySQL {
   Subs_Nom: Subs_NomTable;
   Presentation: PresentationTable;
   CEPS_Prix: CEPSPrixTable;
+  CNAM_AgreColl: CNAMAgreCollTable;
   Spec_Delivrance: SpecDelivranceTable;
   DicoDelivrance: DicoDelivranceTable;
   StatutComm: StatutCommTable;
@@ -15,6 +16,13 @@ export interface PdbmMySQL {
   Spec_Patho: Spec_PathoTable;
   GroupeGene: GroupeGeneTable;
   VUEmaEpar: VUEmaEparTable; //Documents Centralisés
+  VUEvnts: VUEvntsTable; //Informations Importantes
+  Spec_Titu: Spec_TituTable; //Titulaire date + id table Titulaire
+  Titulaire: TitulaireTable; //Nom du titulaire
+  HAS_SMR: HASSMRTable; //SMR informations
+  HAS_ASMR: HASASMRTable; //ASMR informations
+  HAS_LiensPageCT: HASLiensPageCTTable; //Lines pour SMR et ASMR
+  HAS_DocsBonUsage: HASDocsBonUsageTable; //Documents bon usage
 }
 
 interface SpecialiteTable {
@@ -76,7 +84,7 @@ interface PresentationTable {
   CommId: PresentationComm;
   StatId: PresentationStat | null;
   PresCommDate: Date | null;
-  PresStatDate: Date | null;
+  PresStatDAte: Date | null;
   codeCIP13: string;
   PresCodeCip: string;
 }
@@ -87,6 +95,12 @@ interface CEPSPrixTable {
   PPF: number;
   Ppttc: number;
   HonoDisp: number;
+}
+
+interface CNAMAgreCollTable {
+  Cip13: string;
+  AgreColl: number;
+  DateJO: Date;
 }
 
 interface SpecDelivranceTable {
@@ -142,16 +156,71 @@ interface VUEmaEparTable {
   UrlEpar: string;
 }
 
+interface VUEvntsTable {
+  SpecId: string;
+  codeEvnt: string;
+  dateEvnt: Date;
+  dateEcheance: Date;
+  remCommentaire: string;
+  codeTypeInfo: number;
+}
+interface Spec_TituTable {
+  SpecId: string;
+  TituId: string;
+  DateDeb: Date;
+}
+interface TitulaireTable {
+  TituId: string;
+  TituRaisonSociale: string;
+  TituRSLong: string;
+  TituRem: string;
+}
+
+interface HASSMRTable {
+  SpecId: string;
+  CodeEvamed: string;
+  MotifEval: string;
+  DateAvis: Date;
+  ValeurSmr: string;
+  LibelleSmr: string;
+}
+
+interface HASASMRTable {
+  SpecId: string;
+  CodeEvamed: string;
+  MotifEval: string;
+  DateAvis: Date;
+  ValeurAsmr: string;
+  LibelleAsmr: string;
+}
+
+interface HASLiensPageCTTable {
+  CodeEvamed: string;
+  HASLiensPageCT: string;
+}
+
+interface HASDocsBonUsageTable {
+  SpecId: string;
+  Auteur: string;
+  TypeDoc: string;
+  DateMAJ: Date;
+  TitreDoc?: string;
+  Url?: string;
+  Resume?: string;
+}
+
 export type Specialite = Selectable<SpecialiteTable>;
 export type SpecElement = Selectable<SpecElementTable>;
 export type SpecComposant = Selectable<SpecComposantTable>;
 export type SubstanceNom = Selectable<Subs_NomTable>;
 export type PresentationLight = Selectable<PresentationTable>;
 export type PresInfoTarif = Selectable<CEPSPrixTable>;
+export type PresAgreColl = Selectable<CNAMAgreCollTable>;
 export type SpecDelivrance = Selectable<SpecDelivranceTable> &
   Selectable<DicoDelivranceTable>;
 export type Patho = Selectable<PathoTable>;
 export type GroupeGene = Selectable<GroupeGeneTable>;
+export type VUEvnts = Selectable<VUEvntsTable>;
 
 // Those enums are store as small dictionary tables in the database
 // but to benefit from TypeScript type checking

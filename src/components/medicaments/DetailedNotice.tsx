@@ -6,14 +6,15 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
 import GeneralInformations from "./detailed/GeneralInformations";
-import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
 import DocumentHas from "./detailed/DocumentHas";
 import { Marr } from "@/types/MarrTypes";
-import { FicheInfos, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
+import { NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import RcpBlock from "./detailed/RcpBlock";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
+import { FicheInfos } from "@/types/FicheInfoTypes";
 
 const DetailedNoticeContainer = styled.div<{ $visible: boolean; }> `
   ${props => !props.$visible && css`
@@ -32,8 +33,9 @@ interface DetailedNoticeProps extends HTMLAttributes<HTMLDivElement> {
   pediatrics: PediatricsInfo | undefined;
   presentations: Presentation[];
   marr?: Marr;
-  ficheInfos?: FicheInfos
+  ficheInfos?: FicheInfos;
   indicationBlock?: NoticeRCPContentBlock;
+  delivrance: SpecDelivrance[];
 }
 
 function DetailedNotice({
@@ -49,6 +51,7 @@ function DetailedNotice({
   marr,
   ficheInfos,
   indicationBlock,
+  delivrance,
   ...props 
 }: DetailedNoticeProps) {
 
@@ -72,11 +75,10 @@ function DetailedNotice({
     <>
       <DetailedNoticeContainer id="informations-generales" $visible={visiblePart === DetailsNoticePartsEnum.INFORMATIONS_GENERALES}>
         <GeneralInformations 
-          CIS={currentSpec && currentSpec.SpecId}
+          specialite={currentSpec}
           atcCode={atcCode}
           composants={composants}
           isPrinceps={isPrinceps}
-          SpecGeneId={currentSpec ? currentSpec.SpecGeneId : ""}
           isPregnancyPlanAlert={isPregnancyPlanAlert}
           isPregnancyMentionAlert={isPregnancyMentionAlert}
           pediatrics={pediatrics}
@@ -85,6 +87,7 @@ function DetailedNotice({
           marr={marr}
           ficheInfos={ficheInfos}
           indicationBlock={currentIndicationBlock}
+          delivrance={delivrance}
         />
       </DetailedNoticeContainer>
       <DetailedNoticeContainer id="rcp-denomiation" $visible={visiblePart === DetailsNoticePartsEnum.RCP}>
@@ -92,7 +95,7 @@ function DetailedNotice({
           <RcpBlock specialite={currentSpec} />
         </ContentContainer>
       </DetailedNoticeContainer>
-      <DetailedNoticeContainer id="document-has-bon-usage" $visible={visiblePart === DetailsNoticePartsEnum.HAS}>
+      <DetailedNoticeContainer id="document-has" $visible={visiblePart === DetailsNoticePartsEnum.HAS}>
         <DocumentHas ficheInfos={ficheInfos}/>
       </DetailedNoticeContainer>
     </>

@@ -8,7 +8,6 @@ import RatingToaster from "@/components/rating/RatingToaster";
 import { groupSpecialites } from "@/utils/specialites";
 import { getSubstancesByAtc } from "@/db/utils/atc";
 import { getSubstanceSpecialites } from "@/db/utils/specialities";
-import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 
 async function getExtendedOrderedResults(results: SearchResultItem[]): Promise<ExtendedOrderResults> {
   let counter = 0;

@@ -30,7 +30,7 @@ function MedicamentGeneriqueContainer({
 }: MedicamentGeneriqueContainerProps) {
 
   return (
-    <ContentContainer frContainer>              
+    <ContentContainer frContainer {...props}>              
       <ul className={fr.cx("fr-tags-group", "fr-mb-1v")}>
         {atc2 && (<ClassTag atc2={atc2} />)}
         <SubstanceTag composants={composants} />
@@ -62,6 +62,11 @@ function MedicamentGeneriqueContainer({
         >
           {formatSpecName(specialite.SpecDenom01)}
         </Link>
+        {specialite.Een && (
+          <div className={fr.cx("fr-ml-1w")}>
+            Excipient(s) à effet notoire : {specialite.Een}
+          </div>
+        )}
       </p>
       <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
         {generiques.length} médicament{generiques.length > 1 && "s"} générique
@@ -76,6 +81,11 @@ function MedicamentGeneriqueContainer({
               >
               {formatSpecName(generique.SpecDenom01)}
             </Link>
+            {generique.Een && (
+              <div className={fr.cx("fr-ml-1w")}>
+                Excipient(s) à effet notoire : {generique.Een}
+              </div>
+            )}
           </p>
         </Fragment>
       ))}

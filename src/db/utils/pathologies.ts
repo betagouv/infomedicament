@@ -1,6 +1,6 @@
 "use server";
-
 import "server-cli-only";
+
 import { unstable_cache } from "next/cache";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { Patho } from "../pdbmMySQL/types";
@@ -16,20 +16,6 @@ export async function getPatho(code: string): Promise<Patho | undefined> {
     .where("codePatho", "=", code)
     .executeTakeFirst();
 }
-
-// Get the specialites list from code patho
-export const getPathoSpecialites = unstable_cache(
-  async function (code: string) {
-    return pdbmMySQL
-      .selectFrom("Specialite")
-      .selectAll("Specialite")
-      .leftJoin("Spec_Patho", "Specialite.SpecId", "Spec_Patho.SpecId")
-      .where("Spec_Patho.codePatho", "=", code)
-      .execute();
-  },
-  ["patho-specialites"],
-  { revalidate: 3600 } // cache for 1hour
-);
 
 //Get the code patho list from specialite code CIS
 export const getSpecialitePatho = unstable_cache(
@@ -62,6 +48,7 @@ export const getAllPathoWithSpecialites = cache(async function () {
     .selectFrom("Patho")
     .innerJoin("Spec_Patho", "Patho.codePatho", "Spec_Patho.codePatho")
     .innerJoin("Specialite", "Spec_Patho.SpecId", "Specialite.SpecId")
+    .where("Specialite.IsBdm", "=", 1)
     .selectAll("Patho")
     .select("Specialite.SpecDenom01")
     .orderBy("Specialite.SpecDenom01")

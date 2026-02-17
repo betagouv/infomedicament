@@ -1,5 +1,5 @@
 import { Specialite } from "@/db/pdbmMySQL/types";
-import { PresentationDetail, ResumeSpecGroupDB } from "@/db/types";
+import { ResumeSpecGroupDB } from "@/db/types";
 import { PediatricsInfo } from "./PediatricTypes";
 
 export type SpecialiteAlerts = {
@@ -9,11 +9,12 @@ export type SpecialiteAlerts = {
 }
 
 export type ResumeSpecialite = {
-    SpecId: string,
-    SpecDenom01: string,
-    isCommercialisee: boolean,
-    isCentralisee: boolean,
-    alerts?: SpecialiteAlerts,
+  SpecId: string,
+  SpecDenom01: string,
+  StatutBdm: string,
+  ProcId: string,
+  isSurveillanceRenforcee: boolean,
+  alerts?: SpecialiteAlerts,
 }
 
 export type ResumeSpecGroup = ResumeSpecGroupDB & {
@@ -24,7 +25,11 @@ export type ResumeSpecGroup = ResumeSpecGroupDB & {
 }
 
 export type DetailedSpecialite = Specialite & {
-  UrlEpar: string | null,
+  urlCentralise: string | null,
+  statutAutorisation: string | null,
+  statutComm: string | null,
+  titulairesList?: string,
+  generiqueName: string | null,
 }
 
 export type NoticeBlockType = "generalites" | "usage" | "warnings" | "howTo" | "sideEffects" | "storage" | "composition";
@@ -57,54 +62,6 @@ export type NoticeData = {
 export type GroupeGenerique = {
   id: number;
   libelle: string;
-}
-
-export type Composant = {
-  dosage: string;
-  nom: string;
-}
-
-export type DocBonUsage = {
-  url: string;
-  auteur: string;
-  dateMaj: string;
-  typeDoc: string;
-  titreDoc: string;
-}
-
-export type Smr = {
-  date?: string;
-  motif?: number;
-  valeur?: string;
-  libelle?: string;
-}
-
-export type Asmr = {
-  date?: string;
-  motif?: number;
-  valeur?: string;
-  libelle?: string;
-}
-
-export type ComposantElement = {
-  nom: string;
-  referenceDosage: string;
-}
-
-export type FicheInfos = {
-  specId: string;
-  listeInformationsImportantes?: string[];
-  listeGroupesGeneriques?: GroupeGenerique[];
-  listeComposants?: Composant[];
-  listeTitulaires?: string[];
-  listeDocumentsBonUsage?: DocBonUsage[],
-  listeASMR?: Asmr[];
-  listeSMR?: Smr[];
-  listeConditionsDelivrance?: string[];
-  libelleCourtAutorisation?: string;
-  libelleCourtProcedure?: string;
-  presentations?: PresentationDetail[];
-  listeElements: ComposantElement[];
 }
 
 export type SpecialiteWithSubstance = Specialite & {

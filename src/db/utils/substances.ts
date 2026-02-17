@@ -1,4 +1,5 @@
 "use server";
+import "server-cli-only";
 
 import { unstable_cache } from "next/cache";
 import { pdbmMySQL } from "../pdbmMySQL";
@@ -26,6 +27,7 @@ export const getAllSubsWithSpecialites = cache(async function () {
     .innerJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
     .innerJoin("Specialite", "Composant.SpecId", "Specialite.SpecId")
     .where((eb) => withOneSubstance(eb.ref("Specialite.SpecId"), eb.ref("Subs_Nom.NomId")))
+    .where("Specialite.IsBdm", "=", 1)
     .selectAll("Subs_Nom")
     .select("Specialite.SpecDenom01")
     .distinct()
@@ -44,6 +46,7 @@ export const getSubstanceAllSpecialites = unstable_cache(async function (
     .innerJoin("Subs_Nom", "Composant.NomId", "Subs_Nom.NomId")
     .where("Composant.NomId", "in", substanceIDs)
     .where((eb) => withOneSubstance(eb.ref("Specialite.SpecId"), eb.ref("Subs_Nom.NomId")))
+    .where("Specialite.IsBdm", "=", 1)
     .selectAll("Specialite")
     .select("Subs_Nom.NomId")
     .groupBy(["Specialite.SpecId", "Subs_Nom.NomId"])
