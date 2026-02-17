@@ -11,19 +11,19 @@ import { PediatricsInfo } from "@/types/PediatricTypes";
 import { trackEvent } from "@/services/tracking";
 
 const modalIndication = createModal({
-  id: "pregnancy-subs-modal", 
+  id: "pediatric-indication-modal", 
   isOpenedByDefault: false
 });
 const modalContraindication = createModal({
-  id: "pregnancy-subs-modal", 
+  id: "pediatric-contraindication-modal", 
   isOpenedByDefault: false
 });
 const modalDoctorAdvice = createModal({
-  id: "pregnancy-subs-modal", 
+  id: "pediatric-doctor-advice-modal", 
   isOpenedByDefault: false
 });
 const modalMention = createModal({
-  id: "pregnancy-subs-modal", 
+  id: "pediatric-mention-modal", 
   isOpenedByDefault: false
 });
 
