@@ -1,15 +1,16 @@
 import db from "@/db";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { Letters, LetterType, ResumeGeneric, ResumePatho, ResumeSubstance } from "@/db/types";
-import { getPresentations, groupGeneNameToDCI } from "@/db/utils";
+import { groupGeneNameToDCI } from "@/db/utils";
 import { getComposants } from "@/db/utils/composants";
+import { getEvents } from "@/db/utils/ficheInfos";
 import { getAllPathoWithSpecialites, getSpecialitesPatho } from "@/db/utils/pathologies";
 import { getAllSpecialites } from "@/db/utils/specialities";
 import { getAllSubsWithSpecialites } from "@/db/utils/substances";
 import { displaySimpleComposants, formatSpecName, MedicamentGroup } from "@/displayUtils";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
 import { getAtc1Code, getAtc2Code, getAtcCode } from "@/utils/atc";
-import { getSpecialiteGroupName, groupSpecialites, isCentralisee, isCommercialisee } from "@/utils/specialites";
+import { getSpecialiteGroupName, groupSpecialites, isSurveillanceRenforcee } from "@/utils/specialites";
 
 type DataToResumeType = "pathos" | "substances" | "specialites" | "atc1" | "atc2" | "generiques";
 
@@ -138,13 +139,18 @@ async function createResumeSpecialites(): Promise<string[]>{
       const composants: string = displaySimpleComposants(rawComposants)
         .map((s) => s.NomLib.trim())
         .join(", ");
-      const subsIds: string[] = rawComposants.map((subs) => subs.SubsId.trim())
+      const subsIds: string[] = rawComposants.map((subs) => subs.SubsId.trim());
       const specialites: string[][] = await Promise.all(
         rawSpecialites.map(async (spec) => {
-            const presentations = await getPresentations(spec.SpecId);
-            const isComm: string = isCommercialisee(presentations) ? "true" : "false";
-            const isCent: string = isCentralisee(spec) ? "true" : "false";
-            return [spec.SpecId, spec.SpecDenom01, isComm, isCent];
+          const events = await getEvents(spec.SpecId);
+          const surveillanceRenforcee: string = isSurveillanceRenforcee(events) ? "true" : "false";
+          return [
+            spec.SpecId, 
+            spec.SpecDenom01, 
+            spec.StatutBdm.toString(), 
+            spec.ProcId, 
+            surveillanceRenforcee,
+          ];
         })
       );
       const CISList: string[] = rawSpecialites.map((spec) => spec.SpecId.trim());
@@ -183,9 +189,11 @@ async function createResumeGeneriques(): Promise<string[]>{
     .execute();
 
   const allGenerics = await pdbmMySQL
-    .selectFrom("GroupeGene")
-    .select(["GroupeGene.LibLong", "GroupeGene.SpecId"])
-    .leftJoin("Specialite", "GroupeGene.SpecId", "Specialite.SpecGeneId")
+    .selectFrom("Specialite")
+    .innerJoin("GroupeGene", "Specialite.SpecGeneId", "GroupeGene.SpecId")
+    .where("Specialite.ProcId", "!=", "50")
+    .where("Specialite.IsBdm", "=", 1)
+    .select(["Specialite.SpecGeneId", "GroupeGene.LibLong"])
     .groupBy(["GroupeGene.LibLong", "GroupeGene.SpecId"])
     .orderBy("GroupeGene.LibLong")
     .execute();
@@ -197,7 +205,7 @@ async function createResumeGeneriques(): Promise<string[]>{
       const subLetter = getNormalizeLetter(genericName.substring(0,1));
       if(!letters.includes(subLetter)) letters.push(subLetter);
       return {
-          SpecId: generic.SpecId,
+          SpecId: generic.SpecGeneId,
           SpecName: genericName,
       }
     });
@@ -217,7 +225,7 @@ async function saveResumeLetters(
   console.log("Ajout des letters");
   const lettersValue: Letters = {
     type: dataToResume,
-    letters: letters,
+    letters: letters.sort((a,b) => a.localeCompare(b)),
   }
   await db
     .deleteFrom('letters')
@@ -235,7 +243,7 @@ async function createResumeDataFromBDPM(){
   if(dataToResume === "pathos" || dataToResume === "substances" || dataToResume === "specialites" || dataToResume === "generiques") {
     let letters: string[] = [];
     if(dataToResume === "pathos") {
-      const letters = await createResumePathologies(); 
+      letters = await createResumePathologies(); 
     } else if(dataToResume === "substances"){
       letters = await createResumeSubstances();
     } else if(dataToResume === "specialites"){
@@ -243,13 +251,13 @@ async function createResumeDataFromBDPM(){
     } else if(dataToResume === "generiques"){
       letters = await createResumeGeneriques();
     }
-    saveResumeLetters(dataToResume, letters);
+    await saveResumeLetters(dataToResume, letters);
   } else {
     
   }/* else if(dataToResume === "atc1"){
     await createResumeATC1Definition();
   }*/
-  return true;
+  process.exit(0);
 }
 
 createResumeDataFromBDPM();

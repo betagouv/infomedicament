@@ -26,7 +26,7 @@ export default async function Page() {
               Trouvez instantanément les informations claires, précises et officielles sur vos médicaments, en toute simplicité !
             </h1>
             <p className="fr-text--sm">
-              Infomédicament comprend tous les médicaments dont les 7 223 actuellement commercialisés.
+              Infomédicament comprend tous les médicaments dont les 15 800 actuellement commercialisés.
             </p>
             <AutocompleteSearch inputName="s" />
             <p className="fr-text--sm">

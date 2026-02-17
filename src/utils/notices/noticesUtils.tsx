@@ -1,15 +1,14 @@
 import WithGlossary from "@/components/glossary/WithGlossary";
 import { TitulaireAddressContainer, TitulaireNomContainer } from "@/components/medicaments/blocks/GenericBlocks";
+import { FicheInfos } from "@/types/FicheInfoTypes";
 import { Definition } from "@/types/GlossaireTypes";
-import { FicheInfos, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
+import { NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import { fr } from "@codegouvfr/react-dsfr";
 import { CSSProperties } from "react";
 
 
 export function displayInfosImportantes(ficheInfos?:FicheInfos): boolean{
   if(ficheInfos && ficheInfos.listeInformationsImportantes && ficheInfos.listeInformationsImportantes.length > 0){
-    if(ficheInfos.listeInformationsImportantes.length === 1 && ficheInfos.listeInformationsImportantes[0] === "")
-      return false;
     return true;
   }
   return false;

@@ -77,7 +77,7 @@ function NoticeBlock({
       <ContentContainer id="noticeContainer">
         {(specialite && isCentralisee(specialite)) ? (
           <CentraliseBlock
-            pdfURL={specialite.UrlEpar ? specialite.UrlEpar : undefined}
+            pdfURL={specialite.urlCentralise ? specialite.urlCentralise : undefined}
           />
         ) : (notice && notice.children) && (
           <RcpNoticeContainer>{getContent(notice.children, definitions)}</RcpNoticeContainer>

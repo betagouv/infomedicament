@@ -5,13 +5,6 @@ export interface Database {
   search_index: SearchIndexTable;
   leaflet_images: LeafletImagesTable;
   presentations: PresentationTable;
-  fiches_infos: FicheInfoTable;
-  groupes_generiques: GroupeGeneriqueTable;
-  documents_bon_usage: DocBUTable;
-  composants: ComposantTable;
-  elements: ElementTable;
-  smr: SmrTable;
-  asmr: AsmrTable;
   rcp: RcpTable;
   rcp_content: RcpContentTable;
   notices: NoticeTable;
@@ -57,64 +50,6 @@ interface PresentationTable {
   caraccomplrecip: string;
   qtecontenance: number;
   unitecontenance: string;
-}
-
-interface ComposantTable {
-  id?: number;
-  dosage: string;
-  nomComposant: string;
-}
-
-interface ElementTable {
-  id?: number;
-  nomElement: string;
-  referenceDosage: string;
-}
-
-interface SmrTable {
-  id?: number;
-  date?: string;
-  motif?: number;
-  valeur?: string;
-  libelle?: string;
-}
-
-interface AsmrTable {
-  id?: number;
-  date?: string;
-  motif?: number;
-  valeur?: string;
-  libelle?: string;
-}
-
-interface FicheInfoTable {
-  specId: string;
-  listeInformationsImportantes?: string[];
-  listeGroupesGeneriquesIds?: number[];
-  listeComposants?: number[];
-  listeTitulaires?: string[];
-  listeDocumentsBonUsageIds?: number[],
-  listeASMR?: number[];
-  listeSMR?: number[];
-  listeConditionsDelivrance?: string[];
-  libelleCourtAutorisation?: string;
-  libelleCourtProcedure?: string;
-  presentations?: string[];
-  listeElements?: number[];
-}
-
-interface GroupeGeneriqueTable {
-  idGroupeGenerique: number;
-  libelleGroupeGenerique: string;
-}
-
-interface DocBUTable {
-  id?: number,
-  urlBU: string,
-  auteurBU: string,
-  dateMajBU: string,
-  typeDocBU: string,
-  titreDocBU: string
 }
 
 interface RcpTable {
@@ -183,7 +118,7 @@ interface ResumeSubstancesTable {
 interface ResumeMedicamentsTable {
   groupName: string;
   composants: string;
-  specialites: string[][];//SpecId, SpecDenom01, isCommercialisee, isCentralisee
+  specialites: string[][];//SpecId, SpecDenom01, StatutBdm, ProcId
   pathosCodes: string[];
   atc1Code?: string;
   atc2Code?: string;
@@ -322,9 +257,6 @@ export interface CisAtc {
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
-export type FichesInfosDB = Selectable<FicheInfoTable>;
-export type GroupeGeneriqueDB = Selectable<GroupeGeneriqueTable>;
-export type DocBUDB = Selectable<DocBUTable>;
 export type RCPContent = Selectable<RcpContentTable>;
 export type Rating = Selectable<RatingTable>;
 export type ResumePatho = Selectable<ResumePathosTable>;

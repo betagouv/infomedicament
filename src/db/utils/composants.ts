@@ -1,3 +1,6 @@
+"use server";
+import "server-cli-only";
+
 import { cache } from "react";
 import { SpecComposant, SubstanceNom } from "../pdbmMySQL/types";
 import { pdbmMySQL } from "../pdbmMySQL";
