@@ -1,6 +1,4 @@
-import { parse as csvParse } from "csv-parse/sync";
-import { readFileSync } from "node:fs";
-import path from "node:path";
+import db from "@/db";
 
 export class ATCError extends Error {
   constructor(code: string) {
@@ -8,21 +6,15 @@ export class ATCError extends Error {
   }
 }
 
-export const atcData = csvParse(
-  readFileSync(
-    path.join(process.cwd(), "src", "data", "CIS-ATC_2024-04-07.csv"),
-  ),
-) as [CIS: string, ATC: string][];
+export async function getAtcCode(CIS: string): Promise<string | undefined> {
+  const result = await db
+    .selectFrom("cis_atc")
+    .innerJoin("atc", "atc.code_terme", "cis_atc.code_terme_atc")
+    .select("atc.code")
+    .where("cis_atc.code_cis", "=", CIS)
+    .executeTakeFirst();
 
-export function getAtcCode(CIS: string) {
-  const atc = atcData.find((row) => row[0] === CIS);
-
-  if (!atc) {
-    return atc;
-    //throw new ATCError(CIS);
-  }
-
-  return atc[1];
+  return result?.code ?? undefined;
 }
 
 //From ATC Code

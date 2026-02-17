@@ -116,7 +116,24 @@ export const getSearchResults = unstable_cache(async function (
     .filter((r) => r.table_name === "ATC")
     .map((r) => r.id.trim());
 
-  const resumeSpecsGroups = await getResumeSpecsGroupsWithCISSubsIds(specialitesId, substancesId);
+  // Find medications linked to matched ATC codes via cis_atc
+  let atcLinkedCIS: string[] = [];
+  if (ATCCodes.length > 0) {
+    const rows = await db
+      .selectFrom("cis_atc")
+      .innerJoin("atc", "atc.code_terme", "cis_atc.code_terme_atc")
+      .select("cis_atc.code_cis")
+      .where((eb) => eb.or(
+        ATCCodes.map((code) => eb("atc.code", "like", `${code}%`))
+      ))
+      .execute();
+    atcLinkedCIS = rows
+      .map((r) => r.code_cis)
+      .filter((cis): cis is string => cis !== null);
+  }
+
+  const allSpecialitesId = [...new Set([...specialitesId, ...atcLinkedCIS])];
+  const resumeSpecsGroups = await getResumeSpecsGroupsWithCISSubsIds(allSpecialitesId, substancesId);
   const specsGroupsWithATC: ResumeSpecGroup[] = await getResumeSpecsGroupsATCLabels(resumeSpecsGroups);
   const specsGroups: ResumeSpecGroup[] = await getResumeSpecsGroupsAlerts(specsGroupsWithATC);
   const substances = await getSubstancesResume(substancesId);
@@ -188,7 +205,7 @@ export const getSearchResults = unstable_cache(async function (
     }
 
     if (match.table_name === "ATC") {
-      const atc = ATCClasses.find((atc) => atc.code.trim() === match.id.trim());
+      const atc = ATCClasses.find((atc) => match.id.trim().startsWith(atc.code.trim()));
       if (atc) {
         const sameClass = acc.find(
           ({ item }) =>
@@ -215,6 +232,16 @@ export const getSearchResults = unstable_cache(async function (
           }
         }
       }
+
+      // Add specialités linked to this ATC code
+      const linkedCIS = new Set(atcLinkedCIS);
+      specsGroups
+        .filter((sg) => sg.CISList.some((cis) => linkedCIS.has(cis.trim())))
+        .forEach((sg) => {
+          if (!acc.find(({ item }) => "groupName" in item && item.groupName === sg.groupName)) {
+            acc.push({ score: match.sml * 0.8, item: sg });
+          }
+        });
     }
   }
   return acc

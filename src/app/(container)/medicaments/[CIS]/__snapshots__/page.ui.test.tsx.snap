@@ -366,9 +366,9 @@ exports[`Medicaments Page (Integration with DB) > should render the correct cont
           <li>
             <a
               class="fr-breadcrumb__link"
-              href="/substances/63153,73676,89185,26053,53541"
+              href="/substances/26053,53541,73676,89185,63153"
             >
-              dactyle aggloméré (Extrait allergénique de pollen de), extrait allergénique de pollen d'ivraie vivace, extrait allergénique de pollen de fléole des prés, extrait allergénique de pollen de flouve odorante, extrait allergénique de pollen de pâturin des prés
+              extrait allergénique de pollen de flouve odorante, extrait allergénique de pollen de pâturin des prés, extrait allergénique de pollen d'ivraie vivace, extrait allergénique de pollen de fléole des prés, dactyle aggloméré (Extrait allergénique de pollen de)
             </a>
           </li>
           <li>
@@ -510,11 +510,11 @@ exports[`Medicaments Page (Integration with DB) > should render the correct cont
                     </div>
                     <a
                       class="fr-tag--custom-alt-substance fr-tag fr-tag--custom-alt-substance"
-                      href="/substances/63153,73676,89185,26053,53541"
+                      href="/substances/26053,53541,73676,89185,63153"
                       id="fr-tag-:rc:"
                       target="_blank"
                     >
-                      dactyle aggloméré (Extrait allergénique de pollen de), extrait allergénique de pollen d'ivraie vivace, extrait allergénique de pollen de fléole des prés, extrait allergénique de pollen de flouve odorante, extrait allergénique de pollen de pâturin des prés
+                      extrait allergénique de pollen de flouve odorante, extrait allergénique de pollen de pâturin des prés, extrait allergénique de pollen d'ivraie vivace, extrait allergénique de pollen de fléole des prés, dactyle aggloméré (Extrait allergénique de pollen de)
                     </a>
                     <hr
                       class="fr-pb-1w fr-mt-1w"

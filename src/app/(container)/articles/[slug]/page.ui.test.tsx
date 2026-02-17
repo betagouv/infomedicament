@@ -33,7 +33,6 @@ describe("Article Page (UI Integration)", () => {
 
         // Render JSX and take snapshot
         const { container } = render(jsx);
-        console.log(container)
 
         // Verify key content is present
         expect(container.textContent).toContain("la température de conservation idéale");
