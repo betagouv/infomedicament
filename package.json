@@ -17,7 +17,8 @@
     "test:watch": "vitest --watch",
     "db:sync-grist": "npx tsx scripts/syncWithGrist.ts",
     "db:migrate:latest": "npx kysely migrate:latest",
-    "db:migrate:down": "npx kysely migrate:down"
+    "db:migrate:down": "npx kysely migrate:down",
+    "db:update-resume": "npx tsx scripts/updateResumeData.ts"
   },
   "dependencies": {
     "@codegouvfr/react-dsfr": "^1.16.0",
