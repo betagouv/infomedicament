@@ -192,7 +192,7 @@ async function createResumeGeneriques(): Promise<string[]> {
   const allGenerics = await pdbmMySQL
     .selectFrom("Specialite")
     .innerJoin("GroupeGene", "Specialite.SpecGeneId", "GroupeGene.SpecId")
-    .where("Specialite.ProcId", "!=", "50")
+    .where("Specialite.ProcId", "!=", "50") //Not AIP
     .where("Specialite.IsBdm", "=", 1)
     .select(["Specialite.SpecGeneId", "GroupeGene.LibLong"])
     .groupBy(["GroupeGene.LibLong", "GroupeGene.SpecId"])
