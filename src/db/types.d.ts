@@ -33,8 +33,9 @@ export interface Database {
 
 interface SearchIndexTable {
   token: string;
-  table_name: "Specialite" | "Subs_Nom" | "Patho" | "ATC";
-  id: string;
+  match_type: "name" | "substance" | "atc" | "pathology";
+  group_name: string;
+  match_label: string;
 }
 
 interface LeafletImagesTable {
@@ -122,6 +123,7 @@ interface ResumeMedicamentsTable {
   pathosCodes: string[];
   atc1Code?: string;
   atc2Code?: string;
+  atc5Code?: string;
   CISList: string[];
   subsIds: string[];
 }

@@ -19,7 +19,7 @@ type SearchInputProps = {
   id: string;
   placeholder: string;
   type: "search";
-  onSearch?: (search:string) => void;
+  onSearch?: (search: string) => void;
 };
 
 export function AutocompleteSearchInput({
@@ -50,21 +50,7 @@ export function AutocompleteSearchInput({
   ) as { data: SearchResultItem[] };
 
   const options = searchResults
-    ? searchResults
-        .map((result): string | string[] =>
-          "NomLib" in result
-            ? result.NomLib
-            : "groupName" in result
-              ? result.groupName
-              : "NomPatho" in result
-                ? result.NomPatho
-                : [
-                    result.class.label,
-                    ...result.subclasses.map((x) => x.label),
-                  ],
-        )
-        .flat()
-        .map(formatSpecName)
+    ? searchResults.map((result) => formatSpecName(result.groupName)).filter(Boolean)
     : [];
 
   return (
@@ -120,19 +106,19 @@ export default function AutocompleteSearch({
   filterPediatric?: boolean;
   filterPregnancy?: boolean;
 }) {
-  
+
   const router = useRouter();
   const [currentFilterPregnancy, setFilterPregnancy] = useState<boolean>(false);
   const [currentFilterPediatric, setFilterPediatric] = useState<boolean>(false);
 
   useEffect(() => {
-    if(filterPediatric)
+    if (filterPediatric)
       setFilterPediatric(filterPediatric)
     else setFilterPediatric(false);
   }, [filterPediatric, setFilterPediatric]);
 
   useEffect(() => {
-    if(filterPregnancy)
+    if (filterPregnancy)
       setFilterPregnancy(filterPregnancy)
     else setFilterPregnancy(false);
   }, [filterPregnancy, setFilterPregnancy]);
@@ -159,7 +145,7 @@ export default function AutocompleteSearch({
         className={fr.cx("fr-mb-2w")}
       />
       {!hideFilters && (
-        <PregnancyPediatricFilters 
+        <PregnancyPediatricFilters
           setFilterPregnancy={setFilterPregnancy}
           setFilterPediatric={setFilterPediatric}
           filterPregnancy={currentFilterPregnancy}

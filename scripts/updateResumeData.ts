@@ -1,7 +1,7 @@
 import db from "@/db";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { Letters, LetterType, ResumeGeneric, ResumePatho, ResumeSubstance } from "@/db/types";
-import { groupGeneNameToDCI } from "@/db/utils";
+import { groupGeneNameToDCI } from "@/displayUtils";
 import { getComposants } from "@/db/utils/composants";
 import { getEvents } from "@/db/utils/ficheInfos";
 import { getAllPathoWithSpecialites, getSpecialitesPatho } from "@/db/utils/pathologies";
@@ -31,9 +31,9 @@ if (process.argv.length !== 3) {
   console.info('Usage: npx tsx scripts/updateResumeData.ts dataToResume');
   process.exit(1);
 }
-const dataToResume:DataToResumeType = process.argv[2] as DataToResumeType;
+const dataToResume: DataToResumeType = process.argv[2] as DataToResumeType;
 
-async function createResumePathologies(): Promise<string[]>{
+async function createResumePathologies(): Promise<string[]> {
   await db
     .deleteFrom('resume_pathologies')
     .execute();
@@ -43,9 +43,9 @@ async function createResumePathologies(): Promise<string[]>{
   const letters: string[] = [];
   allPathos.forEach((patho) => {
     const index = rawResumeData.findIndex((resumePatho) => resumePatho.codePatho === patho.codePatho);
-    if(index !== -1) {
+    if (index !== -1) {
       const specGroupName = getSpecialiteGroupName(patho.SpecDenom01);
-      if(!rawResumeData[index].specialites.includes(specGroupName)){
+      if (!rawResumeData[index].specialites.includes(specGroupName)) {
         rawResumeData[index].specialites.push(specGroupName);
       }
     } else rawResumeData.push({
@@ -55,8 +55,8 @@ async function createResumePathologies(): Promise<string[]>{
         getSpecialiteGroupName(patho.SpecDenom01),
       ]
     });
-    const pathoLetter = getNormalizeLetter(patho.NomPatho.substring(0,1));
-    if(!letters.includes(pathoLetter)) letters.push(pathoLetter);
+    const pathoLetter = getNormalizeLetter(patho.NomPatho.substring(0, 1));
+    if (!letters.includes(pathoLetter)) letters.push(pathoLetter);
   });
 
   const resumeData: ResumePatho[] = rawResumeData
@@ -68,17 +68,17 @@ async function createResumePathologies(): Promise<string[]>{
       }
     })
     .filter((resumePatho) => resumePatho.specialites > 0);
-  
+
   const result = await db
     .insertInto('resume_pathologies')
     .values(resumeData)
     .execute();
   console.log(`Nombre de pathologies ajoutées: ${result[0].numInsertedOrUpdatedRows}`);
-  
+
   return letters;
 }
 
-async function createResumeSubstances(): Promise<string[]>{
+async function createResumeSubstances(): Promise<string[]> {
   await db
     .deleteFrom('resume_substances')
     .execute();
@@ -90,8 +90,8 @@ async function createResumeSubstances(): Promise<string[]>{
   allSubs.forEach((sub) => {
     const index = rawResumeData.findIndex((resumeData) => resumeData.NomId.trim() === sub.NomId.trim());
     const specGroupName = getSpecialiteGroupName(sub.SpecDenom01);
-    if(index !== -1) {
-      if(!rawResumeData[index].specialites.includes(specGroupName)){
+    if (index !== -1) {
+      if (!rawResumeData[index].specialites.includes(specGroupName)) {
         rawResumeData[index].specialites.push(specGroupName);
       }
     } else rawResumeData.push({
@@ -102,8 +102,8 @@ async function createResumeSubstances(): Promise<string[]>{
         specGroupName,
       ],
     });
-    const subLetter = getNormalizeLetter(sub.NomLib.substring(0,1));
-    if(!letters.includes(subLetter)) letters.push(subLetter);
+    const subLetter = getNormalizeLetter(sub.NomLib.substring(0, 1));
+    if (!letters.includes(subLetter)) letters.push(subLetter);
   });
   const resumeData: ResumeSubstance[] = rawResumeData
     .map((resumeSub) => {
@@ -124,7 +124,7 @@ async function createResumeSubstances(): Promise<string[]>{
   return letters;
 }
 
-async function createResumeSpecialites(): Promise<string[]>{
+async function createResumeSpecialites(): Promise<string[]> {
   await db
     .deleteFrom('resume_medicaments')
     .execute();
@@ -145,10 +145,10 @@ async function createResumeSpecialites(): Promise<string[]>{
           const events = await getEvents(spec.SpecId);
           const surveillanceRenforcee: string = isSurveillanceRenforcee(events) ? "true" : "false";
           return [
-            spec.SpecId, 
-            spec.SpecDenom01, 
-            spec.StatutBdm.toString(), 
-            spec.ProcId, 
+            spec.SpecId,
+            spec.SpecDenom01,
+            spec.StatutBdm.toString(),
+            spec.ProcId,
             surveillanceRenforcee,
           ];
         })
@@ -158,9 +158,9 @@ async function createResumeSpecialites(): Promise<string[]>{
       const atc = await getAtcCode(rawSpecialites[0].SpecId);
       const atc1: string | undefined = atc ? getAtc1Code(atc) : undefined;
       const atc2: string | undefined = atc ? getAtc2Code(atc) : undefined;
-        
-      const subLetter = getNormalizeLetter(groupName.substring(0,1));
-      if(!letters.includes(subLetter)) letters.push(subLetter);
+
+      const subLetter = getNormalizeLetter(groupName.substring(0, 1));
+      if (!letters.includes(subLetter)) letters.push(subLetter);
 
       await db
         .insertInto('resume_medicaments')
@@ -171,6 +171,7 @@ async function createResumeSpecialites(): Promise<string[]>{
           specialites: specialites,
           atc1Code: atc1,
           atc2Code: atc2,
+          atc5Code: atc ?? undefined,
           CISList: CISList,
           subsIds: subsIds,
         })
@@ -183,7 +184,7 @@ async function createResumeSpecialites(): Promise<string[]>{
   return letters;
 }
 
-async function createResumeGeneriques(): Promise<string[]>{
+async function createResumeGeneriques(): Promise<string[]> {
   await db
     .deleteFrom('resume_generiques')
     .execute();
@@ -201,12 +202,12 @@ async function createResumeGeneriques(): Promise<string[]>{
   const letters: string[] = [];
   const resumeData: ResumeGeneric[] = allGenerics
     .map((generic) => {
-      const genericName:string = formatSpecName(groupGeneNameToDCI(generic.LibLong));
-      const subLetter = getNormalizeLetter(genericName.substring(0,1));
-      if(!letters.includes(subLetter)) letters.push(subLetter);
+      const genericName: string = formatSpecName(groupGeneNameToDCI(generic.LibLong));
+      const subLetter = getNormalizeLetter(genericName.substring(0, 1));
+      if (!letters.includes(subLetter)) letters.push(subLetter);
       return {
-          SpecId: generic.SpecGeneId,
-          SpecName: genericName,
+        SpecId: generic.SpecGeneId,
+        SpecName: genericName,
       }
     });
   const result = await db
@@ -221,7 +222,7 @@ async function createResumeGeneriques(): Promise<string[]>{
 async function saveResumeLetters(
   dataToResume: LetterType,
   letters: string[]
-): Promise<boolean>{
+): Promise<boolean> {
   console.log("Ajout des letters");
   const lettersValue: Letters = {
     type: dataToResume,
@@ -239,25 +240,28 @@ async function saveResumeLetters(
   return true;
 }
 
-async function createResumeDataFromBDPM(){
-  if(dataToResume === "pathos" || dataToResume === "substances" || dataToResume === "specialites" || dataToResume === "generiques") {
+async function createResumeDataFromBDPM() {
+  if (dataToResume === "pathos" || dataToResume === "substances" || dataToResume === "specialites" || dataToResume === "generiques") {
     let letters: string[] = [];
-    if(dataToResume === "pathos") {
-      letters = await createResumePathologies(); 
-    } else if(dataToResume === "substances"){
+    if (dataToResume === "pathos") {
+      letters = await createResumePathologies();
+    } else if (dataToResume === "substances") {
       letters = await createResumeSubstances();
-    } else if(dataToResume === "specialites"){
+    } else if (dataToResume === "specialites") {
       letters = await createResumeSpecialites();
-    } else if(dataToResume === "generiques"){
+    } else if (dataToResume === "generiques") {
       letters = await createResumeGeneriques();
     }
     await saveResumeLetters(dataToResume, letters);
   } else {
-    
+
   }/* else if(dataToResume === "atc1"){
     await createResumeATC1Definition();
   }*/
   process.exit(0);
 }
 
-createResumeDataFromBDPM();
+createResumeDataFromBDPM().finally(async () => {
+  await db.destroy();
+  await pdbmMySQL.destroy();
+});

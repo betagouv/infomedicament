@@ -3,12 +3,9 @@
 import "server-only";
 import db from "@/db/"
 import slugify from "slugify";
-import { ExtendedSearchResults, SearchArticlesFilters, } from "@/types/SearchTypes";
+import { SearchArticlesFilters } from "@/types/SearchTypes";
 import { Article, ArticleCardResume } from "@/types/ArticlesTypes";
-import { AdvancedATCClass, AdvancedData, DataTypeEnum } from "@/types/DataTypes";
-import { ATC } from "@/types/ATCTypes";
-import { ResumePatho, ResumeSubstance } from "@/db/types";
-import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
+import { SearchResultItem } from "@/db/utils/search";
 
 export async function getArticles(): Promise<Article[]> {
 
@@ -86,7 +83,7 @@ export async function getArticlesFromFilters(articlesFilters: SearchArticlesFilt
     return articlesList;
 }
 
-export async function getArticlesFromSearchResults(results: ExtendedSearchResults): Promise<ArticleCardResume[]> {
+export async function getArticlesFromSearchResults(results: SearchResultItem[]): Promise<ArticleCardResume[]> {
     const articlesFilters: SearchArticlesFilters = {
         ATCList: [],
         substancesList: [],
@@ -94,26 +91,25 @@ export async function getArticlesFromSearchResults(results: ExtendedSearchResult
         pathologiesList: [],
     };
 
-    const extendedSearchResultsKeys: DataTypeEnum[] = Object.keys(results) as DataTypeEnum[];
-    extendedSearchResultsKeys.forEach((key) => {
-        results[key].forEach((result: AdvancedData) => {
-            if (result.type === DataTypeEnum.MEDICAMENT) {
-                (result.result as ResumeSpecGroup).CISList.forEach((CIS: string) => {
-                    if (!articlesFilters.specialitesList.includes(CIS.trim())) articlesFilters.specialitesList.push(CIS.trim());
-                });
-            }
-            else if (result.type === DataTypeEnum.PATHOLOGY)
-                articlesFilters.pathologiesList.push((result.result as ResumePatho).codePatho.trim());
-            else if (result.type === DataTypeEnum.SUBSTANCE)
-                articlesFilters.substancesList.push((result.result as ResumeSubstance).SubsId.trim());
-            else if (result.type === DataTypeEnum.ATCCLASS) {
-                articlesFilters.ATCList.push((result.result as AdvancedATCClass).class.code.trim());
-                (result.result as AdvancedATCClass).subclasses.map((subclass: ATC) => {
-                    articlesFilters.ATCList.push((subclass).code.trim());
-                });
-            }
-        })
-    });
+    for (const item of results) {
+        for (const cis of item.CISList) {
+            if (!articlesFilters.specialitesList.includes(cis.trim()))
+                articlesFilters.specialitesList.push(cis.trim());
+        }
+        for (const subsId of item.subsIds) {
+            if (!articlesFilters.substancesList.includes(subsId.trim()))
+                articlesFilters.substancesList.push(subsId.trim());
+        }
+        for (const code of item.pathosCodes) {
+            if (!articlesFilters.pathologiesList.includes(code.trim()))
+                articlesFilters.pathologiesList.push(code.trim());
+        }
+        for (const code of [item.atc1Code, item.atc2Code, item.atc5Code]) {
+            if (code && !articlesFilters.ATCList.includes(code.trim()))
+                articlesFilters.ATCList.push(code.trim());
+        }
+    }
+
     return await getArticlesFromFilters(articlesFilters);
 }
 

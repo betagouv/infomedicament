@@ -7,6 +7,7 @@ export {
 } from "./specialities";
 export { getPresentations, presentationIsComm } from "./presentation";
 export { getSearchResults } from "./search";
+export { groupGeneNameToDCI } from "@/displayUtils";
 
 export const getLeafletImage = async ({ src }: { src: string }) => {
   src = src.replace("../images/", "");
@@ -29,7 +30,3 @@ export const getLeafletImage = async ({ src }: { src: string }) => {
   }
 };
 
-export function groupGeneNameToDCI(name: string): string {
-  const regexMatch = name.match(/^[^\-]+/);
-  return regexMatch ? regexMatch[0].trim() : name;
-}

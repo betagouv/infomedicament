@@ -6,6 +6,8 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { formatSpecName } from "@/displayUtils";
 import styled, {css} from 'styled-components';
 import Button from "@codegouvfr/react-dsfr/Button";
+import { MatchReason } from "@/db/utils/search";
+import MatchReasonTags from "../tags/MatchReasonTags";
 import { Tooltip } from "@codegouvfr/react-dsfr/Tooltip";
 import PediatricsTags from "../tags/PediatricsTags";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
@@ -82,6 +84,7 @@ const FiltersTagContainer = styled.div`
 
 interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
   item: ResumeSpecGroup;
+  matchReasons?: MatchReason[];
   filterPregnancy?: boolean;
   filterPediatric?: boolean;
   withAlert?: boolean;
@@ -90,6 +93,7 @@ interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
 //For now only for type === DataTypeEnum.MEDICAMENT
 function DataBlockAccordion({
   item,
+  matchReasons,
   filterPregnancy,
   filterPediatric,
   withAlert
@@ -195,6 +199,7 @@ function DataBlockAccordion({
             <SpecLength className={fr.cx("fr-text--sm")}>{specialites.length} {specialites.length > 1 ? "formats de médicament" : " format de médicament"}</SpecLength>
           )}
         </RowToColumnContainer>
+        {matchReasons && <MatchReasonTags reasons={matchReasons} />}
         <DetailsContainer>
           <div style={{width: "100%"}}>
             <RowToColumnContainer>
