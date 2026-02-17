@@ -4,6 +4,8 @@ import { cache } from "react";
 import { ResumeGeneric } from "../types";
 import db from "..";
 import { sql } from "kysely";
+import { pdbmMySQL } from "../pdbmMySQL";
+import { Specialite } from "../pdbmMySQL/types";
 
 export const getGenericsResumeWithLetter = cache(async function(letter: string): Promise<ResumeGeneric[]> {
   const result:ResumeGeneric[] = await db
@@ -17,3 +19,23 @@ export const getGenericsResumeWithLetter = cache(async function(letter: string):
     .execute();
   return result;
 });
+
+export async function getGroupeGene(CIS: string) {
+  return pdbmMySQL
+    .selectFrom("GroupeGene")
+    .where("SpecId", "=", CIS)
+    .selectAll("GroupeGene")
+    .executeTakeFirst();
+}
+
+export async function getGeneriques(CIS: string): Promise<Specialite[]> {
+  return (
+    pdbmMySQL
+      .selectFrom("Specialite")
+      .where("SpecGeneId", "=", CIS)
+      .where("SpecId", "!=", CIS)
+      .where("IsBdm", "=", 1)
+      .selectAll()
+      .execute()
+  );
+}

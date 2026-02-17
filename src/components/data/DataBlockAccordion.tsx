@@ -6,12 +6,15 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { formatSpecName } from "@/displayUtils";
 import styled, {css} from 'styled-components';
 import Button from "@codegouvfr/react-dsfr/Button";
+import { MatchReason } from "@/db/utils/search";
+import MatchReasonTags from "../tags/MatchReasonTags";
 import { Tooltip } from "@codegouvfr/react-dsfr/Tooltip";
 import PediatricsTags from "../tags/PediatricsTags";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
+import { isAIP, isAlerteSecurite, isCommercialisee } from "@/utils/specialites";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
@@ -81,6 +84,7 @@ const FiltersTagContainer = styled.div`
 
 interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
   item: ResumeSpecGroup;
+  matchReasons?: MatchReason[];
   filterPregnancy?: boolean;
   filterPediatric?: boolean;
   withAlert?: boolean;
@@ -89,6 +93,7 @@ interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
 //For now only for type === DataTypeEnum.MEDICAMENT
 function DataBlockAccordion({
   item,
+  matchReasons,
   filterPregnancy,
   filterPediatric,
   withAlert
@@ -97,7 +102,10 @@ function DataBlockAccordion({
   const [specialitesGroup, setSpecialitesGroup] = useState< ResumeSpecGroup>();
   const [groupName, setGroupName] = useState<string>("");
   const [specialites, setSpecialites] = useState<ResumeSpecialite[]>();
+
+  const [fullListeComposants, setFullListeComposants] = useState<string>("");
   const [listeComposants, setListeComposants] = useState<string>("");
+
 
   const [atc1Label, setAtc1Label] = useState<string | undefined>(undefined);
   const [atc2Label, setAtc2Label] = useState<string | undefined>(undefined);
@@ -108,15 +116,17 @@ function DataBlockAccordion({
   const [pediatricsInfo, setPediatricsInfo] = useState<PediatricsInfo>();
 
   const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(false);
+  const [composantsTruncLength, setComposantsTruncLength] = useState<number>(250);
 
   useEffect(() => {
     setSpecialitesGroup(item);
     setGroupName(formatSpecName(item.groupName));
     setSpecialites(item.resumeSpecialites);
-    setListeComposants(item.composants);
+    setFullListeComposants(item.composants);
+    setListeComposants(item.composants.slice(0, composantsTruncLength) + (item.composants.length > composantsTruncLength ? "..." : ""));
     setAtc1Label(item.atc1Label);
     setAtc2Label(item.atc2Label);
-  }, [item, setSpecialitesGroup, setGroupName, setSpecialites, setListeComposants, setAtc1Label, setAtc2Label]);
+  }, [item, composantsTruncLength, setSpecialitesGroup, setGroupName, setSpecialites, setListeComposants, setAtc1Label, setAtc2Label]);
 
   useEffect(() => {
     if(withAlert 
@@ -150,12 +160,38 @@ function DataBlockAccordion({
 
   }, [withAlert, filterPediatric, specialitesGroup, setPediatricsInfo]);
 
+  function onDetailsVisibles(isVisible: boolean) {
+    setIsDetailsVisible(isVisible);
+    if(isVisible)
+      setListeComposants(fullListeComposants);
+    else {
+      setListeComposants(fullListeComposants.slice(0, composantsTruncLength) + (fullListeComposants.length > composantsTruncLength ? "..." : ""));
+    }
+  }
+
+  function updateComposantsTruncLength() {
+    if (window.innerWidth <= 768) {
+      setComposantsTruncLength(150);
+    } else {
+      setComposantsTruncLength(250);
+    }
+  }
+
+  useEffect(() => {
+    updateComposantsTruncLength();
+    window.addEventListener('resize', updateComposantsTruncLength);
+    return () => {
+      window.removeEventListener('resize', updateComposantsTruncLength);
+    };
+  }, []);
+
+
   return specialitesGroup && (
     <Container className={fr.cx("fr-mb-1w")}>
       <GreyContainer 
         className={fr.cx("fr-p-1w")}
-        $isDetailsVisible={isDetailsVisible}
-        onClick={() => setIsDetailsVisible(!isDetailsVisible)}
+        $isDetailsVisible={isDetailsVisible}        
+        onClick={() => onDetailsVisibles(!isDetailsVisible)}
       >
         <RowToColumnContainer>
           <SpecName className={fr.cx("fr-text--md", "fr-mr-2w")}>{groupName}</SpecName>
@@ -163,8 +199,9 @@ function DataBlockAccordion({
             <SpecLength className={fr.cx("fr-text--sm")}>{specialites.length} {specialites.length > 1 ? "formats de médicament" : " format de médicament"}</SpecLength>
           )}
         </RowToColumnContainer>
+        {matchReasons && <MatchReasonTags reasons={matchReasons} />}
         <DetailsContainer>
-          <div>
+          <div style={{width: "100%"}}>
             <RowToColumnContainer>
               {(atc1Label || atc2Label) && (
                 <span className={fr.cx("fr-text--sm", "fr-mr-2w")}>
@@ -212,9 +249,10 @@ function DataBlockAccordion({
           </div>
           <Button
             iconId={isDetailsVisible ? "fr-icon-arrow-up-s-line" : "fr-icon-arrow-down-s-line"}
-            onClick={() => setIsDetailsVisible(!isDetailsVisible)}
+            onClick={() => onDetailsVisibles(!isDetailsVisible)}
             priority="tertiary no outline"
             title="Liens vers les notices"
+            style={{width: "100%"}}
           />
         </DetailsContainer>
       </GreyContainer>
@@ -230,15 +268,46 @@ function DataBlockAccordion({
                 >
                   {formatSpecName(specialite.SpecDenom01)}
                 </Link>
-                {!specialite.isCommercialisee && (
+                {isAIP(specialite) && (
+                  <Tooltip
+                    title="Ce médicament est en Autorisation d'Importation parallèle."
+                    kind="hover"
+                  >
+                    <b className={fr.cx("fr-ml-1v", "fr-text--sm")} style={{color: "#89BA12"}}>
+                      AIP
+                    </b>
+                  </Tooltip>
+                )}
+                {!isCommercialisee(specialite) && (
                   <Tooltip
                     title="Ce médicament n'est ou ne sera bientôt plus disponible sur le marché."
                     kind="hover"
-                    className={fr.cx("fr-ml-2w")}
                   >
                     <i 
-                      className={fr.cx("fr-icon-close-circle-line")} 
+                      className={fr.cx("fr-icon-close-circle-line", "fr-ml-1v")} 
                       style={{color: "var(--text-action-high-blue-france)"}}
+                    />
+                  </Tooltip>
+                )}
+                {isAlerteSecurite(specialite) && (
+                  <Tooltip
+                    title="Alerte de sécurité sanitaire sur ce médicament, veuillez consulter la notice pour en savoir plus."
+                    kind="hover"
+                  >
+                    <i 
+                      className={fr.cx("fr-icon-alert-line", "fr-ml-1v")} 
+                      style={{color: "var(--red-marianne-main-472)"}}
+                    />
+                  </Tooltip>
+                )}
+                {specialite.isSurveillanceRenforcee && (
+                  <Tooltip
+                    title="Ce médicament fait l'objet d'une information importante ou il est sous surveillance renforcée."
+                    kind="hover"
+                  >
+                    <i 
+                      className={fr.cx("fr-icon-information-line", "fr-ml-1v")} 
+                      style={{color: "var(--warning-425-625)"}}
                     />
                   </Tooltip>
                 )}

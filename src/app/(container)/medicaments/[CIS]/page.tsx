@@ -43,7 +43,7 @@ export default async function Page(props: {
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);
 
-  const atcCode = getAtcCode(CIS);
+  const atcCode = await getAtcCode(CIS);
   const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
   const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
@@ -71,7 +71,8 @@ export default async function Page(props: {
     atcList.push(atc2.code.trim());
     breadcrumb.push({ label: atc2.label, linkProps: { href: `/atc/${atc2.code}` } });
   }
-  if (composants) {
+
+  if (composants.length > 0) {
     breadcrumb.push({
       label: displaySimpleComposants(composants)
         .map((s) => s.NomLib.trim())
@@ -92,7 +93,7 @@ export default async function Page(props: {
     });
   }
 
-  const pageLabel = specialite ? formatSpecName(specialite.SpecDenom01) : '';
+  const pageLabel = specialite ? formatSpecName(specialite.SpecDenom01) : await getSpecialiteName(CIS);
 
   return (
     <>
@@ -114,16 +115,22 @@ export default async function Page(props: {
         backgroundColor:
           fr.colors.decisions.background.alt.grey.default,
       }}>
-        <MedicamentContainer
-          atcList={atcList}
-          atc2={atc2}
-          atcCode={atcCode}
-          specialite={specialite}
-          composants={composants}
-          delivrance={delivrance}
-          presentations={presentations}
-          isPrinceps={isPrinceps}
-        />
+        {!specialite ? (
+          <ContentContainer frContainer>
+            Le médicament demandé n'existe pas ou il n'entre pas dans le périmètre d'Info Médicament.
+          </ContentContainer>
+        ) : (
+          <MedicamentContainer
+            atcList={atcList}
+            atc2={atc2}
+            atcCode={atcCode}
+            specialite={specialite}
+            composants={composants}
+            delivrance={delivrance}
+            presentations={presentations}
+            isPrinceps={isPrinceps}
+          />
+        )}
       </ContentContainer>
       <RatingToaster
         pageId={pageLabel}

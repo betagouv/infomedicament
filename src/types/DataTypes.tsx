@@ -1,6 +1,4 @@
 import { ATC, ATC1 } from "./ATCTypes";
-import { ResumePatho, ResumeSubstance } from "@/db/types";
-import { ResumeSpecGroup } from "./SpecialiteTypes";
 
 export enum DataTypeEnum {
   MEDICAMENT = "Médicament",
@@ -15,14 +13,4 @@ export type AdvancedATC = ATC & {nbSubstances: number};
 export type AdvancedATCClass = {
   class: AdvancedATC1;
   subclasses: AdvancedATC[];
-};
-
-export type AdvancedData = {
-  result: (
-    | ResumeSubstance
-    | ResumePatho
-    | ResumeSpecGroup
-    | AdvancedATCClass 
-  ),
-  type: DataTypeEnum,
 };

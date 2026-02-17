@@ -1,6 +1,6 @@
 "use server";
-
 import "server-cli-only";
+
 import { cache } from "react";
 import {
   SpecComposant,
@@ -11,7 +11,7 @@ import {
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { sql } from "kysely";
 import db from "@/db";
-import { getPresentations } from "@/db/utils";
+import { getPresentations } from "@/db/utils/presentation";
 import { unstable_cache } from "next/cache";
 import { withSubstances } from "./query";
 import { DetailedSpecialite, ResumeSpecGroup } from "@/types/SpecialiteTypes";
@@ -29,47 +29,82 @@ export async function getSpecialiteName(CIS: string): Promise<string> {
   return result ? result.SpecDenom01 : "";
 }
 
-export const getSpecialite = cache(async (CIS: string) => {
-
+export const getDetailedSpecialite = cache(
+  async (
+    CIS: string
+  ) : Promise<DetailedSpecialite | undefined> => {
   const specialite: DetailedSpecialite | undefined = await pdbmMySQL
     .selectFrom("Specialite")
-    .leftJoin("VUEmaEpar", "VUEmaEpar.SpecId", "Specialite.SpecId")
+    .leftJoin("StatutAdm", "StatutAdm.StatId", "Specialite.StatId")
+    .leftJoin("StatutComm", "StatutComm.CommId", "Specialite.CommId")
+    .leftJoin("Spec_Titu", "Spec_Titu.SpecId", "Specialite.SpecId")
+    .leftJoin("Titulaire", "Titulaire.TituId", "Spec_Titu.TituId")
+    .leftJoin ("Specialite as GenSpecialite", "GenSpecialite.SpecId", "Specialite.SpecGeneId")
     .where("Specialite.SpecId", "=", CIS)
+    .where("Specialite.IsBdm", "=", 1)
     .selectAll("Specialite")
-    .select("VUEmaEpar.UrlEpar")
+    .select("StatutAdm.StatLibCourt as statutAutorisation")
+    .select("StatutComm.CommLibCourt as statutComm")
+    .select("GenSpecialite.SpecDenom01 as generiqueName")
+    .select(({ selectFrom }) => [
+      selectFrom("VUEmaEpar")
+        .whereRef("Specialite.SpecId", "=", "VUEmaEpar.SpecId")
+        .select("VUEmaEpar.UrlEpar")
+        .limit(1)
+        .as("urlCentralise")
+    ]) // Il n'y en a qu'un
+    .select(({ fn }) => [
+      fn<string>("GROUP_CONCAT", ["Titulaire.TituRSLong"]).as("titulairesList"),
+    ])
+    .groupBy(["Specialite.SpecId"]) //Nécessaire pour le JSON_ARRAYAGG
+    .distinct()
     .executeTakeFirst();
 
-  const composants: Array<SpecComposant & SubstanceNom> = await getComposants(CIS);
+  return specialite;
+});
 
-  const presentations: Presentation[] = await getPresentations(CIS);
-  const presentationsDetails = presentations.length
-    ? await db
-      .selectFrom("presentations")
-      .select([
-        "codecip13",
-        "nomelement",
-        "nbrrecipient",
-        "recipient",
-        "caraccomplrecip",
-        "qtecontenance",
-        "unitecontenance",
-      ])
-      .where(
-        "presentations.codecip13",
-        "in",
-        presentations.map((p) => p.codeCIP13),
-      )
-      .groupBy([
-        "codecip13",
-        "nomelement",
-        "nbrrecipient",
-        "recipient",
-        "caraccomplrecip",
-        "qtecontenance",
-        "unitecontenance",
-      ])
-      .execute()
-    : [];
+export const getSpecialite = cache(async (CIS: string) => {
+
+  const specialite: DetailedSpecialite | undefined = await getDetailedSpecialite(CIS);
+
+  const composants: Array<SpecComposant & SubstanceNom> = 
+    specialite 
+      ? await getComposants(CIS)
+      : [];
+
+  const presentations: Presentation[] = 
+    specialite 
+      ? await getPresentations(CIS)
+      : [];
+  const presentationsDetails = 
+    presentations.length
+      ? await db
+        .selectFrom("presentations")
+        .select([
+          "codecip13",
+          "nomelement",
+          "nbrrecipient",
+          "recipient",
+          "caraccomplrecip",
+          "qtecontenance",
+          "unitecontenance",
+        ])
+        .where(
+          "presentations.codecip13",
+          "in",
+          presentations.map((p) => p.codeCIP13),
+        )
+        .groupBy([
+          "codecip13",
+          "nomelement",
+          "nbrrecipient",
+          "recipient",
+          "caraccomplrecip",
+          "qtecontenance",
+          "unitecontenance",
+        ])
+        .execute()
+      : [];
 
   presentations.map((p) => {
     const details = presentationsDetails.find(
@@ -80,16 +115,20 @@ export const getSpecialite = cache(async (CIS: string) => {
     }
   });
 
-  const delivrance: SpecDelivrance[] = await pdbmMySQL
-    .selectFrom("Spec_Delivrance")
-    .where("SpecId", "=", CIS)
-    .innerJoin(
-      "DicoDelivrance",
-      "Spec_Delivrance.DelivId",
-      "DicoDelivrance.DelivId",
-    )
-    .selectAll()
-    .execute();
+  const delivrance: SpecDelivrance[] = 
+    specialite
+      ? await pdbmMySQL
+        .selectFrom("Spec_Delivrance")
+        .where("SpecId", "=", CIS)
+        .innerJoin(
+          "DicoDelivrance",
+          "Spec_Delivrance.DelivId",
+          "DicoDelivrance.DelivId",
+        )
+        .selectAll()
+        .orderBy("DicoDelivrance.DelivLong")
+        .execute()
+      : [];
 
   return {
     specialite,
@@ -102,6 +141,7 @@ export const getSpecialite = cache(async (CIS: string) => {
 export const getAllSpecialites = cache(async function () {
   return await pdbmMySQL
     .selectFrom("Specialite")
+    .where("Specialite.IsBdm", "=", 1)
     .selectAll()
     .distinct()
     .orderBy("SpecDenom01")
@@ -171,6 +211,7 @@ export const getSubstanceSpecialites = unstable_cache(async function (
     .selectFrom("Specialite")
     .selectAll("Specialite")
     .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
+    .where("Specialite.IsBdm", "=", 1)
     .groupBy("Specialite.SpecId")
     .execute();
 },
@@ -186,6 +227,7 @@ export const getSubstanceSpecialitesCIS = unstable_cache(async function (
     .selectFrom("Specialite")
     .select("Specialite.SpecId")
     .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
+    .where("Specialite.IsBdm", "=", 1)
     .groupBy("Specialite.SpecId")
     .execute();
   return rawCISList.map((CIS) => CIS.SpecId);

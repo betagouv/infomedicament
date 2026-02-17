@@ -1,103 +1,163 @@
 import type { Kysely } from "kysely";
-import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { getAtc } from "@/db/utils/atc";
+import { sql } from "kysely";
 
 export async function seed(db: Kysely<any>): Promise<void> {
-  async function addIndex(table: string, id: string, token: string) {
-    await db
-      .insertInto("search_index")
-      .values(({ fn, val }) => ({
-        token: fn("unaccent", [val(token)]),
-        table_name: table,
-        id,
-      }))
-      .execute();
+  // Load all reference data from PostgreSQL into memory for fast lookups
+  console.log("Loading reference data from PostgreSQL...");
+
+  // NB: you must run updateResumeData.ts in order for those tables to be
+  // up-to-date when recieving a new BDPM mysql dump. 
+  const groups = await db
+    .selectFrom("resume_medicaments")
+    .selectAll()
+    .execute();
+
+  const substances = await db
+    .selectFrom("resume_substances")
+    .select(["NomId", "NomLib"])
+    .execute();
+
+  const pathologies = await db
+    .selectFrom("resume_pathologies")
+    .select(["codePatho", "NomPatho"])
+    .execute();
+
+  const atcRows = await db
+    .selectFrom("atc")
+    .select(["code", "label_court"])
+    .where("code", "is not", null)
+    .where("label_court", "is not", null)
+    .execute();
+
+  const atcFriendly1 = await db
+    .selectFrom("ref_atc_friendly_niveau_1")
+    .select(["code", "libelle"])
+    .execute();
+
+  const atcFriendly2 = await db
+    .selectFrom("ref_atc_friendly_niveau_2")
+    .select(["code", "libelle"])
+    .execute();
+
+  console.log(
+    `Loaded ${groups.length} groups, ${substances.length} substances, ` +
+    `${pathologies.length} pathologies, ${atcRows.length} ATC codes, ` +
+    `${atcFriendly1.length + atcFriendly2.length} friendly ATC labels`
+  );
+
+  if (groups.length === 0 || substances.length === 0) {
+    throw new Error("No groups found in resume_medicaments or in resume_substances — run updateResumeData first");
   }
 
-  // Get substances from PMDB
-  const substances = await pdbmMySQL
-    .selectFrom("Subs_Nom")
-    .select(["Subs_Nom.NomLib", "Subs_Nom.NomId"])
-    .leftJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
-    .leftJoin("Specialite", "Composant.SpecId", "Specialite.SpecId")
-    .groupBy(["Subs_Nom.NomLib", "Subs_Nom.NomId"])
-    .execute();
+  // Build lookup maps
+  const substanceMap = new Map(substances.map((s) => [s.NomId.trim(), s.NomLib]));
+  const pathologyMap = new Map(pathologies.map((p) => [p.codePatho.trim(), p.NomPatho]));
 
-  await db.transaction().execute(async (db) => {
-    await db
-      .deleteFrom("search_index")
-      .where("table_name", "=", "Subs_Nom")
-      .execute();
-
-    // Insert substances into search_index
-    for (const substance of substances) {
-      await addIndex("Subs_Nom", substance.NomId, substance.NomLib);
+  // Build ATC label map: code → labels (may have both friendly and technical labels)
+  const atcLabelMap = new Map<string, Set<string>>();
+  for (const row of atcRows) {
+    if (row.code && row.label_court) {
+      if (!atcLabelMap.has(row.code)) atcLabelMap.set(row.code, new Set());
+      atcLabelMap.get(row.code)!.add(row.label_court);
     }
-  });
-
-  // Get specialities from PMDB
-  const specialities = await pdbmMySQL
-    .selectFrom("Specialite")
-    .select(["SpecDenom01", "SpecId"])
-    .execute();
-
-  await db.transaction().execute(async (db) => {
-    await db
-      .deleteFrom("search_index")
-      .where("table_name", "=", "Specialite")
-      .execute();
-
-    // Insert specialities into search_index
-    for (const specialite of specialities) {
-      await addIndex("Specialite", specialite.SpecId, specialite.SpecDenom01);
+  }
+  for (const row of atcFriendly1) {
+    if (row.code && row.libelle) {
+      if (!atcLabelMap.has(row.code)) atcLabelMap.set(row.code, new Set());
+      atcLabelMap.get(row.code)!.add(row.libelle as string);
     }
-  });
-
-  // Get pathologies from PMDB
-  const pathologies = await pdbmMySQL
-    .selectFrom("Patho")
-    .select(["Patho.NomPatho", "Patho.codePatho"])
-    .leftJoin("Spec_Patho", "Patho.codePatho", "Spec_Patho.codePatho")
-    .leftJoin("Specialite", "Spec_Patho.SpecId", "Specialite.SpecId")
-    .groupBy(["Patho.NomPatho", "Patho.codePatho"])
-    .execute();
-
-  await db.transaction().execute(async (db) => {
-    await db
-      .deleteFrom("search_index")
-      .where("table_name", "=", "Patho")
-      .execute();
-
-    for (const pathology of pathologies) {
-      await addIndex("Patho", pathology.codePatho, pathology.NomPatho);
+  }
+  for (const row of atcFriendly2) {
+    if (row.code && row.libelle) {
+      if (!atcLabelMap.has(row.code)) atcLabelMap.set(row.code, new Set());
+      atcLabelMap.get(row.code)!.add(row.libelle as string);
     }
-  });
+  }
 
-  // Get ATC classes
-  try {
-    console.log("Trying to get ATC classes from Grist...");
-    const atc = await getAtc();
-    if (!atc || atc.length === 0) {
-      throw new Error("Got no ATC data from Grist");
-    }
-    await db.transaction().execute(async (db) => {
-      await db
-        .deleteFrom("search_index")
-        .where("table_name", "=", "ATC")
+  // Run in a transaction
+  await db.transaction().execute(async (trx) => {
+    console.log("Truncating search_index table...");
+    await sql`TRUNCATE TABLE search_index`.execute(trx);
+
+    let totalRows = 0;
+
+    async function addIndex(
+      matchType: string,
+      groupName: string,
+      token: string,
+      matchLabel: string,
+    ) {
+      await trx
+        .insertInto("search_index")
+        .values(({ fn, val }) => ({
+          token: fn("unaccent", [val(token)]),
+          match_type: matchType,
+          group_name: groupName,
+          match_label: matchLabel,
+        }))
         .execute();
+      totalRows++;
+    }
 
-      for (const atcClass of atc) {
-        await addIndex("ATC", atcClass.code, atcClass.label);
-        for (const atcSubClass of atcClass.children) {
-          await addIndex("ATC", atcSubClass.code, atcSubClass.label);
+    for (const group of groups) {
+      const gn = group.groupName;
+
+      // 1. Index specialité names and CIS codes
+      const specialites: string[][] = group.specialites as string[][];
+      for (const spec of specialites) {
+        const ciscode = spec[0]; // SpecId
+        const specName = spec[1]; // SpecDenom01
+        if (specName) {
+          await addIndex("name", gn, specName, specName);
+        }
+        if (ciscode) {
+          await addIndex("name", gn, ciscode, ciscode);
         }
       }
-    })
-  } catch (error) {
-    console.warn("Failed to get ATC classes from Grist:", error);
-    console.warn("Continuing without updating ATC search index.");
-  }
 
+      // 2. Index substance names
+      const subsIds: string[] = (group.subsIds as string[]) ?? [];
+      for (const subsId of subsIds) {
+        const nomLib = substanceMap.get(subsId.trim());
+        if (nomLib) {
+          await addIndex("substance", gn, nomLib, nomLib);
+        }
+      }
 
-  await pdbmMySQL.destroy();
+      // 3. Index pathology names
+      const pathosCodes: string[] = (group.pathosCodes as string[]) ?? [];
+      for (const code of pathosCodes) {
+        const nomPatho = pathologyMap.get(code.trim());
+        if (nomPatho) {
+          await addIndex("pathology", gn, nomPatho, nomPatho);
+        }
+      }
+
+      // 4. Index ATC labels and codes at all ancestor levels
+      const atc5Code: string | null = group.atc5Code as string | null;
+      if (atc5Code) {
+        // Standard ATC levels: 1 (A), 3 (A10), 4 (A10B), 5 (A10BA), 7 (A10BA02)
+        const atcLevels = [1, 3, 4, 5, 7];
+        const prefixes = new Set<string>();
+        for (const len of atcLevels) {
+          if (len <= atc5Code.length) prefixes.add(atc5Code.slice(0, len));
+        }
+        for (const prefix of prefixes) {
+          // Index the ATC code itself (e.g., "N05BA01") so professionals can search by code
+          await addIndex("atc", gn, prefix, prefix);
+          // Index ATC labels for this code
+          const labels = atcLabelMap.get(prefix);
+          if (labels) {
+            for (const label of labels) {
+              await addIndex("atc", gn, label, label);
+            }
+          }
+        }
+      }
+    }
+
+    console.log(`Indexed ${totalRows} rows for ${groups.length} groups.`);
+  });
+
+  console.log("Search index updated successfully.");
 }

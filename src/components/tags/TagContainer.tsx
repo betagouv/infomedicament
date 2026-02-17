@@ -22,16 +22,11 @@ function TagContainer({
 ) {
 
   const [currentCategory, setCurrentCategory] = useState<string>("");
-  const [currentHideSeparator, setCurrentHideSeparator] = useState<boolean>(false);
   const [currentChildren, setCurrentChildren] = useState<ReactNode>();
 
   useEffect(() => {
     if(category) setCurrentCategory(category);
   }, [category, setCurrentCategory]);
-
-  useEffect(() => {
-    if(hideSeparator) setCurrentHideSeparator(hideSeparator);
-  }, [hideSeparator, setCurrentHideSeparator]);
 
   useEffect(() => {
     if(props.children) setCurrentChildren(props.children);
@@ -45,7 +40,7 @@ function TagContainer({
         </CategoryContainer>
       }
       {currentChildren}
-      {!currentHideSeparator && <hr className={fr.cx("fr-pb-1w", "fr-mt-1w")}/>}
+      {!hideSeparator && <hr className={fr.cx("fr-pb-1w", "fr-mt-1w")}/>}
     </div>
   );
 };
