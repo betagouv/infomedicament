@@ -8,6 +8,8 @@ import {
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { expressionBuilder, sql } from "kysely";
 import { Presentation } from "@/types/PresentationTypes";
+import { PresentationDetail } from "../types";
+import db from "..";
 
 export const presentationIsComm = () => {
   const eb = expressionBuilder<PdbmMySQL, "Presentation">();
@@ -61,4 +63,45 @@ export const getPresentations = cache(
     );
     return result;
   },
+);
+
+export const getPresentationsDetails = cache(
+  async (
+    codeCIP13List: string[]
+  ): Promise<PresentationDetail[]> => {
+    const presentationsDetails = 
+      codeCIP13List.length
+      ? await db
+        .selectFrom("presentations")
+        .selectAll()
+        .where(
+          "presentations.codecip13",
+          "in",
+          codeCIP13List,
+        )
+        .distinct()
+        .execute()
+      : [];
+    return presentationsDetails;
+  }
+);
+
+export const getFullPresentations = cache(
+  async (
+    CIS: string,
+  ): Promise<Presentation[]> => {
+    const presentations: Presentation[] = await getPresentations(CIS);
+    const presentationsDetails: PresentationDetail[] = await getPresentationsDetails(presentations.map((p) => p.codeCIP13));
+
+    presentations.forEach((p) => {
+      const details = presentationsDetails.filter(
+        (d) => d.codecip13.trim() === p.codeCIP13.trim(),
+      );
+      if (details) {
+        p.details = details;
+      }
+    });
+
+    return presentations;
+  }
 );

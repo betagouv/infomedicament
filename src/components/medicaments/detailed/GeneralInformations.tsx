@@ -22,6 +22,7 @@ import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getProcedureLibLong, getTypeInfoTxt, isAIP, isCentralisee } from "@/utils/specialites";
 import Badge from "@codegouvfr/react-dsfr/Badge";
+import { getPresentationName, getPresentationPriceText } from "@/utils/presentations";
 import { FicheInfos, InfosImportantes } from "@/types/FicheInfoTypes";
 
 const SummaryLineContainer = styled.div<{ $hideBorder?: boolean; }>`
@@ -375,46 +376,12 @@ function GeneralInformations({
                     <span
                       className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
                     />
-                    {pres.details ? (
-                      <span className={fr.cx("fr-mr-2w")}>
-                        <b>
-                          {pres.details.qtecontenance ? (
-                            <>
-                              {pres.details.qtecontenance.toLocaleString('fr-FR')}{" "}
-                              {pres.details.unitecontenance && (
-                                <span>
-                                  {pres.details.qtecontenance > 1 
-                                    ? pres.details.unitecontenance.replaceAll("(s)", "s")
-                                    : pres.details.unitecontenance.replaceAll("(s)", "")
-                                  }
-                                </span>
-                              )}
-                            </>
-                          ) : (
-                            <span>{"1"}</span>
-                          )}
-                        </b>{" - "}
-                        {pres.details.recipient && (
-                          <span>
-                            {pres.details.recipient.replaceAll("thermoformée", "").replaceAll("(s)", "")}
-                          </span>
-                        )}
-                      </span>
-                    ) : (
-                      <b>{pres.PresNom01}</b>
-                    )}
-                    {pres.PPF && pres.TauxPriseEnCharge ? (
-                      <span>
-                        Prix{" "}
-                        {Intl.NumberFormat("fr-FR", {
-                          style: "currency",
-                          currency: "EUR",
-                        }).format(pres.PPF)}{" "}
-                        - remboursé à {pres.TauxPriseEnCharge}
-                      </span>
-                    ) : (
-                      <span>Prix libre - non remboursable</span>
-                    )}
+                    <span className={fr.cx("fr-mr-2w")}>
+                      <b>{getPresentationName(pres)}</b>
+                    </span>
+                    <span>
+                      {getPresentationPriceText(pres)}
+                    </span>
                   </div>
                   {(pres.Ppttc || pres.HonoDisp) && (
                     <div className={fr.cx("fr-mb-0")}>
