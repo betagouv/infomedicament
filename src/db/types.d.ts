@@ -45,6 +45,7 @@ interface LeafletImagesTable {
 
 interface PresentationTable {
   codecip13: string;
+  nom_presentation: string;
   numelement: number; //Display order for nomelement - first element to display
   nomelement: string;
   recipient: string;
@@ -54,6 +55,8 @@ interface PresentationTable {
   unitecontenance: string;
   caraccomplrecip: string;
   numordreedit: number; //Display order for caraccomplrecip - third element to display
+  numdispositif: number;
+  dispositif: string;
 }
 
 interface RcpTable {

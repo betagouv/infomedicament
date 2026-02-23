@@ -10,6 +10,11 @@ export type Presentation =
     details?: PresentationDetail[],
   }
 
+export type AgregateDispositifDetails = {
+  numdispositif: number;
+  dispositif: string;
+}
+
 export type AgregateCaraccomplrecipsDetails = {
   caraccomplrecip: string;
   numordreedit: number;
@@ -22,6 +27,7 @@ export type AgregateRecipientDetails = {
   qtecontenance: number;
   unitecontenance: string;
   caraccomplrecips: AgregateCaraccomplrecipsDetails[],
+  dispositifs: AgregateDispositifDetails[],
 }
 
 export type AgregatePresentationDetails = {
