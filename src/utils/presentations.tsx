@@ -1,5 +1,5 @@
 import { PresentationDetail } from "@/db/types";
-import { AgregateCaraccomplrecipsDetails, AgregatePresentationDetails, AgregateRecipientDetails, Presentation } from "@/types/PresentationTypes";
+import { AgregateCaraccomplrecipsDetails, AgregateDispositifDetails, AgregatePresentationDetails, AgregateRecipientDetails, Presentation } from "@/types/PresentationTypes";
 import { capitalize } from "tsafe";
 
 const unitesMesures = [
@@ -59,63 +59,84 @@ function caracCompDisplay(caraccomplrecipDetails: AgregateCaraccomplrecipsDetail
   return detailsText;
 }
 
+function dispositifDisplay(dispositifDetails: AgregateDispositifDetails[]): string {
+  let detailsText: string = "";
+  dispositifDetails.forEach((details: AgregateDispositifDetails) => {
+    if(details.numdispositif)
+      detailsText += ` ${details.dispositif.replaceAll("(s)", "")}`;
+  })
+  return detailsText;
+}
 
-function cleanPresentationsDetails(presDetails: PresentationDetail[]): AgregatePresentationDetails[]{
-  const cleanPresDetails:AgregatePresentationDetails[] = [];
-  presDetails.forEach((details) => {
-    const index = cleanPresDetails.findIndex((cleanDetails) => cleanDetails.numelement === details.numelement);
-    if(index === -1){
-      //New element in the presentations
-      cleanPresDetails.push({
-        codecip13: details.codecip13,
-        numelement: details.numelement,
-        nomelement: details.nomelement,
-        recipients: [{
-          recipient: details.recipient,
-          numrecipient: details.numrecipient,
-          nbrrecipient: details.nbrrecipient,
-          qtecontenance: details.qtecontenance,
-          unitecontenance: details.unitecontenance,
-          caraccomplrecips : [{
-            caraccomplrecip: details.caraccomplrecip,
-            numordreedit: details.numordreedit,
-          }],
-        }],
-      });
-    } else {
-      //Maj content of the recipient 
-      const indexRecipient = cleanPresDetails[index].recipients.findIndex((recipientDetails) => recipientDetails.numrecipient === details.numrecipient);
-      if(indexRecipient === -1){
-        //New recipient in the presentations
-        cleanPresDetails[index].recipients.push({
-          recipient: details.recipient,
-          numrecipient: details.numrecipient,
-          nbrrecipient: details.nbrrecipient,
-          qtecontenance: details.qtecontenance,
-          unitecontenance: details.unitecontenance,
-          caraccomplrecips : [{
-            caraccomplrecip: details.caraccomplrecip,
-            numordreedit: details.numordreedit,
-          }],
-        })
-      } else {
-        //Maj content of the caraccomplrecip --> unique numordreedit
-        cleanPresDetails[index].recipients[indexRecipient].caraccomplrecips.push({
+function isCaraccomplrecipDetails(details: PresentationDetail): boolean {
+  if(details.caraccomplrecip) {
+    const find = details.nom_presentation.toLowerCase().trim().indexOf(details.caraccomplrecip.toLowerCase().trim());
+    if(find !== -1){
+      return true;
+    }
+  }
+  return false;
+}
+
+function cleanRecipientDetails(details: PresentationDetail): AgregateRecipientDetails {
+  return {
+      recipient: details.recipient,
+      numrecipient: details.numrecipient,
+      nbrrecipient: details.nbrrecipient,
+      qtecontenance: details.qtecontenance,
+      unitecontenance: details.unitecontenance,
+      caraccomplrecips : isCaraccomplrecipDetails(details)
+        ? [{
           caraccomplrecip: details.caraccomplrecip,
           numordreedit: details.numordreedit,
-        });
-      }
+        }]
+        : [],
+      dispositifs : details.numdispositif 
+        ? [{
+          dispositif: details.dispositif,
+          numdispositif: details.numdispositif,
+        }]
+        : [],
     }
-  });
+}
 
-  //Tri cleanPresDetails par numelement
+function sortCleanPresentationsDetails(cleanPresDetails: AgregatePresentationDetails[]): AgregatePresentationDetails[] {
   return cleanPresDetails
     .map((presDetails) => {
       presDetails.recipients = presDetails.recipients
         .map((presRecipient) => {
-          presRecipient.caraccomplrecips = presRecipient.caraccomplrecips.sort((a,b) => 
-            a.numordreedit && b.numordreedit ? a.numordreedit - b.numordreedit : a.numordreedit ? -1 : b.numordreedit ? 1 : 0
-          )
+          //Sort caraccomplrecips
+          presRecipient.caraccomplrecips = presRecipient.caraccomplrecips
+            .filter((detailA: AgregateCaraccomplrecipsDetails, index: number) => {
+              //Only one of each caraccomplrecips
+              let findIndex = presRecipient.caraccomplrecips.findIndex(
+                (detailB) => detailB.caraccomplrecip.toLowerCase().trim() === detailA.caraccomplrecip.toLowerCase().trim()
+              );
+              if(findIndex === -1 && detailA.caraccomplrecip.toLowerCase().trim() === "pvc"){
+                //if PVC-Aluminium is in the list and also PVC : PVC-Aluminium win
+                findIndex = presRecipient.caraccomplrecips.findIndex((detailB) => detailB.caraccomplrecip.toLowerCase().trim() === "pvc-aluminium")
+              }
+              if(findIndex === index || findIndex === -1 
+                || (findIndex !== -1 && presRecipient.caraccomplrecips[findIndex].numordreedit > detailA.numordreedit)) return true;
+              return false;
+            })
+            .sort((a,b) => 
+              a.numordreedit && b.numordreedit ? a.numordreedit - b.numordreedit : a.numordreedit ? -1 : b.numordreedit ? 1 : 0
+            )
+          //Sort dispositifs
+          presRecipient.dispositifs = presRecipient.dispositifs
+            .filter((detailA: AgregateDispositifDetails, index: number) => {
+              //Only one of each dispositifs
+              const findIndex = presRecipient.dispositifs.findIndex(
+                (detailB) => detailB.dispositif.toLowerCase().trim() === detailA.dispositif.toLowerCase().trim()
+              );
+              if(findIndex === index || findIndex === -1 
+                || (findIndex !== -1 && presRecipient.dispositifs[findIndex].numdispositif > detailA.numdispositif)) return true;
+              return false;
+            })
+            .sort((a,b) => 
+              a.numdispositif && b.numdispositif ? a.numdispositif - b.numdispositif : a.numdispositif ? -1 : b.numdispositif ? 1 : 0
+            )
           return presRecipient;
         })
         .sort((a, b) => 
@@ -128,6 +149,50 @@ function cleanPresentationsDetails(presDetails: PresentationDetail[]): AgregateP
     );
 }
 
+
+function cleanPresentationsDetails(presDetails: PresentationDetail[]): AgregatePresentationDetails[]{
+  const cleanPresDetails:AgregatePresentationDetails[] = [];
+  presDetails.forEach((details: PresentationDetail) => {
+    const index = cleanPresDetails.findIndex((cleanDetails) => cleanDetails.numelement === details.numelement);
+    if(index === -1){
+      //New element in the presentations
+      cleanPresDetails.push({
+        codecip13: details.codecip13,
+        numelement: details.numelement,
+        nomelement: details.nomelement,
+        recipients: [
+          cleanRecipientDetails(details),
+        ],
+      });
+    } else {
+      //Maj content of the recipient 
+      const indexRecipient = cleanPresDetails[index].recipients.findIndex((recipientDetails) => recipientDetails.numrecipient === details.numrecipient);
+      if(indexRecipient === -1){
+        //New recipient in the presentations
+        cleanPresDetails[index].recipients.push(
+          cleanRecipientDetails(details)
+        )
+      } else {
+        if(isCaraccomplrecipDetails(details)) {
+          //Maj content of the caraccomplrecip
+          cleanPresDetails[index].recipients[indexRecipient].caraccomplrecips.push({
+            caraccomplrecip: details.caraccomplrecip,
+            numordreedit: details.numordreedit,
+          });
+        }
+        if(details.numdispositif){
+          //Maj content of the dispositif
+          cleanPresDetails[index].recipients[indexRecipient].dispositifs.push({
+            dispositif: details.dispositif,
+            numdispositif: details.numdispositif,
+          });
+        }
+      }
+    }
+  });
+  return sortCleanPresentationsDetails(cleanPresDetails);
+}
+
 export function getPresentationName(
   presentation: Presentation,
   shortName?: boolean,
@@ -135,7 +200,6 @@ export function getPresentationName(
   if(presentation.details && presentation.details.length > 0){
     const allPresDetails: AgregatePresentationDetails[] = cleanPresentationsDetails(presentation.details);
     let allPresNames: string = "";
-
     allPresDetails.forEach((presDetails: AgregatePresentationDetails) => {
       if(presDetails.recipients.length === 0) return;
       let name = "";
@@ -149,6 +213,7 @@ export function getPresentationName(
         const recipient: string = replacePluralSingular(recipientDetails.recipient, nbRecipient, shortName);
         const contenance: string = contenanceDisplay(recipientDetails);
         const caraccomplrecip: string = caracCompDisplay(recipientDetails.caraccomplrecips, nbRecipient, shortName);
+        const dispositif: string = dispositifDisplay(recipientDetails.dispositifs);
 
       if(name !== "")
         name += " ";
@@ -162,6 +227,8 @@ export function getPresentationName(
           if(!shortName) name += `1 ${recipient}${caraccomplrecip}${contenance && ` de ${contenance}`}`;
           else name += capitalize(`${recipient}${caraccomplrecip}${contenance && ` de ${contenance}`}`);
         }
+        if(!shortName && dispositif)
+          name += ` ${dispositif}`;
 
       });
       if(allPresNames !== "")
