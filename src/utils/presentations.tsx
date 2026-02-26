@@ -91,18 +91,13 @@ function cleanRecipientDetails(details: PresentationDetail): AgregateRecipientDe
           numordreedit: details.numordreedit,
         }]
         : [],
-      dispositifs : details.numdispositif 
-        ? [{
-          dispositif: details.dispositif,
-          numdispositif: details.numdispositif,
-        }]
-        : [],
     }
 }
 
 function sortCleanPresentationsDetails(cleanPresDetails: AgregatePresentationDetails[]): AgregatePresentationDetails[] {
   return cleanPresDetails
     .map((presDetails) => {
+      //Sort recipients details
       presDetails.recipients = presDetails.recipients
         .map((presRecipient) => {
           //Sort caraccomplrecips
@@ -123,46 +118,46 @@ function sortCleanPresentationsDetails(cleanPresDetails: AgregatePresentationDet
             .sort((a,b) => 
               a.numordreedit && b.numordreedit ? a.numordreedit - b.numordreedit : a.numordreedit ? -1 : b.numordreedit ? 1 : 0
             )
-          //Sort dispositifs
-          presRecipient.dispositifs = presRecipient.dispositifs
-            .filter((detailA: AgregateDispositifDetails, index: number) => {
-              //Only one of each dispositifs
-              const findIndex = presRecipient.dispositifs.findIndex(
-                (detailB) => detailB.dispositif.toLowerCase().trim() === detailA.dispositif.toLowerCase().trim()
-              );
-              if(findIndex === index || findIndex === -1 
-                || (findIndex !== -1 && presRecipient.dispositifs[findIndex].numdispositif > detailA.numdispositif)) return true;
-              return false;
-            })
-            .sort((a,b) => 
-              a.numdispositif && b.numdispositif ? a.numdispositif - b.numdispositif : a.numdispositif ? -1 : b.numdispositif ? 1 : 0
-            )
           return presRecipient;
         })
         .sort((a, b) => 
           a.numrecipient && b.numrecipient ? a.numrecipient - b.numrecipient : b.numrecipient ? -1 : b.numrecipient ? 1 : 0,
         );
+      //Sort dispositifs
+      presDetails.dispositifs = presDetails.dispositifs
+        .filter((detailA: AgregateDispositifDetails, index: number) => {
+          //Only one of each dispositifs
+          const findIndex = presDetails.dispositifs.findIndex(
+            (detailB) => detailB.dispositif.toLowerCase().trim() === detailA.dispositif.toLowerCase().trim()
+          );
+          if(findIndex === index || findIndex === -1 
+            || (findIndex !== -1 && presDetails.dispositifs[findIndex].numdispositif > detailA.numdispositif)) return true;
+          return false;
+        })
+        .sort((a,b) => 
+          a.numdispositif && b.numdispositif ? a.numdispositif - b.numdispositif : a.numdispositif ? -1 : b.numdispositif ? 1 : 0
+        );
       return presDetails;
-    })
-    .sort((a,b) => 
-      a.numelement && b.numelement ? a.numelement - b.numelement : a.numelement ? -1 : b.numelement ? 1 : 0,
-    );
+    });
 }
 
 
 function cleanPresentationsDetails(presDetails: PresentationDetail[]): AgregatePresentationDetails[]{
   const cleanPresDetails:AgregatePresentationDetails[] = [];
   presDetails.forEach((details: PresentationDetail) => {
-    const index = cleanPresDetails.findIndex((cleanDetails) => cleanDetails.numelement === details.numelement);
+    const index = cleanPresDetails.findIndex((cleanDetails) => cleanDetails.codecip13 === details.codecip13);
     if(index === -1){
       //New element in the presentations
       cleanPresDetails.push({
         codecip13: details.codecip13,
-        numelement: details.numelement,
-        nomelement: details.nomelement,
         recipients: [
           cleanRecipientDetails(details),
         ],
+        dispositifs: details.numdispositif
+          ? [{
+            dispositif: details.dispositif,
+            numdispositif: details.numdispositif,
+          }] : [],
       });
     } else {
       //Maj content of the recipient 
@@ -180,12 +175,16 @@ function cleanPresentationsDetails(presDetails: PresentationDetail[]): AgregateP
             numordreedit: details.numordreedit,
           });
         }
-        if(details.numdispositif){
-          //Maj content of the dispositif
-          cleanPresDetails[index].recipients[indexRecipient].dispositifs.push({
+      }
+      //Maj content of the dispositif
+      if(details.numdispositif) {
+        const indexDispositif = cleanPresDetails[index].dispositifs.findIndex((dispositifDetails) => dispositifDetails.numdispositif === details.numdispositif);
+        if(indexDispositif === -1){
+          //New recipient in the presentations
+          cleanPresDetails[index].dispositifs.push({
             dispositif: details.dispositif,
             numdispositif: details.numdispositif,
-          });
+          })
         }
       }
     }
@@ -213,10 +212,9 @@ export function getPresentationName(
         const recipient: string = replacePluralSingular(recipientDetails.recipient, nbRecipient, shortName);
         const contenance: string = contenanceDisplay(recipientDetails);
         const caraccomplrecip: string = caracCompDisplay(recipientDetails.caraccomplrecips, nbRecipient, shortName);
-        const dispositif: string = dispositifDisplay(recipientDetails.dispositifs);
 
       if(name !== "")
-        name += " ";
+        name += " - ";
         if (nbRecipient > 1) {
           if (recipientDetails.qtecontenance > 1 && recipientDetails.unitecontenance && !unitesMesures.includes(recipientDetails.unitecontenance)) {
             name += `${totalDisplay(recipientDetails)} - ${nbRecipient.toString()} ${recipient}${caraccomplrecip}${contenance && ` de ${contenance}`}`;
@@ -227,10 +225,12 @@ export function getPresentationName(
           if(!shortName) name += `1 ${recipient}${caraccomplrecip}${contenance && ` de ${contenance}`}`;
           else name += capitalize(`${recipient}${caraccomplrecip}${contenance && ` de ${contenance}`}`);
         }
-        if(!shortName && dispositif)
-          name += ` ${dispositif}`;
 
       });
+      const dispositif: string = dispositifDisplay(presDetails.dispositifs);
+      if(!shortName && dispositif)
+        name += ` ${dispositif}`;
+      
       if(allPresNames !== "")
         allPresNames += " - ";
       allPresNames += name;
