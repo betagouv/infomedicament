@@ -30,13 +30,13 @@ export function PresentationsList(props: {
               </b>
               <div>{getPresentationPriceText(p)}</div>
               {Number(p.CommId) !== PresentationComm.Commercialisation && (
-                <Badge severity="warning" className={fr.cx("fr-ml-1v")}>
+                <Badge severity="warning" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
                   {PresentationComm[p.CommId]}
                   {p.PresCommDate && ` (${dateShortFormat(p.PresCommDate)})`}
                 </Badge>
               )}
               {p.StatId && Number(p.StatId) === PresentationStat.Abrogation && (
-                <Badge severity="error" className={fr.cx("fr-ml-1v")}>
+                <Badge severity="error" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
                   {PresentationStat[p.StatId]}
                   {p.PresStatDAte && ` (${dateShortFormat(p.PresStatDAte)})`}
                 </Badge>
