@@ -27,12 +27,10 @@ export type AgregateRecipientDetails = {
   qtecontenance: number;
   unitecontenance: string;
   caraccomplrecips: AgregateCaraccomplrecipsDetails[],
-  dispositifs: AgregateDispositifDetails[],
 }
 
 export type AgregatePresentationDetails = {
   codecip13: string;
-  numelement: number;
-  nomelement: string;
   recipients: AgregateRecipientDetails[];
+  dispositifs: AgregateDispositifDetails[],
 }
