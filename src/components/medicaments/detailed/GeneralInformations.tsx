@@ -2,10 +2,10 @@
 
 import ContentContainer from "../../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
-import { HTMLAttributes, PropsWithChildren, useEffect, useState } from "react";
+import { HTMLAttributes, PropsWithChildren } from "react";
 import styled, {css} from 'styled-components';
 import GenericTag from "@/components/tags/GenericTag";
-import { PresentationStat, SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { PresentationComm, PresentationStat, SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import PediatricsTags from "@/components/tags/PediatricsTags";
 import Link from "next/link";
@@ -421,6 +421,12 @@ function GeneralInformations({
                     <div className={fr.cx("fr-mb-0")}>
                       Abrogée
                       {pres.PresStatDAte && ` le ${dateShortFormat(pres.PresStatDAte)}`}
+                    </div>
+                  )}
+                  {pres.CommId && Number(pres.CommId) === PresentationComm.Arrêt && (
+                    <div className={fr.cx("fr-mb-0")}>
+                      Déclaration d'arrêt de commercialisation
+                      {pres.PresCommDate && ` : ${dateShortFormat(pres.PresCommDate)}`}
                     </div>
                   )}
                   {(pres.AgreColl && pres.AgreColl === 1) ? (
