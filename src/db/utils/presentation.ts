@@ -4,6 +4,7 @@ import {
   PdbmMySQL,
   PresentationComm,
   PresentationStat,
+  PresentationRetro,
 } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { expressionBuilder, sql } from "kysely";
@@ -86,12 +87,35 @@ export const getPresentationsDetails = cache(
   }
 );
 
+export const getPresentationsRetro = cache(
+  async (
+    codeCIP13List: string[]
+  ): Promise<PresentationRetro[]> => {
+    const presentationsRetro = 
+      codeCIP13List.length
+      ? await pdbmMySQL
+        .selectFrom("CNAM_Retro")
+        .selectAll()
+        .where(
+          "CNAM_Retro.Cip13",
+          "in",
+          codeCIP13List,
+        )
+        .distinct()
+        .execute()
+      : [];
+    return presentationsRetro;
+  }
+);
+
 export const getFullPresentations = cache(
   async (
     CIS: string,
   ): Promise<Presentation[]> => {
     const presentations: Presentation[] = await getPresentations(CIS);
-    const presentationsDetails: PresentationDetail[] = await getPresentationsDetails(presentations.map((p) => p.codeCIP13));
+    const codesCIP13: string[] = presentations.map((p) => p.codeCIP13);
+    const presentationsDetails: PresentationDetail[] = await getPresentationsDetails(codesCIP13);
+    const presentationsRetro: PresentationRetro[] = await getPresentationsRetro(codesCIP13);
 
     presentations.forEach((p) => {
       const details = presentationsDetails.filter(
@@ -99,6 +123,13 @@ export const getFullPresentations = cache(
       );
       if (details) {
         p.details = details;
+      }
+      const retro = presentationsRetro.filter(
+        (r) => r.Cip13.trim() === p.codeCIP13.trim(),
+      );
+      if (retro && retro.length > 0) {
+        //Only one per presentation
+        p.retro = retro[0];
       }
     });
 
