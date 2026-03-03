@@ -12,10 +12,17 @@ import { getSpecialite } from "@/db/utils";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { getSpecialiteGroupName } from "@/utils/specialites";
+import { getSpecialiteGroupName, isCentralisee } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
 import { getSpecialiteName } from "@/db/utils/specialities";
 import MedicamentContainer from "@/components/medicaments/MedicamentContainer";
+import { getPregnancyMentionAlert, getAllPregnancyPlanAlerts } from "@/db/utils/pregnancy";
+import { getPediatrics } from "@/db/utils/pediatrics";
+import { getMarr } from "@/db/utils/marr";
+import { getNotice } from "@/db/utils/notice";
+import { getFicheInfos } from "@/db/utils/ficheInfos";
+import { getSpecialitePatho } from "@/db/utils/pathologies";
+import { getArticlesFromFilters } from "@/db/utils/articles";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -40,26 +47,62 @@ export default async function Page(props: {
 }) {
 
   const { CIS } = await props.params;
-  const { specialite, composants, presentations, delivrance } =
-    await getSpecialite(CIS);
 
-  const atcCode = await getAtcCode(CIS);
-  const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
-  const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
-
-  const isPrinceps =
-    !!(await pdbmMySQL
+  // Round 1: all fetches that only need the CIS code, run in parallel
+  const [
+    { specialite, composants, presentations, delivrance },
+    atcCode,
+    isPregnancyMentionAlert,
+    allPregnancyPlanAlerts,
+    pediatrics,
+    marr,
+    hasReferencingGenerics,
+    isInGroupeGene,
+  ] = await Promise.all([
+    getSpecialite(CIS),
+    getAtcCode(CIS),
+    getPregnancyMentionAlert(CIS),
+    getAllPregnancyPlanAlerts(),
+    getPediatrics(CIS),
+    getMarr(CIS),
+    pdbmMySQL
       .selectFrom("Specialite")
       .select("Specialite.SpecId")
       .where("Specialite.SpecGeneId", "=", CIS)
-      .executeTakeFirst()) &&
-    !!(await pdbmMySQL
+      .executeTakeFirst(),
+    pdbmMySQL
       .selectFrom("GroupeGene")
       .select("GroupeGene.SpecId")
       .where("GroupeGene.SpecId", "=", CIS)
-      .executeTakeFirst());
+      .executeTakeFirst(),
+  ]);
 
-  const atcList = [];
+  const isPrinceps = !!(hasReferencingGenerics && isInGroupeGene);
+  const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
+    composants.find((c) => Number(c.SubsId.trim()) === Number(s.id))
+  );
+
+  // Round 2: fetches that need specialite, run in parallel
+  const [atc1, atc2, notice, ficheInfos, patho] = await Promise.all([
+    atcCode ? getAtc1(atcCode) : Promise.resolve(undefined),
+    atcCode ? getAtc2(atcCode) : Promise.resolve(undefined),
+    (specialite && !isCentralisee(specialite)) ? getNotice(CIS) : Promise.resolve(undefined),
+    specialite ? getFicheInfos(CIS) : Promise.resolve(undefined),
+    specialite ? getSpecialitePatho(CIS) : Promise.resolve(undefined),
+  ]);
+
+  // Round 3: articles depend on atcList and patho from Round 2
+  const atcList: string[] = [];
+  if (atc1) atcList.push(atc1.code.trim());
+  if (atc2) atcList.push(atc2.code.trim());
+
+  const articles = specialite ? await getArticlesFromFilters({
+    ATCList: atcList,
+    substancesList: composants.map((c) => c.SubsId.trim()),
+    specialitesList: [specialite.SpecId],
+    pathologiesList: patho ?? [],
+  }) : [];
+
   const breadcrumb = [
     { label: "Accueil", linkProps: { href: "/" } },
   ];
@@ -129,6 +172,13 @@ export default async function Page(props: {
             delivrance={delivrance}
             presentations={presentations}
             isPrinceps={isPrinceps}
+            isPregnancyMentionAlert={isPregnancyMentionAlert}
+            pregnancyPlanAlert={pregnancyPlanAlert}
+            pediatrics={pediatrics}
+            marr={marr}
+            notice={notice}
+            ficheInfos={ficheInfos}
+            articles={articles}
           />
         )}
       </ContentContainer>

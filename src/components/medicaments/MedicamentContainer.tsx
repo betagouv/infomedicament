@@ -1,22 +1,18 @@
-"use client";
-
-import * as Sentry from "@sentry/nextjs";
 import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
-import { getPediatrics } from "@/db/utils/pediatrics";
-import { HTMLAttributes, useCallback, useEffect, useState } from "react";
+import { HTMLAttributes } from "react";
 import { Marr } from "@/types/MarrTypes";
 import Link from "next/link";
 import { ATC } from "@/types/ATCTypes";
 import Alert from "@codegouvfr/react-dsfr/Alert";
-import { getPregnancyMentionAlert, getAllPregnancyPlanAlerts } from "@/db/utils/pregnancy";
 import MedicamentContent from "./MedicamentContent";
-import { getMarr } from "@/db/utils/marr";
-import { DetailedSpecialite } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, NoticeData } from "@/types/SpecialiteTypes";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
+import { FicheInfos } from "@/types/FicheInfoTypes";
+import { ArticleCardResume } from "@/types/ArticlesTypes";
 
 
 interface MedicamentContainerProps extends HTMLAttributes<HTMLDivElement> {
@@ -28,6 +24,13 @@ interface MedicamentContainerProps extends HTMLAttributes<HTMLDivElement> {
   isPrinceps: boolean;
   delivrance: SpecDelivrance[];
   presentations: Presentation[];
+  isPregnancyMentionAlert: boolean;
+  pregnancyPlanAlert?: PregnancyAlert;
+  pediatrics?: PediatricsInfo;
+  marr?: Marr;
+  notice?: NoticeData;
+  ficheInfos?: FicheInfos;
+  articles: ArticleCardResume[];
 }
 
 function MedicamentContainer({
@@ -39,62 +42,15 @@ function MedicamentContainer({
   isPrinceps,
   delivrance,
   presentations,
+  isPregnancyMentionAlert,
+  pregnancyPlanAlert,
+  pediatrics,
+  marr,
+  notice,
+  ficheInfos,
+  articles,
   ...props
 }: MedicamentContainerProps) {
-
-  const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite>();
-
-  const [pregnancyPlanAlert, setIsPregnancyPlanAlert] = useState<PregnancyAlert>();
-  const [isPregnancyMentionAlert, setIsPregnancyMentionAlert] = useState<boolean>(false);
-  const [pediatrics, setPediatrics] = useState<PediatricsInfo | undefined>(undefined);
-  const [marr, setMarr] = useState<Marr>();
-
-  const loadSpecData = useCallback(
-    async (
-      CIS: string
-    ) => {
-      try {
-        const pregnancyMentionAlert = await getPregnancyMentionAlert(CIS);
-        setIsPregnancyMentionAlert(pregnancyMentionAlert);
-        const pediatrics = await getPediatrics(CIS);
-        setPediatrics(pediatrics);
-
-        const marr: Marr = await getMarr(CIS);
-        setMarr(marr);
-      } catch (e) {
-        Sentry.captureException(e);
-      }
-    },
-    [setIsPregnancyMentionAlert, setPediatrics, setMarr]
-  );
-
-  const loadPregnancyPlanAlert = useCallback(
-    async (
-      composants: Array<SpecComposant & SubstanceNom>
-    ) => {
-      try {
-        const pregnancyPlanAlert = (await getAllPregnancyPlanAlerts()).find((s) =>
-          composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
-        );
-        setIsPregnancyPlanAlert(pregnancyPlanAlert);
-      } catch (e) {
-        Sentry.captureException(e);
-      }
-    }, [setIsPregnancyPlanAlert,]
-  );
-
-  useEffect(() => {
-    if (composants) {
-      loadPregnancyPlanAlert(composants);
-    }
-  }, [composants, loadPregnancyPlanAlert]);
-
-  useEffect(() => {
-    if (specialite) {
-      setCurrentSpec(specialite);
-      loadSpecData(specialite.SpecId);
-    }
-  }, [specialite, setCurrentSpec, loadSpecData]);
 
   return (
     <ContentContainer frContainer>
@@ -167,7 +123,7 @@ function MedicamentContainer({
           atcList={atcList}
           atc2={atc2}
           atcCode={atcCode}
-          specialite={currentSpec}
+          specialite={specialite}
           composants={composants}
           isPrinceps={isPrinceps}
           delivrance={delivrance}
@@ -176,6 +132,9 @@ function MedicamentContainer({
           pediatrics={pediatrics}
           presentations={presentations}
           marr={marr}
+          notice={notice}
+          ficheInfos={ficheInfos}
+          articles={articles}
         />
       </div>
     </ContentContainer>
