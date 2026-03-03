@@ -450,6 +450,28 @@ function GeneralInformations({
                       </Link>.
                     </div>
                   )}
+                  {(pres.retro && (
+                    <>
+                    {pres.retro.ListSus === "oui" && (
+                      <div>Inscription sur la liste en sus, pour au moins l'une de ses indications. Tarif de responsabilité publié au Journal Officiel.</div>
+                    )}
+                    {pres.retro.Retro === "oui" && (
+                      <div>Inscription sur la liste de rétrocession au titre de son AMM, selon les conditions précisées au Journal Officiel. Prix de cession publié au Journal Officiel.</div>
+                    )}
+                    {pres.retro.IVG === "oui" && (
+                      <div>
+                        Tarification particulière en ville : médicament vendu en officine uniquement aux médecins ou sages-femmes - prix fixé par{" "}
+                        <Link 
+                          href="https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000032164949"
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                        >
+                          arrêté du 26 juillet 2016
+                        </Link>{" "}relatif aux forfaits afférents à l'interruption volontaire de grossesse.
+                      </div>
+                    )}
+                    </>
+                  ))}
                 </li>
               ))}
             </ul>
