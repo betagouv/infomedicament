@@ -36,6 +36,7 @@ vi.mock("@/db", () => ({
 }));
 
 vi.mock("./atc");
+vi.mock("@/db/pdbmMySQL", () => ({ pdbmMySQL: {} }));
 vi.mock("@/data/grist/specialites");
 vi.mock("@/utils/specialites");
 
