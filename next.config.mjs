@@ -1,4 +1,9 @@
 import { withSentryConfig } from "@sentry/nextjs";
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -80,7 +85,7 @@ const nextConfig = {
  * - SENTRY_PROJECT
  * - SENTRY_AUTH_TOKEN
  */
-export default withSentryConfig(nextConfig, {
+export default withBundleAnalyzer(withSentryConfig(nextConfig, {
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
   widenClientFileUpload: true,
@@ -92,4 +97,4 @@ export default withSentryConfig(nextConfig, {
   hideSourceMaps: true,
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
-});
+}));
