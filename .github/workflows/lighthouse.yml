@@ -15,12 +15,12 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Wait for Scalingo review app
-        uses: lewagon/wait-on-check-action@v1.5.0
+        uses: fountainhead/action-wait-for-check@v1.2.0
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: 'deploy/sclng: infomedicament-staging-pr${{ github.event.pull_request.number }}'
           ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'deploy/sclng: infomedicament-staging-pr${{ github.event.pull_request.number }}'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 30
+          timeoutSeconds: 900
 
       - name: Run Lighthouse
         uses: treosh/lighthouse-ci-action@v12
