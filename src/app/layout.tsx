@@ -11,7 +11,6 @@ import { defaultColorScheme } from "@/app/defaultColorScheme";
 import { StartDsfr } from "@/app/StartDsfr";
 
 import "@/customIcons/customIcons.css";
-import MuiDsfrThemeProvider from "@codegouvfr/react-dsfr/mui";
 import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
 import { StartHotjar } from "@/app/StartHotjar";
 import GlossaryModals from "@/components/glossary/GlossaryModals";
@@ -68,8 +67,7 @@ export default async function RootLayout({
         />
         <DsfrProvider lang={lang}>
           <ConsentBannerAndConsentManagement />
-          <MuiDsfrThemeProvider>
-            <GlossaryContextProvider>
+          <GlossaryContextProvider>
               {header}
               {children}
               <Footer
@@ -116,7 +114,6 @@ export default async function RootLayout({
               </Suspense>
               <GreetingModal />
             </GlossaryContextProvider>
-          </MuiDsfrThemeProvider>
         </DsfrProvider>
       </body>
     </html></ThemeProvider>
