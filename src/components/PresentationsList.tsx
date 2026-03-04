@@ -7,7 +7,7 @@ import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
 import React from "react";
 import { Presentation } from "@/types/PresentationTypes";
-import { getPresentationName, getPresentationPriceText } from "@/utils/presentations";
+import { getPresentationName, getPresentationPriceText, isAbrogee, isArret } from "@/utils/presentations";
 
 export function PresentationsList(props: {
   presentations: Presentation[];
@@ -29,13 +29,13 @@ export function PresentationsList(props: {
                 {getPresentationName(p, true)}
               </b>
               <div>{getPresentationPriceText(p)}</div>
-              {Number(p.CommId) !== PresentationComm.Commercialisation && (
+              {isArret(p) && (
                 <Badge severity="warning" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
                   {PresentationComm[p.CommId]}
                   {p.PresCommDate && ` (${dateShortFormat(p.PresCommDate)})`}
                 </Badge>
               )}
-              {p.StatId && Number(p.StatId) === PresentationStat.Abrogation && (
+              {p.StatId && isAbrogee(p) && (
                 <Badge severity="error" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
                   {PresentationStat[p.StatId]}
                   {p.PresStatDAte && ` (${dateShortFormat(p.PresStatDAte)})`}

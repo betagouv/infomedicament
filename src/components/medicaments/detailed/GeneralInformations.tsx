@@ -5,7 +5,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, PropsWithChildren } from "react";
 import styled, {css} from 'styled-components';
 import GenericTag from "@/components/tags/GenericTag";
-import { PresentationComm, PresentationStat, SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import PediatricsTags from "@/components/tags/PediatricsTags";
 import Link from "next/link";
@@ -22,7 +22,7 @@ import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getProcedureLibLong, getTypeInfoTxt, isAIP, isCentralisee } from "@/utils/specialites";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { getPresentationName, getPresentationPriceText } from "@/utils/presentations";
+import { getPresentationName, getPresentationPriceText, isAbrogee, isAgree, isArret, isIVG, isListeRetrocession, isListeSus } from "@/utils/presentations";
 import { FicheInfos, InfosImportantes } from "@/types/FicheInfoTypes";
 
 const SummaryLineContainer = styled.div<{ $hideBorder?: boolean; }>`
@@ -417,19 +417,19 @@ function GeneralInformations({
                       )}
                     </div>
                   )}
-                  {pres.StatId && Number(pres.StatId) === PresentationStat.Abrogation && (
+                  {isAbrogee(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
                       Abrogée
                       {pres.PresStatDAte && ` le ${dateShortFormat(pres.PresStatDAte)}`}
                     </div>
                   )}
-                  {pres.CommId && Number(pres.CommId) === PresentationComm.Arrêt && (
+                  {isArret(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
                       Déclaration d'arrêt de commercialisation
                       {pres.PresCommDate && ` : ${dateShortFormat(pres.PresCommDate)}`}
                     </div>
                   )}
-                  {(pres.AgreColl && pres.AgreColl === 1) ? (
+                  {isAgree(pres) ? (
                     <div className={fr.cx("fr-mb-0")}>
                       Cette présentation est{" "}
                       <Link href="https://base-donnees-publique.medicaments.gouv.fr/glossaire.php#agrecol" 
@@ -450,28 +450,24 @@ function GeneralInformations({
                       </Link>.
                     </div>
                   )}
-                  {(pres.retro && (
-                    <>
-                    {pres.retro.ListSus === "oui" && (
-                      <div>Inscription sur la liste en sus, pour au moins l'une de ses indications. Tarif de responsabilité publié au Journal Officiel.</div>
-                    )}
-                    {pres.retro.Retro === "oui" && (
-                      <div>Inscription sur la liste de rétrocession au titre de son AMM, selon les conditions précisées au Journal Officiel. Prix de cession publié au Journal Officiel.</div>
-                    )}
-                    {pres.retro.IVG === "oui" && (
-                      <div>
-                        Tarification particulière en ville : médicament vendu en officine uniquement aux médecins ou sages-femmes - prix fixé par{" "}
-                        <Link 
-                          href="https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000032164949"
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                        >
-                          arrêté du 26 juillet 2016
-                        </Link>{" "}relatif aux forfaits afférents à l'interruption volontaire de grossesse.
-                      </div>
-                    )}
-                    </>
-                  ))}
+                  {isListeSus(pres) && (
+                    <div>Inscription sur la liste en sus, pour au moins l'une de ses indications. Tarif de responsabilité publié au Journal Officiel.</div>
+                  )}
+                  {isListeRetrocession(pres) && (
+                    <div>Inscription sur la liste de rétrocession au titre de son AMM, selon les conditions précisées au Journal Officiel. Prix de cession publié au Journal Officiel.</div>
+                  )}
+                  {isIVG(pres) && (
+                    <div>
+                      Tarification particulière en ville : médicament vendu en officine uniquement aux médecins ou sages-femmes - prix fixé par{" "}
+                      <Link 
+                        href="https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000032164949"
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
+                        arrêté du 26 juillet 2016
+                      </Link>{" "}relatif aux forfaits afférents à l'interruption volontaire de grossesse.
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>

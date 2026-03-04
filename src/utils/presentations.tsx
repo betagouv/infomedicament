@@ -1,3 +1,4 @@
+import { PresentationComm, PresentationStat } from "@/db/pdbmMySQL/types";
 import { PresentationDetail } from "@/db/types";
 import { AgregateCaraccomplrecipsDetails, AgregateDispositifDetails, AgregatePresentationDetails, AgregateRecipientDetails, Presentation } from "@/types/PresentationTypes";
 import { capitalize } from "tsafe";
@@ -268,6 +269,41 @@ export function getPresentationPriceText(
     return `Prix ${price} - remboursé à ${presentation.TauxPriseEnCharge}`;               
   } else {
     return "Prix libre - non remboursable"
-  }
-                        
+  }                 
+}
+
+export function isAbrogee(presentation: Presentation): boolean {
+  if(presentation.StatId && Number(presentation.StatId) === PresentationStat.Abrogation)
+    return true;
+  return false;
+}
+
+export function isArret(presentation: Presentation): boolean {
+  if(Number(presentation.CommId) !== PresentationComm.Commercialisation)
+    return true;
+  return false;
+}
+
+export function isAgree(presentation: Presentation): boolean {
+  if(presentation.AgreColl && presentation.AgreColl === 1)
+    return true;
+  return false;
+}
+
+export function isListeSus(presentation: Presentation): boolean {
+  if(presentation.retro && presentation.retro.ListSus === "oui")
+    return true;
+  return false;
+}
+
+export function isListeRetrocession(presentation: Presentation): boolean {
+  if(presentation.retro && presentation.retro.Retro === "oui")
+    return true;
+  return false;
+}
+
+export function isIVG(presentation: Presentation): boolean {
+  if(presentation.retro && presentation.retro.IVG === "oui")
+    return true;
+  return false;
 }
