@@ -24,7 +24,7 @@ const cspHeader = `
     frame-ancestors 'none';
     upgrade-insecure-requests;
     media-src 'self';
-    connect-src 'self' ${process.env.NEXT_PUBLIC_MATOMO_URL};
+    connect-src 'self' ${process.env.NEXT_PUBLIC_MATOMO_URL} https://sentry.incubateur.net;
 `
 
 /** @type {import('next').NextConfig} */
@@ -92,8 +92,6 @@ export default withBundleAnalyzer(withSentryConfig(nextConfig, {
   reactComponentAnnotation: {
     enabled: true,
   },
-  // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-  tunnelRoute: "/monitoring",
   hideSourceMaps: true,
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
