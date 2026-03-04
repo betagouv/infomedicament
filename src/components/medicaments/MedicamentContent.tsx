@@ -179,9 +179,9 @@ function MedicamentContent({
 
   const onGoToAdvanced = useCallback(
     (anchor?: AnchorMenu) => {
-      if(anchor){
+      if (anchor) {
         setAdvancedAnchor(anchor);
-      } 
+      }
       setIsAdvanced(true);
     },
     [setAdvancedAnchor, setIsAdvanced]
@@ -233,7 +233,7 @@ function MedicamentContent({
           }
         }
         const newFicheInfos = await getFicheInfos(spec.SpecId);
-        setFicheInfos(newFicheInfos);      
+        setFicheInfos(newFicheInfos);
         const newDefinitions = (await getGlossaryDefinitions()).filter(
           (d) => d.a_souligner,
         );
@@ -271,25 +271,25 @@ function MedicamentContent({
 
   useEffect(() => {
     // Use to display or not the separator after a tag (left column)
-    const lastTagElement: TagTypeEnum = 
+    const lastTagElement: TagTypeEnum =
       (pediatrics && pediatrics.mention
-        ? TagTypeEnum.PEDIATRIC_MENTION 
+        ? TagTypeEnum.PEDIATRIC_MENTION
         : (pediatrics && pediatrics.doctorAdvice
-          ? TagTypeEnum.PEDIATRIC_DOCTOR_ADVICE 
+          ? TagTypeEnum.PEDIATRIC_DOCTOR_ADVICE
           : (pediatrics && pediatrics.contraindication
             ? TagTypeEnum.PEDIATRIC_CONTRAINDICATION
             : (pediatrics && pediatrics.indication
               ? TagTypeEnum.PEDIATRIC_INDICATION
-              : (isPregnancyPlanAlert 
-                ? TagTypeEnum.PREGNANCY_PLAN 
-                : (isPregnancyMentionAlert 
-                  ? TagTypeEnum.PREGNANCY_MENTION 
-                  : (!!delivrance.length 
-                    ? TagTypeEnum.PRESCRIPTION 
+              : (isPregnancyPlanAlert
+                ? TagTypeEnum.PREGNANCY_PLAN
+                : (isPregnancyMentionAlert
+                  ? TagTypeEnum.PREGNANCY_MENTION
+                  : (!!delivrance.length
+                    ? TagTypeEnum.PRESCRIPTION
                     : ((currentSpec && !!currentSpec.SpecGeneId)
-                      ? TagTypeEnum.GENERIC 
+                      ? TagTypeEnum.GENERIC
                       : (isPrinceps
-                        ? TagTypeEnum. PRINCEPS
+                        ? TagTypeEnum.PRINCEPS
                         : TagTypeEnum.SUBSTANCE
                       )
                     )
@@ -326,120 +326,120 @@ function MedicamentContent({
           </ToggleSwitchContainer>
           {isAdvanced
             ? <Suspense fallback={null}>
-                <DetailedSubMenu
-                  updateVisiblePart={setcurrentPart}
-                  isMarr={(currentMarr && currentMarr.pdf.length > 0)}
-                  isInfosImportantes={displayInfosImportantes(ficheInfos)}
-                  anchor={advancedAnchor}
-                />
-              </Suspense>
+              <DetailedSubMenu
+                updateVisiblePart={setcurrentPart}
+                isMarr={(currentMarr && currentMarr.pdf.length > 0)}
+                isInfosImportantes={displayInfosImportantes(ficheInfos)}
+                anchor={advancedAnchor}
+              />
+            </Suspense>
             : <section className={["mobile-display-contents", fr.cx("fr-mb-4w")].join(" ",)}>
-                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                  {atc2 && (
-                    <TagContainer category="Sous-classe">
-                      <ClassTag atc2={atc2} fromMedicament/>
-                    </TagContainer>
-                  )}
-                  {composants && (
-                    <TagContainer category="Substance active" hideSeparator={lastLeftTagElement === TagTypeEnum.SUBSTANCE}>
-                      <SubstanceTag composants={composants} fromMedicament/>
-                    </TagContainer>
-                  )}
-                  {(currentSpec && isPrinceps && !isAIP(currentSpec)) && 
-                    <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.PRINCEPS}>
-                      <PrincepsTag 
-                        CIS={currentSpec.SpecId} 
-                        fromMedicament
-                      />
-                    </TagContainer>
-                  }
-                  {(currentSpec && !!currentSpec.SpecGeneId && !isAIP(currentSpec)) && (
-                    <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.GENERIC}>
-                      <GenericTag 
-                        specGeneId={currentSpec.SpecGeneId} 
-                        fromMedicament
-                      />
-                    </TagContainer>
-                  )}
-                  {!!delivrance.length && (
-                    <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.PRESCRIPTION}>
-                      <PrescriptionTag />
-                    </TagContainer>
-                  )}
-                  {isPregnancyPlanAlert && (
-                    <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.PREGNANCY_PLAN}>
-                      <PregnancyPlanTag fromMedicament/>
-                    </TagContainer>
-                  )}
-                  {(!isPregnancyPlanAlert && isPregnancyMentionAlert) && (
-                    <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.PREGNANCY_MENTION}>
-                      <PregnancyMentionTag fromMedicament/>
-                    </TagContainer>
-                  )}
-                  {pediatrics && (
-                    <PediatricsTags 
-                      info={pediatrics} 
+              <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                {atc2 && (
+                  <TagContainer category="Sous-classe">
+                    <ClassTag atc2={atc2} fromMedicament />
+                  </TagContainer>
+                )}
+                {composants && (
+                  <TagContainer category="Substance active" hideSeparator={lastLeftTagElement === TagTypeEnum.SUBSTANCE}>
+                    <SubstanceTag composants={composants} fromMedicament />
+                  </TagContainer>
+                )}
+                {(currentSpec && isPrinceps && !isAIP(currentSpec)) &&
+                  <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.PRINCEPS}>
+                    <PrincepsTag
+                      CIS={currentSpec.SpecId}
                       fromMedicament
-                      withSeparator
-                      hideLast
                     />
+                  </TagContainer>
+                }
+                {(currentSpec && !!currentSpec.SpecGeneId && !isAIP(currentSpec)) && (
+                  <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.GENERIC}>
+                    <GenericTag
+                      specGeneId={currentSpec.SpecGeneId}
+                      fromMedicament
+                    />
+                  </TagContainer>
+                )}
+                {!!delivrance.length && (
+                  <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.PRESCRIPTION}>
+                    <PrescriptionTag />
+                  </TagContainer>
+                )}
+                {isPregnancyPlanAlert && (
+                  <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.PREGNANCY_PLAN}>
+                    <PregnancyPlanTag fromMedicament />
+                  </TagContainer>
+                )}
+                {(!isPregnancyPlanAlert && isPregnancyMentionAlert) && (
+                  <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.PREGNANCY_MENTION}>
+                    <PregnancyMentionTag fromMedicament />
+                  </TagContainer>
+                )}
+                {pediatrics && (
+                  <PediatricsTags
+                    info={pediatrics}
+                    fromMedicament
+                    withSeparator
+                    hideLast
+                  />
+                )}
+              </ContentContainer>
+              {(currentSpec && (currentSpec.StatId || currentSpec.SpecDateAMM)) && (
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                  {currentSpec.statutAutorisation && (
+                    <TagContainer category="Statut de l'autorisation" hideSeparator={!currentSpec.SpecDateAMM}>
+                      <span className={fr.cx("fr-text--sm", 'fr-ml-1w')}>{currentSpec.statutAutorisation}</span>
+                      {(currentSpec.StatId && Number(currentSpec.StatId) === SpecialiteStat.Abrogée && currentSpec.SpecStatDate) && (
+                        <span className={fr.cx("fr-text--sm")}>{" "}le {(currentSpec.SpecStatDate).toLocaleDateString('fr-FR')}</span>
+                      )}
+                    </TagContainer>
+                  )}
+                  {currentSpec.SpecDateAMM && (
+                    <TagContainer category="Date d'autorisation de mise sur le marché" hideSeparator>
+                      <span className={fr.cx("fr-text--sm", 'fr-ml-1w')}>{(currentSpec.SpecDateAMM).toLocaleDateString('fr-FR')}</span>
+                    </TagContainer>
                   )}
                 </ContentContainer>
-                {(currentSpec && (currentSpec.StatId || currentSpec.SpecDateAMM)) && (
-                  <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                    {currentSpec.statutAutorisation && (
-                      <TagContainer category="Statut de l'autorisation" hideSeparator={!currentSpec.SpecDateAMM}>
-                        <span className={fr.cx("fr-text--sm", 'fr-ml-1w')}>{currentSpec.statutAutorisation}</span>
-                        {(currentSpec.StatId && Number(currentSpec.StatId) === SpecialiteStat.Abrogée && currentSpec.SpecStatDate) && (
-                          <span className={fr.cx("fr-text--sm")}>{" "}le {(currentSpec.SpecStatDate).toLocaleDateString('fr-FR')}</span>
-                        )}
-                      </TagContainer>
-                    )}
-                    {currentSpec.SpecDateAMM && (
-                      <TagContainer category="Date d'autorisation de mise sur le marché" hideSeparator>
-                        <span className={fr.cx("fr-text--sm", 'fr-ml-1w')}>{(currentSpec.SpecDateAMM).toLocaleDateString('fr-FR')}</span>
-                      </TagContainer>
-                    )}
-                  </ContentContainer>
-                )}
-                {(notice && notice.children) && (
-                  <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-pt-1w", "fr-px-1w", "fr-hidden-md")}>
-                    <QuestionsBox 
-                      noBorder
-                      currentQuestion={currentQuestion}
-                      updateCurrentQuestion={updateCurrentQuestion}
-                    />
-                  </ContentContainer>
-                )}
-                {showKeywordsBox && currentQuestion && (
-                  <QuestionKeywordsBox
-                    className={fr.cx("fr-hidden-md", "fr-mb-4w", "fr-px-1w")}
-                    onClose={() => onCloseQuestionKeywordsBox()}
-                    questionID={currentQuestion}/>
-                )}
-                {currentPresentations && (
-                  <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                    <PresentationsList presentations={currentPresentations} />
-                  </ContentContainer>
-                )}
-                {articles && articles.length > 0 && (
-                  <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                    <ArticlesResumeList 
-                      articles={articles} 
-                      trackingFrom="Page médicament"
-                    />
-                  </ContentContainer>
-                )}
-                {(currentMarr && currentMarr.pdf.length > 0) && (
-                  <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-                    <MarrNotice 
-                      marr={currentMarr}
-                      onGoToAdvanced={onGoToAdvanced}
-                    />
-                  </ContentContainer>
-                )}
-              </section>
-            }
+              )}
+              {(notice && notice.children) && (
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-pt-1w", "fr-px-1w", "fr-hidden-md")}>
+                  <QuestionsBox
+                    noBorder
+                    currentQuestion={currentQuestion}
+                    updateCurrentQuestion={updateCurrentQuestion}
+                  />
+                </ContentContainer>
+              )}
+              {showKeywordsBox && currentQuestion && (
+                <QuestionKeywordsBox
+                  className={fr.cx("fr-hidden-md", "fr-mb-4w", "fr-px-1w")}
+                  onClose={() => onCloseQuestionKeywordsBox()}
+                  questionID={currentQuestion} />
+              )}
+              {currentPresentations && (
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                  <PresentationsList presentations={currentPresentations} />
+                </ContentContainer>
+              )}
+              {articles && articles.length > 0 && (
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                  <ArticlesResumeList
+                    articles={articles}
+                    trackingFrom="Page médicament"
+                  />
+                </ContentContainer>
+              )}
+              {(currentMarr && currentMarr.pdf.length > 0) && (
+                <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+                  <MarrNotice
+                    marr={currentMarr}
+                    onGoToAdvanced={onGoToAdvanced}
+                  />
+                </ContentContainer>
+              )}
+            </section>
+          }
         </ContentContainer>
         <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-9")].join(" ",)}>
           <MedicamentContentHeader
@@ -448,24 +448,6 @@ function MedicamentContent({
             definitions={definitions}
           />
           {isAdvanced ? (
-<<<<<<< HEAD
-            <DetailedNotice
-              currentVisiblePart={currentPart}
-              atcCode={atcCode}
-              specialite={currentSpec}
-              composants={composants}
-              isPrinceps={isPrinceps}
-              isPregnancyPlanAlert={isPregnancyPlanAlert}
-              isPregnancyMentionAlert={isPregnancyMentionAlert}
-              pediatrics={pediatrics}
-              presentations={currentPresentations}
-              marr={currentMarr}
-              ficheInfos={ficheInfos}
-              indicationBlock={indicationBlock}
-              delivrance={delivrance}
-              definitions={definitions}
-            />
-=======
             <Suspense fallback={null}>
               <DetailedNotice
                 currentVisiblePart={currentPart}
@@ -481,9 +463,9 @@ function MedicamentContent({
                 ficheInfos={ficheInfos}
                 indicationBlock={indicationBlock}
                 delivrance={delivrance}
+                definitions={definitions}
               />
             </Suspense>
->>>>>>> f140052 (perf(medicament): lazy-load detailed view components)
           ) : (
             <>
               <article>
