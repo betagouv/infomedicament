@@ -14,16 +14,18 @@ import GenericTag from "../tags/GenericTag";
 import PrescriptionTag from "../tags/PrescriptionTag";
 import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "../PresentationsList";
-import { HTMLAttributes, useCallback, useEffect, useState } from "react";
+import { HTMLAttributes, lazy, Suspense, useCallback, useEffect, useState } from "react";
 import styled from 'styled-components';
-import DetailedSubMenu, { AnchorMenu } from "./detailed/DetailedSubMenu";
+import type { AnchorMenu } from "./detailed/DetailedSubMenu";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
+
+const DetailedSubMenu = lazy(() => import("./detailed/DetailedSubMenu"));
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import ArticlesResumeList from "../articles/ArticlesResumeList";
 import MarrNotice from "../marr/MarrNotice";
 import { Marr } from "@/types/MarrTypes";
 import { NoticeData, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
-import DetailedNotice from "./DetailedNotice";
+const DetailedNotice = lazy(() => import("./DetailedNotice"));
 import ShareButtons from "../generic/ShareButtons";
 import QuestionsBox from "./QuestionsBox";
 import QuestionKeywordsBox from "./QuestionKeywordsBox";
@@ -323,12 +325,14 @@ function MedicamentContent({
             />
           </ToggleSwitchContainer>
           {isAdvanced
-            ? <DetailedSubMenu
-              updateVisiblePart={setcurrentPart}
-              isMarr={(currentMarr && currentMarr.pdf.length > 0)}
-              isInfosImportantes={displayInfosImportantes(ficheInfos)}
-              anchor={advancedAnchor}
-            />
+            ? <Suspense fallback={null}>
+                <DetailedSubMenu
+                  updateVisiblePart={setcurrentPart}
+                  isMarr={(currentMarr && currentMarr.pdf.length > 0)}
+                  isInfosImportantes={displayInfosImportantes(ficheInfos)}
+                  anchor={advancedAnchor}
+                />
+              </Suspense>
             : <section className={["mobile-display-contents", fr.cx("fr-mb-4w")].join(" ",)}>
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                   {atc2 && (
@@ -444,6 +448,7 @@ function MedicamentContent({
             definitions={definitions}
           />
           {isAdvanced ? (
+<<<<<<< HEAD
             <DetailedNotice
               currentVisiblePart={currentPart}
               atcCode={atcCode}
@@ -460,6 +465,25 @@ function MedicamentContent({
               delivrance={delivrance}
               definitions={definitions}
             />
+=======
+            <Suspense fallback={null}>
+              <DetailedNotice
+                currentVisiblePart={currentPart}
+                atcCode={atcCode}
+                specialite={currentSpec}
+                composants={composants}
+                isPrinceps={isPrinceps}
+                isPregnancyPlanAlert={isPregnancyPlanAlert}
+                isPregnancyMentionAlert={isPregnancyMentionAlert}
+                pediatrics={pediatrics}
+                presentations={currentPresentations}
+                marr={currentMarr}
+                ficheInfos={ficheInfos}
+                indicationBlock={indicationBlock}
+                delivrance={delivrance}
+              />
+            </Suspense>
+>>>>>>> f140052 (perf(medicament): lazy-load detailed view components)
           ) : (
             <>
               <article>
