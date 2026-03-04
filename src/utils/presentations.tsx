@@ -102,16 +102,18 @@ function sortCleanPresentationsDetails(cleanPresDetails: AgregatePresentationDet
         .map((presRecipient) => {
           //Sort caraccomplrecips
           presRecipient.caraccomplrecips = presRecipient.caraccomplrecips
-            .filter((detailA: AgregateCaraccomplrecipsDetails, index: number) => {
+            .filter((detailA: AgregateCaraccomplrecipsDetails, indexA: number) => {
               //Only one of each caraccomplrecips
-              let findIndex = presRecipient.caraccomplrecips.findIndex(
-                (detailB) => detailB.caraccomplrecip.toLowerCase().trim() === detailA.caraccomplrecip.toLowerCase().trim()
+              const findIndex = presRecipient.caraccomplrecips.findIndex(
+                (detailB, indexB) => indexA !== indexB && detailB.caraccomplrecip.toLowerCase().trim() === detailA.caraccomplrecip.toLowerCase().trim()
               );
-              if(findIndex === index && detailA.caraccomplrecip.toLowerCase().trim() === "pvc"){
+              if(findIndex === -1 && detailA.caraccomplrecip.toLowerCase().trim() === "pvc"){
                 //if PVC-Aluminium is in the list and also PVC : PVC-Aluminium win
-                findIndex = presRecipient.caraccomplrecips.findIndex((detailB) => detailB.caraccomplrecip.toLowerCase().trim() === "pvc-aluminium")
+                const findIndexPVC = presRecipient.caraccomplrecips.findIndex((detailB) => detailB.caraccomplrecip.toLowerCase().trim() === "pvc-aluminium");
+                if(findIndexPVC !== -1)
+                  return false;
               }
-              if(findIndex === index || findIndex === -1 
+              if(findIndex === -1 
                 || (findIndex !== -1 && presRecipient.caraccomplrecips[findIndex].numordreedit > detailA.numordreedit)) return true;
               return false;
             })
