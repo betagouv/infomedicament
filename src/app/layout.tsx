@@ -83,11 +83,13 @@ export default async function RootLayout({
                 homeLinkProps={{
                   href: "/",
                   title: "Accueil",
+                  prefetch: false,
                 }}
                 accessibility={"non compliant"}
                 termsLinkProps={{
                   href: "/mentions-legales",
                   title: "Mentions légales",
+                  prefetch: false,
                 }}
                 bottomItems={[
                   <FooterPersonalDataPolicyItem key={"dp"} />,
@@ -96,6 +98,7 @@ export default async function RootLayout({
                     text: 'Statistiques',
                     linkProps: {
                       href: '/statistiques',
+                      prefetch: false,
                     },
                   },
                   headerFooterDisplayItem,
