@@ -107,7 +107,7 @@ function sortCleanPresentationsDetails(cleanPresDetails: AgregatePresentationDet
               let findIndex = presRecipient.caraccomplrecips.findIndex(
                 (detailB) => detailB.caraccomplrecip.toLowerCase().trim() === detailA.caraccomplrecip.toLowerCase().trim()
               );
-              if(detailA.caraccomplrecip.toLowerCase().trim() === "pvc"){
+              if(findIndex === index && detailA.caraccomplrecip.toLowerCase().trim() === "pvc"){
                 //if PVC-Aluminium is in the list and also PVC : PVC-Aluminium win
                 findIndex = presRecipient.caraccomplrecips.findIndex((detailB) => detailB.caraccomplrecip.toLowerCase().trim() === "pvc-aluminium")
               }
