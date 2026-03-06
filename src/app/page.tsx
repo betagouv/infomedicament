@@ -3,10 +3,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import { getArticles } from "@/db/utils/articles";
 import { getMarketedMedicamentCount } from "@/db/utils/specialities";
-import RatingToaster from "@/components/rating/RatingToaster";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
-
-const PAGE_LABEL: string = "Accueil";
 
 export default async function Page() {
   const [articles, marketedCount] = await Promise.all([
@@ -90,9 +87,6 @@ export default async function Page() {
           </div>
         </div>
       </div>
-      <RatingToaster
-        pageId={PAGE_LABEL}
-      />
     </>
   );
 }
