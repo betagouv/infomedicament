@@ -3,6 +3,9 @@
 import db from '@/db';
 import { Definition } from "@/types/GlossaireTypes";
 import { sql } from "kysely";
+import sanitizeHtml from "sanitize-html";
+
+const ALLOWED_TAGS = { allowedTags: ["p", "br", "ul", "ol", "li"] as string[] };
 
 export default async function getGlossaryDefinitions(): Promise<Definition[]> {
     const rows = await db.
@@ -44,7 +47,7 @@ export async function getGlossaryLetters() {
 function mapDataBaseToDefinition(row: any): Definition {
     return {
         nom: row.nom || "",
-        definition: row.definition || "",
+        definition: sanitizeHtml(row.definition || "", ALLOWED_TAGS),
         source: row.source || "",
         a_souligner: row.a_souligner || false,
     };
