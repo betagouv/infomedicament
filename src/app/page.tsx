@@ -54,6 +54,7 @@ export default async function Page() {
               )}
               width={2000}
               height={2000}
+              priority
             />
             <ArticlesSimpleList
               listRole="nav"
@@ -80,6 +81,7 @@ export default async function Page() {
               className={fr.cx("fr-responsive-img")}
               width={2000}
               height={2000}
+              priority
             />
           </div>
         </div>
