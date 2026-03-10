@@ -5,7 +5,7 @@ import { isRateLimited } from "@/utils/rate-limit";
 const RATE_LIMIT = 200; // TODO: we shouldn't need such a high limit
 const RATE_WINDOW_MS = 60_000;
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
     const url = req.nextUrl;
 
     // Skip static assets
