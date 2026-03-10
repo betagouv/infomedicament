@@ -30,7 +30,7 @@
     "@hotjar/browser": "^1.0.9",
     "@mui/icons-material": "^6.1.2",
     "@mui/material": "^6.1.2",
-    "@sentry/nextjs": "^8.28.0",
+    "@sentry/nextjs": "^10.43.0",
     "@socialgouv/matomo-next": "^1.9.2",
     "axios": "^1.11.0",
     "csv-parse": "^5.5.6",
@@ -38,12 +38,12 @@
     "jszip": "^3.10.1",
     "kysely": "^0.27.4",
     "mysql2": "^3.10.2",
-    "next": "^15.5.10",
+    "next": "16.1.6",
     "next-mdx-remote": "^5.0.0",
     "node-html-parser": "^7.0.1",
     "pg": "^8.12.0",
-    "react": "^19.0.4",
-    "react-dom": "^19.0.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
     "react-spinners": "^0.17.0",
     "react-toastify": "^11.0.5",
     "sanitize-html": "^2.13.1",
@@ -54,21 +54,21 @@
     "slugify": "^1.6.6",
     "styled-components": "^6.1.15",
     "swr": "^2.2.5",
-    "usehooks-ts": "^3.1.0",
+    "usehooks-ts": "^3.1.1",
     "windows-1252": "^3.0.4"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^16.1.6",
+    "@next/bundle-analyzer": "16.1.6",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.0.1",
     "@types/node": "^22",
     "@types/pg": "^8.11.6",
-    "@types/react": "^19.0.7",
-    "@types/react-dom": "^19.0.3",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
     "@types/sanitize-html": "^2.13.0",
     "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^9",
-    "eslint-config-next": "^15.1.5",
+    "eslint-config-next": "16.1.6",
     "eslint-config-prettier": "^10.0.1",
     "global-jsdom": "^26",
     "jsdom": "^26",
@@ -80,5 +80,9 @@
   },
   "resolutions": {
     "styled-components": "^5"
+  },
+  "overrides": {
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3"
   }
 }
