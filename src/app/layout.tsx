@@ -48,6 +48,7 @@ export default async function RootLayout({
           Link={Link}
           preloadFonts={[
             "Marianne-Regular",
+            "Marianne-Regular_Italic",
             "Marianne-Medium",
             "Marianne-Bold",
           ]}
