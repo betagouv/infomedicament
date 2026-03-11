@@ -29,6 +29,8 @@ export interface Database {
   ref_substance_active_definitions: RefSubstanceActiveDefinitions;
   atc: Atc;
   cis_atc: CisAtc;
+  asmr: AsmrTable;
+  smr: SmrTable;
 }
 
 interface SearchIndexTable {
@@ -242,6 +244,30 @@ export interface Atc {
   date_inactivation: Date | null;
   source_ref: string | null;
   remarque: string | null;
+}
+
+export interface AsmrTable {
+  code_evamed: string | null;
+  motif_demande: string | null;
+  code_cis: string | null;
+  code_cip: string | null;
+  denomination_specialite: string | null;
+  date_avis_definitif: string | null;
+  asmr: string | null;
+  valeur_asmr: string | null;
+  libelle_asmr: string | null;
+}
+
+export interface SmrTable {
+  code_evamed: string | null;
+  motif_demande: string | null;
+  code_cis: string | null;
+  code_cip: string | null;
+  denomination: string | null;
+  date_avis_definitif: string | null;
+  smr: string | null;
+  valeur_smr: string | null;
+  libelle_smr: string | null;
 }
 
 export interface CisAtc {
