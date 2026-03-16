@@ -11,4 +11,5 @@ await build({
   platform: "node",
   outdir: ".next/standalone/scripts",
   tsconfig: "tsconfig.json",
+  loader: { ".txt": "text" },
 });
