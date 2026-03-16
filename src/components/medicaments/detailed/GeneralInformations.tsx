@@ -22,7 +22,7 @@ import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getProcedureLibLong, getTypeInfoTxt, isAIP, isCentralisee } from "@/utils/specialites";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { getPresentationName, getPresentationPriceText, isAbrogee, isAgree, isArret, isIVG, isListeRetrocession, isListeSus } from "@/utils/presentations";
+import { getPresentationName, getPresentationPriceText, isAbrogee, isAgree, isArret, isIVG, isListeRetrocession, isListeSus, isNotAuthorized } from "@/utils/presentations";
 import { FicheInfos, InfosImportantes } from "@/types/FicheInfoTypes";
 
 const SummaryLineContainer = styled.div<{ $hideBorder?: boolean; }>`
@@ -426,6 +426,12 @@ function GeneralInformations({
                   {isArret(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
                       Déclaration d'arrêt de commercialisation
+                      {pres.PresCommDate && ` : ${dateShortFormat(pres.PresCommDate)}`}
+                    </div>
+                  )}
+                  {isNotAuthorized(pres) && (
+                    <div className={fr.cx("fr-mb-0")}>
+                      Arrêt de commercialisation (le médicament n'a plus d'autorisation)
                       {pres.PresCommDate && ` : ${dateShortFormat(pres.PresCommDate)}`}
                     </div>
                   )}
