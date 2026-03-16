@@ -9,6 +9,7 @@ import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 import { getResumeSpecsGroupsAlerts } from "@/data/grist/specialites";
 import { formatSpecialitesResumeFromGroups } from "@/utils/specialites";
+import { computeSortScore } from "./searchScoring";
 
 export type MatchReason = {
   type: "name" | "substance" | "atc" | "pathology";
@@ -98,9 +99,12 @@ export const getSearchResults = unstable_cache(async function (
       ...group,
       matchReasons: groupMap.get(group.groupName)?.reasons ?? [],
     }))
-    .sort((a, b) =>
-      (groupMap.get(b.groupName)?.score ?? 0) - (groupMap.get(a.groupName)?.score ?? 0)
-    );
+    .sort((a, b) => {
+      const scoreA = computeSortScore(query, a.groupName, a.composants, a.matchReasons, groupMap.get(a.groupName)?.score ?? 0);
+      const scoreB = computeSortScore(query, b.groupName, b.composants, b.matchReasons, groupMap.get(b.groupName)?.score ?? 0);
+      if (scoreB !== scoreA) return scoreB - scoreA;
+      return a.groupName.localeCompare(b.groupName, "fr"); // alphabetical tiebreaker
+    });
 },
   ["search-results"],
   { revalidate: 3600 } // 1 hour caching max
