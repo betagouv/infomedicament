@@ -14,6 +14,6 @@
     }
   ],
   "scripts": {
-    "first-deploy": "npm run db:seed-review-app"
+    "first-deploy": "node .next/standalone/scripts/seed-review-app.js"
   }
 }
