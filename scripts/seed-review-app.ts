@@ -25,7 +25,11 @@ function createDb(connectionString: string) {
 }
 
 // Tables managed by Kysely migrations — skip them, migrations handle these
-const SKIP_TABLES = new Set(["kysely_migration", "kysely_migration_lock"]);
+const SKIP_TABLES = new Set([
+  "kysely_migration",
+  "kysely_migration_lock",
+  "leaflet_images", // this table is very big and we don't need it in the review app
+]);
 
 async function main() {
   const staging = createDb(STAGING_DB_URL!);
