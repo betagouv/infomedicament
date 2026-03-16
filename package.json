@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/",
+    "build": "next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/ && node esbuild.scripts.mjs",
     "start": "node .next/standalone/server.js",
     "lint": "next lint",
     "predev": "only-include-used-icons",
