@@ -1,6 +1,6 @@
 /**
- * Copies all application tables from the staging PostgreSQL DB into the review
- * app's own DB. Run after migrations so the schema already exists.
+ * Seeds the review app's PostgreSQL DB from a subset of staging data.
+ * Only copies data relevant to the CIS codes listed in seed_cis_codes.txt.
  *
  * Required env vars:
  *   STAGING_DB_URL  – set once on parent app in Scalingo dashboard; review apps inherit it
@@ -9,6 +9,8 @@
 
 import { Kysely, PostgresDialect, sql } from "kysely";
 import { Pool } from "pg";
+// @ts-ignore – esbuild resolves this as a text module (loader: { ".txt": "text" })
+import seedCisCodesRaw from "./seed_cis_codes.txt";
 
 const STAGING_DB_URL = process.env.STAGING_DB_URL;
 const REVIEW_DB_URL = process.env.DATABASE_URL;
@@ -24,70 +26,155 @@ function createDb(connectionString: string) {
   });
 }
 
-// Tables managed by Kysely migrations — skip them, migrations handle these
-const SKIP_TABLES = new Set([
-  "kysely_migration",
-  "kysely_migration_lock",
-  "leaflet_images", // this table is very big and we don't need it in the review app
-]);
+const cisCodes: string[] = (seedCisCodesRaw as string)
+  .trim()
+  .split("\n")
+  .map((s: string) => s.trim())
+  .filter(Boolean);
+
+// CIS codes as numbers for bigint columns (notices.codeCIS, rcp.codeCIS)
+const cisBigints = cisCodes.map(Number);
+
+// Reference tables: copied in full (small, no CIS key)
+const FULL_COPY_TABLES = [
+  "atc",
+  "letters",
+  "ref_articles",
+  "ref_atc_friendly_niveau_1",
+  "ref_atc_friendly_niveau_2",
+  "ref_glossaire",
+  "ref_grossesse_substances_contre_indiquees",
+  "ref_marr_url_pdf",
+  "ref_pathologies",
+  "ref_substance_active",
+  "ref_substance_active_definitions",
+  "resume_generiques",
+  "resume_pathologies",
+  "resume_substances",
+];
+
+// Tables with a text CIS column named "cis"
+const CIS_TEXT_TABLES: Array<[string, string]> = [
+  ["cis_atc", "code_cis"],
+  ["ref_pediatrie", "cis"],
+  ["ref_marr_url_cis", "cis"],
+  ["ref_grossesse_mention", "cis"],
+];
+
+async function insertRows(
+  review: Kysely<any>,
+  tablename: string,
+  rows: any[]
+) {
+  if (rows.length === 0) {
+    console.log(`  Skipping ${tablename} (no matching rows)`);
+    return;
+  }
+  console.log(`  Copying ${tablename}: ${rows.length} rows...`);
+  await sql`TRUNCATE TABLE ${sql.table(tablename)} CASCADE`.execute(review);
+  const CHUNK_SIZE = 500;
+  for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+    await review
+      .insertInto(tablename)
+      .values(rows.slice(i, i + CHUNK_SIZE))
+      .execute();
+  }
+}
 
 async function main() {
   const staging = createDb(STAGING_DB_URL!);
   const review = createDb(REVIEW_DB_URL!);
 
-  const { rows: stagingTables } = await sql<{ tablename: string }>`
-    SELECT tablename FROM pg_tables
-    WHERE schemaname = 'public'
-    ORDER BY tablename
-  `.execute(staging);
+  console.log(`Seeding review app with ${cisCodes.length} CIS codes...`);
 
-  const { rows: reviewTables } = await sql<{ tablename: string }>`
-    SELECT tablename FROM pg_tables
-    WHERE schemaname = 'public'
-    ORDER BY tablename
-  `.execute(review);
-
-  const reviewTableSet = new Set(reviewTables.map((r) => r.tablename));
-
-  for (const { tablename } of stagingTables) {
-    if (SKIP_TABLES.has(tablename)) continue;
-
-    if (!reviewTableSet.has(tablename)) {
-      console.log(`Skipping ${tablename} (not in review app schema)`);
-      continue;
-    }
-
-    const { count } = await staging
-      .selectFrom(tablename)
-      .select((eb) => eb.fn.countAll<number>().as("count"))
-      .executeTakeFirstOrThrow();
-
-    if (count === 0) {
-      console.log(`Skipping ${tablename} (empty)`);
-      continue;
-    }
-
-    console.log(`Copying ${tablename}: ${count} rows...`);
-
-    await sql`TRUNCATE TABLE ${sql.table(tablename)} CASCADE`.execute(review);
-
-    // Fetch and insert in chunks to avoid loading entire tables into memory
-    const CHUNK_SIZE = 500;
-    for (let offset = 0; offset < count; offset += CHUNK_SIZE) {
-      const rows = await staging
-        .selectFrom(tablename)
-        .selectAll()
-        .limit(CHUNK_SIZE)
-        .offset(offset)
-        .execute();
-      await review.insertInto(tablename).values(rows).execute();
-    }
+  // 1. Reference tables — copy in full
+  console.log("\n--- Reference tables (full copy) ---");
+  for (const tablename of FULL_COPY_TABLES) {
+    const rows = await staging.selectFrom(tablename).selectAll().execute();
+    await insertRows(review, tablename, rows);
   }
+
+  // 2. Tables with bigint codeCIS column
+  console.log("\n--- CIS-filtered tables (bigint codeCIS) ---");
+  for (const tablename of ["notices", "rcp"]) {
+    const rows = await staging
+      .selectFrom(tablename)
+      .selectAll()
+      .where("codeCIS", "in", cisBigints)
+      .execute();
+    await insertRows(review, tablename, rows);
+  }
+
+  // 3. Tables with text CIS column
+  console.log("\n--- CIS-filtered tables (text cis column) ---");
+  for (const [tablename, column] of CIS_TEXT_TABLES) {
+    const rows = await staging
+      .selectFrom(tablename)
+      .selectAll()
+      .where(column, "in", cisCodes)
+      .execute();
+    await insertRows(review, tablename, rows);
+  }
+
+  // 4. resume_medicaments — filter groups that contain at least one of our CIS codes
+  console.log("\n--- resume_medicaments (CISList overlap) ---");
+  {
+    const { rows } = await sql<any>`
+      SELECT * FROM resume_medicaments
+      WHERE "CISList" && ${sql.val(cisCodes)}::text[]
+    `.execute(staging);
+    await insertRows(review, "resume_medicaments", rows);
+  }
+
+  // 5. Tree tables — collect all content nodes reachable from the filtered notices/rcps
+  console.log("\n--- Tree tables (recursive content nodes) ---");
+  {
+    const { rows } = await sql<any>`
+      WITH RECURSIVE tree(id) AS (
+        SELECT unnest(children) AS id
+        FROM notices
+        WHERE "codeCIS" = ANY(${sql.val(cisBigints)}::bigint[])
+        UNION
+        SELECT unnest(nc.children)
+        FROM notices_content nc
+        INNER JOIN tree ON nc.id = tree.id
+        WHERE nc.children IS NOT NULL
+      )
+      SELECT DISTINCT nc.*
+      FROM notices_content nc
+      WHERE nc.id IN (SELECT id FROM tree WHERE id IS NOT NULL)
+    `.execute(staging);
+    await insertRows(review, "notices_content", rows);
+  }
+  {
+    const { rows } = await sql<any>`
+      WITH RECURSIVE tree(id) AS (
+        SELECT unnest(children) AS id
+        FROM rcp
+        WHERE "codeCIS" = ANY(${sql.val(cisBigints)}::bigint[])
+        UNION
+        SELECT unnest(rc.children)
+        FROM rcp_content rc
+        INNER JOIN tree ON rc.id = tree.id
+        WHERE rc.children IS NOT NULL
+      )
+      SELECT DISTINCT rc.*
+      FROM rcp_content rc
+      WHERE rc.id IN (SELECT id FROM tree WHERE id IS NOT NULL)
+    `.execute(staging);
+    await insertRows(review, "rcp_content", rows);
+  }
+
+  // 6. Skipped tables
+  console.log("\n--- Skipped ---");
+  console.log("  search_index  (run npm run db:seed-search-index if needed)");
+  console.log("  leaflet_images  (too large, not needed in review apps)");
+  console.log("  presentations  (no CIS column, PDBM supplementary data)");
 
   await staging.destroy();
   await review.destroy();
 
-  console.log("Done seeding review app from staging.");
+  console.log("\nDone seeding review app from staging.");
 }
 
 main();
