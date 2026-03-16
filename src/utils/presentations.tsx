@@ -40,11 +40,8 @@ function totalDisplay(precipientDetails: AgregateRecipientDetails): string {
 }
 
 function contenanceDisplay(recipientDetails: AgregateRecipientDetails): string {
-  if(recipientDetails.qtecontenance && recipientDetails.unitecontenance){
-    const qteContenance: number = (recipientDetails.qtecontenance !== 0 &&recipientDetails.qtecontenance)
-      ? recipientDetails.qtecontenance
-      : 0;    
-    return `${qteContenance.toLocaleString('fr-FR')} ${replacePluralSingular(recipientDetails.unitecontenance, qteContenance)}`;
+  if(recipientDetails.qtecontenance && recipientDetails.unitecontenance){  
+    return `${recipientDetails.qtecontenance.toLocaleString('fr-FR')} ${replacePluralSingular(recipientDetails.unitecontenance, recipientDetails.qtecontenance)}`;
   }
   else return "";
 }
@@ -124,7 +121,7 @@ function sortCleanPresentationsDetails(cleanPresDetails: AgregatePresentationDet
           return presRecipient;
         })
         .sort((a, b) => 
-          a.numrecipient && b.numrecipient ? a.numrecipient - b.numrecipient : b.numrecipient ? -1 : b.numrecipient ? 1 : 0,
+          a.numrecipient && b.numrecipient ? a.numrecipient - b.numrecipient : a.numrecipient ? -1 : b.numrecipient ? 1 : 0,
         );
       //Sort dispositifs
       presDetails.dispositifs = presDetails.dispositifs
@@ -232,7 +229,7 @@ export function getPresentationName(
       });
       const dispositif: string = dispositifDisplay(presDetails.dispositifs);
       if(!shortName && dispositif)
-        name += ` ${dispositif}`;
+        name += `${dispositif}`;
       
       if(allPresNames !== "")
         allPresNames += " - ";
@@ -279,7 +276,13 @@ export function isAbrogee(presentation: Presentation): boolean {
 }
 
 export function isArret(presentation: Presentation): boolean {
-  if(Number(presentation.CommId) !== PresentationComm.Commercialisation)
+  if(presentation.CommId && Number(presentation.CommId) === PresentationComm.Arrêt)
+    return true;
+  return false;
+}
+
+export function isNotAuthorized(presentation: Presentation): boolean {
+  if(presentation.CommId && Number(presentation.CommId) === PresentationComm["Plus d'autorisation"])
     return true;
   return false;
 }

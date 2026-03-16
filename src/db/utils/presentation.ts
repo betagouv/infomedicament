@@ -121,13 +121,11 @@ export const getFullPresentations = cache(
       const details = presentationsDetails.filter(
         (d) => d.codecip13.trim() === p.codeCIP13.trim(),
       );
-      if (details) {
-        p.details = details;
-      }
+      p.details = details;
       const retro = presentationsRetro.filter(
         (r) => r.Cip13.trim() === p.codeCIP13.trim(),
       );
-      if (retro && retro.length > 0) {
+      if (retro.length > 0) {
         //Only one per presentation
         p.retro = retro[0];
       }
