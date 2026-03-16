@@ -53,21 +53,30 @@ async function main() {
       continue;
     }
 
-    const rows = await staging.selectFrom(tablename).selectAll().execute();
+    const { count } = await staging
+      .selectFrom(tablename)
+      .select((eb) => eb.fn.countAll<number>().as("count"))
+      .executeTakeFirstOrThrow();
 
-    if (rows.length === 0) {
+    if (count === 0) {
       console.log(`Skipping ${tablename} (empty)`);
       continue;
     }
 
-    console.log(`Copying ${tablename}: ${rows.length} rows...`);
+    console.log(`Copying ${tablename}: ${count} rows...`);
 
     await sql`TRUNCATE TABLE ${sql.table(tablename)} CASCADE`.execute(review);
 
-    // Kysely handles parameterization; batch to avoid hitting statement size limits
-    const BATCH_SIZE = 200;
-    for (let i = 0; i < rows.length; i += BATCH_SIZE) {
-      await review.insertInto(tablename).values(rows.slice(i, i + BATCH_SIZE)).execute();
+    // Fetch and insert in chunks to avoid loading entire tables into memory
+    const CHUNK_SIZE = 500;
+    for (let offset = 0; offset < count; offset += CHUNK_SIZE) {
+      const rows = await staging
+        .selectFrom(tablename)
+        .selectAll()
+        .limit(CHUNK_SIZE)
+        .offset(offset)
+        .execute();
+      await review.insertInto(tablename).values(rows).execute();
     }
   }
 
