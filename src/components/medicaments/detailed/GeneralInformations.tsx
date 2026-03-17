@@ -213,7 +213,7 @@ function GeneralInformations({
               {(!isPregnancyPlanAlert && isPregnancyMentionAlert) && (<PregnancyMentionTag />)}
             </>
           ) : (
-            <span>Aucune contre-indication grossesse</span>
+            <span>Pas de contre-indication grossesse stricte, vérifier en 4.3 et 4.6 du RCP</span>
           )}
         </SummaryLine>
         <SummaryLine categoryName="Statut de l’autorisation">
