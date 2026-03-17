@@ -2,16 +2,15 @@
 
 import ContentContainer from "../../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
-import { HTMLAttributes, PropsWithChildren, useEffect, useState } from "react";
+import { HTMLAttributes, PropsWithChildren } from "react";
 import styled, {css} from 'styled-components';
-import GenericTag from "@/components/tags/GenericTag";
+import GenericPrincepsTag from "@/components/tags/GenericPrincepsTag";
 import { PresentationStat, SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import PediatricsTags from "@/components/tags/PediatricsTags";
 import Link from "next/link";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } from "@/displayUtils";
-import PrincepsTag from "@/components/tags/PrincepsTag";
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
 import { DetailedSpecialite, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
@@ -176,16 +175,18 @@ function GeneralInformations({
         <SummaryLine categoryName="Statut générique">
           <>
             {(isPrinceps && !isAIP(specialite)) ? (
-              <PrincepsTag 
-                CIS={specialite.SpecId} 
+              <GenericPrincepsTag 
+                id={specialite.SpecId} 
+                type="princeps"
                 hideIcon
               />
             ) : (
               (specialite.SpecGeneId && !isAIP(specialite))
               ? (
                 <>
-                  <GenericTag 
-                    specGeneId={specialite.SpecGeneId} 
+                  <GenericPrincepsTag 
+                    id={specialite.SpecGeneId}
+                    type="generic"
                     hideIcon
                   />
                   <div>
@@ -458,23 +459,11 @@ function GeneralInformations({
                   )}
                   {(pres.AgreColl && pres.AgreColl === 1) ? (
                     <div className={fr.cx("fr-mb-0")}>
-                      Cette présentation est{" "}
-                      <Link href="https://base-donnees-publique.medicaments.gouv.fr/glossaire.php#agrecol" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                      >
-                        agréée aux collectivités
-                      </Link>.
+                      Cette présentation est agréée aux collectivités.
                     </div>
                   ) : (
                     <div className={fr.cx("fr-mb-0")}>
-                      Cette présentation n'est pas {" "}
-                      <Link href="https://base-donnees-publique.medicaments.gouv.fr/glossaire.php#agrecol" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                      >
-                        agréée aux collectivités
-                      </Link>.
+                      Cette présentation n'est pas agréée aux collectivités.
                     </div>
                   )}
                 </li>

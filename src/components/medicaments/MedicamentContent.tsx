@@ -9,8 +9,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import SubstanceTag from "../tags/SubstanceTag";
 import { SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { TagTypeEnum } from "@/types/TagType";
-import PrincepsTag from "../tags/PrincepsTag";
-import GenericTag from "../tags/GenericTag";
+import GenericPrincepsTag from "../tags/GenericPrincepsTag";
 import PrescriptionTag from "../tags/PrescriptionTag";
 import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "../PresentationsList";
@@ -342,16 +341,18 @@ function MedicamentContent({
                   )}
                   {(currentSpec && isPrinceps && !isAIP(currentSpec)) && 
                     <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.PRINCEPS}>
-                      <PrincepsTag 
-                        CIS={currentSpec.SpecId} 
+                      <GenericPrincepsTag 
+                        id={currentSpec.SpecId}
+                        type="princeps"
                         fromMedicament
                       />
                     </TagContainer>
                   }
                   {(currentSpec && !!currentSpec.SpecGeneId && !isAIP(currentSpec)) && (
                     <TagContainer hideSeparator={lastLeftTagElement === TagTypeEnum.GENERIC}>
-                      <GenericTag 
-                        specGeneId={currentSpec.SpecGeneId} 
+                      <GenericPrincepsTag 
+                        id={currentSpec.SpecGeneId}
+                        type="generic"
                         fromMedicament
                       />
                     </TagContainer>
