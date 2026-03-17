@@ -5,10 +5,11 @@ import { pdbmMySQL } from '../pdbmMySQL';
 import { ComposantNatureId, SpecElement, VUEvnts } from '../pdbmMySQL/types';
 import { isSurveillanceRenforcee } from '@/utils/specialites';
 
-export async function getEvents(CIS: string): Promise<VUEvnts[]> {
+export async function getEvents(CISList: string | string[]): Promise<VUEvnts[]> {
+  const allCIS: string[] = !Array.isArray(CISList) ? [CISList] : CISList;
   const events: VUEvnts[] = await pdbmMySQL
     .selectFrom("VUEvnts")
-    .where("VUEvnts.SpecId", "=", CIS)
+    .where("VUEvnts.SpecId", "in", allCIS)
     .selectAll()
     .execute();
   return events;
