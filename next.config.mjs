@@ -1,4 +1,9 @@
 import { withSentryConfig } from "@sentry/nextjs";
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -19,7 +24,7 @@ const cspHeader = `
     frame-ancestors 'none';
     upgrade-insecure-requests;
     media-src 'self';
-    connect-src 'self' ${process.env.NEXT_PUBLIC_MATOMO_URL};
+    connect-src 'self' ${process.env.NEXT_PUBLIC_MATOMO_URL} https://sentry.incubateur.net;
 `
 
 /** @type {import('next').NextConfig} */
@@ -80,16 +85,14 @@ const nextConfig = {
  * - SENTRY_PROJECT
  * - SENTRY_AUTH_TOKEN
  */
-export default withSentryConfig(nextConfig, {
+export default withBundleAnalyzer(withSentryConfig(nextConfig, {
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
   widenClientFileUpload: true,
   reactComponentAnnotation: {
     enabled: true,
   },
-  // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-  tunnelRoute: "/monitoring",
   hideSourceMaps: true,
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
-});
+}));

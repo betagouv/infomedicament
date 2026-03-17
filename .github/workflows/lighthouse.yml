@@ -1,0 +1,32 @@
+name: Lighthouse CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lighthouse:
+    permissions:
+      contents: read
+      checks: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Wait for Scalingo review app
+        uses: fountainhead/action-wait-for-check@v1.2.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: 'deploy/sclng: infomedicament-staging-pr${{ github.event.pull_request.number }}'
+          ref: ${{ github.event.pull_request.head.sha }}
+          timeoutSeconds: 900
+
+      - name: Run Lighthouse
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: |
+            https://infomedicament-staging-pr${{ github.event.pull_request.number }}.osc-fr1.scalingo.io/
+            https://infomedicament-staging-pr${{ github.event.pull_request.number }}.osc-fr1.scalingo.io/medicaments/60234100
+          uploadArtifacts: true
+          temporaryPublicStorage: true

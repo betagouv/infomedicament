@@ -35,4 +35,6 @@ async function upgradePdbm() {
   });
 }
 
-upgradePdbm().catch((e) => console.log(e));
+upgradePdbm()
+  .catch((e) => console.log(e))
+  .finally(() => pdbmMySQL.destroy());
