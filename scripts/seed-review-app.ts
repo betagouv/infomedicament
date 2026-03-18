@@ -39,6 +39,7 @@ const cisBigints = cisCodes.map(Number);
 const FULL_COPY_TABLES = [
   "atc",
   "letters",
+  "presentations",
   "ref_articles",
   "ref_atc_friendly_niveau_1",
   "ref_atc_friendly_niveau_2",
@@ -128,48 +129,29 @@ async function main() {
 
   // 5. Tree tables — collect all content nodes reachable from the filtered notices/rcps
   console.log("\n--- Tree tables (recursive content nodes) ---");
-  {
+  for (const [parent, content] of CONTENT_TREE_TABLE_PAIRS) {
     const { rows } = await sql<any>`
       WITH RECURSIVE tree(id) AS (
         SELECT unnest(children) AS id
-        FROM notices
+        FROM ${sql.table(parent)}
         WHERE "codeCIS" = ANY(${sql.val(cisBigints)}::bigint[])
         UNION
-        SELECT unnest(nc.children)
-        FROM notices_content nc
-        INNER JOIN tree ON nc.id = tree.id
-        WHERE nc.children IS NOT NULL
+        SELECT unnest(c.children)
+        FROM ${sql.table(content)} c
+        INNER JOIN tree ON c.id = tree.id
+        WHERE c.children IS NOT NULL
       )
-      SELECT DISTINCT nc.*
-      FROM notices_content nc
-      WHERE nc.id IN (SELECT id FROM tree WHERE id IS NOT NULL)
+      SELECT DISTINCT c.*
+      FROM ${sql.table(content)} c
+      WHERE c.id IN (SELECT id FROM tree WHERE id IS NOT NULL)
     `.execute(staging);
-    await insertRows(review, "notices_content", rows);
-  }
-  {
-    const { rows } = await sql<any>`
-      WITH RECURSIVE tree(id) AS (
-        SELECT unnest(children) AS id
-        FROM rcp
-        WHERE "codeCIS" = ANY(${sql.val(cisBigints)}::bigint[])
-        UNION
-        SELECT unnest(rc.children)
-        FROM rcp_content rc
-        INNER JOIN tree ON rc.id = tree.id
-        WHERE rc.children IS NOT NULL
-      )
-      SELECT DISTINCT rc.*
-      FROM rcp_content rc
-      WHERE rc.id IN (SELECT id FROM tree WHERE id IS NOT NULL)
-    `.execute(staging);
-    await insertRows(review, "rcp_content", rows);
+    await insertRows(review, content, rows);
   }
 
   // 6. Skipped tables
   console.log("\n--- Skipped ---");
   console.log("  search_index  (run npm run db:seed-search-index if needed)");
   console.log("  leaflet_images  (too large, not needed in review apps)");
-  console.log("  presentations  (no CIS column, PDBM supplementary data)");
 
   await staging.destroy();
   await review.destroy();
