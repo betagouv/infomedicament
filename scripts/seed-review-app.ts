@@ -54,12 +54,21 @@ const FULL_COPY_TABLES = [
   "resume_substances",
 ];
 
+// Tables with a bigint codeCIS column
+const BIGINT_CIS_TABLES = ["notices", "rcp"];
+
 // Tables with a text CIS column named "cis"
 const CIS_TEXT_TABLES: Array<[string, string]> = [
   ["cis_atc", "code_cis"],
   ["ref_pediatrie", "cis"],
   ["ref_marr_url_cis", "cis"],
   ["ref_grossesse_mention", "cis"],
+];
+
+// Pairs of [parent table, content table] for recursive tree copies
+const CONTENT_TREE_TABLE_PAIRS: Array<[string, string]> = [
+  ["notices", "notices_content"],
+  ["rcp", "rcp_content"],
 ];
 
 async function insertRows(
@@ -97,7 +106,7 @@ async function main() {
 
   // 2. Tables with bigint codeCIS column
   console.log("\n--- CIS-filtered tables (bigint codeCIS) ---");
-  for (const tablename of ["notices", "rcp"]) {
+  for (const tablename of BIGINT_CIS_TABLES) {
     const rows = await staging
       .selectFrom(tablename)
       .selectAll()
