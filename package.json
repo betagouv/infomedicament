@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/ && node esbuild.scripts.mjs",
     "start": "node .next/standalone/server.js",
-    "lint": "next lint",
+    "lint": "eslint .",
     "predev": "only-include-used-icons",
     "prebuild": "only-include-used-icons && kysely migrate:latest",
     "test": "npm run test:unit",
