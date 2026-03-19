@@ -1,0 +1,26 @@
+name: Lighthouse CI
+
+on:
+  status:
+
+jobs:
+  lighthouse:
+    if: |
+      github.event.state == 'success' &&
+      startsWith(github.event.context, 'deploy/sclng: infomedicament-staging-pr')
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.sha }}
+
+      - name: Run Lighthouse
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: |
+            ${{ github.event.target_url }}/
+            ${{ github.event.target_url }}/medicaments/60234100
+          uploadArtifacts: true
+          temporaryPublicStorage: true

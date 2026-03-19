@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/",
+    "build": "next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/ && node esbuild.scripts.mjs",
     "start": "node .next/standalone/server.js",
     "lint": "next lint",
     "predev": "only-include-used-icons",
-    "prebuild": "only-include-used-icons && kysely migrate:latest && kysely seed run --specific 1725439927263_searchIndex",
+    "prebuild": "only-include-used-icons && kysely migrate:latest",
     "test": "npm run test:unit",
     "test:unit": "vitest --exclude '**/*.integration.test.ts' --exclude '**/*.ui.test.tsx'",
     "test:integration": "vitest run 'integration.test.ts'",
@@ -18,7 +18,9 @@
     "db:sync-grist": "npx tsx scripts/syncWithGrist.ts",
     "db:migrate:latest": "npx kysely migrate:latest",
     "db:migrate:down": "npx kysely migrate:down",
-    "db:update-resume": "npx tsx scripts/updateResumeData.ts"
+    "db:update-resume": "npx tsx scripts/updateResumeData.ts",
+    "db:seed-search-index": "npx kysely seed run --specific 1725439927263_searchIndex",
+    "db:seed-review-app": "npx tsx scripts/seed-review-app.ts"
   },
   "dependencies": {
     "@codegouvfr/react-dsfr": "^1.16.0",
@@ -56,6 +58,7 @@
     "windows-1252": "^3.0.4"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.1.6",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.0.1",
     "@types/node": "^22",
