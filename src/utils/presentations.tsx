@@ -18,35 +18,39 @@ const unitesMesures = [
   "UI",
 ];
 
-function replacePluralSingular(textToReplace: string, nb: number, shortName?: boolean){
+export function replacePluralSingular(textToReplace: string, nb: number, shortName?: boolean){
   let newText = "";
   if(nb > 1){
     newText = textToReplace.replaceAll("(s)", "s")
       .replaceAll("stylo prérempli", "stylos préremplis")
       .replaceAll("al(aux)", "aux")
+      .replaceAll("(x)", "x")
   } else {
     newText = textToReplace.replaceAll("(s)", "")
       .replaceAll("al(aux)", "al")
+      .replaceAll("(x)", "")
   }
   if(shortName)
     newText = newText.replaceAll("thermoformée", "");
   return newText;
 }
 
-function totalDisplay(precipientDetails: AgregateRecipientDetails): string {
-  if(precipientDetails.nbrrecipient && precipientDetails.qtecontenance && precipientDetails.unitecontenance)
-    return `${precipientDetails.nbrrecipient * precipientDetails.qtecontenance} ${precipientDetails.unitecontenance.replaceAll("(s)", "s")}`;
+export function totalDisplay(recipientDetails: AgregateRecipientDetails): string {
+  if(recipientDetails.nbrrecipient && recipientDetails.qtecontenance && recipientDetails.qtecontenance > 1 && recipientDetails.unitecontenance && !unitesMesures.includes(recipientDetails.unitecontenance)) {
+    const total: number = recipientDetails.nbrrecipient * recipientDetails.qtecontenance;
+    return `${total} ${replacePluralSingular(recipientDetails.unitecontenance, total)}`;
+  }
   else return "";
 }
 
-function contenanceDisplay(recipientDetails: AgregateRecipientDetails): string {
+export function contenanceDisplay(recipientDetails: AgregateRecipientDetails): string {
   if(recipientDetails.qtecontenance && recipientDetails.unitecontenance){  
     return `${recipientDetails.qtecontenance.toLocaleString('fr-FR')} ${replacePluralSingular(recipientDetails.unitecontenance, recipientDetails.qtecontenance)}`;
   }
   else return "";
 }
 
-function caracCompDisplay(caraccomplrecipDetails: AgregateCaraccomplrecipsDetails[], nbRecipient: number, shortName?: boolean): string {
+export function caracCompDisplay(caraccomplrecipDetails: AgregateCaraccomplrecipsDetails[], nbRecipient: number, shortName?: boolean): string {
   let detailsText: string = "";
   caraccomplrecipDetails.forEach((details: AgregateCaraccomplrecipsDetails) => {
     if(details.caraccomplrecip && 
@@ -57,11 +61,13 @@ function caracCompDisplay(caraccomplrecipDetails: AgregateCaraccomplrecipsDetail
   return detailsText;
 }
 
-function dispositifDisplay(dispositifDetails: AgregateDispositifDetails[]): string {
+export function dispositifDisplay(dispositifDetails: AgregateDispositifDetails[]): string {
   let detailsText: string = "";
   dispositifDetails.forEach((details: AgregateDispositifDetails) => {
-    if(details.numdispositif)
-      detailsText += ` ${details.dispositif.replaceAll("(s)", "")}`;
+    if(details.numdispositif) {
+      //Singular all the time
+      detailsText += ` ${replacePluralSingular(details.dispositif, 0)}`;
+    }
   })
   return detailsText;
 }
@@ -89,7 +95,7 @@ function cleanRecipientDetails(details: PresentationDetail): AgregateRecipientDe
           numordreedit: details.numordreedit,
         }]
         : [],
-    }
+    };
 }
 
 function sortCleanPresentationsDetails(cleanPresDetails: AgregatePresentationDetails[]): AgregatePresentationDetails[] {
@@ -142,7 +148,7 @@ function sortCleanPresentationsDetails(cleanPresDetails: AgregatePresentationDet
 }
 
 
-function cleanPresentationsDetails(presDetails: PresentationDetail[]): AgregatePresentationDetails[]{
+export function cleanPresentationsDetails(presDetails: PresentationDetail[]): AgregatePresentationDetails[]{
   const cleanPresDetails:AgregatePresentationDetails[] = [];
   presDetails.forEach((details: PresentationDetail) => {
     const index = cleanPresDetails.findIndex((cleanDetails) => cleanDetails.codecip13 === details.codecip13);
@@ -213,14 +219,13 @@ export function getPresentationName(
         const contenance: string = contenanceDisplay(recipientDetails);
         const caraccomplrecip: string = caracCompDisplay(recipientDetails.caraccomplrecips, nbRecipient, shortName);
 
-      if(name !== "")
-        name += " - ";
+        if(name !== "")
+          name += " - ";
         if (nbRecipient > 1) {
-          if (recipientDetails.qtecontenance > 1 && recipientDetails.unitecontenance && !unitesMesures.includes(recipientDetails.unitecontenance)) {
-            name += `${totalDisplay(recipientDetails)} - ${nbRecipient.toString()} ${recipient}${caraccomplrecip}${contenance && ` de ${contenance}`}`;
-          } else {
-            name += `${nbRecipient.toString()} ${recipient}${caraccomplrecip}${contenance && ` de ${contenance}`}`;
-          }
+          const total: string = totalDisplay(recipientDetails);
+          if (total !== "") 
+            name += `${total} - `;
+          name += `${nbRecipient.toString()} ${recipient}${caraccomplrecip}${contenance && ` de ${contenance}`}`;
         } else {
           if(!shortName) name += `1 ${recipient}${caraccomplrecip}${contenance && ` de ${contenance}`}`;
           else name += capitalize(`${recipient}${caraccomplrecip}${contenance && ` de ${contenance}`}`);
