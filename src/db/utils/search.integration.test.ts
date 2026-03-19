@@ -102,6 +102,31 @@ describe("Search engine (Integration) -- Functional Tests", () => {
     });
 });
 
+describe("Search engine (Integration) -- Sort Order Tests", () => {
+  it("for 'Doliprane', the DOLIPRANE group should be the first result", async () => {
+    const results = await getSearchResults("Doliprane");
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0].groupName).toMatch(/doliprane/i);
+  });
+
+  it("name matches appear before substance-only matches", async () => {
+    // "Paracétamol" matches some drugs by name (e.g. PARACETAMOL ARROW)
+    // and DOLIPRANE only by substance
+    const results = await getSearchResults("Paracétamol");
+    const firstNameIdx = results.findIndex((r) =>
+      r.matchReasons.some((m) => m.type === "name"),
+    );
+    const firstSubstanceOnlyIdx = results.findIndex(
+      (r) =>
+        r.matchReasons.every((m) => m.type !== "name") &&
+        r.matchReasons.some((m) => m.type === "substance"),
+    );
+    if (firstNameIdx !== -1 && firstSubstanceOnlyIdx !== -1) {
+      expect(firstNameIdx).toBeLessThan(firstSubstanceOnlyIdx);
+    }
+  });
+});
+
 describe("Search engine (Integration) -- Business Logic Tests", () => {
     it("must return results for 'Doliprane'", async () => {
         const results = await getSearchResults("Doliprane");

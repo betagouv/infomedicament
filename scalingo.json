@@ -8,6 +8,12 @@
       "value": "staging"
     }
   },
-  "copy_parent_database_urls": true,
-  "addons": []
+  "addons": [
+    {
+      "plan": "postgresql:postgresql-starter-512"
+    }
+  ],
+  "scripts": {
+    "first-deploy": "node .next/standalone/scripts/seed-review-app.js"
+  }
 }
