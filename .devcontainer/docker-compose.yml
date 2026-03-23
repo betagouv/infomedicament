@@ -51,6 +51,28 @@ services:
     networks:
       - dev-network
 
+  opensearch:
+    image: opensearchproject/opensearch:2.19.3
+    environment:
+      - cluster.name=opensearch-cluster # Name the cluster
+      - discovery.type=single-node # Locally, we only need a single node
+      - bootstrap.memory_lock=true # Disable JVM heap memory swapping
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m # Set min and max JVM heap sizes to at least 50% of system RAM
+      - DISABLE_SECURITY_PLUGIN=true # Disable security plugin for local development (DO NOT use for production)
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - dev-network
+
 networks:
   dev-network:
     driver: bridge
@@ -58,3 +80,4 @@ networks:
 volumes:
   mysql-data:
   postgres-data:
+  opensearch-data:
