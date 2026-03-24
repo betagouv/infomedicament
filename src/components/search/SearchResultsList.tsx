@@ -67,9 +67,11 @@ function SearchResultsList({
     const pathos: ShortPatho[] = [];
     resultsList.forEach((result) => {
       //Substances List
-      const indexSubs = composants.findIndex((composant) => result.composants.trim() === composant);
-      if(indexSubs === -1)
-        composants.push(result.composants.trim());
+      if(result.composants) {
+        const indexSubs = composants.findIndex((composant) => result.composants.trim() === composant);
+        if(indexSubs === -1)
+          composants.push(result.composants.trim());
+      }
       //ATC 1 & 2 List
       const indexATC = atcs.findIndex((atc) => result.atc1Code && result.atc1Code.trim() === atc.atc1Code);
       if(indexATC === -1) {
@@ -78,7 +80,7 @@ function SearchResultsList({
           atcs.push({
             atc1Label: result.atc1Label.trim(),
             atc1Code: result.atc1Code.trim(),
-            atc2List: result.atc2Code && result.atc2Label ? [{
+            atc2List: (result.atc2Code && result.atc2Label) ? [{
               atc2Code: result.atc2Code.trim(),
               atc2Label: result.atc2Label.trim(),
             }] : [],
@@ -203,7 +205,7 @@ function SearchResultsList({
   return (
     <Container className={fr.cx("fr-grid-row")}>
       <FiltersContainer className={fr.cx("fr-col-12", "fr-col-md-4")}>
-        {composantsList.length > 0 && (
+        {(composantsList && composantsList.length) > 0 && (
           <div className={fr.cx("fr-mb-2w")}>
             <FilterTitle>Filtrer par substance active</FilterTitle>
             <Checkbox
@@ -220,7 +222,7 @@ function SearchResultsList({
             />
           </div>
         )}
-        {atcList.length > 0 && (
+        {(atcList && atcList.length > 0) && (
           <div className={fr.cx("fr-mb-2w")}>
             <FilterTitle>Filtrer par la classe et sous-classe</FilterTitle>
             {atcList.map((atc: ATCFilter, index: number) => (
@@ -235,7 +237,7 @@ function SearchResultsList({
                   }]}
                   small
                 />
-                {atc.atc2List.length > 0 && (
+                {(atc.atc2List && atc.atc2List.length > 0) && (
                   <Checkbox
                     className={fr.cx("fr-ml-2w")}
                     options={atc.atc2List.map((atc2) => 
@@ -254,7 +256,7 @@ function SearchResultsList({
             ))}
           </div>
         )}
-        {pathosList.length > 0 && (
+        {(pathosList && pathosList.length > 0) && (
           <div className={fr.cx("fr-mb-2w")}>
             <FilterTitle>Filtrer par pathologie</FilterTitle>
             <Checkbox
@@ -276,7 +278,7 @@ function SearchResultsList({
         <div className={fr.cx("fr-text--bold", "fr-mb-3w")}>
           {filteredResultsList.length} résultat{filteredResultsList.length > 1 && 's'}
         </div>
-        {filteredResultsList.map((result, index) => (
+        {filteredResultsList && filteredResultsList.map((result, index) => (
           <DataBlockAccordion
             key={index}
             item={result}

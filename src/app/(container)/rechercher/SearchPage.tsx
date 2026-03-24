@@ -40,6 +40,7 @@ function SearchPage({
     else setCurrentFilterPediatric(false);
   }, [filterPediatric, setCurrentFilterPediatric])
 
+  //In the V1, we are not displaying articles
 
   return (
     <ContentContainer frContainer>
