@@ -11,7 +11,7 @@ import {
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { sql } from "kysely";
 import db from "@/db";
-import { getPresentations } from "@/db/utils/presentation";
+import { getFullPresentations } from "@/db/utils/presentation";
 import { unstable_cache } from "next/cache";
 import { withSubstances } from "./query";
 import { DetailedSpecialite, ResumeSpecGroup } from "@/types/SpecialiteTypes";
@@ -74,46 +74,8 @@ export const getSpecialite = cache(async (CIS: string) => {
 
   const presentations: Presentation[] = 
     specialite 
-      ? await getPresentations(CIS)
-      : [];
-  const presentationsDetails = 
-    presentations.length
-      ? await db
-        .selectFrom("presentations")
-        .select([
-          "codecip13",
-          "nomelement",
-          "nbrrecipient",
-          "recipient",
-          "caraccomplrecip",
-          "qtecontenance",
-          "unitecontenance",
-        ])
-        .where(
-          "presentations.codecip13",
-          "in",
-          presentations.map((p) => p.codeCIP13),
-        )
-        .groupBy([
-          "codecip13",
-          "nomelement",
-          "nbrrecipient",
-          "recipient",
-          "caraccomplrecip",
-          "qtecontenance",
-          "unitecontenance",
-        ])
-        .execute()
-      : [];
-
-  presentations.map((p) => {
-    const details = presentationsDetails.find(
-      (d) => d.codecip13.trim() === p.codeCIP13.trim(),
-    );
-    if (details) {
-      p.details = details;
-    }
-  });
+      ? await getFullPresentations(CIS)
+      : [];  
 
   const delivrance: SpecDelivrance[] = 
     specialite
