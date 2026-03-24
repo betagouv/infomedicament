@@ -28,7 +28,9 @@ export const getSpecialitePatho = unstable_cache(
       .where("Specialite.SpecId", "=", CIS)
       .distinct()
       .execute();
-    return rawCodePatho.map((code) => code.codePatho);
+    if(rawCodePatho)
+      return rawCodePatho.map((code) => code.codePatho);
+    return [];
   },
   ["specialite-patho"],
   { revalidate: 3600 } // cache for 1 hour
@@ -44,7 +46,7 @@ export const getSpecialitesPatho = cache(async function (CIS: string[]): Promise
     .select("Patho.NomPatho")
     .distinct()
     .execute();
-  return pathos;
+  return pathos ? pathos : [];
 });
 
 export const getAllPathos = cache(async function (): Promise<Patho[]> {
