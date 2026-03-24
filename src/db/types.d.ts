@@ -29,6 +29,8 @@ export interface Database {
   ref_substance_active_definitions: RefSubstanceActiveDefinitions;
   atc: Atc;
   cis_atc: CisAtc;
+  asmr: AsmrTable;
+  smr: SmrTable;
 }
 
 interface SearchIndexTable {
@@ -45,12 +47,18 @@ interface LeafletImagesTable {
 
 interface PresentationTable {
   codecip13: string;
+  nom_presentation: string;
+  numelement: number; //Display order for nomelement - first element to display
   nomelement: string;
-  nbrrecipient: number;
   recipient: string;
-  caraccomplrecip: string;
+  numrecipient: number; //Display order for recipient - second element to display
+  nbrrecipient: number;
   qtecontenance: number;
   unitecontenance: string;
+  caraccomplrecip: string;
+  numordreedit: number; //Display order for caraccomplrecip - third element to display
+  numdispositif: number;
+  dispositif: string;
 }
 
 interface RcpTable {
@@ -243,6 +251,30 @@ export interface Atc {
   date_inactivation: Date | null;
   source_ref: string | null;
   remarque: string | null;
+}
+
+export interface AsmrTable {
+  code_evamed: string | null;
+  motif_demande: string | null;
+  code_cis: string | null;
+  code_cip: string | null;
+  denomination_specialite: string | null;
+  date_avis_definitif: string | null;
+  asmr: string | null;
+  valeur_asmr: string | null;
+  libelle_asmr: string | null;
+}
+
+export interface SmrTable {
+  code_evamed: string | null;
+  motif_demande: string | null;
+  code_cis: string | null;
+  code_cip: string | null;
+  denomination: string | null;
+  date_avis_definitif: string | null;
+  smr: string | null;
+  valeur_smr: string | null;
+  libelle_smr: string | null;
 }
 
 export interface CisAtc {

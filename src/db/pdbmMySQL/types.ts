@@ -23,6 +23,7 @@ export interface PdbmMySQL {
   HAS_ASMR: HASASMRTable; //ASMR informations
   HAS_LiensPageCT: HASLiensPageCTTable; //Lines pour SMR et ASMR
   HAS_DocsBonUsage: HASDocsBonUsageTable; //Documents bon usage
+  CNAM_Retro: CNAMRetroTable; //More informations about the presentation
 }
 
 interface SpecialiteTable {
@@ -209,6 +210,15 @@ interface HASDocsBonUsageTable {
   Resume?: string;
 }
 
+interface CNAMRetroTable {
+  SpecId: string;
+  Cip13: string;
+  ListSus: string;
+  Retro: string;
+  RbtNico: string;
+  IVG: string;
+}
+
 export type Specialite = Selectable<SpecialiteTable>;
 export type SpecElement = Selectable<SpecElementTable>;
 export type SpecComposant = Selectable<SpecComposantTable>;
@@ -221,6 +231,7 @@ export type SpecDelivrance = Selectable<SpecDelivranceTable> &
 export type Patho = Selectable<PathoTable>;
 export type GroupeGene = Selectable<GroupeGeneTable>;
 export type VUEvnts = Selectable<VUEvntsTable>;
+export type PresentationRetro = Selectable<CNAMRetroTable>;
 
 // Those enums are store as small dictionary tables in the database
 // but to benefit from TypeScript type checking
