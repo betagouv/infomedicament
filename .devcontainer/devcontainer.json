@@ -11,7 +11,7 @@
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // This can be used to network with other containers or with the host.
-  "forwardPorts": [3000, 3306, 5432, 9200],
+  "forwardPorts": [3000, 3306, 5432, 9200, 5601],
 
   // Use non-root user 'node' inside the container
   "remoteUser": "node",
