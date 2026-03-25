@@ -73,6 +73,18 @@ services:
     networks:
       - dev-network
 
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.19.3
+    environment:
+      - OPENSEARCH_HOSTS=["http://opensearch:9200"]
+      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
+    ports:
+      - "5601:5601"
+    networks:
+      - dev-network
+    depends_on:
+      - opensearch
+
 networks:
   dev-network:
     driver: bridge
