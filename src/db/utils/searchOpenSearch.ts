@@ -36,6 +36,66 @@ function getOpenSearchClient(): Client {
   return openSearchClient;
 }
 
+export type SearchSectionResult = {
+  cisCode: string;
+  specName: string;
+  docType: "notice" | "rcp";
+  sectionAnchor: string;
+  sectionTitle: string;
+  highlights: string[]; // HTML snippets with <mark class="highlight">...</mark>
+};
+
+export const getOpenSearchSectionResults = unstable_cache(
+  async function (query: string): Promise<SearchSectionResult[]> {
+    if (!query?.trim()) return [];
+
+    const response = await getOpenSearchClient().search({
+      index: "specialite_sections",
+      body: {
+        size: 50,
+        query: {
+          multi_match: {
+            query,
+            fields: ["spec_name^3", "section_title^2", "text_content"],
+          },
+        },
+        highlight: {
+          fields: {
+            text_content: {
+              pre_tags: ['<mark class="highlight">'],
+              post_tags: ["</mark>"],
+              fragment_size: 200,
+              number_of_fragments: 3,
+            },
+          },
+        },
+      },
+    });
+
+    const hits: Array<{
+      _source: {
+        cis_code: string;
+        spec_name: string;
+        doc_type: string;
+        section_anchor: string;
+        section_title: string;
+      };
+      highlight?: { text_content?: string[] };
+    }> = response.body.hits?.hits ?? [];
+
+    return hits.map((h) => ({
+      cisCode: h._source.cis_code,
+      specName: h._source.spec_name,
+      docType: h._source.doc_type as "notice" | "rcp",
+      sectionAnchor: h._source.section_anchor,
+      sectionTitle: h._source.section_title,
+      highlights: h.highlight?.text_content ?? [],
+    }));
+  },
+  ["opensearch-section-results"],
+  { revalidate: 3600 },
+);
+
 export const getOpenSearchResults = unstable_cache(
   async function (query: string): Promise<SearchResultItemV2[]> {
     if (!query?.trim()) return [];
@@ -44,7 +104,7 @@ export const getOpenSearchResults = unstable_cache(
     const response = await getOpenSearchClient().search({
       index: "specialites",
       body: {
-        size: 100,
+        size: 10,
         query: {
           multi_match: {
             query,

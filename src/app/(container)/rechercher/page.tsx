@@ -1,6 +1,6 @@
 import { getSearchResults } from "@/db/utils";
 import { getArticlesFromSearchResults } from "@/db/utils/articles";
-import { getOpenSearchResults } from "@/db/utils/searchOpenSearch";
+import { getOpenSearchResults, getOpenSearchSectionResults } from "@/db/utils/searchOpenSearch";
 import SearchPage from "./SearchPage";
 import SearchPageV2 from "./SearchPageV2";
 import RatingToaster from "@/components/rating/RatingToaster";
@@ -16,7 +16,12 @@ export default async function Page(props: {
   const filterPediatric: boolean = (searchParams && "p" in searchParams && searchParams["p"] === "true") ? true : false;
 
   if (useExperimentalSearch) {
-    const results = search ? await getOpenSearchResults(searchParams["s"]) : [];
+    const [results, rawSectionResults] = await Promise.all([
+      search ? getOpenSearchResults(searchParams["s"]) : Promise.resolve([]),
+      search ? getOpenSearchSectionResults(searchParams["s"]) : Promise.resolve([]),
+    ]);
+    const specCisCodes = new Set(results.map((r) => r.cisCode));
+    const sectionResults = rawSectionResults.filter((s) => specCisCodes.has(s.cisCode));
     return (
       <>
         <SearchPageV2
@@ -24,6 +29,7 @@ export default async function Page(props: {
           filterPregnancy={filterPregnancy}
           filterPediatric={filterPediatric}
           searchResults={results}
+          sectionResults={sectionResults}
         />
         <RatingToaster pageId={`Recherche ${search ? search : ""}`} />
       </>

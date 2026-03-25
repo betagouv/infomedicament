@@ -5,7 +5,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Link from "next/link";
 import styled from "styled-components";
 import { Tooltip } from "@codegouvfr/react-dsfr/Tooltip";
-import { SearchResultItemV2 } from "@/db/utils/searchOpenSearch";
+import { SearchResultItemV2, SearchSectionResult } from "@/db/utils/searchOpenSearch";
 import { formatSpecName } from "@/displayUtils";
 import PregnancyPediatricFilters from "./PregnancyPediatricFilters";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
@@ -49,10 +49,25 @@ const ResultsListBlockContainer = styled.div`
   column-gap: 2rem;
 `;
 
+const SectionCard = styled.div`
+  border: var(--border-default-grey) 1px solid;
+  border-radius: 8px;
+  mark.highlight {
+    background-color: var(--yellow-tournesol-950-100);
+  }
+`;
+
+const SectionExcerpt = styled.p`
+  color: var(--text-mention-grey);
+  font-size: 0.875rem;
+  margin-bottom: 0;
+`;
+
 interface SearchResultsListV2Props extends HTMLAttributes<HTMLDivElement> {
   resultsList: SearchResultItemV2[];
   totalResults: number;
   searchTerms?: string | boolean;
+  sectionResults?: SearchSectionResult[];
   setFilterPregnancy: (value: boolean) => void;
   setFilterPediatric: (value: boolean) => void;
   filterPregnancy: boolean;
@@ -63,6 +78,7 @@ function SearchResultsListV2({
   resultsList,
   totalResults,
   searchTerms,
+  sectionResults,
   setFilterPregnancy,
   setFilterPediatric,
   filterPregnancy,
@@ -181,6 +197,33 @@ function SearchResultsListV2({
           })}
         </div>
       </ResultsListBlockContainer>
+      {sectionResults && sectionResults.length > 0 && (
+        <div className={fr.cx("fr-grid-row", "fr-mt-4w")}>
+          <div className={fr.cx("fr-col-12", "fr-col-md-8")}>
+            <h2 className={fr.cx("fr-h5", "fr-mb-2w")}>Dans les notices</h2>
+            {sectionResults.map((section, index) => (
+              <SectionCard key={index} className={fr.cx("fr-p-1w", "fr-mb-1w")}>
+                <div>
+                  <Link
+                    href={`/medicaments/${section.cisCode}`}
+                    className={fr.cx("fr-text--sm", "fr-link")}
+                    style={{ fontWeight: "bold" }}
+                  >
+                    {formatSpecName(section.specName)}
+                  </Link>
+                  <GreyText className={fr.cx("fr-text--sm")}> / {section.sectionTitle}</GreyText>
+                </div>
+                {section.highlights.map((excerpt, i) => (
+                  <SectionExcerpt
+                    key={i}
+                    dangerouslySetInnerHTML={{ __html: `…${excerpt}…` }}
+                  />
+                ))}
+              </SectionCard>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

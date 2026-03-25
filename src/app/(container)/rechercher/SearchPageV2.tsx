@@ -5,13 +5,14 @@ import AutocompleteSearch from "@/components/AutocompleteSearch";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SearchResultsListV2 from "@/components/search/SearchResultsListV2";
 import { HTMLAttributes, useEffect, useState } from "react";
-import { SearchResultItemV2 } from "@/db/utils/searchOpenSearch";
+import { SearchResultItemV2, SearchSectionResult } from "@/db/utils/searchOpenSearch";
 
 interface SearchPageV2Props extends HTMLAttributes<HTMLDivElement> {
   search?: string;
   filterPregnancy?: boolean;
   filterPediatric?: boolean;
   searchResults?: SearchResultItemV2[];
+  sectionResults?: SearchSectionResult[];
 }
 
 function SearchPageV2({
@@ -19,6 +20,7 @@ function SearchPageV2({
   filterPregnancy,
   filterPediatric,
   searchResults,
+  sectionResults,
 }: SearchPageV2Props) {
   const [currentFilterPregnancy, setCurrentFilterPregnancy] = useState<boolean>(false);
   const [currentFilterPediatric, setCurrentFilterPediatric] = useState<boolean>(false);
@@ -49,6 +51,7 @@ function SearchPageV2({
           resultsList={searchResults}
           totalResults={searchResults.length}
           searchTerms={search}
+          sectionResults={sectionResults}
           setFilterPregnancy={setCurrentFilterPregnancy}
           setFilterPediatric={setCurrentFilterPediatric}
           filterPregnancy={currentFilterPregnancy}
