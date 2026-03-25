@@ -15,7 +15,7 @@ const Container = styled.div<{ $isDark: boolean; $whiteContainer?: boolean; }>`
 
 interface ContentContainerProps extends HTMLAttributes<HTMLDivElement> {
   frContainer?: boolean;
-  whiteContainer?: boolean;
+  whiteContainer?: boolean; // White background + border
 }
 
 function ContentContainer({
