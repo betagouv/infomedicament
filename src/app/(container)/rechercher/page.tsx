@@ -1,6 +1,7 @@
 import { getSearchResults } from "@/db/utils";
 import { getArticlesFromSearchResults } from "@/db/utils/articles";
 import { getOpenSearchResults, getOpenSearchSectionResults } from "@/db/utils/searchOpenSearch";
+import { detectQueryIntent, stripIntentFromQuery, stripSpecialiteFromQuery } from "@/db/utils/searchIntent";
 import SearchPage from "./SearchPage";
 import SearchPageV2 from "./SearchPageV2";
 import RatingToaster from "@/components/rating/RatingToaster";
@@ -16,12 +17,14 @@ export default async function Page(props: {
   const filterPediatric: boolean = (searchParams && "p" in searchParams && searchParams["p"] === "true") ? true : false;
 
   if (useExperimentalSearch) {
-    const [results, rawSectionResults] = await Promise.all([
-      search ? getOpenSearchResults(searchParams["s"]) : Promise.resolve([]),
-      search ? getOpenSearchSectionResults(searchParams["s"]) : Promise.resolve([]),
-    ]);
-    const specCisCodes = new Set(results.map((r) => r.cisCode));
-    const sectionResults = rawSectionResults.filter((s) => specCisCodes.has(s.cisCode));
+    const intent = search ? detectQueryIntent(search) : null;
+    const medicationQuery = search && intent ? stripIntentFromQuery(search, intent) : search;
+    const sectionQuery = search && intent && medicationQuery ? stripSpecialiteFromQuery(search, medicationQuery) : search;
+    const results = medicationQuery ? await getOpenSearchResults(medicationQuery) : [];
+    const cisCodes = results.map((r) => r.cisCode);
+    const sectionResults = sectionQuery
+      ? await getOpenSearchSectionResults(sectionQuery, cisCodes, intent ?? undefined)
+      : [];
     return (
       <>
         <SearchPageV2

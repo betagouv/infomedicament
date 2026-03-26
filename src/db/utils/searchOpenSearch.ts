@@ -9,6 +9,7 @@ import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { getResumeSpecsGroupsAlerts } from "@/data/grist/specialites";
 import { formatSpecialitesResumeFromGroups } from "@/utils/specialites";
 import { SpecialiteAlerts } from "@/types/SpecialiteTypes";
+import { IntentMapping } from "@/db/utils/searchIntent";
 
 export type SearchResultItemV2 = {
   cisCode: string;
@@ -46,17 +47,31 @@ export type SearchSectionResult = {
 };
 
 export const getOpenSearchSectionResults = unstable_cache(
-  async function (query: string): Promise<SearchSectionResult[]> {
-    if (!query?.trim()) return [];
+  async function (query: string, cisCodes: string[], intent?: IntentMapping): Promise<SearchSectionResult[]> {
+    if (!query?.trim() || !cisCodes.length) return [];
+
+    const filters: object[] = [{ terms: { cis_code: cisCodes } }];
+    if (intent?.anchorIds?.length) {
+      filters.push({ terms: { section_anchor: intent.anchorIds } });
+    }
+
+    const should = intent && !intent.anchorIds?.length
+      ? [{ match: { section_title: { query: intent.sectionTitleQuery, boost: 5 } } }]
+      : undefined;
 
     const response = await getOpenSearchClient().search({
       index: "specialite_sections",
       body: {
-        size: 50,
+        size: 10,
         query: {
-          multi_match: {
-            query,
-            fields: ["spec_name^3", "section_title^2", "text_content"],
+          bool: {
+            // When anchorIds are set, the filter already pinpoints the exact sections —
+            // no need for full-text scoring, so use match_all.
+            must: intent?.anchorIds?.length
+              ? { match_all: {} }
+              : { multi_match: { query, fields: ["section_title^2", "text_content"] } },
+            filter: filters,
+            ...(should ? { should, minimum_should_match: 0 } : {}),
           },
         },
         highlight: {
@@ -83,7 +98,7 @@ export const getOpenSearchSectionResults = unstable_cache(
       highlight?: { text_content?: string[] };
     }> = response.body.hits?.hits ?? [];
 
-    return hits.map((h) => ({
+    const results = hits.map((h) => ({
       cisCode: h._source.cis_code,
       specName: h._source.spec_name,
       docType: h._source.doc_type as "notice" | "rcp",
@@ -91,6 +106,8 @@ export const getOpenSearchSectionResults = unstable_cache(
       sectionTitle: h._source.section_title,
       highlights: h.highlight?.text_content ?? [],
     }));
+    console.log(`[getOpenSearchSectionResults] query="${query}" intent=${intent ? `{sectionTitleQuery="${intent.sectionTitleQuery}"${intent.anchorIds ? ` anchorIds=[${intent.anchorIds.join(", ")}]` : ""}}` : "none"} → ${results.length} results: ${results.map((r) => `"${r.specName} / ${r.sectionTitle}"`).join(", ") || "(none)"}`);
+    return results;
   },
   ["opensearch-section-results"],
   { revalidate: 3600 },
