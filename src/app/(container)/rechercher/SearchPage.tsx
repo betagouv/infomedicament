@@ -14,6 +14,7 @@ interface SearchPageProps extends HTMLAttributes<HTMLDivElement> {
   filterPediatric?: boolean;
   searchResults?: SearchResultItem[];
   articlesList?: ArticleCardResume[];
+  //For now we are not displaying articles but we keep it in the process
 }
 
 function SearchPage({
@@ -39,8 +40,6 @@ function SearchPage({
       setCurrentFilterPediatric(filterPediatric);
     else setCurrentFilterPediatric(false);
   }, [filterPediatric, setCurrentFilterPediatric])
-
-  //In the V1, we are not displaying articles
 
   return (
     <ContentContainer frContainer>

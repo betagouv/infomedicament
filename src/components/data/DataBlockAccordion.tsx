@@ -107,7 +107,6 @@ function DataBlockAccordion({
   const [fullListeComposants, setFullListeComposants] = useState<string>("");
   const [listeComposants, setListeComposants] = useState<string>("");
   const [listPathos, setListPathos] = useState<ShortPatho[]>([]);
-  const [listPathosTxt, setListPathosTxt] = useState<string>("");
 
   const [atc1Label, setAtc1Label] = useState<string | undefined>(undefined);
   const [atc2Label, setAtc2Label] = useState<string | undefined>(undefined);
@@ -128,15 +127,8 @@ function DataBlockAccordion({
     setListeComposants(item.composants.slice(0, composantsTruncLength) + (item.composants.length > composantsTruncLength ? "..." : ""));
     setAtc1Label(item.atc1Label);
     setAtc2Label(item.atc2Label);
-    if(item.pathosDetails && item.pathosDetails.length > 0) {
-      let newListPathos: string = "";
-      item.pathosDetails.forEach((patho) => {
-        newListPathos += (newListPathos !== "" ? ", " : "") + patho.NomPatho;
-      })
-      setListPathosTxt(newListPathos);
-      setListPathos(item.pathosDetails);
-    }
-  }, [item, composantsTruncLength, setSpecialitesGroup, setGroupName, setSpecialites, setListeComposants, setAtc1Label, setAtc2Label, setListPathos, setListPathosTxt]);
+    setListPathos(item.pathosDetails ? item.pathosDetails : []);
+  }, [item, composantsTruncLength, setSpecialitesGroup, setGroupName, setSpecialites, setListeComposants, setAtc1Label, setAtc2Label, setListPathos]);
 
   useEffect(() => {
     if(withAlert 
@@ -195,6 +187,13 @@ function DataBlockAccordion({
     };
   }, []);
 
+  function getPathosText(pathosDetails: ShortPatho[]) {
+    let newListPathos: string = "";
+    pathosDetails.forEach((patho) => {
+      newListPathos += (newListPathos !== "" ? ", " : "") + patho.NomPatho;
+    })
+    return newListPathos;
+  }
 
   return specialitesGroup && (
     <Container className={fr.cx("fr-mb-1w")}>
@@ -233,7 +232,7 @@ function DataBlockAccordion({
                 <span className={fr.cx("fr-text--sm", "fr-ml-2w")}>
                   <GreyText>Pathologie{listPathos.length > 1 && 's'}</GreyText>&nbsp;
                   <DarkGreyText>
-                    {listPathosTxt}
+                    {getPathosText(listPathos)}
                   </DarkGreyText>
                 </span>
               )}

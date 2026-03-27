@@ -7,6 +7,8 @@ import DataBlockAccordion from "../data/DataBlockAccordion";
 import { SearchResultItem } from "@/db/utils/search";
 import Checkbox from "@codegouvfr/react-dsfr/Checkbox";
 import { ShortPatho } from "@/types/PathoTypes";
+import Link from "next/link";
+import Button from "@codegouvfr/react-dsfr/Button";
 
 type ATC2Filter = {
   atc2Label: string,
@@ -19,12 +21,13 @@ type ATCFilter = {
   atc2List: ATC2Filter[],
 }
 
+type SortType = "alphabetic" | "score";
+
 const Container = styled.div `
   .display-inline {
     display: inline;
   }
 `;
-
 const FiltersContainer = styled.div`
   padding: 1rem 2rem;
   background-color: var(--background-alt-blue-france);
@@ -41,8 +44,8 @@ const FilterTitle = styled.div`
   margin-bottom: 1rem;
   color: var(--text-label-grey);
 `;
-
-const ResultsContainer = styled.div`
+const SortContainer = styled.div`
+  text-align: right;
 `;
 
 interface SearchResultsListProps extends HTMLAttributes<HTMLDivElement> {
@@ -60,6 +63,8 @@ function SearchResultsList({
   const [pathosList, setPathosList] = useState<ShortPatho[]>([]);
   const [pathosFilterList, setPathosFilterList] = useState<ShortPatho[]>([]);
   const [filteredResultsList, setFilteredResultsList] = useState<SearchResultItem[]>(resultsList);
+  const [currentSortType, setCurrentSortType] = useState<SortType>("score");
+  const [isSortAsc, setIsSortAsc] = useState<boolean>(true);
 
   useEffect(() => {
     const composants: string[] = [];
@@ -97,12 +102,20 @@ function SearchResultsList({
         }
       }
       //Pathos List
-      if(result.pathosDetails) {
+      if(result.pathosDetails && result.pathosDetails.length > 0) {
         result.pathosDetails.forEach((pathoDetail) => {
           const indexPatho = pathos.findIndex((patho) => pathoDetail.codePatho === patho.codePatho && pathoDetail.NomPatho.trim() === patho.NomPatho.trim());
           if(indexPatho === -1)
             pathos.push(pathoDetail);
         });
+      } else {
+        const indexNoPatho = pathos.findIndex((patho) => patho.codePatho === "-1");
+        if(indexNoPatho === -1) {
+          pathos.push({
+            codePatho: "-1",
+            NomPatho: "Aucune pathologie"
+          });
+        }
       }
     });
     composants.sort((a,b) => a.localeCompare(b));
@@ -119,34 +132,60 @@ function SearchResultsList({
   }, [resultsList, setComposantsList, setComposantsFilterList, setAtcList, setAtcFilterList, setPathosList, setPathosFilterList]);
 
   useEffect(() => {
-    const newResultsList = resultsList.filter((result) => {
-      if(composantsList.length > 0) {
-        //Filter on composants only if there is composants
-        const findComposant = composantsFilterList.find((composants) => composants === result.composants.trim());
-        if(!findComposant) return false;
-      }
-      if(atcList.length > 0){
-        //Filter on atc only if there is atc
-        const findATC = atcFilterList.find((atc) => {
-          if(atc.atc1Code === result.atc1Code) {
-            return atc.atc2List.find((atc2) => atc2.atc2Code === result.atc2Code);
-          } else return false;
-        });
-        if(!findATC) return false;
-      }
-      if(pathosList.length > 0 && result.pathosDetails) {
-        //Filter on patho only if there is patho
-        let find: boolean = false;
-        result.pathosDetails.forEach((pathoDetail) => {
-          const indexPatho = pathosFilterList.findIndex((patho) => pathoDetail.codePatho === patho.codePatho && pathoDetail.NomPatho.trim() === patho.NomPatho.trim());
-          if(indexPatho !== -1) find = true;
-        });
-        return find;
-      }
-      return true;
-    })
+    const newResultsList = resultsList
+      .filter((result) => {
+        if(composantsList.length > 0) {
+          //Filter on composants only if there is composants
+          const findComposant = composantsFilterList.find((composants) => composants === result.composants.trim());
+          if(!findComposant) return false;
+        }
+        if(atcList.length > 0){
+          //Filter on atc only if there is atc
+          const findATC = atcFilterList.find((atc) => {
+            if(atc.atc1Code === result.atc1Code) {
+              return atc.atc2List.find((atc2) => atc2.atc2Code === result.atc2Code);
+            } else return false;
+          });
+          if(!findATC) return false;
+        }
+        if(pathosList.length > 0) {
+          //Filter on patho only if there is patho
+          if(result.pathosDetails && result.pathosDetails.length > 0){
+            let find: boolean = false;
+            result.pathosDetails.forEach((pathoDetail) => {
+              const findPatho = pathosFilterList.findIndex((patho) => patho.codePatho === pathoDetail.codePatho && patho.NomPatho.trim() === pathoDetail.NomPatho.trim());
+              if(findPatho !== -1){
+                find = true;
+              } 
+            });
+            return find;
+          } 
+          else {
+            //"Aucune pathologie" is selected
+            const noPatho = pathosFilterList.findIndex((patho) => patho.codePatho === "-1");
+            if(noPatho === -1) return false;
+            else return true;
+          }
+        }
+        return true;
+      })
+      .sort((a, b) => { 
+        if(currentSortType === "alphabetic") {
+          if(isSortAsc) return a.groupName.localeCompare(b.groupName, "fr")
+          else return b.groupName.localeCompare(a.groupName, "fr")
+        }
+        else {
+          if(isSortAsc) {
+            if (a.score !== b.score) return b.score - a.score;
+            return a.groupName.localeCompare(b.groupName, "fr");
+          } else {
+            if (a.score !== b.score) return a.score - b.score;
+            return b.groupName.localeCompare(a.groupName, "fr");
+          }
+        }
+      });
     setFilteredResultsList(newResultsList);
-  }, [resultsList, composantsList, composantsFilterList, atcList, atcFilterList, pathosList, pathosFilterList, setFilteredResultsList])
+  }, [resultsList, currentSortType, isSortAsc, composantsList, composantsFilterList, atcList, atcFilterList, pathosList, pathosFilterList, setFilteredResultsList])
 
   const onChangeSubsFilter = (composants: string, checked: boolean) => {
     //Update composants list
@@ -156,7 +195,6 @@ function SearchResultsList({
       setComposantsFilterList(composantsFilterList.filter((filterComposants) => filterComposants !== composants));
     }
   };
-
   const onChangeATCFilter = (atc: ATCFilter, checked: boolean) => {
     //Update atc list
     if (checked) {
@@ -165,12 +203,6 @@ function SearchResultsList({
       setAtcFilterList(atcFilterList.filter((filterAtc) => filterAtc.atc1Code !== atc.atc1Code));
     }
   };
-
-  const isATC2Checked = (atc: ATCFilter, filterList: ATCFilter[]) => {
-    const findIndex = filterList.findIndex((atcFilter) => atcFilter.atc1Code === atc.atc1Code);
-    if(findIndex === -1) return false;
-    return true;
-  }
   const onChangeATC2Filter = (atc1: ATCFilter, atc2: ATC2Filter, checked: boolean) => {
     //Update atc list
     const newAtc: ATCFilter = {...atc1};
@@ -189,18 +221,30 @@ function SearchResultsList({
       setAtcFilterList(newFilters);
     }
   };
-
   const onChangePathoFilter = (patho: ShortPatho, checked: boolean) => {
     //Update composants list
     if (checked) {
       setPathosFilterList([...pathosFilterList, patho]);
     } else {
       setPathosFilterList(pathosFilterList.filter(
-        (filterPatho) => filterPatho.codePatho !== patho.codePatho && filterPatho.NomPatho.trim() !== patho.NomPatho.trim()
+        (filterPatho) => {
+          if(filterPatho.codePatho !== patho.codePatho || filterPatho.NomPatho.trim() !== patho.NomPatho.trim()) {
+            return true;
+          } else {  
+            return false;
+          }
+        }
       ));
     }
   };
 
+  const isATC2Checked = (atc: ATCFilter, atc2: ATC2Filter, filterList: ATCFilter[]) => {
+    const findIndex = filterList.findIndex((atcFilter) => atcFilter.atc1Code === atc.atc1Code);
+    if(findIndex === -1) return false;
+    const findIndex2 = filterList[findIndex].atc2List.findIndex((atc2Filter) => atc2Filter.atc2Code === atc2.atc2Code);
+    if(findIndex2 === -1) return false;
+    return true;
+  }
 
   return (
     <Container className={fr.cx("fr-grid-row")}>
@@ -244,7 +288,7 @@ function SearchResultsList({
                       ({
                         label: atc2.atc2Label,
                         nativeInputProps: {
-                          defaultChecked: isATC2Checked(atc, atcFilterList),//TODO KO
+                          checked: isATC2Checked(atc, atc2, atcFilterList),
                           onClick: (e) => onChangeATC2Filter(atc, atc2, (e.target as any).checked),
                         },
                       })
@@ -274,10 +318,44 @@ function SearchResultsList({
           </div>
         )}
       </FiltersContainer>
-      <ResultsContainer className={fr.cx("fr-col-12", "fr-col-md-8", "fr-pl-3w")}>
+      <div className={fr.cx("fr-col-12", "fr-col-md-8", "fr-pl-3w")}>
         <div className={fr.cx("fr-text--bold", "fr-mb-3w")}>
           {filteredResultsList.length} résultat{filteredResultsList.length > 1 && 's'}
         </div>
+        <SortContainer className={fr.cx("fr-mb-3w")}>
+          Trier par{" "}
+          {currentSortType !== "alphabetic" 
+            ? (
+              <Link
+                href=""
+                onClick={() => setCurrentSortType("alphabetic")}
+                className={fr.cx("fr-text--sm")} 
+              >
+                ordre alphabétique
+              </Link>
+            )
+            : (<span className={fr.cx("fr-text--sm", "fr-text--bold")}>ordre alphabétique</span>)
+          }{" / "}
+          {currentSortType !== "score" 
+            ? (
+              <Link
+                href=""
+                onClick={() => setCurrentSortType("score")}
+                className={fr.cx("fr-text--sm")} 
+              >
+                popularité
+              </Link>
+            )
+            : (<span className={fr.cx("fr-text--sm", "fr-text--bold")}>popularité</span>)
+          }
+          <Button
+            iconId={isSortAsc ? "fr-icon-arrow-down-line" : "fr-icon-arrow-up-line"}
+            onClick={() => setIsSortAsc(!isSortAsc)}
+            priority="tertiary no outline"
+            title={`Trier par ordre ${isSortAsc ? "décroissant" : "croissant"}`}
+            size="small"
+          />
+        </SortContainer>
         {filteredResultsList && filteredResultsList.map((result, index) => (
           <DataBlockAccordion
             key={index}
@@ -288,7 +366,7 @@ function SearchResultsList({
             withAlert
           />
         ))}
-      </ResultsContainer>
+      </div>
     </Container>
   );
 };
