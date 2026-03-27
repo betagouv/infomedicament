@@ -249,22 +249,16 @@ function MedicamentContent({
       setCurrentPresentations(presentations);
   }, [presentations, setCurrentPresentations]);
 
-  const onScrollEvent = useCallback(() => {
-    if (window.pageYOffset > window.innerHeight) {
-      trackEvent("Page médicament", "Scroll");
-      window.removeEventListener("scroll", onScrollEvent);
-    }
-  }, []);
-
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.addEventListener("scroll", onScrollEvent);
-    }
-    // Cleanup: remove listener on unmount to prevent memory leaks
-    return () => {
-      window.removeEventListener("scroll", onScrollEvent);
+    const handler = () => {
+      if (window.pageYOffset > window.innerHeight) {
+        trackEvent("Page médicament", "Scroll");
+        window.removeEventListener("scroll", handler);
+      }
     };
-  }, [onScrollEvent]);
+    window.addEventListener("scroll", handler);
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
 
   useEffect(() => {
     // Use to display or not the separator after a tag (left column)
