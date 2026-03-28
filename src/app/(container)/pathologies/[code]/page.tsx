@@ -1,10 +1,11 @@
-import { notFound } from "next/navigation";
+ import { notFound } from "next/navigation";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getPatho } from "@/db/utils/pathologies";
 import PathologyDefinitionContent from "@/components/definition/PathologyDefinitionContent";
+import { ShortPatho } from "@/types/PathoTypes";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -13,7 +14,7 @@ export default async function Page(props: {
   params: Promise<{ code: `${number}` }>;
 }) {
   const { code } = await props.params;
-  const patho = await getPatho(code);
+  const patho: ShortPatho | undefined = await getPatho(code);
   if (!patho) return notFound();
 
   return (

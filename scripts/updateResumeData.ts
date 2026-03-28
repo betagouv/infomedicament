@@ -4,13 +4,14 @@ import { Letters, LetterType, ResumeGeneric, ResumePatho, ResumeSubstance } from
 import { groupGeneNameToDCI } from "@/displayUtils";
 import { getComposants } from "@/db/utils/composants";
 import { getEvents } from "@/db/utils/ficheInfos";
-import { getAllPathoWithSpecialites, getSpecialitesPatho } from "@/db/utils/pathologies";
+import { getAllClasseCliniqueWithSpecialites, getAllPathoWithSpecialites, getSpecialitesPatho } from "@/db/utils/pathologies";
 import { getAllSpecialites } from "@/db/utils/specialities";
 import { getAllSubsWithSpecialites } from "@/db/utils/substances";
 import { displaySimpleComposants, formatSpecName, MedicamentGroup } from "@/displayUtils";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
 import { getAtc1Code, getAtc2Code, getAtcCode } from "@/utils/atc";
 import { getSpecialiteGroupName, groupSpecialites, isSurveillanceRenforcee } from "@/utils/specialites";
+import { ClasseCliniqueSpec, ShortPatho } from "@/types/PathoTypes";
 
 type DataToResumeType = "pathos" | "substances" | "specialites" | "atc1" | "atc2" | "generiques";
 
@@ -38,9 +39,10 @@ async function createResumePathologies(): Promise<string[]> {
     .deleteFrom('resume_pathologies')
     .execute();
 
-  const allPathos = await getAllPathoWithSpecialites();
   const rawResumeData: RawResumePatho[] = [];
   const letters: string[] = [];
+  //Resume pathologies
+  const allPathos = await getAllPathoWithSpecialites();
   allPathos.forEach((patho) => {
     const index = rawResumeData.findIndex((resumePatho) => resumePatho.codePatho === patho.codePatho);
     if (index !== -1) {
@@ -56,6 +58,25 @@ async function createResumePathologies(): Promise<string[]> {
       ]
     });
     const pathoLetter = getNormalizeLetter(patho.NomPatho.substring(0, 1));
+    if (!letters.includes(pathoLetter)) letters.push(pathoLetter);
+  });
+  //Resume classes cliniques
+  const allClasseClinique: ClasseCliniqueSpec[] = await getAllClasseCliniqueWithSpecialites();
+  allClasseClinique.forEach((classeClinique) => {
+    const index = rawResumeData.findIndex((resumePatho) => resumePatho.codePatho === classeClinique.codeClasClinique.toString());
+    if (index !== -1) {
+      const specGroupName = getSpecialiteGroupName(classeClinique.SpecDenom01);
+      if (!rawResumeData[index].specialites.includes(specGroupName)) {
+        rawResumeData[index].specialites.push(specGroupName);
+      }
+    } else rawResumeData.push({
+      codePatho: classeClinique.codeClasClinique.toString(),
+      NomPatho: classeClinique.libCourt,
+      specialites: [
+        getSpecialiteGroupName(classeClinique.SpecDenom01),
+      ]
+    });
+    const pathoLetter = getNormalizeLetter(classeClinique.libCourt.substring(0, 1));
     if (!letters.includes(pathoLetter)) letters.push(pathoLetter);
   });
 
@@ -154,7 +175,15 @@ async function createResumeSpecialites(): Promise<string[]> {
         })
       );
       const CISList: string[] = rawSpecialites.map((spec) => spec.SpecId.trim());
-      const pathosCodes: string[] = await getSpecialitesPatho(CISList);
+      const rawPathosCodes: ShortPatho[] = await getSpecialitesPatho(CISList);
+      const pathosCodes: string[] = rawPathosCodes
+        .map((patho) => patho.codePatho)
+        .filter((codePatho, index, arr) => arr.indexOf(codePatho) === index);
+      const pathosCodesNames: string[][] = rawPathosCodes.map((patho) => [
+        patho.codePatho, 
+        patho.NomPatho ? patho.NomPatho : "",
+      ]);
+
       const atc = await getAtcCode(rawSpecialites[0].SpecId);
       const atc1: string | undefined = atc ? getAtc1Code(atc) : undefined;
       const atc2: string | undefined = atc ? getAtc2Code(atc) : undefined;
@@ -174,7 +203,7 @@ async function createResumeSpecialites(): Promise<string[]> {
           atc5Code: atc ?? undefined,
           CISList: CISList,
           subsIds: subsIds,
-          pathosCodesNames: [],
+          pathosCodesNames: pathosCodesNames,
         })
         .execute();
       return true;

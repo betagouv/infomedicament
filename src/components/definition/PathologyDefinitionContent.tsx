@@ -4,16 +4,16 @@ import * as Sentry from "@sentry/nextjs";
 import React, { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
-import { Patho } from "@/db/pdbmMySQL/types";
 import { getArticlesFromPatho } from "@/db/utils/articles";
 import PageDefinitionContent from "./PageDefinitionContent";
 import { getPathologyDefinition } from "@/db/utils/pathologies";
 import { getResumeSpecsGroupsWithPatho } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
+import { ShortPatho } from "@/types/PathoTypes";
 
 interface PathologyDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
-  patho: Patho;
+  patho: ShortPatho;
 }
 
 function PathologyDefinitionContent({
@@ -31,7 +31,7 @@ function PathologyDefinitionContent({
         const newArticles: ArticleCardResume[] = await getArticlesFromPatho(patho.codePatho);
         setArticles(newArticles);
 
-        const definition = await getPathologyDefinition(patho.codePatho);
+        const definition = await getPathologyDefinition(Number(patho.codePatho.trim()));
         setDefinition(definition);
 
         const newAllSpecsGroups = await getResumeSpecsGroupsWithPatho(patho.codePatho);

@@ -31,6 +31,8 @@ export interface Database {
   cis_atc: CisAtc;
   asmr: AsmrTable;
   smr: SmrTable;
+  classes_cliniques: ClassesCliniquesTable;
+  vu_classes_cliniques: VUClassesCliniquesTable;
 }
 
 interface SearchIndexTable {
@@ -206,9 +208,10 @@ export interface RefMarrUrlPdf {
 }
 
 export interface RefPathologies {
-  code_patho: string | null;
+  code_patho: number | null;
   definition: string | null;
   id: Generated<number>;
+  isClasseClinique: boolean;
 }
 
 export interface RefPediatrie {
@@ -287,6 +290,31 @@ export interface CisAtc {
   date_creation: Date | null;
   date_modification: Date | null;
   code_modif: number | null;
+}
+
+interface ClassesCliniquesTable {
+  codeTerme: number,
+  libAbr?: string,
+  libCourt: string,
+  libLong: string,
+  libLongAnglais?: string,
+  libRech?: string,
+  numOrdreEdit: number,
+  dateCreationTerme: Date,
+  dateModifTerme?: Date,
+  dateInactivTerme?: Date,
+  textSourceRef?: string,
+  remTerme?: string,
+};
+
+interface VUClassesCliniquesTable {
+  codeVU: string,
+  codeClasClinique: number,
+  indicValide: number,
+  remCommentaire?: string,
+  dateCreation: Date,
+  dateDernModif?: Date,
+  codeModif?: number,
 }
 
 export type LeafletImage = Selectable<LeafletImagesTable>;
