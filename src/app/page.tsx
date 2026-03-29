@@ -2,11 +2,8 @@ import Image from "next/image";
 import { fr } from "@codegouvfr/react-dsfr";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import { getArticles } from "@/db/utils/articles";
-import RatingToaster from "@/components/rating/RatingToaster";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
 import { Article } from "@/types/ArticlesTypes";
-
-const PAGE_LABEL: string = "Accueil";
 
 export default async function Page() {
   const articles: Article[] = (await getArticles()).filter(({ homepage }) => homepage);
@@ -57,6 +54,7 @@ export default async function Page() {
               )}
               width={2000}
               height={2000}
+              priority
             />
             <ArticlesSimpleList
               listRole="nav"
@@ -83,13 +81,11 @@ export default async function Page() {
               className={fr.cx("fr-responsive-img")}
               width={2000}
               height={2000}
+              priority
             />
           </div>
         </div>
       </div>
-      <RatingToaster
-        pageId={PAGE_LABEL}
-      />
     </>
   );
 }
