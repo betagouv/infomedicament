@@ -9,15 +9,20 @@ import { isAIP, isAlerteSecurite, isCommercialisee, isHomeopathie } from "@/util
 import Alert from "@codegouvfr/react-dsfr/Alert";
 import Image from "next/image";
 import { FicheInfos } from "@/types/FicheInfoTypes";
+import { Definition } from "@/types/GlossaireTypes";
+import WithDefinition from "../glossary/WithDefinition";
+import { getDefinition } from "@/utils/glossary";
 
 interface MedicamentContentHeaderProps extends HTMLAttributes<HTMLDivElement> {
   specialite?: DetailedSpecialite;
   ficheInfos?: FicheInfos;
+  definitions: Definition[];
 }
 
 function MedicamentContentHeader({
   specialite,
   ficheInfos,
+  definitions,
   ...props
 }: MedicamentContentHeaderProps) {
 
@@ -67,7 +72,11 @@ function MedicamentContentHeader({
       )}
       {(specialite && isHomeopathie(specialite)) && (
         <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
-          Ce médicament est un médicament homéopathique à nom commun soumis à enregistrement.
+          Ce médicament est un médicament homéopathique à nom commun soumis à{" "}
+          <WithDefinition
+            definition={getDefinition(definitions, "Enregistrement des médicaments homéopathiques")}
+            word="enregistrement"
+          />.
           <br/><br/>
           Aucune indication thérapeutique, aucune posologie et aucune notice ne sont attribuées
             aux médicaments homéopathiques à nom commun. 

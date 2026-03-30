@@ -48,6 +48,8 @@ import { Presentation } from "@/types/PresentationTypes";
 import { trackEvent } from "@/services/tracking";
 import MedicamentContentHeader from "./MedicamentContentHeader";
 import { FicheInfos } from "@/types/FicheInfoTypes";
+import { Definition } from "@/types/GlossaireTypes";
+import getGlossaryDefinitions from "@/db/utils/glossary";
 
 const ToggleSwitchContainer = styled.div`
   background-color: var(--background-contrast-info);
@@ -133,6 +135,7 @@ function MedicamentContent({
   const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock>();
   const [ficheInfos, setFicheInfos] = useState<FicheInfos>();
   const [articles, setArticles] = useState<ArticleCardResume[]>([]);
+  const [definitions, setDefinitions] = useState<Definition[]>([]);
   const [currentMarr, setCurrentMarr] = useState<Marr>();
   const [loaded, setLoaded] = useState<boolean>(false);
 
@@ -228,13 +231,17 @@ function MedicamentContent({
           }
         }
         const newFicheInfos = await getFicheInfos(spec.SpecId);
-        setFicheInfos(newFicheInfos);
+        setFicheInfos(newFicheInfos);      
+        const newDefinitions = (await getGlossaryDefinitions()).filter(
+          (d) => d.a_souligner,
+        );
+        setDefinitions(newDefinitions);
         setLoaded(true);
       } catch (e) {
         Sentry.captureException(e);
       }
     },
-    [atcList, setArticles, setNotice, setIndicationBlock, setFicheInfos, setLoaded]
+    [atcList, setArticles, setNotice, setIndicationBlock, setFicheInfos, setLoaded, setDefinitions]
   );
 
   useEffect(() => {
@@ -440,6 +447,7 @@ function MedicamentContent({
           <MedicamentContentHeader
             specialite={currentSpec}
             ficheInfos={ficheInfos}
+            definitions={definitions}
           />
           {isAdvanced ? (
             <DetailedNotice
@@ -456,6 +464,7 @@ function MedicamentContent({
               ficheInfos={ficheInfos}
               indicationBlock={indicationBlock}
               delivrance={delivrance}
+              definitions={definitions}
             />
           ) : (
             <>
@@ -497,6 +506,7 @@ function MedicamentContent({
                             <NoticeBlock
                               notice={notice}
                               specialite={currentSpec}
+                              definitions={definitions}
                             />
                           </>
                         ) :
