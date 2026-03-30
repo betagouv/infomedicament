@@ -18,6 +18,7 @@ export type MatchReason = {
 
 export type SearchResultItem = ResumeSpecGroup & {
   matchReasons: MatchReason[];
+  score: number;
 };
 
 export const getSearchResults = unstable_cache(async function (
@@ -95,10 +96,14 @@ export const getSearchResults = unstable_cache(async function (
 
   // Attach match reasons, sort by score
   return withAlerts
-    .map((group) => ({
-      ...group,
-      matchReasons: groupMap.get(group.groupName)?.reasons ?? [],
-    }))
+    .map((group) => {
+      const matchReasons = groupMap.get(group.groupName)?.reasons ?? [];
+      return {
+        ...group,
+        matchReasons: matchReasons,
+        score: computeSortScore(query, group.groupName, group.composants, matchReasons, groupMap.get(group.groupName)?.score ?? 0),
+      }
+    })
     .sort((a, b) => {
       const scoreA = computeSortScore(query, a.groupName, a.composants, a.matchReasons, groupMap.get(a.groupName)?.score ?? 0);
       const scoreB = computeSortScore(query, b.groupName, b.composants, b.matchReasons, groupMap.get(b.groupName)?.score ?? 0);
