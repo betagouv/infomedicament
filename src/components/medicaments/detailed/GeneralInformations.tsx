@@ -24,6 +24,9 @@ import { getProcedureLibLong, getTypeInfoTxt, isAIP, isCentralisee } from "@/uti
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { getPresentationName, getPresentationPriceText, isAbrogee, isAgree, isArret, isIVG, isListeRetrocession, isListeSus, isNotAuthorized } from "@/utils/presentations";
 import { FicheInfos, InfosImportantes } from "@/types/FicheInfoTypes";
+import WithDefinition from "@/components/glossary/WithDefinition";
+import { Definition } from "@/types/GlossaireTypes";
+import { getDefinition } from "@/utils/glossary";
 
 const SummaryLineContainer = styled.div<{ $hideBorder?: boolean; }>`
   display: flex;
@@ -97,6 +100,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   ficheInfos?: FicheInfos;
   indicationBlock?: NoticeRCPContentBlock;
   delivrance: SpecDelivrance[];
+  definitions: Definition[];
 }
 
 function GeneralInformations({ 
@@ -113,6 +117,7 @@ function GeneralInformations({
   ficheInfos,
   indicationBlock,
   delivrance,
+  definitions,
   ...props 
 }: GeneralInformationsProps) {
   
@@ -261,7 +266,14 @@ function GeneralInformations({
                 {delivrance.map((line: SpecDelivrance, index) => {
                   return (
                     <li key={index}>
-                      {line.DelivLong}
+                      {(line.DelivLong.trim() === "liste I" || line.DelivLong.trim() === "liste II")
+                        ? (
+                          <WithDefinition
+                            definition={getDefinition(definitions, "Liste I et II")}
+                            word={line.DelivLong}
+                          />
+                        )
+                        : line.DelivLong}
                     </li>
                   );
                 })}
@@ -397,7 +409,10 @@ function GeneralInformations({
                       )}
                       {pres.HonoDisp && (
                         <span>
-                          <u>Honoraire de dispensation</u> : {" "}
+                          <WithDefinition
+                            definition={getDefinition(definitions, "Honoraire de dispensation")}
+                            word="Honoraire de dispensation"
+                          />{" : "}
                           {Intl.NumberFormat("fr-FR", {
                             style: "currency",
                             currency: "EUR",
@@ -438,12 +453,10 @@ function GeneralInformations({
                   {isAgree(pres) ? (
                     <div className={fr.cx("fr-mb-0")}>
                       Cette présentation est{" "}
-                      <Link href="https://base-donnees-publique.medicaments.gouv.fr/glossaire.php#agrecol" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                      >
-                        agréée aux collectivités
-                      </Link>.
+                      <WithDefinition
+                        definition={getDefinition(definitions,"Agrément aux collectivités")}
+                        word="agréée aux collectivités"
+                      />.
                     </div>
                   ) : (
                     <div className={fr.cx("fr-mb-0")}>
@@ -457,10 +470,29 @@ function GeneralInformations({
                     </div>
                   )}
                   {isListeSus(pres) && (
-                    <div>Inscription sur la liste en sus, pour au moins l'une de ses indications. Tarif de responsabilité publié au Journal Officiel.</div>
+                    <div>
+                      Inscription sur la{" "}
+                      <WithDefinition
+                        definition={getDefinition(definitions, "Liste en sus")}
+                        word="liste en sus"
+                      />, pour au moins l'une de ses indications.{" "}
+                      <WithDefinition
+                        definition={getDefinition(definitions, "Tarif de responsabilité ")}
+                        word="Tarif de responsabilité"
+                      />{" "}publié au Journal Officiel.</div>
                   )}
                   {isListeRetrocession(pres) && (
-                    <div>Inscription sur la liste de rétrocession au titre de son AMM, selon les conditions précisées au Journal Officiel. Prix de cession publié au Journal Officiel.</div>
+                    <div>
+                      Inscription sur la{" "}
+                      <WithDefinition
+                        definition={getDefinition(definitions, "Liste de rétrocession")}
+                        word="liste de rétrocession"
+                      />{" "}
+                      au titre de son AMM, selon les conditions précisées au Journal Officiel.{" "}
+                      <WithDefinition
+                        definition={getDefinition(definitions, "Prix de cession")}
+                        word="Prix de cession"
+                      />{" "}publié au Journal Officiel.</div>
                   )}
                   {isIVG(pres) && (
                     <div>
