@@ -174,6 +174,7 @@ async function createResumeSpecialites(): Promise<string[]> {
           atc5Code: atc ?? undefined,
           CISList: CISList,
           subsIds: subsIds,
+          pathosCodesNames: [],
         })
         .execute();
       return true;
@@ -226,7 +227,7 @@ async function saveResumeLetters(
   console.log("Ajout des letters");
   const lettersValue: Letters = {
     type: dataToResume,
-    letters: letters.sort((a,b) => a.localeCompare(b)),
+    letters: letters.sort((a, b) => a.localeCompare(b)),
   }
   await db
     .deleteFrom('letters')

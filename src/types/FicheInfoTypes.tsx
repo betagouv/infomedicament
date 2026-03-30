@@ -16,6 +16,7 @@ export type InfosImportantes = {
 export type SubstanceComposition = {
   NomLib: string,
   dosage: string,
+  CompNum: number,
 }
 
 export type ComposantComposition = SubstanceComposition & {
