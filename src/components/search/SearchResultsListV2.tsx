@@ -1,7 +1,8 @@
 "use client";
 
-import { HTMLAttributes } from "react";
+import { HTMLAttributes, useEffect, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
+import Pagination from "@codegouvfr/react-dsfr/Pagination";
 import Link from "next/link";
 import styled from "styled-components";
 import { Tooltip } from "@codegouvfr/react-dsfr/Tooltip";
@@ -74,6 +75,8 @@ interface SearchResultsListV2Props extends HTMLAttributes<HTMLDivElement> {
   filterPediatric: boolean;
 }
 
+const PAGE_SIZE = 10;
+
 function SearchResultsListV2({
   resultsList,
   totalResults,
@@ -84,6 +87,15 @@ function SearchResultsListV2({
   filterPregnancy,
   filterPediatric,
 }: SearchResultsListV2Props) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [resultsList]);
+
+  const pageCount = Math.ceil(resultsList.length / PAGE_SIZE);
+  const pageResults = resultsList.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   return (
     <div>
       <div className={fr.cx("fr-grid-row", "fr-mb-2w")}>
@@ -104,7 +116,7 @@ function SearchResultsListV2({
       </div>
       <ResultsListBlockContainer className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12", "fr-col-md-8")}>
-          {resultsList.map((item) => {
+          {pageResults.map((item) => {
             const showPregnancyPlan =
               filterPregnancy && !!item.alerts?.pregnancyPlanAlert;
             const showPregnancyMention =
@@ -197,6 +209,20 @@ function SearchResultsListV2({
           })}
         </div>
       </ResultsListBlockContainer>
+      {pageCount > 1 && (
+        <div className={fr.cx("fr-grid-row", "fr-mt-2w")}>
+          <div className={fr.cx("fr-col-12", "fr-col-md-8")}>
+            <Pagination
+              count={pageCount}
+              defaultPage={currentPage}
+              getPageLinkProps={(page) => ({
+                onClick: (e) => { e.preventDefault(); setCurrentPage(page); },
+                href: "#",
+              })}
+            />
+          </div>
+        </div>
+      )}
       {sectionResults && sectionResults.length > 0 && (
         <div className={fr.cx("fr-grid-row", "fr-mt-4w")}>
           <div className={fr.cx("fr-col-12", "fr-col-md-8")}>
@@ -213,12 +239,9 @@ function SearchResultsListV2({
                   </Link>
                   <GreyText className={fr.cx("fr-text--sm")}> / {section.sectionTitle}</GreyText>
                 </div>
-                {section.highlights.map((excerpt, i) => (
-                  <SectionExcerpt
-                    key={i}
-                    dangerouslySetInnerHTML={{ __html: `…${excerpt}…` }}
-                  />
-                ))}
+                <SectionExcerpt
+                  dangerouslySetInnerHTML={{ __html: section.highlights[0] ?? section.textContent }}
+                />
               </SectionCard>
             ))}
           </div>

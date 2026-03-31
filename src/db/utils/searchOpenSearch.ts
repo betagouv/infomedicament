@@ -43,6 +43,7 @@ export type SearchSectionResult = {
   docType: "notice" | "rcp";
   sectionAnchor: string;
   sectionTitle: string;
+  textContent: string;
   highlights: string[]; // HTML snippets with <mark class="highlight">...</mark>
 };
 
@@ -79,24 +80,29 @@ export const getOpenSearchSectionResults = unstable_cache(
             text_content: {
               pre_tags: ['<mark class="highlight">'],
               post_tags: ["</mark>"],
-              fragment_size: 200,
-              number_of_fragments: 3,
+              number_of_fragments: 0,
             },
           },
+          // When using match_all, provide an explicit highlight_query so
+          // OpenSearch still has a text query to generate excerpts from.
+          ...(intent?.anchorIds?.length
+            ? { highlight_query: { multi_match: { query, fields: ["text_content"] } } }
+            : {}),
         },
       },
     });
 
-    const hits: Array<{
+    const hits = (response.body.hits?.hits ?? []) as unknown as Array<{
       _source: {
         cis_code: string;
         spec_name: string;
         doc_type: string;
         section_anchor: string;
         section_title: string;
+        text_content: string;
       };
       highlight?: { text_content?: string[] };
-    }> = response.body.hits?.hits ?? [];
+    }>;
 
     const results = hits.map((h) => ({
       cisCode: h._source.cis_code,
@@ -104,6 +110,7 @@ export const getOpenSearchSectionResults = unstable_cache(
       docType: h._source.doc_type as "notice" | "rcp",
       sectionAnchor: h._source.section_anchor,
       sectionTitle: h._source.section_title,
+      textContent: h._source.text_content,
       highlights: h.highlight?.text_content ?? [],
     }));
     console.log(`[getOpenSearchSectionResults] query="${query}" intent=${intent ? `{sectionTitleQuery="${intent.sectionTitleQuery}"${intent.anchorIds ? ` anchorIds=[${intent.anchorIds.join(", ")}]` : ""}}` : "none"} → ${results.length} results: ${results.map((r) => `"${r.specName} / ${r.sectionTitle}"`).join(", ") || "(none)"}`);
@@ -121,17 +128,19 @@ export const getOpenSearchResults = unstable_cache(
     const response = await getOpenSearchClient().search({
       index: "specialites",
       body: {
-        size: 10,
+        size: 1000,
         query: {
           multi_match: {
             query,
             fields: ["spec_name^4", "substances^3", "atc_labels^2", "pathologies^1"],
+            fuzziness: "AUTO",
+            prefix_length: 2,
           },
         },
       },
     });
 
-    const hits: Array<{ _id: string }> = response.body.hits?.hits ?? [];
+    const hits = (response.body.hits?.hits ?? []) as unknown as Array<{ _id: string }>;
     if (!hits.length) return [];
 
     const cisCodes = hits.map((h) => h._id);
