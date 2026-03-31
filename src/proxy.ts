@@ -5,13 +5,15 @@ import { isRateLimited } from "@/utils/rate-limit";
 const RATE_LIMIT = 200; // TODO: we shouldn't need such a high limit
 const RATE_WINDOW_MS = 60_000;
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
     const url = req.nextUrl;
 
-    // Skip static assets
+    // Skip static assets and RSC prefetch requests (Next.js 16 fires significantly
+    // more prefetch requests than v15 — counting them inflates the rate limit)
     if (
         url.pathname.startsWith("/_next") ||
-        url.pathname.includes(".")
+        url.pathname.includes(".") ||
+        req.headers.get("next-router-prefetch")
     ) {
         return NextResponse.next();
     }
