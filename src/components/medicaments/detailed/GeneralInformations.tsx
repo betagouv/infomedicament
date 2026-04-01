@@ -477,7 +477,7 @@ function GeneralInformations({
                         word="liste en sus"
                       />, pour au moins l'une de ses indications.{" "}
                       <WithDefinition
-                        definition={getDefinition(definitions, "Tarif de responsabilité ")}
+                        definition={getDefinition(definitions, "Tarif de responsabilité")}
                         word="Tarif de responsabilité"
                       />{" "}publié au Journal Officiel.</div>
                   )}
