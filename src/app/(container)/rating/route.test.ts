@@ -14,6 +14,7 @@ describe("isValidPageId", () => {
       "17 B Estradiol Besins-iscovesco 0,06 Pour Cent, gel pour application cutanée en tube",
       "Liste des médicaments A",
       "Recherche paracétamol",
+      "Numéros utiles & repères pratiques autour des médicaments",
     ])("accepts %s", (pageId) => {
       expect(isValidPageId(pageId)).toBe(true);
     });
