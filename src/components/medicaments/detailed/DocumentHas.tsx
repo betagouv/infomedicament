@@ -139,7 +139,7 @@ function DocumentHas({
           Amélioration du service médical rendu (
           <WithDefinition
             definition={getDefinition(definitions, "ASMR")}
-            word="SMR"
+            word="ASMR"
           />)
         </h2>
         {(ficheInfos && ficheInfos.listeASMR && ficheInfos.listeASMR.length > 0) 
