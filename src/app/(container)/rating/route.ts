@@ -9,8 +9,8 @@ import { randomUUID } from "crypto";
 const pendingTokens = new Map<number, string>();
 
 // Allowlist: Unicode letters/digits, spaces, and punctuation found in real page labels.
-// Blocks all shell/SQL/XSS/JNDI metacharacters ($, {, }, |, &, ;, `, <, >, ", \, #, ^, %, =, @, ...).
-const VALID_PAGE_ID_RE = /^[\p{L}\p{N} \-,.:/()!?''']+$/u;
+// Blocks shell/SQL/XSS/JNDI metacharacters ($, {, }, |, ;, `, <, >, ", \, #, ^, =, @, ...).
+const VALID_PAGE_ID_RE = /^[\p{L}\p{N} \-,.:/()!?'''&%]+$/u;
 
 export function isValidPageId(pageId: unknown): boolean {
   return (
