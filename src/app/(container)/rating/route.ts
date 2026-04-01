@@ -1,10 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SimpleRating } from "@/types/RatingTypes";
+import { SimpleRating, QUESTION_1_OPTIONS, QUESTION_2_OPTIONS } from "@/types/RatingTypes";
 import axios from "axios";
+
+// Allowlist: Unicode letters/digits, spaces, and punctuation found in real page labels.
+// Blocks all shell/SQL/XSS/JNDI metacharacters ($, {, }, |, &, ;, `, <, >, ", \, #, ^, %, =, @, ...).
+const VALID_PAGE_ID_RE = /^[\p{L}\p{N} \-,.:/()!?''']+$/u;
+
+export function isValidPageId(pageId: unknown): boolean {
+  return (
+    typeof pageId === "string" &&
+    pageId.length > 0 &&
+    pageId.length <= 150 &&
+    VALID_PAGE_ID_RE.test(pageId) &&
+    !pageId.includes("..") &&   // no path traversal
+    !pageId.includes("//") &&   // no URLs
+    !/[^ ]:/.test(pageId)       // colon must be preceded by a space (blocks javascript:, http:, c:/)
+  );
+}
 
 export async function POST(req: NextRequest) {
   try {
     const data: SimpleRating = await req.json();
+
+    if (!isValidPageId(data.pageId)) {
+      return NextResponse.json({ error: "Invalid pageId" }, { status: 400 });
+    }
+    if (!Number.isInteger(data.rating) || data.rating < 1 || data.rating > 5) {
+      return NextResponse.json({ error: "Invalid rating" }, { status: 400 });
+    }
+
     const gristData = {
       "records": [
         {
@@ -40,6 +64,17 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const data = await req.json();
+
+    if (!Number.isInteger(data.id) || data.id <= 0) {
+      return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+    }
+    if (
+      !QUESTION_1_OPTIONS.includes(data.advancedRating?.question1) ||
+      !QUESTION_2_OPTIONS.includes(data.advancedRating?.question2)
+    ) {
+      return NextResponse.json({ error: "Invalid rating" }, { status: 400 });
+    }
+
     const gristData = {
       "records": [
         {
