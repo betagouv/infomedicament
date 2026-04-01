@@ -156,7 +156,7 @@ export async function getPathologyDefinition(
   const rows = await db
     .selectFrom("ref_pathologies")
     .select("definition")
-    .where("code_patho", "=", code)
+    .where("code_patho", "=", Number(code.trim()))
     .execute();
 
   if (rows.length === 0) {

@@ -31,7 +31,7 @@ function PathologyDefinitionContent({
         const newArticles: ArticleCardResume[] = await getArticlesFromPatho(patho.codePatho);
         setArticles(newArticles);
 
-        const definition = await getPathologyDefinition(Number(patho.codePatho.trim()));
+        const definition = await getPathologyDefinition(patho.codePatho);
         setDefinition(definition);
 
         const newAllSpecsGroups = await getResumeSpecsGroupsWithPatho(patho.codePatho);
