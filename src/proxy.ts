@@ -20,6 +20,17 @@ export function proxy(req: NextRequest) {
 
     // Rate limiting
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown-ip";
+
+    if (url.pathname === "/rating") {
+        const { limited } = isRateLimited(`${ip}:rating`, 2, RATE_WINDOW_MS);
+        if (limited) {
+            return new NextResponse("Too Many Requests", {
+                status: 429,
+                headers: { "Retry-After": "60" },
+            });
+        }
+    }
+
     const { limited, remaining } = isRateLimited(ip, RATE_LIMIT, RATE_WINDOW_MS);
 
     if (limited) {
