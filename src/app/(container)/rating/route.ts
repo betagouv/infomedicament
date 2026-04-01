@@ -40,8 +40,8 @@ export async function POST(req: NextRequest) {
       ]
     };
 
-    const result = await axios.post(    
-      `https://grist.numerique.gouv.fr/api/docs/${process.env.GRIST_DOC_ID}/tables/Avis/records`, 
+    const result = await axios.post(
+      `https://grist.numerique.gouv.fr/api/docs/${process.env.GRIST_DOC_ID}/tables/Avis/records`,
       gristData,
       {
         headers: {
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 
     const id: number = (result.data.records && result.data.records.length > 0 && result.data.records[0] && result.data.records[0].id !== undefined) ? result.data.records[0].id : -1;
     return NextResponse.json(id);
-  } catch(e) {
+  } catch (e) {
     return NextResponse.json(
       { error: "Impossible de sauvegarder" },
       { status: 500 },
@@ -87,8 +87,8 @@ export async function PATCH(req: NextRequest) {
       ]
     };
 
-    const result = await axios.patch(    
-      `https://grist.numerique.gouv.fr/api/docs/${process.env.GRIST_DOC_ID}/tables/Avis/records`, 
+    const result = await axios.patch(
+      `https://grist.numerique.gouv.fr/api/docs/${process.env.GRIST_DOC_ID}/tables/Avis/records`,
       gristData,
       {
         headers: {
@@ -100,7 +100,7 @@ export async function PATCH(req: NextRequest) {
 
     const success: boolean = result.statusText === "OK" ? true : false;
     return NextResponse.json(success);
-  } catch(e) {
+  } catch (e) {
     return NextResponse.json(
       { error: "Impossible de sauvegarder" },
       { status: 500 },
