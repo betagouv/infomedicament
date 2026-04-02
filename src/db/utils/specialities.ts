@@ -19,6 +19,16 @@ import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
 import { formatSpecialitesResumeFromGroups } from "@/utils/specialites";
 
+export async function getMarketedMedicamentCount(): Promise<number> {
+  const result = await pdbmMySQL
+    .selectFrom("Specialite")
+    .where("CommId", "=", 50) // SpecialiteComm["Commercialisée"]
+    .select((eb) => eb.fn.countAll<number>().as("count"))
+    .executeTakeFirstOrThrow();
+
+  return result.count;
+}
+
 export async function getSpecialiteName(CIS: string): Promise<string> {
   const result = await pdbmMySQL
     .selectFrom("Specialite")
