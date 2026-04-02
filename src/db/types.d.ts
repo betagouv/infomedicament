@@ -31,6 +31,11 @@ export interface Database {
   cis_atc: CisAtc;
   asmr: AsmrTable;
   smr: SmrTable;
+  triam_gtiam: TriamGtiamTable;
+  triam_classes: TriamClassesTable;
+  triam_groupe_substance: TriamGroupeSubstanceTable;
+  triam_interactions: TriamInteractionsTable;
+  interactions_search: InteractionsSearchTable;
 }
 
 interface SearchIndexTable {
@@ -289,6 +294,59 @@ export interface CisAtc {
   code_modif: number | null;
 }
 
+interface TriamGtiamTable {
+  num_groupe: number;
+  groupe: string;
+  date_groupe: Date;
+}
+
+interface TriamClassesTable {
+  num_classe: number;
+  nom: string;
+  chapeau: string | null;
+  rem_comment: string | null;
+  dat_creation: Date | null;
+  dat_modif: Date | null;
+  dat_histo: Date | null;
+}
+
+interface TriamGroupeSubstanceTable {
+  code_groupe_subst: number;
+  code_groupe_pere: number | null;
+  nom_groupe_subst: string;
+  rem_groupe_subst: string | null;
+  date_creation: Date | null;
+  date_dern_modif: Date | null;
+}
+
+interface TriamInteractionsTable {
+  num: number;
+  code_groupe_subst1: number;
+  code_groupe_subst2: number;
+  classe: number | null;
+  classe1: number | null;
+  num_inter_clas: number | null;
+  code: string | null;
+  niveau: string | null;
+  groupe: string | null;
+  voie: number;
+  historique: boolean;
+  risque: string | null;
+  conduite: string | null;
+  commentaire: string | null;
+  livret: number | null;
+  dat_creation: Date;
+  dat_modif: Date | null;
+  dat_histo: Date | null;
+}
+
+interface InteractionsSearchTable {
+  id: Generated<number>;
+  label: string;
+  type: "substance" | "medicament";
+  subst_ids: string[];
+}
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
@@ -313,3 +371,8 @@ export type RefPathologies = Selectable<RefPathologies>;
 export type RefPediatrie = Selectable<RefPediatrie>;
 export type RefSubstanceActive = Selectable<RefSubstanceActive>;
 export type RefSubstanceActiveDefinitions = Selectable<RefSubstanceActiveDefinitions>;
+export type TriamGtiam = Selectable<TriamGtiamTable>;
+export type TriamClasses = Selectable<TriamClassesTable>;
+export type TriamGroupeSubstance = Selectable<TriamGroupeSubstanceTable>;
+export type TriamInteraction = Selectable<TriamInteractionsTable>;
+export type InteractionsSearchEntry = Selectable<InteractionsSearchTable>;
