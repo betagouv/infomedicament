@@ -5,7 +5,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { useLocalStorage } from "usehooks-ts";
 import { useLayoutEffect, useState } from "react";
 
-export default function GreetingModal() {
+export default function GreetingModal({ dataLastUpdated }: { dataLastUpdated: Date | null }) {
   const [lastShowed, setLastShowed] = useLocalStorage<number>(
     "greetingModal",
     0,
@@ -53,7 +53,7 @@ export default function GreetingModal() {
             Base de Données Publique des Médicaments.
           </a>
         </li>
-        <li>Les données datent de février 2025.</li>
+        {dataLastUpdated && <li>Les données datent de {dataLastUpdated.toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}.</li>}
       </ul>
       <p>
         Pour nous aider à l’améliorer, pensez à <b>activer les cookies</b>

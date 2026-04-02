@@ -24,6 +24,7 @@ export interface PdbmMySQL {
   HAS_LiensPageCT: HASLiensPageCTTable; //Lines pour SMR et ASMR
   HAS_DocsBonUsage: HASDocsBonUsageTable; //Documents bon usage
   CNAM_Retro: CNAMRetroTable; //More informations about the presentation
+  Document: DocumentTable;
 }
 
 interface SpecialiteTable {
@@ -264,4 +265,8 @@ export enum PresentationComm {
   "Suspension" = 30,
   "Non communiquée" = 40,
   "Plus d'autorisation" = 45,
+}
+
+interface DocumentTable {
+  DocDateMaj: Date;
 }
