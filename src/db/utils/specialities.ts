@@ -19,6 +19,15 @@ import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
 import { formatSpecialitesResumeFromGroups } from "@/utils/specialites";
 
+export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
+  const result = await pdbmMySQL
+    .selectFrom("Document")
+    .select((eb) => eb.fn.max("DocDateMaj").as("lastUpdated"))
+    .executeTakeFirst();
+
+  return result?.lastUpdated ?? null;
+}
+
 export async function getMarketedMedicamentCount(): Promise<number> {
   const result = await pdbmMySQL
     .selectFrom("Specialite")

@@ -17,6 +17,7 @@ import { StartHotjar } from "@/app/StartHotjar";
 import GlossaryModals from "@/components/glossary/GlossaryModals";
 import GlossaryContextProvider from "@/components/glossary/GlossaryContextProvider";
 import GreetingModal from "@/components/GreetingModal";
+import { getNoticeRcpLastUpdated } from "@/db/utils/specialities";
 import Matomo from "@/components/Matomo";
 import {
   ConsentBannerAndConsentManagement,
@@ -37,6 +38,7 @@ export default async function RootLayout({
   header: React.ReactNode;
 }>) {
   const lang = "fr";
+  const dataLastUpdated = await getNoticeRcpLastUpdated();
   return (
     <ThemeProvider>
     <html {...getHtmlAttributes({ defaultColorScheme, lang })}>
@@ -111,7 +113,7 @@ export default async function RootLayout({
               <Suspense fallback={null}>
                 <Matomo />
               </Suspense>
-              <GreetingModal />
+              <GreetingModal dataLastUpdated={dataLastUpdated} />
             </GlossaryContextProvider>
           </MuiDsfrThemeProvider>
         </DsfrProvider>
