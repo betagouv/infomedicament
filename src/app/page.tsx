@@ -5,7 +5,6 @@ import { getArticles } from "@/db/utils/articles";
 import { getMarketedMedicamentCount } from "@/db/utils/specialities";
 import RatingToaster from "@/components/rating/RatingToaster";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
-import { Article } from "@/types/ArticlesTypes";
 
 const PAGE_LABEL: string = "Accueil";
 
