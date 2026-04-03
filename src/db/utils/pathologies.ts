@@ -48,7 +48,7 @@ export const getSpecialitePatho = unstable_cache(
     const rawClassesCliniques = await db
       .selectFrom("vu_classes_cliniques")
       .where("vu_classes_cliniques.codeVU", "=", CIS)
-      .select("vu_classes_cliniques.codeClasClinique").distinct()
+      .select("vu_classes_cliniques.codeClasClinique")
       .distinct()
       .execute();
     rawClassesCliniques.forEach((code) => codes.push(code.codeClasClinique.toString()));
