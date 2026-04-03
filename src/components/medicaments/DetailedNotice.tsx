@@ -15,6 +15,7 @@ import { PediatricsInfo } from "@/types/PediatricTypes";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { FicheInfos } from "@/types/FicheInfoTypes";
+import { Definition } from "@/types/GlossaireTypes";
 
 const DetailedNoticeContainer = styled.div<{ $visible: boolean; }> `
   ${props => !props.$visible && css`
@@ -36,6 +37,7 @@ interface DetailedNoticeProps extends HTMLAttributes<HTMLDivElement> {
   ficheInfos?: FicheInfos;
   indicationBlock?: NoticeRCPContentBlock;
   delivrance: SpecDelivrance[];
+  definitions: Definition[];
 }
 
 function DetailedNotice({
@@ -52,6 +54,7 @@ function DetailedNotice({
   ficheInfos,
   indicationBlock,
   delivrance,
+  definitions,
   ...props 
 }: DetailedNoticeProps) {
 
@@ -88,6 +91,7 @@ function DetailedNotice({
           ficheInfos={ficheInfos}
           indicationBlock={currentIndicationBlock}
           delivrance={delivrance}
+          definitions={definitions}
         />
       </DetailedNoticeContainer>
       <DetailedNoticeContainer id="rcp-denomiation" $visible={visiblePart === DetailsNoticePartsEnum.RCP}>
@@ -96,7 +100,10 @@ function DetailedNotice({
         </ContentContainer>
       </DetailedNoticeContainer>
       <DetailedNoticeContainer id="document-has" $visible={visiblePart === DetailsNoticePartsEnum.HAS}>
-        <DocumentHas ficheInfos={ficheInfos}/>
+        <DocumentHas 
+          ficheInfos={ficheInfos}
+          definitions={definitions}
+        />
       </DetailedNoticeContainer>
     </>
   );
