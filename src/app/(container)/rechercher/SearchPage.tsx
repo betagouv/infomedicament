@@ -14,6 +14,7 @@ interface SearchPageProps extends HTMLAttributes<HTMLDivElement> {
   filterPediatric?: boolean;
   searchResults?: SearchResultItem[];
   articlesList?: ArticleCardResume[];
+  //For now we are not displaying articles but we keep it in the process
 }
 
 function SearchPage({
@@ -40,11 +41,10 @@ function SearchPage({
     else setCurrentFilterPediatric(false);
   }, [filterPediatric, setCurrentFilterPediatric])
 
-
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
-        <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10", "fr-mt-4w")}>
+        <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10", "fr-mt-4w", "fr-mb-2w")}>
           <AutocompleteSearch
             inputName="s"
             initialValue={search || undefined}
@@ -57,13 +57,6 @@ function SearchPage({
       {searchResults && searchResults.length > 0 ? (
         <SearchResultsList
           resultsList={searchResults}
-          totalResults={searchResults.length}
-          searchTerms={search}
-          articles={articlesList}
-          setFilterPregnancy={setCurrentFilterPregnancy}
-          setFilterPediatric={setCurrentFilterPediatric}
-          filterPregnancy={currentFilterPregnancy}
-          filterPediatric={currentFilterPediatric}
         />
       ) : (
         <div className={fr.cx("fr-grid-row", "fr-mt-3w")}>
