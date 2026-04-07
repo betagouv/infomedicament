@@ -32,7 +32,7 @@ export async function lookupInteractions(
 ): Promise<InteractionResult[]> {
   if (substIds1.length === 0 || substIds2.length === 0) return [];
 
-  return db
+  const rows = (await db
     .selectFrom("triam_interactions")
     .innerJoin(
       "triam_groupe_substance as gs1",
@@ -64,5 +64,13 @@ export async function lookupInteractions(
         ]),
       ]),
     )
-    .execute() as Promise<InteractionResult[]>;
+    .execute()) as InteractionResult[];
+
+  const seen = new Set<string>();
+  return rows.filter((r) => {
+    const key = `${r.niveau}|${r.risque}|${r.conduite}|${r.commentaire}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
