@@ -4,6 +4,7 @@ export async function up(db: Kysely<any>): Promise<void> {
   // triam_gtiam — interaction severity levels
   await db.schema
     .createTable("triam_gtiam")
+    .ifNotExists()
     .addColumn("num_groupe", "integer", (col) => col.notNull())
     .addColumn("groupe", sql`varchar(15)`, (col) => col.notNull().primaryKey())
     .addColumn("date_groupe", "date", (col) => col.notNull())
@@ -12,6 +13,7 @@ export async function up(db: Kysely<any>): Promise<void> {
   // triam_classes — pharmacological classes
   await db.schema
     .createTable("triam_classes")
+    .ifNotExists()
     .addColumn("num_classe", "integer", (col) => col.notNull())
     .addColumn("nom", sql`varchar(255)`, (col) => col.notNull().primaryKey())
     .addColumn("chapeau", "text")
@@ -24,6 +26,7 @@ export async function up(db: Kysely<any>): Promise<void> {
   // triam_groupe_substance — substance groups
   await db.schema
     .createTable("triam_groupe_substance")
+    .ifNotExists()
     .addColumn("code_groupe_subst", "text", (col) => col.notNull().primaryKey())
     .addColumn("code_groupe_pere", "text")
     .addColumn("nom_groupe_subst", sql`varchar(255)`, (col) => col.notNull())
@@ -35,6 +38,7 @@ export async function up(db: Kysely<any>): Promise<void> {
   // triam_subst_groupesubst — maps TRIAM substance groups to BDPM SubsIds
   await db.schema
     .createTable("triam_subst_groupesubst")
+    .ifNotExists()
     .addColumn("code_groupe_subst", "text", (col) => col.notNull())
     .addColumn("subs_id", "text", (col) => col.notNull())
     .execute();
@@ -42,6 +46,7 @@ export async function up(db: Kysely<any>): Promise<void> {
   // triam_interactions — main interaction data
   await db.schema
     .createTable("triam_interactions")
+    .ifNotExists()
     .addColumn("num", "integer", (col) => col.notNull().primaryKey())
     .addColumn("code_groupe_subst1", "text", (col) => col.notNull())
     .addColumn("code_groupe_subst2", "text", (col) => col.notNull())
