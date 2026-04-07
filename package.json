@@ -19,8 +19,9 @@
     "db:migrate:latest": "npx kysely migrate:latest",
     "db:migrate:down": "npx kysely migrate:down",
     "db:update-resume": "npx tsx scripts/updateResumeData.ts",
-    "db:seed-search-index": "npx kysely seed run --specific 1725439927263_searchIndex",
-    "db:seed-review-app": "npx tsx scripts/seed-review-app.ts"
+    "db:seed-search-index": "npx tsx scripts/seedSearchIndex.ts",
+    "db:seed-review-app": "npx tsx scripts/seed-review-app.ts",
+    "db:seed-interactions": "npx tsx scripts/seedInteractionsSearch.ts"
   },
   "dependencies": {
     "@codegouvfr/react-dsfr": "^1.16.0",
