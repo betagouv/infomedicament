@@ -34,6 +34,7 @@ export interface Database {
   triam_gtiam: TriamGtiamTable;
   triam_classes: TriamClassesTable;
   triam_groupe_substance: TriamGroupeSubstanceTable;
+  triam_subst_groupesubst: TriamSubstGroupesubstTable;
   triam_interactions: TriamInteractionsTable;
   interactions_search: InteractionsSearchTable;
 }
@@ -311,8 +312,8 @@ interface TriamClassesTable {
 }
 
 interface TriamGroupeSubstanceTable {
-  code_groupe_subst: number;
-  code_groupe_pere: number | null;
+  code_groupe_subst: string;
+  code_groupe_pere: string | null;
   nom_groupe_subst: string;
   rem_groupe_subst: string | null;
   date_creation: Date | null;
@@ -321,8 +322,8 @@ interface TriamGroupeSubstanceTable {
 
 interface TriamInteractionsTable {
   num: number;
-  code_groupe_subst1: number;
-  code_groupe_subst2: number;
+  code_groupe_subst1: string;
+  code_groupe_subst2: string;
   classe: number | null;
   classe1: number | null;
   num_inter_clas: number | null;
@@ -338,6 +339,11 @@ interface TriamInteractionsTable {
   dat_creation: Date;
   dat_modif: Date | null;
   dat_histo: Date | null;
+}
+
+interface TriamSubstGroupesubstTable {
+  code_groupe_subst: string;
+  subs_id: string;
 }
 
 interface InteractionsSearchTable {
@@ -374,5 +380,6 @@ export type RefSubstanceActiveDefinitions = Selectable<RefSubstanceActiveDefinit
 export type TriamGtiam = Selectable<TriamGtiamTable>;
 export type TriamClasses = Selectable<TriamClassesTable>;
 export type TriamGroupeSubstance = Selectable<TriamGroupeSubstanceTable>;
+export type TriamSubstGroupesubst = Selectable<TriamSubstGroupesubstTable>;
 export type TriamInteraction = Selectable<TriamInteractionsTable>;
 export type InteractionsSearchEntry = Selectable<InteractionsSearchTable>;
