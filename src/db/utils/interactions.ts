@@ -32,11 +32,6 @@ export async function lookupInteractions(
 ): Promise<InteractionResult[]> {
   if (substIds1.length === 0 || substIds2.length === 0) return [];
 
-  // subst_ids are stored as text in interactions_search but code_groupe_subst
-  // is an integer column in triam_interactions — convert before querying
-  const ids1 = substIds1.map(Number);
-  const ids2 = substIds2.map(Number);
-
   return db
     .selectFrom("triam_interactions")
     .innerJoin(
@@ -60,12 +55,12 @@ export async function lookupInteractions(
     .where((eb) =>
       eb.or([
         eb.and([
-          eb("triam_interactions.code_groupe_subst1", "in", ids1),
-          eb("triam_interactions.code_groupe_subst2", "in", ids2),
+          eb("triam_interactions.code_groupe_subst1", "in", substIds1),
+          eb("triam_interactions.code_groupe_subst2", "in", substIds2),
         ]),
         eb.and([
-          eb("triam_interactions.code_groupe_subst1", "in", ids2),
-          eb("triam_interactions.code_groupe_subst2", "in", ids1),
+          eb("triam_interactions.code_groupe_subst1", "in", substIds2),
+          eb("triam_interactions.code_groupe_subst2", "in", substIds1),
         ]),
       ]),
     )
