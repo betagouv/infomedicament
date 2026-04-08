@@ -10,7 +10,7 @@ export async function searchInteractions(
 
   return db
     .selectFrom("interactions_search")
-    .select(["id", "label", "type", "subst_ids"])
+    .select(["id", "label", "type", "subst_ids", "class_ids"])
     .where("label", "ilike", `%${q}%`)
     .orderBy(sql`word_similarity(${q}, label)`, "desc")
     .limit(20)
@@ -30,27 +30,37 @@ export type InteractionResult = {
 
 export async function lookupInteractions(
   substIds1: string[],
+  directClassIds1: string[],
   substIds2: string[],
+  directClassIds2: string[],
 ): Promise<InteractionResult[]> {
-  if (substIds1.length === 0 || substIds2.length === 0) return [];
+  if (substIds1.length === 0 && directClassIds1.length === 0) return [];
+  if (substIds2.length === 0 && directClassIds2.length === 0) return [];
 
-  // Step 1: resolve which pharmacological classes each substance set belongs to.
-  // Interactions can be stored at the class level (classe/classe1 != 0) rather than
-  // the individual substance level, so we need to know the classes upfront.
+  // Expand substance groups to their pharmacological classes, then merge with
+  // any class IDs passed directly (for pure-class entries like "pamplemousse").
   const [classes1Rows, classes2Rows] = await Promise.all([
-    db
-      .selectFrom("triam_classe_grp_subst")
-      .select("num_classe")
-      .where("code_groupe", "in", substIds1)
-      .execute(),
-    db
-      .selectFrom("triam_classe_grp_subst")
-      .select("num_classe")
-      .where("code_groupe", "in", substIds2)
-      .execute(),
+    substIds1.length > 0
+      ? db
+          .selectFrom("triam_classe_grp_subst")
+          .select("num_classe")
+          .where("code_groupe", "in", substIds1)
+          .execute()
+      : Promise.resolve([]),
+    substIds2.length > 0
+      ? db
+          .selectFrom("triam_classe_grp_subst")
+          .select("num_classe")
+          .where("code_groupe", "in", substIds2)
+          .execute()
+      : Promise.resolve([]),
   ]);
-  const classes1 = [...new Set(classes1Rows.map((r) => r.num_classe))];
-  const classes2 = [...new Set(classes2Rows.map((r) => r.num_classe))];
+  const classes1 = [
+    ...new Set([...directClassIds1.map(Number), ...classes1Rows.map((r) => r.num_classe)]),
+  ];
+  const classes2 = [
+    ...new Set([...directClassIds2.map(Number), ...classes2Rows.map((r) => r.num_classe)]),
+  ];
 
   const rows = (await db
     .selectFrom("triam_interactions")
