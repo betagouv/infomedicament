@@ -118,9 +118,12 @@ export async function lookupInteractions(
         ]);
 
       // Check both directions: (side1 vs side2) and (side2 vs side1)
-      return eb.or([
+      return eb.and([
+        eb("triam_interactions.historique", "=", false),
+        eb.or([
         eb.and([slot1Matches(substIds1, classes1), slot2Matches(substIds2, classes2)]),
         eb.and([slot1Matches(substIds2, classes2), slot2Matches(substIds1, classes1)]),
+        ]),
       ]);
     })
     .execute()) as InteractionResult[];
