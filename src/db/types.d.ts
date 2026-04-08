@@ -355,8 +355,9 @@ interface TriamClasseGrpSubstTable {
 interface InteractionsSearchTable {
   id: Generated<number>;
   label: string;
-  type: "substance" | "medicament";
+  type: "substance" | "medicament" | "class";
   subst_ids: string[];
+  class_ids: string[];
 }
 
 export type LeafletImage = Selectable<LeafletImagesTable>;
