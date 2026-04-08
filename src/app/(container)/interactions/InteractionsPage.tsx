@@ -299,6 +299,7 @@ export default function InteractionsPage() {
                 <Alert
                   severity="success"
                   title="Aucune interaction connue entre ces deux substances."
+                  description=""
                   small
                 />
               ) : (
