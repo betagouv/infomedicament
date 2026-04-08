@@ -24,6 +24,8 @@ export type InteractionResult = {
   commentaire: string | null;
   subst1_name: string;
   subst2_name: string;
+  subst1_class_name: string | null;
+  subst2_class_name: string | null;
 };
 
 export async function lookupInteractions(
@@ -80,6 +82,12 @@ export async function lookupInteractions(
       sql<string>`CASE WHEN triam_interactions.classe1 = 0 THEN gs2.nom_groupe_subst ELSE c2.nom END`.as(
         "subst2_name",
       ),
+      sql<string | null>`CASE WHEN triam_interactions.classe = 0 THEN NULL ELSE c1.nom END`.as(
+        "subst1_class_name",
+      ),
+      sql<string | null>`CASE WHEN triam_interactions.classe1 = 0 THEN NULL ELSE c2.nom END`.as(
+        "subst2_class_name",
+      ),
     ])
     .where((eb) => {
       // Step 5: a slot "matches a side" if:
@@ -121,8 +129,8 @@ export async function lookupInteractions(
       return eb.and([
         eb("triam_interactions.historique", "=", false),
         eb.or([
-        eb.and([slot1Matches(substIds1, classes1), slot2Matches(substIds2, classes2)]),
-        eb.and([slot1Matches(substIds2, classes2), slot2Matches(substIds1, classes1)]),
+          eb.and([slot1Matches(substIds1, classes1), slot2Matches(substIds2, classes2)]),
+          eb.and([slot1Matches(substIds2, classes2), slot2Matches(substIds1, classes1)]),
         ]),
       ]);
     })
