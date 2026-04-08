@@ -35,6 +35,7 @@ export interface Database {
   triam_classes: TriamClassesTable;
   triam_groupe_substance: TriamGroupeSubstanceTable;
   triam_subst_groupesubst: TriamSubstGroupesubstTable;
+  triam_classe_grp_subst: TriamClasseGrpSubstTable;
   triam_interactions: TriamInteractionsTable;
   interactions_search: InteractionsSearchTable;
 }
@@ -346,6 +347,11 @@ interface TriamSubstGroupesubstTable {
   subs_id: string;
 }
 
+interface TriamClasseGrpSubstTable {
+  num_classe: number;
+  code_groupe: string;
+}
+
 interface InteractionsSearchTable {
   id: Generated<number>;
   label: string;
@@ -381,5 +387,6 @@ export type TriamGtiam = Selectable<TriamGtiamTable>;
 export type TriamClasses = Selectable<TriamClassesTable>;
 export type TriamGroupeSubstance = Selectable<TriamGroupeSubstanceTable>;
 export type TriamSubstGroupesubst = Selectable<TriamSubstGroupesubstTable>;
+export type TriamClasseGrpSubst = Selectable<TriamClasseGrpSubstTable>;
 export type TriamInteraction = Selectable<TriamInteractionsTable>;
 export type InteractionsSearchEntry = Selectable<InteractionsSearchTable>;
