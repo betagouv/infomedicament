@@ -85,7 +85,6 @@ export async function lookupInteractions(
       "triam_interactions.risque",
       "triam_interactions.conduite",
       "triam_interactions.commentaire",
-      // Step 4: display the substance name for direct slots, the class name for class-based slots
       sql<string>`CASE WHEN triam_interactions.classe = 0 THEN gs1.nom_groupe_subst ELSE c1.nom END`.as(
         "subst1_name",
       ),
@@ -100,48 +99,54 @@ export async function lookupInteractions(
       ),
     ])
     .where((eb) => {
-      // Step 5: a slot "matches a side" if:
+      // A slot "matches a side" if:
       //   - direct slot (classe=0) and code_groupe_subst is in that side's substance IDs, OR
       //   - class slot (classe!=0) and the class number is in that side's class list
       const slot1Matches = (ids: string[], classes: number[]) =>
         eb.or([
-          eb.and([
-            eb("triam_interactions.classe", "=", 0),
-            eb("triam_interactions.code_groupe_subst1", "in", ids),
-          ]),
+          ...(ids.length > 0
+            ? [
+                eb.and([
+                  eb("triam_interactions.classe", "=", 0),
+                  eb("triam_interactions.code_groupe_subst1", "in", ids),
+                ]),
+              ]
+            : []),
           ...(classes.length > 0
             ? [
-              eb.and([
-                eb("triam_interactions.classe", "!=", 0),
-                eb("triam_interactions.classe", "in", classes),
-              ]),
-            ]
+                eb.and([
+                  eb("triam_interactions.classe", "!=", 0),
+                  eb("triam_interactions.classe", "in", classes),
+                ]),
+              ]
             : []),
         ]);
 
       const slot2Matches = (ids: string[], classes: number[]) =>
         eb.or([
-          eb.and([
-            eb("triam_interactions.classe1", "=", 0),
-            eb("triam_interactions.code_groupe_subst2", "in", ids),
-          ]),
+          ...(ids.length > 0
+            ? [
+                eb.and([
+                  eb("triam_interactions.classe1", "=", 0),
+                  eb("triam_interactions.code_groupe_subst2", "in", ids),
+                ]),
+              ]
+            : []),
           ...(classes.length > 0
             ? [
-              eb.and([
-                eb("triam_interactions.classe1", "!=", 0),
-                eb("triam_interactions.classe1", "in", classes),
-              ]),
-            ]
+                eb.and([
+                  eb("triam_interactions.classe1", "!=", 0),
+                  eb("triam_interactions.classe1", "in", classes),
+                ]),
+              ]
             : []),
         ]);
 
-      // Check both directions: (side1 vs side2) and (side2 vs side1)
+      // TRIAM stores every interaction bidirectionally, so querying only the forward
+      // direction always finds the correctly-oriented row without needing a swap.
       return eb.and([
         eb("triam_interactions.historique", "=", false),
-        eb.or([
-          eb.and([slot1Matches(substIds1, classes1), slot2Matches(substIds2, classes2)]),
-          eb.and([slot1Matches(substIds2, classes2), slot2Matches(substIds1, classes1)]),
-        ]),
+        eb.and([slot1Matches(substIds1, classes1), slot2Matches(substIds2, classes2)]),
       ]);
     })
     .execute()) as InteractionResult[];

@@ -340,10 +340,10 @@ export default function InteractionsPage() {
                       )}
                       {(r.subst1_class_name || r.subst2_class_name) && (
                         <ClassExplanation>
-                          {r.subst1_class_name && (
+                          {r.subst1_class_name && slot1!.class_ids.length === 0 && (
                             <><em>{slot1!.label}</em>{` dans ${r.subst1_class_name}`}<br /></>
                           )}
-                          {r.subst2_class_name && (
+                          {r.subst2_class_name && slot2!.class_ids.length === 0 && (
                             <><em>{slot2!.label}</em>{` dans ${r.subst2_class_name}`}</>
                           )}
                         </ClassExplanation>
