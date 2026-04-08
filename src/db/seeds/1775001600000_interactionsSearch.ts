@@ -4,7 +4,7 @@ import { sql } from "kysely";
 export async function seed(db: Kysely<any>): Promise<void> {
   console.log("Loading data for interactions_search...");
 
-  const [substances, substMapping, medicaments] = await Promise.all([
+  const [substances, substMapping, medicaments, pureClassesResult] = await Promise.all([
     db
       .selectFrom("triam_groupe_substance")
       .select(["code_groupe_subst", "nom_groupe_subst"])
@@ -17,7 +17,12 @@ export async function seed(db: Kysely<any>): Promise<void> {
       .selectFrom("resume_medicaments")
       .select(["groupName", "subsIds"])
       .execute(),
+    sql<{ num_classe: number; nom: string }>`
+      SELECT num_classe, nom FROM triam_classes
+      WHERE num_classe::text NOT IN (SELECT DISTINCT code_groupe_subst FROM triam_subst_groupesubst)
+    `.execute(db),
   ]);
+  const pureClasses = pureClassesResult.rows;
 
   if (substances.length === 0) {
     throw new Error(
@@ -39,7 +44,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   );
 
   console.log(
-    `Found ${substances.length} substances, ${medicaments.length} medicaments`
+    `Found ${substances.length} substances, ${medicaments.length} medicaments, ${pureClasses.length} pure classes`
   );
 
   await db.transaction().execute(async (trx) => {
@@ -53,6 +58,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
           label: s.nom_groupe_subst,
           type: "substance",
           subst_ids: [s.code_groupe_subst],
+          class_ids: [],
         })
         .execute();
     }
@@ -72,10 +78,23 @@ export async function seed(db: Kysely<any>): Promise<void> {
           : m.groupName;
       await trx
         .insertInto("interactions_search")
-        .values({ label, type: "medicament", subst_ids: triamCodes })
+        .values({ label, type: "medicament", subst_ids: triamCodes, class_ids: [] })
         .execute();
     }
     console.log(`Inserted ${medicaments.length} medicaments.`);
+
+    for (const c of pureClasses) {
+      await trx
+        .insertInto("interactions_search")
+        .values({
+          label: c.nom,
+          type: "class",
+          subst_ids: [],
+          class_ids: [String(c.num_classe)],
+        })
+        .execute();
+    }
+    console.log(`Inserted ${pureClasses.length} pure classes.`);
   });
 
   console.log("interactions_search populated successfully.");

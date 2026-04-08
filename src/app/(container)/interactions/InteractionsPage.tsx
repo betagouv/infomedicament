@@ -213,7 +213,9 @@ export default function InteractionsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           subst_ids_1: slot1.subst_ids,
+          class_ids_1: slot1.class_ids,
           subst_ids_2: slot2.subst_ids,
+          class_ids_2: slot2.class_ids,
         }),
       });
       const data: InteractionResult[] = await res.json();
