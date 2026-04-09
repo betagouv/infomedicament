@@ -33,6 +33,7 @@ export interface Database {
   smr: SmrTable;
   classes_cliniques: ClassesCliniquesTable;
   vu_classes_cliniques: VUClassesCliniquesTable;
+  pathologies: PathologiesTable;
 }
 
 interface SearchIndexTable {
@@ -114,8 +115,8 @@ interface LettersTable {
 }
 
 interface ResumePathosTable {
-  codePatho: string;
-  NomPatho: string;
+  idPatho: number;
+  nomPatho: string;
   specialites: number;
 }
 
@@ -130,13 +131,13 @@ interface ResumeMedicamentsTable {
   groupName: string;
   composants: string;
   specialites: string[][];//SpecId, SpecDenom01, StatutBdm, ProcId
-  pathosCodes: string[];
+  pathosIds: string[];
   atc1Code?: string;
   atc2Code?: string;
   atc5Code?: string;
   CISList: string[];
   subsIds: string[];
-  pathosCodesNames: string[][];//codePatho, NomPatho
+  pathosIdsNames: string[][];//idPatho, nomPatho
 }
 
 interface ResumeGenericsTable {
@@ -211,7 +212,7 @@ export interface RefPathologies {
   code_patho: number | null;
   definition: string | null;
   id: Generated<number>;
-  isClasseClinique: boolean;
+  code_classe_clinique: number | null;
 }
 
 export interface RefPediatrie {
@@ -317,6 +318,15 @@ interface VUClassesCliniquesTable {
   codeModif?: number,
 }
 
+interface PathologiesTable {
+  id: Generated<number>,
+  codePatho?: number,
+  codeClasseClinique?: number,
+  nom: string,
+  definition?: string,
+  CIS: string[],
+}
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
@@ -341,3 +351,4 @@ export type RefPathologies = Selectable<RefPathologies>;
 export type RefPediatrie = Selectable<RefPediatrie>;
 export type RefSubstanceActive = Selectable<RefSubstanceActive>;
 export type RefSubstanceActiveDefinitions = Selectable<RefSubstanceActiveDefinitions>;
+export type Pathology = Selectable<PathologiesTable>;

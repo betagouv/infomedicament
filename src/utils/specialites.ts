@@ -83,11 +83,11 @@ export function isHomeopathie(
 };
 
 //Format pathos details from resume table
-export function formatPathosDetails(pathosCodesNames: string[][]): ShortPatho[] {
-  const formatPathos: ShortPatho[] = pathosCodesNames.map((patho) => {
+export function formatPathosDetails(pathosIdsNames: string[][]): ShortPatho[] {
+  const formatPathos: ShortPatho[] = pathosIdsNames.map((patho) => {
     return {
-      codePatho: patho[0],
-      NomPatho: patho[1],
+      idPatho: patho[0],
+      nomPatho: patho[1],
     }
   });
   return formatPathos;
@@ -114,7 +114,7 @@ export function formatSpecialitesResumeFromGroups(specsGroups: ResumeSpecGroupDB
     return {
       ...group,
       resumeSpecialites: formatSpecialitesResume(group.specialites),
-      pathosDetails: formatPathosDetails(group.pathosCodesNames),
+      pathosDetails: formatPathosDetails(group.pathosIdsNames),
     }
   });
 }

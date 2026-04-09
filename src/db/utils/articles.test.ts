@@ -22,7 +22,7 @@ describe("getArticlesFromSearchResults", () => {
 
     const articles = await getArticlesFromSearchResults([{
       groupName: "TEST", composants: "", specialites: [], resumeSpecialites: [], matchReasons: [],
-      CISList: ["111"], subsIds: ["666", "999"], pathosCodes: ["123", "124"], atc2Code: "N05",
+      CISList: ["111"], subsIds: ["666", "999"], pathosIds: ["123", "124"], atc2Code: "N05",
     } as any]);
 
     expect(articles).toHaveLength(4);

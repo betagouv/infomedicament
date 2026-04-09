@@ -100,7 +100,7 @@ export async function getArticlesFromSearchResults(results: SearchResultItem[]):
             if (!articlesFilters.substancesList.includes(subsId.trim()))
                 articlesFilters.substancesList.push(subsId.trim());
         }
-        for (const code of item.pathosCodes) {
+        for (const code of item.pathosIds) {
             if (!articlesFilters.pathologiesList.includes(code.trim()))
                 articlesFilters.pathologiesList.push(code.trim());
         }
@@ -124,6 +124,7 @@ export async function getArticlesFromATC(codeATC: string): Promise<ArticleCardRe
     return getArticlesFromFilters(articlesFilters);
 }
 
+//only pathology and not classe clinique
 export async function getArticlesFromPatho(codePatho: string): Promise<ArticleCardResume[]> {
     const articlesFilters: SearchArticlesFilters = {
         ATCList: [],

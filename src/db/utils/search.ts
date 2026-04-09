@@ -67,7 +67,7 @@ export const getSearchResults = unstable_cache(async function (
     if (matchGroup) {
       matchGroup.score = Math.max(matchGroup.score, match.sml);
       // Deduplicate: the seed can produce identical rows per group, e.g. when
-      // multiple subsIds resolve to the same substance name, or duplicate pathosCodes
+      // multiple subsIds resolve to the same substance name, or duplicate pathosIds
       if (!matchGroup.reasons.some((r) => r.type === reason.type && r.label === reason.label)) {
         matchGroup.reasons.push(reason);
       }
