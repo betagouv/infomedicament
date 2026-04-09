@@ -31,7 +31,7 @@ export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
 export async function getMarketedMedicamentCount(): Promise<number> {
   const result = await pdbmMySQL
     .selectFrom("Specialite")
-    .where("CommId", "=", 50) // SpecialiteComm["Commercialisée"]
+    .where("Specialite.IsBdm", "=", 1)
     .select((eb) => eb.fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 
