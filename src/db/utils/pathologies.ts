@@ -8,7 +8,7 @@ import { Pathology, ResumePatho } from "../types";
 import { sql } from "kysely";
 import { ShortPatho } from "@/types/PathoTypes";
 
-export async function getPatho(code: string): Promise<Pathology | undefined> {
+export async function getPatho(code: number): Promise<Pathology | undefined> {
   return await db
     .selectFrom("pathologies")
     .where("id", "=", code)
@@ -18,7 +18,7 @@ export async function getPatho(code: string): Promise<Pathology | undefined> {
 
 //Get the code patho list from specialite code CIS
 export const getSpecialitePatho = unstable_cache(
-  async function (CIS: string): Promise<string[]> {
+  async function (CIS: string): Promise<number[]> {
     const codes = await db
       .selectFrom("pathologies")
       .select("id")

@@ -11,7 +11,7 @@ export const dynamic = "error";
 export const dynamicParams = true;
 
 export default async function Page(props: {
-  params: Promise<{ code: `${number}` }>;
+  params: Promise<{ code: number }>;
 }) {
   const { code } = await props.params;
   const patho: Pathology | undefined = await getPatho(code);

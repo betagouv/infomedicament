@@ -86,7 +86,7 @@ export function isHomeopathie(
 export function formatPathosDetails(pathosIdsNames: string[][]): ShortPatho[] {
   const formatPathos: ShortPatho[] = pathosIdsNames.map((patho) => {
     return {
-      idPatho: patho[0],
+      idPatho: Number(patho[0].trim()),
       nomPatho: patho[1],
     }
   });

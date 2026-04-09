@@ -88,7 +88,7 @@ async function aggregatePathoClasseClinique(): Promise<string[]> {
     .execute();
   allClassesCliniques.forEach((classeClinique) => {
     const oldValues = oldPathos.find((oldPatho: Pathology) => oldPatho.codeClasseClinique === classeClinique.codeTerme);
-    const nom = classeClinique.libCourt ? (/[A-Z]/.test(classeClinique.libCourt[0]) ? classeClinique.libCourt[0] + classeClinique.libCourt.slice(1).toLowerCase() : classeClinique.libCourt) : "";
+    const nom = classeClinique.libCourt ? (/[A-Z]/.test(classeClinique.libCourt.trim()[0]) ? classeClinique.libCourt.trim()[0] + classeClinique.libCourt.trim().slice(1).toLowerCase() : classeClinique.libCourt.trim()) : "";
     const CISList = allClassesCliniquesCIS.filter((classeCliniqueCIS) => classeCliniqueCIS.codeClasClinique === classeClinique.codeTerme);
     const newValues: Pathology = {
       codePatho: undefined,

@@ -139,42 +139,32 @@ describe("utils specialities", () => {
   it("formatPathosDetails", async () => {
     //GroupName : ACECLOFENAC ACCORD
     const pathosList: string[][] = [
-      ["10","Arthrose"],
-      ["77","Polyarthrite rhumatoïde"],
-      ["13","POLYARTHRITE RHUMATOIDE"],
-      ["27","ARTHROSE"],
-      ["137","DOULEUR"],
-      ["153","INFLAMMATION"],
-      ["167","RHUMATISMES INFLAMMATOIRES"]
+      ["99", "Arthrose"],
+      ["76","Polyarthrite rhumatoïde"],
+      ["225","Inflammation"],
+      ["213","Douleur"],
+      ["236","Rhumatismes inflammatoires"]
     ];
     const expectedPathosList: ShortPatho[] = [
       {
-        codePatho: "10",
-        NomPatho: "Arthrose",
+        idPatho: 99,
+        nomPatho: "Arthrose",
       },
       {
-        codePatho: "77",
-        NomPatho: "Polyarthrite rhumatoïde",
+        idPatho: 76,
+        nomPatho: "Polyarthrite rhumatoïde",
       },
       {
-        codePatho: "13",
-        NomPatho: "POLYARTHRITE RHUMATOIDE",
+        idPatho: 225,
+        nomPatho: "Inflammation",
       },
       {
-        codePatho: "27",
-        NomPatho: "ARTHROSE",
+        idPatho: 213,
+        nomPatho: "Douleur",
       },
       {
-        codePatho: "137",
-        NomPatho: "DOULEUR",
-      },
-      {
-        codePatho: "153",
-        NomPatho: "INFLAMMATION",
-      },
-      {
-        codePatho: "167",
-        NomPatho: "RHUMATISMES INFLAMMATOIRES",
+        idPatho: 236,
+        nomPatho: "Rhumatismes inflammatoires",
       },
     ];
     expect(formatPathosDetails(pathosList)).toStrictEqual(expectedPathosList);

@@ -48,7 +48,7 @@ export async function getArticlesFromFilters(articlesFilters: SearchArticlesFilt
         // else, we check if there's a pathologies filter match
         if (!find && row.pathologies && articlesFilters.pathologiesList.length > 0) {
             const pathosArticle = (row.pathologies as string).split(",");
-            const index = pathosArticle.find((articleCodePatho: string) => articlesFilters.pathologiesList.find((codePatho: string) => codePatho === articleCodePatho.trim()));
+            const index = pathosArticle.find((articleCodePatho: string) => articlesFilters.pathologiesList.find((codePatho: number) => codePatho.toString() === articleCodePatho.trim()));
             if (index) find = true;
         }
         // else, we check for specialites match
@@ -101,8 +101,8 @@ export async function getArticlesFromSearchResults(results: SearchResultItem[]):
                 articlesFilters.substancesList.push(subsId.trim());
         }
         for (const code of item.pathosIds) {
-            if (!articlesFilters.pathologiesList.includes(code.trim()))
-                articlesFilters.pathologiesList.push(code.trim());
+            if (!articlesFilters.pathologiesList.includes(Number(code.trim())))
+                articlesFilters.pathologiesList.push(Number(code.trim()));
         }
         for (const code of [item.atc1Code, item.atc2Code, item.atc5Code]) {
             if (code && !articlesFilters.ATCList.includes(code.trim()))
@@ -125,7 +125,7 @@ export async function getArticlesFromATC(codeATC: string): Promise<ArticleCardRe
 }
 
 //only pathology and not classe clinique
-export async function getArticlesFromPatho(codePatho: string): Promise<ArticleCardResume[]> {
+export async function getArticlesFromPatho(codePatho: number): Promise<ArticleCardResume[]> {
     const articlesFilters: SearchArticlesFilters = {
         ATCList: [],
         substancesList: [],
