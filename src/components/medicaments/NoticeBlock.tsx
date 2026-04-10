@@ -1,7 +1,6 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
-import { HTMLAttributes, useCallback, useEffect, useState } from "react";
+import { HTMLAttributes } from "react";
 import styled, { css } from 'styled-components';
 import { questionsList, questionKeys } from "@/data/pages/notices_anchors";
 import { QuestionsListFormat } from "@/types/NoticesAnchors";
@@ -12,7 +11,6 @@ import { NoticeData } from "@/types/SpecialiteTypes";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { getContent } from "@/utils/notices/noticesUtils";
 import { Definition } from "@/types/GlossaireTypes";
-import getGlossaryDefinitions from "@/db/utils/glossary";
 import { isCentralisee } from "@/utils/specialites";
 import CentraliseBlock from "./blocks/CentraliseBlock";
 
@@ -43,34 +41,15 @@ const Container = styled.div<{ $questionsList: QuestionsListFormat; $questionKey
 interface NoticeBlockProps extends HTMLAttributes<HTMLDivElement> {
   notice?: NoticeData,
   specialite?: DetailedSpecialite,
+  definitions?: Definition[],
 }
 
 function NoticeBlock({
   notice,
   specialite,
+  definitions,
   ...props
 }: NoticeBlockProps) {
-
-  const [definitions, setDefinitions] = useState<Definition[]>([]);
-
-  const loadDefinitions = useCallback(
-    async () => {
-      try {
-        const newDefinitions = (await getGlossaryDefinitions()).filter(
-          (d) => d.a_souligner,
-        );
-        setDefinitions(newDefinitions)
-      } catch (e) {
-        Sentry.captureException(e);
-      }
-    }, [setDefinitions]
-  );
-
-  useEffect(() => {
-    if (notice) {
-      loadDefinitions();
-    }
-  }, [notice, loadDefinitions]);
 
   return (
     <Container $questionsList={questionsList} $questionKeys={questionKeys} className={fr.cx("fr-mt-3w")}>

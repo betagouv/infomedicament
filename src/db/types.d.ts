@@ -134,6 +134,7 @@ interface ResumeMedicamentsTable {
   atc5Code?: string;
   CISList: string[];
   subsIds: string[];
+  pathosCodesNames: string[][];//codePatho, NomPatho
 }
 
 interface ResumeGenericsTable {

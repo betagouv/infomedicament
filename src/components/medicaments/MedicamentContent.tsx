@@ -47,6 +47,8 @@ import { Presentation } from "@/types/PresentationTypes";
 import { trackEvent } from "@/services/tracking";
 import MedicamentContentHeader from "./MedicamentContentHeader";
 import { FicheInfos } from "@/types/FicheInfoTypes";
+import { Definition } from "@/types/GlossaireTypes";
+import getGlossaryDefinitions from "@/db/utils/glossary";
 
 const ToggleSwitchContainer = styled.div`
   background-color: var(--background-contrast-info);
@@ -132,6 +134,7 @@ function MedicamentContent({
   const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock>();
   const [ficheInfos, setFicheInfos] = useState<FicheInfos>();
   const [articles, setArticles] = useState<ArticleCardResume[]>([]);
+  const [definitions, setDefinitions] = useState<Definition[]>([]);
   const [currentMarr, setCurrentMarr] = useState<Marr>();
   const [loaded, setLoaded] = useState<boolean>(false);
 
@@ -227,13 +230,17 @@ function MedicamentContent({
           }
         }
         const newFicheInfos = await getFicheInfos(spec.SpecId);
-        setFicheInfos(newFicheInfos);
+        setFicheInfos(newFicheInfos);      
+        const newDefinitions = (await getGlossaryDefinitions()).filter(
+          (d) => d.a_souligner,
+        );
+        setDefinitions(newDefinitions);
         setLoaded(true);
       } catch (e) {
         Sentry.captureException(e);
       }
     },
-    [atcList, setArticles, setNotice, setIndicationBlock, setFicheInfos, setLoaded]
+    [atcList, setArticles, setNotice, setIndicationBlock, setFicheInfos, setLoaded, setDefinitions]
   );
 
   useEffect(() => {
@@ -248,22 +255,16 @@ function MedicamentContent({
       setCurrentPresentations(presentations);
   }, [presentations, setCurrentPresentations]);
 
-  const onScrollEvent = useCallback(() => {
-    if (window.pageYOffset > window.innerHeight) {
-      trackEvent("Page médicament", "Scroll");
-      window.removeEventListener("scroll", onScrollEvent);
-    }
-  }, []);
-
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.addEventListener("scroll", onScrollEvent);
-    }
-    // Cleanup: remove listener on unmount to prevent memory leaks
-    return () => {
-      window.removeEventListener("scroll", onScrollEvent);
+    const handler = () => {
+      if (window.pageYOffset > window.innerHeight) {
+        trackEvent("Page médicament", "Scroll");
+        window.removeEventListener("scroll", handler);
+      }
     };
-  }, [onScrollEvent]);
+    window.addEventListener("scroll", handler);
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
 
   useEffect(() => {
     // Use to display or not the separator after a tag (left column)
@@ -441,6 +442,7 @@ function MedicamentContent({
           <MedicamentContentHeader
             specialite={currentSpec}
             ficheInfos={ficheInfos}
+            definitions={definitions}
           />
           {isAdvanced ? (
             <DetailedNotice
@@ -457,6 +459,7 @@ function MedicamentContent({
               ficheInfos={ficheInfos}
               indicationBlock={indicationBlock}
               delivrance={delivrance}
+              definitions={definitions}
             />
           ) : (
             <>
@@ -498,6 +501,7 @@ function MedicamentContent({
                             <NoticeBlock
                               notice={notice}
                               specialite={currentSpec}
+                              definitions={definitions}
                             />
                           </>
                         ) :

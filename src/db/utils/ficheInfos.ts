@@ -15,6 +15,10 @@ export async function getEvents(CISList: string | string[]): Promise<VUEvnts[]> 
   return events;
 }
 
+function formatElementName(name: string): string {
+  return name.replaceAll("un seringue préremplie", "une seringue préremplie");
+}
+
 export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined> {
   const events = await getEvents(CIS);
   const infosImportantes: InfosImportantes[] = [];
@@ -59,6 +63,7 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
     .where("Element.SpecId", "=", CIS)
     .selectAll()
     .distinct()
+    .orderBy("Element.ElmtNum")
     .execute();
 
   const composantsRaw: ComposantSubsNom[] = await pdbmMySQL
@@ -72,8 +77,8 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
     .where("Composant.SpecId", "=", CIS)
     .selectAll()
     .distinct()
-    .orderBy("CompNum asc")
     .execute();
+
   const elementsComposition: ElementComposition[] = [];
   elementsRaw.forEach((element: SpecElement) => {
     const composantsList = composantsRaw.filter((composantRaw: ComposantSubsNom) => composantRaw.ElmtNum === element.ElmtNum && composantRaw.NatuId === ComposantNatureId.Substance);
@@ -85,25 +90,34 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
         composantsComposition.push({
           NomLib: fraction.NomLib,
           dosage: fraction.CompDosage,
-          composants: composantsFractionList.map((composant) => { 
-            return {
-              NomLib: composant.NomLib,
-              dosage: composant.CompDosage
-            }
-          })
+          CompNum: fraction.CompNum,
+          composants: composantsFractionList
+            .map((composant) => { 
+              return {
+                NomLib: composant.NomLib,
+                dosage: composant.CompDosage,
+                CompNum: composant.CompNum,
+              }
+            })
+            .sort((a,b) => a.CompNum - b.CompNum)
         })
       });
-    } else {
-      composantsList.forEach((composant) => 
-        composantsComposition.push({
-          NomLib: composant.NomLib,
-          dosage: composant.CompDosage
-        }),
-      );
+    }
+    if(composantsList && composantsList.length > 0){
+      composantsList.forEach((composant) => {
+        const isFraction = fractionsList.findIndex((fractionRaw: ComposantSubsNom) => fractionRaw.CompNum === composant.CompNum);
+        if(isFraction === -1){
+          composantsComposition.push({
+            NomLib: composant.NomLib,
+            dosage: composant.CompDosage,
+            CompNum: composant.CompNum,
+          });
+        }
+      });
     }
     elementsComposition.push({
-      referenceDosage: element.ElmtRefDosage ? element.ElmtRefDosage : element.ElmtNom,
-      composants: composantsComposition,
+      referenceDosage: formatElementName(element.ElmtRefDosage ? element.ElmtRefDosage : element.ElmtNom),
+      composants: composantsComposition.sort((a,b) => a.CompNum - b.CompNum),
     })
   })
   
