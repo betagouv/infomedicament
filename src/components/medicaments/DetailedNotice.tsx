@@ -102,6 +102,7 @@ function DetailedNotice({
       <DetailedNoticeContainer id="document-has" $visible={visiblePart === DetailsNoticePartsEnum.HAS}>
         <DocumentHas 
           ficheInfos={ficheInfos}
+          SpecGenId={currentSpec && currentSpec.SpecGeneId}
           definitions={definitions}
         />
       </DetailedNoticeContainer>
