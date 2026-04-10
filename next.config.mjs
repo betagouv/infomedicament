@@ -27,6 +27,9 @@ const cspHeader = `
     connect-src 'self' ${process.env.NEXT_PUBLIC_MATOMO_URL} https://sentry.incubateur.net;
 `
 
+// Same as cspHeader but allows any domain to embed via iframe (for /interactions/embed)
+const embedCspHeader = cspHeader.replace("frame-ancestors 'none'", "frame-ancestors *")
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
@@ -69,6 +72,16 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value: cspHeader.replace(/\n/g, ''),
+          },
+        ],
+      },
+      {
+        // Embed route: allow framing from any domain (overrides catch-all above)
+        source: '/interactions/embed',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: embedCspHeader.replace(/\n/g, ''),
           },
         ],
       },
