@@ -10,50 +10,7 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import InteractionSubstanceInput from "@/components/InteractionSubstanceInput";
 import { InteractionsSearchEntry } from "@/db/types";
 import { InteractionResult } from "@/db/utils/interactions";
-
-// Maps raw DB codes to French labels
-const CODE_LABELS: Record<string, string> = {
-  ci: "Contre-indication",
-  asdec: "Association déconseillée",
-  dcn: "Association déconseillée",
-  dnc: "Association déconseillée",
-  pe: "Précaution d'emploi",
-  apec: "A prendre en compte",
-  neg: "Négligeable",
-  texte: "Voir texte",
-};
-
-const CODE_COLORS: Record<string, string> = {
-  ci: "#8B1A2B",
-  asdec: "#E8836A",
-  dcn: "#E8836A",
-  dnc: "#E8836A",
-  pe: "#C8A020",
-  apec: "#F0D040",
-  neg: "#9e9e9e",
-  texte: "#9e9e9e",
-};
-
-// Light backgrounds need dark text
-const LIGHT_CODES = new Set(["pe", "apec", "neg", "texte"]);
-
-type NiveauBadgeData = { label: string; color: string; textColor: string };
-
-function getNiveauBadges(niveau: string): NiveauBadgeData[] {
-  const seen = new Set<string>();
-  return niveau
-    .split("/")
-    .map((code) => ({
-      label: CODE_LABELS[code] ?? code,
-      color: CODE_COLORS[code] ?? "#9e9e9e",
-      textColor: LIGHT_CODES.has(code) ? "#1e1e1e" : "#fff",
-    }))
-    .filter(({ label }) => {
-      if (seen.has(label)) return false;
-      seen.add(label);
-      return true;
-    });
-}
+import { CODE_COLORS, getNiveauBadges, NiveauBadgeData } from "./niveauBadges";
 
 
 const InputRow = styled.div`
