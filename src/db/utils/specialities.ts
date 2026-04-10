@@ -122,7 +122,7 @@ export const getResumeSpecsGroupsWithLetter = cache(async function (letter: stri
   return formatSpecialitesResumeFromGroups(result);
 });
 
-export const getResumeSpecsGroupsWithPatho = cache(async function (idPatho: string): Promise<ResumeSpecGroup[]> {
+export const getResumeSpecsGroupsWithPatho = cache(async function (idPatho: number): Promise<ResumeSpecGroup[]> {
   const result = await db
     .selectFrom("resume_medicaments")
     .where("pathosIds", "&&", Array([idPatho]))

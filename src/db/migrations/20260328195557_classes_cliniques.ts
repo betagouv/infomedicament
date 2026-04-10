@@ -32,7 +32,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 		.execute();
   await db.schema
 		.alterTable('resume_medicaments')
-    .addColumn('pathosIds', sql`text[]`)
+    .addColumn('pathosIds', sql`integer[]`)
 		.addColumn('pathosIdsNames', sql`character varying[]`)
 		.execute();
 

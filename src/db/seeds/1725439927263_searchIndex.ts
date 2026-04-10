@@ -125,9 +125,9 @@ export async function seed(db: Kysely<any>): Promise<void> {
       }
 
       // 3. Index pathology names
-      const pathosIds: string[] = (group.pathosIds as string[]) ?? [];
+      const pathosIds: number[] = (group.pathosIds as number[]) ?? [];
       for (const code of pathosIds) {
-        const nomPatho = pathologyMap.get(code.trim());
+        const nomPatho = pathologyMap.get(code);
         if (nomPatho) {
           await addIndex("pathology", gn, nomPatho, nomPatho);
         }

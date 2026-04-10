@@ -101,8 +101,8 @@ export async function getArticlesFromSearchResults(results: SearchResultItem[]):
                 articlesFilters.substancesList.push(subsId.trim());
         }
         for (const code of item.pathosIds) {
-            if (!articlesFilters.pathologiesList.includes(Number(code.trim())))
-                articlesFilters.pathologiesList.push(Number(code.trim()));
+            if (!articlesFilters.pathologiesList.includes(code))
+                articlesFilters.pathologiesList.push(code);
         }
         for (const code of [item.atc1Code, item.atc2Code, item.atc5Code]) {
             if (code && !articlesFilters.ATCList.includes(code.trim()))

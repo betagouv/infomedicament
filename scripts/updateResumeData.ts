@@ -154,11 +154,11 @@ async function createResumeSpecialites(): Promise<string[]> {
       );
       const CISList: string[] = rawSpecialites.map((spec) => spec.SpecId.trim());
       const rawPathosCodes: ShortPatho[] = await getSpecialitesPatho(CISList);
-      const pathosIds: string[] = rawPathosCodes
+      const pathosIds: number[] = rawPathosCodes
         .map((patho) => patho.idPatho)
         .filter((idPatho, index, arr) => arr.indexOf(idPatho) === index);
       const pathosIdsNames: string[][] = rawPathosCodes.map((patho) => [
-        patho.idPatho, 
+        patho.idPatho.toString(), 
         patho.nomPatho ? patho.nomPatho : "",
       ]);
 

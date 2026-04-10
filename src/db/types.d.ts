@@ -131,7 +131,7 @@ interface ResumeMedicamentsTable {
   groupName: string;
   composants: string;
   specialites: string[][];//SpecId, SpecDenom01, StatutBdm, ProcId
-  pathosIds: string[];
+  pathosIds: number[];
   atc1Code?: string;
   atc2Code?: string;
   atc5Code?: string;
