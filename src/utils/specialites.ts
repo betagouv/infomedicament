@@ -1,6 +1,7 @@
 import { Specialite, VUEvnts } from "@/db/pdbmMySQL/types";
 import { ResumeSpecGroupDB } from "@/db/types";
 import { MedicamentGroup } from "@/displayUtils";
+import { ShortPatho } from "@/types/PathoTypes";
 import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 
 export function getSpecialiteGroupName(
@@ -81,6 +82,17 @@ export function isHomeopathie(
   return false;
 };
 
+//Format pathos details from resume table
+export function formatPathosDetails(pathosIdsNames: string[][]): ShortPatho[] {
+  const formatPathos: ShortPatho[] = pathosIdsNames.map((patho) => {
+    return {
+      idPatho: Number(patho[0].trim()),
+      nomPatho: patho[1],
+    }
+  });
+  return formatPathos;
+}
+
 //Format la liste des spécialités issus de la table résumé
 export function formatSpecialitesResume(specialites: string[][]): ResumeSpecialite[] {
   const formatSpecs: ResumeSpecialite[] = specialites.map((spec) => {
@@ -101,7 +113,8 @@ export function formatSpecialitesResumeFromGroups(specsGroups: ResumeSpecGroupDB
   return specsGroups.map((group) => {
     return {
       ...group,
-      resumeSpecialites: formatSpecialitesResume(group.specialites)
+      resumeSpecialites: formatSpecialitesResume(group.specialites),
+      pathosDetails: formatPathosDetails(group.pathosIdsNames),
     }
   });
 }

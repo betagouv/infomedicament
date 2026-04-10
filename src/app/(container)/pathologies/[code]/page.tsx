@@ -1,19 +1,20 @@
-import { notFound } from "next/navigation";
+ import { notFound } from "next/navigation";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getPatho } from "@/db/utils/pathologies";
 import PathologyDefinitionContent from "@/components/definition/PathologyDefinitionContent";
+import { Pathology } from "@/db/types";
 
 export const dynamic = "error";
 export const dynamicParams = true;
 
 export default async function Page(props: {
-  params: Promise<{ code: `${number}` }>;
+  params: Promise<{ code: number }>;
 }) {
   const { code } = await props.params;
-  const patho = await getPatho(code);
+  const patho: Pathology | undefined = await getPatho(code);
   if (!patho) return notFound();
 
   return (
@@ -26,11 +27,11 @@ export default async function Page(props: {
               {
                 label: "Listes des pathologies",
                 linkProps: {
-                  href: `/pathologies/${patho.NomPatho.slice(0, 1)}`,
+                  href: `/pathologies/${patho.nom.slice(0, 1)}`,
                 },
               },
             ]}
-            currentPageLabel={patho.NomPatho}
+            currentPageLabel={patho.nom}
           />
         </div>
       </div>
@@ -38,7 +39,7 @@ export default async function Page(props: {
         patho={patho}
       />
       <RatingToaster
-        pageId={patho.NomPatho}
+        pageId={patho.nom}
       />
     </ContentContainer>
   );

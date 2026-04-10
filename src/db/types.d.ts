@@ -31,6 +31,9 @@ export interface Database {
   cis_atc: CisAtc;
   asmr: AsmrTable;
   smr: SmrTable;
+  classes_cliniques: ClassesCliniquesTable;
+  vu_classes_cliniques: VUClassesCliniquesTable;
+  pathologies: PathologiesTable;
 }
 
 interface SearchIndexTable {
@@ -112,8 +115,8 @@ interface LettersTable {
 }
 
 interface ResumePathosTable {
-  codePatho: string;
-  NomPatho: string;
+  idPatho: number;
+  nomPatho: string;
   specialites: number;
 }
 
@@ -128,13 +131,13 @@ interface ResumeMedicamentsTable {
   groupName: string;
   composants: string;
   specialites: string[][];//SpecId, SpecDenom01, StatutBdm, ProcId
-  pathosCodes: string[];
+  pathosIds: number[];
   atc1Code?: string;
   atc2Code?: string;
   atc5Code?: string;
   CISList: string[];
   subsIds: string[];
-  pathosCodesNames: string[][];//codePatho, NomPatho
+  pathosIdsNames: string[][];//idPatho, nomPatho
 }
 
 interface ResumeGenericsTable {
@@ -206,9 +209,10 @@ export interface RefMarrUrlPdf {
 }
 
 export interface RefPathologies {
-  code_patho: string | null;
+  code_patho: number | null;
   definition: string | null;
   id: Generated<number>;
+  code_classe_clinique: number | null;
 }
 
 export interface RefPediatrie {
@@ -289,6 +293,40 @@ export interface CisAtc {
   code_modif: number | null;
 }
 
+interface ClassesCliniquesTable {
+  codeTerme: number,
+  libAbr?: string,
+  libCourt: string,
+  libLong: string,
+  libLongAnglais?: string,
+  libRech?: string,
+  numOrdreEdit: number,
+  dateCreationTerme: Date,
+  dateModifTerme?: Date,
+  dateInactivTerme?: Date,
+  textSourceRef?: string,
+  remTerme?: string,
+};
+
+interface VUClassesCliniquesTable {
+  codeVU: string,
+  codeClasClinique: number,
+  indicValide: number,
+  remCommentaire?: string,
+  dateCreation: Date,
+  dateDernModif?: Date,
+  codeModif?: number,
+}
+
+interface PathologiesTable {
+  id: Generated<number>,
+  codePatho?: number,
+  codeClasseClinique?: number,
+  nom: string,
+  definition?: string,
+  CIS: string[],
+}
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
@@ -313,3 +351,4 @@ export type RefPathologies = Selectable<RefPathologies>;
 export type RefPediatrie = Selectable<RefPediatrie>;
 export type RefSubstanceActive = Selectable<RefSubstanceActive>;
 export type RefSubstanceActiveDefinitions = Selectable<RefSubstanceActiveDefinitions>;
+export type Pathology = Selectable<PathologiesTable>;

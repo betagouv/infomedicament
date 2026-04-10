@@ -56,7 +56,7 @@ function DataBlockGeneric({
       if(dataType === DataTypeEnum.SUBSTANCE){
         setCurrentLink(`/substances/${(data as ResumeSubstance).NomId}`);
       } else if(dataType === DataTypeEnum.PATHOLOGY){
-        setCurrentLink(`/pathologies/${(data as ResumePatho).codePatho}`);
+        setCurrentLink(`/pathologies/${(data as ResumePatho).idPatho}`);
       } else if(dataType === DataTypeEnum.ATCCLASS){
         setCurrentLink(`/atc/${(data as AdvancedATCClass).class.code}`);
       } else if(dataType === DataTypeEnum.MEDICAMENT){
@@ -72,7 +72,7 @@ function DataBlockGeneric({
       if(dataType === DataTypeEnum.SUBSTANCE){
         setCurrentFormatSpecName(formatSpecName((data as ResumeSubstance).NomLib));
       } else if(dataType === DataTypeEnum.PATHOLOGY){
-        setCurrentFormatSpecName(formatSpecName((data as ResumePatho).NomPatho));
+        setCurrentFormatSpecName(formatSpecName((data as ResumePatho).nomPatho));
       } else if(dataType === DataTypeEnum.ATCCLASS){
         setCurrentFormatSpecName(formatSpecName((data as AdvancedATCClass).class.label));
       } else if(dataType === DataTypeEnum.MEDICAMENT){
