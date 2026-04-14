@@ -5,8 +5,17 @@ import { fr } from "@codegouvfr/react-dsfr";
 import MarrResumeList from "./MarrResumeList";
 import Link from "next/link";
 import { Marr } from "@/types/MarrTypes";
-import { AnchorMenu } from "../medicaments/detailed/DetailedSubMenu";
+import { AnchorMenu } from "../medicaments/advanced/DetailedSubMenu";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
+import styled from "styled-components";
+
+const MarrTitle = styled.h2`
+  margin-bottom: 0.5rem;
+  @media (max-width: 48em) {
+    font-size: 1.5rem !important;
+    margin-bottom: 1rem;
+  }
+`;
 
 interface MarrNoticeProps extends HTMLAttributes<HTMLDivElement> {
   marr: Marr;
@@ -19,12 +28,13 @@ function MarrNotice({
 }: MarrNoticeProps) {
 
   return (
-    marr.pdf.length > 0 && (
+    marr && marr.pdf.length > 0 && (
       <>
-        <h3 className={fr.cx("fr-h6", "fr-mb-1w")}>
-          Mesures additionnelles de réduction du risque (MARR)
-        </h3>
-        <div className={fr.cx("fr-text--md", "fr-mb-1w")}>
+        <MarrTitle className={fr.cx("fr-h6", "fr-mb-1w")}>
+          Documents associés
+        </MarrTitle>
+        <div className={fr.cx("fr-text--sm", "fr-mb-1w")}>
+          Mesures additionnelles de réduction du risque (MARR)<br/>
           Consultez les documents ci-dessous pour bien utiliser ce médicament&nbsp;:
         </div>
         <MarrResumeList marr={marr} />

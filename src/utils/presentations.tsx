@@ -147,7 +147,6 @@ function sortCleanPresentationsDetails(cleanPresDetails: AgregatePresentationDet
     });
 }
 
-
 export function cleanPresentationsDetails(presDetails: PresentationDetail[]): AgregatePresentationDetails[]{
   const cleanPresDetails:AgregatePresentationDetails[] = [];
   presDetails.forEach((details: PresentationDetail) => {
@@ -259,7 +258,56 @@ export function getPresentationName(
   return presentation.PresNom01;
 }
 
-export function getPresentationPriceText(
+export function getPresentationRecipientsText(
+  presentation: Presentation,
+): string {
+  if(presentation.details && presentation.details.length > 0){
+    const allPresDetails: AgregatePresentationDetails[] = cleanPresentationsDetails(presentation.details);
+    let recipentsText: string = "";
+    allPresDetails.forEach((presDetails: AgregatePresentationDetails) => {
+      if(presDetails.recipients.length === 0) return;
+      let name = "";
+      presDetails.recipients.forEach((recipientDetails: AgregateRecipientDetails) => {
+        if(!recipientDetails.recipient) return;
+        const nbRecipient: number = (recipientDetails.nbrrecipient !== 0 &&recipientDetails.nbrrecipient)
+          ? recipientDetails.nbrrecipient
+          : 1;
+
+        const recipient: string = replacePluralSingular(recipientDetails.recipient, nbRecipient);
+        const contenance: string = contenanceDisplay(recipientDetails);
+        if(name !== "")
+          name += " - ";
+        if(contenance !== ""){
+          name += `${contenance} - `;
+        }
+        if (nbRecipient > 1) {
+          name += `${nbRecipient.toString()} ${recipient}`;
+        } else {
+          name += `${recipient}`;
+        }
+      });
+      if(recipentsText !== "")
+        recipentsText += " - ";
+      recipentsText += name;
+    });
+    if(recipentsText !== "")
+      return recipentsText;
+  }
+
+  const index = presentation.PresNom01.indexOf("stylo prérempli");
+  if(index !== -1){
+    if(index === 0){
+      return capitalize(presentation.PresNom01);
+    }
+    const qt = presentation.PresNom01.substring(0, index).trim();
+    if(!isNaN(Number(qt)) && Number(qt) > 1 && Number(presentation.PresNum) <= 1){
+      return presentation.PresNom01.replaceAll("stylo prérempli", "stylos préremplis");
+    }
+  }
+  return presentation.PresNom01;
+}
+
+export function getPresentationFullPriceText(
   presentation: Presentation
 ): string {
   if(presentation.PPF && presentation.TauxPriseEnCharge) {
@@ -270,7 +318,32 @@ export function getPresentationPriceText(
       }).format(presentation.PPF);
     return `Prix ${price} - remboursé à ${presentation.TauxPriseEnCharge}`;               
   } else {
-    return "Prix libre - non remboursable"
+    return "Prix libre - non remboursable";
+  }                 
+}
+
+export function getPresentationTauxPriseEnChargeText(
+  presentation: Presentation
+): string {
+  if(presentation.TauxPriseEnCharge) {
+    return `remboursé à ${presentation.TauxPriseEnCharge}`;
+  } else {
+    return "non remboursable";
+  }                 
+}
+
+export function getPresentationPriceText(
+  presentation: Presentation
+): string {
+  if(presentation.PPF) {
+    const price: string = Intl.NumberFormat(
+      "fr-FR", {
+        style: "currency",
+        currency: "EUR",
+      }).format(presentation.PPF);
+    return price;
+  } else {
+    return "Prix libre";
   }                 
 }
 

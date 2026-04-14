@@ -1,6 +1,6 @@
 "use client";
 
-import ContentContainer from "../generic/ContentContainer";
+import ContentContainer from "@/components/generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes } from "react";
 import Link from "next/link";
@@ -10,21 +10,21 @@ import Alert from "@codegouvfr/react-dsfr/Alert";
 import Image from "next/image";
 import { FicheInfos } from "@/types/FicheInfoTypes";
 import { Definition } from "@/types/GlossaireTypes";
-import WithDefinition from "../glossary/WithDefinition";
+import WithDefinition from "@/components/glossary/WithDefinition";
 import { getDefinition } from "@/utils/glossary";
 
-interface MedicamentContentHeaderProps extends HTMLAttributes<HTMLDivElement> {
+interface MedicamentContentHeaderBlockProps extends HTMLAttributes<HTMLDivElement> {
   specialite?: DetailedSpecialite;
   ficheInfos?: FicheInfos;
-  definitions: Definition[];
+  definitions?: Definition[];
 }
 
-function MedicamentContentHeader({
+function MedicamentContentHeaderBlock({
   specialite,
   ficheInfos,
   definitions,
   ...props
-}: MedicamentContentHeaderProps) {
+}: MedicamentContentHeaderBlockProps) {
 
 
   return (
@@ -74,7 +74,7 @@ function MedicamentContentHeader({
         <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")}>
           Ce médicament est un médicament homéopathique à nom commun soumis à{" "}
           <WithDefinition
-            definition={getDefinition(definitions, "Enregistrement des médicaments homéopathiques")}
+            definition={definitions && getDefinition(definitions, "Enregistrement des médicaments homéopathiques")}
             word="enregistrement"
           />.
           <br/><br/>
@@ -135,4 +135,4 @@ function MedicamentContentHeader({
   );
 };
 
-export default MedicamentContentHeader;
+export default MedicamentContentHeaderBlock;
