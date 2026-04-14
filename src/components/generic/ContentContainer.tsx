@@ -5,23 +5,34 @@ import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 import { HTMLAttributes, PropsWithChildren, ReactNode, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
 
-const Container = styled.div<{ $isDark: boolean; $whiteContainer?: boolean; }> `
+const Container = styled.div<{ 
+  $isDark: boolean;
+  $whiteContainer?: boolean;
+  $mobileOverflowX?: boolean;
+}> `
   ${props => props.$whiteContainer && css`
     background-color: ${props.$isDark ? 'var(--background-default-grey)' : '#FFF'};
     border: var(--border-open-blue-france) 1px solid;
     border-radius: 8px;
+  `}
+  ${props => props.$mobileOverflowX && css`
+    @media (max-width: 48em) {
+      overflow-x: auto;
+    }
   `}
 `;
 
 interface ContentContainerProps extends HTMLAttributes<HTMLDivElement> {
   frContainer?: boolean;
   whiteContainer?: boolean; //With white background and border
+  mobileOverflowX?: boolean; //Add overflow-x: auto; on mobile mode
 }
 
 function ContentContainer({
-  frContainer, 
-  whiteContainer, 
-  children, 
+  frContainer,
+  whiteContainer,
+  mobileOverflowX,
+  children,
   ...props
 }: PropsWithChildren<ContentContainerProps>) {
   
@@ -50,7 +61,13 @@ function ContentContainer({
   }, [props, currentFrContainer, setCurrentClassName]);
 
   return (
-    <Container {...props} $isDark={isDark} $whiteContainer={currentWhiteContainer} className={currentClassName}>
+    <Container 
+      {...props} 
+      $isDark={isDark} 
+      $whiteContainer={currentWhiteContainer} 
+      $mobileOverflowX={mobileOverflowX} 
+      className={currentClassName}
+    >
       {currentChildren}
     </Container>
   );

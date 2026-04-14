@@ -15,7 +15,7 @@ import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
 import { getSpecialiteName } from "@/db/utils/specialities";
-import MedicamentContainer from "@/components/medicaments/MedicamentContainer";
+import MedicamentContent from "@/components/medicaments/MedicamentContent";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -120,7 +120,7 @@ export default async function Page(props: {
             Le médicament demandé n'existe pas ou il n'entre pas dans le périmètre d'Info Médicament.
           </ContentContainer>
         ) : (
-          <MedicamentContainer
+          <MedicamentContent
             atcList={atcList}
             atc2={atc2}
             atcCode={atcCode}

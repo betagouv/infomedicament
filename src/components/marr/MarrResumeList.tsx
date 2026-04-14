@@ -6,7 +6,15 @@ import Badge from "@codegouvfr/react-dsfr/Badge";
 import Link from "next/link";
 import { Marr, MarrPdf } from "@/types/MarrTypes";
 
-const MarrContainer = styled.div<{ $isDark: boolean; $inLine?: boolean; }>`
+const MarrContainer = styled.div`
+  @media (max-width: 48em) {
+    display: inline-flex;
+    width: 100%;
+    overflow-x: auto;
+  }
+`;
+
+const MarrBlockContainer = styled.div<{ $isDark: boolean; $inLine?: boolean; }>`
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
   padding: 1rem;
@@ -24,8 +32,12 @@ const MarrContainer = styled.div<{ $isDark: boolean; $inLine?: boolean; }>`
   ${props => css`
     background-color: ${props.$isDark ? 'var(--background-default-grey)' : '#FFF'};
   `}
+  @media (max-width: 48em) {
+    margin-right: 1rem;
+    min-width: 250px;
+    width: 100%;
+  }
 `;
-
 const BadgeContainer = styled.div`
   text-align: right;
 `;
@@ -44,13 +56,13 @@ function MarrResumeList({
 
   return (
     marr.pdf.length > 0 && (
-      <div>
+      <MarrContainer>
         {marr.pdf.map((marr:MarrPdf, index) => {
           return (
-            <MarrContainer $isDark={isDark} key={index} $inLine={inLine}>
+            <MarrBlockContainer $isDark={isDark} key={index} $inLine={inLine}>
               <Link 
                 href={marr.fileUrl}
-                className={fr.cx("fr-text--sm")}
+                className={fr.cx("fr-text--sm", "fr-link")}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -64,10 +76,10 @@ function MarrResumeList({
                   {marr.type}
                 </Badge>
               </BadgeContainer>
-            </MarrContainer>
+            </MarrBlockContainer>
           );
         })}
-      </div>
+      </MarrContainer>
     )
   );
 };

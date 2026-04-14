@@ -25,7 +25,7 @@ const DocBonUsage = styled.div`
 
 interface DocumentHasProps extends HTMLAttributes<HTMLDivElement> {
   ficheInfos?: FicheInfos;
-  definitions: Definition[];
+  definitions?: Definition[];
 }
 
 function getSmrAsmrFormattedValeur(value: string) {
@@ -98,7 +98,7 @@ function DocumentHas({
         <h2 className={fr.cx("fr-h6")}>
           Service médical rendu (
           <WithDefinition
-            definition={getDefinition(definitions, "SMR")}
+            definition={definitions && getDefinition(definitions, "SMR")}
             word="SMR"
           />)
         </h2>
@@ -138,7 +138,7 @@ function DocumentHas({
         <h2 className={fr.cx("fr-h6")}>
           Amélioration du service médical rendu (
           <WithDefinition
-            definition={getDefinition(definitions, "ASMR")}
+            definition={definitions && getDefinition(definitions, "ASMR")}
             word="ASMR"
           />)
         </h2>

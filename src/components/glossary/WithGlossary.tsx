@@ -4,7 +4,7 @@ import React, { Fragment } from "react";
 import WithDefinition from "@/components/glossary/WithDefinition";
 import { Definition } from "@/types/GlossaireTypes";
 import { questionKeys, questionsList } from "@/data/pages/notices_anchors";
-import QuestionKeyword from "../medicaments/QuestionKeyword";
+import QuestionKeyword from "../medicaments/notice/QuestionKeyword";
 import { QuestionAnchors } from "@/types/NoticesAnchors";
 
 function escapeRegExp(text: string) {
