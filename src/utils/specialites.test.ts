@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isSurveillanceRenforcee } from "./specialites";
+import { formatPathosDetails, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isSurveillanceRenforcee } from "./specialites";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { SpecialiteComm, SpecialiteStat, VUEvnts } from "@/db/pdbmMySQL/types";
+import { ShortPatho } from "@/types/PathoTypes";
 
 const detailedSpec: DetailedSpecialite = {
   SpecId: "60035714",
@@ -133,6 +134,40 @@ describe("utils specialities", () => {
     expect(isSurveillanceRenforcee(eventsNotSurveillance)).toBe(false);
     //Not Surveillance Renforcé : not between the two dates
     expect(isSurveillanceRenforcee(eventsNotSurveillanceBis)).toBe(false);
+  });
+
+  it("formatPathosDetails", async () => {
+    //GroupName : ACECLOFENAC ACCORD
+    const pathosList: string[][] = [
+      ["99", "Arthrose"],
+      ["76","Polyarthrite rhumatoïde"],
+      ["225","Inflammation"],
+      ["213","Douleur"],
+      ["236","Rhumatismes inflammatoires"]
+    ];
+    const expectedPathosList: ShortPatho[] = [
+      {
+        idPatho: 99,
+        nomPatho: "Arthrose",
+      },
+      {
+        idPatho: 76,
+        nomPatho: "Polyarthrite rhumatoïde",
+      },
+      {
+        idPatho: 225,
+        nomPatho: "Inflammation",
+      },
+      {
+        idPatho: 213,
+        nomPatho: "Douleur",
+      },
+      {
+        idPatho: 236,
+        nomPatho: "Rhumatismes inflammatoires",
+      },
+    ];
+    expect(formatPathosDetails(pathosList)).toStrictEqual(expectedPathosList);
   })
 
 });

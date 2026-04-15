@@ -2,57 +2,42 @@
 import "server-cli-only";
 
 import { unstable_cache } from "next/cache";
-import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { Patho } from "../pdbmMySQL/types";
 import { cache } from "react";
 import db from "..";
-import { ResumePatho } from "../types";
+import { Pathology, ResumePatho } from "../types";
 import { sql } from "kysely";
+import { ShortPatho } from "@/types/PathoTypes";
 
-export async function getPatho(code: string): Promise<Patho | undefined> {
-  return await pdbmMySQL
-    .selectFrom("Patho")
+export async function getPatho(code: number): Promise<Pathology | undefined> {
+  return await db
+    .selectFrom("pathologies")
+    .where("id", "=", code)
     .selectAll()
-    .where("codePatho", "=", code)
     .executeTakeFirst();
 }
 
 //Get the code patho list from specialite code CIS
 export const getSpecialitePatho = unstable_cache(
-  async function (CIS: string): Promise<string[]> {
-    return getSpecialitesPatho([CIS]);
+  async function (CIS: string): Promise<number[]> {
+    const codes = await db
+      .selectFrom("pathologies")
+      .select("id")
+      .where("CIS", "&&", Array([CIS]))
+      .distinct()
+      .execute();
+    return codes.map((code) => code.id);
   },
   ["specialite-patho"],
   { revalidate: 3600 } // cache for 1 hour
 );
-export const getSpecialitesPatho = cache(async function (CIS: string[]): Promise<string[]> {
-  const rawCodePatho = await pdbmMySQL
-    .selectFrom("Spec_Patho")
-    .select("Spec_Patho.codePatho")
-    .leftJoin("Specialite", "Spec_Patho.SpecId", "Specialite.SpecId")
-    .where("Specialite.SpecId", "in", CIS)
-    .distinct()
-    .execute();
-  return rawCodePatho.map((code) => code.codePatho);
-});
 
-export const getAllPathos = cache(async function (): Promise<Patho[]> {
-  return await pdbmMySQL
-    .selectFrom("Patho")
-    .selectAll()
+export const getSpecialitesPatho = cache(async function (CIS: string[]): Promise<ShortPatho[]> {
+  const pathos: ShortPatho[] = await db
+    .selectFrom("pathologies")
+    .where("CIS", "&&", Array(CIS))
+    .select(["id as idPatho", "nom as nomPatho"])
     .execute();
-});
-
-export const getAllPathoWithSpecialites = cache(async function () {
-  return await pdbmMySQL
-    .selectFrom("Patho")
-    .innerJoin("Spec_Patho", "Patho.codePatho", "Spec_Patho.codePatho")
-    .innerJoin("Specialite", "Spec_Patho.SpecId", "Specialite.SpecId")
-    .where("Specialite.IsBdm", "=", 1)
-    .selectAll("Patho")
-    .select("Specialite.SpecDenom01")
-    .orderBy("Specialite.SpecDenom01")
-    .execute();
+  return pathos;
 });
 
 export const getPathologiesResumeWithLetter = cache(async function (letter: string): Promise<ResumePatho[]> {
@@ -60,37 +45,9 @@ export const getPathologiesResumeWithLetter = cache(async function (letter: stri
     .selectFrom("resume_pathologies")
     .selectAll()
     .where(({ eb, ref }) => eb(
-      sql<string>`upper(${ref("NomPatho")})`, "like", `${letter.toUpperCase()}%`
+      sql<string>`upper(${ref("nomPatho")})`, "like", `${letter.toUpperCase()}%`
     ))
-    .orderBy("NomPatho")
+    .orderBy("nomPatho")
     .execute();
   return result;
 });
-
-export const getPathologiesResume = cache(async function (pathoCodes: string[]): Promise<ResumePatho[]> {
-  if (pathoCodes.length === 0) return [];
-  const result: ResumePatho[] = await db
-    .selectFrom("resume_pathologies")
-    .selectAll()
-    .where("codePatho", "in", pathoCodes)
-    .orderBy("codePatho")
-    .execute();
-  return result;
-});
-
-export async function getPathologyDefinition(
-  code: string,
-): Promise<string> {
-  const rows = await db
-    .selectFrom("ref_pathologies")
-    .select("definition")
-    .where("code_patho", "=", code)
-    .execute();
-
-  if (rows.length === 0) {
-    throw new Error(`Pathology code not found: ${code}`);
-  }
-
-  return rows[0].definition as string;
-
-}

@@ -19,7 +19,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
 
   const pathologies = await db
     .selectFrom("resume_pathologies")
-    .select(["codePatho", "NomPatho"])
+    .select(["idPatho", "nomPatho"])
     .execute();
 
   const atcRows = await db
@@ -51,7 +51,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
 
   // Build lookup maps
   const substanceMap = new Map(substances.map((s) => [s.NomId.trim(), s.NomLib]));
-  const pathologyMap = new Map(pathologies.map((p) => [p.codePatho.trim(), p.NomPatho]));
+  const pathologyMap = new Map(pathologies.map((p) => [p.idPatho.trim(), p.nomPatho]));
 
   // Build ATC label map: code → labels (may have both friendly and technical labels)
   const atcLabelMap = new Map<string, Set<string>>();
@@ -125,9 +125,9 @@ export async function seed(db: Kysely<any>): Promise<void> {
       }
 
       // 3. Index pathology names
-      const pathosCodes: string[] = (group.pathosCodes as string[]) ?? [];
-      for (const code of pathosCodes) {
-        const nomPatho = pathologyMap.get(code.trim());
+      const pathosIds: number[] = (group.pathosIds as number[]) ?? [];
+      for (const code of pathosIds) {
+        const nomPatho = pathologyMap.get(code);
         if (nomPatho) {
           await addIndex("pathology", gn, nomPatho, nomPatho);
         }
