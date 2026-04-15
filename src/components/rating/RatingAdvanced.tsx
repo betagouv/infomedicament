@@ -2,20 +2,7 @@ import { HTMLAttributes, useEffect, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import Button from "@codegouvfr/react-dsfr/Button";
 import { RadioButtons } from "@codegouvfr/react-dsfr/RadioButtons";
-import { AdvancedRating } from "@/types/RatingTypes";
-
-const question1Options: string[] = [
-  'Oui, immédiatement et clairement',
-  'Oui, mais après quelques recherches',
-  'Non, pas vraiment',
-  'Non, pas du tout',
-];
-const question2Options: string[] = [
-  'J’ai trouvé l’information que je cherchais et je me sens rassuré·e',
-  'J’ai trouvé une partie de l’information, mais j’ai encore des doutes',
-  'Je n’ai pas trouvé l’information que je cherchais',
-  'Je n’ai pas encore pu me faire un avis',
-];
+import { AdvancedRating, QUESTION_1_OPTIONS as question1Options, QUESTION_2_OPTIONS as question2Options } from "@/types/RatingTypes";
 
 interface RatingAdvancedProps extends HTMLAttributes<HTMLDivElement> {
   onSaveAdvancedRating: (advancedRating: AdvancedRating) => void;
@@ -79,7 +66,7 @@ function RatingAdvanced({
       </div>
       {!isReadOnly && (
         <div>
-          <Button onClick={onClickSave} >
+          <Button onClick={onClickSave} disabled={question1 === "" || question2 === ""}>
             Envoyer vos remarques
           </Button>
         </div>

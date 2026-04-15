@@ -51,13 +51,12 @@ describe("AutocompleteSearchInput", () => {
   it("should navigate to search page when selecting a group name", () => {
     renderAutocomplete();
     const input = screen.getByRole("combobox");
-    fireEvent.focus(input);
     fireEvent.change(input, { target: { value: "dolip" } });
 
     const option = screen
       .getAllByRole("option")
       .find((o) => o.textContent === "Doliprane")!;
-    fireEvent.click(option);
+    fireEvent.mouseDown(option);
 
     expect(mockPush).toHaveBeenCalledWith("/rechercher?s=Doliprane");
   });
@@ -66,15 +65,52 @@ describe("AutocompleteSearchInput", () => {
     const onSearch = vi.fn();
     renderAutocomplete(onSearch);
     const input = screen.getByRole("combobox");
-    fireEvent.focus(input);
     fireEvent.change(input, { target: { value: "dolip" } });
 
     const option = screen
       .getAllByRole("option")
       .find((o) => o.textContent === "Doliprane")!;
-    fireEvent.click(option);
+    fireEvent.mouseDown(option);
 
     expect(onSearch).toHaveBeenCalledWith("Doliprane");
     expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it("should not show dropdown before user types", () => {
+    renderAutocomplete();
+    expect(screen.queryByRole("listbox")).toBeNull();
+  });
+
+  it("should show dropdown options when user types", () => {
+    renderAutocomplete();
+    fireEvent.change(screen.getByRole("combobox"), { target: { value: "doli" } });
+    expect(screen.getByRole("listbox")).toBeDefined();
+    expect(screen.getAllByRole("option").length).toBeGreaterThan(0);
+  });
+
+  it("should highlight first option on ArrowDown", () => {
+    renderAutocomplete();
+    const input = screen.getByRole("combobox");
+    fireEvent.change(input, { target: { value: "doli" } });
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    expect(screen.getAllByRole("option")[0].getAttribute("aria-selected")).toBe("true");
+  });
+
+  it("should select highlighted option on Enter", () => {
+    renderAutocomplete();
+    const input = screen.getByRole("combobox");
+    fireEvent.change(input, { target: { value: "doli" } });
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(mockPush).toHaveBeenCalledWith("/rechercher?s=Doliprane");
+  });
+
+  it("should close dropdown on Escape", () => {
+    renderAutocomplete();
+    const input = screen.getByRole("combobox");
+    fireEvent.change(input, { target: { value: "doli" } });
+    expect(screen.getByRole("listbox")).toBeDefined();
+    fireEvent.keyDown(input, { key: "Escape" });
+    expect(screen.queryByRole("listbox")).toBeNull();
   });
 });

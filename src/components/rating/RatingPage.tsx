@@ -65,6 +65,7 @@ function RatingPage({
 
   const [ratingError, setRatingError] = useState<boolean>(false);
   const [dbRatingId, setDbRatingId] = useState<number>(-1);
+  const [ratingToken, setRatingToken] = useState<string>("");
   const [ratingReadOnly, setRatingReadOnly] = useState<boolean>(false);
 
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
@@ -82,8 +83,9 @@ function RatingPage({
           '/rating', 
           simpleRating,
         );
-        if (result && result.status === 200 && result.data !== -1) {
-          setDbRatingId(result.data);
+        if (result && result.status === 200 && result.data?.id !== -1) {
+          setDbRatingId(result.data.id);
+          setRatingToken(result.data.token);
           setRatingError(false);
           setIsAdvanced(true);
         } else {
@@ -95,7 +97,7 @@ function RatingPage({
         setRatingReadOnly(false);
       }
     },
-    [pageId, setDbRatingId, setRatingError]
+    [pageId]
   );
 
   function onSaveRating(rating: number): void{
@@ -108,6 +110,7 @@ function RatingPage({
       const data = {
         advancedRating: advancedRating,
         id: dbRatingId,
+        token: ratingToken,
       }
       try {
         const result = await axios.patch(
@@ -126,7 +129,7 @@ function RatingPage({
         setAdvancedRatingError(true);
       }
     },
-    [dbRatingId]
+    [dbRatingId, ratingToken]
   );
 
   function onSaveAdvancedRating(advancedRating: AdvancedRating): void{

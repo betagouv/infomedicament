@@ -45,11 +45,11 @@ export default function ClientHeader({
       }
       serviceTagline="La référence officielle sur les données des médicaments"
       navigation={[
-        { text: "Accueil", linkProps: { href: "/" } },
+        { text: "Accueil", linkProps: { href: "/", prefetch: false } },
         {
           text: "Parcourir par classe de médicament",
           menuLinks: atcs.map((atc) => ({
-            linkProps: { href: `/atc/${atc.code}` },
+            linkProps: { href: `/atc/${atc.code}`, prefetch: false },
             text: atc.label,
           })),
         },
@@ -58,37 +58,37 @@ export default function ClientHeader({
           menuLinks: [
             {
               text: "Tous les médicaments",
-              linkProps: { href: "/medicaments/A" },
+              linkProps: { href: "/medicaments/A", prefetch: false },
             },
             {
               text: "Toutes les substances actives",
-              linkProps: { href: "/substances/(" },
+              linkProps: { href: "/substances/(", prefetch: false },
             },
             {
               text: "Toutes les pathologies",
-              linkProps: { href: "/pathologies/A" },
+              linkProps: { href: "/pathologies/A", prefetch: false },
             },
             {
               text: "Tous les groupes génériques",
-              linkProps: { href: "/generiques/A" },
+              linkProps: { href: "/generiques/A", prefetch: false },
             },
           ],
         },
         {
           text: "Articles",
-          linkProps: { href: "/articles" },
+          linkProps: { href: "/articles", prefetch: false },
         },
         {
           text: "Glossaire",
-          linkProps: { href: "/glossaire/A" },
+          linkProps: { href: "/glossaire/A", prefetch: false },
         },
         {
           text: "À propos",
-          linkProps: { href: "/a-propos" },
+          linkProps: { href: "/a-propos", prefetch: false },
         },
         {
           text: "Signaler un effet indésirable",
-          linkProps: { 
+          linkProps: {
             href: "https://signalement.social-sante.gouv.fr/",
             target: "_blank",
             rel: "noopener external"

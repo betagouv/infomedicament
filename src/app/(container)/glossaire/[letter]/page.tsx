@@ -2,7 +2,6 @@ import { getGlossaryLetters, getGlossaryDefinitionsByFirstLetter } from "@/db/ut
 import { fr } from "@codegouvfr/react-dsfr";
 import { notFound } from "next/navigation";
 import AlphabeticNav from "@/components/AlphabeticNav";
-import sanitizeHtml from "sanitize-html";
 import slugify from "slugify";
 import { Fragment } from "react";
 import ContentContainer from "@/components/generic/ContentContainer";
@@ -50,12 +49,7 @@ export default async function Page(props: {
               </h2>
               <div
                 dangerouslySetInnerHTML={{
-                  __html: sanitizeHtml(
-                    definition.definition as string,
-                    {
-                      allowedTags: ["p", "br", "ul", "ol", "li"],
-                    },
-                  ),
+                  __html: definition.definition,
                 }}
               />
             </Fragment>
