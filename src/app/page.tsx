@@ -3,10 +3,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import AutocompleteSearch from "@/components/AutocompleteSearch";
 import { getArticles } from "@/db/utils/articles";
 import { getMarketedMedicamentCount } from "@/db/utils/specialities";
-import RatingToaster from "@/components/rating/RatingToaster";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
-
-const PAGE_LABEL: string = "Accueil";
 
 export default async function Page() {
   const [articles, marketedCount] = await Promise.all([
@@ -60,6 +57,7 @@ export default async function Page() {
               )}
               width={2000}
               height={2000}
+              priority
             />
             <ArticlesSimpleList
               listRole="nav"
@@ -86,13 +84,11 @@ export default async function Page() {
               className={fr.cx("fr-responsive-img")}
               width={2000}
               height={2000}
+              priority
             />
           </div>
         </div>
       </div>
-      <RatingToaster
-        pageId={PAGE_LABEL}
-      />
     </>
   );
 }
