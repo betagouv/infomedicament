@@ -11,12 +11,12 @@ import { defaultColorScheme } from "@/app/defaultColorScheme";
 import { StartDsfr } from "@/app/StartDsfr";
 
 import "@/customIcons/customIcons.css";
-import MuiDsfrThemeProvider from "@codegouvfr/react-dsfr/mui";
 import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
 import { StartHotjar } from "@/app/StartHotjar";
 import GlossaryModals from "@/components/glossary/GlossaryModals";
 import GlossaryContextProvider from "@/components/glossary/GlossaryContextProvider";
 import GreetingModal from "@/components/GreetingModal";
+import { getNoticeRcpLastUpdated } from "@/db/utils/specialities";
 import Matomo from "@/components/Matomo";
 import {
   ConsentBannerAndConsentManagement,
@@ -37,6 +37,7 @@ export default async function RootLayout({
   header: React.ReactNode;
 }>) {
   const lang = "fr";
+  const dataLastUpdated = await getNoticeRcpLastUpdated();
   return (
     <ThemeProvider>
     <html {...getHtmlAttributes({ defaultColorScheme, lang })}>
@@ -47,6 +48,7 @@ export default async function RootLayout({
           Link={Link}
           preloadFonts={[
             "Marianne-Regular",
+            "Marianne-Regular_Italic",
             "Marianne-Medium",
             "Marianne-Bold",
           ]}
@@ -68,8 +70,7 @@ export default async function RootLayout({
         />
         <DsfrProvider lang={lang}>
           <ConsentBannerAndConsentManagement />
-          <MuiDsfrThemeProvider>
-            <GlossaryContextProvider>
+          <GlossaryContextProvider>
               {header}
               {children}
               <Footer
@@ -83,11 +84,13 @@ export default async function RootLayout({
                 homeLinkProps={{
                   href: "/",
                   title: "Accueil",
+                  prefetch: false,
                 }}
                 accessibility={"non compliant"}
                 termsLinkProps={{
                   href: "/mentions-legales",
                   title: "Mentions légales",
+                  prefetch: false,
                 }}
                 bottomItems={[
                   <FooterPersonalDataPolicyItem key={"dp"} />,
@@ -96,6 +99,7 @@ export default async function RootLayout({
                     text: 'Statistiques',
                     linkProps: {
                       href: '/statistiques',
+                      prefetch: false,
                     },
                   },
                   headerFooterDisplayItem,
@@ -111,9 +115,8 @@ export default async function RootLayout({
               <Suspense fallback={null}>
                 <Matomo />
               </Suspense>
-              <GreetingModal />
+              <GreetingModal dataLastUpdated={dataLastUpdated} />
             </GlossaryContextProvider>
-          </MuiDsfrThemeProvider>
         </DsfrProvider>
       </body>
     </html></ThemeProvider>
