@@ -88,7 +88,7 @@ function MedicamentGeneriqueContainer({
       </h2>
       <DataBlockSpecGenerique 
           key={princeps.SpecId}
-          generique={princeps}
+          specialite={princeps}
           isSurveillanceRenforcee={false}
         />
       <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
@@ -98,7 +98,7 @@ function MedicamentGeneriqueContainer({
       {generiques.map((generique) => (
         <DataBlockSpecGenerique 
           key={generique.SpecId}
-          generique={generique}
+          specialite={generique}
           isSurveillanceRenforcee={events && isSurveillanceRenforcee(events.filter((event) => event.SpecId === generique.SpecId))}
         />
       ))}

@@ -26,34 +26,34 @@ const Details = styled.div`
 `;
 
 interface DataBlockSpecGeneriqueProps extends HTMLAttributes<HTMLDivElement> {
-  generique: Specialite;
+  specialite: Specialite;
   isSurveillanceRenforcee?: boolean;
 }
 
 function DataBlockSpecGenerique({
-  generique,
+  specialite,
   isSurveillanceRenforcee,
 }: DataBlockSpecGeneriqueProps) {
   
   return (
     <Container className={fr.cx("fr-mb-1w")}>
       <Link
-        href={`/medicaments/${generique.SpecId}`}
+        href={`/medicaments/${specialite.SpecId}`}
         className={["result-link", fr.cx("fr-p-1w")].join(" ")}
       >
         <Link
-          href={`/medicaments/${generique.SpecId}`}
+          href={`/medicaments/${specialite.SpecId}`}
           className={fr.cx("fr-link")}
         >
-          {formatSpecName(generique.SpecDenom01)}
+          {formatSpecName(specialite.SpecDenom01)}
         </Link>
         <DataBlockGenericIcons
-          specialite={generique}
+          specialite={specialite}
           isSurveillanceRenforcee={isSurveillanceRenforcee}
         />
-        {generique.Een && (
+        {specialite.Een && (
           <Details className={fr.cx("fr-text--sm", "fr-mb-0", "fr-mt-1-5v")}>
-            Excipient(s) à effet notoire : {generique.Een}
+            Excipient(s) à effet notoire : {specialite.Een}
           </Details>
         )}
       </Link>
