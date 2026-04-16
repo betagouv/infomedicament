@@ -25,6 +25,7 @@ const DocBonUsage = styled.div`
 
 interface DocumentHasProps extends HTMLAttributes<HTMLDivElement> {
   ficheInfos?: FicheInfos;
+  SpecGenId?: string;
   definitions: Definition[];
 }
 
@@ -56,11 +57,12 @@ function getSmrAsmrFormattedAvis(date?: Date, link?: string | null) {
 
 function DocumentHas({ 
   ficheInfos,
+  SpecGenId,
   definitions,
   ...props 
 }: DocumentHasProps) {
   return (
-    <>
+    <div {...props}>
       <ContentContainer id="document-has-bon-usage" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Documents de bon usage</h2>
         {(ficheInfos && ficheInfos.listeDocumentsBonUsage && ficheInfos.listeDocumentsBonUsage.length > 0) 
@@ -129,7 +131,24 @@ function DocumentHas({
               />
             </div>
           ) : (
-            <span>Il n&rsquo;y a pas de SMR disponible pour ce médicament.</span>
+            <>
+              {SpecGenId 
+                ? <span>
+                    Ce médicament étant un générique, le SMR n'a pas été évalué par la commission de la transparence (CT), 
+                    il est possible de se référer à la /aux spécialité(s) de référence du groupe générique auquel appartient ce médicament (
+                    <Link
+                      href={`/generiques/${SpecGenId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={fr.cx("fr-link")}
+                    >
+                      cliquez ici pour accéder au groupe générique
+                    </Link>
+                    ).
+                  </span>
+                : <span>Il n&rsquo;y a pas de SMR disponible pour ce médicament.</span>
+              }
+            </>
           )
         }
       </ContentContainer>
@@ -169,11 +188,28 @@ function DocumentHas({
               />
             </div>
           ) : (
-            <span>Il n&rsquo;y a pas d&rsquo;ASMR disponible pour ce médicament.</span>
+            <>
+              {SpecGenId 
+                ? <span>
+                    Ce médicament étant un générique, l&rsquo;ASMR n'a pas été évalué par la commission de la transparence (CT), 
+                    il est possible de se référer à la /aux spécialité(s) de référence du groupe générique auquel appartient ce médicament (
+                    <Link
+                      href={`/generiques/${SpecGenId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={fr.cx("fr-link")}
+                    >
+                      cliquez ici pour accéder au groupe générique
+                    </Link>
+                    ).
+                  </span>
+                : <span>Il n&rsquo;y a pas d&rsquo;ASMR disponible pour ce médicament.</span>
+              }
+            </>
           )
         }
       </ContentContainer>
-    </>
+    </div>
   );
 };
 
