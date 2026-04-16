@@ -104,6 +104,20 @@ function FormattedText({ text }: { text: string }) {
   return <>{elements}</>;
 }
 
+const ChapeauLabel = styled.p`
+  font-style: italic;
+  margin-top: ${fr.spacing("2w")};
+  margin-bottom: ${fr.spacing("1w")};
+`;
+
+const ChapeauText = styled.div`
+  p, li {
+    font-size: 0.875rem;
+    color: var(--text-mention-grey);
+    font-style: italic;
+  }
+`;
+
 const ClassExplanation = styled.p`
   font-size: 0.875rem;
   font-style: italic;
@@ -298,12 +312,24 @@ export default function InteractionsPage() {
                       {(r.subst1_class_name || r.subst2_class_name) && (
                         <ClassExplanation>
                           {r.subst1_class_name && slot1!.class_ids.length === 0 && (
-                            <><em>{slot1!.label}</em>{` dans ${r.subst1_class_name}`}<br /></>
+                            <><strong>{slot1!.label}</strong>{` dans ${r.subst1_class_name}`}<br /></>
                           )}
                           {r.subst2_class_name && slot2!.class_ids.length === 0 && (
-                            <><em>{slot2!.label}</em>{` dans ${r.subst2_class_name}`}</>
+                            <><strong>{slot2!.label}</strong>{` dans ${r.subst2_class_name}`}</>
                           )}
                         </ClassExplanation>
+                      )}
+                      {r.subst1_chapeau && (
+                        <>
+                          <ChapeauLabel>{r.subst1_class_name}</ChapeauLabel>
+                          <ChapeauText><FormattedText text={r.subst1_chapeau} /></ChapeauText>
+                        </>
+                      )}
+                      {r.subst2_chapeau && (
+                        <>
+                          <ChapeauLabel>{r.subst2_class_name}</ChapeauLabel>
+                          <ChapeauText><FormattedText text={r.subst2_chapeau} /></ChapeauText>
+                        </>
                       )}
                     </div>
                   );
