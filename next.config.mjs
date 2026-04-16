@@ -33,6 +33,9 @@ const embedCspHeader = cspHeader.replace("frame-ancestors 'none'", "frame-ancest
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  compiler: {
+    styledComponents: true,
+  },
   webpack: (config) => {
     config.module.rules.push({
       test: /\.woff2$/,
