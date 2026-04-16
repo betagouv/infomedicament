@@ -26,6 +26,8 @@ export type InteractionResult = {
   subst2_name: string;
   subst1_class_name: string | null;
   subst2_class_name: string | null;
+  subst1_chapeau: string | null;
+  subst2_chapeau: string | null;
 };
 
 export async function lookupInteractions(
@@ -55,12 +57,32 @@ export async function lookupInteractions(
           .execute()
       : Promise.resolve([]),
   ]);
-  const classes1 = [
+  let classes1 = [
     ...new Set([...directClassIds1.map(Number), ...classes1Rows.map((r) => r.num_classe)]),
   ];
-  const classes2 = [
+  let classes2 = [
     ...new Set([...directClassIds2.map(Number), ...classes2Rows.map((r) => r.num_classe)]),
   ];
+
+  // Include "autres X" siblings (e.g. 758 "autres hyperkaliémiants" when 133 is present)
+  const autresIds = (ids: number[]) =>
+    ids.length === 0
+      ? Promise.resolve([] as { num_classe: number }[])
+      : db
+          .selectFrom("triam_classes as a")
+          .select("a.num_classe")
+          .where(
+            sql<string>`unaccent(lower(a.nom))`,
+            "in",
+            db
+              .selectFrom("triam_classes as p")
+              .select(sql<string>`unaccent(lower('autres ' || p.nom))`.as("nom"))
+              .where("p.num_classe", "in", ids),
+          )
+          .execute();
+  const [a1, a2] = await Promise.all([autresIds(classes1), autresIds(classes2)]);
+  classes1 = [...new Set([...classes1, ...a1.map((r) => r.num_classe)])];
+  classes2 = [...new Set([...classes2, ...a2.map((r) => r.num_classe)])];
 
   const rows = (await db
     .selectFrom("triam_interactions")
@@ -96,6 +118,12 @@ export async function lookupInteractions(
       ),
       sql<string | null>`CASE WHEN triam_interactions.classe1 = 0 THEN NULL ELSE c2.nom END`.as(
         "subst2_class_name",
+      ),
+      sql<string | null>`CASE WHEN triam_interactions.classe = 0 THEN NULL ELSE c1.chapeau END`.as(
+        "subst1_chapeau",
+      ),
+      sql<string | null>`CASE WHEN triam_interactions.classe1 = 0 THEN NULL ELSE c2.chapeau END`.as(
+        "subst2_chapeau",
       ),
     ])
     .where((eb) => {
@@ -149,6 +177,10 @@ export async function lookupInteractions(
         eb.and([slot1Matches(substIds1, classes1), slot2Matches(substIds2, classes2)]),
       ]);
     })
+    // TRIAM stores each interaction bidirectionally. Without this ordering,
+    // deduplication could keep the reversed row and show "autres X" on the wrong slot.
+    // Sorting non-"autres" rows first ensures the forward direction survives dedup.
+    .orderBy(sql`CASE WHEN c1.nom ILIKE 'autres %' THEN 1 ELSE 0 END`, "asc")
     .execute()) as InteractionResult[];
 
   const seen = new Set<string>();
