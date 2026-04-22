@@ -1,10 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SimpleRating } from "@/types/RatingTypes";
+import { SimpleRating, QUESTION_1_OPTIONS, QUESTION_2_OPTIONS } from "@/types/RatingTypes";
 import axios from "axios";
+import { randomUUID } from "crypto";
+
+// IDOR protection: bind each PATCH to the record created by the same POST session.
+// POST stores a random token in memory; PATCH must echo it back and it is consumed on use.
+// No persistence needed since the POST / PATCH window is a few seconds at most in practice.
+const pendingTokens = new Map<number, string>();
+
+// Allowlist: Unicode letters/digits, spaces, and punctuation found in real page labels.
+// Blocks shell/SQL/XSS/JNDI metacharacters ($, {, }, |, ;, `, <, >, ", \, #, ^, =, @, ...).
+const VALID_PAGE_ID_RE = /^[\p{L}\p{N} \-,.:/()!?'''&%]+$/u;
+
+export function isValidPageId(pageId: unknown): boolean {
+  return (
+    typeof pageId === "string" &&
+    pageId.length > 0 &&
+    pageId.length <= 150 &&
+    VALID_PAGE_ID_RE.test(pageId) &&
+    !pageId.includes("..") &&   // no path traversal
+    !pageId.includes("//") &&   // no URLs
+    !/[^ ]:/.test(pageId)       // colon must be preceded by a space (blocks javascript:, http:, c:/)
+  );
+}
 
 export async function POST(req: NextRequest) {
   try {
     const data: SimpleRating = await req.json();
+
+    if (!isValidPageId(data.pageId)) {
+      return NextResponse.json({ error: "Invalid pageId" }, { status: 400 });
+    }
+    if (!Number.isInteger(data.rating) || data.rating < 1 || data.rating > 5) {
+      return NextResponse.json({ error: "Invalid rating" }, { status: 400 });
+    }
+
     const gristData = {
       "records": [
         {
@@ -16,8 +46,8 @@ export async function POST(req: NextRequest) {
       ]
     };
 
-    const result = await axios.post(    
-      `https://grist.numerique.gouv.fr/api/docs/${process.env.GRIST_DOC_ID}/tables/Avis/records`, 
+    const result = await axios.post(
+      `https://grist.numerique.gouv.fr/api/docs/${process.env.GRIST_DOC_ID}/tables/Avis/records`,
       gristData,
       {
         headers: {
@@ -28,8 +58,11 @@ export async function POST(req: NextRequest) {
     );
 
     const id: number = (result.data.records && result.data.records.length > 0 && result.data.records[0] && result.data.records[0].id !== undefined) ? result.data.records[0].id : -1;
-    return NextResponse.json(id);
-  } catch(e) {
+    if (id === -1) return NextResponse.json(-1);
+    const token = randomUUID();
+    pendingTokens.set(id, token);
+    return NextResponse.json({ id, token });
+  } catch (e) {
     return NextResponse.json(
       { error: "Impossible de sauvegarder" },
       { status: 500 },
@@ -40,6 +73,21 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const data = await req.json();
+
+    if (!Number.isInteger(data.id) || data.id <= 0) {
+      return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+    }
+    if (typeof data.token !== "string" || pendingTokens.get(data.id) !== data.token) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 403 });
+    }
+    pendingTokens.delete(data.id);
+    if (
+      !QUESTION_1_OPTIONS.includes(data.advancedRating?.question1) ||
+      !QUESTION_2_OPTIONS.includes(data.advancedRating?.question2)
+    ) {
+      return NextResponse.json({ error: "Invalid rating" }, { status: 400 });
+    }
+
     const gristData = {
       "records": [
         {
@@ -52,8 +100,8 @@ export async function PATCH(req: NextRequest) {
       ]
     };
 
-    const result = await axios.patch(    
-      `https://grist.numerique.gouv.fr/api/docs/${process.env.GRIST_DOC_ID}/tables/Avis/records`, 
+    const result = await axios.patch(
+      `https://grist.numerique.gouv.fr/api/docs/${process.env.GRIST_DOC_ID}/tables/Avis/records`,
       gristData,
       {
         headers: {
@@ -65,7 +113,7 @@ export async function PATCH(req: NextRequest) {
 
     const success: boolean = result.statusText === "OK" ? true : false;
     return NextResponse.json(success);
-  } catch(e) {
+  } catch (e) {
     return NextResponse.json(
       { error: "Impossible de sauvegarder" },
       { status: 500 },
