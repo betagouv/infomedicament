@@ -19,17 +19,14 @@
     "db:migrate:latest": "npx kysely migrate:latest",
     "db:migrate:down": "npx kysely migrate:down",
     "db:update-resume": "npx tsx scripts/updateResumeData.ts",
-    "db:seed-search-index": "npx kysely seed run --specific 1725439927263_searchIndex",
-    "db:seed-review-app": "npx tsx scripts/seed-review-app.ts"
+    "db:seed-search-index": "npx tsx scripts/seedSearchIndex.ts",
+    "db:seed-review-app": "node .next/standalone/scripts/seedReviewApp.js",
+    "db:seed-interactions": "npx tsx scripts/seedInteractionsSearch.ts"
   },
   "dependencies": {
     "@codegouvfr/react-dsfr": "^1.16.0",
-    "@emotion/react": "^11.13.3",
-    "@emotion/styled": "^11.13.0",
     "@gouvfr/dsfr-chart": "^1.0.0",
     "@hotjar/browser": "^1.0.9",
-    "@mui/icons-material": "^6.1.2",
-    "@mui/material": "^6.1.2",
     "@sentry/nextjs": "^10.43.0",
     "@socialgouv/matomo-next": "^1.9.2",
     "axios": "^1.11.0",
