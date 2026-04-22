@@ -3,6 +3,7 @@ import { build } from "esbuild";
 await build({
   entryPoints: [
     "scripts/importNoticeRCP.ts",
+    "scripts/seedInteractionsSearch.ts",
     "scripts/seedReviewApp.ts",
     "scripts/seedSearchIndex.ts",
     "scripts/syncWithGrist.ts",
