@@ -102,10 +102,10 @@ describe("lookupInteractions", () => {
     expect(results.length).toBeGreaterThan(0);
     for (const r of results) {
       expect(r).toHaveProperty("niveau");
-      expect(r).toHaveProperty("subst1_name");
-      expect(r).toHaveProperty("subst2_name");
-      expect(r.subst1_name).toBeTruthy();
-      expect(r.subst2_name).toBeTruthy();
+      expect(r).toHaveProperty("subst1Name");
+      expect(r).toHaveProperty("subst2Name");
+      expect(r.subst1Name).toBeTruthy();
+      expect(r.subst2Name).toBeTruthy();
     }
   });
 
@@ -151,8 +151,8 @@ describe("lookupInteractions", () => {
       simvastatineEntry.subst_ids,
       simvastatineEntry.class_ids,
     );
-    // pamplemousse is a pure class — subst1_class_name should be populated
-    const withClassName = results.find((r) => r.subst1_class_name !== null);
+    // pamplemousse is a pure class — subst1ClassName should be populated
+    const withClassName = results.find((r) => r.subst1ClassName !== null);
     expect(withClassName).toBeDefined();
   });
 });

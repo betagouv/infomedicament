@@ -22,12 +22,12 @@ export type InteractionResult = {
   risque: string | null;
   conduite: string | null;
   commentaire: string | null;
-  subst1_name: string;
-  subst2_name: string;
-  subst1_class_name: string | null;
-  subst2_class_name: string | null;
-  subst1_chapeau: string | null;
-  subst2_chapeau: string | null;
+  subst1Name: string;
+  subst2Name: string;
+  subst1ClassName: string | null;
+  subst2ClassName: string | null;
+  subst1Chapeau: string | null;
+  subst2Chapeau: string | null;
 };
 
 export async function lookupInteractions(
@@ -108,22 +108,22 @@ export async function lookupInteractions(
       "triam_interactions.conduite",
       "triam_interactions.commentaire",
       sql<string>`CASE WHEN triam_interactions.classe = 0 THEN gs1.nom_groupe_subst ELSE c1.nom END`.as(
-        "subst1_name",
+        "subst1Name",
       ),
       sql<string>`CASE WHEN triam_interactions.classe1 = 0 THEN gs2.nom_groupe_subst ELSE c2.nom END`.as(
-        "subst2_name",
+        "subst2Name",
       ),
       sql<string | null>`CASE WHEN triam_interactions.classe = 0 THEN NULL ELSE c1.nom END`.as(
-        "subst1_class_name",
+        "subst1ClassName",
       ),
       sql<string | null>`CASE WHEN triam_interactions.classe1 = 0 THEN NULL ELSE c2.nom END`.as(
-        "subst2_class_name",
+        "subst2ClassName",
       ),
       sql<string | null>`CASE WHEN triam_interactions.classe = 0 THEN NULL ELSE c1.chapeau END`.as(
-        "subst1_chapeau",
+        "subst1Chapeau",
       ),
       sql<string | null>`CASE WHEN triam_interactions.classe1 = 0 THEN NULL ELSE c2.chapeau END`.as(
-        "subst2_chapeau",
+        "subst2Chapeau",
       ),
     ])
     .where((eb) => {
