@@ -288,7 +288,7 @@ export default function InteractionsPage() {
                   ];
                   return (
                     <div
-                      key={`${r.subst1_name}|${r.subst2_name}|${r.niveau}`}
+                      key={`${r.subst1Name}|${r.subst2Name}|${r.niveau}`}
                       className={fr.cx(i > 0 ? "fr-mt-3w" : undefined)}
                     >
                       <ResultHeader>
@@ -312,26 +312,26 @@ export default function InteractionsPage() {
                             </React.Fragment>
                           ),
                       )}
-                      {(r.subst1_class_name || r.subst2_class_name) && (
+                      {(r.subst1ClassName || r.subst2ClassName) && (
                         <ClassExplanation>
-                          {r.subst1_class_name && slot1!.class_ids.length === 0 && (
-                            <><strong>{slot1!.label}</strong>{` dans ${r.subst1_class_name}`}<br /></>
+                          {r.subst1ClassName && slot1!.class_ids.length === 0 && (
+                            <><strong>{slot1!.label}</strong>{` dans ${r.subst1ClassName}`}<br /></>
                           )}
-                          {r.subst2_class_name && slot2!.class_ids.length === 0 && (
-                            <><strong>{slot2!.label}</strong>{` dans ${r.subst2_class_name}`}</>
+                          {r.subst2ClassName && slot2!.class_ids.length === 0 && (
+                            <><strong>{slot2!.label}</strong>{` dans ${r.subst2ClassName}`}</>
                           )}
                         </ClassExplanation>
                       )}
-                      {r.subst1_chapeau && (
+                      {r.subst1Chapeau && (
                         <>
-                          <ChapeauLabel>{r.subst1_class_name}</ChapeauLabel>
-                          <ChapeauText><FormattedText text={r.subst1_chapeau} /></ChapeauText>
+                          <ChapeauLabel>{r.subst1ClassName}</ChapeauLabel>
+                          <ChapeauText><FormattedText text={r.subst1Chapeau} /></ChapeauText>
                         </>
                       )}
-                      {r.subst2_chapeau && (
+                      {r.subst2Chapeau && (
                         <>
-                          <ChapeauLabel>{r.subst2_class_name}</ChapeauLabel>
-                          <ChapeauText><FormattedText text={r.subst2_chapeau} /></ChapeauText>
+                          <ChapeauLabel>{r.subst2ClassName}</ChapeauLabel>
+                          <ChapeauText><FormattedText text={r.subst2Chapeau} /></ChapeauText>
                         </>
                       )}
                     </div>
