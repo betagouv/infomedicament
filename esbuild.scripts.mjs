@@ -4,7 +4,7 @@ await build({
   entryPoints: [
     "scripts/importNoticeRCP.ts",
     "scripts/seedReviewApp.ts",
-    "scripts/seed-search-index.ts",
+    "scripts/seedSearchIndex.ts",
     "scripts/syncWithGrist.ts",
     "scripts/updateResumeData.ts",
   ],
