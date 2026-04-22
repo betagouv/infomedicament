@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from "styled-components";
 import Button from "@codegouvfr/react-dsfr/Button";
@@ -142,7 +143,9 @@ const LegendItem = styled.div`
   margin-bottom: ${fr.spacing("1w")};
 `;
 
-const NIVEAUX = [
+type NiveauLegend = { label: string; color: string; description: string };
+
+const NIVEAUX: NiveauLegend[] = [
   {
     label: "Contre-indication",
     color: CODE_COLORS.ci,
@@ -183,10 +186,10 @@ export default function InteractionsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          subst_ids_1: slot1.subst_ids,
-          class_ids_1: slot1.class_ids,
-          subst_ids_2: slot2.subst_ids,
-          class_ids_2: slot2.class_ids,
+          substIds1: slot1.subst_ids,
+          classIds1: slot1.class_ids,
+          substIds2: slot2.subst_ids,
+          classIds2: slot2.class_ids,
         }),
       });
       const data: InteractionResult[] = await res.json();
@@ -210,13 +213,13 @@ export default function InteractionsPage() {
           <p>
             Vérifier en 1 clic si vous pouvez prendre un médicament avec un
             autre.{" "}
-            <a
+            <Link
               href="https://ansm.sante.fr/documents/reference/thesaurus-des-interactions-medicamenteuses"
               target="_blank"
               rel="noopener noreferrer"
             >
               Source ANSM
-            </a>
+            </Link>
           </p>
 
           <InputRow>
