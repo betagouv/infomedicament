@@ -31,6 +31,13 @@ export interface Database {
   cis_atc: CisAtc;
   asmr: AsmrTable;
   smr: SmrTable;
+  triam_gtiam: TriamGtiamTable;
+  triam_classes: TriamClassesTable;
+  triam_groupe_substance: TriamGroupeSubstanceTable;
+  triam_subst_groupesubst: TriamSubstGroupesubstTable;
+  triam_classe_grp_subst: TriamClasseGrpSubstTable;
+  triam_interactions: TriamInteractionsTable;
+  interactions_search: InteractionsSearchTable;
 }
 
 interface SearchIndexTable {
@@ -127,7 +134,7 @@ interface ResumeSubstancesTable {
 interface ResumeMedicamentsTable {
   groupName: string;
   composants: string;
-  specialites: string[][];//SpecId, SpecDenom01, StatutBdm, ProcId
+  specialites: string[][];//SpecId, SpecDenom01, StatutBdm, ProcId, Surveillance Renforcée
   pathosCodes: string[];
   atc1Code?: string;
   atc2Code?: string;
@@ -289,6 +296,70 @@ export interface CisAtc {
   code_modif: number | null;
 }
 
+interface TriamGtiamTable {
+  num_groupe: number;
+  groupe: string;
+  date_groupe: Date;
+}
+
+interface TriamClassesTable {
+  num_classe: number;
+  nom: string;
+  chapeau: string | null;
+  rem_comment: string | null;
+  dat_creation: Date | null;
+  dat_modif: Date | null;
+  dat_histo: Date | null;
+}
+
+interface TriamGroupeSubstanceTable {
+  code_groupe_subst: string;
+  code_groupe_pere: string | null;
+  nom_groupe_subst: string;
+  rem_groupe_subst: string | null;
+  date_creation: Date | null;
+  date_dern_modif: Date | null;
+}
+
+interface TriamInteractionsTable {
+  num: number;
+  code_groupe_subst1: string;
+  code_groupe_subst2: string;
+  classe: number | null;
+  classe1: number | null;
+  num_inter_clas: number | null;
+  code: string | null;
+  niveau: string | null;
+  groupe: string | null;
+  voie: number;
+  historique: boolean;
+  risque: string | null;
+  conduite: string | null;
+  commentaire: string | null;
+  livret: number | null;
+  dat_creation: Date;
+  dat_modif: Date | null;
+  dat_histo: Date | null;
+}
+
+interface TriamSubstGroupesubstTable {
+  code_groupe_subst: string;
+  subs_id: string;
+}
+
+interface TriamClasseGrpSubstTable {
+  num_classe: number;
+  code_groupe: string;
+}
+
+interface InteractionsSearchTable {
+  id: Generated<number>;
+  label: string;
+  type: "substance" | "medicament" | "class";
+  subst_ids: string[];
+  class_ids: string[];
+}
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
@@ -313,3 +384,10 @@ export type RefPathologies = Selectable<RefPathologies>;
 export type RefPediatrie = Selectable<RefPediatrie>;
 export type RefSubstanceActive = Selectable<RefSubstanceActive>;
 export type RefSubstanceActiveDefinitions = Selectable<RefSubstanceActiveDefinitions>;
+export type TriamGtiam = Selectable<TriamGtiamTable>;
+export type TriamClasses = Selectable<TriamClassesTable>;
+export type TriamGroupeSubstance = Selectable<TriamGroupeSubstanceTable>;
+export type TriamSubstGroupesubst = Selectable<TriamSubstGroupesubstTable>;
+export type TriamClasseGrpSubst = Selectable<TriamClasseGrpSubstTable>;
+export type TriamInteraction = Selectable<TriamInteractionsTable>;
+export type InteractionsSearchEntry = Selectable<InteractionsSearchTable>;

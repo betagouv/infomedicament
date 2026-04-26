@@ -27,9 +27,15 @@ const cspHeader = `
     connect-src 'self' ${process.env.NEXT_PUBLIC_MATOMO_URL} https://sentry.incubateur.net;
 `
 
+// Same as cspHeader but allows any domain to embed via iframe (for /interactions/embed)
+const embedCspHeader = cspHeader.replace("frame-ancestors 'none'", "frame-ancestors *")
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  compiler: {
+    styledComponents: true,
+  },
   webpack: (config) => {
     config.module.rules.push({
       test: /\.woff2$/,
@@ -72,6 +78,16 @@ const nextConfig = {
           },
         ],
       },
+      {
+        // Embed route: allow framing from any domain (overrides catch-all above)
+        source: '/interactions/embed',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: embedCspHeader.replace(/\n/g, ''),
+          },
+        ],
+      },
     ]
   }
 };
@@ -89,10 +105,13 @@ export default withBundleAnalyzer(withSentryConfig(nextConfig, {
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
   widenClientFileUpload: true,
-  reactComponentAnnotation: {
-    enabled: true,
-  },
   hideSourceMaps: true,
-  // Automatically tree-shake Sentry logger statements to reduce bundle size
-  disableLogger: true,
+  webpack: {
+    reactComponentAnnotation: {
+      enabled: true,
+    },
+    treeshake: {
+      removeDebugLogging: true,
+    },
+  },
 }));

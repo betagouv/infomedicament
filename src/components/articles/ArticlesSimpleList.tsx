@@ -44,6 +44,7 @@ function ArticlesSimpleList({
         <li key={slug} className={articleClassName}>
           <Link
             href={`/articles/${slug}`}
+            prefetch={false}
             className={fr.cx(
               "fr-link",
               "fr-link--icon-left",
@@ -57,7 +58,7 @@ function ArticlesSimpleList({
       ))}   
       {linkAll && (           
         <li key={"all"}>
-          <Link href="/articles" className={fr.cx("fr-link")}>
+          <Link href="/articles" prefetch={false} className={fr.cx("fr-link")}>
             Voir tous les articles
           </Link>
         </li>
