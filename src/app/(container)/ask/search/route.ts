@@ -11,12 +11,30 @@ export interface NoticeChunkHit {
 // Start low locally, raise in production once you see real score distributions.
 const MIN_MEDICATION_SCORE = 10.0;
 
-function getOSNode(): string {
-  return (
+// Node.js fetch rejects URLs with embedded credentials — extract them into a
+// Basic Auth header instead.
+function getOSConfig(): { baseUrl: string; authHeader: string | null } {
+  const raw =
     process.env.SCALINGO_OPENSEARCH_URL ||
     process.env.OPENSEARCH_URL ||
-    "http://localhost:9200"
-  );
+    "http://localhost:9200";
+  const url = new URL(raw);
+  let authHeader: string | null = null;
+  if (url.username || url.password) {
+    const encoded = Buffer.from(
+      `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`,
+    ).toString("base64");
+    authHeader = `Basic ${encoded}`;
+    url.username = "";
+    url.password = "";
+  }
+  return { baseUrl: url.toString().replace(/\/$/, ""), authHeader };
+}
+
+function osHeaders(authHeader: string | null): Record<string, string> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (authHeader) headers["Authorization"] = authHeader;
+  return headers;
 }
 
 async function embedQuery(query: string): Promise<number[]> {
@@ -29,7 +47,7 @@ async function embedQuery(query: string): Promise<number[]> {
     body: JSON.stringify({ model: "BAAI/bge-m3", input: query }),
   });
   if (!res.ok) {
-    throw new Error(`Albert API error: ${res.status} ${await res.text()}`);
+    throw new Error(`Albert API error: ${res.status}`);
   }
   const data = await res.json();
   return data.data[0].embedding as number[];
@@ -39,9 +57,10 @@ async function embedQuery(query: string): Promise<number[]> {
 // Uses the specialites index (spec_name + substances, French analyzer).
 // Returns [] if no medication is detected — no filter will be applied.
 async function detectMedicationCIS(query: string): Promise<string[]> {
-  const res = await fetch(`${getOSNode()}/specialites/_search`, {
+  const { baseUrl, authHeader } = getOSConfig();
+  const res = await fetch(`${baseUrl}/specialites/_search`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: osHeaders(authHeader),
     body: JSON.stringify({
       size: 10,
       min_score: MIN_MEDICATION_SCORE,
@@ -77,9 +96,10 @@ async function searchNoticeChunks(
       }
     : { knn: { embedding: knnClause } };
 
-  const res = await fetch(`${getOSNode()}/notice_chunks/_search`, {
+  const { baseUrl, authHeader } = getOSConfig();
+  const res = await fetch(`${baseUrl}/notice_chunks/_search`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: osHeaders(authHeader),
     body: JSON.stringify({
       size: 5,
       query,
@@ -87,7 +107,7 @@ async function searchNoticeChunks(
     }),
   });
   if (!res.ok) {
-    throw new Error(`OpenSearch error: ${res.status} ${await res.text()}`);
+    throw new Error(`OpenSearch error: ${res.status}`);
   }
   const data = await res.json();
   return (data.hits.hits as Array<{ _source: NoticeChunkHit }>).map(
@@ -108,7 +128,7 @@ export async function GET(req: NextRequest) {
     const hits = await searchNoticeChunks(vector, cisCodes);
     return NextResponse.json({ hits, detectedCIS: cisCodes });
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[/ask/search]", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
