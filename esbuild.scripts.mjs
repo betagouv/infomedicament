@@ -3,8 +3,9 @@ import { build } from "esbuild";
 await build({
   entryPoints: [
     "scripts/importNoticeRCP.ts",
-    "scripts/seed-review-app.ts",
-    "scripts/seed-search-index.ts",
+    "scripts/seedInteractionsSearch.ts",
+    "scripts/seedReviewApp.ts",
+    "scripts/seedSearchIndex.ts",
     "scripts/syncWithGrist.ts",
     "scripts/updateResumeData.ts",
   ],
