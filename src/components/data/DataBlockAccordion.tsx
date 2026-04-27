@@ -85,8 +85,6 @@ const FiltersTagContainer = styled.div`
 interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
   item: ResumeSpecGroup;
   matchReasons?: MatchReason[];
-  filterPregnancy?: boolean;
-  filterPediatric?: boolean;
   withAlert?: boolean;
 }
 
@@ -94,8 +92,6 @@ interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
 function DataBlockAccordion({
   item,
   matchReasons,
-  filterPregnancy,
-  filterPediatric,
   withAlert
 }: DataBlockAccordionProps) {
 
@@ -133,7 +129,6 @@ function DataBlockAccordion({
     if(withAlert 
       && specialitesGroup 
       && specialitesGroup.alerts 
-      && filterPregnancy
       && (specialitesGroup.alerts.pregnancyPlanAlert || specialitesGroup.alerts.pregnancyMentionAlert)
     ){
       if (specialitesGroup.alerts.pregnancyPlanAlert) setPregnancyPlanAlert(true)
@@ -146,20 +141,19 @@ function DataBlockAccordion({
       setPregnancyMentionAlert(false);
     }
 
-  }, [withAlert, filterPregnancy, specialitesGroup, setPregnancyPlanAlert, setPregnancyMentionAlert]);
+  }, [withAlert, specialitesGroup, setPregnancyPlanAlert, setPregnancyMentionAlert]);
 
   useEffect(() => {
     if(withAlert 
       && specialitesGroup 
       && specialitesGroup.alerts
-      && filterPediatric 
       && specialitesGroup.alerts.pediatrics
     )
       setPediatricsInfo(specialitesGroup.alerts.pediatrics);
     else
       setPediatricsInfo(undefined);
 
-  }, [withAlert, filterPediatric, specialitesGroup, setPediatricsInfo]);
+  }, [withAlert, specialitesGroup, setPediatricsInfo]);
 
   function onDetailsVisibles(isVisible: boolean) {
     setIsDetailsVisible(isVisible);

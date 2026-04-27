@@ -1,6 +1,6 @@
 import { getSearchResults } from "@/db/utils";
 import { getArticlesFromSearchResults } from "@/db/utils/articles";
-import SearchPage from "./SearchPage";
+import SearchPage from "@/components/search/SearchPage";
 import RatingToaster from "@/components/rating/RatingToaster";
 
 export default async function Page(props: {
@@ -12,15 +12,11 @@ export default async function Page(props: {
   const articlesList = results.length > 0
     ? await getArticlesFromSearchResults(results)
     : [];
-  const filterPregnancy: boolean = (searchParams && "g" in searchParams && searchParams["g"] === "true") ? true : false;
-  const filterPediatric: boolean = (searchParams && "p" in searchParams && searchParams["p"] === "true") ? true : false;
 
   return (
     <>
       <SearchPage
         search={search ? search : undefined}
-        filterPregnancy={filterPregnancy}
-        filterPediatric={filterPediatric}
         searchResults={results}
         articlesList={articlesList}
       />

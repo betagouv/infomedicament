@@ -69,3 +69,12 @@ export type GroupeGenerique = {
 export type SpecialiteWithSubstance = Specialite & {
   NomId: string;
 }
+
+export type SearchFilter = {
+  id: string,
+  name: string, 
+  count: number,
+}
+export type ATCSearchFilter = SearchFilter & {
+  children: SearchFilter[],
+}
