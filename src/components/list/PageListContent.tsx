@@ -6,7 +6,7 @@ import DataList from "@/components/data/DataList";
 import { HTMLAttributes, useEffect, useState } from "react";
 import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import DataListPagination from "../data/DataListPagination";
-import { ResumeGeneric, ResumePatho, ResumeSubstance } from "@/db/types";
+import { ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 import GenericAccordion from "../GenericAccordion";
 
@@ -14,7 +14,7 @@ interface PageListContentProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
   letters: string[];
   urlPrefix: string;
-  dataList: ResumeSubstance[] |  ResumePatho[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[];
+  dataList: ResumeSubstance[] |  ResumeIndication[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[];
   type: DataTypeEnum;
   currentLetter: string;
   isGeneric?: boolean;
@@ -32,7 +32,7 @@ function PageListContent({
 
   const PAGINATION_LENGTH:number = 10;
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumePatho[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[]>([]);
+  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumeIndication[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[]>([]);
 
   useEffect(() => {
     setCurrentDataList(dataList);

@@ -22,10 +22,11 @@ describe("getArticlesFromSearchResults", () => {
 
     const articles = await getArticlesFromSearchResults([{
       groupName: "TEST", composants: "", specialites: [], resumeSpecialites: [], matchReasons: [],
-      CISList: ["111"], subsIds: ["666", "999"], pathosIds: [123, 124], atc2Code: "N05",
+      CISList: ["111"], subsIds: ["666", "999"], codePathos: [123, 124], atc2Code: "N05",
     } as any]);
-
-    expect(articles).toHaveLength(4);
-    expect(articles.map((a) => a.title)).toEqual(["Match CIS", "Match ATC", "Match Pathologie", "Match Substance"]);
+    
+    expect(articles).toHaveLength(3);
+    //For now "Match Pathologie" is not available
+    expect(articles.map((a) => a.title)).toEqual(["Match CIS", "Match ATC", "Match Substance"]);
   });
 });

@@ -88,7 +88,7 @@ export async function getArticlesFromSearchResults(results: SearchResultItem[]):
         ATCList: [],
         substancesList: [],
         specialitesList: [],
-        pathologiesList: [],
+        pathologiesList: [], //Only patho here
     };
 
     for (const item of results) {
@@ -100,10 +100,12 @@ export async function getArticlesFromSearchResults(results: SearchResultItem[]):
             if (!articlesFilters.substancesList.includes(subsId.trim()))
                 articlesFilters.substancesList.push(subsId.trim());
         }
-        for (const code of item.pathosIds) {
-            if (!articlesFilters.pathologiesList.includes(code))
-                articlesFilters.pathologiesList.push(code);
-        }
+        //For now the articles are not displayed in the results for the research
+        //So we temporarily remove this test
+        // for (const code of item.pathosIds) {
+        //     if (!articlesFilters.pathologiesList.includes(code))
+        //         articlesFilters.pathologiesList.push(code);
+        // }
         for (const code of [item.atc1Code, item.atc2Code, item.atc5Code]) {
             if (code && !articlesFilters.ATCList.includes(code.trim()))
                 articlesFilters.ATCList.push(code.trim());

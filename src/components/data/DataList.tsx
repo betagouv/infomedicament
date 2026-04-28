@@ -3,11 +3,11 @@ import { HTMLAttributes, useEffect, useState } from "react";
 import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import DataBlockGeneric from "./DataBlockGeneric";
 import DataBlockAccordion from "./DataBlockAccordion";
-import { ResumeGeneric, ResumePatho, ResumeSubstance } from "@/db/types";
+import { ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 
 function getCurrentDataList(
-  dataList: ResumeSubstance[] | ResumePatho [] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[],
+  dataList: ResumeSubstance[] | ResumeIndication [] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[],
   paginationLength: number,
   currentPage: number,
 ){
@@ -22,7 +22,7 @@ function getCurrentDataList(
 }
 
 interface DataListProps extends HTMLAttributes<HTMLDivElement> {
-  dataList: ResumeSubstance[] | ResumePatho[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[];
+  dataList: ResumeSubstance[] | ResumeIndication[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[];
   type: DataTypeEnum;
   paginationLength: number;
   currentPage: number;
@@ -37,7 +37,7 @@ function DataList({
   isGeneric,
 }: DataListProps) {
 
-  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumePatho[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[]>([]);
+  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumeIndication[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[]>([]);
   const [currentType, setCurrentType] = useState<DataTypeEnum>();
 
   useEffect(() => {
@@ -66,7 +66,7 @@ function DataList({
             <DataBlockGeneric
               key={index}
               type={currentType}
-              item={data as ResumeSubstance | ResumePatho | AdvancedATCClass | ResumeGeneric}
+              item={data as ResumeSubstance | ResumeIndication | AdvancedATCClass | ResumeGeneric}
             />
           )
         )

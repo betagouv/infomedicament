@@ -22,7 +22,7 @@
     "db:seed-search-index": "npx tsx scripts/seedSearchIndex.ts",
     "db:seed-review-app": "node .next/standalone/scripts/seedReviewApp.js",
     "db:seed-interactions": "npx tsx scripts/seedInteractionsSearch.ts",
-    "db:pathologies": "npx tsx scripts/aggregatePathoClasseClinique.ts"
+    "db:indications": "npx tsx scripts/aggregatePathoClasseClinique.ts"
   },
   "dependencies": {
     "@codegouvfr/react-dsfr": "^1.16.0",

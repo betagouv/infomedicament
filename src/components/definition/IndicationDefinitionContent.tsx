@@ -6,18 +6,18 @@ import { DataTypeEnum } from "@/types/DataTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import { getArticlesFromPatho } from "@/db/utils/articles";
 import PageDefinitionContent from "./PageDefinitionContent";
-import { getResumeSpecsGroupsWithPatho } from "@/db/utils/specialities";
+import { getResumeSpecsGroupsWithIndication } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
-import { Pathology } from "@/db/types";
+import { Indication } from "@/db/types";
 
-interface PathologyDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
-  patho: Pathology;
+interface IndicationDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
+  indication: Indication;
 }
 
-function PathologyDefinitionContent({
-  patho,
-}: PathologyDefinitionContentProps) {
+function IndicationDefinitionContent({
+  indication,
+}: IndicationDefinitionContentProps) {
 
   const [title, setTitle] = useState<string>("");
   const [dataList, setDataList] = useState<ResumeSpecGroup[]>([]);
@@ -26,12 +26,12 @@ function PathologyDefinitionContent({
   const loadDefinitionData = useCallback(
     async () => {
       try {
-        if(patho.codePatho) {
-          const newArticles: ArticleCardResume[] = await getArticlesFromPatho(patho.codePatho);
+        if(indication.codePatho) {
+          const newArticles: ArticleCardResume[] = await getArticlesFromPatho(indication.codePatho);
           setArticles(newArticles);
         }
 
-        const newAllSpecsGroups = await getResumeSpecsGroupsWithPatho(patho.id);
+        const newAllSpecsGroups = await getResumeSpecsGroupsWithIndication(indication.id);
         if (newAllSpecsGroups.length > 0) {
           const allSpecsWithATC: ResumeSpecGroup[] = await getResumeSpecsGroupsATCLabels(newAllSpecsGroups);
           setDataList(allSpecsWithATC);
@@ -39,31 +39,31 @@ function PathologyDefinitionContent({
       } catch (e) {
         Sentry.captureException(e);
       }
-    }, [patho, setArticles, setDataList]);
+    }, [indication, setArticles, setDataList]);
 
   useEffect(() => {
     loadDefinitionData();
-  }, [patho, loadDefinitionData]);
+  }, [indication, loadDefinitionData]);
 
   useEffect(() => {
-    if (patho && dataList) {
-      setTitle(`${dataList.length} ${dataList.length > 1 ? "médicaments" : "médicament"} traitant la pathologie « 
-          ${patho.nom} »`);
+    if (indication && dataList) {
+      setTitle(`${dataList.length} ${dataList.length > 1 ? "médicaments" : "médicament"} traitant l'indication « 
+          ${indication.nom} »`);
     }
-  }, [patho, dataList, setTitle]);
+  }, [indication, dataList, setTitle]);
 
   return (
     <PageDefinitionContent
       title={title}
-      definition={patho.definition}
-      definitionType="Pathologie"
-      definitionTitle={patho.nom}
+      definition={indication.definition}
+      definitionType="Indication"
+      definitionTitle={indication.nom}
       dataList={dataList}
       dataType={DataTypeEnum.MEDICAMENT}
       articles={articles}
-      articleTrackingFrom="Page pathologie"
+      articleTrackingFrom="Page indication"
     />
   );
 };
 
-export default PathologyDefinitionContent;
+export default IndicationDefinitionContent;

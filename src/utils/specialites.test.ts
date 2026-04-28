@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { formatPathosDetails, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isSurveillanceRenforcee } from "./specialites";
+import { formatIndicationsDetails, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isSurveillanceRenforcee } from "./specialites";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { SpecialiteComm, SpecialiteStat, VUEvnts } from "@/db/pdbmMySQL/types";
-import { ShortPatho } from "@/types/PathoTypes";
+import { ShortIndication } from "@/types/IndicationsTypes";
 
 const detailedSpec: DetailedSpecialite = {
   SpecId: "60035714",
@@ -136,38 +136,38 @@ describe("utils specialities", () => {
     expect(isSurveillanceRenforcee(eventsNotSurveillanceBis)).toBe(false);
   });
 
-  it("formatPathosDetails", async () => {
+  it("formatIndicationsDetails", async () => {
     //GroupName : ACECLOFENAC ACCORD
-    const pathosList: string[][] = [
+    const indicationssList: string[][] = [
       ["99", "Arthrose"],
       ["76","Polyarthrite rhumatoïde"],
       ["225","Inflammation"],
       ["213","Douleur"],
       ["236","Rhumatismes inflammatoires"]
     ];
-    const expectedPathosList: ShortPatho[] = [
+    const expectedIndicationsList: ShortIndication[] = [
       {
-        idPatho: 99,
-        nomPatho: "Arthrose",
+        idIndication: 99,
+        nomIndication: "Arthrose",
       },
       {
-        idPatho: 76,
-        nomPatho: "Polyarthrite rhumatoïde",
+        idIndication: 76,
+        nomIndication: "Polyarthrite rhumatoïde",
       },
       {
-        idPatho: 225,
-        nomPatho: "Inflammation",
+        idIndication: 225,
+        nomIndication: "Inflammation",
       },
       {
-        idPatho: 213,
-        nomPatho: "Douleur",
+        idIndication: 213,
+        nomIndication: "Douleur",
       },
       {
-        idPatho: 236,
-        nomPatho: "Rhumatismes inflammatoires",
+        idIndication: 236,
+        nomIndication: "Rhumatismes inflammatoires",
       },
     ];
-    expect(formatPathosDetails(pathosList)).toStrictEqual(expectedPathosList);
+    expect(formatIndicationsDetails(indicationssList)).toStrictEqual(expectedIndicationsList);
   })
 
 });

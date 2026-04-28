@@ -1,19 +1,19 @@
 import db from "@/db";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { Letters, LetterType, Pathology, ResumeGeneric, ResumePatho, ResumeSubstance } from "@/db/types";
+import { Letters, LetterType, Indication, ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
 import { groupGeneNameToDCI } from "@/displayUtils";
 import { getComposants } from "@/db/utils/composants";
 import { getEvents } from "@/db/utils/ficheInfos";
-import { getSpecialitesPatho } from "@/db/utils/pathologies";
+import { getSpecialitesIndications } from "@/db/utils/indications";
 import { getAllSpecialites } from "@/db/utils/specialities";
 import { getAllSubsWithSpecialites } from "@/db/utils/substances";
 import { displaySimpleComposants, formatSpecName, MedicamentGroup } from "@/displayUtils";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
 import { getAtc1Code, getAtc2Code, getAtcCode } from "@/utils/atc";
 import { getSpecialiteGroupName, groupSpecialites, isSurveillanceRenforcee } from "@/utils/specialites";
-import { ShortPatho } from "@/types/PathoTypes";
+import { ShortIndication } from "@/types/IndicationsTypes";
 
-type DataToResumeType = "pathos" | "substances" | "specialites" | "atc1" | "atc2" | "generiques";
+type DataToResumeType = "indications" | "substances" | "specialites" | "atc1" | "atc2" | "generiques";
 
 type RawResumeSubstance = {
   SubsId: string;
@@ -28,16 +28,16 @@ if (process.argv.length !== 3) {
 }
 const dataToResume: DataToResumeType = process.argv[2] as DataToResumeType;
 
-async function createResumePathologies(): Promise<string[]> {
+async function createResumeIndications(): Promise<string[]> {
   await db
-    .deleteFrom('resume_pathologies')
+    .deleteFrom('resume_indications')
     .execute();
 
-  const resumeData: ResumePatho[] = [];
+  const resumeData: ResumeIndication[] = [];
   const letters: string[] = [];
 
-  const allPathos: Pathology = await db
-    .selectFrom("pathologies")
+  const allIndications: Indication[] = await db
+    .selectFrom("indications")
     .selectAll()
     .execute();
   const allSpec = await pdbmMySQL
@@ -46,10 +46,10 @@ async function createResumePathologies(): Promise<string[]> {
     .select(["SpecId", "SpecDenom01"])
     .execute();
   
-  allPathos.forEach((patho: Pathology) => {
+  allIndications.forEach((indication: Indication) => {
     const specialites: string[] = [];
-    if(patho.CIS.length > 0){
-      patho.CIS.forEach((CIS: string) => {
+    if(indication.CIS.length > 0){
+      indication.CIS.forEach((CIS: string) => {
         const specDetail = allSpec.find((spec) => spec.SpecId === CIS);
         if(specDetail) {
           specialites.push(getSpecialiteGroupName(specDetail.SpecDenom01))
@@ -58,21 +58,21 @@ async function createResumePathologies(): Promise<string[]> {
     }
     if(specialites.length > 0) {
       resumeData.push({
-        idPatho: patho.id,
-        nomPatho: patho.nom,
+        idIndication: indication.id,
+        nomIndication: indication.nom,
         specialites: specialites.length
       });
     }
 
-    const pathoLetter = getNormalizeLetter(patho.nom.substring(0, 1));
-    if (!letters.includes(pathoLetter)) letters.push(pathoLetter);
+    const indicationLetter = getNormalizeLetter(indication.nom.substring(0, 1));
+    if (!letters.includes(indicationLetter)) letters.push(indicationLetter);
   });
 
   const result = await db
-    .insertInto('resume_pathologies')
+    .insertInto('resume_indications')
     .values(resumeData)
     .execute();
-  console.log(`Nombre de pathologies ajoutées: ${result[0].numInsertedOrUpdatedRows}`);
+  console.log(`Nombre d'indications ajoutées: ${result[0].numInsertedOrUpdatedRows}`);
 
   return letters;
 }
@@ -153,13 +153,13 @@ async function createResumeSpecialites(): Promise<string[]> {
         })
       );
       const CISList: string[] = rawSpecialites.map((spec) => spec.SpecId.trim());
-      const rawPathosCodes: ShortPatho[] = await getSpecialitesPatho(CISList);
-      const pathosIds: number[] = rawPathosCodes
-        .map((patho) => patho.idPatho)
-        .filter((idPatho, index, arr) => arr.indexOf(idPatho) === index);
-      const pathosIdsNames: string[][] = rawPathosCodes.map((patho) => [
-        patho.idPatho.toString(), 
-        patho.nomPatho ? patho.nomPatho : "",
+      const rawIndicationsCodes: ShortIndication[] = await getSpecialitesIndications(CISList);
+      const indicationsIds: number[] = rawIndicationsCodes
+        .map((indication) => indication.idIndication)
+        .filter((idIndication, index, arr) => arr.indexOf(idIndication) === index);
+      const indicationsIdsNames: string[][] = rawIndicationsCodes.map((indication) => [
+        indication.idIndication.toString(), 
+        indication.nomIndication ? indication.nomIndication : "",
       ]);
 
       const atc = await getAtcCode(rawSpecialites[0].SpecId);
@@ -174,14 +174,14 @@ async function createResumeSpecialites(): Promise<string[]> {
         .values({
           groupName: groupName,
           composants: composants,
-          pathosIds: pathosIds,
+          indicationsIds: indicationsIds,
           specialites: specialites,
           atc1Code: atc1,
           atc2Code: atc2,
           atc5Code: atc ?? undefined,
           CISList: CISList,
           subsIds: subsIds,
-          pathosIdsNames: pathosIdsNames,
+          indicationsIdsNames: indicationsIdsNames,
         })
         .execute();
       return true;
@@ -249,10 +249,10 @@ async function saveResumeLetters(
 }
 
 async function createResumeDataFromBDPM() {
-  if (dataToResume === "pathos" || dataToResume === "substances" || dataToResume === "specialites" || dataToResume === "generiques") {
+  if (dataToResume === "indications" || dataToResume === "substances" || dataToResume === "specialites" || dataToResume === "generiques") {
     let letters: string[] = [];
-    if (dataToResume === "pathos") {
-      letters = await createResumePathologies();
+    if (dataToResume === "indications") {
+      letters = await createResumeIndications();
     } else if (dataToResume === "substances") {
       letters = await createResumeSubstances();
     } else if (dataToResume === "specialites") {

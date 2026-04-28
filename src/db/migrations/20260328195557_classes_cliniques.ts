@@ -12,17 +12,15 @@ export async function up(db: Kysely<any>): Promise<void> {
 		.addColumn('code_classe_clinique', 'integer')
 		.execute();
 
-  // Update resume_pathologies to use index instead of codePatho
+  // Update resume_pathologies : rename and new columns names
+  await db.schema.dropTable('resume_pathologies').execute();
   await db.schema
-		.alterTable('resume_pathologies')
-		.dropColumn('codePatho')
-		.dropColumn('NomPatho')
-		.execute();
-  await db.schema
-		.alterTable('resume_pathologies')
-    .addColumn('idPatho', 'integer', (col) => col.unique())
-		.addColumn('nomPatho', 'varchar')
-		.execute();
+    .createTable("resume_indications")
+    .ifNotExists()
+    .addColumn("idIndication", "integer", (col) => col.notNull())
+    .addColumn("nomIndication", "varchar")
+    .addColumn("specialites", "integer")
+    .execute();
 
   // Update resume_medicaments to use index instead of codePatho
   await db.schema
@@ -32,8 +30,8 @@ export async function up(db: Kysely<any>): Promise<void> {
 		.execute();
   await db.schema
 		.alterTable('resume_medicaments')
-    .addColumn('pathosIds', sql`integer[]`)
-		.addColumn('pathosIdsNames', sql`character varying[]`)
+    .addColumn('indicationsIds', sql`integer[]`)
+		.addColumn('indicationsIdsNames', sql`character varying[]`)
 		.execute();
 
   // Table ClasseClinique from Codex
@@ -52,7 +50,6 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('textSourceRef', 'varchar(255)')
     .addColumn('remTerme', 'varchar(255)')
     .execute();
-
   await db.schema.createIndex('classes_cliniques_idx').on('classes_cliniques').column('codeTerme').unique().execute();
   await db.schema.createIndex('classes_cliniques_libRech_idx').on('classes_cliniques').column('libRech').execute();
 
@@ -67,19 +64,23 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('dateDernModif', 'date')
     .addColumn('codeModif', 'integer')
     .execute();
-
   await db.schema.createIndex('vu_classes_cliniques_idx').on('vu_classes_cliniques').column('codeClasClinique').execute();
   await db.schema.createIndex('vu_classes_cliniques_unique_idx').on('vu_classes_cliniques').columns(['codeVU', 'codeClasClinique']).unique().execute();
 
   // Table pathologies
   await db.schema
-    .createTable('pathologies')
+    .createTable('indications')
 		.addColumn('id', 'serial', (col) => col.primaryKey())
     .addColumn('codePatho', 'integer')
     .addColumn('codeClasseClinique', 'integer')
     .addColumn('nom', 'varchar(255)', (col) => col.notNull())
     .addColumn('definition', 'text')
     .addColumn('CIS', sql`character varying[]`)
+    .execute();
+
+  await db
+    .deleteFrom('letters')
+    .where("type", "=", "pathos")
     .execute();
 }
 
@@ -94,21 +95,19 @@ export async function down(db: Kysely<any>): Promise<void> {
 		.addColumn('code_patho', 'text')
 		.execute();
 
+  await db.schema.dropTable('resume_indications').execute();
   await db.schema
-		.alterTable('resume_pathologies')
-		.dropColumn('idPatho')
-		.dropColumn('nomPatho')
-		.execute();
-  await db.schema
-		.alterTable('resume_pathologies')
-    .addColumn('codePatho', 'varchar', (col) => col.notNull())
-		.addColumn('NomPatho', 'varchar')
-		.execute();
+    .createTable("resume_pathologies")
+    .ifNotExists()
+    .addColumn("codePatho", "varchar", (col) => col.notNull())
+    .addColumn("NomPatho", "varchar")
+    .addColumn("specialites", "integer")
+    .execute();
 
   await db.schema
 		.alterTable('resume_medicaments')
-		.dropColumn('pathosIds')
-		.dropColumn('pathosIdsNames')
+		.dropColumn('indicationsIds')
+		.dropColumn('indicationsIdsNames')
 		.execute();
   await db.schema
 		.alterTable('resume_medicaments')
@@ -118,6 +117,11 @@ export async function down(db: Kysely<any>): Promise<void> {
 
   await db.schema.dropTable('classes_cliniques').execute();
   await db.schema.dropTable('vu_classes_cliniques').execute();
-  await db.schema.dropTable('pathologies').execute();
+  await db.schema.dropTable('indications').execute();
+
+  await db
+    .deleteFrom('letters')
+    .where("type", "=", "indications")
+    .execute();
 }
 

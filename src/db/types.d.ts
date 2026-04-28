@@ -10,7 +10,7 @@ export interface Database {
   notices: NoticeTable;
   notices_content: NoticeContentTable;
   rating: RatingTable;
-  resume_pathologies: ResumePathosTable;
+  resume_indications: ResumeIndicationsTable;
   resume_substances: ResumeSubstancesTable;
   resume_medicaments: ResumeMedicamentsTable;
   resume_generiques: ResumeGenericsTable;
@@ -40,12 +40,12 @@ export interface Database {
   interactions_search: InteractionsSearchTable;
   classes_cliniques: ClassesCliniquesTable;
   vu_classes_cliniques: VUClassesCliniquesTable;
-  pathologies: PathologiesTable;
+  indications: IndicationsTable;
 }
 
 interface SearchIndexTable {
   token: string;
-  match_type: "name" | "substance" | "atc" | "pathology";
+  match_type: "name" | "substance" | "atc" | "indication";
   group_name: string;
   match_label: string;
 }
@@ -115,15 +115,15 @@ interface RatingTable {
   question2?: number,
 }
 
-export type LetterType = "pathos" | "substances" | "specialites" | "generiques";
+export type LetterType = "indications" | "substances" | "specialites" | "generiques";
 interface LettersTable {
   type: LetterType;
   letters: string[];
 }
 
-interface ResumePathosTable {
-  idPatho: number;
-  nomPatho: string;
+interface ResumeIndicationsTable {
+  idIndication: number;
+  nomIndication: string;
   specialites: number;
 }
 
@@ -137,16 +137,14 @@ interface ResumeSubstancesTable {
 interface ResumeMedicamentsTable {
   groupName: string;
   composants: string;
-  specialites: string[][];//SpecId, SpecDenom01, StatutBdm, ProcId
-  pathosIds: number[];
   specialites: string[][];//SpecId, SpecDenom01, StatutBdm, ProcId, Surveillance Renforcée
-  pathosIds: number[];
+  indicationsIds: number[];
   atc1Code?: string;
   atc2Code?: string;
   atc5Code?: string;
   CISList: string[];
   subsIds: string[];
-  pathosIdsNames: string[][];//idPatho, nomPatho
+  indicationsIdsNames: string[][];//idIndication, nomIndication
 }
 
 interface ResumeGenericsTable {
@@ -391,7 +389,7 @@ interface VUClassesCliniquesTable {
   codeModif?: number,
 }
 
-interface PathologiesTable {
+interface IndicationsTable {
   id: Generated<number>,
   codePatho?: number,
   codeClasseClinique?: number,
@@ -405,7 +403,7 @@ export type SearchResult = Selectable<SearchIndexTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
 export type RCPContent = Selectable<RcpContentTable>;
 export type Rating = Selectable<RatingTable>;
-export type ResumePatho = Selectable<ResumePathosTable>;
+export type ResumeIndication = Selectable<ResumeIndicationsTable>;
 export type ResumeSubstance = Selectable<ResumeSubstancesTable>;
 export type ResumeSpecGroupDB = Selectable<ResumeMedicamentsTable>;
 export type ResumeGeneric = Selectable<ResumeGenericsTable>;
@@ -431,4 +429,4 @@ export type TriamSubstGroupesubst = Selectable<TriamSubstGroupesubstTable>;
 export type TriamClasseGrpSubst = Selectable<TriamClasseGrpSubstTable>;
 export type TriamInteraction = Selectable<TriamInteractionsTable>;
 export type InteractionsSearchEntry = Selectable<InteractionsSearchTable>;
-export type Pathology = Selectable<PathologiesTable>;
+export type Indication = Selectable<IndicationsTable>;

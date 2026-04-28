@@ -13,8 +13,8 @@ import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
-import { ShortPatho } from "@/types/PathoTypes";
 import DataBlockGenericIcons from "./DataBlockGenericIcons";
+import { ShortIndication } from "@/types/IndicationsTypes";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
@@ -105,7 +105,7 @@ function DataBlockAccordion({
 
   const [fullListeComposants, setFullListeComposants] = useState<string>("");
   const [listeComposants, setListeComposants] = useState<string>("");
-  const [listPathos, setListPathos] = useState<ShortPatho[]>([]);
+  const [listIndications, setListIndications] = useState<ShortIndication[]>([]);
 
   const [atc1Label, setAtc1Label] = useState<string | undefined>(undefined);
   const [atc2Label, setAtc2Label] = useState<string | undefined>(undefined);
@@ -126,8 +126,8 @@ function DataBlockAccordion({
     setListeComposants(item.composants.slice(0, composantsTruncLength) + (item.composants.length > composantsTruncLength ? "..." : ""));
     setAtc1Label(item.atc1Label);
     setAtc2Label(item.atc2Label);
-    setListPathos(item.pathosDetails ? item.pathosDetails : []);
-  }, [item, composantsTruncLength, setSpecialitesGroup, setGroupName, setSpecialites, setListeComposants, setAtc1Label, setAtc2Label, setListPathos]);
+    setListIndications(item.indicationsDetails ? item.indicationsDetails : []);
+  }, [item, composantsTruncLength, setSpecialitesGroup, setGroupName, setSpecialites, setListeComposants, setAtc1Label, setAtc2Label, setListIndications]);
 
   useEffect(() => {
     if(withAlert 
@@ -186,12 +186,12 @@ function DataBlockAccordion({
     };
   }, []);
 
-  function getPathosText(pathosDetails: ShortPatho[]) {
-    let newListPathos: string = "";
-    pathosDetails.forEach((patho) => {
-      newListPathos += (newListPathos !== "" ? ", " : "") + patho.nomPatho;
+  function getIndicationsText(indicationsDetails: ShortIndication[]) {
+    let newListIndications: string = "";
+    indicationsDetails.forEach((indication) => {
+      newListIndications += (newListIndications !== "" ? ", " : "") + indication.nomIndication;
     })
-    return newListPathos;
+    return newListIndications;
   }
 
 
@@ -228,11 +228,11 @@ function DataBlockAccordion({
                   {listeComposants}
                 </DarkGreyText>
               </span>
-               {listPathos.length > 0 && (
+               {listIndications.length > 0 && (
                 <span className={fr.cx("fr-text--sm", "fr-ml-2w")}>
-                  <GreyText>Pathologie{listPathos.length > 1 && 's'}</GreyText>&nbsp;
+                  <GreyText>Indication{listIndications.length > 1 && 's'}</GreyText>&nbsp;
                   <DarkGreyText>
-                    {getPathosText(listPathos)}
+                    {getIndicationsText(listIndications)}
                   </DarkGreyText>
                 </span>
               )}

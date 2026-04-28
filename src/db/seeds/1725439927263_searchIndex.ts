@@ -17,9 +17,9 @@ export async function seed(db: Kysely<any>): Promise<void> {
     .select(["NomId", "NomLib"])
     .execute();
 
-  const pathologies = await db
-    .selectFrom("resume_pathologies")
-    .select(["idPatho", "nomPatho"])
+  const indications = await db
+    .selectFrom("resume_indications")
+    .select(["idIndication", "nomIndication"])
     .execute();
 
   const atcRows = await db
@@ -41,7 +41,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
 
   console.log(
     `Loaded ${groups.length} groups, ${substances.length} substances, ` +
-    `${pathologies.length} pathologies, ${atcRows.length} ATC codes, ` +
+    `${indications.length} indications, ${atcRows.length} ATC codes, ` +
     `${atcFriendly1.length + atcFriendly2.length} friendly ATC labels`
   );
 
@@ -51,7 +51,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
 
   // Build lookup maps
   const substanceMap = new Map(substances.map((s) => [s.NomId.trim(), s.NomLib]));
-  const pathologyMap = new Map(pathologies.map((p) => [p.idPatho.trim(), p.nomPatho]));
+  const indicationsMap = new Map(indications.map((p) => [p.idIndication, p.nomIndication.trim()]));
 
   // Build ATC label map: code → labels (may have both friendly and technical labels)
   const atcLabelMap = new Map<string, Set<string>>();
@@ -124,12 +124,12 @@ export async function seed(db: Kysely<any>): Promise<void> {
         }
       }
 
-      // 3. Index pathology names
-      const pathosIds: number[] = (group.pathosIds as number[]) ?? [];
-      for (const code of pathosIds) {
-        const nomPatho = pathologyMap.get(code);
-        if (nomPatho) {
-          await addIndex("pathology", gn, nomPatho, nomPatho);
+      // 3. Index indication names
+      const indicationsIds: number[] = (group.indicationsIds as number[]) ?? [];
+      for (const code of indicationsIds) {
+        const nomIndication = indicationsMap.get(code);
+        if (nomIndication) {
+          await addIndex("indication", gn, nomIndication, nomIndication);
         }
       }
 
