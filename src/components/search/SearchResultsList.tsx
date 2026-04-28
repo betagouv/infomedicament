@@ -130,12 +130,12 @@ function SearchResultsList({
   useEffect(() => {
     const newResultsList = resultsList
       .filter((result) => {
-        if(subsFilters.length > 0) {
+        if(subsFilters.length > 0 && subsFiltersList.length > 0) {
           //Filter on composants only if there is composants
           const findComposant = subsFiltersList.find((filter: string) => filter === result.composants.trim());
           if(!findComposant) return false;
         }
-        if(atcFilters.length > 0){
+        if(atcFilters.length > 0 && atcFiltersList.length > 0){
           //Filter on atc only if there is atc
           const findATC = atcFiltersList.find((filter: ATCSearchFilter) => {
             if(filter.id === result.atc1Code?.trim()) {
@@ -144,7 +144,7 @@ function SearchResultsList({
           });
           if(!findATC) return false;
         }
-        if(indicationsFilters.length > 0) {
+        if(indicationsFilters.length > 0 && indicationsFiltersList.length > 0) {
           //Filter on indication only if there is indication
           if(result.pathosDetails && result.pathosDetails.length > 0){
             let find: boolean = false;
