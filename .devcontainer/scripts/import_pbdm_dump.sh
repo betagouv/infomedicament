@@ -44,3 +44,16 @@ echo "Exporting to $OUTPUT..."
 mysqldump -h db-mysql -uroot -pmysql --single-transaction pdbm_bdd > "$OUTPUT"
 
 echo "Done. Output written to $OUTPUT"
+
+# Recreating PSQL resume_* tables
+echo "Recreating PostgreSQL resume_* tables..."
+for x in pathos substances specialites atc1 atc2 generiques; do
+  npm run db:update-resume -- $x
+done
+
+# Recreate the search index
+echo "Recreating the Search index table..."
+npm run db:seed-search-index
+
+
+echo "All done!"
