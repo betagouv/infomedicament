@@ -8,6 +8,7 @@ import { cache } from "react";
 import db from "..";
 import { ResumePatho } from "../types";
 import { sql } from "kysely";
+import { ShortPatho } from "@/types/PathoTypes";
 
 export async function getPatho(code: string): Promise<Patho | undefined> {
   return await pdbmMySQL
@@ -20,20 +21,32 @@ export async function getPatho(code: string): Promise<Patho | undefined> {
 //Get the code patho list from specialite code CIS
 export const getSpecialitePatho = unstable_cache(
   async function (CIS: string): Promise<string[]> {
-    return getSpecialitesPatho([CIS]);
+    const rawCodePatho = await pdbmMySQL
+      .selectFrom("Spec_Patho")
+      .select("Spec_Patho.codePatho")
+      .leftJoin("Specialite", "Spec_Patho.SpecId", "Specialite.SpecId")
+      .where("Specialite.SpecId", "=", CIS)
+      .distinct()
+      .execute();
+    if(rawCodePatho)
+      return rawCodePatho.map((code) => code.codePatho);
+    return [];
   },
   ["specialite-patho"],
   { revalidate: 3600 } // cache for 1 hour
 );
-export const getSpecialitesPatho = cache(async function (CIS: string[]): Promise<string[]> {
-  const rawCodePatho = await pdbmMySQL
+
+export const getSpecialitesPatho = cache(async function (CIS: string[]): Promise<ShortPatho[]> {
+  const pathos = await pdbmMySQL
     .selectFrom("Spec_Patho")
-    .select("Spec_Patho.codePatho")
     .leftJoin("Specialite", "Spec_Patho.SpecId", "Specialite.SpecId")
+    .innerJoin("Patho", "Spec_Patho.codePatho", "Patho.codePatho")
     .where("Specialite.SpecId", "in", CIS)
+    .select("Spec_Patho.codePatho").distinct()
+    .select("Patho.NomPatho")
     .distinct()
     .execute();
-  return rawCodePatho.map((code) => code.codePatho);
+  return pathos ? pathos : [];
 });
 
 export const getAllPathos = cache(async function (): Promise<Patho[]> {

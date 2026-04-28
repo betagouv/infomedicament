@@ -13,6 +13,7 @@ import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
+import { ShortPatho } from "@/types/PathoTypes";
 import DataBlockGenericIcons from "./DataBlockGenericIcons";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
@@ -84,8 +85,6 @@ const FiltersTagContainer = styled.div`
 interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
   item: ResumeSpecGroup;
   matchReasons?: MatchReason[];
-  filterPregnancy?: boolean;
-  filterPediatric?: boolean;
   withAlert?: boolean;
 }
 
@@ -93,8 +92,6 @@ interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
 function DataBlockAccordion({
   item,
   matchReasons,
-  filterPregnancy,
-  filterPediatric,
   withAlert
 }: DataBlockAccordionProps) {
 
@@ -104,7 +101,7 @@ function DataBlockAccordion({
 
   const [fullListeComposants, setFullListeComposants] = useState<string>("");
   const [listeComposants, setListeComposants] = useState<string>("");
-
+  const [listPathos, setListPathos] = useState<ShortPatho[]>([]);
 
   const [atc1Label, setAtc1Label] = useState<string | undefined>(undefined);
   const [atc2Label, setAtc2Label] = useState<string | undefined>(undefined);
@@ -125,13 +122,13 @@ function DataBlockAccordion({
     setListeComposants(item.composants.slice(0, composantsTruncLength) + (item.composants.length > composantsTruncLength ? "..." : ""));
     setAtc1Label(item.atc1Label);
     setAtc2Label(item.atc2Label);
-  }, [item, composantsTruncLength, setSpecialitesGroup, setGroupName, setSpecialites, setListeComposants, setAtc1Label, setAtc2Label]);
+    setListPathos(item.pathosDetails ? item.pathosDetails : []);
+  }, [item, composantsTruncLength, setSpecialitesGroup, setGroupName, setSpecialites, setListeComposants, setAtc1Label, setAtc2Label, setListPathos]);
 
   useEffect(() => {
     if(withAlert 
       && specialitesGroup 
       && specialitesGroup.alerts 
-      && filterPregnancy
       && (specialitesGroup.alerts.pregnancyPlanAlert || specialitesGroup.alerts.pregnancyMentionAlert)
     ){
       if (specialitesGroup.alerts.pregnancyPlanAlert) setPregnancyPlanAlert(true)
@@ -144,20 +141,19 @@ function DataBlockAccordion({
       setPregnancyMentionAlert(false);
     }
 
-  }, [withAlert, filterPregnancy, specialitesGroup, setPregnancyPlanAlert, setPregnancyMentionAlert]);
+  }, [withAlert, specialitesGroup, setPregnancyPlanAlert, setPregnancyMentionAlert]);
 
   useEffect(() => {
     if(withAlert 
       && specialitesGroup 
       && specialitesGroup.alerts
-      && filterPediatric 
       && specialitesGroup.alerts.pediatrics
     )
       setPediatricsInfo(specialitesGroup.alerts.pediatrics);
     else
       setPediatricsInfo(undefined);
 
-  }, [withAlert, filterPediatric, specialitesGroup, setPediatricsInfo]);
+  }, [withAlert, specialitesGroup, setPediatricsInfo]);
 
   function onDetailsVisibles(isVisible: boolean) {
     setIsDetailsVisible(isVisible);
@@ -184,6 +180,13 @@ function DataBlockAccordion({
     };
   }, []);
 
+  function getPathosText(pathosDetails: ShortPatho[]) {
+    let newListPathos: string = "";
+    pathosDetails.forEach((patho) => {
+      newListPathos += (newListPathos !== "" ? ", " : "") + patho.NomPatho;
+    })
+    return newListPathos;
+  }
 
   return specialitesGroup && (
     <Container className={fr.cx("fr-mb-1w")}>
@@ -218,6 +221,14 @@ function DataBlockAccordion({
                   {listeComposants}
                 </DarkGreyText>
               </span>
+              {listPathos.length > 0 && (
+                <span className={fr.cx("fr-text--sm", "fr-ml-2w")}>
+                  <GreyText>Pathologie{listPathos.length > 1 && 's'}</GreyText>&nbsp;
+                  <DarkGreyText>
+                    {getPathosText(listPathos)}
+                  </DarkGreyText>
+                </span>
+              )}
             </RowToColumnContainer>
             {(withAlert && (pregnancyPlanAlert || pregnancyMentionAlert || pediatricsInfo)) && (
               <div>

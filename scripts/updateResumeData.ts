@@ -11,6 +11,7 @@ import { displaySimpleComposants, formatSpecName, MedicamentGroup } from "@/disp
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
 import { getAtc1Code, getAtc2Code, getAtcCode } from "@/utils/atc";
 import { getSpecialiteGroupName, groupSpecialites, isSurveillanceRenforcee } from "@/utils/specialites";
+import { ShortPatho } from "@/types/PathoTypes";
 
 type DataToResumeType = "pathos" | "substances" | "specialites" | "atc1" | "atc2" | "generiques";
 
@@ -154,7 +155,14 @@ async function createResumeSpecialites(): Promise<string[]> {
         })
       );
       const CISList: string[] = rawSpecialites.map((spec) => spec.SpecId.trim());
-      const pathosCodes: string[] = await getSpecialitesPatho(CISList);
+      const rawPathosCodes: ShortPatho[] = await getSpecialitesPatho(CISList);
+      const pathosCodes: string[] = rawPathosCodes
+        .map((patho) => patho.codePatho)
+        .filter((codePatho, index, arr) => arr.indexOf(codePatho) === index);
+      const pathosCodesNames: string[][] = rawPathosCodes.map((patho) => [
+        patho.codePatho, 
+        patho.NomPatho ? patho.NomPatho : "",
+      ]);
       const atc = await getAtcCode(rawSpecialites[0].SpecId);
       const atc1: string | undefined = atc ? getAtc1Code(atc) : undefined;
       const atc2: string | undefined = atc ? getAtc2Code(atc) : undefined;
@@ -174,7 +182,7 @@ async function createResumeSpecialites(): Promise<string[]> {
           atc5Code: atc ?? undefined,
           CISList: CISList,
           subsIds: subsIds,
-          pathosCodesNames: [],
+          pathosCodesNames: pathosCodesNames,
         })
         .execute();
       return true;
