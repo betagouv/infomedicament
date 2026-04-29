@@ -9,7 +9,7 @@ import ContentContainer from "../generic/ContentContainer";
 import { RcpNoticeContainer } from "./blocks/GenericBlocks";
 import { NoticeData } from "@/types/SpecialiteTypes";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
-import { getContent } from "@/utils/notices/noticesUtils";
+import { getContent } from "@/utils/notices";
 import { Definition } from "@/types/GlossaireTypes";
 import { isCentralisee } from "@/utils/specialites";
 import CentraliseBlock from "./blocks/CentraliseBlock";

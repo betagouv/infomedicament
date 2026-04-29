@@ -5,7 +5,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { RcpData } from "@/types/SpecialiteTypes";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { getContent } from "@/utils/notices/noticesUtils";
+import { getContent } from "@/utils/notices";
 import { RcpNoticeContainer } from "../blocks/GenericBlocks";
 import { getRCP } from "@/db/utils/rcp";
 import { isCentralisee } from "@/utils/specialites";

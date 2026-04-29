@@ -38,6 +38,7 @@ export interface Database {
   triam_classe_grp_subst: TriamClasseGrpSubstTable;
   triam_interactions: TriamInteractionsTable;
   interactions_search: InteractionsSearchTable;
+  specialites_metadata: SpecialiteMetadataTable;
 }
 
 interface SearchIndexTable {
@@ -359,6 +360,12 @@ interface InteractionsSearchTable {
   subst_ids: string[];
   class_ids: string[];
 }
+interface SpecialiteMetadataTable {
+  CIS: number,
+  title: string,
+  description?: string,
+}
+
 
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
@@ -391,3 +398,4 @@ export type TriamSubstGroupesubst = Selectable<TriamSubstGroupesubstTable>;
 export type TriamClasseGrpSubst = Selectable<TriamClasseGrpSubstTable>;
 export type TriamInteraction = Selectable<TriamInteractionsTable>;
 export type InteractionsSearchEntry = Selectable<InteractionsSearchTable>;
+export type SpecialiteMetadata = Selectable<SpecialiteMetadataTable>;

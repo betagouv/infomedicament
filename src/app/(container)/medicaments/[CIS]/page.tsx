@@ -1,4 +1,3 @@
-import React from "react";
 import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
@@ -14,7 +13,7 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
-import { getSpecialiteName } from "@/db/utils/specialities";
+import { getSpecialiteMatadata, getSpecialiteName } from "@/db/utils/specialities";
 import MedicamentContainer from "@/components/medicaments/MedicamentContainer";
 
 export const dynamic = "error";
@@ -26,12 +25,13 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { CIS } = await props.params;
 
-  const SpecDenom01 = await getSpecialiteName(CIS);
-  if (!SpecDenom01) return notFound();
+  const metadata = await getSpecialiteMatadata(Number(CIS.trim()));
+  if(!metadata) return notFound();
 
-  const name = formatSpecName(SpecDenom01);
+  const name = formatSpecName(metadata.title);
   return {
     title: `${name} - ${(await parent).title?.absolute}`,
+    description: metadata.description,
   };
 }
 

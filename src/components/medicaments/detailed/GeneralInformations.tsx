@@ -14,7 +14,7 @@ import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } f
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
 import { DetailedSpecialite, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
-import { displayInfosImportantes, getContent } from "@/utils/notices/noticesUtils";
+import { displayInfosImportantes, getContent } from "@/utils/notices";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { PediatricsInfo } from "@/types/PediatricTypes";
@@ -97,7 +97,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   presentations: Presentation[];
   marr?: Marr;
   ficheInfos?: FicheInfos;
-  indicationBlock?: NoticeRCPContentBlock;
+  indicationsBlock?: NoticeRCPContentBlock;
   delivrance: SpecDelivrance[];
   definitions: Definition[];
 }
@@ -114,7 +114,7 @@ function GeneralInformations({
   presentations,
   marr,
   ficheInfos,
-  indicationBlock,
+  indicationsBlock,
   delivrance,
   definitions,
   ...props 
@@ -321,8 +321,8 @@ function GeneralInformations({
                 )}
               </span>
             ) : (
-              (indicationBlock && indicationBlock.children && indicationBlock.children.length > 0) ? (
-                <span>{getContent(indicationBlock.children)}</span>
+              (indicationsBlock && indicationsBlock.children && indicationsBlock.children.length > 0) ? (
+                <span>{getContent(indicationsBlock.children)}</span>
               ) : (
                 <span>Les indications thérapeutiques ne sont pas disponibles.</span>
               )

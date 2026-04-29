@@ -1,19 +1,43 @@
-import React from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import { SubstanceNom } from "@/db/pdbmMySQL/types";
 import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { getSubstances } from "@/db/utils/substances";
+import { getSubstanceDefinition, getSubstances } from "@/db/utils/substances";
 import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinitionContent";
+import { Metadata, ResolvingMetadata } from "next";
 
 export const dynamic = "error";
 export const dynamicParams = true;
 
+export async function generateMetadata(
+  props: { params: Promise<{ id: string }> },
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+
+  const { id } = await props.params;
+  const ids = decodeURIComponent(id).split(",");//NomId
+  const substances: SubstanceNom[] = await getSubstances(ids)?? [];
+  if (!substances || substances.length < ids.length) return notFound();
+
+  const definitionsRaw = await getSubstanceDefinition(ids, substances.map((subs) => subs.SubsId.trim()));
+  let definitionString = "";
+  definitionsRaw.forEach((definition) => {
+    if(definitionString !== "")
+      definitionString += " - ";
+    definitionString += `${definition.SA} : ${definition.Definition}`;
+  });
+
+  return {
+    title: `${substances.map((s) => s.NomLib).join(", ")} - ${(await parent).title?.absolute}`,
+    description: definitionString,
+  };
+}
+
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
-  const ids = decodeURIComponent(id).split(",");
+  const ids = decodeURIComponent(id).split(",");//NomId
 
   const substances: SubstanceNom[] = await getSubstances(ids)?? [];
   if (!substances || substances.length < ids.length) return notFound();
