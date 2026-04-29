@@ -1,4 +1,4 @@
- import { notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";

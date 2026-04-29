@@ -4,6 +4,21 @@ import { Indication } from "@/db/types";
 
 //Usage: npx tsx scripts/aggregatePathoClasseClinique.ts 
 
+type ShortClasseClinique = {
+  codeTerme: number;
+  libCourt: string;
+}
+
+function getClasseCliniqueName(classeClinique: ShortClasseClinique): string {
+  if(classeClinique.libCourt) {
+    if(/[A-Z]/.test(classeClinique.libCourt.trim()[0])) {
+      return classeClinique.libCourt.trim()[0] + classeClinique.libCourt.trim().slice(1).toLowerCase();
+    }
+    return classeClinique.libCourt.trim();
+  }
+  return "";
+}
+
 async function aggregatePathoClasseClinique(): Promise<void> {
   const oldIndications: Indication[] = await db
     .selectFrom("indications")
@@ -72,7 +87,7 @@ async function aggregatePathoClasseClinique(): Promise<void> {
   );
 
   // Classes cliniques
-  const allClassesCliniques = await db
+  const allClassesCliniques: ShortClasseClinique[] = await db
     .selectFrom("classes_cliniques")
     .select(["codeTerme", "libCourt"])
     .execute();
@@ -86,9 +101,9 @@ async function aggregatePathoClasseClinique(): Promise<void> {
     .where("codeVU", "in", allActiveCIS.map((CIS) => CIS.SpecId))
     .select(["codeClasClinique", "codeVU"])
     .execute();
-  allClassesCliniques.forEach((classeClinique) => {
+  allClassesCliniques.forEach((classeClinique: ShortClasseClinique) => {
     const oldValues = oldIndications.find((oldPatho: Indication) => oldPatho.codeClasseClinique === classeClinique.codeTerme);
-    const nom = classeClinique.libCourt ? (/[A-Z]/.test(classeClinique.libCourt.trim()[0]) ? classeClinique.libCourt.trim()[0] + classeClinique.libCourt.trim().slice(1).toLowerCase() : classeClinique.libCourt.trim()) : "";
+    const nom = getClasseCliniqueName(classeClinique);
     const CISList = allClassesCliniquesCIS.filter((classeCliniqueCIS) => classeCliniqueCIS.codeClasClinique === classeClinique.codeTerme);
     const newValues: Indication = {
       codePatho: undefined,
@@ -115,7 +130,7 @@ async function aggregatePathoClasseClinique(): Promise<void> {
         }
       }
     } else {
-      //Definition is not available but we the classe is displayed
+      //Definition is not available but the classe is displayed
       if(oldValues) {
         //Update previous values
         updatedIndications.push({
@@ -162,11 +177,10 @@ async function aggregatePathoClasseClinique(): Promise<void> {
   console.log(`Nombre d'indications ajoutées: ${insertedIndications.length}`);
   console.log(`Nombre d'indications mises à jour: ${updatedIndications.length}`);
   console.log(`Nombre d'indications supprimées: ${deletedIndications.length}`);
-
-  process.exit(0);
 }
 
 aggregatePathoClasseClinique().finally(async () => {
   await db.destroy();
   await pdbmMySQL.destroy();
+  process.exit(0);
 });
