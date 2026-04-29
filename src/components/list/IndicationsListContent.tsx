@@ -52,6 +52,7 @@ function IndicationsListContent({
   return (
     <PageListContent
       title={title}
+      description={"L’indication thérapeutique renseigne sur la maladie ou les symptômes que le médicament est capable de traiter ou de prévenir, ou encore sur le diagnostic qu’il permet d’établir. L’indication est précisée dans l’AMM."}
       letters={letters}
       urlPrefix="/indications/"
       dataList={filteredIndications}
