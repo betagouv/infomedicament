@@ -26,7 +26,7 @@ Fields:
 - medications: trade names explicitly mentioned (e.g. "doliprane", "xanax")
 - substances: active substances explicitly mentioned (e.g. "paracétamol", "alprazolam")
 - pathologies: symptoms or conditions explicitly mentioned (e.g. "mal de tête", "fièvre", "insomnie")
-- atc_classes: therapeutic classes explicitly mentioned (e.g. "anti-douleur", "système nerveux")
+- atc_classes: pharmacological or therapeutic drug classes explicitly mentioned (e.g. "anxiolytiques", "antibiotiques", "anti-inflammatoires", "antidépresseurs", "bêtabloquants", "anti-douleur", "système nerveux")
 - is_relevant: false only if the query is clearly unrelated to medications
 - is_dangerous: true ONLY if the user is explicitly seeking to harm themselves or others (e.g. "comment faire une overdose", "comment se suicider avec"). Questions about alcohol interactions, side effects, or risky combinations are NOT dangerous — they are legitimate safety questions.
 
@@ -37,7 +37,13 @@ Example input: "est-ce que je peux boire de l'alcool avec de l'AdvilCaps ?"
 Example output: {"medications":["AdvilCaps"],"substances":[],"pathologies":[],"atc_classes":[],"is_relevant":true,"is_dangerous":false}
 
 Example input: "je peux prendre du tramadol si je suis enceinte ?"
-Example output: {"medications":["tramadol"],"substances":[],"pathologies":[],"atc_classes":[],"is_relevant":true,"is_dangerous":false}`;
+Example output: {"medications":["tramadol"],"substances":[],"pathologies":[],"atc_classes":[],"is_relevant":true,"is_dangerous":false}
+
+Example input: "puis-je boire de l'alcool en prenant du paracétamol ?"
+Example output: {"medications":[],"substances":["paracétamol"],"pathologies":[],"atc_classes":[],"is_relevant":true,"is_dangerous":false}
+
+Example input: "quels sont les risques de l'alcool avec les anxiolytiques ?"
+Example output: {"medications":[],"substances":[],"pathologies":[],"atc_classes":["anxiolytiques"],"is_relevant":true,"is_dangerous":false}`;
 
 export async function analyzeQuery(query: string): Promise<QueryAnalysis> {
   try {
