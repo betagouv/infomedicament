@@ -8,7 +8,7 @@ export interface NoticeChunkHit {
   text: string;
 }
 
-// Tune this: scores differ significantly between local (20 docs) and production.
+// TODO: Tune this: scores differ significantly between local (20 docs) and production.
 const MIN_SCORE = 10.0;
 
 type Entities = Pick<
@@ -31,7 +31,7 @@ export async function detectCISCodes(entities: Entities): Promise<string[]> {
     method: "POST",
     headers: osHeaders(authHeader),
     body: JSON.stringify({
-      size: 10,
+      size: 200,
       min_score: MIN_SCORE,
       query: { bool: { should } },
       _source: false,
@@ -52,11 +52,11 @@ export async function searchNoticeChunks(
   const knnClause = { vector, k: filtering ? 50 : 5 };
   const query = filtering
     ? {
-        bool: {
-          must: { knn: { embedding: knnClause } },
-          filter: { terms: { cis: cisCodes } },
-        },
-      }
+      bool: {
+        must: { knn: { embedding: knnClause } },
+        filter: { terms: { cis: cisCodes } },
+      },
+    }
     : { knn: { embedding: knnClause } };
 
   const { baseUrl, authHeader } = getOSConfig();
