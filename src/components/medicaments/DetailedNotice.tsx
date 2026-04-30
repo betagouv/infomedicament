@@ -35,7 +35,7 @@ interface DetailedNoticeProps extends HTMLAttributes<HTMLDivElement> {
   presentations: Presentation[];
   marr?: Marr;
   ficheInfos?: FicheInfos;
-  indicationBlock?: NoticeRCPContentBlock;
+  indicationsBlock?: NoticeRCPContentBlock;
   delivrance: SpecDelivrance[];
   definitions: Definition[];
 }
@@ -52,7 +52,7 @@ function DetailedNotice({
   presentations,
   marr,
   ficheInfos,
-  indicationBlock,
+  indicationsBlock,
   delivrance,
   definitions,
   ...props 
@@ -60,15 +60,10 @@ function DetailedNotice({
 
   const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite>();
   const [visiblePart, setVisiblePart] = useState<DetailsNoticePartsEnum>(currentVisiblePart);
-  const [currentIndicationBlock, setCurrentIndicationBlock] = useState<NoticeRCPContentBlock>();
 
   useEffect(() => {
     setVisiblePart(currentVisiblePart);
   }, [currentVisiblePart, setVisiblePart]);
-
-  useEffect(() => {
-    setCurrentIndicationBlock(indicationBlock);
-  }, [indicationBlock, setCurrentIndicationBlock]);
 
   useEffect(() => {
     setCurrentSpec(specialite);
@@ -89,7 +84,7 @@ function DetailedNotice({
           updateVisiblePart={setVisiblePart}
           marr={marr}
           ficheInfos={ficheInfos}
-          indicationBlock={currentIndicationBlock}
+          indicationsBlock={indicationsBlock}
           delivrance={delivrance}
           definitions={definitions}
         />

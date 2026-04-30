@@ -30,7 +30,7 @@ import QuestionsBox from "./QuestionsBox";
 import QuestionKeywordsBox from "./QuestionKeywordsBox";
 import GoTopButton from "../generic/GoTopButton";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { displayInfosImportantes } from "@/utils/notices/noticesUtils";
+import { displayInfosImportantes, getIndicationsBlock } from "@/utils/notices";
 import { questionsList } from "@/data/pages/notices_anchors";
 import NoticeBlock from "./NoticeBlock";
 import PregnancyMentionTag from "../tags/PregnancyMentionTag";
@@ -133,7 +133,7 @@ function MedicamentContent({
   const [currentPresentations, setCurrentPresentations] = useState<Presentation[]>([]);
 
   const [notice, setNotice] = useState<NoticeData>();
-  const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock>();
+  const [indicationsBlock, setIndicationsBlock] = useState<NoticeRCPContentBlock>();
   const [ficheInfos, setFicheInfos] = useState<FicheInfos>();
   const [articles, setArticles] = useState<ArticleCardResume[]>([]);
   const [definitions, setDefinitions] = useState<Definition[]>([]);
@@ -222,13 +222,10 @@ function MedicamentContent({
           const newNotice = await getNotice(spec.SpecId);
           setNotice(newNotice);
           if (newNotice) {
-            if (newNotice.children) {
-              newNotice.children.forEach((child: NoticeRCPContentBlock) => {
-                if (child.anchor === "Ann3bQuestceque") {
-                  setIndicationBlock(child);
-                }
-              })
-            }
+            const newIndicationsBlock = getIndicationsBlock(newNotice);
+            if(newIndicationsBlock)
+              setIndicationsBlock(newIndicationsBlock);
+               
           }
         }
         const newFicheInfos = await getFicheInfos(spec.SpecId);
@@ -242,7 +239,7 @@ function MedicamentContent({
         Sentry.captureException(e);
       }
     },
-    [atcList, setArticles, setNotice, setIndicationBlock, setFicheInfos, setLoaded, setDefinitions]
+    [atcList, setArticles, setNotice, setIndicationsBlock, setFicheInfos, setLoaded, setDefinitions]
   );
 
   useEffect(() => {
@@ -462,7 +459,7 @@ function MedicamentContent({
                 presentations={currentPresentations}
                 marr={currentMarr}
                 ficheInfos={ficheInfos}
-                indicationBlock={indicationBlock}
+                indicationsBlock={indicationsBlock}
                 delivrance={delivrance}
                 definitions={definitions}
               />
