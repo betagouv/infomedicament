@@ -13,7 +13,7 @@ describe("sitemap (Integration)", () => {
     expect(urls.length).toBeGreaterThan(1000);
     expect(urls.some((u) => u.includes("/medicaments/"))).toBe(true);
     expect(urls.some((u) => u.includes("/substances/"))).toBe(true);
-    expect(urls.some((u) => u.includes("/pathologies/"))).toBe(true);
+    expect(urls.some((u) => u.includes("/indications/"))).toBe(true);
     expect(urls.some((u) => u.includes("/articles/"))).toBe(true);
     expect(urls.some((u) => u.includes("/generiques/"))).toBe(true);
     expect(urls.some((u) => u.includes("/glossaire/"))).toBe(true);
