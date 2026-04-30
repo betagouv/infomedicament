@@ -10,6 +10,8 @@ export default function AskPage() {
   const [hits, setHits] = useState<NoticeChunkHit[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [irrelevant, setIrrelevant] = useState(false);
+  const [dangerous, setDangerous] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -17,6 +19,8 @@ export default function AskPage() {
     setLoading(true);
     setError(null);
     setHits([]);
+    setIrrelevant(false);
+    setDangerous(false);
     try {
       const res = await fetch(
         `/ask/search?q=${encodeURIComponent(query.trim())}`,
@@ -24,6 +28,8 @@ export default function AskPage() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setHits(data.hits);
+      setIrrelevant(data.irrelevant ?? false);
+      setDangerous(data.dangerous ?? false);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -61,6 +67,20 @@ export default function AskPage() {
 
           {error && (
             <p className={fr.cx("fr-error-text", "fr-mt-2w")}>{error}</p>
+          )}
+
+          {irrelevant && (
+            <p className={fr.cx("fr-mt-3w")}>
+              Cette question ne semble pas concerner les médicaments.
+            </p>
+          )}
+
+          {dangerous && (
+            <p className={fr.cx("fr-error-text", "fr-mt-3w")}>
+              Si vous êtes en danger, appelez le 15 (SAMU) ou le{" "}
+              <a href="tel:3114" className={fr.cx("fr-link")}>3114</a>{" "}
+              (numéro national de prévention du suicide).
+            </p>
           )}
 
           {hits.length > 0 && (
