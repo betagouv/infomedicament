@@ -37,13 +37,14 @@ export type NoticeBlockType = "generalites" | "usage" | "warnings" | "howTo" | "
 export type NoticeRCPContentBlock = {
   id?: number;
   type?: string;
-  styles?: string[],
-  anchor?: string,
+  styles?: string[];
+  anchor?: string;
   content?: string[];
   children?: NoticeRCPContentBlock[];
-  tag?: string,
-  rowspan?: number,
-  colspan?: number,
+  tag?: string;
+  rowspan?: number;
+  colspan?: number;
+  html?: string;
 }
 
 export type RcpData = {
