@@ -142,10 +142,10 @@ export const getResumeSpecsGroupsWithLetter = cache(async function (letter: stri
   return formatSpecialitesResumeFromGroups(result);
 });
 
-export const getResumeSpecsGroupsWithPatho = cache(async function (codePatho: string): Promise<ResumeSpecGroup[]> {
+export const getResumeSpecsGroupsWithIndication = cache(async function (indicationsIds: number): Promise<ResumeSpecGroup[]> {
   const result = await db
     .selectFrom("resume_medicaments")
-    .where("pathosCodes", "&&", Array([codePatho]))
+    .where("indicationsIds", "&&", Array([indicationsIds]))
     .selectAll()
     .orderBy("groupName")
     .execute();

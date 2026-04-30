@@ -91,8 +91,9 @@ async function main() {
 
         // 4. PATHOLOGIES
         await syncTable('ref_pathologies', 'Pathologies', ['codePatho', 'Definition_pathologie'], (r) => ({
-            code_patho: safeString(r.fields.codePatho),
+            code_patho: r.fields.codePatho || null,
             definition: r.fields.Definition_pathologie,
+            code_classe_clinique: r.fields.codeClasClinique || null,
         }));
 
         // 5. PEDIATRIE

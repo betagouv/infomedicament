@@ -39,7 +39,7 @@ import { ATC } from "@/types/ATCTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { getNotice } from "@/db/utils/notice";
 import { SearchArticlesFilters } from "@/types/SearchTypes";
-import { getSpecialitePatho } from "@/db/utils/pathologies";
+import { getSpecialitePathologies } from "@/db/utils/indications";
 import { getArticlesFromFilters } from "@/db/utils/articles";
 import { getFicheInfos } from "@/db/utils/ficheInfos";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
@@ -213,7 +213,7 @@ function MedicamentContent({
           ATCList: atcList,
           substancesList: composants.map((compo) => compo.SubsId.trim()),
           specialitesList: [spec.SpecId],
-          pathologiesList: await getSpecialitePatho(spec.SpecId),
+          pathologiesList: await getSpecialitePathologies(spec.SpecId),
         };
         const articles = await getArticlesFromFilters(articlesFilters);
         setArticles(articles);
@@ -420,7 +420,7 @@ function MedicamentContent({
                   <PresentationsList presentations={currentPresentations} />
                 </ContentContainer>
               )}
-              {articles && articles.length > 0 && (
+              {(articles && articles.length > 0) && (
                 <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
                   <ArticlesResumeList
                     articles={articles}

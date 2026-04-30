@@ -19,5 +19,5 @@ export function computeSortScore(
     if (hasSubstance && composants.toLowerCase().startsWith(substanceLabel.toLowerCase()))
         return 2 + baseSmlScore; // composants starts with matched substance
     if (hasSubstance) return 1 + baseSmlScore; // substance matched elsewhere
-    return baseSmlScore; // ATC / pathology
+    return baseSmlScore; // ATC / indication
 }
