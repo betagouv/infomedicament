@@ -1,11 +1,11 @@
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import PathologiesListContent from "@/components/list/PathologiesListContent";
+import IndicationsListContent from "@/components/list/IndicationsListContent";
 
 export const dynamic = "error";
 export const dynamicParams = true;
-const PAGE_LABEL:string = "Liste des pathologies";
+const PAGE_LABEL:string = "Liste des indications";
 
 export default async function Page(props: {
   params: Promise<{ letter: string }>;
@@ -18,7 +18,7 @@ export default async function Page(props: {
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
         currentPageLabel={PAGE_LABEL}
       />
-      <PathologiesListContent
+      <IndicationsListContent
         title={PAGE_LABEL}
         letter={letter}
       />

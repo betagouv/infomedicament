@@ -1,12 +1,12 @@
 import { MetadataRoute } from "next";
 import { getAllSpecialites } from "@/db/utils/specialities";
 import { getAllSubsWithSpecialites } from "@/db/utils/substances";
-import { getAllPathos } from "@/db/utils/pathologies";
 import { getAtc } from "@/db/utils/atc";
 import { getLetters } from "@/db/utils/letters";
 import { getArticles } from "@/db/utils/articles";
 import { getGlossaryLetters } from "@/db/utils/glossary";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
+import { getAllIndications } from "@/db/utils/indications";
 
 export const revalidate = 86400;
 
@@ -27,25 +27,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [
     specialites,
     substances,
-    pathos,
+    indications,
     atcData,
     articles,
     glossaryLetters,
     medLetters,
     subsLetters,
-    pathoLetters,
+    indicationsLetters,
     genLetters,
     genericGroups,
   ] = await Promise.all([
     getAllSpecialites(),
     getAllSubsWithSpecialites(),
-    getAllPathos(),
+    getAllIndications(),
     getAtc(),
     getArticles(),
     getGlossaryLetters(),
     getLetters("specialites"),
     getLetters("substances"),
-    getLetters("pathos"),
+    getLetters("indications"),
     getLetters("generiques"),
     pdbmMySQL.selectFrom("GroupeGene").select("SpecId").distinct().execute(),
   ]);
@@ -66,8 +66,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${BASE_URL}/substances/${s.NomId.trim()}`,
   }));
 
-  const pathoEntries: MetadataRoute.Sitemap = pathos.map((p) => ({
-    url: `${BASE_URL}/pathologies/${p.codePatho.trim()}`,
+  const indicationsEntries: MetadataRoute.Sitemap = indications.map((i) => ({
+    url: `${BASE_URL}/indications/${i.id}`,
   }));
 
   const atcEntries: MetadataRoute.Sitemap = [
@@ -88,7 +88,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const alphaListEntries: MetadataRoute.Sitemap = [
     ...medLetters.map((l) => ({ url: `${BASE_URL}/alpha_lists/medicaments/${l}` })),
     ...subsLetters.map((l) => ({ url: `${BASE_URL}/alpha_lists/substances/${l}` })),
-    ...pathoLetters.map((l) => ({ url: `${BASE_URL}/alpha_lists/pathologies/${l}` })),
+    ...indicationsLetters.map((l) => ({ url: `${BASE_URL}/alpha_lists/indications/${l}` })),
     ...genLetters.map((l) => ({ url: `${BASE_URL}/alpha_lists/generiques/${l}` })),
   ];
 
@@ -97,7 +97,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...medicamentEntries,
     ...articleEntries,
     ...substanceEntries,
-    ...pathoEntries,
+    ...indicationsEntries,
     ...atcEntries,
     ...genericEntries,
     ...glossaireEntries,
