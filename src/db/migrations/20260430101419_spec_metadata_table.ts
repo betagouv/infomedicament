@@ -1,4 +1,4 @@
-import { sql, type Kysely } from 'kysely'
+import { type Kysely } from 'kysely'
 
 export async function up(db: Kysely<any>): Promise<void> {
 	await db.schema
@@ -11,5 +11,5 @@ export async function up(db: Kysely<any>): Promise<void> {
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable("specialites_metadata").execute();
+  await db.schema.dropTable("specialites_metadata").ifExists().execute();
 }

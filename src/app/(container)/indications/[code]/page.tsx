@@ -6,9 +6,25 @@ import RatingToaster from "@/components/rating/RatingToaster";
 import { getIndications } from "@/db/utils/indications";
 import IndicationDefinitionContent from "@/components/definition/IndicationDefinitionContent";
 import { Indication } from "@/db/types";
+import { Metadata, ResolvingMetadata } from "next";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+
+export async function generateMetadata(
+  props: { params: Promise<{ code: `${number}` }> },
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+
+  const { code } = await props.params;
+  const indication: Indication | undefined = await getIndications(Number(code));
+  if (!indication) return notFound();
+
+  return {
+    title: `${indication.nom} - ${(await parent).title?.absolute}`,
+    description: indication.definition || "",
+  };
+}
 
 export default async function Page(props: {
   params: Promise<{ code: `${number}` }>;
