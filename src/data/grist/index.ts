@@ -70,7 +70,7 @@ async function uncachedGetGristTableData<F extends string>(
       if (Array.isArray(value) && value[0] === "L") {
         if ((tableId === "MARR_URL_CIS" && key === "Generiques")
           || (tableId === "MARR_URL_PDF" && key === "Type")
-          || (tableId === "Articles" && (key === "Classes_ATC" || key === "Pathologies"))) {
+          || (tableId === "Articles" && (key === "Classes_ATC" || key === "Indications"))) {
           r.fields[key] = (value as string[]).slice(1);
         }
       }

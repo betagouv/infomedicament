@@ -65,8 +65,8 @@ export default function ClientHeader({
               linkProps: { href: "/substances/(", prefetch: false },
             },
             {
-              text: "Toutes les pathologies",
-              linkProps: { href: "/pathologies/A", prefetch: false },
+              text: "Toutes les indications",
+              linkProps: { href: "/indications/A", prefetch: false },
             },
             {
               text: "Tous les groupes génériques",
