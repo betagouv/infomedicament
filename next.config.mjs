@@ -16,7 +16,7 @@ const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-inline' ${process.env.NEXT_PUBLIC_MATOMO_URL}${isDev ? " 'unsafe-eval'" : ''};
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: ${process.env.NEXT_PUBLIC_MATOMO_URL};
+    img-src 'self' blob: data: ${process.env.NEXT_PUBLIC_MATOMO_URL} https://cellar-c2.services.clever-cloud.com;
     font-src 'self';
     object-src 'none';
     base-uri 'self';

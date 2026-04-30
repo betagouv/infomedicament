@@ -87,6 +87,7 @@ interface RcpContentTable {
   tag?: string,
   rowspan?: number,
   colspan?: number,
+  html?: string,
 }
 
 interface NoticeTable {
@@ -105,6 +106,7 @@ interface NoticeContentTable {
   tag?: string,
   rowspan?: number,
   colspan?: number,
+  html?: string,
 }
 
 interface RatingTable {

@@ -38,4 +38,7 @@ export const RcpNoticeContainer = styled.div`
   li{
     margin-bottom: 0.25rem;
   }
+  .AmmCorpsTexteGras{
+    font-weight: bold;
+  }
 `;
