@@ -3,10 +3,16 @@ import type { QueryAnalysis } from "./queryAnalysis";
 
 export interface NoticeChunkHit {
   cis: string;
+  spec_name: string;
   section_title: string;
   sub_header: string | null;
   text: string;
   html_snippets: string[];
+}
+
+export interface CISEntry {
+  cis: string;
+  spec_name: string;
 }
 
 // TODO: Tune this: scores differ significantly between local (20 docs) and production.
@@ -17,7 +23,7 @@ type Entities = Pick<
   "medications" | "substances" | "pathologies" | "atc_classes"
 >;
 
-export async function detectCISCodes(entities: Entities): Promise<string[]> {
+export async function detectCISCodes(entities: Entities): Promise<CISEntry[]> {
   const should = [
     ...entities.medications.map((q) => ({ match: { spec_name: { query: q, boost: 3 } } })),
     ...entities.substances.map((q) => ({ match: { substances: { query: q, boost: 2 } } })),
@@ -35,20 +41,24 @@ export async function detectCISCodes(entities: Entities): Promise<string[]> {
       size: 200,
       min_score: MIN_SCORE,
       query: { bool: { should } },
-      _source: false,
+      _source: ["spec_name"],
     }),
   });
   if (!res.ok) return [];
   const data = await res.json();
-  const codes = (data.hits.hits as Array<{ _id: string }>).map((h) => h._id);
-  console.log("[detectCISCodes]", codes.length, "CIS codes:", codes);
-  return codes;
+  const entries = (data.hits.hits as Array<{ _id: string; _source: { spec_name: string } }>).map(
+    (h) => ({ cis: h._id, spec_name: h._source.spec_name }),
+  );
+  console.log("[detectCISCodes]", entries.length, "CIS codes:", entries.map((e) => e.cis));
+  return entries;
 }
 
 export async function searchNoticeChunks(
   vector: number[],
-  cisCodes: string[],
+  cisEntries: CISEntry[],
 ): Promise<NoticeChunkHit[]> {
+  const cisCodes = cisEntries.map((e) => e.cis);
+  const specMap = new Map(cisEntries.map((e) => [e.cis, e.spec_name]));
   const filtering = cisCodes.length > 0;
   const knnClause = { vector, k: filtering ? 50 : 5 };
   const query = filtering
@@ -72,7 +82,8 @@ export async function searchNoticeChunks(
   });
   if (!res.ok) throw new Error(`OpenSearch error: ${res.status}`);
   const data = await res.json();
-  return (data.hits.hits as Array<{ _source: NoticeChunkHit }>).map(
-    (h) => h._source,
-  );
+  return (data.hits.hits as Array<{ _source: Omit<NoticeChunkHit, "spec_name"> }>).map((h) => ({
+    ...h._source,
+    spec_name: specMap.get(h._source.cis) ?? "",
+  }));
 }

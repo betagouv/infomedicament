@@ -42,6 +42,9 @@ Example output: {"medications":["tramadol"],"substances":[],"pathologies":[],"at
 Example input: "puis-je boire de l'alcool en prenant du paracétamol ?"
 Example output: {"medications":[],"substances":["paracétamol"],"pathologies":[],"atc_classes":[],"is_relevant":true,"is_dangerous":false}
 
+Example input: "peut-on donner de la lidocaïne à un enfant ?"
+Example output: {"medications":[],"substances":["lidocaïne"],"pathologies":[],"atc_classes":[],"is_relevant":true,"is_dangerous":false}
+
 Example input: "quels sont les risques de l'alcool avec les anxiolytiques ?"
 Example output: {"medications":[],"substances":[],"pathologies":[],"atc_classes":["anxiolytiques"],"is_relevant":true,"is_dangerous":false}`;
 

@@ -4,6 +4,7 @@ import { analyzeQuery } from "./queryAnalysis";
 import { detectCISCodes, searchNoticeChunks } from "./noticeSearch";
 
 export type { NoticeChunkHit } from "./noticeSearch";
+export type { QueryAnalysis } from "./queryAnalysis";
 
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get("q");
@@ -22,8 +23,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ hits: [], dangerous: true });
     }
 
-    const cisCodes = await detectCISCodes(analysis);
-    const hits = await searchNoticeChunks(vector, cisCodes);
+    const cisEntries = await detectCISCodes(analysis);
+    const hits = await searchNoticeChunks(vector, cisEntries);
 
     return NextResponse.json({ hits, analysis });
   } catch (err) {
