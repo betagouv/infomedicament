@@ -51,8 +51,8 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('textSourceRef', 'varchar(255)')
     .addColumn('remTerme', 'varchar(255)')
     .execute();
-  await db.schema.createIndex('classes_cliniques_idx').on('classes_cliniques').column('codeTerme').unique().execute();
-  await db.schema.createIndex('classes_cliniques_libRech_idx').on('classes_cliniques').column('libRech').execute();
+  await db.schema.createIndex('classes_cliniques_idx').ifNotExists().on('classes_cliniques').column('codeTerme').unique().execute();
+  await db.schema.createIndex('classes_cliniques_libRech_idx').ifNotExists().on('classes_cliniques').column('libRech').execute();
 
   // Table VUClassesCliniques from Codex
   await db.schema
