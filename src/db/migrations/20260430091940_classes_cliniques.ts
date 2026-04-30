@@ -66,8 +66,8 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('dateDernModif', 'date')
     .addColumn('codeModif', 'integer')
     .execute();
-  await db.schema.createIndex('vu_classes_cliniques_idx').on('vu_classes_cliniques').column('codeClasClinique').execute();
-  await db.schema.createIndex('vu_classes_cliniques_unique_idx').on('vu_classes_cliniques').columns(['codeVU', 'codeClasClinique']).unique().execute();
+  await db.schema.createIndex('vu_classes_cliniques_idx').ifNotExists().on('vu_classes_cliniques').column('codeClasClinique').execute();
+  await db.schema.createIndex('vu_classes_cliniques_unique_idx').ifNotExists().on('vu_classes_cliniques').columns(['codeVU', 'codeClasClinique']).unique().execute();
 
   // Table pathologies
   await db.schema
