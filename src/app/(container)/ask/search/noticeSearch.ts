@@ -6,6 +6,7 @@ export interface NoticeChunkHit {
   section_title: string;
   sub_header: string | null;
   text: string;
+  html_snippets: string[];
 }
 
 // TODO: Tune this: scores differ significantly between local (20 docs) and production.
@@ -66,7 +67,7 @@ export async function searchNoticeChunks(
     body: JSON.stringify({
       size: 5,
       query,
-      _source: ["cis", "section_title", "sub_header", "text"],
+      _source: ["cis", "section_title", "sub_header", "text", "html_snippets"],
     }),
   });
   if (!res.ok) throw new Error(`OpenSearch error: ${res.status}`);

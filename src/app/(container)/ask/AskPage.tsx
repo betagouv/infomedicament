@@ -2,6 +2,7 @@
 
 import { fr } from "@codegouvfr/react-dsfr";
 import ContentContainer from "@/components/generic/ContentContainer";
+import { RcpNoticeContainer } from "@/components/medicaments/blocks/GenericBlocks";
 import type { NoticeChunkHit } from "@/app/(container)/ask/search/route";
 import { FormEvent, useState } from "react";
 
@@ -95,7 +96,13 @@ export default function AskPage() {
                     {hit.section_title}
                     {hit.sub_header ? ` › ${hit.sub_header}` : ""}
                   </p>
-                  <p style={{ margin: "0.25rem 0 0.5rem" }}>{hit.text}</p>
+                  {hit.html_snippets?.length > 0 ? (
+                    <RcpNoticeContainer
+                      dangerouslySetInnerHTML={{ __html: hit.html_snippets.join("") }}
+                    />
+                  ) : (
+                    <p style={{ margin: "0.25rem 0 0.5rem" }}>{hit.text}</p>
+                  )}
                   <a href={`/medicament/${hit.cis}`} className={fr.cx("fr-link")}>
                     Voir la fiche médicament ({hit.cis})
                   </a>
