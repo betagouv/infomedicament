@@ -6,6 +6,13 @@ import { Definition } from "@/types/GlossaireTypes";
 import { questionKeys, questionsList } from "@/data/pages/notices_anchors";
 import QuestionKeyword from "../medicaments/QuestionKeyword";
 import { QuestionAnchors } from "@/types/NoticesAnchors";
+import styled from "styled-components";
+
+const WithGlossaryContainer = styled.div`
+  div {
+    display: inline;
+  }
+`;
 
 function escapeRegExp(text: string) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -117,8 +124,19 @@ function WithGlossary({
     }
   }
 
+  //To display each elements side by side, it's better using div instead of p
+  if(elements.length > 1){
+    elements = elements.map((element) => {
+      if(typeof element === 'string') {
+        return element
+          .replaceAll("<p", "<div")
+          .replaceAll("</p>", "</div>");
+      } else return element;
+    })
+  }
+
   return (
-    <>
+    <WithGlossaryContainer>
       {elements.map((element, i) => (
         <Fragment key={i}>
           {typeof element === 'string' 
@@ -127,7 +145,7 @@ function WithGlossary({
           }
         </Fragment>
       ))}       
-    </>
+    </WithGlossaryContainer>
   );
 }
 export default WithGlossary;
