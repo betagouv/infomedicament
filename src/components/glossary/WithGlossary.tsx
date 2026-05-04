@@ -9,6 +9,7 @@ import { QuestionAnchors } from "@/types/NoticesAnchors";
 import styled from "styled-components";
 
 const WithGlossaryContainer = styled.div`
+  margin: var(--text-spacing) !important;
   div {
     display: inline;
   }
