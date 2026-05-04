@@ -5,7 +5,7 @@ import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { getPediatrics } from "@/db/utils/pediatrics";
-import { HTMLAttributes, useCallback, useEffect, useState } from "react";
+import { HTMLAttributes, Suspense, useCallback, useEffect, useState } from "react";
 import { Marr } from "@/types/MarrTypes";
 import Link from "next/link";
 import { ATC } from "@/types/ATCTypes";
@@ -239,23 +239,25 @@ function MedicamentContent({
       )}
       {isAdvanced
         ? (
-          <AdvancedContent
-            atcCode={atcCode}
-            specialite={specialite}
-            composants={composants}
-            isPrinceps={isPrinceps}
-            delivrance={delivrance}
-            isPregnancyPlanAlert={!!pregnancyPlanAlert}
-            isPregnancyMentionAlert={isPregnancyMentionAlert}
-            pediatrics={pediatrics}
-            presentations={presentations}
-            marr={marr}
-            ficheInfos={ficheInfos}
-            definitions={definitions}
-            indicationBlock={indicationBlock}
-            advancedAnchor={advancedAnchor}
-            onGoToAdvanced={onGoToAdvanced}
-          />
+          <Suspense fallback={null}>
+            <AdvancedContent
+              atcCode={atcCode}
+              specialite={specialite}
+              composants={composants}
+              isPrinceps={isPrinceps}
+              delivrance={delivrance}
+              isPregnancyPlanAlert={!!pregnancyPlanAlert}
+              isPregnancyMentionAlert={isPregnancyMentionAlert}
+              pediatrics={pediatrics}
+              presentations={presentations}
+              marr={marr}
+              ficheInfos={ficheInfos}
+              definitions={definitions}
+              indicationBlock={indicationBlock}
+              advancedAnchor={advancedAnchor}
+              onGoToAdvanced={onGoToAdvanced}
+            />
+          </Suspense>
         ) : (
           <NoticeContent
             atcList={atcList}
