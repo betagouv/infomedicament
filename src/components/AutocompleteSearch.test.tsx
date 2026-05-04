@@ -18,7 +18,7 @@ const mockSearchResults = [
     groupName: "DOLIPRANE",
     composants: "paracetamol",
     specialites: [],
-    pathosCodes: [],
+    indicationsIds: [],
     CISList: [],
     subsIds: [],
     matchReasons: [],

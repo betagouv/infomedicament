@@ -6,15 +6,16 @@ import DataList from "@/components/data/DataList";
 import { HTMLAttributes, useEffect, useState } from "react";
 import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import DataListPagination from "../data/DataListPagination";
-import { ResumeGeneric, ResumePatho, ResumeSubstance } from "@/db/types";
+import { ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 import GenericAccordion from "../GenericAccordion";
 
 interface PageListContentProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
+  description?: string;
   letters: string[];
   urlPrefix: string;
-  dataList: ResumeSubstance[] |  ResumePatho[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[];
+  dataList: ResumeSubstance[] |  ResumeIndication[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[];
   type: DataTypeEnum;
   currentLetter: string;
   isGeneric?: boolean;
@@ -22,6 +23,7 @@ interface PageListContentProps extends HTMLAttributes<HTMLDivElement> {
 
 function PageListContent({
   title,
+  description,
   letters,
   urlPrefix,
   dataList,
@@ -32,7 +34,7 @@ function PageListContent({
 
   const PAGINATION_LENGTH:number = 10;
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumePatho[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[]>([]);
+  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumeIndication[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[]>([]);
 
   useEffect(() => {
     setCurrentDataList(dataList);
@@ -41,7 +43,14 @@ function PageListContent({
   return (
     <div className={fr.cx("fr-grid-row")}>
       <div className={fr.cx("fr-col-md-8")}>
-        <h1 className={fr.cx("fr-h1", "fr-mb-8w")}>{title}</h1>
+        <h1 className={[description ? fr.cx("fr-mb-4w") : fr.cx("fr-mb-8w"), fr.cx("fr-h1")].join(" ")}>{title}</h1>
+        {description && (
+          <div
+            className={fr.cx("fr-mb-4w")}
+          >
+            {description}
+          </div>
+        )}
         {isGeneric && (
           <GenericAccordion className={fr.cx("fr-mb-4w")} />
         )}
