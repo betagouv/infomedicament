@@ -1,6 +1,5 @@
 "use client";
 
-import { Autocomplete } from "@mui/material";
 import { fr } from "@codegouvfr/react-dsfr";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import { useEffect, useState } from "react";
@@ -34,6 +33,8 @@ export function AutocompleteSearchInput({
 
   const router = useRouter();
   const [inputValue, setInputValue] = useState(initialValue ?? "");
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
 
   const { data: searchResults } = useSWR(
     inputValue ?? null,
@@ -53,41 +54,115 @@ export function AutocompleteSearchInput({
     ? searchResults.map((result) => formatSpecName(result.groupName)).filter(Boolean)
     : [];
 
+  function selectOption(value: string) {
+    setInputValue(value);
+    setIsOpen(false);
+    setActiveIndex(-1);
+    if (onSearch) {
+      onSearch(value);
+    } else {
+      trackSearchEvent(value);
+      router.push(`/rechercher?s=${value}`);
+    }
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (!isOpen && e.key === "ArrowDown") {
+      setIsOpen(true);
+      setActiveIndex(0);
+      return;
+    }
+    if (!isOpen) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.min(i + 1, options.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Enter" && activeIndex >= 0) {
+      e.preventDefault();
+      selectOption(options[activeIndex]);
+    } else if (e.key === "Escape") {
+      setIsOpen(false);
+      setActiveIndex(-1);
+    }
+  }
+
+  const listboxId = `${id}-listbox`;
+
   return (
-    <Autocomplete
-      freeSolo
-      id={id}
-      options={options}
-      filterOptions={(x) => x}
-      autoComplete
-      inputValue={inputValue}
-      onInputChange={(_, value) => {
-        setInputValue(value);
-      }}
-      onChange={(_, value, reason) => {
-        if (reason === "selectOption") {
-          if(onSearch && value){
-            onSearch(value);
-          } else {
-            value && trackSearchEvent(value);
-            router.push(`/rechercher?s=${value}`);
-          }
-        }
-      }}
-      disablePortal
-      style={{ width: "100%" }}
-      renderInput={(params) => (
-        <div ref={params.InputProps.ref}>
-          <input
-            {...params.inputProps}
-            name={name}
-            className={cx(params.InputProps.className, className)}
-            placeholder={placeholder}
-            type={type}
-          />
-        </div>
+    <div style={{ position: "relative", width: "100%" }}>
+      <input
+        id={id}
+        role="combobox"
+        aria-expanded={isOpen && options.length > 0}
+        aria-controls={listboxId}
+        aria-activedescendant={activeIndex >= 0 ? `${id}-option-${activeIndex}` : undefined}
+        aria-autocomplete="list"
+        name={name}
+        className={className}
+        placeholder={placeholder}
+        type={type}
+        value={inputValue}
+        autoComplete="off"
+        style={{ textAlign: "left" }}
+        onChange={(e) => {
+          setInputValue(e.target.value);
+          setIsOpen(true);
+          setActiveIndex(-1);
+        }}
+        onKeyDown={handleKeyDown}
+        onBlur={() => {
+          setIsOpen(false);
+          setActiveIndex(-1);
+        }}
+      />
+      {isOpen && options.length > 0 && (
+        <ul
+          id={listboxId}
+          role="listbox"
+          style={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            right: 0,
+            zIndex: 1300,
+            textAlign: "left",
+            margin: 0,
+            padding: 0,
+            listStyle: "none",
+            backgroundColor: "var(--background-default-grey, #fff)",
+            border: "1px solid var(--border-default-grey, #ccc)",
+            boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+          }}
+        >
+          {options.map((option, index) => (
+            <li
+              key={option}
+              id={`${id}-option-${index}`}
+              role="option"
+              aria-selected={index === activeIndex}
+              onMouseEnter={() => setActiveIndex(index)}
+              onMouseLeave={() => setActiveIndex(-1)}
+              onMouseDown={(e) => {
+                e.preventDefault(); // prevent input blur before selection
+                selectOption(option);
+              }}
+              style={{
+                padding: "8px 16px",
+                cursor: "pointer",
+                backgroundColor: index === activeIndex
+                  ? "var(--background-alt-blue-france, #f0f0fb)"
+                  : undefined,
+              }}
+            >
+              {option}
+            </li>
+          ))}
+        </ul>
       )}
-    />
+    </div>
   );
 }
 

@@ -83,9 +83,9 @@ function MedicamentContent({
   );
   const onGoToAdvancedAnchor = useCallback(
     (anchor?: AnchorMenu) => {
-      if(anchor){
+      if (anchor) {
         setAdvancedAnchor(anchor);
-      } 
+      }
       setIsAdvanced(true);
     },
     [setIsAdvanced, setAdvancedAnchor]
@@ -96,6 +96,7 @@ function MedicamentContent({
       spec: DetailedSpecialite
     ) => {
       try {
+
         if (!isCentralisee(spec)) {
           const newNotice = await getNotice(spec.SpecId);
           setNotice(newNotice);
@@ -110,7 +111,7 @@ function MedicamentContent({
           }
         }
         const newFicheInfos = await getFicheInfos(spec.SpecId);
-        setFicheInfos(newFicheInfos);      
+        setFicheInfos(newFicheInfos);
         const newDefinitions = (await getGlossaryDefinitions()).filter(
           (d) => d.a_souligner,
         );

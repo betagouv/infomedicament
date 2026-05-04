@@ -10,7 +10,7 @@ export interface Database {
   notices: NoticeTable;
   notices_content: NoticeContentTable;
   rating: RatingTable;
-  resume_pathologies: ResumePathosTable;
+  resume_indications: ResumeIndicationsTable;
   resume_substances: ResumeSubstancesTable;
   resume_medicaments: ResumeMedicamentsTable;
   resume_generiques: ResumeGenericsTable;
@@ -31,11 +31,21 @@ export interface Database {
   cis_atc: CisAtc;
   asmr: AsmrTable;
   smr: SmrTable;
+  triam_gtiam: TriamGtiamTable;
+  triam_classes: TriamClassesTable;
+  triam_groupe_substance: TriamGroupeSubstanceTable;
+  triam_subst_groupesubst: TriamSubstGroupesubstTable;
+  triam_classe_grp_subst: TriamClasseGrpSubstTable;
+  triam_interactions: TriamInteractionsTable;
+  interactions_search: InteractionsSearchTable;
+  classes_cliniques: ClassesCliniquesTable;
+  vu_classes_cliniques: VUClassesCliniquesTable;
+  indications: IndicationsTable;
 }
 
 interface SearchIndexTable {
   token: string;
-  match_type: "name" | "substance" | "atc" | "pathology";
+  match_type: "name" | "substance" | "atc" | "indication";
   group_name: string;
   match_label: string;
 }
@@ -105,15 +115,15 @@ interface RatingTable {
   question2?: number,
 }
 
-export type LetterType = "pathos" | "substances" | "specialites" | "generiques";
+export type LetterType = "indications" | "substances" | "specialites" | "generiques";
 interface LettersTable {
   type: LetterType;
   letters: string[];
 }
 
-interface ResumePathosTable {
-  codePatho: string;
-  NomPatho: string;
+interface ResumeIndicationsTable {
+  idIndication: number;
+  nomIndication: string;
   specialites: number;
 }
 
@@ -127,14 +137,14 @@ interface ResumeSubstancesTable {
 interface ResumeMedicamentsTable {
   groupName: string;
   composants: string;
-  specialites: string[][];//SpecId, SpecDenom01, StatutBdm, ProcId
-  pathosCodes: string[];
+  specialites: string[][];//SpecId, SpecDenom01, StatutBdm, ProcId, Surveillance Renforcée
+  indicationsIds: number[];
   atc1Code?: string;
   atc2Code?: string;
   atc5Code?: string;
   CISList: string[];
   subsIds: string[];
-  pathosCodesNames: string[][];//codePatho, NomPatho
+  indicationsIdsNames: string[][];//idIndication, nomIndication
 }
 
 interface ResumeGenericsTable {
@@ -206,9 +216,10 @@ export interface RefMarrUrlPdf {
 }
 
 export interface RefPathologies {
-  code_patho: string | null;
+  code_patho: number | null;
   definition: string | null;
   id: Generated<number>;
+  code_classe_clinique: number | null;
 }
 
 export interface RefPediatrie {
@@ -289,12 +300,110 @@ export interface CisAtc {
   code_modif: number | null;
 }
 
+interface TriamGtiamTable {
+  num_groupe: number;
+  groupe: string;
+  date_groupe: Date;
+}
+
+interface TriamClassesTable {
+  num_classe: number;
+  nom: string;
+  chapeau: string | null;
+  rem_comment: string | null;
+  dat_creation: Date | null;
+  dat_modif: Date | null;
+  dat_histo: Date | null;
+}
+
+interface TriamGroupeSubstanceTable {
+  code_groupe_subst: string;
+  code_groupe_pere: string | null;
+  nom_groupe_subst: string;
+  rem_groupe_subst: string | null;
+  date_creation: Date | null;
+  date_dern_modif: Date | null;
+}
+
+interface TriamInteractionsTable {
+  num: number;
+  code_groupe_subst1: string;
+  code_groupe_subst2: string;
+  classe: number | null;
+  classe1: number | null;
+  num_inter_clas: number | null;
+  code: string | null;
+  niveau: string | null;
+  groupe: string | null;
+  voie: number;
+  historique: boolean;
+  risque: string | null;
+  conduite: string | null;
+  commentaire: string | null;
+  livret: number | null;
+  dat_creation: Date;
+  dat_modif: Date | null;
+  dat_histo: Date | null;
+}
+
+interface TriamSubstGroupesubstTable {
+  code_groupe_subst: string;
+  subs_id: string;
+}
+
+interface TriamClasseGrpSubstTable {
+  num_classe: number;
+  code_groupe: string;
+}
+
+interface InteractionsSearchTable {
+  id: Generated<number>;
+  label: string;
+  type: "substance" | "medicament" | "class";
+  subst_ids: string[];
+  class_ids: string[];
+}
+
+interface ClassesCliniquesTable {
+  codeTerme: number,
+  libAbr?: string,
+  libCourt: string,
+  libLong: string,
+  libLongAnglais?: string,
+  libRech?: string,
+  numOrdreEdit: number,
+  dateCreationTerme: Date,
+  dateModifTerme?: Date,
+  dateInactivTerme?: Date,
+  textSourceRef?: string,
+  remTerme?: string,
+};
+
+interface VUClassesCliniquesTable {
+  codeVU: string,
+  codeClasClinique: number,
+  indicValide: number,
+  remCommentaire?: string,
+  dateCreation: Date,
+  dateDernModif?: Date,
+  codeModif?: number,
+}
+
+interface IndicationsTable {
+  id: Generated<number>,
+  codePatho?: number,
+  codeClasseClinique?: number,
+  nom: string,
+  definition?: string,
+  CIS: string[],
+}
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
 export type RCPContent = Selectable<RcpContentTable>;
 export type Rating = Selectable<RatingTable>;
-export type ResumePatho = Selectable<ResumePathosTable>;
+export type ResumeIndication = Selectable<ResumeIndicationsTable>;
 export type ResumeSubstance = Selectable<ResumeSubstancesTable>;
 export type ResumeSpecGroupDB = Selectable<ResumeMedicamentsTable>;
 export type ResumeGeneric = Selectable<ResumeGenericsTable>;
@@ -313,3 +422,11 @@ export type RefPathologies = Selectable<RefPathologies>;
 export type RefPediatrie = Selectable<RefPediatrie>;
 export type RefSubstanceActive = Selectable<RefSubstanceActive>;
 export type RefSubstanceActiveDefinitions = Selectable<RefSubstanceActiveDefinitions>;
+export type TriamGtiam = Selectable<TriamGtiamTable>;
+export type TriamClasses = Selectable<TriamClassesTable>;
+export type TriamGroupeSubstance = Selectable<TriamGroupeSubstanceTable>;
+export type TriamSubstGroupesubst = Selectable<TriamSubstGroupesubstTable>;
+export type TriamClasseGrpSubst = Selectable<TriamClasseGrpSubstTable>;
+export type TriamInteraction = Selectable<TriamInteractionsTable>;
+export type InteractionsSearchEntry = Selectable<InteractionsSearchTable>;
+export type Indication = Selectable<IndicationsTable>;

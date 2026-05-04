@@ -1,6 +1,5 @@
 "use client";
 
-import sanitizeHtml from "sanitize-html";
 import { useIsModalOpen } from "@codegouvfr/react-dsfr/Modal/useIsModalOpen";
 import React, { useContext } from "react";
 import { GlossaryContext } from "@/components/glossary/GlossaryContextProvider";
@@ -27,9 +26,7 @@ export default function DefinitionModal({
     <modal.Component title={definition.nom} topAnchor={false}>
       <div
         dangerouslySetInnerHTML={{
-          __html: sanitizeHtml(definition.definition, {
-            allowedTags: ["p", "br", "ul", "ol", "li"],
-          }),
+          __html: definition.definition,
         }}
       />
     </modal.Component>

@@ -1,6 +1,7 @@
 import { Specialite } from "@/db/pdbmMySQL/types";
 import { ResumeSpecGroupDB } from "@/db/types";
 import { PediatricsInfo } from "./PediatricTypes";
+import { ShortIndication } from "./IndicationsTypes";
 
 export type SpecialiteAlerts = {
   pediatrics?: PediatricsInfo,
@@ -22,6 +23,7 @@ export type ResumeSpecGroup = ResumeSpecGroupDB & {
   atc1Label?: string,
   atc2Label?: string,
   alerts?: SpecialiteAlerts,
+  indicationsDetails?: ShortIndication[],
 }
 
 export type DetailedSpecialite = Specialite & {

@@ -5,7 +5,7 @@ import { MatchReason } from "@/db/utils/search";
 import "./dsfr-custom-tags.css";
 
 const config: Record<string, { prefix: string; className: string }> = {
-  pathology: { prefix: "Pathologie : ", className: "fr-tag--custom-alt-blue" },
+  indication: { prefix: "Indication : ", className: "fr-tag--custom-alt-blue" },
 };
 
 export default function MatchReasonTags({ reasons }: { reasons: MatchReason[] }) {

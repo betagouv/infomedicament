@@ -5,7 +5,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { formatSpecName } from "@/displayUtils";
 import styled from 'styled-components';
 import { AdvancedATC, AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
-import { ResumeGeneric, ResumePatho, ResumeSubstance } from "@/db/types";
+import { ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
 
 const Container = styled.div`
   border: var(--border-open-blue-france) 1px solid;
@@ -34,7 +34,7 @@ const ClassTitle = styled.span`
 
 interface DataBlockGenericProps extends HTMLAttributes<HTMLDivElement> {
   type: DataTypeEnum;
-  item: ResumeSubstance | ResumePatho | AdvancedATCClass | ResumeGeneric;
+  item: ResumeSubstance | ResumeIndication | AdvancedATCClass | ResumeGeneric;
 }
 
 function DataBlockGeneric({
@@ -51,12 +51,12 @@ function DataBlockGeneric({
   useEffect(() => {
     function getLink(
       dataType: DataTypeEnum, 
-      data: ResumeSubstance | ResumePatho | AdvancedATCClass | ResumeGeneric
+      data: ResumeSubstance | ResumeIndication | AdvancedATCClass | ResumeGeneric
     ){
       if(dataType === DataTypeEnum.SUBSTANCE){
         setCurrentLink(`/substances/${(data as ResumeSubstance).NomId}`);
-      } else if(dataType === DataTypeEnum.PATHOLOGY){
-        setCurrentLink(`/pathologies/${(data as ResumePatho).codePatho}`);
+      } else if(dataType === DataTypeEnum.INDICATION){
+        setCurrentLink(`/indications/${(data as ResumeIndication).idIndication}`);
       } else if(dataType === DataTypeEnum.ATCCLASS){
         setCurrentLink(`/atc/${(data as AdvancedATCClass).class.code}`);
       } else if(dataType === DataTypeEnum.MEDICAMENT){
@@ -67,12 +67,12 @@ function DataBlockGeneric({
 
     function getFormatSpecName(
       dataType: DataTypeEnum, 
-      data: ResumeSubstance | ResumePatho | AdvancedATCClass | ResumeGeneric
+      data: ResumeSubstance | ResumeIndication | AdvancedATCClass | ResumeGeneric
     ){
       if(dataType === DataTypeEnum.SUBSTANCE){
         setCurrentFormatSpecName(formatSpecName((data as ResumeSubstance).NomLib));
-      } else if(dataType === DataTypeEnum.PATHOLOGY){
-        setCurrentFormatSpecName(formatSpecName((data as ResumePatho).NomPatho));
+      } else if(dataType === DataTypeEnum.INDICATION){
+        setCurrentFormatSpecName(formatSpecName((data as ResumeIndication).nomIndication));
       } else if(dataType === DataTypeEnum.ATCCLASS){
         setCurrentFormatSpecName(formatSpecName((data as AdvancedATCClass).class.label));
       } else if(dataType === DataTypeEnum.MEDICAMENT){
@@ -83,12 +83,12 @@ function DataBlockGeneric({
 
     function getDetails(
       dataType: DataTypeEnum, 
-      data: ResumeSubstance | ResumePatho | AdvancedATCClass | ResumeGeneric
+      data: ResumeSubstance | ResumeIndication | AdvancedATCClass | ResumeGeneric
     ){
       if(dataType === DataTypeEnum.SUBSTANCE){
         setCurrentDetails(`${(data as ResumeSubstance).specialites} ${(data as ResumeSubstance).specialites > 1 ? "médicaments" : "médicament"}`);
-      } else if(dataType === DataTypeEnum.PATHOLOGY){
-        setCurrentDetails(`${(data as ResumePatho).specialites} ${(data as ResumePatho).specialites > 1 ? "médicaments" : "médicament"}`);
+      } else if(dataType === DataTypeEnum.INDICATION){
+        setCurrentDetails(`${(data as ResumeIndication).specialites} ${(data as ResumeIndication).specialites > 1 ? "médicaments" : "médicament"}`);
       } else if(dataType === DataTypeEnum.ATCCLASS){
         setCurrentDetails(`${(data as AdvancedATCClass).class.nbSubstances} ${(data as AdvancedATCClass).class.nbSubstances > 1 ? "substances actives" : "substance active"}`);
       } else 

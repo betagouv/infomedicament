@@ -2,7 +2,7 @@
 
 import { fr } from "@codegouvfr/react-dsfr";
 import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
-import { HTMLAttributes, PropsWithChildren, ReactNode, useEffect, useState } from "react";
+import { HTMLAttributes, PropsWithChildren } from "react";
 import styled, { css } from 'styled-components';
 
 const Container = styled.div<{ 
@@ -24,7 +24,7 @@ const Container = styled.div<{
 
 interface ContentContainerProps extends HTMLAttributes<HTMLDivElement> {
   frContainer?: boolean;
-  whiteContainer?: boolean; //With white background and border
+  whiteContainer?: boolean; // White background + border
   mobileOverflowX?: boolean; //Add overflow-x: auto; on mobile mode
 }
 
@@ -33,42 +33,25 @@ function ContentContainer({
   whiteContainer,
   mobileOverflowX,
   children,
+  className,
   ...props
 }: PropsWithChildren<ContentContainerProps>) {
-  
   const { isDark } = useIsDark();
-  const [currentFrContainer, setCurrentFrContainer] = useState<boolean>(false);
-  const [currentWhiteContainer, setCurrentWhiteContainer] = useState<boolean>(false);
-  const [currentChildren, setCurrentChildren] = useState<ReactNode>();
-  const [currentClassName, setCurrentClassName] = useState<string>();
 
-  useEffect(() => {
-    if(frContainer) setCurrentFrContainer(frContainer);
-  }, [frContainer, setCurrentFrContainer]);
-  useEffect(() => {
-    if(whiteContainer) setCurrentWhiteContainer(whiteContainer);
-  }, [whiteContainer, setCurrentWhiteContainer]);
-  useEffect(() => {
-    if(children) setCurrentChildren(children);
-  }, [children, setCurrentChildren]);
-
-  useEffect(() => {
-    let className = props.className || "";
-    if(currentFrContainer){
-      className+= " "+fr.cx("fr-container", "fr-pt-1w", "fr-pb-2w");
-    }
-    setCurrentClassName(className);
-  }, [props, currentFrContainer, setCurrentClassName]);
+  const combinedClassName = [
+    frContainer ? fr.cx("fr-container", "fr-pt-1w", "fr-pb-2w") : "",
+    className ?? "",
+  ].filter(Boolean).join(" ");
 
   return (
     <Container 
       {...props} 
       $isDark={isDark} 
-      $whiteContainer={currentWhiteContainer} 
+      $whiteContainer={whiteContainer} 
       $mobileOverflowX={mobileOverflowX} 
-      className={currentClassName}
+      className={combinedClassName}
     >
-      {currentChildren}
+      {children}
     </Container>
   );
 };

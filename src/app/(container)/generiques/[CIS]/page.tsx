@@ -30,7 +30,6 @@ export default async function Page(props: {
   if (!group) notFound();
 
   const { specialite, composants } = await getSpecialite(group.SpecId);
-
   if (!specialite) notFound();
 
   const generiques: Specialite[] = await getGeneriques(CIS);
@@ -77,7 +76,7 @@ export default async function Page(props: {
         atc2={atc2}
         composants={composants}
         groupName={groupName}
-        specialite={specialite}
+        princeps={specialite}
         generiques={generiques}
       />
       <RatingToaster

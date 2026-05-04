@@ -8,13 +8,13 @@ import styled, {css} from 'styled-components';
 import Button from "@codegouvfr/react-dsfr/Button";
 import { MatchReason } from "@/db/utils/search";
 import MatchReasonTags from "../tags/MatchReasonTags";
-import { Tooltip } from "@codegouvfr/react-dsfr/Tooltip";
 import PediatricsTags from "../tags/PediatricsTags";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
-import { isAIP, isAlerteSecurite, isCommercialisee } from "@/utils/specialites";
+import DataBlockGenericIcons from "./DataBlockGenericIcons";
+import { ShortIndication } from "@/types/IndicationsTypes";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
@@ -105,7 +105,7 @@ function DataBlockAccordion({
 
   const [fullListeComposants, setFullListeComposants] = useState<string>("");
   const [listeComposants, setListeComposants] = useState<string>("");
-
+  const [listIndications, setListIndications] = useState<ShortIndication[]>([]);
 
   const [atc1Label, setAtc1Label] = useState<string | undefined>(undefined);
   const [atc2Label, setAtc2Label] = useState<string | undefined>(undefined);
@@ -126,7 +126,8 @@ function DataBlockAccordion({
     setListeComposants(item.composants.slice(0, composantsTruncLength) + (item.composants.length > composantsTruncLength ? "..." : ""));
     setAtc1Label(item.atc1Label);
     setAtc2Label(item.atc2Label);
-  }, [item, composantsTruncLength, setSpecialitesGroup, setGroupName, setSpecialites, setListeComposants, setAtc1Label, setAtc2Label]);
+    setListIndications(item.indicationsDetails ? item.indicationsDetails : []);
+  }, [item, composantsTruncLength, setSpecialitesGroup, setGroupName, setSpecialites, setListeComposants, setAtc1Label, setAtc2Label, setListIndications]);
 
   useEffect(() => {
     if(withAlert 
@@ -185,6 +186,14 @@ function DataBlockAccordion({
     };
   }, []);
 
+  function getIndicationsText(indicationsDetails: ShortIndication[]) {
+    let newListIndications: string = "";
+    indicationsDetails.forEach((indication) => {
+      newListIndications += (newListIndications !== "" ? ", " : "") + indication.nomIndication;
+    })
+    return newListIndications;
+  }
+
 
   return specialitesGroup && (
     <Container className={fr.cx("fr-mb-1w")}>
@@ -219,6 +228,14 @@ function DataBlockAccordion({
                   {listeComposants}
                 </DarkGreyText>
               </span>
+               {listIndications.length > 0 && (
+                <span className={fr.cx("fr-text--sm", "fr-ml-2w")}>
+                  <GreyText>Indication{listIndications.length > 1 && 's'}</GreyText>&nbsp;
+                  <DarkGreyText>
+                    {getIndicationsText(listIndications)}
+                  </DarkGreyText>
+                </span>
+              )}
             </RowToColumnContainer>
             {(withAlert && (pregnancyPlanAlert || pregnancyMentionAlert || pediatricsInfo)) && (
               <div>
@@ -268,49 +285,10 @@ function DataBlockAccordion({
                 >
                   {formatSpecName(specialite.SpecDenom01)}
                 </Link>
-                {isAIP(specialite) && (
-                  <Tooltip
-                    title="Ce médicament est en Autorisation d'Importation parallèle."
-                    kind="hover"
-                  >
-                    <b className={fr.cx("fr-ml-1v", "fr-text--sm")} style={{color: "#89BA12"}}>
-                      AIP
-                    </b>
-                  </Tooltip>
-                )}
-                {!isCommercialisee(specialite) && (
-                  <Tooltip
-                    title="Ce médicament n'est ou ne sera bientôt plus disponible sur le marché."
-                    kind="hover"
-                  >
-                    <i 
-                      className={fr.cx("fr-icon-close-circle-line", "fr-ml-1v")} 
-                      style={{color: "var(--text-action-high-blue-france)"}}
-                    />
-                  </Tooltip>
-                )}
-                {isAlerteSecurite(specialite) && (
-                  <Tooltip
-                    title="Alerte de sécurité sanitaire sur ce médicament, veuillez consulter la notice pour en savoir plus."
-                    kind="hover"
-                  >
-                    <i 
-                      className={fr.cx("fr-icon-alert-line", "fr-ml-1v")} 
-                      style={{color: "var(--red-marianne-main-472)"}}
-                    />
-                  </Tooltip>
-                )}
-                {specialite.isSurveillanceRenforcee && (
-                  <Tooltip
-                    title="Ce médicament fait l'objet d'une information importante ou il est sous surveillance renforcée."
-                    kind="hover"
-                  >
-                    <i 
-                      className={fr.cx("fr-icon-information-line", "fr-ml-1v")} 
-                      style={{color: "var(--warning-425-625)"}}
-                    />
-                  </Tooltip>
-                )}
+                <DataBlockGenericIcons
+                  specialite={specialite}
+                  isSurveillanceRenforcee={specialite.isSurveillanceRenforcee}
+                />
                 {(withAlert 
                   && (pregnancyPlanAlert && specialite.alerts && specialite.alerts.pregnancyPlanAlert) 
                   || (pregnancyMentionAlert && specialite.alerts && specialite.alerts.pregnancyMentionAlert)

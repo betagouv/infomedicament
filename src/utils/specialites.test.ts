@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isSurveillanceRenforcee } from "./specialites";
+import { formatIndicationsDetails, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isSurveillanceRenforcee } from "./specialites";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { SpecialiteComm, SpecialiteStat, VUEvnts } from "@/db/pdbmMySQL/types";
+import { ShortIndication } from "@/types/IndicationsTypes";
 
 const detailedSpec: DetailedSpecialite = {
   SpecId: "60035714",
@@ -133,6 +134,40 @@ describe("utils specialities", () => {
     expect(isSurveillanceRenforcee(eventsNotSurveillance)).toBe(false);
     //Not Surveillance Renforcé : not between the two dates
     expect(isSurveillanceRenforcee(eventsNotSurveillanceBis)).toBe(false);
+  });
+
+  it("formatIndicationsDetails", async () => {
+    //GroupName : ACECLOFENAC ACCORD
+    const indicationssList: string[][] = [
+      ["99", "Arthrose"],
+      ["76","Polyarthrite rhumatoïde"],
+      ["225","Inflammation"],
+      ["213","Douleur"],
+      ["236","Rhumatismes inflammatoires"]
+    ];
+    const expectedIndicationsList: ShortIndication[] = [
+      {
+        idIndication: 99,
+        nomIndication: "Arthrose",
+      },
+      {
+        idIndication: 76,
+        nomIndication: "Polyarthrite rhumatoïde",
+      },
+      {
+        idIndication: 225,
+        nomIndication: "Inflammation",
+      },
+      {
+        idIndication: 213,
+        nomIndication: "Douleur",
+      },
+      {
+        idIndication: 236,
+        nomIndication: "Rhumatismes inflammatoires",
+      },
+    ];
+    expect(formatIndicationsDetails(indicationssList)).toStrictEqual(expectedIndicationsList);
   })
 
 });

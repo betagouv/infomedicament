@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isRateLimited } from "@/utils/rate-limit";
 
-// Rate limit: 200 requests per minute per IP
-const RATE_LIMIT = 200; // TODO: we shouldn't need such a high limit
+// Rate limit: 200 req/min per IP and per container
+const RATE_LIMIT = 200;
 const RATE_WINDOW_MS = 60_000;
 
 export function proxy(req: NextRequest) {
@@ -20,6 +20,17 @@ export function proxy(req: NextRequest) {
 
     // Rate limiting
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown-ip";
+
+    if (url.pathname === "/rating") {
+        const { limited } = isRateLimited(`${ip}:rating`, 4, RATE_WINDOW_MS);
+        if (limited) {
+            return new NextResponse("Too Many Requests", {
+                status: 429,
+                headers: { "Retry-After": "60" },
+            });
+        }
+    }
+
     const { limited, remaining } = isRateLimited(ip, RATE_LIMIT, RATE_WINDOW_MS);
 
     if (limited) {
