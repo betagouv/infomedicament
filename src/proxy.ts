@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isRateLimited } from "@/utils/rate-limit";
 
-// Rate limit: 200 requests per minute per IP
-const RATE_LIMIT = 200; // TODO: we shouldn't need such a high limit
+// Rate limit: 200 req/min in production, 1000 in staging (review apps run a single container
+// so the per-container limit is not multiplied across the fleet like in production)
+const RATE_LIMIT = process.env.NEXT_PUBLIC_ENVIRONMENT === "staging" ? 1000 : 200;
 const RATE_WINDOW_MS = 60_000;
 
 export function proxy(req: NextRequest) {
