@@ -17,6 +17,7 @@ import { ATCError, getAtcCode } from "@/utils/atc";
 import MedicamentGeneriqueContainer from "@/components/medicamentsGeneriques/MedicamentGeneriqueContainer";
 import { getGeneriques, getGroupeGene } from "@/db/utils/generics";
 import { Specialite } from "@/db/pdbmMySQL/types";
+import { getEvents } from "@/db/utils/ficheInfos";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -34,6 +35,9 @@ export default async function Page(props: {
   if (!specialite) notFound();
 
   const generiques: Specialite[] = await getGeneriques(CIS);
+
+  const CISList = generiques.map((g) => g.SpecId).concat(specialite.SpecId);
+  const events = await getEvents(CISList);
 
   let atcCode;
   try {
@@ -79,6 +83,7 @@ export default async function Page(props: {
         groupName={groupName}
         princeps={specialite}
         generiques={generiques}
+        events={events}
       />
       <RatingToaster
         pageId={pageLabel}

@@ -19,7 +19,7 @@ interface RCPProps extends HTMLAttributes<HTMLDivElement> {
 
 function RcpBlock({
   specialite,
-  ...props 
+  ...props
 }: RCPProps) {
 
   const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite>();
