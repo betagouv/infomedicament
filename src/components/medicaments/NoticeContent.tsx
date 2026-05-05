@@ -7,8 +7,6 @@ import ClassTag from "../tags/ClassTag";
 import { fr } from "@codegouvfr/react-dsfr";
 import SubstanceTag from "../tags/SubstanceTag";
 import { SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
-import PrincepsTag from "../tags/PrincepsTag";
-import GenericTag from "../tags/GenericTag";
 import PrescriptionTag from "../tags/PrescriptionTag";
 import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "./notice/PresentationsList";
@@ -28,7 +26,6 @@ import PregnancyPlanTag from "../tags/PregnancyPlanTag";
 import { ATC } from "@/types/ATCTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { SearchArticlesFilters } from "@/types/SearchTypes";
-import { getSpecialitePatho } from "@/db/utils/pathologies";
 import { getArticlesFromFilters } from "@/db/utils/articles";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { isAIP, isCentralisee } from "@/utils/specialites";
@@ -40,6 +37,8 @@ import SwitchNoticeAdvancedBlock from "./blocks/SwitchNoticeAdvancedBlock";
 import MarrNotice from "../marr/MarrNotice";
 import { AnchorMenu } from "./advanced/DetailedSubMenu";
 import IndicationsBlock from "./blocks/IndicationsBlock";
+import GenericPrincepsTag from "../tags/GenericPrincepsTag";
+import { getSpecialitePathologies } from "@/db/utils/indications";
 
 const NoticeContentContainer = styled.div`
   @media (max-width: 48em) {
@@ -164,10 +163,10 @@ function NoticeContent({
           ATCList: atcList,
           substancesList: composants.map((compo) => compo.SubsId.trim()),
           specialitesList: [spec.SpecId],
-          pathologiesList: await getSpecialitePatho(spec.SpecId),
+          pathologiesList: await getSpecialitePathologies(spec.SpecId),
         };
-        const articles = await getArticlesFromFilters(articlesFilters);
-        setArticles(articles);
+        const newArticles = await getArticlesFromFilters(articlesFilters);
+        setArticles(newArticles);
       } catch (e) {
         Sentry.captureException(e);
       }
@@ -268,16 +267,18 @@ function NoticeContent({
                   {!!delivrance.length && (
                     <PrescriptionTag hideIcon/>
                   )}
-                  {(specialite && isPrinceps && !isAIP(specialite)) && 
-                    <PrincepsTag 
-                      CIS={specialite.SpecId} 
+                  {(specialite && isPrinceps && !isAIP(specialite)) && (
+                    <GenericPrincepsTag
+                      id={specialite.SpecId}
+                      type="princeps"
                       fromMedicament
                       hideIcon
                     />
-                  }
+                  )}
                   {(specialite && !!specialite.SpecGeneId && !isAIP(specialite)) && (
-                    <GenericTag 
-                      specGeneId={specialite.SpecGeneId} 
+                    <GenericPrincepsTag
+                      id={specialite.SpecGeneId}
+                      type="generic"
                       fromMedicament
                       hideIcon
                     />

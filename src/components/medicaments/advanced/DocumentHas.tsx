@@ -52,7 +52,7 @@ function getSmrAsmrFormattedAvis(date?: Date, link?: string | null) {
 interface DocumentHasProps extends HTMLAttributes<HTMLDivElement> {
   ficheInfos?: FicheInfos;
   SpecGenId?: string;
-  definitions: Definition[];
+  definitions?: Definition[];
 }
 
 function DocumentHas({ 
