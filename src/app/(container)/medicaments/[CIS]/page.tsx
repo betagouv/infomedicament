@@ -14,15 +14,17 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
-import { getAllSpecialites, getSpecialiteName } from "@/db/utils/specialities";
+import { getSpecialiteName } from "@/db/utils/specialities";
+import fs from "fs";
+import path from "path";
 import MedicamentContainer from "@/components/medicaments/MedicamentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;
 
-export async function generateStaticParams() {
-  const specialites = await getAllSpecialites();
-  return specialites.map((s) => ({ CIS: s.SpecId }));
+export function generateStaticParams() {
+  const file = fs.readFileSync(path.join(process.cwd(), "scripts/seed_cis_codes.txt"), "utf-8");
+  return file.trim().split("\n").map((CIS) => ({ CIS: CIS.trim() }));
 }
 
 export async function generateMetadata(

@@ -5,16 +5,12 @@ import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { getAllSubstanceIds, getSubstances } from "@/db/utils/substances";
+import { getSubstances } from "@/db/utils/substances";
 import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinitionContent";
 
 export const dynamic = "error";
 export const dynamicParams = true;
 
-export async function generateStaticParams() {
-  const ids = await getAllSubstanceIds();
-  return ids.map((id) => ({ id }));
-}
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;

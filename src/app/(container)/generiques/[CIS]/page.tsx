@@ -15,16 +15,12 @@ import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
 import { ATCError, getAtcCode } from "@/utils/atc";
 import MedicamentGeneriqueContainer from "@/components/medicamentsGeneriques/MedicamentGeneriqueContainer";
-import { getAllGroupeGeneCIS, getGeneriques, getGroupeGene } from "@/db/utils/generics";
+import { getGeneriques, getGroupeGene } from "@/db/utils/generics";
 import { Specialite } from "@/db/pdbmMySQL/types";
 
 export const dynamic = "error";
 export const dynamicParams = true;
 
-export async function generateStaticParams() {
-  const cisCodes = await getAllGroupeGeneCIS();
-  return cisCodes.map((CIS) => ({ CIS }));
-}
 
 export default async function Page(props: {
   params: Promise<{ CIS: string }>;

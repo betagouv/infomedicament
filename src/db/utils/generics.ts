@@ -20,15 +20,6 @@ export const getGenericsResumeWithLetter = cache(async function(letter: string):
   return result;
 });
 
-export async function getAllGroupeGeneCIS(): Promise<string[]> {
-  const rows = await pdbmMySQL
-    .selectFrom("GroupeGene")
-    .select("SpecId")
-    .distinct()
-    .execute();
-  return rows.map((r) => r.SpecId);
-}
-
 export async function getGroupeGene(CIS: string) {
   return pdbmMySQL
     .selectFrom("GroupeGene")
