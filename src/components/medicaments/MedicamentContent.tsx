@@ -129,8 +129,8 @@ function MedicamentContent({
   ...props
 }: MedicamentContentProps) {
 
-  const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite>();
-  const [currentPresentations, setCurrentPresentations] = useState<Presentation[]>([]);
+  const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite | undefined>(specialite);
+  const [currentPresentations, setCurrentPresentations] = useState<Presentation[]>(presentations);
 
   const [notice, setNotice] = useState<NoticeData>();
   const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock>();
@@ -247,15 +247,9 @@ function MedicamentContent({
 
   useEffect(() => {
     if (specialite && composants) {
-      setCurrentSpec(specialite);
       loadData(specialite, composants);
     }
-  }, [specialite, composants, setCurrentSpec, loadData]);
-
-  useEffect(() => {
-    if (presentations)
-      setCurrentPresentations(presentations);
-  }, [presentations, setCurrentPresentations]);
+  }, [specialite, composants, loadData]);
 
   useEffect(() => {
     const handler = () => {

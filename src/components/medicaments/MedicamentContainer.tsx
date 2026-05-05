@@ -42,7 +42,7 @@ function MedicamentContainer({
   ...props
 }: MedicamentContainerProps) {
 
-  const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite>();
+  const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite | undefined>(specialite);
 
   const [pregnancyPlanAlert, setIsPregnancyPlanAlert] = useState<PregnancyAlert>();
   const [isPregnancyMentionAlert, setIsPregnancyMentionAlert] = useState<boolean>(false);
@@ -91,10 +91,9 @@ function MedicamentContainer({
 
   useEffect(() => {
     if (specialite) {
-      setCurrentSpec(specialite);
       loadSpecData(specialite.SpecId);
     }
-  }, [specialite, setCurrentSpec, loadSpecData]);
+  }, [specialite, loadSpecData]);
 
   return (
     <ContentContainer frContainer>
