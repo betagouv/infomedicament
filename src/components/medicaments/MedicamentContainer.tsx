@@ -1,5 +1,3 @@
-"use client";
-
 import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
