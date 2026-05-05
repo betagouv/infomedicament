@@ -1,5 +1,6 @@
 import { fr } from "@codegouvfr/react-dsfr";
-import { getAtc1, getAtc2 } from "@/db/utils/atc";
+import { getAtc, getAtc1, getAtc2 } from "@/db/utils/atc";
+import { ATC } from "@/types/ATCTypes";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
 import React from "react";
@@ -11,6 +12,14 @@ import { ATCError } from "@/utils/atc";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const atcTree = await getAtc();
+  return atcTree.flatMap((atc1) => [
+    { code: atc1.code },
+    ...(atc1.children as ATC[]).map((atc2) => ({ code: atc2.code })),
+  ]);
+}
 
 export default async function Page(props: {
   params: Promise<{ code: string }>;

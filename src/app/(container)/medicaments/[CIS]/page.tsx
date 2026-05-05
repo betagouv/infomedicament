@@ -14,11 +14,16 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
-import { getSpecialiteName } from "@/db/utils/specialities";
+import { getAllSpecialites, getSpecialiteName } from "@/db/utils/specialities";
 import MedicamentContainer from "@/components/medicaments/MedicamentContainer";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const specialites = await getAllSpecialites();
+  return specialites.map((s) => ({ CIS: s.SpecId }));
+}
 
 export async function generateMetadata(
   props: { params: Promise<{ CIS: string }> },

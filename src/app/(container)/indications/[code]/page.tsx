@@ -3,12 +3,17 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { getIndications } from "@/db/utils/indications";
+import { getAllIndications, getIndications } from "@/db/utils/indications";
 import IndicationDefinitionContent from "@/components/definition/IndicationDefinitionContent";
 import { Indication } from "@/db/types";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const indications = await getAllIndications();
+  return indications.map((i) => ({ code: String(i.id) }));
+}
 
 export default async function Page(props: {
   params: Promise<{ code: `${number}` }>;

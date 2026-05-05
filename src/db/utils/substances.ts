@@ -21,6 +21,15 @@ export const getSubstances = cache(async function (
     .execute();
 });
 
+export async function getAllSubstanceIds(): Promise<string[]> {
+  const rows = await pdbmMySQL
+    .selectFrom("Subs_Nom")
+    .select("NomId")
+    .distinct()
+    .execute();
+  return rows.map((r) => r.NomId);
+}
+
 export const getAllSubsWithSpecialites = cache(async function () {
   return await pdbmMySQL
     .selectFrom("Subs_Nom")
