@@ -6,14 +6,12 @@ import { AutocompleteSearchInput } from "@/components/AutocompleteSearch";
 import { useRouter } from "next/navigation";
 import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 import { useTracking } from "@/services/tracking";
-import { ATC1 } from "@/types/ATCTypes";
-
 export default function ClientHeader({
   atcs,
   hasSearch = true,
   searchInitial = "",
 }: {
-  atcs: ATC1[];
+  atcs: { code: string; label: string }[];
   hasSearch?: boolean;
   searchInitial?: string;
 }) {
