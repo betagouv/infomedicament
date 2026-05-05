@@ -1,6 +1,5 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
 import ContentContainer from "../generic/ContentContainer";
 import { ToggleSwitch } from "@codegouvfr/react-dsfr/ToggleSwitch";
 import TagContainer from "../tags/TagContainer";
@@ -37,11 +36,6 @@ import PregnancyMentionTag from "../tags/PregnancyMentionTag";
 import PregnancyPlanTag from "../tags/PregnancyPlanTag";
 import { ATC } from "@/types/ATCTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
-import { getNotice } from "@/db/utils/notice";
-import { SearchArticlesFilters } from "@/types/SearchTypes";
-import { getSpecialitePathologies } from "@/db/utils/indications";
-import { getArticlesFromFilters } from "@/db/utils/articles";
-import { getFicheInfos } from "@/db/utils/ficheInfos";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { formatSpecName } from "@/displayUtils";
 import { isAIP, isCentralisee } from "@/utils/specialites";
@@ -50,7 +44,6 @@ import { trackEvent } from "@/services/tracking";
 import MedicamentContentHeader from "./MedicamentContentHeader";
 import { FicheInfos } from "@/types/FicheInfoTypes";
 import { Definition } from "@/types/GlossaireTypes";
-import getGlossaryDefinitions from "@/db/utils/glossary";
 
 const ToggleSwitchContainer = styled.div`
   background-color: var(--background-contrast-info);
@@ -111,6 +104,10 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   pediatrics: PediatricsInfo | undefined;
   presentations: Presentation[];
   marr?: Marr;
+  initialNotice?: NoticeData;
+  initialArticles: ArticleCardResume[];
+  initialFicheInfos?: FicheInfos;
+  initialDefinitions: Definition[];
 }
 
 function MedicamentContent({
@@ -126,19 +123,26 @@ function MedicamentContent({
   pediatrics,
   presentations,
   marr,
+  initialNotice,
+  initialArticles,
+  initialFicheInfos,
+  initialDefinitions,
   ...props
 }: MedicamentContentProps) {
 
   const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite | undefined>(specialite);
   const [currentPresentations, setCurrentPresentations] = useState<Presentation[]>(presentations);
 
-  const [notice, setNotice] = useState<NoticeData>();
-  const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock>();
-  const [ficheInfos, setFicheInfos] = useState<FicheInfos>();
-  const [articles, setArticles] = useState<ArticleCardResume[]>([]);
-  const [definitions, setDefinitions] = useState<Definition[]>([]);
-  const [currentMarr, setCurrentMarr] = useState<Marr>();
-  const [loaded, setLoaded] = useState<boolean>(false);
+  const [notice, setNotice] = useState<NoticeData | undefined>(initialNotice);
+  const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock | undefined>(
+    initialNotice?.children?.find((child) => child.anchor === "Ann3bQuestceque")
+  );
+  const [ficheInfos, setFicheInfos] = useState<FicheInfos | undefined>(initialFicheInfos);
+  const [articles, setArticles] = useState<ArticleCardResume[]>(initialArticles);
+  const [definitions, setDefinitions] = useState<Definition[]>(initialDefinitions);
+  const [currentMarr, setCurrentMarr] = useState<Marr | undefined>(
+    marr ? { CIS: marr.CIS, ansmUrl: marr.ansmUrl, pdf: marr.pdf.filter((l) => l.type === "Patients") } : undefined
+  );
 
   const [currentPart, setcurrentPart] = useState<DetailsNoticePartsEnum>(DetailsNoticePartsEnum.INFORMATIONS_GENERALES);
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
@@ -203,53 +207,6 @@ function MedicamentContent({
       setCurrentQuestion("");
     }
   };
-  const loadData = useCallback(
-    async (
-      spec: DetailedSpecialite,
-      composants: Array<SpecComposant & SubstanceNom>
-    ) => {
-      try {
-        const articlesFilters: SearchArticlesFilters = {
-          ATCList: atcList,
-          substancesList: composants.map((compo) => compo.SubsId.trim()),
-          specialitesList: [spec.SpecId],
-          pathologiesList: await getSpecialitePathologies(spec.SpecId),
-        };
-        const articles = await getArticlesFromFilters(articlesFilters);
-        setArticles(articles);
-
-        if (!isCentralisee(spec)) {
-          const newNotice = await getNotice(spec.SpecId);
-          setNotice(newNotice);
-          if (newNotice) {
-            if (newNotice.children) {
-              newNotice.children.forEach((child: NoticeRCPContentBlock) => {
-                if (child.anchor === "Ann3bQuestceque") {
-                  setIndicationBlock(child);
-                }
-              })
-            }
-          }
-        }
-        const newFicheInfos = await getFicheInfos(spec.SpecId);
-        setFicheInfos(newFicheInfos);
-        const newDefinitions = (await getGlossaryDefinitions()).filter(
-          (d) => d.a_souligner,
-        );
-        setDefinitions(newDefinitions);
-        setLoaded(true);
-      } catch (e) {
-        Sentry.captureException(e);
-      }
-    },
-    [atcList, setArticles, setNotice, setIndicationBlock, setFicheInfos, setLoaded, setDefinitions]
-  );
-
-  useEffect(() => {
-    if (specialite && composants) {
-      loadData(specialite, composants);
-    }
-  }, [specialite, composants, loadData]);
 
   useEffect(() => {
     const handler = () => {
@@ -477,38 +434,34 @@ function MedicamentContent({
                         )}
                       </ContentContainer>
                     </NoticeTitle>
-                    {loaded && (
+                    {(currentSpec && (notice || isCentralisee(currentSpec))) ? (
                       <>
-                        {(currentSpec && (notice || isCentralisee(currentSpec))) ? (
+                        {(notice && notice.children && notice.children.length > 0) && (
                           <>
-                            {(notice && notice.children && notice.children.length > 0) && (
-                              <>
-                                <ContentContainer className={fr.cx("fr-hidden", "fr-unhidden-md")}>
-                                  <QuestionsBox
-                                    currentQuestion={currentQuestion}
-                                    updateCurrentQuestion={updateCurrentQuestion}
-                                  />
-                                </ContentContainer>
-                                {showKeywordsBox && currentQuestion && (
-                                  <QuestionKeywordsBox
-                                    className={fr.cx("fr-hidden", "fr-unhidden-md")}
-                                    onClose={() => onCloseQuestionKeywordsBox()}
-                                    questionID={currentQuestion}
-                                  />
-                                )}
-                              </>
+                            <ContentContainer className={fr.cx("fr-hidden", "fr-unhidden-md")}>
+                              <QuestionsBox
+                                currentQuestion={currentQuestion}
+                                updateCurrentQuestion={updateCurrentQuestion}
+                              />
+                            </ContentContainer>
+                            {showKeywordsBox && currentQuestion && (
+                              <QuestionKeywordsBox
+                                className={fr.cx("fr-hidden", "fr-unhidden-md")}
+                                onClose={() => onCloseQuestionKeywordsBox()}
+                                questionID={currentQuestion}
+                              />
                             )}
-                            <NoticeBlock
-                              notice={notice}
-                              specialite={currentSpec}
-                              definitions={definitions}
-                            />
                           </>
-                        ) :
-                          (<span>La notice n&rsquo;est pas disponible pour ce médicament.</span>)
-                        }
+                        )}
+                        <NoticeBlock
+                          notice={notice}
+                          specialite={currentSpec}
+                          definitions={definitions}
+                        />
                       </>
-                    )}
+                    ) :
+                      (<span>La notice n&rsquo;est pas disponible pour ce médicament.</span>)
+                    }
                   </NoticeContainer>
                 </ContentContainer>
               </article>

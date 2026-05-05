@@ -1,23 +1,21 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
 import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
-import { getPediatrics } from "@/db/utils/pediatrics";
-import { HTMLAttributes, useCallback, useEffect, useState } from "react";
+import { HTMLAttributes } from "react";
 import { Marr } from "@/types/MarrTypes";
 import Link from "next/link";
 import { ATC } from "@/types/ATCTypes";
 import Alert from "@codegouvfr/react-dsfr/Alert";
-import { getPregnancyMentionAlert, getAllPregnancyPlanAlerts } from "@/db/utils/pregnancy";
 import MedicamentContent from "./MedicamentContent";
-import { getMarr } from "@/db/utils/marr";
-import { DetailedSpecialite } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, NoticeData } from "@/types/SpecialiteTypes";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
-
+import { ArticleCardResume } from "@/types/ArticlesTypes";
+import { FicheInfos } from "@/types/FicheInfoTypes";
+import { Definition } from "@/types/GlossaireTypes";
 
 interface MedicamentContainerProps extends HTMLAttributes<HTMLDivElement> {
   atcList: string[];
@@ -28,6 +26,14 @@ interface MedicamentContainerProps extends HTMLAttributes<HTMLDivElement> {
   isPrinceps: boolean;
   delivrance: SpecDelivrance[];
   presentations: Presentation[];
+  initialNotice?: NoticeData;
+  pregnancyPlanAlert?: PregnancyAlert;
+  isPregnancyMentionAlert: boolean;
+  pediatrics?: PediatricsInfo;
+  marr?: Marr;
+  articles: ArticleCardResume[];
+  ficheInfos?: FicheInfos;
+  definitions: Definition[];
 }
 
 function MedicamentContainer({
@@ -39,62 +45,16 @@ function MedicamentContainer({
   isPrinceps,
   delivrance,
   presentations,
+  initialNotice,
+  pregnancyPlanAlert,
+  isPregnancyMentionAlert,
+  pediatrics,
+  marr,
+  articles,
+  ficheInfos,
+  definitions,
   ...props
 }: MedicamentContainerProps) {
-
-  const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite | undefined>(specialite);
-
-  const [pregnancyPlanAlert, setIsPregnancyPlanAlert] = useState<PregnancyAlert>();
-  const [isPregnancyMentionAlert, setIsPregnancyMentionAlert] = useState<boolean>(false);
-  const [pediatrics, setPediatrics] = useState<PediatricsInfo | undefined>(undefined);
-  const [marr, setMarr] = useState<Marr>();
-
-  const loadSpecData = useCallback(
-    async (
-      CIS: string
-    ) => {
-      try {
-        const pregnancyMentionAlert = await getPregnancyMentionAlert(CIS);
-        setIsPregnancyMentionAlert(pregnancyMentionAlert);
-        const pediatrics = await getPediatrics(CIS);
-        setPediatrics(pediatrics);
-
-        const marr: Marr = await getMarr(CIS);
-        setMarr(marr);
-      } catch (e) {
-        Sentry.captureException(e);
-      }
-    },
-    [setIsPregnancyMentionAlert, setPediatrics, setMarr]
-  );
-
-  const loadPregnancyPlanAlert = useCallback(
-    async (
-      composants: Array<SpecComposant & SubstanceNom>
-    ) => {
-      try {
-        const pregnancyPlanAlert = (await getAllPregnancyPlanAlerts()).find((s) =>
-          composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
-        );
-        setIsPregnancyPlanAlert(pregnancyPlanAlert);
-      } catch (e) {
-        Sentry.captureException(e);
-      }
-    }, [setIsPregnancyPlanAlert,]
-  );
-
-  useEffect(() => {
-    if (composants) {
-      loadPregnancyPlanAlert(composants);
-    }
-  }, [composants, loadPregnancyPlanAlert]);
-
-  useEffect(() => {
-    if (specialite) {
-      loadSpecData(specialite.SpecId);
-    }
-  }, [specialite, loadSpecData]);
-
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>
@@ -111,7 +71,7 @@ function MedicamentContainer({
                   description={
                     <p>
                       Ce médicament est concerné par un{" "}
-                      <Link 
+                      <Link
                         href="https://ansm.sante.fr/dossiers-thematiques/medicaments-et-grossesse/les-programmes-de-prevention-des-grossesses"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -121,12 +81,12 @@ function MedicamentContainer({
                       Il peut présenter des risques pour le fœtus (malformations, effets toxiques).<br />
                       Lisez attentivement la notice et parlez-en à un professionnel de santé avant toute utilisation.
                       <br />
-                      <Link 
+                      <Link
                         href={pregnancyPlanAlert.link}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        En savoir plus sur le site de l’ANSM
+                        En savoir plus sur le site de l'ANSM
                       </Link>
                     </p>
                   }
@@ -143,8 +103,8 @@ function MedicamentContainer({
                   title={"Mention contre-indication grossesse"}
                   description={
                     <p>
-                      Ce médicament peut présenter des précautions d’usage pendant la grossesse ou l’allaitement. Il peut être autorisé, déconseillé ou contre-indiqué selon les cas.<br />
-                      Lisez la notice et demandez l’avis d’un professionnel de santé avant toute prise.
+                      Ce médicament peut présenter des précautions d'usage pendant la grossesse ou l'allaitement. Il peut être autorisé, déconseillé ou contre-indiqué selon les cas.<br />
+                      Lisez la notice et demandez l'avis d'un professionnel de santé avant toute prise.
                     </p>
                   }
                 />
@@ -155,7 +115,7 @@ function MedicamentContainer({
                 <Alert
                   severity={"warning"}
                   title={
-                    "Il existe une contre-indication pédiatrique (vérifier selon l’âge)."
+                    "Il existe une contre-indication pédiatrique (vérifier selon l'âge)."
                   }
                 />
               </ContentContainer>
@@ -166,7 +126,7 @@ function MedicamentContainer({
           atcList={atcList}
           atc2={atc2}
           atcCode={atcCode}
-          specialite={currentSpec}
+          specialite={specialite}
           composants={composants}
           isPrinceps={isPrinceps}
           delivrance={delivrance}
@@ -175,6 +135,10 @@ function MedicamentContainer({
           pediatrics={pediatrics}
           presentations={presentations}
           marr={marr}
+          initialNotice={initialNotice}
+          initialArticles={articles}
+          initialFicheInfos={ficheInfos}
+          initialDefinitions={definitions}
         />
       </div>
     </ContentContainer>

@@ -16,6 +16,14 @@ import { getSpecialiteGroupName } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
 import { getSpecialiteName } from "@/db/utils/specialities";
 import MedicamentContainer from "@/components/medicaments/MedicamentContainer";
+import { getNotice } from "@/db/utils/notice";
+import { getPregnancyMentionAlert, getAllPregnancyPlanAlerts } from "@/db/utils/pregnancy";
+import { getPediatrics } from "@/db/utils/pediatrics";
+import { getMarr } from "@/db/utils/marr";
+import { getSpecialitePathologies } from "@/db/utils/indications";
+import { getArticlesFromFilters } from "@/db/utils/articles";
+import { getFicheInfos } from "@/db/utils/ficheInfos";
+import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -59,16 +67,48 @@ export default async function Page(props: {
       .where("GroupeGene.SpecId", "=", CIS)
       .executeTakeFirst());
 
-  const atcList = [];
+  const atcList: string[] = [];
+  if (atc1) atcList.push(atc1.code.trim());
+  if (atc2) atcList.push(atc2.code.trim());
+
+  const [
+    notice,
+    pregnancyMentionAlert,
+    pediatrics,
+    marr,
+    allPregnancyPlanAlerts,
+    specialitePathologies,
+    ficheInfos,
+    definitions,
+  ] = await Promise.all([
+    getNotice(CIS),
+    getPregnancyMentionAlert(CIS),
+    getPediatrics(CIS),
+    getMarr(CIS),
+    getAllPregnancyPlanAlerts(),
+    getSpecialitePathologies(CIS),
+    getFicheInfos(CIS),
+    getHighlightedGlossaryDefinitions(),
+  ]);
+
+  const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
+    composants.some((c) => Number(c.SubsId.trim()) === Number(s.id))
+  );
+
+  const articles = await getArticlesFromFilters({
+    ATCList: atcList,
+    substancesList: composants.map((c) => c.SubsId.trim()),
+    specialitesList: [CIS],
+    pathologiesList: specialitePathologies,
+  });
+
   const breadcrumb = [
     { label: "Accueil", linkProps: { href: "/" } },
   ];
   if (atc1) {
-    atcList.push(atc1.code.trim());
     breadcrumb.push({ label: atc1.label, linkProps: { href: `/atc/${atc1.code}` } });
   }
   if (atc2) {
-    atcList.push(atc2.code.trim());
     breadcrumb.push({ label: atc2.label, linkProps: { href: `/atc/${atc2.code}` } });
   }
 
@@ -129,6 +169,14 @@ export default async function Page(props: {
             delivrance={delivrance}
             presentations={presentations}
             isPrinceps={isPrinceps}
+            initialNotice={notice}
+            pregnancyPlanAlert={pregnancyPlanAlert}
+            isPregnancyMentionAlert={pregnancyMentionAlert}
+            pediatrics={pediatrics}
+            marr={marr}
+            articles={articles}
+            ficheInfos={ficheInfos}
+            definitions={definitions}
           />
         )}
       </ContentContainer>
