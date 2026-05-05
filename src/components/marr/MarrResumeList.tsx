@@ -12,6 +12,9 @@ const MarrContainer = styled.div`
     width: 100%;
     overflow-x: auto;
   }
+  > div:last-child {
+    margin-right: 0px;
+  }
 `;
 
 const MarrBlockContainer = styled.div<{ $isDark: boolean; $inLine?: boolean; }>`
@@ -45,11 +48,13 @@ const BadgeContainer = styled.div`
 interface MarrResumeListProps extends HTMLAttributes<HTMLDivElement> {
   marr: Marr;
   inLine?: boolean;
+  hiddenTag?: boolean;
 }
 
 function MarrResumeList({
   marr,
   inLine,
+  hiddenTag,
 }: MarrResumeListProps) {
 
   const { isDark } = useIsDark();
@@ -68,14 +73,16 @@ function MarrResumeList({
               >
                 {marr.filename}
               </Link>
-              <BadgeContainer>
-                <Badge 
-                  className={fr.cx("fr-badge--purple-glycine")}
-                  noIcon={true}
-                >
-                  {marr.type}
-                </Badge>
-              </BadgeContainer>
+              {!hiddenTag && (
+                <BadgeContainer>
+                  <Badge 
+                    className={fr.cx("fr-badge--purple-glycine")}
+                    noIcon={true}
+                  >
+                    {marr.type}
+                  </Badge>
+                </BadgeContainer>
+              )}
             </MarrBlockContainer>
           );
         })}

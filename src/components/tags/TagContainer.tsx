@@ -19,6 +19,7 @@ const ContentContainer = styled.div<{ $inLine?: boolean; }>`
     display: inline-flex;
     align-items: center;
     column-gap: 0.5rem;
+    flex-wrap: wrap;
   `}
 `;
 

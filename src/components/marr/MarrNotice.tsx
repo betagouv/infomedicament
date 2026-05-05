@@ -12,7 +12,6 @@ import styled from "styled-components";
 const MarrTitle = styled.h2`
   margin-bottom: 0.5rem;
   @media (max-width: 48em) {
-    font-size: 1.5rem !important;
     margin-bottom: 1rem;
   }
 `;
@@ -20,11 +19,13 @@ const MarrTitle = styled.h2`
 interface MarrNoticeProps extends HTMLAttributes<HTMLDivElement> {
   marr: Marr;
   onGoToAdvanced: (anchor: AnchorMenu) => void;
+  hiddenTag?: boolean;
 }
 
 function MarrNotice({
   marr,
   onGoToAdvanced,
+  hiddenTag,
 }: MarrNoticeProps) {
 
   return (
@@ -37,7 +38,10 @@ function MarrNotice({
           Mesures additionnelles de réduction du risque (MARR)<br/>
           Consultez les documents ci-dessous pour bien utiliser ce médicament&nbsp;:
         </div>
-        <MarrResumeList marr={marr} />
+        <MarrResumeList 
+          marr={marr}
+          hiddenTag={hiddenTag}
+        />
         <div>
           <Link 
             className={fr.cx("fr-icon-arrow-right-line", "fr-link--icon-left", "fr-text--sm")} 

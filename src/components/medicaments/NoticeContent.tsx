@@ -39,16 +39,19 @@ import { AnchorMenu } from "./advanced/DetailedSubMenu";
 import IndicationsBlock from "./blocks/IndicationsBlock";
 import GenericPrincepsTag from "../tags/GenericPrincepsTag";
 import { getSpecialitePathologies } from "@/db/utils/indications";
+import ShareButtons from "../generic/ShareButtons";
 
 const NoticeContentContainer = styled.div`
   @media (max-width: 48em) {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column-reverse;
     margin-top: 0rem;
     .fr-mb-4w{
       margin-bottom: 1rem !important;
     }
+  }
+  @media (min-width: 48em) {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row-reverse;
   }
 `;
 
@@ -60,9 +63,8 @@ const NoticeContainer = styled.div`
 `;
 
 const DetailsContentContainer = styled.div`
-  @media (max-width: 48em) {
-    display: flex;
-    flex-direction: column;
+  width: 100%;
+  > div {
     width: 100%;
   }
 `;
@@ -90,6 +92,7 @@ interface NoticeContentProps extends HTMLAttributes<HTMLDivElement> {
   ficheInfos?: FicheInfos;
   definitions?: Definition[];
   indicationBlock?: NoticeRCPContentBlock;
+  title: string;
   onGoToAdvanced: (advanced: boolean) => void;
   onGoToAdvancedAnchor: (anchor?: AnchorMenu) => void;
 }
@@ -110,6 +113,7 @@ function NoticeContent({
   ficheInfos,
   definitions,
   indicationBlock,
+  title,
   onGoToAdvanced,
   onGoToAdvancedAnchor,
   ...props
@@ -118,7 +122,7 @@ function NoticeContent({
   const [articles, setArticles] = useState<ArticleCardResume[]>([]);
   const [currentMarr, setCurrentMarr] = useState<Marr>();
 
-  const [currentQuestion, setCurrentQuestion] = useState<string>();
+  const [currentQuestion, setCurrentQuestion] = useState<string>("");
   const [showKeywordsBox, setShowKeywordsBox] = useState<boolean>(false);
 
   useEffect(() => {
@@ -182,59 +186,21 @@ function NoticeContent({
 
   return (
     <NoticeContentContainer {...props} className={["mobile-display-contents", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ")}>
-      <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-8", "fr-col-md-9")].join(" ")}>
-        <MedicamentContentHeaderBlock
-          specialite={specialite}
-          ficheInfos={ficheInfos}
-          definitions={definitions}
-          className={fr.cx("fr-hidden", "fr-unhidden-md")}
-        />
-        <ContentContainer whiteContainer className={fr.cx("fr-mb-4w")}>
-          <NoticeContainer>
-            <div className={fr.cx("fr-mb-4w")}>
-              <div style={{ display: "flex" }}>
-                <span className={["fr-icon--custom-notice", fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md")].join(" ")} />
-                <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice complète</h2>
-              </div>
-              <ContentContainer>
-                {(notice && notice.dateNotif) && (
-                  <Badge severity={"info"}>{notice.dateNotif}</Badge>
-                )}
-              </ContentContainer>
-            </div>
-            {(specialite && (notice || isCentralisee(specialite))) ? (
-              <>
-                {(notice && notice.children && notice.children.length > 0) && (
-                  <>
-                    <ContentContainer className={fr.cx("fr-hidden", "fr-unhidden-md")}>
-                      <QuestionsBox
-                        currentQuestion={currentQuestion}
-                        updateCurrentQuestion={updateCurrentQuestion}
-                      />
-                    </ContentContainer>
-                    {showKeywordsBox && currentQuestion && (
-                      <QuestionKeywordsBox
-                        className={fr.cx("fr-hidden", "fr-unhidden-md")}
-                        onClose={() => onCloseQuestionKeywordsBox()}
-                        questionID={currentQuestion}
-                      />
-                    )}
-                  </>
-                )}
-                <NoticeBlock
-                  notice={notice}
-                  specialite={specialite}
-                  definitions={definitions}
-                />
-              </>
-            ) :
-              (<span>La notice n&rsquo;est pas disponible pour ce médicament.</span>)
-            }
-          </NoticeContainer>
-        </ContentContainer>
-      </ContentContainer>
-      <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-4", "fr-col-md-3")].join(" ")}>
-        <DetailsContentContainer className={fr.cx("fr-mb-4w")}>
+      <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-md-5")].join(" ")}>
+        <DetailsContentContainer className={["mobile-display-contents", fr.cx("fr-mb-2w")].join(" ")}>
+          <ContentContainer whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w", "fr-hidden", "fr-unhidden-md")}>
+            <h1 className={fr.cx("fr-h2")}>
+              {title}
+            </h1>
+            <ShareButtons
+              pageName={title}
+              alignRight
+            />
+            <SwitchNoticeAdvancedBlock
+              isAdvanced={false}
+              onGoToAdvanced={onGoToAdvanced}
+            />
+          </ContentContainer>
           <MedicamentContentHeaderBlock
             specialite={specialite}
             ficheInfos={ficheInfos}
@@ -244,26 +210,41 @@ function NoticeContent({
           <SwitchNoticeAdvancedBlock
             isAdvanced={false}
             onGoToAdvanced={onGoToAdvanced}
-            className={fr.cx("fr-hidden-md", "fr-mb-4w")}
+            className={fr.cx("fr-mb-2w", "fr-hidden-md")}
           />
           <IndicationsBlock
             specialite={specialite}
             indicationBlock={indicationBlock}
-            className={fr.cx("fr-hidden-md")}
+            title="À quoi sert-il ?"
+            resizable
           />
-          <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-            {atc2 && (
-              <TagContainer 
-                hideSeparator={specialite && !isAIP(specialite) && (isPrinceps || !!specialite.SpecGeneId)}
-                className={fr.cx("fr-mb-1w")}
-              >
-                <ClassTag atc2={atc2} fromMedicament/>
-              </TagContainer>
-            )}
-            {((specialite && !isAIP(specialite) && (isPrinceps || !!specialite.SpecGeneId)) 
+          {(notice && notice.children) && (
+            <ContentContainer 
+              whiteContainer 
+              className={fr.cx("fr-mb-2w", "fr-pt-1w", "fr-px-1w", "fr-hidden-md")}
+              mobileOverflowX
+            >
+              <QuestionsBox 
+                currentQuestion={currentQuestion}
+                updateCurrentQuestion={updateCurrentQuestion}
+              />
+            </ContentContainer>
+          )}
+          {showKeywordsBox && currentQuestion && (
+            <QuestionKeywordsBox
+              className={fr.cx("fr-hidden-md", "fr-mb-2w", "fr-px-1w")}
+              onClose={() => onCloseQuestionKeywordsBox()}
+              questionID={currentQuestion}/>
+          )}
+          <ContentContainer whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
+            {(atc2 || 
+              (specialite && !isAIP(specialite) && (isPrinceps || !!specialite.SpecGeneId)) 
               || !!delivrance.length) && (
               <TagContainer>
                 <DetailsContainer>
+                  {atc2 && (
+                    <ClassTag atc2={atc2} fromMedicament/>
+                  )}
                   {!!delivrance.length && (
                     <PrescriptionTag hideIcon/>
                   )}
@@ -273,6 +254,7 @@ function NoticeContent({
                       type="princeps"
                       fromMedicament
                       hideIcon
+                      noLink
                     />
                   )}
                   {(specialite && !!specialite.SpecGeneId && !isAIP(specialite)) && (
@@ -281,49 +263,26 @@ function NoticeContent({
                       type="generic"
                       fromMedicament
                       hideIcon
+                      noLink
                     />
                   )}
                 </DetailsContainer>
+                
               </TagContainer>
             )}
             {composants && (
               <TagContainer 
                 category="Substance active" 
-                hideSeparator={specialite && (!!specialite.statutAutorisation || !!specialite.SpecDateAMM)}
                 inLine
+                className="notice-content-tag-container"
               >
                 <SubstanceTag composants={composants} fromMedicament/>
               </TagContainer>
             )}
-            {(specialite && specialite.statutAutorisation) && (
-              <TagContainer 
-                category="Statut de l'autorisation" 
-                hideSeparator={!!specialite.SpecDateAMM}
-                inLine
+            {(isPregnancyPlanAlert || isPregnancyMentionAlert || pediatrics) && (
+              <TagContainer
+                className="notice-content-tag-container"
               >
-                <span className={fr.cx("fr-text--sm", "fr-mb-0")}> 
-                  {specialite.statutAutorisation}
-                </span>
-                {(specialite.StatId && Number(specialite.StatId) === SpecialiteStat.Abrogée && specialite.SpecStatDate) && (
-                  <span className={fr.cx("fr-text--sm", "fr-mb-0")}>
-                    {" "}le {(specialite.SpecStatDate).toLocaleDateString('fr-FR')}
-                  </span>
-                )}
-              </TagContainer>
-            )}
-            {(specialite && specialite.SpecDateAMM) && (
-              <TagContainer 
-                category="Date d'AMM"
-                inLine
-              >
-                <span className={fr.cx("fr-text--sm", "fr-mb-0")}>
-                  {(specialite.SpecDateAMM).toLocaleDateString('fr-FR')}
-                </span>
-              </TagContainer>
-            )}
-            <TagContainer>
-              {(isPregnancyPlanAlert || isPregnancyMentionAlert || pediatrics) && (
-                <>
                   {isPregnancyPlanAlert && (
                     <PregnancyPlanTag fromMedicament/>
                   )}
@@ -337,28 +296,55 @@ function NoticeContent({
                       hideLast
                     />
                   )}
-                </>
+              </TagContainer>
+            )}
+            <TagContainer 
+              category="Statut d'autorisation" 
+              hideSeparator
+              inLine
+            >
+              {(specialite && specialite.statutAutorisation) ? (
+                <span>
+                  <span className={fr.cx("fr-text--sm", "fr-mb-0")}> 
+                    {specialite.statutAutorisation}
+                  </span>
+                  {(specialite.StatId && Number(specialite.StatId) === SpecialiteStat.Abrogée && specialite.SpecStatDate) && (
+                    <span className={fr.cx("fr-text--sm", "fr-mb-0")}>
+                      {" "}le {(specialite.SpecStatDate).toLocaleDateString('fr-FR')}
+                    </span>
+                  )}
+                </span>
+              ) : (
+                <span>Non communiqué</span>
               )}
             </TagContainer>
-            <SwitchNoticeAdvancedBlock
-              isAdvanced={false}
-              onGoToAdvanced={onGoToAdvanced}
-              className={fr.cx("fr-hidden", "fr-unhidden-md")}
-            />
+            <TagContainer 
+              category="Date d'autorisation de mise sur le marché"
+              inLine
+              hideSeparator
+            >
+              {(specialite && specialite.SpecDateAMM) ? (
+                <span className={fr.cx("fr-text--sm", "fr-mb-0")}>
+                  {(specialite.SpecDateAMM).toLocaleDateString('fr-FR')}
+                </span>
+              ) : (
+                <span>Non communiquée</span>
+              )}
+            </TagContainer>
           </ContentContainer>
           {presentations && (
             <ContentContainer 
               whiteContainer 
-              className={fr.cx("fr-mb-4w", "fr-p-2w")}
+              className={fr.cx("fr-mb-2w", "fr-p-2w")}
               mobileOverflowX
             >
               <PresentationsList presentations={presentations} />
             </ContentContainer>
           )}
-          {articles && articles.length > 0 && (
+          {(articles && articles.length > 0) && (
             <ContentContainer 
               whiteContainer 
-              className={fr.cx("fr-mb-4w", "fr-p-2w")} 
+              className={fr.cx("fr-mb-2w", "fr-p-2w")} 
               mobileOverflowX
             >
               <ArticlesResumeList 
@@ -368,29 +354,65 @@ function NoticeContent({
             </ContentContainer>
           )}
           {(currentMarr && currentMarr.pdf.length > 0) && (
-            <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+            <ContentContainer whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
               <MarrNotice 
                 marr={currentMarr}
                 onGoToAdvanced={onGoToAdvancedAnchor}
+                hiddenTag
               />
             </ContentContainer>
-          )}
-          {(notice && notice.children) && (
-            <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-pt-1w", "fr-px-1w", "fr-hidden-md")}>
-              <QuestionsBox 
-                noBorder
-                currentQuestion={currentQuestion}
-                updateCurrentQuestion={updateCurrentQuestion}
-              />
-            </ContentContainer>
-          )}
-          {showKeywordsBox && currentQuestion && (
-            <QuestionKeywordsBox
-              className={fr.cx("fr-hidden-md", "fr-mb-4w", "fr-px-1w")}
-              onClose={() => onCloseQuestionKeywordsBox()}
-              questionID={currentQuestion}/>
           )}
         </DetailsContentContainer>
+      </ContentContainer>
+      <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-md-7")].join(" ")}>
+        <MedicamentContentHeaderBlock
+          specialite={specialite}
+          ficheInfos={ficheInfos}
+          definitions={definitions}
+          className={fr.cx("fr-hidden", "fr-unhidden-md")}
+        />              
+        {(notice && notice.children && notice.children.length > 0) && (
+          <ContentContainer 
+            whiteContainer
+            className={fr.cx("fr-mb-2w", "fr-hidden", "fr-unhidden-md")}
+          >
+            <QuestionsBox
+              currentQuestion={currentQuestion}
+              updateCurrentQuestion={updateCurrentQuestion}
+            />
+          </ContentContainer>
+        )}
+        {showKeywordsBox && currentQuestion && (
+          <QuestionKeywordsBox
+            className={fr.cx("fr-hidden", "fr-unhidden-md", "fr-mb-2w", "fr-px-1w")}
+            onClose={() => onCloseQuestionKeywordsBox()}
+            questionID={currentQuestion}
+          />
+        )}
+        <ContentContainer whiteContainer className={fr.cx("fr-mb-2w")}>
+          <NoticeContainer>
+            <div className={fr.cx("fr-mb-4w")}>
+              <div style={{ display: "flex" }}>
+                <span className={["fr-icon--custom-notice", fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md")].join(" ")} />
+                <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice complète</h2>
+              </div>
+              <ContentContainer>
+                {(notice && notice.dateNotif) && (
+                  <Badge severity={"info"}>{notice.dateNotif}</Badge>
+                )}
+              </ContentContainer>
+            </div>
+            {(specialite && (notice || isCentralisee(specialite))) ? (
+              <NoticeBlock
+                notice={notice}
+                specialite={specialite}
+                definitions={definitions}
+              />
+            ) :
+              (<span>La notice n&rsquo;est pas disponible pour ce médicament.</span>)
+            }
+          </NoticeContainer>
+        </ContentContainer>
       </ContentContainer>
     </NoticeContentContainer>
   );

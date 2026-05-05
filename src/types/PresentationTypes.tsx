@@ -35,3 +35,8 @@ export type AgregatePresentationDetails = {
   recipients: AgregateRecipientDetails[];
   dispositifs: AgregateDispositifDetails[],
 }
+
+export type PresentationRecipientsDetails = {
+  contenance: string;
+  recipient: string;
+}

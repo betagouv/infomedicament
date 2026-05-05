@@ -26,12 +26,14 @@ interface ContentContainerProps extends HTMLAttributes<HTMLDivElement> {
   frContainer?: boolean;
   whiteContainer?: boolean; // White background + border
   mobileOverflowX?: boolean; //Add overflow-x: auto; on mobile mode
+  desktopOverflowX?: boolean; //Add overflow-x: auto; on desktop mode
 }
 
 function ContentContainer({
   frContainer,
   whiteContainer,
   mobileOverflowX,
+  desktopOverflowX,
   children,
   className,
   ...props

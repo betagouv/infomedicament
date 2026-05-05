@@ -27,11 +27,11 @@ import { AnchorMenu } from "./advanced/DetailedSubMenu";
 import getGlossaryDefinitions from "@/db/utils/glossary";
 import { Definition } from "@/types/GlossaireTypes";
 import styled from "styled-components";
+import GoTopButton from "../generic/GoTopButton";
 
 const AlertsContainer = styled.div`
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   @media (max-width: 48em) {
-    margin-bottom: 1rem;
     padding-left: 0rem !important;
     padding-right: 0rem !important;
   }
@@ -46,6 +46,7 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   isPrinceps: boolean;
   delivrance: SpecDelivrance[];
   presentations: Presentation[];
+  title: string;
 }
 
 function MedicamentContent({
@@ -57,6 +58,7 @@ function MedicamentContent({
   isPrinceps,
   delivrance,
   presentations,
+  title,
   ...props
 }: MedicamentContentProps) {
 
@@ -275,10 +277,12 @@ function MedicamentContent({
             ficheInfos={ficheInfos}
             definitions={definitions}
             indicationBlock={indicationBlock}
+            title={title}
             onGoToAdvanced={onGoToAdvanced}
             onGoToAdvancedAnchor={onGoToAdvancedAnchor}
           />
         )}
+        <GoTopButton />
     </ContentContainer>
   );
 };

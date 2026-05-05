@@ -6,10 +6,15 @@ import Link from "next/link";
 import { HTMLAttributes, useEffect, useState } from "react";
 import styled, { css } from 'styled-components';
 
-const Container = styled.div`
+const ShareContainer = styled.div<{
+  $alignRight?: boolean;
+}>`
   .fr-share {
     flex-direction: row;
     align-items: center;
+    ${props => props.$alignRight && css`
+      justify-content: flex-end;
+    `}
   }
   .fr-share .fr-share__title{
     margin-right: 0.5rem;
@@ -30,10 +35,12 @@ const CopiedText = styled.span`
 
 interface ShareButtonsProps extends HTMLAttributes<HTMLDivElement> {
   pageName: string;
+  alignRight?: boolean;
 }
 
 function ShareButtons({
   pageName,
+  alignRight,
   ...props
 }: ShareButtonsProps) {
 
@@ -46,7 +53,7 @@ function ShareButtons({
   }, [setCurrentHref]);
 
   return (
-    <Container className={props.className}>
+    <ShareContainer {...props} $alignRight={alignRight}>
       <div className={fr.cx("fr-share")}>
         <p className={fr.cx("fr-share__title")}>Partager via :</p>
         <ul className={fr.cx("fr-btns-group")}>
@@ -82,7 +89,7 @@ function ShareButtons({
           </li>
         </ul>
       </div>
-    </Container>
+    </ShareContainer>
   );
 };
 

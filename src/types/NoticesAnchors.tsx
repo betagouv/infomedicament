@@ -8,6 +8,7 @@ export type QuestionAnchors = {
   keywords?: string[];
   unique: boolean;
   tracking: string;
+  icon: string;
 };
 
 export interface QuestionsListFormat {

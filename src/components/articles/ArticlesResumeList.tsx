@@ -4,19 +4,7 @@ import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 import styled, { css } from 'styled-components';
 import { ArticleCardResume, ArticleTrackingFromType } from "@/types/ArticlesTypes";
 import Link from "next/link";
-import Badge from "@codegouvfr/react-dsfr/Badge";
 import { trackEvent } from "@/services/tracking";
-
-const ArticlesContainer = styled.div`
-  @media (max-width: 48em) {
-    ul {
-      display: inline-flex;
-      li {
-        margin-right: 1rem;
-      }
-    }
-  }
-`;
 
 const ArticlesListContainer = styled.div`
   @media (max-width: 48em) {
@@ -42,7 +30,6 @@ const ArticleBlockContainer = styled.div<{ $isDark: boolean }>`
 const ArticlesTitle = styled.h2`
   margin-bottom: 0.5rem;
   @media (max-width: 48em) {
-    font-size: 1.5rem !important;
     margin-bottom: 1rem;
   }
 `;
@@ -61,7 +48,7 @@ function ArticlesResumeList({
 
   return (
     articles.length > 0 && (
-      <ArticlesContainer>
+      <div>
         <ArticlesTitle className={fr.cx("fr-h6")}>
           En savoir plus
         </ArticlesTitle>
@@ -77,14 +64,11 @@ function ArticlesResumeList({
                 >
                   {article.title}
                 </Link>
-                <div className={fr.cx("fr-mt-1w")}>
-                  <Badge severity="info" noIcon={true}>ARTICLE</Badge>
-                </div>
               </ArticleBlockContainer>
             );
           })}
         </ArticlesListContainer>
-      </ArticlesContainer>
+      </div>
     )
   );
 };

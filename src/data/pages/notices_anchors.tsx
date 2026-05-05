@@ -12,6 +12,7 @@ export const questionsList: QuestionsListFormat = {
     headerId: "Ann3bQuestceque",
     unique: true,
     tracking: "À quoi sert-il",
+    icon: "questions.svg",
   },
   commentPrendre: {
     id: "commentPrendre",
@@ -33,6 +34,7 @@ export const questionsList: QuestionsListFormat = {
     ],
     unique: false,
     tracking: "Comment le prendre ?",
+    icon: "questions.svg",
   },  
   combienPrendre: {
     id: "combienPrendre",
@@ -52,52 +54,55 @@ export const questionsList: QuestionsListFormat = {
     ],
     unique: false,
     tracking: "Combien en prendre ?",
+    icon: "questions.svg",
   },
-  pediatrie: {
-    id: "pediatrie",
-    highlightClass: "anchor-4",
-    question: (
-      <>
-        Puis-je le donner à mon <strong>enfant</strong> ?
-      </>
-    ),
-    keywords: [
-      "Enfants et adolescents",
-      "enfant",
-      "adolescent",
-      "bébé",
-      "nourrisson",
-      "réservé à l’adulte",
-      "réservé à l'adulte",
-    ],
-    unique: false,
-    tracking: "Puis-je le donner à mon enfant ?",
-  },
-  grossesse: {
-    id: "grossesse",
-    highlightClass: "anchor-5",
-    question: (
-      <>
-        Puis-je le prendre si je suis <strong>enceinte</strong> ou prévoit de l'être ?
-      </>
-    ),
-    keywords: [
-      "Grossesse, allaitement et fertilité",
-      "Grossesse et allaitement",
-      "Grossesse",
-      "Allaitement",
-      "Fertilité",
-      "Enceinte",
-    ],
-    unique: false,
-    tracking: "Puis-je le prendre si je suis enceinte ou prévoit de l'être ?",
-  },
+  // pediatrie: {
+  //   id: "pediatrie",
+  //   highlightClass: "anchor-4",
+  //   question: (
+  //     <>
+  //       Puis-je le donner à mon <strong>enfant</strong> ?
+  //     </>
+  //   ),
+  //   keywords: [
+  //     "Enfants et adolescents",
+  //     "enfant",
+  //     "adolescent",
+  //     "bébé",
+  //     "nourrisson",
+  //     "réservé à l’adulte",
+  //     "réservé à l'adulte",
+  //   ],
+  //   unique: false,
+  //   tracking: "Puis-je le donner à mon enfant ?",
+  //   icon: "questions.svg",
+  // },
+  // grossesse: {
+  //   id: "grossesse",
+  //   highlightClass: "anchor-5",
+  //   question: (
+  //     <>
+  //       Puis-je le prendre si je suis <strong>enceinte</strong> ou prévoit de l'être ?
+  //     </>
+  //   ),
+  //   keywords: [
+  //     "Grossesse, allaitement et fertilité",
+  //     "Grossesse et allaitement",
+  //     "Grossesse",
+  //     "Allaitement",
+  //     "Fertilité",
+  //     "Enceinte",
+  //   ],
+  //   unique: false,
+  //   tracking: "Puis-je le prendre si je suis enceinte ou prévoit de l'être ?",
+  //   icon: "questions.svg",
+  // },
   duree: {
     id: "duree",
     highlightClass: "anchor-6",
     question: (
       <>
-        Quelle est la <strong>durée</strong> du traitement ?
+        <strong>Durée</strong> du traitement
       </>
     ),
     keywords: [
@@ -106,13 +111,14 @@ export const questionsList: QuestionsListFormat = {
     ],
     unique: false,
     tracking: "Quelle est la durée du traitement ?",
+    icon: "questions.svg",
   },
   allergies: {
     id: "allergies",
     highlightClass: "anchor-7",
     question: (
       <>
-        Puis-je le prendre si j’ai des <strong>allergies</strong> ?
+        <strong>Allergies</strong>
       </>
     ),
     keywords: [
@@ -123,56 +129,59 @@ export const questionsList: QuestionsListFormat = {
     ],
     unique: false,
     tracking: "Puis-je le prendre si j’ai des allergies ?",
+    icon: "questions.svg",
   },
-  boireManger: {
-    id: "boireManger",
-    highlightClass: "anchor-8",
-    question: (
-      <>
-        Que puis-je <strong>boire et manger</strong> avec ?
-      </>
-    ),
-    keywords: [
-      "alcoolisées",
-      "alcoolisée",
-      "alcoolisés",
-      "alcoolisé",
-      "Alcools",
-      "Alcool",
-      "Boissons",
-      "Boisson",
-      "Aliments",
-      "Aliment",
-    ],
-    unique: false,
-    tracking: "Que puis-je boire et manger avec ?",
-  },
-  conduite: {
-    id: "conduite",
-    highlightClass: "anchor-9",
-    question: (
-      <>
-        Est-ce dangereux de <strong>conduire</strong> avec ?
-      </>
-    ),
-    keywords: [
-      "Conduite de véhicules et utilisation de machines",
-      "Conduire",
-      "Conduite",
-      "véhicules",
-      "véhicule",
-      "machines",
-      "machine",
-    ],
-    unique: true,
-    tracking: "Est-ce dangereux de conduire avec ?",
-  },
+  // boireManger: {
+  //   id: "boireManger",
+  //   highlightClass: "anchor-8",
+  //   question: (
+  //     <>
+  //       Que puis-je <strong>boire et manger</strong> avec ?
+  //     </>
+  //   ),
+  //   keywords: [
+  //     "alcoolisées",
+  //     "alcoolisée",
+  //     "alcoolisés",
+  //     "alcoolisé",
+  //     "Alcools",
+  //     "Alcool",
+  //     "Boissons",
+  //     "Boisson",
+  //     "Aliments",
+  //     "Aliment",
+  //   ],
+  //   unique: false,
+  //   tracking: "Que puis-je boire et manger avec ?",
+  //   icon: "questions.svg",
+  // },
+  // conduite: {
+  //   id: "conduite",
+  //   highlightClass: "anchor-9",
+  //   question: (
+  //     <>
+  //       Est-ce dangereux de <strong>conduire</strong> avec ?
+  //     </>
+  //   ),
+  //   keywords: [
+  //     "Conduite de véhicules et utilisation de machines",
+  //     "Conduire",
+  //     "Conduite",
+  //     "véhicules",
+  //     "véhicule",
+  //     "machines",
+  //     "machine",
+  //   ],
+  //   unique: true,
+  //   tracking: "Est-ce dangereux de conduire avec ?",
+  //   icon: "questions.svg",
+  // },
   interactions: {
     id: "interactions",
     highlightClass: "anchor-10",
     question: (
       <>
-        Puis-je le prendre <strong>avec d’autres médicaments ?</strong>
+        Avec <strong>d’autres médicaments</strong>
       </>
     ),
     keywords: [
@@ -185,45 +194,49 @@ export const questionsList: QuestionsListFormat = {
     ],
     unique: false,
     tracking: "Puis-je le prendre avec d’autres médicaments ?",
+    icon: "questions.svg",
   },
   effetsIndesirables: {
     id: "effetsIndesirables",
     highlightClass: "anchor-11",
     question: (
       <>
-        Quels sont les <strong>effets indésirables ?</strong>
+        <strong>Effets indésirables</strong>
       </>
     ),
     headerId: "Ann3bEffetsIndesirables",
     unique: true,
     tracking: "Quels sont les effets indésirables ?",
+    icon: "questions.svg",
   },
   conservation: {
     id: "conservation",
     highlightClass: "anchor-12",
     question: (
       <>
-        Comment le <strong>conserver</strong> ?
+        <strong>Conservation</strong>
       </>
     ),
     headerId:"Ann3bConservation",
     unique: true,
     tracking: "Comment le conserver ?",
+    icon: "questions.svg",
   },
-  contenu: {
-    id: "contenu",
-    highlightClass: "anchor-13",
-    question: (
-      <>
-        <strong>Que contient</strong> ce médicament ?
-      </>
-    ),
-    headerId: "Ann3bEmballage",
-    keywords: [
-      "Ce que contient",
-    ],
-    unique: true,
-    tracking: "Que contient ce médicament ?",
-  },
+  // contenu: {
+  //   id: "contenu",
+  //   highlightClass: "anchor-13",
+  //   question: (
+  //     <>
+  //       <strong>Que contient</strong> ce médicament ?
+  //     </>
+  //   ),
+  //   headerId: "Ann3bEmballage",
+  //   keywords: [
+  //     "Ce que contient",
+  //   ],
+  //   unique: true,
+  //   tracking: "Que contient ce médicament ?",
+  //   icon: "questions.svg",
+  // },
 };
 export const questionKeys: string[] = Object.keys(questionsList);

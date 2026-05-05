@@ -5,15 +5,20 @@ import {
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
-import React, { HTMLAttributes } from "react";
-import { Presentation } from "@/types/PresentationTypes";
-import { getPresentationPriceText, getPresentationRecipientsText, getPresentationTauxPriseEnChargeText, isAbrogee, isArret } from "@/utils/presentations";
+import React, { HTMLAttributes, useEffect, useState } from "react";
+import { AgregatePresentationDetails, Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
+import { cleanPresentationsDetails, getPresentationPriceText, getAgregatePresentationRecipientsText, getPresentationTauxPriseEnChargeText, isAbrogee, isArret } from "@/utils/presentations";
 import styled from "styled-components";
 
+type PresentationToDisplay = {
+  presentation: Presentation;
+  detailsLine: PresentationRecipientsDetails[];
+}
+
 const PriceContainer = styled.span`
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   @media (max-width: 48em) {
-    font-size: 1.2rem;
+    font-size: 1.125rem;
   }
 `;
 
@@ -60,16 +65,18 @@ export function PresentationsList({
               className={fr.cx("fr-mb-1w", "fr-col-md-12", "fr-text--sm")}
             >
               <div>
-                <PriceContainer 
-                  className={fr.cx("fr-text--bold", "fr-mr-1w")}
-                >
-                  {getPresentationPriceText(p)}
-                  <br className={fr.cx("fr-hidden-md")} />
-                </PriceContainer>
-                <span>{getPresentationTauxPriseEnChargeText(p)}</span>
-              </div>
-              <div>            
-                {getPresentationRecipientsText(p)}
+                <div>
+                  <PriceContainer 
+                    className={fr.cx("fr-text--bold", "fr-mr-1w")}
+                  >
+                    {getPresentationPriceText(p)}
+                    <br className={fr.cx("fr-hidden-md")} />
+                  </PriceContainer>
+                  <span>{getPresentationTauxPriseEnChargeText(p)}</span>
+                </div>
+                <div>
+                  {getAgregatePresentationRecipientsText(p)}
+                </div>
               </div>
               {isArret(p) && (
                 <Badge severity="warning" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
@@ -87,7 +94,11 @@ export function PresentationsList({
           ))}
         </ul>
       ) : (
-        <span>Pas de conditionnement à afficher</span>
+        <span
+          className={fr.cx("fr-text--sm")}
+        >
+          Pas de conditionnement à afficher
+        </span>
       )}
     </PresentationsContainer>
   );
