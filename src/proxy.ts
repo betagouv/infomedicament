@@ -37,6 +37,8 @@ export function proxy(req: NextRequest) {
 
     const { limited, remaining } = isRateLimited(ip, RATE_LIMIT, RATE_WINDOW_MS);
 
+    console.log(`[proxy] COUNT ip=${ip} remaining=${remaining} path=${url.pathname}`);
+
     if (limited) {
         return new NextResponse("Too Many Requests", {
             status: 429,
