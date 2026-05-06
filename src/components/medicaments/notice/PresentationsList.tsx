@@ -5,14 +5,14 @@ import {
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
-import React, { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, useEffect, useState } from "react";
 import { AgregatePresentationDetails, Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
-import { cleanPresentationsDetails, getPresentationPriceText, getAgregatePresentationRecipientsText, getPresentationTauxPriseEnChargeText, isAbrogee, isArret } from "@/utils/presentations";
+import { cleanPresentationsDetails, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isAbrogee, isArret, getAgregatePresentationRecipientsTexts } from "@/utils/presentations";
 import styled from "styled-components";
 
 type PresentationToDisplay = {
   presentation: Presentation;
-  detailsLine: PresentationRecipientsDetails[];
+  detailsLines: PresentationRecipientsDetails[][];
 }
 
 const PriceContainer = styled.span`
@@ -55,13 +55,38 @@ export function PresentationsList({
   presentations, 
   ...props
 }: PresentationsListProps) {
+
+const [presentationsDetails, setPresentationsDetails] = useState<PresentationToDisplay[]>([]);
+
+
+  useEffect(() => {
+    const newPresentationsDetails:PresentationToDisplay[] = [];
+    if(presentations){
+      presentations.forEach((presentation) => {
+        const newPresentationDetails: PresentationToDisplay = {
+          presentation: presentation,
+          detailsLines: [],
+        }
+        if(presentation.details) {
+          const agregateDetails: AgregatePresentationDetails[] = cleanPresentationsDetails(presentation.details);
+          agregateDetails.forEach((details) => {
+            const recipientsTexts = getAgregatePresentationRecipientsTexts(details);
+            newPresentationDetails.detailsLines.push(recipientsTexts);
+          });
+        }
+        newPresentationsDetails.push(newPresentationDetails);
+      })
+    }
+    setPresentationsDetails(newPresentationsDetails);
+  }, [presentations, setPresentationsDetails]);
+
   return (
     <PresentationsContainer {...props}>
-      {(presentations && presentations.length > 0) ? (
+      {(presentationsDetails && presentationsDetails.length > 0) ? (
         <ul className={fr.cx("fr-raw-list")}>
-          {presentations.map((p, index) => (
+          {presentationsDetails.map((presDetails, index) => (
             <li 
-              key={`${p.Cip13}-${index}`} 
+              key={`${presDetails.presentation.Cip13}-${index}`} 
               className={fr.cx("fr-mb-1w", "fr-col-md-12", "fr-text--sm")}
             >
               <div>
@@ -69,25 +94,39 @@ export function PresentationsList({
                   <PriceContainer 
                     className={fr.cx("fr-text--bold", "fr-mr-1w")}
                   >
-                    {getPresentationPriceText(p)}
+                    {getPresentationPriceText(presDetails.presentation)}
                     <br className={fr.cx("fr-hidden-md")} />
                   </PriceContainer>
-                  <span>{getPresentationTauxPriseEnChargeText(p)}</span>
+                  <span>{getPresentationTauxPriseEnChargeText(presDetails.presentation)}</span>
                 </div>
                 <div>
-                  {getAgregatePresentationRecipientsText(p)}
+                  {presDetails.detailsLines.map((details, i) => {
+                    return details.map((line, j) => (
+                      <span key={`${i}-${j}`}>
+                        {line.contenance && (
+                          <strong>{line.contenance}</strong>
+                        )}
+                        {line.recipient && (
+                          <span>
+                            {line.contenance && ' - '}
+                            {line.recipient}
+                          </span>
+                        )}
+                      </span>
+                    ))
+                  })}
                 </div>
               </div>
-              {isArret(p) && (
+              {isArret(presDetails.presentation) && (
                 <Badge severity="warning" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
-                  {PresentationComm[p.CommId]}
-                  {p.PresCommDate && ` (${dateShortFormat(p.PresCommDate)})`}
+                  {PresentationComm[presDetails.presentation.CommId]}
+                  {presDetails.presentation.PresCommDate && ` (${dateShortFormat(presDetails.presentation.PresCommDate)})`}
                 </Badge>
               )}
-              {p.StatId && isAbrogee(p) && (
+              {presDetails.presentation.StatId && isAbrogee(presDetails.presentation) && (
                 <Badge severity="error" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
-                  {PresentationStat[p.StatId]}
-                  {p.PresStatDAte && ` (${dateShortFormat(p.PresStatDAte)})`}
+                  {PresentationStat[presDetails.presentation.StatId]}
+                  {presDetails.presentation.PresStatDAte && ` (${dateShortFormat(presDetails.presentation.PresStatDAte)})`}
                 </Badge>
               )}
             </li>

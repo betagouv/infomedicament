@@ -1,6 +1,6 @@
 import { PresentationComm, PresentationStat } from "@/db/pdbmMySQL/types";
 import { PresentationDetail } from "@/db/types";
-import { AgregateCaraccomplrecipsDetails, AgregateDispositifDetails, AgregatePresentationDetails, AgregateRecipientDetails, Presentation } from "@/types/PresentationTypes";
+import { AgregateCaraccomplrecipsDetails, AgregateDispositifDetails, AgregatePresentationDetails, AgregateRecipientDetails, Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
 import { capitalize } from "tsafe";
 
 const unitesMesures = [
@@ -257,54 +257,28 @@ export function getPresentationName(
 
   return presentation.PresNom01;
 }
+export function getAgregatePresentationRecipientsTexts(
+  presentationDetails: AgregatePresentationDetails,
+): PresentationRecipientsDetails[] {
+  const details: PresentationRecipientsDetails[]= [];
 
-export function getPresentationRecipientsText(
-  presentation: Presentation,
-): string {
-  if(presentation.details && presentation.details.length > 0){
-    const allPresDetails: AgregatePresentationDetails[] = cleanPresentationsDetails(presentation.details);
-    let recipentsText: string = "";
-    allPresDetails.forEach((presDetails: AgregatePresentationDetails) => {
-      if(presDetails.recipients.length === 0) return;
-      let name = "";
-      presDetails.recipients.forEach((recipientDetails: AgregateRecipientDetails) => {
-        if(!recipientDetails.recipient) return;
-        const nbRecipient: number = (recipientDetails.nbrrecipient !== 0 &&recipientDetails.nbrrecipient)
-          ? recipientDetails.nbrrecipient
-          : 1;
+  if(presentationDetails.recipients.length === 0) return [];
+  presentationDetails.recipients.forEach((recipientDetails: AgregateRecipientDetails) => {
+    if(!recipientDetails.recipient) return;
+    const nbRecipient: number = (recipientDetails.nbrrecipient !== 0 &&recipientDetails.nbrrecipient)
+      ? recipientDetails.nbrrecipient
+      : 1;
 
-        const recipient: string = replacePluralSingular(recipientDetails.recipient, nbRecipient);
-        const contenance: string = contenanceDisplay(recipientDetails);
-        if(name !== "")
-          name += " - ";
-        if(contenance !== ""){
-          name += `${contenance} - `;
-        }
-        if (nbRecipient > 1) {
-          name += `${nbRecipient.toString()} ${recipient}`;
-        } else {
-          name += `${recipient}`;
-        }
-      });
-      if(recipentsText !== "")
-        recipentsText += " - ";
-      recipentsText += name;
-    });
-    if(recipentsText !== "")
-      return recipentsText;
-  }
+    const recipient: string = replacePluralSingular(recipientDetails.recipient, nbRecipient);
+    const contenance: string = contenanceDisplay(recipientDetails);
 
-  const index = presentation.PresNom01.indexOf("stylo prérempli");
-  if(index !== -1){
-    if(index === 0){
-      return capitalize(presentation.PresNom01);
+    const detail: PresentationRecipientsDetails = {
+      contenance: contenance,
+      recipient: nbRecipient > 1 ? `${nbRecipient.toString()} ${recipient}` : recipient,
     }
-    const qt = presentation.PresNom01.substring(0, index).trim();
-    if(!isNaN(Number(qt)) && Number(qt) > 1 && Number(presentation.PresNum) <= 1){
-      return presentation.PresNom01.replaceAll("stylo prérempli", "stylos préremplis");
-    }
-  }
-  return presentation.PresNom01;
+    details.push(detail);
+  });
+  return details;
 }
 
 export function getPresentationFullPriceText(
