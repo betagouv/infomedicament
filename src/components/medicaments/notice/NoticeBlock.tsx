@@ -12,7 +12,12 @@ import { Definition } from "@/types/GlossaireTypes";
 import { isCentralisee } from "@/utils/specialites";
 import CentraliseBlock from "../blocks/CentraliseBlock";
 
-const NoticeBlockContainer = styled.div``;
+const NoticeBlockContainer = styled.div`
+  .notice-highlight {
+    background-color: var(--green-tilleul-verveine-950-100);
+    border-radius: 2px;
+  }
+`;
 
 interface NoticeBlockProps extends HTMLAttributes<HTMLDivElement> {
   notice?: NoticeData,
