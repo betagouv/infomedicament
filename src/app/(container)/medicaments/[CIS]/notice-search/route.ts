@@ -7,6 +7,7 @@ export interface NoticeChunkHit {
   section_title: string;
   sub_header: string | null;
   text: string;
+  html_snippets: string[];
 }
 
 export async function GET(
@@ -28,7 +29,7 @@ export async function GET(
         filter: { term: { cis: CIS } },
       },
     },
-    _source: ["cis", "section_anchor", "section_title", "sub_header", "text"],
+    _source: ["cis", "section_anchor", "section_title", "sub_header", "text", "html_snippets"],
   };
 
   const res = await fetch(`${baseUrl}/notice_chunks/_search`, {

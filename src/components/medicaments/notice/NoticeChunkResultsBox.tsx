@@ -2,7 +2,7 @@
 
 import { fr } from "@codegouvfr/react-dsfr";
 import Button from "@codegouvfr/react-dsfr/Button";
-import { HTMLAttributes, ReactNode, useEffect } from "react";
+import { HTMLAttributes, ReactNode, useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { NoticeChunkHit } from "@/app/(container)/medicaments/[CIS]/notice-search/route";
 
@@ -47,6 +47,10 @@ const Excerpt = styled.div`
   font-style: italic;
 `;
 
+function normalizeText(s: string): string {
+  return s.replace(/\s+/g, " ").replace(/^[·•]\s*/, "").trim();
+}
+
 interface NoticeChunkResultsBoxProps extends HTMLAttributes<HTMLDivElement> {
   hits: NoticeChunkHit[];
   loading: boolean;
@@ -61,13 +65,64 @@ function NoticeChunkResultsBox({
   onClose,
   ...props
 }: NoticeChunkResultsBoxProps) {
-  useEffect(() => {
-    if (hits[0]) {
-      document
-        .getElementById(hits[0].section_anchor)
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const highlightedEls = useRef<Element[]>([]);
+
+  const clearHighlights = useCallback(() => {
+    highlightedEls.current.forEach((el) => el.classList.remove("notice-highlight"));
+    highlightedEls.current = [];
+  }, []);
+
+  const highlightAndScroll = useCallback((hit: NoticeChunkHit) => {
+    clearHighlights();
+    const sectionEl = document.getElementById(hit.section_anchor);
+    if (!sectionEl) return;
+
+    // Section anchor is on the <h3>; content lives in the next sibling div
+    const searchRoot = sectionEl.nextElementSibling ?? sectionEl;
+
+    // Match DOM elements against hit.text (the full chunk text).
+    // html_snippets are unreliable for lists so we use the text field directly.
+    const chunkText = normalizeText(hit.text);
+
+    for (const el of searchRoot.querySelectorAll(".fr-mb-2w")) {
+      const elText = normalizeText(el.textContent ?? "");
+      if (elText.length > 15 && chunkText.includes(elText)) {
+        el.classList.add("notice-highlight");
+        highlightedEls.current.push(el);
+      }
     }
-  }, [hits]);
+
+    for (const el of searchRoot.querySelectorAll("li")) {
+      const elText = normalizeText(el.textContent ?? "");
+      if (elText.length > 15 && chunkText.includes(elText)) {
+        el.classList.add("notice-highlight");
+        highlightedEls.current.push(el);
+      }
+    }
+
+    // Scroll: sub_header <b> element → first highlighted element → section
+    let scrollTarget: Element = sectionEl;
+    if (hit.sub_header) {
+      const norm = normalizeText(hit.sub_header);
+      for (const el of searchRoot.querySelectorAll("b")) {
+        if (normalizeText(el.textContent ?? "") === norm) {
+          scrollTarget = el;
+          break;
+        }
+      }
+    } else if (highlightedEls.current[0]) {
+      scrollTarget = highlightedEls.current[0];
+    }
+    (scrollTarget as HTMLElement).scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [clearHighlights]);
+
+  // Auto-highlight first hit when hits change
+  useEffect(() => {
+    if (hits.length > 0) highlightAndScroll(hits[0]);
+  }, [hits, highlightAndScroll]);
+
+  // Clean up highlights on unmount
+  useEffect(() => () => clearHighlights(), [clearHighlights]);
 
   return (
     <Container className={props.className} {...props}>
@@ -96,11 +151,7 @@ function NoticeChunkResultsBox({
           hits.map((hit, i) => (
             <HitItem
               key={i}
-              onClick={() =>
-                document
-                  .getElementById(hit.section_anchor)
-                  ?.scrollIntoView({ behavior: "smooth", block: "start" })
-              }
+              onClick={() => highlightAndScroll(hit)}
             >
               <Breadcrumb>
                 {hit.section_title}

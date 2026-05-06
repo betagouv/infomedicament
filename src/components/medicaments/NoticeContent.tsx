@@ -130,7 +130,7 @@ function NoticeContent({
 
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
   const [noticeContainerClassName, setNoticeContainerClassName] = useState<string>("");
-  const [noticeHits, setNoticeHits] = useState<NoticeChunkHit[]>([]);
+  const [noticeHits, setNoticeHits] = useState<NoticeChunkHit[] | null>(null);
   const [hitsLoading, setHitsLoading] = useState<boolean>(false);
   const [activeQuestion, setActiveQuestion] = useState<QuestionAnchors | null>(null);
 
@@ -152,17 +152,23 @@ function NoticeContent({
   const updateCurrentQuestion = async (questionId: string) => {
     const question = questionsList[questionId];
     setCurrentQuestion(questionId);
+    const anchorEl = question.headerId ? document.getElementById(question.headerId) : null;
+    if (anchorEl) {
+      // Direct section mapping — scroll immediately, no OpenSearch needed
+      anchorEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      setActiveQuestion(null);
+      setNoticeHits(null);
+      return;
+    }
+    // No direct anchor (or anchor missing from this notice) — use OpenSearch
     setActiveQuestion(question);
     setHitsLoading(true);
-    setNoticeHits([]);
-    if (question.headerId) {
-      document.getElementById(question.headerId)?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    setNoticeHits(null);
     if (question.queryText && specialite) {
       const res = await fetch(`/medicaments/${specialite.SpecId}/notice-search?q=${encodeURIComponent(question.queryText)}`);
       const data = await res.json();
       setNoticeHits(data.hits ?? []);
-      if (!question.headerId && data.hits?.[0]) {
+      if (data.hits?.[0]) {
         document.getElementById(data.hits[0].section_anchor)?.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
@@ -173,7 +179,7 @@ function NoticeContent({
     setCurrentQuestion("");
     setActiveQuestion(null);
     setHitsLoading(true);
-    setNoticeHits([]);
+    setNoticeHits(null);
     const res = await fetch(`/medicaments/${specialite.SpecId}/notice-search?q=${encodeURIComponent(query)}`);
     const data = await res.json();
     setNoticeHits(data.hits ?? []);
@@ -183,7 +189,7 @@ function NoticeContent({
     setHitsLoading(false);
   };
   const onCloseResults = () => {
-    setNoticeHits([]);
+    setNoticeHits(null);
     setActiveQuestion(null);
     setCurrentQuestion("");
     setHitsLoading(false);
@@ -261,10 +267,10 @@ function NoticeContent({
               />
             </ContentContainer>
           )}
-          {(noticeHits.length > 0 || hitsLoading) && (
+          {(hitsLoading || noticeHits !== null) && (
             <NoticeChunkResultsBox
               className={fr.cx("fr-hidden-md", "fr-mb-2w", "fr-px-1w")}
-              hits={noticeHits}
+              hits={noticeHits ?? []}
               loading={hitsLoading}
               questionLabel={activeQuestion?.question}
               onClose={onCloseResults}/>
@@ -420,10 +426,10 @@ function NoticeContent({
             />
           </ContentContainer>
         )}
-        {(noticeHits.length > 0 || hitsLoading) && (
+        {(hitsLoading || noticeHits !== null) && (
           <NoticeChunkResultsBox
             className={fr.cx("fr-hidden", "fr-unhidden-md", "fr-mb-2w", "fr-px-1w")}
-            hits={noticeHits}
+            hits={noticeHits ?? []}
             loading={hitsLoading}
             questionLabel={activeQuestion?.question}
             onClose={onCloseResults}
