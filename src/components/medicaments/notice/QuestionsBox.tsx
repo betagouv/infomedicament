@@ -1,7 +1,8 @@
 "use client";
 
 import { fr } from "@codegouvfr/react-dsfr";
-import { HTMLAttributes, useEffect, useState } from "react";
+import Button from "@codegouvfr/react-dsfr/Button";
+import { HTMLAttributes, useState } from "react";
 import styled from 'styled-components';
 import { questionsList, questionKeys } from "@/data/pages/notices_anchors";
 import { QuestionAnchors } from "@/types/NoticesAnchors";
@@ -10,7 +11,16 @@ import Image from "next/image";
 import Link from "next/link";
 
 const QuestionsBoxContainer = styled.div`
-  gap: 4.1667%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
+
+const QuestionsRow = styled.div`
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
   @media (max-width: 48em) {
     width: 100%;
     display: flex;
@@ -19,6 +29,7 @@ const QuestionsBoxContainer = styled.div`
     overflow-x: auto;
   }
 `;
+
 const QuestionLinkContainer = styled.div `
   cursor: pointer;
   :hover {
@@ -31,6 +42,7 @@ const QuestionLinkContainer = styled.div `
     margin-bottom: 0.5rem !important;
   }
 `;
+
 const QuestionLink = styled.div `
   text-align: center;
   padding-top: 4px;
@@ -43,101 +55,81 @@ const QuestionLink = styled.div `
     }
   }
 `;
-const QuestionsViewAllBlock = styled.div`
+
+const SearchRow = styled.div`
+  display: flex;
+  gap: ${fr.spacing("1w")};
+  align-items: center;
   width: 100%;
 `;
 
 interface QuestionsBoxProps extends HTMLAttributes<HTMLDivElement> {
   currentQuestion: string | undefined;
   updateCurrentQuestion: (question: string) => void;
+  onSearch: (query: string) => void;
 }
 
 function QuestionsBox({
   currentQuestion,
   updateCurrentQuestion,
+  onSearch,
   ...props
 }: QuestionsBoxProps) {
-
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [isResizable, setIsResizable] = useState<boolean>(true);
+  const [searchValue, setSearchValue] = useState("");
 
   const onClick = (anchorData: QuestionAnchors) => {
-    const noticeContainer = document.getElementById('noticeContainer');
-    if(noticeContainer){
-      noticeContainer.className = "highlight-" + anchorData.id;
-      updateCurrentQuestion(anchorData.id);
-    }
+    updateCurrentQuestion(anchorData.id);
     trackEvent("Boîte questions", anchorData.tracking);
   };
 
-  const isVisible = (index: number): boolean => {
-    if(!isResizable)
-      return true;
-    if((!isOpen && index < 10) || isOpen)
-      return true;
-    return false;
-  }
-
-  function updateIsResizable() {
-    if (window.innerWidth <= 768) {
-      setIsResizable(false);
-    } else {
-      setIsResizable(true);
-    }
-  }
-
-  useEffect(() => {
-    updateIsResizable();
-    window.addEventListener('resize', updateIsResizable);
-    return () => {
-      window.removeEventListener('resize', updateIsResizable);
-    };
-  }, []);
+  const handleSearch = () => {
+    const trimmed = searchValue.trim();
+    if (trimmed) onSearch(trimmed);
+  };
 
   //href on the question is the first element of the anchors list
   return (
-    <QuestionsBoxContainer {...props} className={[props.className, fr.cx("fr-grid-row", "fr-p-1w")].join(" ")}>
-      {questionKeys.map((key: string, index) => {
-        if(isVisible(index)) {
-          return (
-            <QuestionLinkContainer 
-              key={index} 
-              className={[fr.cx("fr-mb-2w", "fr-col-3", "fr-col-md-2"), currentQuestion && currentQuestion === key ? "active" : ""].join(" ")}
-              onClick={() => onClick(questionsList[key])}
-            >
-              <QuestionLink
-                className={currentQuestion && currentQuestion === key ? "active" : ""}
-              >
-                <Image
-                  src={`/icons/${questionsList[key].icon}`}
-                  alt={`Icone ${questionsList[key].id}`}
-                  width={70}
-                  height={70}
-                />
-                <br/>
-                <span 
-                  className={fr.cx("fr-link", "fr-link--sm")} 
-                >
-                  {questionsList[key].question}
-                </span>
-              </QuestionLink>
-            </QuestionLinkContainer>
-          )
-        }
-      })}
-      {isResizable && (
-        <QuestionsViewAllBlock
-          className={isOpen ? fr.cx("fr-icon-arrow-up-s-line") : fr.cx("fr-icon-arrow-down-s-line")}
-        >
-          <Link 
-            className={fr.cx("fr-link", "fr-text--bold", "fr-text--sm")}
-            href=""
-            onClick={() => setIsOpen(!isOpen)}
+    <QuestionsBoxContainer {...props} className={[props.className, fr.cx("fr-p-1w")].join(" ")}>
+      <QuestionsRow>
+        {questionKeys.map((key: string, index) => (
+          <QuestionLinkContainer
+            key={index}
+            className={currentQuestion && currentQuestion === key ? "active" : ""}
+            onClick={() => onClick(questionsList[key])}
           >
-            {isOpen ? "Voir moins" : "Voir plus"}
-          </Link>
-        </QuestionsViewAllBlock>
-      )}
+            <QuestionLink
+              className={[fr.cx("fr-mr-2w", "fr-mb-1w"), currentQuestion && currentQuestion === key ? "active" : ""].join(" ")}
+            >
+              <Image
+                src={`/icons/${questionsList[key].icon}`}
+                alt={`Icone ${questionsList[key].id}`}
+                width={70}
+                height={70}
+              />
+              <br/>
+              <span className={fr.cx("fr-link", "fr-link--sm")}>
+                {questionsList[key].question}
+              </span>
+            </QuestionLink>
+          </QuestionLinkContainer>
+        ))}
+      </QuestionsRow>
+      <SearchRow className={fr.cx("fr-mt-2w")}>
+        <input
+          className={fr.cx("fr-input", "fr-input--sm")}
+          placeholder="Posez votre question..."
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
+        />
+        <Button
+          iconId="fr-icon-search-line"
+          onClick={handleSearch}
+          priority="tertiary"
+          size="small"
+          title="Rechercher"
+        />
+      </SearchRow>
     </QuestionsBoxContainer>
   );
 };
