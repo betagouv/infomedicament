@@ -8,6 +8,7 @@ export const questionsList: QuestionsListFormat = {
       <>À quoi sert-il ?</>
     ),
     headerId: "Ann3bQuestceque",
+    queryText: "À quoi sert ce médicament ?",
     unique: true,
     tracking: "À quoi sert-il",
     icon: "a_quoi_sert_il.svg",
@@ -19,33 +20,18 @@ export const questionsList: QuestionsListFormat = {
       <>Comment le prendre ?</>
     ),
     headerId: "Ann3bCommentPrendre",
-    keywords: [
-      "Mode et voie d’administration",
-      "Mode et voie d'administration",
-      "Mode d’administration",
-      "Mode d'administration",
-      "Fréquence d’administration",
-      "Fréquence d'administration",
-      "Prise du médicament",
-    ],
+    queryText: "Comment prendre ce médicament, mode d'administration ?",
     unique: false,
     tracking: "Comment le prendre ?",
     icon: "comment_le_prendre.svg",
-  },  
+  },
   combienPrendre: {
     id: "combienPrendre",
     highlightClass: "anchor-3",
     question: (
       <>Combien en prendre ?</>
     ),
-    keywords: [
-      "Posologie",
-      "Combien en prendre",
-      "Dose recommandée",
-      "Doses",
-      "Dose",
-      "tableau posologique",
-    ],
+    queryText: "Quelle est la posologie, la dose à prendre ?",
     unique: false,
     tracking: "Combien en prendre ?",
     icon: "combien_en_prendre.svg",
@@ -56,10 +42,7 @@ export const questionsList: QuestionsListFormat = {
     question: (
       <>Durée du traitement</>
     ),
-    keywords: [
-      "Durée du traitement",
-      "Durée",
-    ],
+    queryText: "Quelle est la durée du traitement ?",
     unique: false,
     tracking: "Durée du traitement",
     icon: "duree_du_traitement.svg",
@@ -70,12 +53,7 @@ export const questionsList: QuestionsListFormat = {
     question: (
       <>Allergies</>
     ),
-    keywords: [
-      "Allergies",
-      "Allergie",
-      "Allergiques",
-      "Allergique",
-    ],
+    queryText: "Quelles sont les contre-indications et allergies ?",
     unique: false,
     tracking: "Allergies",
     icon: "allergies.svg",
@@ -86,14 +64,7 @@ export const questionsList: QuestionsListFormat = {
     question: (
       <>Interactions médicaments</>
     ),
-    keywords: [
-      "si vous prenez en même temps",
-      "si vous prenez un autre médicament",
-      "interaction médicamenteuse",
-      "Autres médicaments et",
-      "si vous prenez le médicament",
-      "si vous prenez",
-    ],
+    queryText: "Quelles sont les interactions avec d'autres médicaments ?",
     unique: false,
     tracking: "Interactions médicaments",
     icon: "interactions_medicaments.svg",
@@ -111,7 +82,7 @@ export const questionsList: QuestionsListFormat = {
       "bébé",
       "nourrisson",
       "réservé à l’adulte",
-      "réservé à l'adulte",
+      "réservé à l’adulte",
     ],
     unique: false,
     tracking: "Enfants",
@@ -183,6 +154,7 @@ export const questionsList: QuestionsListFormat = {
       <>Effets indésirables</>
     ),
     headerId: "Ann3bEffetsIndesirables",
+    queryText: "Quels sont les effets indésirables ?",
     unique: true,
     tracking: "Effets indésirables",
     icon: "effets_indesirables.svg",
@@ -193,7 +165,8 @@ export const questionsList: QuestionsListFormat = {
     question: (
       <>Conservation</>
     ),
-    headerId:"Ann3bConservation",
+    headerId: "Ann3bConservation",
+    queryText: "Comment conserver ce médicament ?",
     unique: true,
     tracking: "Conservation",
     icon: "conservation.svg",
