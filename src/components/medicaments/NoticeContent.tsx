@@ -17,9 +17,11 @@ import ArticlesResumeList from "../articles/ArticlesResumeList";
 import { Marr } from "@/types/MarrTypes";
 import { NoticeData, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import QuestionsBox from "./notice/QuestionsBox";
-import QuestionKeywordsBox from "./notice/QuestionKeywordsBox";
+import NoticeChunkResultsBox from "./notice/NoticeChunkResultsBox";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { questionsList } from "@/data/pages/notices_anchors";
+import { NoticeChunkHit } from "@/app/(container)/medicaments/[CIS]/notice-search/route";
+import { QuestionAnchors } from "@/types/NoticesAnchors";
 import NoticeBlock from "./notice/NoticeBlock";
 import PregnancyMentionTag from "../tags/PregnancyMentionTag";
 import PregnancyPlanTag from "../tags/PregnancyPlanTag";
@@ -127,7 +129,9 @@ function NoticeContent({
   const [currentMarr, setCurrentMarr] = useState<Marr>();
 
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
-  const [showKeywordsBox, setShowKeywordsBox] = useState<boolean>(false);
+  const [noticeHits, setNoticeHits] = useState<NoticeChunkHit[]>([]);
+  const [hitsLoading, setHitsLoading] = useState<boolean>(false);
+  const [activeQuestion, setActiveQuestion] = useState<QuestionAnchors | null>(null);
 
   useEffect(() => {
     if (marr) {
@@ -144,22 +148,44 @@ function NoticeContent({
     }
   }, [marr, setCurrentMarr]);
 
-  const updateCurrentQuestion = (questionId: string) => {
-    setCurrentQuestion(questionId);
+  const updateCurrentQuestion = async (questionId: string) => {
     const question = questionsList[questionId];
-    if (question.keywords || question.headerId) {
-      setShowKeywordsBox(true);
-    } else {
-      setShowKeywordsBox(false);
+    setCurrentQuestion(questionId);
+    setActiveQuestion(question);
+    setHitsLoading(true);
+    setNoticeHits([]);
+    if (question.headerId) {
+      document.getElementById(question.headerId)?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+    if (question.queryText && specialite) {
+      const res = await fetch(`/medicaments/${specialite.SpecId}/notice-search?q=${encodeURIComponent(question.queryText)}`);
+      const data = await res.json();
+      setNoticeHits(data.hits ?? []);
+      if (!question.headerId && data.hits?.[0]) {
+        document.getElementById(data.hits[0].section_anchor)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+    setHitsLoading(false);
   };
-  const onCloseQuestionKeywordsBox = () => {
-    const noticeContainer = document.getElementById('noticeContainer');
-    if (noticeContainer) {
-      noticeContainer.className = "";
-      setShowKeywordsBox(false);
-      setCurrentQuestion("");
+  const handleSearch = async (query: string) => {
+    if (!specialite) return;
+    setCurrentQuestion("");
+    setActiveQuestion(null);
+    setHitsLoading(true);
+    setNoticeHits([]);
+    const res = await fetch(`/medicaments/${specialite.SpecId}/notice-search?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    setNoticeHits(data.hits ?? []);
+    if (data.hits?.[0]) {
+      document.getElementById(data.hits[0].section_anchor)?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+    setHitsLoading(false);
+  };
+  const onCloseResults = () => {
+    setNoticeHits([]);
+    setActiveQuestion(null);
+    setCurrentQuestion("");
+    setHitsLoading(false);
   };
   const loadData = useCallback(
     async (
@@ -225,17 +251,20 @@ function NoticeContent({
               className={fr.cx("fr-mb-2w", "fr-pt-1w", "fr-px-1w", "fr-hidden-md")}
               mobileOverflowX
             >
-              <QuestionsBox 
+              <QuestionsBox
                 currentQuestion={currentQuestion}
                 updateCurrentQuestion={updateCurrentQuestion}
+                onSearch={handleSearch}
               />
             </ContentContainer>
           )}
-          {showKeywordsBox && currentQuestion && (
-            <QuestionKeywordsBox
+          {(noticeHits.length > 0 || hitsLoading) && (
+            <NoticeChunkResultsBox
               className={fr.cx("fr-hidden-md", "fr-mb-2w", "fr-px-1w")}
-              onClose={() => onCloseQuestionKeywordsBox()}
-              questionID={currentQuestion}/>
+              hits={noticeHits}
+              loading={hitsLoading}
+              questionLabel={activeQuestion?.question}
+              onClose={onCloseResults}/>
           )}
           <ContentContainer whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
             {(atc2 || 
@@ -383,14 +412,17 @@ function NoticeContent({
             <QuestionsBox
               currentQuestion={currentQuestion}
               updateCurrentQuestion={updateCurrentQuestion}
+              onSearch={handleSearch}
             />
           </ContentContainer>
         )}
-        {showKeywordsBox && currentQuestion && (
-          <QuestionKeywordsBox
+        {(noticeHits.length > 0 || hitsLoading) && (
+          <NoticeChunkResultsBox
             className={fr.cx("fr-hidden", "fr-unhidden-md", "fr-mb-2w", "fr-px-1w")}
-            onClose={() => onCloseQuestionKeywordsBox()}
-            questionID={currentQuestion}
+            hits={noticeHits}
+            loading={hitsLoading}
+            questionLabel={activeQuestion?.question}
+            onClose={onCloseResults}
           />
         )}
         <ContentContainer whiteContainer className={fr.cx("fr-mb-2w")}>
