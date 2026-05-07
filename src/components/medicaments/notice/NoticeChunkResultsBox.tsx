@@ -47,10 +47,6 @@ const Excerpt = styled.div`
   font-style: italic;
 `;
 
-function normalizeText(s: string): string {
-  return s.replace(/\s+/g, " ").replace(/^[·•]\s*/, "").trim();
-}
-
 interface NoticeChunkResultsBoxProps extends HTMLAttributes<HTMLDivElement> {
   hits: NoticeChunkHit[];
   loading: boolean;
@@ -78,42 +74,26 @@ function NoticeChunkResultsBox({
     if (!sectionEl) return;
 
     // Section anchor is on the <h3>; content lives in the next sibling div
-    const searchRoot = sectionEl.nextElementSibling ?? sectionEl;
+    const contentEl = (sectionEl.nextElementSibling ?? sectionEl) as HTMLElement;
 
-    // Match DOM elements against hit.text (the full chunk text).
-    // html_snippets are unreliable for lists so we use the text field directly.
-    const chunkText = normalizeText(hit.text);
+    let scrollTarget: HTMLElement = sectionEl as HTMLElement;
 
-    for (const el of searchRoot.querySelectorAll(".fr-mb-2w")) {
-      const elText = normalizeText(el.textContent ?? "");
-      if (elText.length > 15 && chunkText.includes(elText)) {
-        el.classList.add("notice-highlight");
-        highlightedEls.current.push(el);
-      }
-    }
-
-    for (const el of searchRoot.querySelectorAll("li")) {
-      const elText = normalizeText(el.textContent ?? "");
-      if (elText.length > 15 && chunkText.includes(elText)) {
-        el.classList.add("notice-highlight");
-        highlightedEls.current.push(el);
-      }
-    }
-
-    // Scroll: sub_header <b> element → first highlighted element → section
-    let scrollTarget: Element = sectionEl;
     if (hit.sub_header) {
-      const norm = normalizeText(hit.sub_header);
-      for (const el of searchRoot.querySelectorAll("b")) {
-        if (normalizeText(el.textContent ?? "") === norm) {
-          scrollTarget = el;
+      for (const b of contentEl.querySelectorAll<HTMLElement>("b")) {
+        if (b.textContent?.trim() === hit.sub_header.trim()) {
+          b.classList.add("notice-highlight");
+          highlightedEls.current.push(b);
+          scrollTarget = b;
           break;
         }
       }
-    } else if (highlightedEls.current[0]) {
-      scrollTarget = highlightedEls.current[0];
+    } else {
+      contentEl.classList.add("notice-highlight");
+      highlightedEls.current.push(contentEl);
+      scrollTarget = contentEl;
     }
-    (scrollTarget as HTMLElement).scrollIntoView({ behavior: "smooth", block: "start" });
+
+    scrollTarget.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [clearHighlights]);
 
   // Auto-highlight first hit when hits change
