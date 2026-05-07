@@ -6,6 +6,8 @@ import { AutocompleteSearchInput } from "@/components/AutocompleteSearch";
 import { useRouter } from "next/navigation";
 import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 import { useTracking } from "@/services/tracking";
+import { cx } from "@codegouvfr/react-dsfr/tools/cx";
+
 export default function ClientHeader({
   atcs,
   hasSearch = true,
@@ -42,17 +44,38 @@ export default function ClientHeader({
         />
       }
       serviceTagline="La référence officielle sur les données des médicaments"
+      quickAccessItems={[
+        {
+          iconId: 'fr-icon-arrow-left-right-fill',
+          linkProps: {
+            href: "/interactions",
+            prefetch: false,
+            className: cx("fr-hidden-md")
+          },
+          text: "Interactions entre médicaments",
+        },
+        {
+          iconId: 'fr-icon-speak-fill',
+          linkProps: {
+            href: "https://signalement.social-sante.gouv.fr/",
+            target: "_blank",
+            rel: "noopener external",
+            className: cx("fr-hidden-md")
+          },
+          text: "Signaler un effet indésirable"
+        },
+      ]}
       navigation={[
         { text: "Accueil", linkProps: { href: "/", prefetch: false } },
         {
-          text: "Parcourir par classe de médicament",
+          text: "Classes de médicament",
           menuLinks: atcs.map((atc) => ({
             linkProps: { href: `/atc/${atc.code}`, prefetch: false },
             text: atc.label,
           })),
         },
         {
-          text: "Listes par ordre alphabétique",
+          text: "Listes",
           menuLinks: [
             {
               text: "Tous les médicaments",
@@ -73,16 +96,16 @@ export default function ClientHeader({
           ],
         },
         {
+          text: "Interactions",
+          linkProps: { href: "/interactions", prefetch: false },
+        },
+        {
           text: "Articles",
           linkProps: { href: "/articles", prefetch: false },
         },
         {
           text: "Glossaire",
           linkProps: { href: "/glossaire/A", prefetch: false },
-        },
-        {
-          text: "À propos",
-          linkProps: { href: "/a-propos", prefetch: false },
         },
         {
           text: "Signaler un effet indésirable",

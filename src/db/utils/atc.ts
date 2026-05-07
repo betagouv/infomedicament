@@ -62,6 +62,18 @@ export const getSubstancesByAtc = cache(async (atc2: ATC): Promise<SubstanceNom[
     .execute();
 });
 
+export const getAtcMenuItems = unstable_cache(
+  async function (): Promise<{ code: string; label: string }[]> {
+    const rows = await db
+      .selectFrom("ref_atc_friendly_niveau_1")
+      .select(["code", "libelle"])
+      .execute();
+    return rows.map((r) => ({ code: r.code as string, label: r.libelle as string }));
+  },
+  ["atc-menu"],
+  { revalidate: 86400 },
+);
+
 export const getAtc = unstable_cache(
   async function (): Promise<ATC1[]> {
     const rows = await db.selectFrom("ref_atc_friendly_niveau_1")
