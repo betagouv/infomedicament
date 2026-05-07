@@ -1,19 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isRateLimited } from "@/utils/rate-limit";
 
-// Rate limit: 200 requests per minute per IP
-const RATE_LIMIT = 200; // TODO: we shouldn't need such a high limit
+// Rate limit: 200 req/min per IP and per container
+const RATE_LIMIT = 200;
 const RATE_WINDOW_MS = 60_000;
 
 export function proxy(req: NextRequest) {
     const url = req.nextUrl;
 
-    // Skip static assets and RSC prefetch requests (Next.js 16 fires significantly
-    // more prefetch requests than v15 — counting them inflates the rate limit)
+    // Skip static assets and all fetch() requests (Sec-Fetch-Dest: empty).
+    // Next.js intentionally strips RSC headers (rsc, next-router-prefetch) from
+    // middleware, and rewrites strip ?_rsc= query params — so those signals are
+    // unreliable. Sec-Fetch-Dest is browser-set and survives both. RSC navigation
+    // and prefetch requests are fetch() calls (empty), while actual HTML page loads
+    // are navigations (document). See: github.com/vercel/next.js/issues/65787
     if (
         url.pathname.startsWith("/_next") ||
         url.pathname.includes(".") ||
-        req.headers.get("next-router-prefetch")
+        req.headers.get("sec-fetch-dest") === "empty"
     ) {
         return NextResponse.next();
     }
