@@ -6,8 +6,6 @@ export interface NoticeChunkHit {
   section_anchor: string;
   section_title: string;
   sub_header: string | null;
-  text: string;
-  html_snippets: string[];
 }
 
 export async function GET(
@@ -22,14 +20,14 @@ export async function GET(
   const { baseUrl, authHeader } = getOSConfig();
 
   const body = {
-    size: 2,
+    size: 1,
     query: {
       bool: {
-        must: { knn: { embedding: { vector, k: 2 } } },
+        must: { knn: { embedding: { vector, k: 1 } } },
         filter: { term: { cis: CIS } },
       },
     },
-    _source: ["cis", "section_anchor", "section_title", "sub_header", "text", "html_snippets"],
+    _source: ["section_anchor", "section_title", "sub_header"],
   };
 
   const res = await fetch(`${baseUrl}/notice_chunks/_search`, {
