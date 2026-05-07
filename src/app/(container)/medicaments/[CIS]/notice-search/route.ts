@@ -38,10 +38,11 @@ export async function GET(
 
   if (!res.ok) return NextResponse.json({ error: "OpenSearch error" }, { status: 502 });
 
+  const MIN_SCORE = 0.5;
   const data = await res.json();
-  const hits: NoticeChunkHit[] = (data.hits?.hits ?? []).map(
-    (h: { _source: NoticeChunkHit }) => h._source,
-  );
+  const hits: NoticeChunkHit[] = (data.hits?.hits ?? [])
+    .filter((h: { _score: number }) => h._score >= MIN_SCORE)
+    .map((h: { _source: NoticeChunkHit }) => h._source);
 
   return NextResponse.json({ hits });
 }

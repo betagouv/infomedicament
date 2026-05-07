@@ -29,12 +29,14 @@ const QuestionLabel = styled.span`
 
 interface NoticeChunkResultsBoxProps extends HTMLAttributes<HTMLDivElement> {
   hits: NoticeChunkHit[];
+  loading: boolean;
   questionLabel?: ReactNode;
   onClose: () => void;
 }
 
 function NoticeChunkResultsBox({
   hits,
+  loading,
   questionLabel,
   onClose,
   ...props
@@ -94,6 +96,9 @@ function NoticeChunkResultsBox({
             title="Fermer"
           />
         </Header>
+        {!loading && hits.length === 0 && (
+          <span className={fr.cx("fr-text--sm")}>Aucun résultat trouvé dans cette notice. Essayez de consulter le RCP dans la version détaillée de la notice.</span>
+        )}
       </div>
     </Container>
   );
