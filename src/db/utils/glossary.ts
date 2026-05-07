@@ -3,6 +3,7 @@
 import db from '@/db';
 import { Definition } from "@/types/GlossaireTypes";
 import { sql } from "kysely";
+import { unstable_cache } from "next/cache";
 import sanitizeHtml from "sanitize-html";
 
 const ALLOWED_TAGS = { allowedTags: ["p", "br", "ul", "ol", "li"] as string[] };
@@ -34,7 +35,7 @@ export async function getGlossaryDefinitionsByFirstLetter(firstLetter: string): 
     return typedRows.sort((a, b) => a.nom.localeCompare(b.nom, 'fr', { sensitivity: 'base' }));
 };
 
-export async function getGlossaryLetters() {
+export const getGlossaryLetters = unstable_cache(async function() {
     const letters = await db.selectFrom("ref_glossaire")
         .select(sql<string>`upper(substring(nom, 1, 1))`.as("letter"))
         .distinct()
@@ -42,7 +43,7 @@ export async function getGlossaryLetters() {
         .execute();
 
     return letters.map((row) => row.letter);
-}
+}, ["glossary-letters"], { revalidate: 86400 });
 
 function mapDataBaseToDefinition(row: any): Definition {
     return {

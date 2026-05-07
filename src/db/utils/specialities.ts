@@ -19,16 +19,16 @@ import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
 import { formatSpecialitesResumeFromGroups } from "@/utils/specialites";
 
-export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
+export const getNoticeRcpLastUpdated = unstable_cache(async function(): Promise<Date | null> {
   const result = await pdbmMySQL
     .selectFrom("Document")
     .select((eb) => eb.fn.max("DocDateMaj").as("lastUpdated"))
     .executeTakeFirst();
 
   return result?.lastUpdated ?? null;
-}
+}, ["notice-rcp-last-updated"], { revalidate: 3600 });
 
-export async function getMarketedMedicamentCount(): Promise<number> {
+export const getMarketedMedicamentCount = unstable_cache(async function(): Promise<number> {
   const result = await pdbmMySQL
     .selectFrom("Specialite")
     .where("Specialite.IsBdm", "=", 1)
@@ -36,7 +36,7 @@ export async function getMarketedMedicamentCount(): Promise<number> {
     .executeTakeFirstOrThrow();
 
   return result.count;
-}
+}, ["marketed-medicament-count"], { revalidate: 3600 });
 
 export async function getSpecialiteName(CIS: string): Promise<string> {
   const result = await pdbmMySQL
