@@ -270,6 +270,7 @@ function NoticeContent({
             <NoticeChunkResultsBox
               className={fr.cx("fr-hidden-md", "fr-mb-2w", "fr-px-1w")}
               hits={noticeHits ?? []}
+              loading={hitsLoading}
               questionLabel={activeQuestion?.question}
               onClose={onCloseResults}/>
           )}
