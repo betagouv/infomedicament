@@ -1,11 +1,11 @@
 "use server";
 
 import "server-cli-only";
-import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import db from "..";
 import { LetterType } from "../types";
 
-export const getLetters = cache(async function(type: LetterType): Promise<string[]> {
+export const getLetters = unstable_cache(async function(type: LetterType): Promise<string[]> {
   const result = await db.
     selectFrom("letters")
     .selectAll()
@@ -15,4 +15,4 @@ export const getLetters = cache(async function(type: LetterType): Promise<string
     return result.letters.sort((a,b) => a.localeCompare(b));
   }
   return [];
-});
+}, ["letters"], { revalidate: 86400 });
