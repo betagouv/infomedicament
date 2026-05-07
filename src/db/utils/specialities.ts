@@ -218,7 +218,7 @@ export const getSubstanceSpecialitesCIS = unstable_cache(async function (
   { revalidate: 3600 } // cache for one hour
 );
 
-export async function getSpecialiteMatadata(CIS: number): Promise<SpecialiteMetadata | undefined> {
+export async function getSpecialiteMetadata(CIS: number): Promise<SpecialiteMetadata | undefined> {
   return await db
     .selectFrom("specialites_metadata")
     .where("CIS", "=", CIS)

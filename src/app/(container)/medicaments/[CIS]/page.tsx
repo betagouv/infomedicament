@@ -13,7 +13,7 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
-import { getSpecialiteMatadata, getSpecialiteName } from "@/db/utils/specialities";
+import { getSpecialiteMetadata, getSpecialiteName } from "@/db/utils/specialities";
 import MedicamentContainer from "@/components/medicaments/MedicamentContainer";
 
 export const dynamic = "error";
@@ -25,7 +25,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { CIS } = await props.params;
 
-  const metadata = await getSpecialiteMatadata(Number(CIS.trim()));
+  const metadata = await getSpecialiteMetadata(Number(CIS.trim()));
   if(!metadata) return notFound();
 
   const name = formatSpecName(metadata.title);

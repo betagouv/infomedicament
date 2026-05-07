@@ -19,9 +19,8 @@ export async function generateMetadata(
   
   const { code } = await props.params;
 
-  let atc1, atc2;
-  atc1 = code ? await getAtc1(code) : undefined;
-  atc2 = code && code.length === 3 ? await getAtc2(code) : undefined;
+  const atc1 = await getAtc1(code);
+  const atc2 = code.length === 3 ? await getAtc2(code) : undefined;
 
   if (!atc1 && !atc2) notFound();
   let title = "";
@@ -43,14 +42,8 @@ export default async function Page(props: {
 }) {
   const { code } = await props.params;
 
-  let atc1, atc2;
-  try {
-    atc1 = code ? await getAtc1(code) : undefined;
-    atc2 = code && code.length === 3 ? await getAtc2(code) : undefined;
-  } catch (e) {
-    if (e instanceof ATCError) notFound();
-    throw e;
-  }
+  const atc1 = await getAtc1(code);
+  const atc2 = code.length === 3 ? await getAtc2(code) : undefined;
   const currentAtc = atc2 || atc1 || undefined;
 
   if (!currentAtc || !atc1) notFound();
