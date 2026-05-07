@@ -49,6 +49,7 @@ export default function ClientHeader({
           iconId: 'fr-icon-arrow-left-right-fill',
           linkProps: {
             href: "/interactions",
+            prefetch: false,
             className: cx("fr-hidden-md")
           },
           text: "Interactions entre médicaments",
