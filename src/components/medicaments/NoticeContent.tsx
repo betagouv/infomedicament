@@ -156,7 +156,7 @@ function NoticeContent({
     if (anchorEl) {
       // Direct section mapping — scroll immediately, no OpenSearch needed
       setActiveQuestion(question);
-      setNoticeHits([{ section_anchor: question.headerId!, section_title: "", sub_header: null, text: "", html_snippets: [] }]);
+      setNoticeHits([{ section_anchor: question.headerId!, section_title: "", sub_header: null }]);
       return;
     }
     // No direct anchor (or anchor missing from this notice) — use OpenSearch
@@ -270,7 +270,6 @@ function NoticeContent({
             <NoticeChunkResultsBox
               className={fr.cx("fr-hidden-md", "fr-mb-2w", "fr-px-1w")}
               hits={noticeHits ?? []}
-              loading={hitsLoading}
               questionLabel={activeQuestion?.question}
               onClose={onCloseResults}/>
           )}

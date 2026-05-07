@@ -27,36 +27,14 @@ const QuestionLabel = styled.span`
   font-size: 14px;
 `;
 
-const HitItem = styled.div`
-  cursor: pointer;
-  border-radius: 4px;
-  padding: ${fr.spacing("1v")} ${fr.spacing("2v")};
-  &:hover {
-    background-color: var(--background-default-blue-france);
-  }
-`;
-
-const Breadcrumb = styled.div`
-  font-size: 12px;
-  color: var(--text-mention-grey);
-  margin-bottom: ${fr.spacing("1v")};
-`;
-
-const Excerpt = styled.div`
-  font-size: 13px;
-  font-style: italic;
-`;
-
 interface NoticeChunkResultsBoxProps extends HTMLAttributes<HTMLDivElement> {
   hits: NoticeChunkHit[];
-  loading: boolean;
   questionLabel?: ReactNode;
   onClose: () => void;
 }
 
 function NoticeChunkResultsBox({
   hits,
-  loading,
   questionLabel,
   onClose,
   ...props
@@ -107,7 +85,7 @@ function NoticeChunkResultsBox({
   return (
     <Container className={props.className} {...props}>
       <div className={fr.cx("fr-p-1w")}>
-        <Header className={fr.cx("fr-mb-1w")}>
+        <Header>
           <QuestionLabel>{questionLabel ?? "Recherche"}</QuestionLabel>
           <Button
             iconId="fr-icon-close-line"
@@ -116,34 +94,6 @@ function NoticeChunkResultsBox({
             title="Fermer"
           />
         </Header>
-
-        {loading && (
-          <span className={fr.cx("fr-text--sm")}>Recherche en cours...</span>
-        )}
-
-        {!loading && hits.length === 0 && (
-          <span className={fr.cx("fr-text--sm")}>
-            Aucun résultat trouvé dans cette notice.
-          </span>
-        )}
-
-        {!loading &&
-          hits.map((hit, i) => (
-            <HitItem
-              key={i}
-              onClick={() => highlightAndScroll(hit)}
-            >
-              <Breadcrumb>
-                {hit.section_title}
-                {hit.sub_header ? ` › ${hit.sub_header}` : ""}
-              </Breadcrumb>
-              <Excerpt>
-                {hit.text.length > 120
-                  ? hit.text.slice(0, 120) + "..."
-                  : hit.text}
-              </Excerpt>
-            </HitItem>
-          ))}
       </div>
     </Container>
   );
