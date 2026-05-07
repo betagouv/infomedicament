@@ -24,6 +24,7 @@ export async function GET(
     query: {
       bool: {
         must: { knn: { embedding: { vector, k: 1 } } },
+        should: { match: { text: { query: q } } },
         filter: { term: { cis: CIS } },
       },
     },
@@ -40,9 +41,11 @@ export async function GET(
 
   const MIN_SCORE = 0.5;
   const data = await res.json();
-  const hits: NoticeChunkHit[] = (data.hits?.hits ?? [])
-    .filter((h: { _score: number }) => h._score >= MIN_SCORE)
-    .map((h: { _source: NoticeChunkHit }) => h._source);
+  const rawHits: { _score: number; _source: NoticeChunkHit }[] = data.hits?.hits ?? [];
+  console.log("[notice-search]", { q, hits: rawHits.map((h) => ({ score: h._score, section: h._source.section_title, sub_header: h._source.sub_header })) });
+  const hits = rawHits
+    .filter((h) => h._score >= MIN_SCORE)
+    .map((h) => h._source);
 
   return NextResponse.json({ hits });
 }
