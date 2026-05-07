@@ -155,9 +155,8 @@ function NoticeContent({
     const anchorEl = question.headerId ? document.getElementById(question.headerId) : null;
     if (anchorEl) {
       // Direct section mapping — scroll immediately, no OpenSearch needed
-      anchorEl.scrollIntoView({ behavior: "smooth", block: "start" });
-      setActiveQuestion(null);
-      setNoticeHits(null);
+      setActiveQuestion(question);
+      setNoticeHits([{ section_anchor: question.headerId!, section_title: "", sub_header: null, text: "", html_snippets: [] }]);
       return;
     }
     // No direct anchor (or anchor missing from this notice) — use OpenSearch
