@@ -49,7 +49,7 @@ const makeGroup = (groupName: string, composants = "") => ({
   specialites: [],
   CISList: [],
   subsIds: [],
-  pathosCodes: [],
+  indicationsIds: [],
 });
 
 describe("Search Engine (getSearchResults)", () => {

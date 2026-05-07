@@ -38,7 +38,9 @@ const cisBigints = cisCodes.map(Number);
 // Reference tables: copied in full (small, no CIS key)
 const FULL_COPY_TABLES = [
   "atc",
+  "classes_cliniques",
   "letters",
+  'indications',
   "presentations",
   "ref_articles",
   "ref_atc_friendly_niveau_1",
@@ -50,8 +52,9 @@ const FULL_COPY_TABLES = [
   "ref_substance_active",
   "ref_substance_active_definitions",
   "resume_generiques",
-  "resume_pathologies",
+  "resume_indications",
   "resume_substances",
+  "vu_classes_cliniques"
 ];
 
 // Tables with a bigint codeCIS column

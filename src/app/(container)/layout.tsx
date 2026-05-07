@@ -62,6 +62,12 @@ export default async function ContainerLayout({
           title: "Mentions légales",
         }}
         bottomItems={[
+          {
+            text: "À propos",
+            linkProps: {
+              href: "/a-propos",
+            },
+          },
           <FooterPersonalDataPolicyItem key={"dp"} />,
           <FooterConsentManagementItem key={"fc"} />,
           {

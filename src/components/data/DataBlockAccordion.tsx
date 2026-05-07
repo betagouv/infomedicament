@@ -14,6 +14,7 @@ import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import DataBlockGenericIcons from "./DataBlockGenericIcons";
+import { ShortIndication } from "@/types/IndicationsTypes";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
@@ -104,7 +105,7 @@ function DataBlockAccordion({
 
   const [fullListeComposants, setFullListeComposants] = useState<string>("");
   const [listeComposants, setListeComposants] = useState<string>("");
-
+  const [listIndications, setListIndications] = useState<ShortIndication[]>([]);
 
   const [atc1Label, setAtc1Label] = useState<string | undefined>(undefined);
   const [atc2Label, setAtc2Label] = useState<string | undefined>(undefined);
@@ -125,7 +126,8 @@ function DataBlockAccordion({
     setListeComposants(item.composants.slice(0, composantsTruncLength) + (item.composants.length > composantsTruncLength ? "..." : ""));
     setAtc1Label(item.atc1Label);
     setAtc2Label(item.atc2Label);
-  }, [item, composantsTruncLength, setSpecialitesGroup, setGroupName, setSpecialites, setListeComposants, setAtc1Label, setAtc2Label]);
+    setListIndications(item.indicationsDetails ? item.indicationsDetails : []);
+  }, [item, composantsTruncLength, setSpecialitesGroup, setGroupName, setSpecialites, setListeComposants, setAtc1Label, setAtc2Label, setListIndications]);
 
   useEffect(() => {
     if(withAlert 
@@ -184,6 +186,14 @@ function DataBlockAccordion({
     };
   }, []);
 
+  function getIndicationsText(indicationsDetails: ShortIndication[]) {
+    let newListIndications: string = "";
+    indicationsDetails.forEach((indication) => {
+      newListIndications += (newListIndications !== "" ? ", " : "") + indication.nomIndication;
+    })
+    return newListIndications;
+  }
+
 
   return specialitesGroup && (
     <Container className={fr.cx("fr-mb-1w")}>
@@ -218,6 +228,14 @@ function DataBlockAccordion({
                   {listeComposants}
                 </DarkGreyText>
               </span>
+               {listIndications.length > 0 && (
+                <span className={fr.cx("fr-text--sm", "fr-ml-2w")}>
+                  <GreyText>Indication{listIndications.length > 1 && 's'}</GreyText>&nbsp;
+                  <DarkGreyText>
+                    {getIndicationsText(listIndications)}
+                  </DarkGreyText>
+                </span>
+              )}
             </RowToColumnContainer>
             {(withAlert && (pregnancyPlanAlert || pregnancyMentionAlert || pediatricsInfo)) && (
               <div>

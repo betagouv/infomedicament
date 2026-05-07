@@ -3,8 +3,9 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { getPatho } from "@/db/utils/pathologies";
-import PathologyDefinitionContent from "@/components/definition/PathologyDefinitionContent";
+import { getIndications } from "@/db/utils/indications";
+import IndicationDefinitionContent from "@/components/definition/IndicationDefinitionContent";
+import { Indication } from "@/db/types";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -13,8 +14,8 @@ export default async function Page(props: {
   params: Promise<{ code: `${number}` }>;
 }) {
   const { code } = await props.params;
-  const patho = await getPatho(code);
-  if (!patho) return notFound();
+  const indication: Indication | undefined = await getIndications(Number(code));
+  if (!indication) return notFound();
 
   return (
     <ContentContainer frContainer>
@@ -24,21 +25,21 @@ export default async function Page(props: {
             segments={[
               { label: "Accueil", linkProps: { href: "/" } },
               {
-                label: "Listes des pathologies",
+                label: "Listes des indications",
                 linkProps: {
-                  href: `/pathologies/${patho.NomPatho.slice(0, 1)}`,
+                  href: `/indications/${indication.nom.slice(0, 1)}`,
                 },
               },
             ]}
-            currentPageLabel={patho.NomPatho}
+            currentPageLabel={indication.nom}
           />
         </div>
       </div>
-      <PathologyDefinitionContent
-        patho={patho}
+      <IndicationDefinitionContent
+        indication={indication}
       />
       <RatingToaster
-        pageId={patho.NomPatho}
+        pageId={indication.nom}
       />
     </ContentContainer>
   );
