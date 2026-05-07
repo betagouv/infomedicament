@@ -54,7 +54,7 @@ export const getSubstanceAllSpecialites = unstable_cache(async function (
     .distinct()
     .execute();
 },
-  ["substance-specialites-cis"],
+  ["substance-all-specialites"],
   { revalidate: 3600 } // cache for one hour
 );
 
