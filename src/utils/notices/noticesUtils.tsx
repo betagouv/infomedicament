@@ -17,7 +17,7 @@ export function displayInfosImportantes(ficheInfos?:FicheInfos): boolean{
 function cleanStringContent(content: string): string {
   const pos: number = content.indexOf('<a ');
   if(pos !== -1 && content.indexOf('target=') === -1) {
-    return [content.slice(0, pos + 3), 'target="_blank "', content.slice(pos + 3)].join("");
+    return [content.slice(0, pos + 3), 'target="_blank" rel="noopener noreferrer" ', content.slice(pos + 3)].join("");
   }
   return content;
 }
