@@ -116,7 +116,7 @@ function QuestionsBox({
       </QuestionsRow>
       <SearchRow className={fr.cx("fr-mt-2w")}>
         <input
-          className={fr.cx("fr-input", "fr-input--sm")}
+          className={fr.cx("fr-input")}
           placeholder="Posez votre question..."
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
