@@ -6,7 +6,6 @@ import { AutocompleteSearchInput } from "@/components/AutocompleteSearch";
 import { useRouter } from "next/navigation";
 import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 import { useTracking } from "@/services/tracking";
-import { ATC1 } from "@/types/ATCTypes";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 
 export default function ClientHeader({
@@ -14,7 +13,7 @@ export default function ClientHeader({
   hasSearch = true,
   searchInitial = "",
 }: {
-  atcs: ATC1[];
+  atcs: { code: string; label: string }[];
   hasSearch?: boolean;
   searchInitial?: string;
 }) {

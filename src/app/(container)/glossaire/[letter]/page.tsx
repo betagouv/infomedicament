@@ -9,6 +9,11 @@ import RatingToaster from "@/components/rating/RatingToaster";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const letters = await getGlossaryLetters();
+  return letters.map((letter) => ({ letter }));
+}
 const PAGE_LABEL: string = "Glossaire";
 
 export default async function Page(props: {
