@@ -19,14 +19,14 @@ import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
 import { formatSpecialitesResumeFromGroups } from "@/utils/specialites";
 
-export const getNoticeRcpLastUpdated = unstable_cache(async function(): Promise<Date | null> {
+export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
   const result = await pdbmMySQL
     .selectFrom("Document")
     .select((eb) => eb.fn.max("DocDateMaj").as("lastUpdated"))
     .executeTakeFirst();
 
   return result?.lastUpdated ?? null;
-}, ["notice-rcp-last-updated"], { revalidate: 3600 });
+}
 
 export const getMarketedMedicamentCount = unstable_cache(async function(): Promise<number> {
   const result = await pdbmMySQL
