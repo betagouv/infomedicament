@@ -61,7 +61,7 @@ function IndicationsBlock({
         id="informations-indications" 
         {...props} 
         whiteContainer 
-        className={[props.className, fr.cx("fr-mb-4w", "fr-p-2w")].join(" ")}
+        className={[props.className, fr.cx("fr-mb-2w", "fr-p-2w")].join(" ")}
       >
         <h2 className={fr.cx("fr-h6")}>{title ? title : "Indications"}</h2>
         <IndicationBlock 

@@ -19,6 +19,8 @@ import { Definition } from "@/types/GlossaireTypes";
 import GeneralInformations from "./advanced/GeneralInformations";
 import RcpBlock from "./advanced/RcpBlock";
 import DocumentHas from "./advanced/DocumentHas";
+import { PregnancyAlert } from "@/types/PregancyTypes";
+import DesktopTitleBlock from "./blocks/DesktopTitleBlock";
 import SwitchNoticeAdvancedBlock from "./blocks/SwitchNoticeAdvancedBlock";
 
 const AdvancedContentContainer = styled.div`
@@ -27,6 +29,11 @@ const AdvancedContentContainer = styled.div`
     .fr-mb-4w{
       margin-bottom: 1rem !important;
     }
+  }
+  @media (min-width: 48em) {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row-reverse;
   }
 `;
 
@@ -42,7 +49,7 @@ interface AdvancedContentProps extends HTMLAttributes<HTMLDivElement> {
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
   delivrance: SpecDelivrance[];
-  isPregnancyPlanAlert: boolean;
+  pregnancyPlanAlert: PregnancyAlert | undefined;
   isPregnancyMentionAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
   presentations: Presentation[];
@@ -51,6 +58,7 @@ interface AdvancedContentProps extends HTMLAttributes<HTMLDivElement> {
   definitions?: Definition[];
   indicationBlock?: NoticeRCPContentBlock;
   advancedAnchor?: AnchorMenu;
+  title: string;
   onGoToAdvanced: (advanced: boolean) => void;
 }
 
@@ -60,7 +68,7 @@ function AdvancedContent({
   composants,
   isPrinceps,
   delivrance,
-  isPregnancyPlanAlert,
+  pregnancyPlanAlert,
   isPregnancyMentionAlert,
   pediatrics,
   presentations,
@@ -69,6 +77,7 @@ function AdvancedContent({
   definitions,
   indicationBlock,
   advancedAnchor,
+  title,
   onGoToAdvanced,
   ...props
 }: AdvancedContentProps) {
@@ -77,10 +86,16 @@ function AdvancedContent({
 
   return (
     <AdvancedContentContainer {...props} className={["mobile-display-contents", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ",)}>
-      <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-4", "fr-col-md-3")].join(" ",)}>
+      <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-md-5")].join(" ",)}>
+        <DesktopTitleBlock
+          title={title}
+          isAdvanced={true}
+          onGoToAdvanced={onGoToAdvanced}
+        />
         <SwitchNoticeAdvancedBlock
           isAdvanced={true}
           onGoToAdvanced={onGoToAdvanced}
+          className={fr.cx("fr-mb-2w", "fr-hidden-md")}
         />
         <DetailedSubMenu
           updateVisiblePart={setCurrentPart}
@@ -89,11 +104,14 @@ function AdvancedContent({
           anchor={advancedAnchor}
         />
       </ContentContainer>
-      <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-lg-8", "fr-col-md-9")].join(" ",)}>
+      <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-md-7")].join(" ",)}>
         <MedicamentContentHeaderBlock
           specialite={specialite}
           ficheInfos={ficheInfos}
           definitions={definitions}
+          pregnancyPlanAlert={pregnancyPlanAlert}
+          isPregnancyMentionAlert={isPregnancyMentionAlert}
+          pediatrics={pediatrics}
         />
         <DetailedNoticeContainer id="informations-generales" $visible={currentPart === DetailsNoticePartsEnum.INFORMATIONS_GENERALES}>
           <GeneralInformations 
@@ -101,7 +119,7 @@ function AdvancedContent({
             atcCode={atcCode}
             composants={composants}
             isPrinceps={isPrinceps}
-            isPregnancyPlanAlert={isPregnancyPlanAlert}
+            isPregnancyPlanAlert={!!pregnancyPlanAlert}
             isPregnancyMentionAlert={isPregnancyMentionAlert}
             pediatrics={pediatrics}
             presentations={presentations}
@@ -114,7 +132,7 @@ function AdvancedContent({
           />
         </DetailedNoticeContainer>
         <DetailedNoticeContainer id="rcp-denomiation" $visible={currentPart === DetailsNoticePartsEnum.RCP}>
-          <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+          <ContentContainer whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
             <RcpBlock specialite={specialite} />
           </ContentContainer>
         </DetailedNoticeContainer>

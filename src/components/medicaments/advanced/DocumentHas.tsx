@@ -63,7 +63,7 @@ function DocumentHas({
 }: DocumentHasProps) {
   return (
     <div {...props}>
-      <ContentContainer id="document-has-bon-usage" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+      <ContentContainer id="document-has-bon-usage" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Documents de bon usage</h2>
         {(ficheInfos && ficheInfos.listeDocumentsBonUsage && ficheInfos.listeDocumentsBonUsage.length > 0) 
           ? (
@@ -96,7 +96,7 @@ function DocumentHas({
         }
       </ContentContainer>
 
-      <ContentContainer id="document-has-smr" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+      <ContentContainer id="document-has-smr" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>
           Service médical rendu (
           <WithDefinition
@@ -128,6 +128,7 @@ function DocumentHas({
                     ];
                   })
                 }
+                className={fr.cx("fr-mb-0")}
               />
             </div>
           ) : (
@@ -153,7 +154,7 @@ function DocumentHas({
         }
       </ContentContainer>
       
-      <ContentContainer id="document-has-asmr" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+      <ContentContainer id="document-has-asmr" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>
           Amélioration du service médical rendu (
           <WithDefinition
@@ -185,6 +186,7 @@ function DocumentHas({
                     ];
                   })
                 }
+                className={fr.cx("fr-mb-0")}
               />
             </div>
           ) : (

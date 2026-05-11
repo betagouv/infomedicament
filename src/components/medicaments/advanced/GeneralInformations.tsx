@@ -14,12 +14,12 @@ import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } f
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
 import { DetailedSpecialite, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
-import { displayInfosImportantes, getContent } from "@/utils/notices/noticesUtils";
+import { displayInfosImportantes } from "@/utils/notices/noticesUtils";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
-import { getProcedureLibLong, getTypeInfoTxt, isAIP, isCentralisee } from "@/utils/specialites";
+import { getProcedureLibLong, getTypeInfoTxt, isAIP } from "@/utils/specialites";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { getPresentationName, getPresentationFullPriceText, isAbrogee, isAgree, isArret, isIVG, isListeRetrocession, isListeSus, isNotAuthorized } from "@/utils/presentations";
 import { FicheInfos, InfosImportantes } from "@/types/FicheInfoTypes";
@@ -54,12 +54,6 @@ const InfosImportantesBlock = styled.div`
   a {
     background: none;
     text-decoration: underline;
-  }
-`;
-
-const IndicationBlock = styled.div`
-  div {
-    margin-bottom: 1rem;
   }
 `;
 
@@ -139,7 +133,7 @@ function GeneralInformations({
     (ficheInfos && specialite) && (
     <div {...props}>
       {ficheInfos.listeInformationsImportantes && displayInfosImportantes(ficheInfos) && (
-        <ContentContainer id="informations-importantes" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+        <ContentContainer id="informations-importantes" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
           <h2 className={fr.cx("fr-h6")}>Informations importantes</h2>
           {ficheInfos.listeInformationsImportantes.map((info: InfosImportantes, index) => {
             return (
@@ -162,7 +156,7 @@ function GeneralInformations({
           })}
         </ContentContainer>
       )}    
-      <ContentContainer id="informations-resume" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+      <ContentContainer id="informations-resume" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Résumé</h2>
         <SummaryLine categoryName="Code CIS">
           {formatCIS(specialite.SpecId)}
@@ -291,7 +285,7 @@ function GeneralInformations({
         indicationBlock={indicationBlock}
       />
       
-      <ContentContainer id="informations-composition" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+      <ContentContainer id="informations-composition" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Composition</h2>
         {(ficheInfos.listeElements && ficheInfos.listeElements.length > 0) 
         ? (
@@ -338,7 +332,7 @@ function GeneralInformations({
         )}
       </ContentContainer>
       
-      <ContentContainer id="informations-presentations" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+      <ContentContainer id="informations-presentations" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Présentations</h2>
         {(presentations && presentations.length > 0) ? (
           <div>
@@ -472,7 +466,7 @@ function GeneralInformations({
 
 
       {(marr && marr.pdf.length > 0) && (
-        <ContentContainer id="informations-marr" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+        <ContentContainer id="informations-marr" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
           <MarrNoticeAdvanced marr={marr} />
         </ContentContainer>
       )}

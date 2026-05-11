@@ -40,6 +40,8 @@ import IndicationsBlock from "./blocks/IndicationsBlock";
 import GenericPrincepsTag from "../tags/GenericPrincepsTag";
 import { getSpecialitePathologies } from "@/db/utils/indications";
 import ShareButtons from "../generic/ShareButtons";
+import { PregnancyAlert } from "@/types/PregancyTypes";
+import DesktopTitleBlock from "./blocks/DesktopTitleBlock";
 
 const NoticeContentContainer = styled.div`
   @media (max-width: 48em) {
@@ -83,7 +85,7 @@ interface NoticeContentProps extends HTMLAttributes<HTMLDivElement> {
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
   delivrance: SpecDelivrance[];
-  isPregnancyPlanAlert: boolean;
+  pregnancyPlanAlert: PregnancyAlert | undefined;
   isPregnancyMentionAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
   presentations: Presentation[];
@@ -104,7 +106,7 @@ function NoticeContent({
   composants,
   isPrinceps,
   delivrance,
-  isPregnancyPlanAlert,
+  pregnancyPlanAlert,
   isPregnancyMentionAlert,
   pediatrics,
   presentations,
@@ -188,24 +190,19 @@ function NoticeContent({
     <NoticeContentContainer {...props} className={["mobile-display-contents", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ")}>
       <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-md-5")].join(" ")}>
         <DetailsContentContainer className={["mobile-display-contents", fr.cx("fr-mb-2w")].join(" ")}>
-          <ContentContainer whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w", "fr-hidden", "fr-unhidden-md")}>
-            <h1 className={fr.cx("fr-h2")}>
-              {title}
-            </h1>
-            <ShareButtons
-              pageName={title}
-              alignRight
-            />
-            <SwitchNoticeAdvancedBlock
-              isAdvanced={false}
-              onGoToAdvanced={onGoToAdvanced}
-            />
-          </ContentContainer>
+          <DesktopTitleBlock
+            title={title}
+            isAdvanced={false}
+            onGoToAdvanced={onGoToAdvanced}
+          />
           <MedicamentContentHeaderBlock
+            className={fr.cx("fr-hidden-md")}
             specialite={specialite}
             ficheInfos={ficheInfos}
             definitions={definitions}
-            className={fr.cx("fr-hidden-md")}
+            pregnancyPlanAlert={pregnancyPlanAlert}
+            isPregnancyMentionAlert={isPregnancyMentionAlert}
+            pediatrics={pediatrics}
           />
           <SwitchNoticeAdvancedBlock
             isAdvanced={false}
@@ -279,14 +276,14 @@ function NoticeContent({
                 <SubstanceTag composants={composants} fromMedicament/>
               </TagContainer>
             )}
-            {(isPregnancyPlanAlert || isPregnancyMentionAlert || pediatrics) && (
+            {(pregnancyPlanAlert || isPregnancyMentionAlert || pediatrics) && (
               <TagContainer
                 className="notice-content-tag-container"
               >
-                  {isPregnancyPlanAlert && (
+                  {pregnancyPlanAlert && (
                     <PregnancyPlanTag fromMedicament/>
                   )}
-                  {(!isPregnancyPlanAlert && isPregnancyMentionAlert) && (
+                  {(!pregnancyPlanAlert && isPregnancyMentionAlert) && (
                     <PregnancyMentionTag fromMedicament/>
                   )}
                   {pediatrics && (
@@ -366,10 +363,13 @@ function NoticeContent({
       </ContentContainer>
       <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-md-7")].join(" ")}>
         <MedicamentContentHeaderBlock
+          className={fr.cx("fr-hidden", "fr-unhidden-md")}
           specialite={specialite}
           ficheInfos={ficheInfos}
           definitions={definitions}
-          className={fr.cx("fr-hidden", "fr-unhidden-md")}
+          pregnancyPlanAlert={pregnancyPlanAlert}
+          isPregnancyMentionAlert={isPregnancyMentionAlert}
+          pediatrics={pediatrics}
         />              
         {(notice && notice.children && notice.children.length > 0) && (
           <ContentContainer 

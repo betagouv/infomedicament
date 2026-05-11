@@ -2,14 +2,11 @@
 
 import * as Sentry from "@sentry/nextjs";
 import ContentContainer from "../generic/ContentContainer";
-import { fr } from "@codegouvfr/react-dsfr";
 import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { getPediatrics } from "@/db/utils/pediatrics";
 import { HTMLAttributes, lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Marr } from "@/types/MarrTypes";
-import Link from "next/link";
 import { ATC } from "@/types/ATCTypes";
-import Alert from "@codegouvfr/react-dsfr/Alert";
 import { getPregnancyMentionAlert, getAllPregnancyPlanAlerts } from "@/db/utils/pregnancy";
 import { getMarr } from "@/db/utils/marr";
 import { DetailedSpecialite, NoticeData, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
@@ -26,16 +23,8 @@ import NoticeContent from "./NoticeContent";
 import { AnchorMenu } from "./advanced/DetailedSubMenu";
 import getGlossaryDefinitions from "@/db/utils/glossary";
 import { Definition } from "@/types/GlossaireTypes";
-import styled from "styled-components";
 import GoTopButton from "../generic/GoTopButton";
 
-const AlertsContainer = styled.div`
-  margin-bottom: 1rem;
-  @media (max-width: 48em) {
-    padding-left: 0rem !important;
-    padding-right: 0rem !important;
-  }
-`;
 
 interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   atcList: string[];
@@ -173,72 +162,6 @@ function MedicamentContent({
 
   return (
     <ContentContainer frContainer {...props}>
-      {(pregnancyPlanAlert || isPregnancyMentionAlert || pediatrics?.contraindication) && (
-        <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>
-          <AlertsContainer className={fr.cx("fr-col-12")}>
-            {pregnancyPlanAlert && (
-              <ContentContainer
-                whiteContainer
-                className={(isPregnancyMentionAlert || pediatrics?.contraindication) ? fr.cx("fr-mb-2w") : ""}
-              >
-                <Alert
-                  severity={"warning"}
-                  title={"Plan de prévention grossesse"}
-                  description={
-                    <p>
-                      Ce médicament est concerné par un{" "}
-                      <Link 
-                        href="https://ansm.sante.fr/dossiers-thematiques/medicaments-et-grossesse/les-programmes-de-prevention-des-grossesses"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        plan de prévention grossesse
-                      </Link>.<br />
-                      Il peut présenter des risques pour le fœtus (malformations, effets toxiques).<br />
-                      Lisez attentivement la notice et parlez-en à un professionnel de santé avant toute utilisation.
-                      <br />
-                      <Link 
-                        href={pregnancyPlanAlert.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        En savoir plus sur le site de l’ANSM
-                      </Link>
-                    </p>
-                  }
-                />
-              </ContentContainer>
-            )}
-            {(!pregnancyPlanAlert && isPregnancyMentionAlert) && (
-              <ContentContainer
-                whiteContainer
-                className={pediatrics?.contraindication ? fr.cx("fr-mb-2w") : ""}
-              >
-                <Alert
-                  severity={"warning"}
-                  title={"Mention contre-indication grossesse"}
-                  description={
-                    <p>
-                      Ce médicament peut présenter des précautions d’usage pendant la grossesse ou l’allaitement. Il peut être autorisé, déconseillé ou contre-indiqué selon les cas.<br />
-                      Lisez la notice et demandez l’avis d’un professionnel de santé avant toute prise.
-                    </p>
-                  }
-                />
-              </ContentContainer>
-            )}
-            {pediatrics?.contraindication && (
-              <ContentContainer whiteContainer>
-                <Alert
-                  severity={"warning"}
-                  title={
-                    "Il existe une contre-indication pédiatrique (vérifier selon l’âge)."
-                  }
-                />
-              </ContentContainer>
-            )}
-          </AlertsContainer>
-        </div>
-      )}
       {isAdvanced
         ? (
           <Suspense fallback={null}>
@@ -248,7 +171,7 @@ function MedicamentContent({
               composants={composants}
               isPrinceps={isPrinceps}
               delivrance={delivrance}
-              isPregnancyPlanAlert={!!pregnancyPlanAlert}
+              pregnancyPlanAlert={pregnancyPlanAlert}
               isPregnancyMentionAlert={isPregnancyMentionAlert}
               pediatrics={pediatrics}
               presentations={presentations}
@@ -257,6 +180,7 @@ function MedicamentContent({
               definitions={definitions}
               indicationBlock={indicationBlock}
               advancedAnchor={advancedAnchor}
+              title={title}
               onGoToAdvanced={onGoToAdvanced}
             />
           </Suspense>
@@ -268,7 +192,7 @@ function MedicamentContent({
             composants={composants}
             isPrinceps={isPrinceps}
             delivrance={delivrance}
-            isPregnancyPlanAlert={!!pregnancyPlanAlert}
+            pregnancyPlanAlert={pregnancyPlanAlert}
             isPregnancyMentionAlert={isPregnancyMentionAlert}
             pediatrics={pediatrics}
             presentations={presentations}
