@@ -28,7 +28,7 @@ export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
   return result?.lastUpdated ?? null;
 }
 
-export async function getMarketedMedicamentCount(): Promise<number> {
+export const getMarketedMedicamentCount = unstable_cache(async function(): Promise<number> {
   const result = await pdbmMySQL
     .selectFrom("Specialite")
     .where("Specialite.IsBdm", "=", 1)
@@ -36,7 +36,7 @@ export async function getMarketedMedicamentCount(): Promise<number> {
     .executeTakeFirstOrThrow();
 
   return result.count;
-}
+}, ["marketed-medicament-count"], { revalidate: 3600 });
 
 export async function getSpecialiteName(CIS: string): Promise<string> {
   const result = await pdbmMySQL
@@ -141,10 +141,10 @@ export const getResumeSpecsGroupsWithLetter = cache(async function (letter: stri
   return formatSpecialitesResumeFromGroups(result);
 });
 
-export const getResumeSpecsGroupsWithPatho = cache(async function (codePatho: string): Promise<ResumeSpecGroup[]> {
+export const getResumeSpecsGroupsWithIndication = cache(async function (indicationsIds: number): Promise<ResumeSpecGroup[]> {
   const result = await db
     .selectFrom("resume_medicaments")
-    .where("pathosCodes", "&&", Array([codePatho]))
+    .where("indicationsIds", "&&", Array([indicationsIds]))
     .selectAll()
     .orderBy("groupName")
     .execute();

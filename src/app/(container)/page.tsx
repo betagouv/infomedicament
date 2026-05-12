@@ -30,7 +30,7 @@ export default async function Page() {
             </p>
             <AutocompleteSearch inputName="s" />
             <p className="fr-text--sm">
-              Cherchez un <b>médicament</b>, une <b>substance active</b> (ex : paracétamol), une <b>pathologie</b> (ex : diabète), ou une <b>classe de médicaments</b> (ex : antibiotiques).
+              Cherchez un <b>médicament</b>, une <b>substance active</b> (ex : paracétamol), une <b>indication</b> (ex : diabète), ou une <b>classe de médicaments</b> (ex : antibiotiques).
             </p>
           </div>
           <div

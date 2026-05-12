@@ -11,7 +11,7 @@ export type ArticleCardResume = {
   atc: string[],
 };
 
-export type ArticleTrackingFromType = "Page substance" | "Page pathologie" | "Page ATC1"
+export type ArticleTrackingFromType = "Page substance" | "Page indication" | "Page ATC1"
   | "Page ATC2" | "Page médicament" | "Recherche" | "Page d'accueil" | "Liste articles";
 
 export type Article = {

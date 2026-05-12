@@ -3,17 +3,17 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import PageListContent from "@/components/list/PageListContent";
 import { getLetters } from "@/db/utils/letters";
-import { getGenericsResumeWithLetter } from "@/db/utils/generics";
+import { getIndicationsResumeWithLetter } from "@/db/utils/indications";
 import { DataTypeEnum } from "@/types/DataTypes";
 
 export const dynamic = "error";
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const letters = await getLetters("generiques");
+  const letters = await getLetters("indications");
   return letters.map((letter) => ({ letter }));
 }
-const PAGE_LABEL: string = "Liste des groupes génériques";
+const PAGE_LABEL: string = "Liste des indications";
 
 export default async function Page(props: {
   params: Promise<{ letter: string }>;
@@ -21,10 +21,10 @@ export default async function Page(props: {
   const { letter } = await props.params;
 
   const [letters, rawData] = await Promise.all([
-    getLetters("generiques"),
-    getGenericsResumeWithLetter(letter),
+    getLetters("indications"),
+    getIndicationsResumeWithLetter(letter),
   ]);
-  const dataList = rawData.sort((a, b) => a.SpecName.localeCompare(b.SpecName));
+  const dataList = rawData.sort((a, b) => a.nomIndication.localeCompare(b.nomIndication));
 
   return (
     <ContentContainer frContainer>
@@ -34,12 +34,12 @@ export default async function Page(props: {
       />
       <PageListContent
         title={PAGE_LABEL}
+        description="L'indication thérapeutique renseigne sur la maladie ou les symptômes que le médicament est capable de traiter ou de prévenir, ou encore sur le diagnostic qu'il permet d'établir. L'indication est précisée dans l'AMM."
         letters={letters}
-        urlPrefix="/generiques/"
+        urlPrefix="/indications/"
         dataList={dataList}
-        type={DataTypeEnum.MEDICAMENT}
+        type={DataTypeEnum.INDICATION}
         currentLetter={letter}
-        isGeneric
       />
       <RatingToaster pageId={`${PAGE_LABEL} ${letter}`} />
     </ContentContainer>

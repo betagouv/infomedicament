@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, useCallback, useEffect, useState } from "react";
+import { HTMLAttributes, useCallback, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from 'styled-components';
 import axios from "axios";
