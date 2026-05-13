@@ -16,6 +16,7 @@ import { getAtcCode } from "@/utils/atc";
 import { getSpecialiteName } from "@/db/utils/specialities";
 import MedicamentContent from "@/components/medicaments/MedicamentContent";
 import ShareButtons from "@/components/generic/ShareButtons";
+import { getSpecialitesIndications } from "@/db/utils/indications";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -42,6 +43,7 @@ export default async function Page(props: {
   const { CIS } = await props.params;
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);
+  const indications = await getSpecialitesIndications([CIS]);
 
   const atcCode = await getAtcCode(CIS);
   const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
@@ -137,6 +139,7 @@ export default async function Page(props: {
             presentations={presentations}
             isPrinceps={isPrinceps}
             title={pageLabel}
+            indications={indications}
           />
         )}
       </ContentContainer>

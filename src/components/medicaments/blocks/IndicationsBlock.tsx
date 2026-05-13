@@ -8,12 +8,18 @@ import Link from "next/link";
 import { DetailedSpecialite, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import { getContent } from "@/utils/notices/noticesUtils";
 import { isAIP, isCentralisee } from "@/utils/specialites";
+import { ShortIndication } from "@/types/IndicationsTypes";
+import Tag from "@codegouvfr/react-dsfr/Tag";
+import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 
 const IndicationBlock = styled.div<{
   $small?: boolean;
 }>`
   div, span {
     margin-bottom: 1rem;
+    ${props => props.$small && css`
+      font-size: 0.875rem;
+    `}
     @media (max-width: 48em) {
       font-size: 0.875rem;
       margin-bottom: 0rem !important;
@@ -23,7 +29,6 @@ const IndicationBlock = styled.div<{
     }
   }
 `;
-
 const IndicationBlockContent = styled.div<{
   $isFullHeight?: boolean;
 }>`
@@ -37,19 +42,43 @@ const IndicationBlockContent = styled.div<{
     }
   `}
 `;
+const IndicationTitle = styled.h2<{
+  $small?: boolean;
+}>`
+  ${props => props.$small ? css`
+    margin-bottom: 0.5rem;
+    @media (max-width: 48em) {
+       margin-bottom: 1rem;
+     }
+  ` : css`
+      margin: var(--title-spacing);
+  `}
+`;
+
+const IndicationsContainer = styled.div`
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+`;
 
 interface IndicationsBlockProps extends HTMLAttributes<HTMLDivElement> {
   specialite?: DetailedSpecialite;
+  indications?: ShortIndication[];
   indicationBlock?: NoticeRCPContentBlock;
   title?: string;
   resizable?: boolean;
+  small?: boolean;
 }
 
 function IndicationsBlock({ 
   specialite,
+  indications,
   indicationBlock,
   title,
   resizable,
+  small,
   ...props 
 }: IndicationsBlockProps) {
 
@@ -63,9 +92,15 @@ function IndicationsBlock({
         whiteContainer 
         className={[props.className, fr.cx("fr-mb-2w", "fr-p-2w")].join(" ")}
       >
-        <h2 className={fr.cx("fr-h6")}>{title ? title : "Indications"}</h2>
+        <IndicationTitle 
+          className={fr.cx("fr-h6")}
+          $small={small}
+        >
+          {title ? title : "Indications"}
+        </IndicationTitle>
         <IndicationBlock 
           className={fr.cx("fr-mb-0")}
+          $small={small}
         >
           {(specialite && isAIP(specialite)) ? (
             <span>              
@@ -122,6 +157,22 @@ function IndicationsBlock({
             )
           )}
         </IndicationBlock>
+        {indications && indications.length > 0 && (
+          <IndicationsContainer>
+            {indications.map((indication: ShortIndication, i: number) => (
+              <Tag
+                key={i}
+                linkProps={{
+                  href: `/indications/${indication.idIndication}`,
+                  className: cx("fr-tag--custom-alt-blue"),
+                  target: "_blank",
+                }}
+              >
+                {indication.nomIndication}
+              </Tag>
+            ))}
+          </IndicationsContainer>
+        )}
       </ContentContainer>
     )
   );

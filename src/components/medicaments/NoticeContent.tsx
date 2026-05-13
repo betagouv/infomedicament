@@ -42,6 +42,7 @@ import { getSpecialitePathologies } from "@/db/utils/indications";
 import ShareButtons from "../generic/ShareButtons";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 import DesktopTitleBlock from "./blocks/DesktopTitleBlock";
+import { ShortIndication } from "@/types/IndicationsTypes";
 
 const NoticeContentContainer = styled.div`
   @media (max-width: 48em) {
@@ -95,6 +96,7 @@ interface NoticeContentProps extends HTMLAttributes<HTMLDivElement> {
   definitions?: Definition[];
   indicationBlock?: NoticeRCPContentBlock;
   title: string;
+  indications: ShortIndication[];
   onGoToAdvanced: (advanced: boolean) => void;
   onGoToAdvancedAnchor: (anchor?: AnchorMenu) => void;
 }
@@ -116,6 +118,7 @@ function NoticeContent({
   definitions,
   indicationBlock,
   title,
+  indications,
   onGoToAdvanced,
   onGoToAdvancedAnchor,
   ...props
@@ -214,6 +217,8 @@ function NoticeContent({
             indicationBlock={indicationBlock}
             title="À quoi sert-il ?"
             resizable
+            small
+            indications={indications}
           />
           {(notice && notice.children) && (
             <ContentContainer 

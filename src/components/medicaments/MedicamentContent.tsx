@@ -24,6 +24,7 @@ import { AnchorMenu } from "./advanced/DetailedSubMenu";
 import getGlossaryDefinitions from "@/db/utils/glossary";
 import { Definition } from "@/types/GlossaireTypes";
 import GoTopButton from "../generic/GoTopButton";
+import { ShortIndication } from "@/types/IndicationsTypes";
 
 
 interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
@@ -36,6 +37,7 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   delivrance: SpecDelivrance[];
   presentations: Presentation[];
   title: string;
+  indications: ShortIndication[];
 }
 
 function MedicamentContent({
@@ -48,6 +50,7 @@ function MedicamentContent({
   delivrance,
   presentations,
   title,
+  indications,
   ...props
 }: MedicamentContentProps) {
 
@@ -202,6 +205,7 @@ function MedicamentContent({
             definitions={definitions}
             indicationBlock={indicationBlock}
             title={title}
+            indications={indications}
             onGoToAdvanced={onGoToAdvanced}
             onGoToAdvancedAnchor={onGoToAdvancedAnchor}
           />
