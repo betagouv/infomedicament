@@ -101,13 +101,13 @@ function SearchResultsList({
         }
       }
       //Indications List
-      if(result.pathosDetails && result.pathosDetails.length > 0) {
-        result.pathosDetails.forEach((indicationDetail) => {
-          const indexIndication = newIndicationsFilters.findIndex((filter: SearchFilter) => indicationDetail.codePatho.trim() === filter.id && indicationDetail.NomPatho.trim() === filter.name);
+      if(result.indicationsDetails && result.indicationsDetails.length > 0) {
+        result.indicationsDetails.forEach((indicationDetail) => {
+          const indexIndication = newIndicationsFilters.findIndex((filter: SearchFilter) => indicationDetail.idIndication.toString() === filter.id && indicationDetail.nomIndication.trim() === filter.name);
           if(indexIndication === -1) {
             newIndicationsFilters.push({
-              id: indicationDetail.codePatho.trim(),
-              name: indicationDetail.NomPatho.trim(),
+              id: indicationDetail.idIndication.toString(),
+              name: indicationDetail.nomIndication.trim(),
               count: 1,
             });
           } else {
@@ -146,11 +146,11 @@ function SearchResultsList({
         }
         if(indicationsFilters.length > 0 && indicationsFiltersList.length > 0) {
           //Filter on indication only if there is indication
-          if(result.pathosDetails && result.pathosDetails.length > 0){
+          if(result.indicationsDetails && result.indicationsDetails.length > 0){
             let find: boolean = false;
-            result.pathosDetails.forEach((indicationDetail) => {
-              const findPatho = indicationsFiltersList.findIndex((filter: SearchFilter) => filter.id === indicationDetail.codePatho.trim() && filter.name === indicationDetail.NomPatho.trim());
-              if(findPatho !== -1){
+            result.indicationsDetails.forEach((indicationDetail) => {
+              const findIndication = indicationsFiltersList.findIndex((filter: SearchFilter) => filter.id === indicationDetail.idIndication.toString() && filter.name === indicationDetail.nomIndication.trim());
+              if(findIndication !== -1){
                 find = true;
               } 
             });
