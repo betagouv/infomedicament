@@ -8,6 +8,7 @@ import { getGlossaryLetters } from "@/db/utils/glossary";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { getAllIndications } from "@/db/utils/indications";
 
+export const dynamic = "force-static";
 export const revalidate = 86400;
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
