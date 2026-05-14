@@ -39,7 +39,6 @@ import { AnchorMenu } from "./advanced/DetailedSubMenu";
 import IndicationsBlock from "./blocks/IndicationsBlock";
 import GenericPrincepsTag from "../tags/GenericPrincepsTag";
 import { getSpecialitePathologies } from "@/db/utils/indications";
-import ShareButtons from "../generic/ShareButtons";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 import DesktopTitleBlock from "./blocks/DesktopTitleBlock";
 import { ShortIndication } from "@/types/IndicationsTypes";
