@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { embed, generateHypothetical } from "@/lib/albert";
-import { getOSConfig, osHeaders } from "@/lib/opensearch";
+import { answerNoticeQuestion } from "@/lib/albert";
+import { getNotice } from "@/db/utils/notice";
+import { noticeToText } from "@/utils/notices/noticesUtils";
 
 export interface NoticeChunkHit {
   section_anchor: string;
   section_title: string;
   sub_header: string | null;
+  answer?: string;
+  block_id?: string;
+  quote?: string;
 }
 
 export async function GET(
@@ -16,48 +20,41 @@ export async function GET(
   const q = req.nextUrl.searchParams.get("q");
   if (!q) return NextResponse.json({ error: "Missing q" }, { status: 400 });
 
-  const hypothetical = await generateHypothetical(q);
-  const vector = await embed(hypothetical);
-  const { baseUrl, authHeader } = getOSConfig();
+  const notice = await getNotice(CIS);
+  if (!notice?.children?.length) return NextResponse.json({ hits: [] });
 
-  const body = {
-    size: 1,
-    query: {
-      script_score: {
-        query: { term: { cis: CIS } },
-        script: {
-          source: "knn_score",
-          lang: "knn",
-          params: { field: "embedding", query_value: vector, space_type: "cosinesimil" },
-        },
-      },
-    },
-    _source: ["section_anchor", "section_title", "sub_header"],
-  };
+  const noticeText = noticeToText(notice.children);
 
-  const res = await fetch(`${baseUrl}/notice_chunks/_search`, {
-    method: "POST",
-    headers: osHeaders(authHeader),
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    const errBody = await res.text();
-    console.error("[notice-search] OpenSearch error", res.status, errBody);
-    return NextResponse.json({ error: "OpenSearch error" }, { status: 502 });
+  let result: { answer: string; section_anchor: string; sub_header: string; block_id: string; quote: string };
+  try {
+    result = await answerNoticeQuestion(noticeText, q);
+  } catch (err) {
+    console.error("[notice-search] LLM error", err);
+    return NextResponse.json({ hits: [] });
   }
 
-  const MIN_SCORE = 0.75;
-  const data = await res.json();
-  const rawHits: { _score: number; _source: NoticeChunkHit }[] = data.hits?.hits ?? [];
   console.log("[notice-search]", {
     q,
-    hypothetical,
-    hits: rawHits.map((h) => ({ score: h._score, section: h._source.section_title, sub_header: h._source.sub_header })),
+    answer: result.answer,
+    section_anchor: result.section_anchor,
+    sub_header: result.sub_header,
+    block_id: result.block_id,
+    quote: result.quote,
+    noticeChars: noticeText.length,
   });
-  const hits = rawHits
-    .filter((h) => h._score >= MIN_SCORE)
-    .map((h) => h._source);
 
-  return NextResponse.json({ hits });
+  if (!result.answer) return NextResponse.json({ hits: [] });
+
+  const stripBold = (s: string) => s.replace(/\*\*/g, '').trim();
+
+  return NextResponse.json({
+    hits: [{
+      section_anchor: result.section_anchor,
+      section_title: "",
+      sub_header: result.sub_header ? stripBold(result.sub_header) : null,
+      answer: stripBold(result.answer),
+      block_id: result.block_id ? result.block_id.replace(/^block-/, '') : undefined,
+      quote: result.quote || undefined,
+    }],
+  });
 }

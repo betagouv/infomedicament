@@ -7,6 +7,23 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { CSSProperties } from "react";
 
 
+export function noticeToText(children: NoticeRCPContentBlock[]): string {
+  return children.map(block => {
+    const text = Array.isArray(block.content) ? block.content.join('') : (block.content ?? '');
+    const childText = block.children?.length ? noticeToText(block.children) : '';
+    if (block.type?.startsWith('AmmNoticeTitre') || block.type?.startsWith('AmmAnnexeTitre')) {
+      const anchor = block.anchor ? `[${block.anchor}] ` : '';
+      return `\n${anchor}${text}\n${childText}`;
+    }
+    if (block.type === 'AmmCorpsTexteGras') return `\n**${text}**\n${childText}`;
+    if (block.type === 'AmmCorpsTexte') return `[block-${block.id}] ${text}\n${childText}`;
+    if (block.type === 'listePuce' && Array.isArray(block.content)) {
+      return block.content.map(item => `• ${item}`).join('\n') + '\n';
+    }
+    return `${text}\n${childText}`;
+  }).join('');
+}
+
 export function displayInfosImportantes(ficheInfos?:FicheInfos): boolean{
   if(ficheInfos && ficheInfos.listeInformationsImportantes && ficheInfos.listeInformationsImportantes.length > 0){
     return true;
@@ -68,7 +85,7 @@ function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definitio
     const elementContent = <WithGlossary definitions={definitions} key={content.id} text={content.content}/>;
     if(content.type && content.type === "AmmCorpsTexte") {
       return (
-        <div key={content.id} className={fr.cx("fr-mb-2w")} style={styles}>
+        <div key={content.id} className={fr.cx("fr-mb-2w")} style={styles} data-block-id={content.id}>
           {elementContent}
         </div>
       )
