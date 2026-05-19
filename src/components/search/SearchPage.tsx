@@ -34,6 +34,7 @@ function SearchPage({
       {searchResults && searchResults.length > 0 ? (
         <SearchResultsList
           resultsList={searchResults}
+          search={search}
         />
       ) : (
         <div className={fr.cx("fr-grid-row", "fr-mt-3w")}>

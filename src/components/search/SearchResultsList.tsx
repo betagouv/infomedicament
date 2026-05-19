@@ -1,17 +1,14 @@
 "use client";
 
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from 'styled-components';
 import DataBlockAccordion from "../data/DataBlockAccordion";
 import { SearchResultItem } from "@/db/utils/search";
 import Link from "next/link";
 import Button from "@codegouvfr/react-dsfr/Button";
-import { ATCSearchFilter, SearchFilter } from "@/types/SpecialiteTypes";
 import SearchFilterBlock from "./blocks/SearchFilterBlock";
-import SearchATCFilterBlock from "./blocks/SearchATCFilterBlock";
-
-type SortType = "alphabetic" | "score";
+import { SearchFilter, SortType } from "@/types/SearchTypes";
 
 const Container = styled.div `
   .display-inline {
@@ -20,7 +17,6 @@ const Container = styled.div `
 `;
 const FiltersContainer = styled.div`
   padding: 1rem 2rem;
-  background-color: var(--background-alt-blue-france);
   .fr-fieldset__content .fr-checkbox-group label {
     font-size: 0.875rem !important;
     padding-bottom: 0px;
@@ -29,33 +25,68 @@ const FiltersContainer = styled.div`
 const SortContainer = styled.div`
   text-align: right;
 `;
+const FiltersTitle = styled.h1`
+  font-weight: normal;
+`;
+const FiltersContainerTitleBlock = styled.div`
+  display: inline-flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: flex-start;
+  border-bottom: 2px solid var(--border-open-blue-france);
+  margin-bottom: 1rem;
+`;
+const FiltersContainerTitle = styled.h2`
+  font-weight: normal !important;
+`;
 
 interface SearchResultsListProps extends HTMLAttributes<HTMLDivElement> {
   resultsList: SearchResultItem[];
+  search?: string;
 }
 
 function SearchResultsList({
   resultsList,
+  search,
 }: SearchResultsListProps) {
 
   const [filteredResultsList, setFilteredResultsList] = useState<SearchResultItem[]>([]);
 
-  const [subsFilters, setSubsFilters] = useState<SearchFilter[]>([]);
-  const [subsFiltersList, setSubsFiltersList] = useState<string[]>([]);
-  const [atcFilters, setAtcFilters] = useState<ATCSearchFilter[]>([]);
-  const [atcFiltersList, setAtcFiltersList] = useState<ATCSearchFilter[]>([]);
-  const [indicationsFilters, setIndicationsFilters] = useState<SearchFilter[]>([]);
-  const [indicationsFiltersList, setIndicationsFiltersList] = useState<SearchFilter[]>([]);
+  const [allSubsFilters, setAllSubsFilters] = useState<SearchFilter[]>([]);
+  const [currentSubsFilters, setCurrentSubsFilters] = useState<SearchFilter[]>([]);//property count is not used
+  const [allAtcFilters, setAllAtcFilters] = useState<SearchFilter[]>([]);
+  const [currentAtcFilters, setCurrentAtcFilters] = useState<SearchFilter[]>([]);//property count is not used
+  const [allIndicationsFilters, setAllIndicationsFilters] = useState<SearchFilter[]>([]);
+  const [currentIndicationsFilters, setCurrentIndicationsFilters] = useState<SearchFilter[]>([]);//property count is not used
 
   const [currentSortType, setCurrentSortType] = useState<SortType>("score");
   const [isSortAsc, setIsSortAsc] = useState<boolean>(true);
 
+  const onSortFilters = useCallback((
+    newSubsFilters: SearchFilter[],
+  ): SearchFilter[] => {
+    if(newSubsFilters.length > 0 && newSubsFilters[0].children) {
+      newSubsFilters.forEach((filter) => {
+        if(filter.children) {
+          filter.children.sort((a,b) => { 
+            if(a.count === b.count) return a.name.localeCompare(b.name);
+            return b.count - a.count;
+          });
+        }
+      })
+    }
+    return newSubsFilters.sort((a: SearchFilter, b: SearchFilter) => { 
+      if(a.count === b.count) return a.name.localeCompare(b.name);
+      return b.count - a.count;
+    });
+  },[]);
+
+  //Loaded
   useEffect(() => {
     const newSubsFilters: SearchFilter[] = [];
-    const newATCFilters: ATCSearchFilter[]= [];
+    const newATCFilters: SearchFilter[] = [];
     const newIndicationsFilters: SearchFilter[] = [];
     resultsList.forEach((result) => {
-      //Substances List
       if(result.composants) {
         const indexSubs = newSubsFilters.findIndex((filter: SearchFilter) => result.composants.trim() === filter.id);
         if(indexSubs === -1) {
@@ -63,13 +94,14 @@ function SearchResultsList({
             id: result.composants.trim(),
             name: result.composants.trim(), 
             count: 1,
+            selected: false,
           });
         } else {
           newSubsFilters[indexSubs].count += 1;
         }
       }
       //ATC 1 & 2 List
-      const indexATC = newATCFilters.findIndex((filter: ATCSearchFilter) => result.atc1Code && result.atc1Code.trim() === filter.id);
+      const indexATC = newATCFilters.findIndex((filter: SearchFilter) => result.atc1Code && result.atc1Code.trim() === filter.id);
       if(indexATC === -1) {
         if(result.atc1Label && result.atc1Code){
           //New ATC in the list
@@ -77,16 +109,17 @@ function SearchResultsList({
             id: result.atc1Code.trim(),
             name: result.atc1Label.trim(),
             count: 1,
+            selected: false,
             children: (result.atc2Code && result.atc2Label) ? [{
               id: result.atc2Code.trim(),
               name: result.atc2Label.trim(),
               count: 1,
+              selected: false,
             }] : [],
           });
         }
       } else {
-        newATCFilters[indexATC].count += 1;
-        if(result.atc2Label && result.atc2Code) {
+        if(result.atc2Label && result.atc2Code && newATCFilters[indexATC].children) {
           //ATC 1 exists, test for ATC2
           const indexATC2 = newATCFilters[indexATC].children.findIndex((filter) => result.atc2Code && result.atc2Code.trim() === filter.id);
           if(indexATC2 === -1) {
@@ -94,13 +127,14 @@ function SearchResultsList({
               id: result.atc2Code.trim(),
               name: result.atc2Label.trim(),
               count: 1,
+              selected: false,
             });
           } else {
             newATCFilters[indexATC].children[indexATC2].count += 1;
           }
+          newATCFilters[indexATC].count += 1;
         }
       }
-      //Indications List
       if(result.indicationsDetails && result.indicationsDetails.length > 0) {
         result.indicationsDetails.forEach((indicationDetail) => {
           const indexIndication = newIndicationsFilters.findIndex((filter: SearchFilter) => indicationDetail.idIndication.toString() === filter.id && indicationDetail.nomIndication.trim() === filter.name);
@@ -109,6 +143,7 @@ function SearchResultsList({
               id: indicationDetail.idIndication.toString(),
               name: indicationDetail.nomIndication.trim(),
               count: 1,
+              selected: false,
             });
           } else {
             newIndicationsFilters[indexIndication].count += 1;
@@ -116,40 +151,86 @@ function SearchResultsList({
         });
       }
     });
-    newSubsFilters.sort((a,b) => a.name.localeCompare(b.name));
-    setSubsFilters(newSubsFilters);
-    newATCFilters.forEach((filter: ATCSearchFilter) => {
-      filter.children.sort((a,b) => a.name.localeCompare(b.name));
-    });
-    newATCFilters.sort((a,b) => a.name.localeCompare(b.name));
-    setAtcFilters(newATCFilters);
-    newIndicationsFilters.sort((a,b) => a.name.localeCompare(b.name));
-    setIndicationsFilters(newIndicationsFilters);
-  }, [resultsList, setSubsFilters, setAtcFilters, setIndicationsFilters]);
+    setAllSubsFilters(onSortFilters(newSubsFilters));
+    setCurrentSubsFilters(newSubsFilters);
+    setAllAtcFilters(onSortFilters(newATCFilters));
+    setCurrentAtcFilters(newATCFilters);
+    setAllIndicationsFilters(onSortFilters(newIndicationsFilters));
+    setCurrentIndicationsFilters(newIndicationsFilters);
+  }, [resultsList, setAllSubsFilters, setCurrentSubsFilters, setAllAtcFilters, setCurrentAtcFilters, setAllIndicationsFilters, setCurrentIndicationsFilters, onSortFilters]);
 
+  const onUpdateAllFilters = useCallback((
+    newResultsList: SearchResultItem[],
+    subsFilters: SearchFilter[],
+    atcFilters: SearchFilter[],
+    indicationsFilters: SearchFilter[],
+  ) => {
+    const newSubsFilters: SearchFilter[] = subsFilters.map((filter) => ({...filter, count: 0}));
+    const newAtcFilters: SearchFilter[] = atcFilters.map((filter) => ({
+      ...filter,
+      count: 0,
+      children: filter.children && filter.children.map((childFilter) => ({...childFilter, count: 0}))
+    }));
+    const newIndicationsFilters: SearchFilter[] = indicationsFilters.map((filter) => ({...filter, count: 0}));
+    newResultsList.forEach((result) => {
+      //Substances
+      const indexSubs = newSubsFilters.findIndex((filter: SearchFilter) => result.composants.trim() === filter.id);
+      if(indexSubs !== -1) {
+        newSubsFilters[indexSubs].count += 1;
+      }
+      // ATC 1 & 2
+      const indexATC = newAtcFilters.findIndex((filter: SearchFilter) => result.atc1Code && result.atc1Code.trim() === filter.id);
+      if(indexATC !== -1) {
+        if(result.atc2Label && result.atc2Code && newAtcFilters[indexATC].children) {
+          const indexATC2 = newAtcFilters[indexATC].children.findIndex((filter) => result.atc2Code && result.atc2Code.trim() === filter.id);
+          if(indexATC2 !== -1) {
+            newAtcFilters[indexATC].children[indexATC2].count += 1;
+            newAtcFilters[indexATC].count += 1;
+          }
+        }
+      }
+      //Indications
+      result.indicationsDetails && result.indicationsDetails.forEach((indicationDetail) => {
+      const indexIndication = newIndicationsFilters.findIndex((filter: SearchFilter) => indicationDetail.idIndication.toString() === filter.id && indicationDetail.nomIndication.trim() === filter.name);
+      if(indexIndication !== -1) {
+        newIndicationsFilters[indexIndication].count += 1;
+      }
+    })
+    });
+    setAllSubsFilters(onSortFilters(newSubsFilters));
+    setAllAtcFilters(onSortFilters(newAtcFilters));
+    setAllIndicationsFilters(onSortFilters(newIndicationsFilters));
+  }, [setAllSubsFilters, setAllAtcFilters, setAllIndicationsFilters, onSortFilters]);
+
+  //Update the results list after filters updates
   useEffect(() => {
+    const subsFilters = currentSubsFilters.filter((filter) => filter.selected);
+    const atcsFilters = currentAtcFilters.filter((filter) => filter.selected);
+    const indicationsFilters = currentIndicationsFilters.filter((filter) => filter.selected);
     const newResultsList = resultsList
       .filter((result) => {
-        if(subsFilters.length > 0 && subsFiltersList.length > 0) {
+        if(subsFilters.length > 0) {
           //Filter on composants only if there is composants
-          const findComposant = subsFiltersList.find((filter: string) => filter === result.composants.trim());
+          const findComposant = subsFilters.find((filter: SearchFilter) => filter.id === result.composants.trim());
           if(!findComposant) return false;
         }
-        if(atcFilters.length > 0 && atcFiltersList.length > 0){
+        if(atcsFilters.length > 0){
           //Filter on atc only if there is atc
-          const findATC = atcFiltersList.find((filter: ATCSearchFilter) => {
-            if(filter.id === result.atc1Code?.trim()) {
-              return filter.children.find((childrenFilter) => childrenFilter.id === result.atc2Code?.trim());
+          const findATC = atcsFilters.find((filter: SearchFilter) => {
+            if(filter.id === result.atc1Code?.trim() && filter.children) {
+              return filter.children.find((childrenFilter) => childrenFilter.selected && childrenFilter.id === result.atc2Code?.trim());
             } else return false;
           });
           if(!findATC) return false;
         }
-        if(indicationsFilters.length > 0 && indicationsFiltersList.length > 0) {
+        if(indicationsFilters.length > 0) {
           //Filter on indication only if there is indication
           if(result.indicationsDetails && result.indicationsDetails.length > 0){
             let find: boolean = false;
             result.indicationsDetails.forEach((indicationDetail) => {
-              const findIndication = indicationsFiltersList.findIndex((filter: SearchFilter) => filter.id === indicationDetail.idIndication.toString() && filter.name === indicationDetail.nomIndication.trim());
+              const findIndication = indicationsFilters.findIndex(
+                (filter: SearchFilter) => filter.id === indicationDetail.idIndication.toString() && filter.name === indicationDetail.nomIndication.trim()
+              );
               if(findIndication !== -1){
                 find = true;
               } 
@@ -175,114 +256,136 @@ function SearchResultsList({
         }
       });
     setFilteredResultsList(newResultsList);
-  }, [resultsList, currentSortType, isSortAsc, subsFilters, subsFiltersList, atcFilters, atcFiltersList, indicationsFilters, indicationsFiltersList, setFilteredResultsList])
+    onUpdateAllFilters(newResultsList, currentSubsFilters, currentAtcFilters, currentIndicationsFilters);
+  }, [resultsList, currentSortType, isSortAsc, currentSubsFilters, currentAtcFilters, currentIndicationsFilters, setFilteredResultsList, onUpdateAllFilters]);
+
 
   const onChangeSubsFilter = (filter: SearchFilter, checked: boolean) => {
-    if (checked) {
-      setSubsFiltersList([...subsFiltersList, filter.id]);
-    } else {
-      setSubsFiltersList(subsFiltersList.filter((subs) => subs !== filter.id));
+    const subsIndex = allSubsFilters.findIndex((subsFilter) => filter.id === subsFilter.id);
+    if(subsIndex !== -1) {
+      const updatedSubsFilters = [...allSubsFilters];
+      updatedSubsFilters[subsIndex].selected = checked;
+      setAllSubsFilters(updatedSubsFilters);
+      setCurrentSubsFilters(updatedSubsFilters);
     }
   };
-  const onChangeATCFilter = (filter: ATCSearchFilter, checked: boolean) => {
-    //Update atc list
-    if (checked) {
-      setAtcFiltersList([...atcFiltersList, filter]);
-    } else {
-      setAtcFiltersList(atcFiltersList.filter((atc) => filter.id !== atc.id));
+  
+  const onChangeATCFilter = (filter: SearchFilter, checked: boolean) => {
+    const atcIndex = allAtcFilters.findIndex((atcFilter) => filter.id === atcFilter.id);
+    if(atcIndex !== -1) {
+      const updatedAtcFilters = [...allAtcFilters];
+      updatedAtcFilters[atcIndex].selected = checked;
+      updatedAtcFilters[atcIndex].children && updatedAtcFilters[atcIndex].children.forEach((childFilter) => {
+        childFilter.selected = checked;
+      });
+      setAllAtcFilters(updatedAtcFilters);
+      setCurrentAtcFilters(updatedAtcFilters);
     }
   };
 
-  const onChangeATC2Filter = (atcFilter: ATCSearchFilter, atc2Filter: SearchFilter, checked: boolean) => {
+  const onChangeATC2Filter = (atcFilter: SearchFilter, atc2Filter: SearchFilter, checked: boolean) => {
     //Update atc list
-    const atcIndex = atcFiltersList.findIndex((filter) => atcFilter.id === filter.id);
-    if(checked) {
-      if(atcIndex !== -1) {
-        //Add atc2 filter to the existing list
-        atcFiltersList[atcIndex].children.push(atc2Filter);
-        setAtcFiltersList([...atcFiltersList]);
-      }
-      else {
-        //Add atc1 et atc2 to the list
-        setAtcFiltersList([
-          ...atcFiltersList, 
-          {
-            ...atcFilter,
-            children: [atc2Filter],
-          }
-        ]);
-      }
-    } else if(atcIndex !== -1) {
-      const atc2Index = atcFiltersList[atcIndex].children.findIndex((childrenFilter) => atc2Filter.id === childrenFilter.id);
-      if(atc2Index !== -1) {
-        const newAtcFiltersList = [...atcFiltersList];
-        newAtcFiltersList[atcIndex].children = newAtcFiltersList[atcIndex].children.filter((childrenFilter) => atc2Filter.id !== childrenFilter.id);
-        if(atcFiltersList[atcIndex].children.length === 0){
-          //Remove atc1 from the list - no atc2 anymore is checked
-          setAtcFiltersList(newAtcFiltersList.filter((atc) => atcFilter.id !== atc.id));
+    const atcIndex = allAtcFilters.findIndex((filter) => atcFilter.id === filter.id);
+    if(atcIndex !== -1) {
+      const updatedAtcFilters = [...allAtcFilters];
+      const atc2Index = allAtcFilters[atcIndex].children 
+        ? allAtcFilters[atcIndex].children.findIndex((childrenFilter) => atc2Filter.id === childrenFilter.id) 
+        : -1;
+      if(atc2Index !== -1 && updatedAtcFilters[atcIndex].children) {
+        updatedAtcFilters[atcIndex].children[atc2Index].selected = checked;
+        if(checked) {
+          //At least one ATC2 is selected - select the parent
+          updatedAtcFilters[atcIndex].selected = true;
         } else {
-          //Only remove atc2 from the list
-          setAtcFiltersList([...newAtcFiltersList]);
+          const selectedChildren = updatedAtcFilters[atcIndex].children.filter((childrenFilter) => childrenFilter.selected);
+          //No ATC2 is selected - unselect the parent
+          if(selectedChildren.length === 0) updatedAtcFilters[atcIndex].selected = false;
         }
+        setAllAtcFilters(updatedAtcFilters);
+        setCurrentAtcFilters(updatedAtcFilters);
       }
     }
   };
+
   const onChangeIndicationsFilter = (filter: SearchFilter, checked: boolean) => {
-    if (checked) {
-      setIndicationsFiltersList([...indicationsFiltersList, filter]);
-    } else {
-      setIndicationsFiltersList(indicationsFiltersList.filter(
-        (indication) => {
-          if(indication.id !== filter.id || indication.name !== filter.name) {
-            return true;
-          } else {  
-            return false;
-          }
-        }
-      ));
+    const indicationIndex = allIndicationsFilters.findIndex(
+      (indicationFilter) => filter.id === indicationFilter.id && filter.name === indicationFilter.name
+    );
+    if(indicationIndex !== -1) {
+      const updatedIndicationsFilters = [...allIndicationsFilters];
+      updatedIndicationsFilters[indicationIndex].selected = checked;
+      setAllIndicationsFilters(updatedIndicationsFilters);
+      setCurrentIndicationsFilters(updatedIndicationsFilters);
     }
   };
 
-  const isATC1Checked = (atcId: string) => {
-    const findIndex = atcFiltersList.findIndex((filter) => filter.id === atcId);
-    if(findIndex === -1) return false;
-    return true;
-  }
-
-  const isATC2Checked = (atcId: string, atc2Id: string) => {
-    const findIndex = atcFiltersList.findIndex((filter) => filter.id === atcId);
-    if(findIndex === -1) return false;
-    const findIndex2 = atcFiltersList[findIndex].children.findIndex((childrenFilter) => childrenFilter.id === atc2Id);
-    if(findIndex2 === -1) return false;
-    return true;
-  }
+  const onUnselectAll = () => {
+    //Substances
+    const updatedSubsFilters = allSubsFilters.map((filter) => ({...filter, selected: false}));
+    setAllSubsFilters(updatedSubsFilters);
+    setCurrentSubsFilters(updatedSubsFilters);
+    //ATC 1 & 2
+    const updatedAtcFilters: SearchFilter[] = allAtcFilters.map((filter) => ({
+      ...filter,
+      selected: false,
+      children: filter.children && filter.children.map((childFilter) => ({...childFilter, selected: false}))
+    }));
+    setAllAtcFilters(updatedAtcFilters);
+    setCurrentAtcFilters(updatedAtcFilters);
+    //Indications
+    const updatedIndicationsFilters = allIndicationsFilters.map((filter) => ({...filter, selected: false}));
+    setAllIndicationsFilters(updatedIndicationsFilters);
+    setCurrentIndicationsFilters(updatedIndicationsFilters);
+  };
 
   return (
     <Container className={fr.cx("fr-grid-row")}>
+      <div className={fr.cx("fr-col-12")}>
+        <FiltersTitle className={fr.cx("fr-mb-3w", "fr-text--md")}>
+          {filteredResultsList.length} résultat{filteredResultsList.length > 1 && 's'}
+          {" "}pour{" "}
+          <strong>“{search}“</strong>
+        </FiltersTitle>
+      </div>
       <FiltersContainer className={fr.cx("fr-col-12", "fr-col-md-4")}>
+        <FiltersContainerTitleBlock>
+          <FiltersContainerTitle className={fr.cx("fr-h6")}>
+            <span 
+              className={fr.cx("fr-icon-filter-fill", "fr-mr-1w")}
+              style={{color: "var(--text-default-info)"}}
+            />
+            Filtres
+          </FiltersContainerTitle>
+          {(currentSubsFilters.filter((filter) => filter.selected).length > 0 
+            || currentAtcFilters.filter((filter) => filter.selected).length > 0 
+            || currentIndicationsFilters.filter((filter) => filter.selected).length > 0) && (
+            <Link 
+              className={fr.cx("fr-link", "fr-text--sm")}
+              href=""
+              onClick={onUnselectAll}
+            >
+              Effacer tous les filtres
+            </Link>
+          )}
+        </FiltersContainerTitleBlock>
         <SearchFilterBlock
-          filtersList={subsFilters}
-          title="Filtrer par substance active"
+          filtersList={allSubsFilters}
+          title="Substance active"
           onClickFilter={onChangeSubsFilter}
         />
-        <SearchATCFilterBlock
-          filtersList={atcFilters}
-          title="Filtrer par classe et sous-classe"
-          isATC1Checked={isATC1Checked}
-          onChangeATCFilter={onChangeATCFilter}
-          isATC2Checked={isATC2Checked}
-          onChangeATC2Filter={onChangeATC2Filter}
+        <SearchFilterBlock
+          filtersList={allAtcFilters}
+          title="Classe de médicament"
+          onClickFilter={onChangeATCFilter}
+          onClickChildFilter={onChangeATC2Filter}
         />
         <SearchFilterBlock
-          filtersList={indicationsFilters}
-          title="Filtrer par indication"
+          filtersList={allIndicationsFilters}
+          title="Indication"
           onClickFilter={onChangeIndicationsFilter}
         />
       </FiltersContainer>
       <div className={fr.cx("fr-col-12", "fr-col-md-8", "fr-pl-3w")}>
-        <div className={fr.cx("fr-text--bold", "fr-mb-3w")}>
-          {filteredResultsList.length} résultat{filteredResultsList.length > 1 && 's'}
-        </div>
         <SortContainer className={fr.cx("fr-mb-3w")}>
           Trier par{" "}
           {currentSortType !== "alphabetic" 
