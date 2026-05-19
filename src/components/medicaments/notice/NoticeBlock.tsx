@@ -17,6 +17,10 @@ const NoticeBlockContainer = styled.div`
     background-color: var(--green-tilleul-verveine-950-100);
     border-radius: 2px;
   }
+  .notice-highlight-quote {
+    background-color: var(--yellow-tournesol-950-100);
+    border-radius: 2px;
+  }
 `;
 
 interface NoticeBlockProps extends HTMLAttributes<HTMLDivElement> {
