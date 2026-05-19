@@ -2,7 +2,7 @@ import "server-only";
 
 const BASE_URL = "https://albert.api.etalab.gouv.fr/v1";
 export const EMBEDDING_MODEL = "BAAI/bge-m3";
-export const CHAT_MODEL = "mistralai/Ministral-3-8B-Instruct-2512";
+export const CHAT_MODEL = "mistralai/Mistral-Small-3.2-24B-Instruct-2506";
 
 function headers(): Record<string, string> {
   return {
@@ -22,7 +22,10 @@ export async function embed(input: string): Promise<number[]> {
   return data.data[0].embedding as number[];
 }
 
-export async function generateHypothetical(query: string): Promise<string> {
+export async function answerNoticeQuestion(
+  noticeText: string,
+  question: string,
+): Promise<{ answer: string; section_anchor: string; sub_header: string; block_id: string; quote: string }> {
   const res = await fetch(`${BASE_URL}/chat/completions`, {
     method: "POST",
     headers: headers(),
@@ -31,14 +34,22 @@ export async function generateHypothetical(query: string): Promise<string> {
       messages: [
         {
           role: "user",
-          content: `Tu es le texte brut d'une notice de médicament française. Écris une ou deux phrases qui répondent directement à la question, dans le style concis et factuel d'une notice officielle (posologie, contre-indications, effets indésirables, etc.). Pas de markdown, pas de listes, pas de formules de politesse, pas de valeurs entre crochets. Commence directement par l'information. Question : ${query}`,
+          content: `Tu es un assistant médical. Réponds à la question suivante en te basant uniquement sur la notice de médicament fournie.\n\nRetourne un JSON avec exactement cinq champs :\n- "answer": ta réponse en 1 à 3 phrases, extraite directement de la notice\n- "section_anchor": l'identifiant de section entre crochets [ ] le plus pertinent (ex: "Ann3bCommentPrendre"), ou "" si aucun n'est pertinent\n- "sub_header": le texte exact (entre **) du sous-titre en gras le plus pertinent dans cette section, ou "" s'il n'y en a pas\n- "block_id": l'identifiant [block-X] du passage de texte (AmmCorpsTexte) qui contient la réponse, ou "" s'il n'y en a pas\n- "quote": une phrase courte (≤ 20 mots) copiée mot pour mot depuis la notice, issue du bloc block_id, qui répond directement à la question, ou "" si aucune phrase précise n'est identifiable\n\nNotice :\n${noticeText}\n\nQuestion : ${question}`,
         },
       ],
-      max_tokens: 150,
+      max_tokens: 400,
       temperature: 0,
+      response_format: { type: "json_object" },
     }),
   });
   if (!res.ok) throw new Error(`Albert chat error: ${res.status}`);
   const data = await res.json();
-  return data.choices[0].message.content as string;
+  const parsed = JSON.parse(data.choices[0].message.content as string);
+  return {
+    answer: parsed.answer ?? '',
+    section_anchor: parsed.section_anchor ?? '',
+    sub_header: parsed.sub_header ?? '',
+    block_id: parsed.block_id ?? '',
+    quote: parsed.quote ?? '',
+  };
 }
