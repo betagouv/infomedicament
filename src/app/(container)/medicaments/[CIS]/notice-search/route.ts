@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { embed } from "@/lib/albert";
+import { embed, generateHypothetical } from "@/lib/albert";
 import { getOSConfig, osHeaders } from "@/lib/opensearch";
 
 export interface NoticeChunkHit {
@@ -16,15 +16,20 @@ export async function GET(
   const q = req.nextUrl.searchParams.get("q");
   if (!q) return NextResponse.json({ error: "Missing q" }, { status: 400 });
 
-  const vector = await embed(q);
+  const hypothetical = await generateHypothetical(q);
+  const vector = await embed(hypothetical);
   const { baseUrl, authHeader } = getOSConfig();
 
   const body = {
     size: 1,
     query: {
-      bool: {
-        must: { knn: { embedding: { vector, k: 1 } } },
-        filter: { term: { cis: CIS } },
+      script_score: {
+        query: { term: { cis: CIS } },
+        script: {
+          source: "knn_score",
+          lang: "knn",
+          params: { field: "embedding", query_value: vector, space_type: "cosinesimil" },
+        },
       },
     },
     _source: ["section_anchor", "section_title", "sub_header"],
@@ -36,12 +41,20 @@ export async function GET(
     body: JSON.stringify(body),
   });
 
-  if (!res.ok) return NextResponse.json({ error: "OpenSearch error" }, { status: 502 });
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error("[notice-search] OpenSearch error", res.status, errBody);
+    return NextResponse.json({ error: "OpenSearch error" }, { status: 502 });
+  }
 
-  const MIN_SCORE = 0.6;
+  const MIN_SCORE = 0.75;
   const data = await res.json();
   const rawHits: { _score: number; _source: NoticeChunkHit }[] = data.hits?.hits ?? [];
-  console.log("[notice-search]", { q, hits: rawHits.map((h) => ({ score: h._score, section: h._source.section_title, sub_header: h._source.sub_header })) });
+  console.log("[notice-search]", {
+    q,
+    hypothetical,
+    hits: rawHits.map((h) => ({ score: h._score, section: h._source.section_title, sub_header: h._source.sub_header })),
+  });
   const hits = rawHits
     .filter((h) => h._score >= MIN_SCORE)
     .map((h) => h._source);
