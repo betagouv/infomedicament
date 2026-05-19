@@ -9,6 +9,11 @@ import { DataTypeEnum } from "@/types/DataTypes";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const letters = await getLetters("specialites");
+  return letters.map((letter) => ({ letter }));
+}
 const PAGE_LABEL: string = "Liste des médicaments";
 
 export default async function Page(props: {
