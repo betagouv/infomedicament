@@ -53,7 +53,7 @@ export async function GET(
       section_title: "",
       sub_header: result.sub_header ? stripBold(result.sub_header) : null,
       answer: stripBold(result.answer),
-      block_id: result.block_id ? result.block_id.replace(/^block-/, '') : undefined,
+      block_id: result.block_id ? (result.block_id.match(/\[block-(\d+)\]/) ?? result.block_id.match(/^block-(\d+)$/))?.[1] : undefined,
       quote: result.quote || undefined,
     }],
   });
