@@ -407,10 +407,10 @@ function SearchResultsList({
                 onClick={() => setCurrentSortType("score")}
                 className={fr.cx("fr-text--sm")} 
               >
-                popularité
+                pertinence
               </Link>
             )
-            : (<span className={fr.cx("fr-text--sm", "fr-text--bold")}>popularité</span>)
+            : (<span className={fr.cx("fr-text--sm", "fr-text--bold")}>pertinence</span>)
           }
           <Button
             iconId={isSortAsc ? "fr-icon-arrow-down-line" : "fr-icon-arrow-up-line"}
