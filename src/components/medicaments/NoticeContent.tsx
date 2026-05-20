@@ -164,9 +164,6 @@ function NoticeContent({
       const res = await fetch(`/medicaments/${specialite.SpecId}/notice-search?q=${encodeURIComponent(question.queryText)}`);
       const data = await res.json();
       setNoticeHits(data.hits ?? []);
-      if (data.hits?.[0]) {
-        document.getElementById(data.hits[0].section_anchor)?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
     }
     setHitsLoading(false);
   };
@@ -179,9 +176,6 @@ function NoticeContent({
     const res = await fetch(`/medicaments/${specialite.SpecId}/notice-search?q=${encodeURIComponent(query)}`);
     const data = await res.json();
     setNoticeHits(data.hits ?? []);
-    if (data.hits?.[0]) {
-      document.getElementById(data.hits[0].section_anchor)?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
     setHitsLoading(false);
   };
   const onCloseResults = () => {
