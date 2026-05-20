@@ -53,26 +53,20 @@ function SearchFilterBlock({
 
   const [fullList, setFullList] = useState<boolean>(false);
   const [filteredFiltersList, setFilteredFiltersList] = useState<SearchFilter[]>([]);
-  const [selectedCount, setSelectedCount] = useState<number>(0);
 
   useEffect(() => {
     const newList: SearchFilter[] = filtersList
-      .filter((filter) => filter.count > 0)
       .sort((a,b) => Number(b.selected) - Number(a.selected));
     if(newList.length > 0 && newList[0].children) {
       newList.forEach((filter) => {
         if(filter.children) {
           filter.children = filter.children
-            .filter((childFilter) => childFilter.count > 0)
             .sort((a,b) => Number(b.selected) - Number(a.selected));
         }
       })
     }
-    setFilteredFiltersList(newList.sort((a,b) => Number(b.selected) - Number(a.selected)));
+    setFilteredFiltersList(newList);
 
-    const selectedList = filtersList
-      .filter((filter) => filter.selected);
-    setSelectedCount(selectedList.length);
   }, [filtersList, setFilteredFiltersList]);
 
   return filteredFiltersList.length > 0 && (
@@ -124,16 +118,14 @@ function SearchFilterBlock({
             )
           }
         })}
-        {(filteredFiltersList.length !== selectedCount && filteredFiltersList.length > 5) && (
-          <ShowMoreLink>
-            <span
-              className={fr.cx("fr-link", "fr-text--sm")}
-              onClick={() => setFullList(!fullList)}
-            >
-              {fullList ? "Voir moins" : "Voir plus"}
-            </span>
-          </ShowMoreLink>
-        )}
+        <ShowMoreLink>
+          <span
+            className={fr.cx("fr-link", "fr-text--sm")}
+            onClick={() => setFullList(!fullList)}
+          >
+            {fullList ? "Voir moins" : "Voir plus"}
+          </span>
+        </ShowMoreLink>
       </FilterListContainer>
     </SearchFilterContainer>
   )
