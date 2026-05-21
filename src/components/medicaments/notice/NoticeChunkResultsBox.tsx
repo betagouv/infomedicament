@@ -34,7 +34,7 @@ const debugWarn = process.env.NODE_ENV === "development"
   ? (...args: unknown[]) => console.warn(...args)
   : () => {};
 
-function highlightTextInElement(el: HTMLElement, quote: string): HTMLElement | null {
+export function highlightTextInElement(el: HTMLElement, quote: string): HTMLElement | null {
   const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
   const textNodes: string[] = [];
   let node: Text | null;
