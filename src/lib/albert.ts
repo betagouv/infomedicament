@@ -11,6 +11,11 @@ function headers(): Record<string, string> {
 }
 
 
+export function parseAlbertJson(content: string): Record<string, string> {
+  const raw = content.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+  return JSON.parse(raw);
+}
+
 export async function answerNoticeQuestion(
   noticeText: string,
   question: string,
@@ -33,7 +38,7 @@ export async function answerNoticeQuestion(
   });
   if (!res.ok) throw new Error(`Albert chat error: ${res.status}`);
   const data = await res.json();
-  const parsed = JSON.parse(data.choices[0].message.content as string);
+  const parsed = parseAlbertJson(data.choices[0].message.content as string);
   return {
     answer: parsed.answer ?? '',
     section_anchor: parsed.section_anchor ?? '',

@@ -36,11 +36,11 @@ const debugWarn = process.env.NODE_ENV === "development"
 
 export function highlightTextInElement(el: HTMLElement, quote: string): HTMLElement | null {
   const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-  const textNodes: string[] = [];
+  const textNodes: string[] | undefined = process.env.NODE_ENV === "development" ? [] : undefined;
   let node: Text | null;
   while ((node = walker.nextNode() as Text | null)) {
     const content = node.textContent ?? "";
-    textNodes.push(JSON.stringify(content.slice(0, 80)));
+    if (textNodes) textNodes.push(JSON.stringify(content.slice(0, 80)));
     const idx = content.indexOf(quote);
     if (idx !== -1) {
       debugLog("[highlight] quote found in text node:", JSON.stringify(content.slice(0, 120)));
