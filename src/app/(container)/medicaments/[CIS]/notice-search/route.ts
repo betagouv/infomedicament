@@ -15,6 +15,8 @@ export interface NoticeChunkHit {
 
 type LLMResult = { answer: string; section_anchor: string; sub_header: string; block_id: string; quote: string };
 
+export const extractBlockId = (raw: string): string | undefined => raw.match(/\d+/)?.[0];
+
 const getCachedAnswer = (CIS: string, q: string, noticeText: string) =>
   unstable_cache(
     (): Promise<LLMResult> => answerNoticeQuestion(noticeText, q),
@@ -63,7 +65,7 @@ export async function GET(
       section_title: "",
       sub_header: result.sub_header ? stripBold(result.sub_header) : null,
       answer: stripBold(result.answer),
-      block_id: result.block_id ? result.block_id.match(/\d+/)?.[0] : undefined,
+      block_id: result.block_id ? extractBlockId(result.block_id) : undefined,
       quote: result.quote || undefined,
     }],
   });
