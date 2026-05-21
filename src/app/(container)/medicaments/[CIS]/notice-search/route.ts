@@ -45,16 +45,6 @@ export async function GET(
     return NextResponse.json({ hits: [] });
   }
 
-  console.log("[notice-search]", {
-    q,
-    answer: result.answer,
-    section_anchor: result.section_anchor,
-    sub_header: result.sub_header,
-    block_id: result.block_id,
-    quote: result.quote,
-    noticeChars: noticeText.length,
-  });
-
   if (!result.answer) return NextResponse.json({ hits: [] });
 
   const stripBold = (s: string) => s.replace(/\*\*/g, '').trim();
