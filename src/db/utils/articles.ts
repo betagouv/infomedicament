@@ -1,13 +1,14 @@
 "use server";
 
 import "server-only";
+import { unstable_cache } from "next/cache";
 import db from "@/db/"
 import slugify from "slugify";
 import { SearchArticlesFilters } from "@/types/SearchTypes";
 import { Article, ArticleCardResume } from "@/types/ArticlesTypes";
 import { SearchResultItem } from "@/db/utils/search";
 
-export async function getArticles(): Promise<Article[]> {
+export const getArticles = unstable_cache(async function(): Promise<Article[]> {
 
     const rows = await db.selectFrom("ref_articles")
         .select(["titre", "source", "contenu", "theme", "lien", "metadescription", "homepage", "image"])
@@ -28,7 +29,7 @@ export async function getArticles(): Promise<Article[]> {
                 : {}),
         };
     });
-}
+}, ["articles"], { revalidate: 3600 });
 
 export async function getArticlesFromFilters(articlesFilters: SearchArticlesFilters): Promise<ArticleCardResume[]> {
     const rows = await db.selectFrom("ref_articles")
