@@ -3,12 +3,11 @@
 import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from 'styled-components';
-import DataBlockAccordion from "../data/DataBlockAccordion";
-import { SearchResultItem } from "@/db/utils/search";
 import Link from "next/link";
 import Button from "@codegouvfr/react-dsfr/Button";
 import SearchFilterBlock from "./blocks/SearchFilterBlock";
-import { SearchFilter, SortType } from "@/types/SearchTypes";
+import { SearchFilter, SearchResultItem, SortType } from "@/types/SearchTypes";
+import DataBlockSpecResult from "../data/DataBlockSpecResult";
 
 const Container = styled.div `
   .display-inline {
@@ -53,11 +52,8 @@ function SearchResultsList({
   const [filteredResultsList, setFilteredResultsList] = useState<SearchResultItem[]>([]);
 
   const [allSubsFilters, setAllSubsFilters] = useState<SearchFilter[]>([]);
-  const [currentSubsFilters, setCurrentSubsFilters] = useState<SearchFilter[]>([]);//property count is not used
   const [allAtcFilters, setAllAtcFilters] = useState<SearchFilter[]>([]);
-  const [currentAtcFilters, setCurrentAtcFilters] = useState<SearchFilter[]>([]);//property count is not used
   const [allIndicationsFilters, setAllIndicationsFilters] = useState<SearchFilter[]>([]);
-  const [currentIndicationsFilters, setCurrentIndicationsFilters] = useState<SearchFilter[]>([]);//property count is not used
 
   const [currentSortType, setCurrentSortType] = useState<SortType>("score");
   const [isSortAsc, setIsSortAsc] = useState<boolean>(true);
@@ -81,7 +77,7 @@ function SearchResultsList({
     });
   },[]);
 
-  //Loaded
+  //Loading
   useEffect(() => {
     const newSubsFilters: SearchFilter[] = [];
     const newATCFilters: SearchFilter[] = [];
@@ -152,61 +148,15 @@ function SearchResultsList({
       }
     });
     setAllSubsFilters(onSortFilters(newSubsFilters));
-    setCurrentSubsFilters(newSubsFilters);
     setAllAtcFilters(onSortFilters(newATCFilters));
-    setCurrentAtcFilters(newATCFilters);
     setAllIndicationsFilters(onSortFilters(newIndicationsFilters));
-    setCurrentIndicationsFilters(newIndicationsFilters);
-  }, [resultsList, setAllSubsFilters, setCurrentSubsFilters, setAllAtcFilters, setCurrentAtcFilters, setAllIndicationsFilters, setCurrentIndicationsFilters, onSortFilters]);
-
-  const onUpdateAllFilters = useCallback((
-    newResultsList: SearchResultItem[],
-    subsFilters: SearchFilter[],
-    atcFilters: SearchFilter[],
-    indicationsFilters: SearchFilter[],
-  ) => {
-    const newSubsFilters: SearchFilter[] = subsFilters.map((filter) => ({...filter, count: 0}));
-    const newAtcFilters: SearchFilter[] = atcFilters.map((filter) => ({
-      ...filter,
-      count: 0,
-      children: filter.children && filter.children.map((childFilter) => ({...childFilter, count: 0}))
-    }));
-    const newIndicationsFilters: SearchFilter[] = indicationsFilters.map((filter) => ({...filter, count: 0}));
-    newResultsList.forEach((result) => {
-      //Substances
-      const indexSubs = newSubsFilters.findIndex((filter: SearchFilter) => result.composants.trim() === filter.id);
-      if(indexSubs !== -1) {
-        newSubsFilters[indexSubs].count += 1;
-      }
-      // ATC 1 & 2
-      const indexATC = newAtcFilters.findIndex((filter: SearchFilter) => result.atc1Code && result.atc1Code.trim() === filter.id);
-      if(indexATC !== -1) {
-        if(result.atc2Label && result.atc2Code && newAtcFilters[indexATC].children) {
-          const indexATC2 = newAtcFilters[indexATC].children.findIndex((filter) => result.atc2Code && result.atc2Code.trim() === filter.id);
-          if(indexATC2 !== -1) {
-            newAtcFilters[indexATC].children[indexATC2].count += 1;
-            newAtcFilters[indexATC].count += 1;
-          }
-        }
-      }
-      //Indications
-      result.indicationsDetails && result.indicationsDetails.forEach((indicationDetail) => {
-      const indexIndication = newIndicationsFilters.findIndex((filter: SearchFilter) => indicationDetail.idIndication.toString() === filter.id && indicationDetail.nomIndication.trim() === filter.name);
-      if(indexIndication !== -1) {
-        newIndicationsFilters[indexIndication].count += 1;
-      }
-    })
-    });
-    setAllSubsFilters(onSortFilters(newSubsFilters));
-    setAllAtcFilters(onSortFilters(newAtcFilters));
-    setAllIndicationsFilters(onSortFilters(newIndicationsFilters));
-  }, [setAllSubsFilters, setAllAtcFilters, setAllIndicationsFilters, onSortFilters]);
+  }, [resultsList, setAllSubsFilters, setAllAtcFilters, setAllIndicationsFilters, onSortFilters]);
 
   //Update the results list after filters updates
   useEffect(() => {
-    const subsFilters = currentSubsFilters.filter((filter) => filter.selected);
-    const atcsFilters = currentAtcFilters.filter((filter) => filter.selected);
-    const indicationsFilters = currentIndicationsFilters.filter((filter) => filter.selected);
+    const subsFilters = allSubsFilters.filter((filter) => filter.selected);
+    const atcsFilters = allAtcFilters.filter((filter) => filter.selected);
+    const indicationsFilters = allIndicationsFilters.filter((filter) => filter.selected);
     const newResultsList = resultsList
       .filter((result) => {
         if(subsFilters.length > 0) {
@@ -256,8 +206,7 @@ function SearchResultsList({
         }
       });
     setFilteredResultsList(newResultsList);
-    onUpdateAllFilters(newResultsList, currentSubsFilters, currentAtcFilters, currentIndicationsFilters);
-  }, [resultsList, currentSortType, isSortAsc, currentSubsFilters, currentAtcFilters, currentIndicationsFilters, setFilteredResultsList, onUpdateAllFilters]);
+  }, [resultsList, currentSortType, isSortAsc, allSubsFilters, allAtcFilters, allIndicationsFilters, setFilteredResultsList]);
 
 
   const onChangeSubsFilter = (filter: SearchFilter, checked: boolean) => {
@@ -266,7 +215,6 @@ function SearchResultsList({
       const updatedSubsFilters = [...allSubsFilters];
       updatedSubsFilters[subsIndex].selected = checked;
       setAllSubsFilters(updatedSubsFilters);
-      setCurrentSubsFilters(updatedSubsFilters);
     }
   };
   
@@ -279,7 +227,6 @@ function SearchResultsList({
         childFilter.selected = checked;
       });
       setAllAtcFilters(updatedAtcFilters);
-      setCurrentAtcFilters(updatedAtcFilters);
     }
   };
 
@@ -302,7 +249,6 @@ function SearchResultsList({
           if(selectedChildren.length === 0) updatedAtcFilters[atcIndex].selected = false;
         }
         setAllAtcFilters(updatedAtcFilters);
-        setCurrentAtcFilters(updatedAtcFilters);
       }
     }
   };
@@ -315,7 +261,6 @@ function SearchResultsList({
       const updatedIndicationsFilters = [...allIndicationsFilters];
       updatedIndicationsFilters[indicationIndex].selected = checked;
       setAllIndicationsFilters(updatedIndicationsFilters);
-      setCurrentIndicationsFilters(updatedIndicationsFilters);
     }
   };
 
@@ -323,7 +268,6 @@ function SearchResultsList({
     //Substances
     const updatedSubsFilters = allSubsFilters.map((filter) => ({...filter, selected: false}));
     setAllSubsFilters(updatedSubsFilters);
-    setCurrentSubsFilters(updatedSubsFilters);
     //ATC 1 & 2
     const updatedAtcFilters: SearchFilter[] = allAtcFilters.map((filter) => ({
       ...filter,
@@ -331,11 +275,9 @@ function SearchResultsList({
       children: filter.children && filter.children.map((childFilter) => ({...childFilter, selected: false}))
     }));
     setAllAtcFilters(updatedAtcFilters);
-    setCurrentAtcFilters(updatedAtcFilters);
     //Indications
     const updatedIndicationsFilters = allIndicationsFilters.map((filter) => ({...filter, selected: false}));
     setAllIndicationsFilters(updatedIndicationsFilters);
-    setCurrentIndicationsFilters(updatedIndicationsFilters);
   };
 
   return (
@@ -356,9 +298,9 @@ function SearchResultsList({
             />
             Filtres
           </FiltersContainerTitle>
-          {(currentSubsFilters.filter((filter) => filter.selected).length > 0 
-            || currentAtcFilters.filter((filter) => filter.selected).length > 0 
-            || currentIndicationsFilters.filter((filter) => filter.selected).length > 0) && (
+          {(allSubsFilters.filter((filter) => filter.selected).length > 0 
+            || allAtcFilters.filter((filter) => filter.selected).length > 0 
+            || allIndicationsFilters.filter((filter) => filter.selected).length > 0) && (
             <Link 
               className={fr.cx("fr-link", "fr-text--sm")}
               href=""
@@ -421,11 +363,12 @@ function SearchResultsList({
           />
         </SortContainer>
         {filteredResultsList && filteredResultsList.map((result, index) => (
-          <DataBlockAccordion
+          <DataBlockSpecResult
             key={index}
-            item={result}
-            matchReasons={result.matchReasons}
-            withAlert
+            specialite={result}
+            subsFilters={allSubsFilters.filter((filter) => filter.selected)}
+            atcsFilters={allAtcFilters.filter((filter) => filter.selected)}
+            indicationsFilters={allIndicationsFilters.filter((filter) => filter.selected)}
           />
         ))}
       </div>

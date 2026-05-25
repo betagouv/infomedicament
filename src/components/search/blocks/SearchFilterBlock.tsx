@@ -118,14 +118,16 @@ function SearchFilterBlock({
             )
           }
         })}
-        <ShowMoreLink>
-          <span
-            className={fr.cx("fr-link", "fr-text--sm")}
-            onClick={() => setFullList(!fullList)}
-          >
-            {fullList ? "Voir moins" : "Voir plus"}
-          </span>
-        </ShowMoreLink>
+        {filtersList.length > 5 && (
+          <ShowMoreLink>
+            <span
+              className={fr.cx("fr-link", "fr-text--sm")}
+              onClick={() => setFullList(!fullList)}
+            >
+              {fullList ? "Voir moins" : "Voir plus"}
+            </span>
+          </ShowMoreLink>
+        )}
       </FilterListContainer>
     </SearchFilterContainer>
   )

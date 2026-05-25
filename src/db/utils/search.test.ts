@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { getSearchResults, MatchReason } from "./search";
+import { getSearchResults } from "./search";
 import { computeSortScore } from "./searchScoring";
 import { getResumeSpecsGroupsATCLabels } from "./atc";
 import { getResumeSpecsGroupsAlerts } from "@/data/grist/specialites";
 import { formatSpecialitesResumeFromGroups } from "@/utils/specialites";
+import { MatchReason } from "@/types/SearchTypes";
 
 // Mocking the cache so it doesn't apply
 vi.mock("next/cache", () => ({
@@ -58,7 +59,7 @@ describe("Search Engine (getSearchResults)", () => {
 
     // Pass-through mocks for enrichment functions
     vi.mocked(formatSpecialitesResumeFromGroups).mockImplementation((groups) =>
-      groups.map((g: any) => ({ ...g, resumeSpecialites: [] })),
+      groups.map((g: any) => ({ ...g, shortSpecialites: [] })),
     );
     vi.mocked(getResumeSpecsGroupsATCLabels).mockImplementation(async (groups) => groups);
     vi.mocked(getResumeSpecsGroupsAlerts).mockImplementation(async (groups) => groups);

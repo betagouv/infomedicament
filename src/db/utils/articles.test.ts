@@ -21,7 +21,7 @@ describe("getArticlesFromSearchResults", () => {
     ]);
 
     const articles = await getArticlesFromSearchResults([{
-      groupName: "TEST", composants: "", specialites: [], resumeSpecialites: [], matchReasons: [],
+      groupName: "TEST", composants: "", specialites: [], shortSpecialites: [], matchReasons: [],
       CISList: ["111"], subsIds: ["666", "999"], codePathos: [123, 124], atc2Code: "N05",
     } as any]);
     

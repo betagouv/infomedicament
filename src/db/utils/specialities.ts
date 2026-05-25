@@ -14,10 +14,10 @@ import db from "@/db";
 import { getFullPresentations } from "@/db/utils/presentation";
 import { unstable_cache } from "next/cache";
 import { withSubstances } from "./query";
-import { DetailedSpecialite, ResumeSpecGroup } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
-import { formatSpecialitesResumeFromGroups } from "@/utils/specialites";
+import { formatSpecialitesResume, formatSpecialitesResumeFromGroups } from "@/utils/specialites";
 
 export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
   const result = await pdbmMySQL
@@ -160,6 +160,17 @@ export const getResumeSpecsGroupsWithCIS = cache(async function (CISList: string
     .orderBy("groupName")
     .execute();
   return formatSpecialitesResumeFromGroups(result);
+});
+
+export const getResumeSpecialitesWithCIS = cache(async function (CISList: string[]): Promise<ResumeSpecialite[]> {
+  if (CISList.length === 0) return [];
+  const result = await db
+    .selectFrom("resume_specialites")
+    .where("specId", "in", CISList)
+    .selectAll()
+    .orderBy("groupName")
+    .execute();
+  return formatSpecialitesResume(result);
 });
 
 export const getResumeSpecsGroupsWithCISSubsIds = cache(

@@ -43,7 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getAtc(),
     getArticles(),
     getGlossaryLetters(),
-    getLetters("specialites"),
+    getLetters("medicaments"),
     getLetters("substances"),
     getLetters("indications"),
     getLetters("generiques"),

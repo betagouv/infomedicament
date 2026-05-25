@@ -5,8 +5,8 @@ import AutocompleteSearch from "@/components/AutocompleteSearch";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SearchResultsList from "@/components/search/SearchResultsList";
 import { HTMLAttributes } from "react";
-import { SearchResultItem } from "@/db/utils/search";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
+import { SearchResultItem } from "@/types/SearchTypes";
 
 interface SearchPageProps extends HTMLAttributes<HTMLDivElement> {
   search?: string;

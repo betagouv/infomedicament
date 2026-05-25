@@ -6,9 +6,9 @@ import { useState } from "react";
 import { formatSpecName } from "@/displayUtils";
 import { SearchBar } from "@codegouvfr/react-dsfr/SearchBar";
 import useSWR from "swr";
-import { SearchResultItem } from "@/db/utils/search";
 import { useRouter } from "next/navigation";
 import { trackSearchEvent } from "@/services/tracking";
+import { SearchResultItem } from "@/types/SearchTypes";
 
 type SearchInputProps = {
   name: string;
@@ -50,7 +50,9 @@ export function AutocompleteSearchInput({
   ) as { data: SearchResultItem[] };
 
   const options = searchResults
-    ? searchResults.map((result) => formatSpecName(result.groupName)).filter(Boolean)
+    ? searchResults.map((result) => formatSpecName(result.groupName))
+      .filter(Boolean)
+      .filter((v,i,a) => a.indexOf(v)==i) //unique
     : [];
 
   function selectOption(value: string) {

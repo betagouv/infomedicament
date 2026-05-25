@@ -4,11 +4,12 @@ import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { pdbmMySQL } from "../pdbmMySQL";
 import { ATCError } from "@/utils/atc";
-import { ATC, ATC1, ATCSubsSpecs } from "@/types/ATCTypes";
+import { ATC, ATC1, ATCLabels, ATCSubsSpecs } from "@/types/ATCTypes";
 import { SubstanceNom } from "../pdbmMySQL/types";
-import { ResumeSpecGroup, SpecialiteWithSubstance } from "@/types/SpecialiteTypes";
+import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { withOneSubstance } from "./query";
 import db from "@/db/";
+import { RefAtcFriendlyNiveau1, RefAtcFriendlyNiveau2 } from "../types";
 
 /**
  * Returns all CIS codes for an ATC class.
@@ -180,38 +181,93 @@ export const getAtc2 = unstable_cache(
   ["atc2"],
   { revalidate: 86400 } // 24hrs cache
 );
+export const getSpecATCLabels = async function (
+  specialite: ResumeSpecGroup | ResumeSpecialite,
+  rowsATC1?: RefAtcFriendlyNiveau1[],
+  rowsATC2?: RefAtcFriendlyNiveau2[],
+): Promise<ATCLabels> {
+  let allRowsATC1: RefAtcFriendlyNiveau1[] = [];
+  let allRowsATC2: RefAtcFriendlyNiveau2[] = [];
+  if(!rowsATC1) {
+    allRowsATC1 = await db.selectFrom("ref_atc_friendly_niveau_1")
+      .selectAll()
+      .execute();
+  } else 
+    allRowsATC1 = rowsATC1;
+    
+  if(!rowsATC2) {
+    allRowsATC2 = await db.selectFrom("ref_atc_friendly_niveau_2")
+      .selectAll()
+      .execute();
+  } else
+    allRowsATC2 = rowsATC2;
+    
+  let atc1Label = "";
+  let atc2Label = "";
+  if (specialite.atc1Code) {
+    const atc1 = allRowsATC1.find(
+      (record) => record.code === specialite.atc1Code
+    )
+    if (atc1) atc1Label = atc1.libelle as string;
+  }
+  if (specialite.atc2Code) {
+    const atc2 = allRowsATC2.find(
+      (record) => record.code === specialite.atc2Code
+    )
+    if (atc2) atc2Label = atc2.libelle as string;
+  }
+  return {
+    atc1Label: atc1Label,
+    atc2Label: atc2Label,
+  }
+}
 
-export const getResumeSpecsGroupsATCLabels = async function (specsGroups: ResumeSpecGroup[]): Promise<ResumeSpecGroup[]> {
-
+export const getResumeSpecsGroupsATCLabels = async function (
+  specsGroups: ResumeSpecGroup[]
+): Promise<ResumeSpecGroup[]> {
   const rowsATC1 = await db.selectFrom("ref_atc_friendly_niveau_1")
-    .select(["code", "definition_classe", "libelle"])
+    .selectAll()
     .execute();
 
   const rowsATC2 = await db.selectFrom("ref_atc_friendly_niveau_2")
-    .select(["code", "definition_sous_classe", "libelle"])
+    .selectAll()
     .execute();
 
-  return specsGroups.map((spec: ResumeSpecGroup) => {
-    let atc1Label = "";
-    let atc2Label = "";
-    if (spec.atc1Code) {
-      const atc1 = rowsATC1.find(
-        (record) => record.code === spec.atc1Code
-      )
-      if (atc1) atc1Label = atc1.libelle as string;
-    }
-    if (spec.atc2Code) {
-      const atc2 = rowsATC2.find(
-        (record) => record.code === spec.atc2Code
-      )
-      if (atc2) atc2Label = atc2.libelle as string;
-    }
-    return {
-      atc1Label: atc1Label,
-      atc2Label: atc2Label,
-      ...spec,
-    }
-  });
+  const specsWithATC = await Promise.all(
+    specsGroups.map(async (spec: ResumeSpecGroup) => {
+      const atcLabels: ATCLabels = await getSpecATCLabels(spec, rowsATC1, rowsATC2);
+      return {
+        atc1Label: atcLabels.atc1Label,
+        atc2Label: atcLabels.atc2Label,
+        ...spec,
+      }
+    })
+  );
+  return specsWithATC;
+}
+
+export const getResumeSpecsATCLabels = async function (
+  specsGroups: ResumeSpecialite[]
+): Promise<ResumeSpecialite[]> {
+  const rowsATC1 = await db.selectFrom("ref_atc_friendly_niveau_1")
+    .selectAll()
+    .execute();
+
+  const rowsATC2 = await db.selectFrom("ref_atc_friendly_niveau_2")
+    .selectAll()
+    .execute();
+
+  const specsWithATC = await Promise.all(
+    specsGroups.map(async (spec: ResumeSpecialite) => {
+      const atcLabels: ATCLabels = await getSpecATCLabels(spec, rowsATC1, rowsATC2);
+      return {
+        atc1Label: atcLabels.atc1Label,
+        atc2Label: atcLabels.atc2Label,
+        ...spec,
+      }
+    })
+  );
+  return specsWithATC;
 }
 
 /**

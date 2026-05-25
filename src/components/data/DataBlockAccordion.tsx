@@ -6,15 +6,15 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { formatSpecName } from "@/displayUtils";
 import styled, {css} from 'styled-components';
 import Button from "@codegouvfr/react-dsfr/Button";
-import { MatchReason } from "@/db/utils/search";
 import MatchReasonTags from "../tags/MatchReasonTags";
 import PediatricsTags from "../tags/PediatricsTags";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
-import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
+import { ResumeSpecGroup, ShortSpecialite } from "@/types/SpecialiteTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import DataBlockGenericIcons from "./DataBlockGenericIcons";
 import { ShortIndication } from "@/types/IndicationsTypes";
+import { MatchReason } from "@/types/SearchTypes";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
@@ -97,7 +97,7 @@ function DataBlockAccordion({
 
   const [specialitesGroup, setSpecialitesGroup] = useState< ResumeSpecGroup>();
   const [groupName, setGroupName] = useState<string>("");
-  const [specialites, setSpecialites] = useState<ResumeSpecialite[]>();
+  const [specialites, setSpecialites] = useState<ShortSpecialite[]>();
 
   const [fullListeComposants, setFullListeComposants] = useState<string>("");
   const [listeComposants, setListeComposants] = useState<string>("");
@@ -117,7 +117,7 @@ function DataBlockAccordion({
   useEffect(() => {
     setSpecialitesGroup(item);
     setGroupName(formatSpecName(item.groupName));
-    setSpecialites(item.resumeSpecialites);
+    setSpecialites(item.shortSpecialites);
     setFullListeComposants(item.composants);
     setListeComposants(item.composants.slice(0, composantsTruncLength) + (item.composants.length > composantsTruncLength ? "..." : ""));
     setAtc1Label(item.atc1Label);

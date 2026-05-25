@@ -1,3 +1,5 @@
+import { ResumeSpecGroup, ResumeSpecialite } from "./SpecialiteTypes";
+
 export type SearchArticlesFilters = {
   ATCList: string[];
   substancesList: string[];
@@ -14,3 +16,13 @@ export type SearchFilter = {
 }
 
 export type SortType = "alphabetic" | "score";
+
+export type MatchReason = {
+  type: "name" | "substance" | "atc" | "indication";
+  label: string;
+};
+
+export type SearchResultItem = ResumeSpecialite & {
+  matchReasons: MatchReason[];
+  score: number;
+};
