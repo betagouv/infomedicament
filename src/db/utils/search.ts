@@ -5,9 +5,8 @@ import db from "@/db";
 import { SearchResult } from "@/db/types";
 import { sql } from "kysely";
 import { unstable_cache } from "next/cache";
-import { getResumeSpecsATCLabels, getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
-import { getResumeSpecsGroupsAlerts } from "@/data/grist/specialites";
-import { formatSpecialitesResume, formatSpecialitesResumeFromGroups } from "@/utils/specialites";
+import { getResumeSpecsATCLabels } from "@/db/utils/atc";
+import { formatSpecialitesResume } from "@/utils/specialites";
 import { computeSortScore } from "./searchScoring";
 import { MatchReason, SearchResultItem } from "@/types/SearchTypes";
 

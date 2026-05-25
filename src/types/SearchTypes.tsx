@@ -1,4 +1,4 @@
-import { ResumeSpecGroup, ResumeSpecialite } from "./SpecialiteTypes";
+import { ResumeSpecialite } from "./SpecialiteTypes";
 
 export type SearchArticlesFilters = {
   ATCList: string[];
