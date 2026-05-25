@@ -438,3 +438,5 @@ export type TriamInteraction = Selectable<TriamInteractionsTable>;
 export type InteractionsSearchEntry = Selectable<InteractionsSearchTable>;
 export type Indication = Selectable<IndicationsTable>;
 export type SpecialiteMetadata = Selectable<SpecialiteMetadataTable>;
+export type NoticeDB = Selectable<NoticeTable>;
+export type NoticeContentDB = Selectable<NoticeContentTable>;

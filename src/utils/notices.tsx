@@ -1,5 +1,6 @@
 import WithGlossary from "@/components/glossary/WithGlossary";
 import { TitulaireAddressContainer, TitulaireNomContainer } from "@/components/medicaments/blocks/GenericBlocks";
+import { NoticeContentDB, NoticeDB } from "@/db/types";
 import { FicheInfos } from "@/types/FicheInfoTypes";
 import { Definition } from "@/types/GlossaireTypes";
 import { NoticeData, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
@@ -230,4 +231,13 @@ export function getIndicationsBlock(notice: NoticeData): NoticeRCPContentBlock |
     return indicationBlock;
   }
   return undefined;
+}
+
+export function formatNoticeDateNotif(dateNotif: string | undefined): string {
+  if(dateNotif) 
+    return dateNotif
+      .replace("ANSM - Mis à jour le : ", "Notice mise à jour le ")
+      .replace("Mis à jour : ", "Notice mise à jour le ");
+  return "";
+
 }
