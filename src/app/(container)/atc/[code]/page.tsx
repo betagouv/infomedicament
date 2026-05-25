@@ -6,7 +6,6 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import ATC1DefinitionContent from "@/components/definition/ATC1DefinitionContent";
 import ATC2DefinitionContent from "@/components/definition/ATC2DefinitionContent";
-import { ATCError } from "@/utils/atc";
 import { Metadata, ResolvingMetadata } from "next";
 
 export const dynamic = "error";

@@ -1,6 +1,5 @@
 import WithGlossary from "@/components/glossary/WithGlossary";
 import { TitulaireAddressContainer, TitulaireNomContainer } from "@/components/medicaments/blocks/GenericBlocks";
-import { NoticeContentDB, NoticeDB } from "@/db/types";
 import { FicheInfos } from "@/types/FicheInfoTypes";
 import { Definition } from "@/types/GlossaireTypes";
 import { NoticeData, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";

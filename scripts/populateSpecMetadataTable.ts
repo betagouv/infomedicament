@@ -1,7 +1,7 @@
 import db from "@/db";
 import { Specialite } from "@/db/pdbmMySQL/types";
 import { NoticeContentDB, NoticeDB, SpecialiteMetadata } from "@/db/types";
-import { getAllNoticesContent, getAllNoticesWithoutChildren, getNotice } from "@/db/utils/notice";
+import { getAllNoticesContent, getAllNoticesWithoutChildren } from "@/db/utils/notice";
 import { getAllSpecialites } from "@/db/utils/specialities";
 import { NoticeData, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import { formatNoticeDateNotif, getIndicationsBlock } from "@/utils/notices";
