@@ -55,6 +55,7 @@ export interface Database {
   bdpm_specialite_classe_clinique: BdpmSpecialiteClasseCliniqueTable;
   bdpm_classe_groupe_substance: BdpmClasseGroupeSubstanceTable;
   bdpm_substance_groupe_substance: BdpmSubstanceGroupeSubstanceTable;
+  bdpm_interaction: BdpmInteractionTable;
 }
 
 interface SearchIndexTable {
@@ -581,3 +582,18 @@ interface BdpmSubstanceGroupeSubstanceTable {
 }
 
 export type BdpmSubstanceGroupeSubstance = Selectable<BdpmSubstanceGroupeSubstanceTable>;
+
+// Each side is identified by either code_groupe_* OR code_classe_* (exactly one non-null per side).
+// No PK constraint — see migration for explanation.
+interface BdpmInteractionTable {
+  code_groupe_1: number | null;
+  code_groupe_2: number | null;
+  code_classe_1: number | null;
+  code_classe_2: number | null;
+  niveau: string | null;
+  risque: string | null;
+  conduite: string | null;
+  date_modification: Date | null;
+}
+
+export type BdpmInteraction = Selectable<BdpmInteractionTable>;
