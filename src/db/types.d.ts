@@ -56,6 +56,7 @@ export interface Database {
   bdpm_interaction: BdpmInteractionTable;
   bdpm_composant: BdpmComposantTable;
   bdpm_recipient: BdpmRecipientTable;
+  bdpm_dispositif: BdpmDispositifTable;
 }
 
 interface SearchIndexTable {
@@ -606,3 +607,12 @@ interface BdpmRecipientTable {
 }
 
 export type BdpmRecipient = Selectable<BdpmRecipientTable>;
+
+interface BdpmDispositifTable {
+  cip: string;
+  numero_dispositif: number;
+  code_nature_dispositif: string | null;
+  nature_dispositif: string | null;
+}
+
+export type BdpmDispositif = Selectable<BdpmDispositifTable>;
