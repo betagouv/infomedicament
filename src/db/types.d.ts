@@ -44,6 +44,7 @@ export interface Database {
   vu_classes_cliniques: VUClassesCliniquesTable;
   indications: IndicationsTable;
   specialites_metadata: SpecialiteMetadataTable;
+  bdpm_specialite: BdpmSpecialiteTable;
 }
 
 interface SearchIndexTable {
@@ -433,6 +434,18 @@ interface SpecialiteMetadataTable {
   description: string,
 }
 
+interface BdpmSpecialiteTable {
+  cis: string;
+  denomination: string;
+  generique: string | null;
+  procedure: number | null;
+  date_amm: Date | null;
+  statut_amm: "INACTIVE" | "ACTIVE" | "ABROGEE" | "SUSPENDUE" | "RETIREE";
+  date_modification: Date | null;
+  disponibilite: "INDISPONIBLE" | "DISPONIBLE" | "PARTIELLE" | "ALERTE" | null;
+  commercialisation: boolean | null;
+}
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type SearchSynonym = Selectable<SearchSynonymsTable>;
@@ -470,3 +483,4 @@ export type Indication = Selectable<IndicationsTable>;
 export type SpecialiteMetadata = Selectable<SpecialiteMetadataTable>;
 export type NoticeDB = Selectable<NoticeTable>;
 export type NoticeContentDB = Selectable<NoticeContentTable>;
+export type BdpmSpecialite = Selectable<BdpmSpecialiteTable>;
