@@ -57,6 +57,7 @@ export interface Database {
   bdpm_composant: BdpmComposantTable;
   bdpm_recipient: BdpmRecipientTable;
   bdpm_dispositif: BdpmDispositifTable;
+  bdpm_document: BdpmDocumentTable;
 }
 
 interface SearchIndexTable {
@@ -616,3 +617,14 @@ interface BdpmDispositifTable {
 }
 
 export type BdpmDispositif = Selectable<BdpmDispositifTable>;
+
+interface BdpmDocumentTable {
+  cis: string;
+  type: "notice" | "rcp";
+  date_modification: Date | null;
+  url: string | null;
+  sha256: string | null;
+  images: string[] | null;
+}
+
+export type BdpmDocument = Selectable<BdpmDocumentTable>;
