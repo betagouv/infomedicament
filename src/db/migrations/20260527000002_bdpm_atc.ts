@@ -7,7 +7,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('code', 'integer', (col) => col.notNull().primaryKey())
     .addColumn('code_parent', 'integer')
     .addColumn('libelle_abr', 'varchar')
-    .addColumn('libelle_court', 'varchar', (col) => col.notNull())
+    .addColumn('libelle_court', 'varchar')
     .addColumn('libelle_long', 'varchar')
     .addColumn('libelle_anglais', 'varchar')
     .execute()

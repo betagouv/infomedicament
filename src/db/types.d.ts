@@ -452,11 +452,11 @@ interface SpecialiteMetadataTable {
 
 interface BdpmSpecialiteTable {
   cis: string;
-  denomination: string;
+  denomination: string | null;
   generique: string | null;
   procedure: number | null;
   date_amm: Date | null;
-  statut_amm: "INACTIVE" | "ACTIVE" | "ABROGEE" | "SUSPENDUE" | "RETIREE";
+  statut_amm: "INACTIVE" | "ACTIVE" | "ABROGEE" | "SUSPENDUE" | "RETIREE" | null;
   date_modification: Date | null;
   disponibilite: "INDISPONIBLE" | "DISPONIBLE" | "PARTIELLE" | "ALERTE" | null;
   commercialisation: boolean | null;
@@ -505,7 +505,7 @@ interface BdpmAtcTable {
   code: number;
   code_parent: number | null;
   libelle_abr: string | null;
-  libelle_court: string;
+  libelle_court: string | null;
   libelle_long: string | null;
   libelle_anglais: string | null;
 }
@@ -514,7 +514,7 @@ export type BdpmAtc = Selectable<BdpmAtcTable>;
 
 interface BdpmClasseCliniqueTable {
   code: number;
-  libelle_court: string;
+  libelle_court: string | null;
   libelle_long: string | null;
 }
 
@@ -523,7 +523,7 @@ export type BdpmClasseClinique = Selectable<BdpmClasseCliniqueTable>;
 interface BdpmGroupeSubstanceTable {
   code_groupe: number;
   code_groupe_parent: number | null;
-  nom: string;
+  nom: string | null;
   date_modification: Date | null;
 }
 
@@ -531,7 +531,7 @@ export type BdpmGroupeSubstance = Selectable<BdpmGroupeSubstanceTable>;
 
 interface BdpmClasseInteractionTable {
   code_classe: number;
-  nom: string;
+  nom: string | null;
   description: string | null;
   date_modification: Date | null;
 }
@@ -542,7 +542,7 @@ interface BdpmPresentationTable {
   cip: string;
   cis: string;
   cip7: string | null;
-  denomination: string;
+  denomination: string | null;
   date_modification: Date | null;
   statut_commercialisation: "INCONNUE" | "COMMERCIALISEE" | "ARRETEE" | "SUSPENDUE" | "NON_COMMUNIQUEE" | "RETIREE" | null;
   date_commercialisation: Date | null;
