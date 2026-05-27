@@ -51,6 +51,7 @@ export interface Database {
   bdpm_classe_interaction: BdpmClasseInteractionTable;
   bdpm_presentation: BdpmPresentationTable;
   bdpm_element: BdpmElementTable;
+  bdpm_specialite_atc: BdpmSpecialiteAtcTable;
 }
 
 interface SearchIndexTable {
@@ -548,3 +549,10 @@ interface BdpmElementTable {
 }
 
 export type BdpmElement = Selectable<BdpmElementTable>;
+
+interface BdpmSpecialiteAtcTable {
+  cis: string;
+  code_atc: number;
+}
+
+export type BdpmSpecialiteAtc = Selectable<BdpmSpecialiteAtcTable>;
