@@ -58,6 +58,7 @@ export interface Database {
   bdpm_recipient: BdpmRecipientTable;
   bdpm_dispositif: BdpmDispositifTable;
   bdpm_document: BdpmDocumentTable;
+  bdpm_caracteristique: BdpmCaracteristiqueTable;
 }
 
 interface SearchIndexTable {
@@ -628,3 +629,13 @@ interface BdpmDocumentTable {
 }
 
 export type BdpmDocument = Selectable<BdpmDocumentTable>;
+
+interface BdpmCaracteristiqueTable {
+  cip: string;
+  numero_recipient: number;
+  code_caracteristique: number;
+  ordre: number | null;
+  libelle: string | null;
+}
+
+export type BdpmCaracteristique = Selectable<BdpmCaracteristiqueTable>;
