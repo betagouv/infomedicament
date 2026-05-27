@@ -46,6 +46,7 @@ export interface Database {
   specialites_metadata: SpecialiteMetadataTable;
   bdpm_specialite: BdpmSpecialiteTable;
   bdpm_atc: BdpmAtcTable;
+  bdpm_classe_clinique: BdpmClasseCliniqueTable;
 }
 
 interface SearchIndexTable {
@@ -496,3 +497,11 @@ interface BdpmAtcTable {
 }
 
 export type BdpmAtc = Selectable<BdpmAtcTable>;
+
+interface BdpmClasseCliniqueTable {
+  code: number;
+  libelle_court: string;
+  libelle_long: string | null;
+}
+
+export type BdpmClasseClinique = Selectable<BdpmClasseCliniqueTable>;
