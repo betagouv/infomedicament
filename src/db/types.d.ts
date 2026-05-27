@@ -49,6 +49,7 @@ export interface Database {
   bdpm_classe_clinique: BdpmClasseCliniqueTable;
   bdpm_groupe_substance: BdpmGroupeSubstanceTable;
   bdpm_classe_interaction: BdpmClasseInteractionTable;
+  bdpm_presentation: BdpmPresentationTable;
 }
 
 interface SearchIndexTable {
@@ -525,3 +526,15 @@ interface BdpmClasseInteractionTable {
 }
 
 export type BdpmClasseInteraction = Selectable<BdpmClasseInteractionTable>;
+
+interface BdpmPresentationTable {
+  cip: string;
+  cis: string;
+  cip7: string | null;
+  denomination: string;
+  date_modification: Date | null;
+  statut_commercialisation: "INCONNUE" | "COMMERCIALISEE" | "ARRETEE" | "SUSPENDUE" | "NON_COMMUNIQUEE" | "RETIREE" | null;
+  date_commercialisation: Date | null;
+}
+
+export type BdpmPresentation = Selectable<BdpmPresentationTable>;
