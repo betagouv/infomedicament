@@ -5,7 +5,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .createTable('bdpm_classe_interaction')
     .ifNotExists()
     .addColumn('code_classe', 'integer', (col) => col.notNull().primaryKey())
-    .addColumn('nom', 'varchar', (col) => col.notNull())
+    .addColumn('nom', 'varchar')
     .addColumn('description', 'text')
     .addColumn('date_modification', 'timestamptz')
     .execute()
