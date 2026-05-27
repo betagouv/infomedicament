@@ -45,6 +45,7 @@ export interface Database {
   indications: IndicationsTable;
   specialites_metadata: SpecialiteMetadataTable;
   bdpm_specialite: BdpmSpecialiteTable;
+  bdpm_atc: BdpmAtcTable;
 }
 
 interface SearchIndexTable {
@@ -484,3 +485,14 @@ export type SpecialiteMetadata = Selectable<SpecialiteMetadataTable>;
 export type NoticeDB = Selectable<NoticeTable>;
 export type NoticeContentDB = Selectable<NoticeContentTable>;
 export type BdpmSpecialite = Selectable<BdpmSpecialiteTable>;
+
+interface BdpmAtcTable {
+  code: number;
+  code_parent: number | null;
+  libelle_abr: string | null;
+  libelle_court: string;
+  libelle_long: string | null;
+  libelle_anglais: string | null;
+}
+
+export type BdpmAtc = Selectable<BdpmAtcTable>;

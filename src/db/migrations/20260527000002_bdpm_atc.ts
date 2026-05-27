@@ -1,0 +1,18 @@
+import { type Kysely } from 'kysely'
+
+export async function up(db: Kysely<any>): Promise<void> {
+  await db.schema
+    .createTable('bdpm_atc')
+    .ifNotExists()
+    .addColumn('code', 'integer', (col) => col.notNull().primaryKey())
+    .addColumn('code_parent', 'integer')
+    .addColumn('libelle_abr', 'varchar')
+    .addColumn('libelle_court', 'varchar', (col) => col.notNull())
+    .addColumn('libelle_long', 'varchar')
+    .addColumn('libelle_anglais', 'varchar')
+    .execute()
+}
+
+export async function down(db: Kysely<any>): Promise<void> {
+  await db.schema.dropTable('bdpm_atc').ifExists().execute()
+}
