@@ -57,6 +57,7 @@ export interface Database {
   bdpm_substance_groupe_substance: BdpmSubstanceGroupeSubstanceTable;
   bdpm_interaction: BdpmInteractionTable;
   bdpm_composant: BdpmComposantTable;
+  bdpm_recipient: BdpmRecipientTable;
 }
 
 interface SearchIndexTable {
@@ -611,3 +612,16 @@ interface BdpmComposantTable {
 }
 
 export type BdpmComposant = Selectable<BdpmComposantTable>;
+
+interface BdpmRecipientTable {
+  cip: string;
+  numero_element: number | null;
+  numero_recipient: number;
+  nature_recipient: string | null;
+  nombre: number | null;
+  quantite_contenance: number | null;
+  code_unite_contenance: string | null;
+  unite_contenance: string | null;
+}
+
+export type BdpmRecipient = Selectable<BdpmRecipientTable>;
