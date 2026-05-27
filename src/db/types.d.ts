@@ -50,6 +50,7 @@ export interface Database {
   bdpm_groupe_substance: BdpmGroupeSubstanceTable;
   bdpm_classe_interaction: BdpmClasseInteractionTable;
   bdpm_presentation: BdpmPresentationTable;
+  bdpm_element: BdpmElementTable;
 }
 
 interface SearchIndexTable {
@@ -538,3 +539,12 @@ interface BdpmPresentationTable {
 }
 
 export type BdpmPresentation = Selectable<BdpmPresentationTable>;
+
+interface BdpmElementTable {
+  cis: string;
+  numero_element: number;
+  denomination: string | null;
+  ordre: number | null;
+}
+
+export type BdpmElement = Selectable<BdpmElementTable>;
