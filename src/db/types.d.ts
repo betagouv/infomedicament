@@ -43,6 +43,7 @@ export interface Database {
   vu_classes_cliniques: VUClassesCliniquesTable;
   indications: IndicationsTable;
   bdpm_specialite: BdpmSpecialiteTable;
+  bdpm_atc: BdpmAtcTable;
 }
 
 interface SearchIndexTable {
@@ -465,3 +466,14 @@ export type TriamInteraction = Selectable<TriamInteractionsTable>;
 export type InteractionsSearchEntry = Selectable<InteractionsSearchTable>;
 export type Indication = Selectable<IndicationsTable>;
 export type BdpmSpecialite = Selectable<BdpmSpecialiteTable>;
+
+interface BdpmAtcTable {
+  code: number;
+  code_parent: number | null;
+  libelle_abr: string | null;
+  libelle_court: string;
+  libelle_long: string | null;
+  libelle_anglais: string | null;
+}
+
+export type BdpmAtc = Selectable<BdpmAtcTable>;
