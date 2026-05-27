@@ -48,6 +48,7 @@ export interface Database {
   bdpm_atc: BdpmAtcTable;
   bdpm_classe_clinique: BdpmClasseCliniqueTable;
   bdpm_groupe_substance: BdpmGroupeSubstanceTable;
+  bdpm_classe_interaction: BdpmClasseInteractionTable;
 }
 
 interface SearchIndexTable {
@@ -515,3 +516,12 @@ interface BdpmGroupeSubstanceTable {
 }
 
 export type BdpmGroupeSubstance = Selectable<BdpmGroupeSubstanceTable>;
+
+interface BdpmClasseInteractionTable {
+  code_classe: number;
+  nom: string;
+  description: string | null;
+  date_modification: Date | null;
+}
+
+export type BdpmClasseInteraction = Selectable<BdpmClasseInteractionTable>;
