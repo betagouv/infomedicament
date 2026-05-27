@@ -54,6 +54,7 @@ export interface Database {
   bdpm_classe_groupe_substance: BdpmClasseGroupeSubstanceTable;
   bdpm_substance_groupe_substance: BdpmSubstanceGroupeSubstanceTable;
   bdpm_interaction: BdpmInteractionTable;
+  bdpm_composant: BdpmComposantTable;
 }
 
 interface SearchIndexTable {
@@ -578,3 +579,16 @@ interface BdpmInteractionTable {
 }
 
 export type BdpmInteraction = Selectable<BdpmInteractionTable>;
+
+interface BdpmComposantTable {
+  cis: string;
+  numero_element: number;
+  numero_composant: number;
+  code_substance: string | null;
+  substance: string | null;
+  nature: "Substance active" | "Fraction active" | null;
+  dosage: string | null;
+  ordre: number | null;
+}
+
+export type BdpmComposant = Selectable<BdpmComposantTable>;
