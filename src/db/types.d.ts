@@ -42,6 +42,7 @@ export interface Database {
   classes_cliniques: ClassesCliniquesTable;
   vu_classes_cliniques: VUClassesCliniquesTable;
   indications: IndicationsTable;
+  bdpm_specialite: BdpmSpecialiteTable;
 }
 
 interface SearchIndexTable {
@@ -418,6 +419,18 @@ interface IndicationsTable {
   CIS: string[],
 }
 
+interface BdpmSpecialiteTable {
+  cis: string;
+  denomination: string;
+  generique: string | null;
+  procedure: number | null;
+  date_amm: Date | null;
+  statut_amm: "INACTIVE" | "ACTIVE" | "ABROGEE" | "SUSPENDUE" | "RETIREE";
+  date_modification: Date | null;
+  disponibilite: "INDISPONIBLE" | "DISPONIBLE" | "PARTIELLE" | "ALERTE" | null;
+  commercialisation: boolean | null;
+}
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
@@ -451,3 +464,4 @@ export type TriamClasseGrpSubst = Selectable<TriamClasseGrpSubstTable>;
 export type TriamInteraction = Selectable<TriamInteractionsTable>;
 export type InteractionsSearchEntry = Selectable<InteractionsSearchTable>;
 export type Indication = Selectable<IndicationsTable>;
+export type BdpmSpecialite = Selectable<BdpmSpecialiteTable>;
