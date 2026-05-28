@@ -1,4 +1,4 @@
-import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { BdpmComposant } from "@/db/types";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { displaySimpleComposants } from "@/displayUtils";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
@@ -7,7 +7,7 @@ import "./dsfr-custom-tags.css";
 import { trackEvent } from "@/services/tracking";
 
 interface SubstanceTagProps extends HTMLAttributes<HTMLDivElement> {
-  composants: Array<SpecComposant & SubstanceNom>;
+  composants: BdpmComposant[];
   fromMedicament?: boolean;
 }
 
@@ -17,7 +17,7 @@ function SubstanceTag({
 }: SubstanceTagProps) {
 
   const onTrackEvent = () => {
-    if(fromMedicament)
+    if (fromMedicament)
       trackEvent("Page médicament", "Tag Substance");
   };
 
@@ -25,7 +25,7 @@ function SubstanceTag({
     <Tag
       linkProps={{
         href: `/substances/${displaySimpleComposants(composants)
-          .map((s) => s.NomId.trim())
+          .map((s) => s.code_substance ?? '')
           .join(",")}`,
         className: cx("fr-tag--custom-alt-substance"),
         target: "_blank",
@@ -33,7 +33,7 @@ function SubstanceTag({
       }}
     >
       {displaySimpleComposants(composants)
-        .map((s) => s.NomLib.trim())
+        .map((s) => (s.substance ?? '').trim())
         .join(", ")}
     </Tag>
   );

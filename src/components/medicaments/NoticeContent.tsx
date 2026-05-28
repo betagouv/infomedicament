@@ -5,7 +5,8 @@ import TagContainer from "../tags/TagContainer";
 import ClassTag from "../tags/ClassTag";
 import { fr } from "@codegouvfr/react-dsfr";
 import SubstanceTag from "../tags/SubstanceTag";
-import { SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecDelivrance, SpecialiteStat } from "@/db/pdbmMySQL/types";
+import { BdpmComposant } from "@/db/types";
 import PrescriptionTag from "../tags/PrescriptionTag";
 import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "./notice/PresentationsList";
@@ -80,7 +81,7 @@ interface NoticeContentProps extends HTMLAttributes<HTMLDivElement> {
   atcList: string[];
   atc2?: ATC;
   specialite?: DetailedSpecialite;
-  composants: Array<SpecComposant & SubstanceNom>;
+  composants: BdpmComposant[];
   isPrinceps: boolean;
   delivrance: SpecDelivrance[];
   pregnancyPlanAlert: PregnancyAlert | undefined;
@@ -183,6 +184,32 @@ function NoticeContent({
     setHitsLoading(false);
     setNoticeContainerClassName("");
   };
+  const loadData = useCallback(
+    async (
+      spec: DetailedSpecialite,
+      composants: BdpmComposant[]
+    ) => {
+      try {
+        const articlesFilters: SearchArticlesFilters = {
+          ATCList: atcList,
+          substancesList: composants.map((compo) => compo.code_substance ?? ''),
+          specialitesList: [spec.SpecId],
+          pathologiesList: await getSpecialitePathologies(spec.SpecId),
+        };
+        const newArticles = await getArticlesFromFilters(articlesFilters);
+        setArticles(newArticles);
+      } catch (e) {
+        Sentry.captureException(e);
+      }
+    },
+    [atcList, setArticles]
+  );
+
+  useEffect(() => {
+    if (specialite && composants) {
+      loadData(specialite, composants);
+    }
+  }, [specialite, composants, loadData]);
   return (
     <NoticeContentContainer {...props} className={["mobile-display-contents", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ")}>
       <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-md-5")].join(" ")}>

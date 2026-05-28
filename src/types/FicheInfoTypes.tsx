@@ -1,5 +1,3 @@
-import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
-
 export type DocBonUsage = {
   Url?: string;
   DateMAJ: Date;
@@ -52,4 +50,3 @@ export type FicheInfos = {
   isSurveillanceRenforcee: boolean;
 }
 
-export type ComposantSubsNom = SpecComposant & SubstanceNom;
