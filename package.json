@@ -27,7 +27,6 @@
   "dependencies": {
     "@codegouvfr/react-dsfr": "^1.16.0",
     "@gouvfr/dsfr-chart": "^1.0.0",
-    "@hotjar/browser": "^1.0.9",
     "@sentry/nextjs": "^10.43.0",
     "@socialgouv/matomo-next": "^1.9.2",
     "axios": "^1.11.0",
