@@ -16,6 +16,7 @@ export default function Matomo() {
         url: process.env.NEXT_PUBLIC_MATOMO_URL as string,
         siteId: process.env.NEXT_PUBLIC_MATOMO_SITE_ID as string,
         onInitialization: () => {
+          push(["disableCookies"]);
           push(["enableHeartBeatTimer"]);
           push(["disableQueueRequest"]);
         },

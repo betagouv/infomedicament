@@ -7,12 +7,6 @@ import GlossaryContextProvider from "@/components/glossary/GlossaryContextProvid
 import GreetingModal from "@/components/GreetingModal";
 import { getNoticeRcpLastUpdated } from "@/db/utils/specialities";
 import Matomo from "@/components/Matomo";
-import {
-  ConsentBannerAndConsentManagement,
-  FooterConsentManagementItem,
-  FooterPersonalDataPolicyItem,
-} from "@/consentManagement";
-
 export default async function ContainerLayout({
   children,
   header,
@@ -36,7 +30,6 @@ export default async function ContainerLayout({
           </>
         }
       />
-      <ConsentBannerAndConsentManagement />
       {header}
       <main>
         {children}
@@ -65,8 +58,12 @@ export default async function ContainerLayout({
               href: "/a-propos",
             },
           },
-          <FooterPersonalDataPolicyItem key={"dp"} />,
-          <FooterConsentManagementItem key={"fc"} />,
+          {
+            text: "Politique de confidentialité",
+            linkProps: {
+              href: "/politique-de-confidentialite",
+            },
+          },
           {
             text: "Statistiques",
             linkProps: {
