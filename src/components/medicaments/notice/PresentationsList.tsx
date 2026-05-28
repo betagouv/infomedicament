@@ -1,7 +1,3 @@
-import {
-  PresentationComm,
-  PresentationStat,
-} from "@/db/pdbmMySQL/types";
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
@@ -85,8 +81,8 @@ const [presentationsDetails, setPresentationsDetails] = useState<PresentationToD
       {(presentationsDetails && presentationsDetails.length > 0) ? (
         <ul className={fr.cx("fr-raw-list")}>
           {presentationsDetails.map((presDetails, index) => (
-            <li 
-              key={`${presDetails.presentation.Cip13}-${index}`} 
+            <li
+              key={`${presDetails.presentation.cip}-${index}`}
               className={fr.cx("fr-mb-1w", "fr-col-md-12", "fr-text--sm")}
             >
               <div>
@@ -119,14 +115,8 @@ const [presentationsDetails, setPresentationsDetails] = useState<PresentationToD
               </div>
               {isArret(presDetails.presentation) && (
                 <Badge severity="warning" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
-                  {PresentationComm[presDetails.presentation.CommId]}
-                  {presDetails.presentation.PresCommDate && ` (${dateShortFormat(presDetails.presentation.PresCommDate)})`}
-                </Badge>
-              )}
-              {presDetails.presentation.StatId && isAbrogee(presDetails.presentation) && (
-                <Badge severity="error" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
-                  {PresentationStat[presDetails.presentation.StatId]}
-                  {presDetails.presentation.PresStatDAte && ` (${dateShortFormat(presDetails.presentation.PresStatDAte)})`}
+                  Arrêt de commercialisation
+                  {presDetails.presentation.date_commercialisation && ` (${dateShortFormat(presDetails.presentation.date_commercialisation)})`}
                 </Badge>
               )}
             </li>
