@@ -19,9 +19,9 @@ import { formatSpecialitesResume, formatSpecialitesResumeFromGroups } from "@/ut
 import { SpecialiteMetadata } from "../types";
 
 export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
-  const result = await pdbmMySQL
-    .selectFrom("Document")
-    .select((eb) => eb.fn.max("DocDateMaj").as("lastUpdated"))
+  const result = await db
+    .selectFrom("bdpm_document")
+    .select((eb) => eb.fn.max("date_modification").as("lastUpdated"))
     .executeTakeFirst();
 
   return result?.lastUpdated ?? null;
