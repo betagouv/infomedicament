@@ -1,16 +1,16 @@
 import db from "@/db";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { Letters, LetterType, Indication, ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
+import { BdpmSpecialite, Letters, LetterType, Indication, ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
 import { groupGeneNameToDCI } from "@/displayUtils";
 import { getComposants } from "@/db/utils/composants";
 import { getEvents } from "@/db/utils/ficheInfos";
 import { getSpecialitesIndications } from "@/db/utils/indications";
 import { getAllSpecialites } from "@/db/utils/specialities";
 import { getAllSubsWithSpecialites } from "@/db/utils/substances";
-import { displaySimpleComposants, formatSpecName, MedicamentGroup } from "@/displayUtils";
+import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
 import { getAtc1Code, getAtc2Code, getAtcCode } from "@/utils/atc";
-import { getSpecialiteGroupName, groupSpecialites, isSurveillanceRenforcee } from "@/utils/specialites";
+import { getSpecialiteGroupName, isSurveillanceRenforcee } from "@/utils/specialites";
 import { ShortIndication } from "@/types/IndicationsTypes";
 import { getPregnancyMentionAlert } from "@/db/utils/pregnancy";
 import { getPediatrics } from "@/db/utils/pediatrics";
@@ -131,30 +131,39 @@ async function createResumeMedicaments(): Promise<string[]> {
     .execute();
 
   const allSpecialites = await getAllSpecialites();
-  const medicaments: MedicamentGroup[] = groupSpecialites(allSpecialites);
+  const groupMap = new Map<string, BdpmSpecialite[]>();
+  for (const spec of allSpecialites) {
+    const groupName = getSpecialiteGroupName(spec.denomination ?? '');
+    if (groupMap.has(groupName)) {
+      groupMap.get(groupName)?.push(spec);
+    } else {
+      groupMap.set(groupName, [spec]);
+    }
+  }
+  const medicaments = Array.from(groupMap.entries());
   const letters: string[] = [];
   const results = await Promise.all(
     medicaments.map(async (medGroup) => {
       const [groupName, rawSpecialites] = medGroup;
-      const rawComposants = await getComposants(rawSpecialites[0].SpecId);
+      const rawComposants = await getComposants(rawSpecialites[0].cis);
       const composants: string = displaySimpleComposants(rawComposants)
-        .map((s) => s.NomLib.trim())
+        .map((s) => (s.substance ?? '').trim())
         .join(", ");
-      const subsIds: string[] = rawComposants.map((subs) => subs.SubsId.trim());
+      const subsIds: string[] = rawComposants.map((subs) => subs.code_substance ?? '');
       const specialites: string[][] = await Promise.all(
         rawSpecialites.map(async (spec) => {
-          const events = await getEvents(spec.SpecId);
+          const events = await getEvents(spec.cis);
           const surveillanceRenforcee: string = isSurveillanceRenforcee(events) ? "true" : "false";
           return [
-            spec.SpecId,
-            spec.SpecDenom01,
-            spec.StatutBdm.toString(),
-            spec.ProcId,
+            spec.cis,
+            spec.denomination ?? '',
+            spec.commercialisation === false ? "2" : "1",
+            spec.procedure?.toString() ?? '',
             surveillanceRenforcee,
           ];
         })
       );
-      const CISList: string[] = rawSpecialites.map((spec) => spec.SpecId.trim());
+      const CISList: string[] = rawSpecialites.map((spec) => spec.cis);
       const rawIndicationsCodes: ShortIndication[] = await getSpecialitesIndications(CISList);
       const indicationsIds: number[] = rawIndicationsCodes
         .map((indication) => indication.idIndication)
@@ -164,7 +173,7 @@ async function createResumeMedicaments(): Promise<string[]> {
         indication.nomIndication ? indication.nomIndication : "",
       ]);
 
-      const atc = await getAtcCode(rawSpecialites[0].SpecId);
+      const atc = await getAtcCode(rawSpecialites[0].cis);
       const atc1: string | undefined = atc ? getAtc1Code(atc) : undefined;
       const atc2: string | undefined = atc ? getAtc2Code(atc) : undefined;
 
