@@ -2,7 +2,6 @@ import React, { Suspense } from "react";
 import { Footer } from "@codegouvfr/react-dsfr/Footer";
 import { Notice } from "@codegouvfr/react-dsfr/Notice";
 import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
-import { StartHotjar } from "@/app/StartHotjar";
 import GlossaryModals from "@/components/glossary/GlossaryModals";
 import GlossaryContextProvider from "@/components/glossary/GlossaryContextProvider";
 import GreetingModal from "@/components/GreetingModal";
@@ -24,7 +23,6 @@ export default async function ContainerLayout({
   const dataLastUpdated = await getNoticeRcpLastUpdated();
   return (
     <GlossaryContextProvider>
-      {process.env.NEXT_PUBLIC_HOTJAR_SITE_ID && <StartHotjar />}
       <Notice
         title={
           <>
@@ -42,7 +40,6 @@ export default async function ContainerLayout({
       {header}
       <main>
         {children}
-        <div className="hotjar-feedback" />
       </main>
       <Footer
         brandTop={
