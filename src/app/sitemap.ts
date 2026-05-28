@@ -56,7 +56,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const medicamentEntries: MetadataRoute.Sitemap = specialites.map((s) => ({
-    url: `${BASE_URL}/medicaments/${s.SpecId.trim()}`,
+    url: `${BASE_URL}/medicaments/${s.cis}`,
   }));
 
   const articleEntries: MetadataRoute.Sitemap = articles.map((a) => ({

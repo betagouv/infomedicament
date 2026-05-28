@@ -3,10 +3,8 @@ import "server-cli-only";
 
 import { cache } from "react";
 import {
-  SpecComposant,
   SpecDelivrance,
   Specialite,
-  SubstanceNom,
 } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { sql } from "kysely";
@@ -29,9 +27,9 @@ export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
 }
 
 export const getMarketedMedicamentCount = unstable_cache(async function(): Promise<number> {
-  const result = await pdbmMySQL
-    .selectFrom("Specialite")
-    .where("Specialite.IsBdm", "=", 1)
+  const result = await db
+    .selectFrom("bdpm_specialite")
+    .where("statut_amm", "=", "ACTIVE")
     .select((eb) => eb.fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 
@@ -39,13 +37,13 @@ export const getMarketedMedicamentCount = unstable_cache(async function(): Promi
 }, ["marketed-medicament-count"], { revalidate: 3600 });
 
 export async function getSpecialiteName(CIS: string): Promise<string> {
-  const result = await pdbmMySQL
-    .selectFrom("Specialite")
-    .where("SpecId", "=", CIS)
-    .select("SpecDenom01")
+  const result = await db
+    .selectFrom("bdpm_specialite")
+    .where("cis", "=", CIS)
+    .select("denomination")
     .executeTakeFirst();
 
-  return result ? result.SpecDenom01 : "";
+  return result?.denomination ?? "";
 }
 
 export const getDetailedSpecialite = cache(
@@ -86,10 +84,7 @@ export const getSpecialite = cache(async (CIS: string) => {
 
   const specialite: DetailedSpecialite | undefined = await getDetailedSpecialite(CIS);
 
-  const composants: Array<SpecComposant & SubstanceNom> = 
-    specialite 
-      ? await getComposants(CIS)
-      : [];
+  const composants = specialite ? await getComposants(CIS) : [];
 
   const presentations: Presentation[] = 
     specialite 
@@ -120,12 +115,11 @@ export const getSpecialite = cache(async (CIS: string) => {
 });
 
 export const getAllSpecialites = cache(async function () {
-  return await pdbmMySQL
-    .selectFrom("Specialite")
-    .where("Specialite.IsBdm", "=", 1)
+  return await db
+    .selectFrom("bdpm_specialite")
+    .where("statut_amm", "=", "ACTIVE")
     .selectAll()
-    .distinct()
-    .orderBy("SpecDenom01")
+    .orderBy("denomination")
     .execute();
 })
 
