@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { Footer } from "@codegouvfr/react-dsfr/Footer";
 import { Notice } from "@codegouvfr/react-dsfr/Notice";
 import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
@@ -6,7 +6,6 @@ import GlossaryModals from "@/components/glossary/GlossaryModals";
 import GlossaryContextProvider from "@/components/glossary/GlossaryContextProvider";
 import GreetingModal from "@/components/GreetingModal";
 import { getNoticeRcpLastUpdated } from "@/db/utils/specialities";
-import Matomo from "@/components/Matomo";
 export default async function ContainerLayout({
   children,
   header,
@@ -80,10 +79,7 @@ export default async function ContainerLayout({
         ]}
       />
       <GlossaryModals />
-      <Suspense fallback={null}>
-        <Matomo />
-      </Suspense>
-      <GreetingModal dataLastUpdated={dataLastUpdated} />
+<GreetingModal dataLastUpdated={dataLastUpdated} />
     </GlossaryContextProvider>
   );
 }
