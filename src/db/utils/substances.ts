@@ -14,11 +14,15 @@ import { sql } from "kysely";
 export const getSubstances = cache(async function (
   ids: string[]
 ): Promise<SubstanceNom[] | undefined> {
-  return await pdbmMySQL
-    .selectFrom("Subs_Nom")
-    .where("NomId", "in", ids)
+  // Accept both SubsId (new bdpm_ URLs) and NomId (legacy bookmarks)
+  return await db
+    .selectFrom("resume_substances")
+    .where((eb) => eb.or([
+      eb("SubsId", "in", ids),
+      eb("NomId", "in", ids),
+    ]))
     .selectAll()
-    .execute();
+    .execute() as SubstanceNom[];
 });
 
 export const getAllSubsWithSpecialites = cache(async function () {

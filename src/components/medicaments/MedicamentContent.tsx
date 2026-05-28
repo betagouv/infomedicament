@@ -1,7 +1,9 @@
 "use client";
 
 import ContentContainer from "../generic/ContentContainer";
-import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecDelivrance } from "@/db/pdbmMySQL/types";
+import { BdpmComposant } from "@/db/types";
+import { getPediatrics } from "@/db/utils/pediatrics";
 import { HTMLAttributes, lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Marr } from "@/types/MarrTypes";
 import { ATC } from "@/types/ATCTypes";
@@ -25,7 +27,7 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   atc2?: ATC;
   atcCode?: string;
   specialite?: DetailedSpecialite;
-  composants: Array<SpecComposant & SubstanceNom>;
+  composants: BdpmComposant[];
   isPrinceps: boolean;
   delivrance: SpecDelivrance[];
   presentations: Presentation[];
@@ -85,6 +87,73 @@ function MedicamentContent({
     },
     [setIsAdvanced, setAdvancedAnchor]
   );
+
+  const loadData = useCallback(
+    async (
+      spec: DetailedSpecialite
+    ) => {
+      try {
+
+        if (!isCentralisee(spec)) {
+          const newNotice = await getNotice(spec.SpecId);
+          setNotice(newNotice);
+          if (newNotice) {
+            if (newNotice.children) {
+              newNotice.children.forEach((child: NoticeRCPContentBlock) => {
+                if (child.anchor === "Ann3bQuestceque") {
+                  setIndicationBlock(child);
+                }
+              })
+            }
+          }
+        }
+        const newFicheInfos = await getFicheInfos(spec.SpecId);
+        setFicheInfos(newFicheInfos);
+        const newDefinitions = (await getGlossaryDefinitions()).filter(
+          (d) => d.a_souligner,
+        );
+        setDefinitions(newDefinitions);
+
+        const pregnancyMentionAlert = await getPregnancyMentionAlert(spec.SpecId);
+        setIsPregnancyMentionAlert(pregnancyMentionAlert);
+        const pediatrics = await getPediatrics(spec.SpecId);
+        setPediatrics(pediatrics);
+
+        const marr: Marr = await getMarr(spec.SpecId);
+        setMarr(marr);
+      } catch (e) {
+        Sentry.captureException(e);
+      }
+    },
+    [setIsPregnancyMentionAlert, setPediatrics, setMarr]
+  );
+
+  const loadPregnancyPlanAlert = useCallback(
+    async (
+      composants: BdpmComposant[]
+    ) => {
+      try {
+        const pregnancyPlanAlert = (await getAllPregnancyPlanAlerts()).find((s) =>
+          composants.find((c) => Number(c.code_substance) === Number(s.id)),
+        );
+        setIsPregnancyPlanAlert(pregnancyPlanAlert);
+      } catch (e) {
+        Sentry.captureException(e);
+      }
+    }, [setIsPregnancyPlanAlert,]
+  );
+
+  useEffect(() => {
+    if (composants) {
+      loadPregnancyPlanAlert(composants);
+    }
+  }, [composants, loadPregnancyPlanAlert]);
+
+  useEffect(() => {
+    if (specialite) {
+      loadData(specialite);
+    }
+  }, [specialite, loadData]);
 
   useEffect(() => {
     const handler = () => {

@@ -5,7 +5,8 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, PropsWithChildren } from "react";
 import styled, {css} from 'styled-components';
 import GenericPrincepsTag from "@/components/tags/GenericPrincepsTag";
-import { SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecDelivrance, SpecialiteStat } from "@/db/pdbmMySQL/types";
+import { BdpmComposant } from "@/db/types";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import PediatricsTags from "@/components/tags/PediatricsTags";
 import Link from "next/link";
@@ -83,7 +84,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   updateVisiblePart: (visiblePart: DetailsNoticePartsEnum) => void;
   specialite?: DetailedSpecialite;
   atcCode?: string;
-  composants: Array<SpecComposant & SubstanceNom>;
+  composants: BdpmComposant[];
   isPrinceps: boolean;
   isPregnancyPlanAlert: boolean;
   isPregnancyMentionAlert: boolean;
@@ -165,7 +166,7 @@ function GeneralInformations({
           <SummaryLine categoryName="Classe ATC">
             {atcCode}{" "}
             <span style={{textTransform:"capitalize"}}>
-              {displaySimpleComposants(composants).map((s) => s.NomLib.trim()).join(", ")}
+              {displaySimpleComposants(composants).map((s) => (s.substance ?? '').trim()).join(", ")}
             </span>
           </SummaryLine>
         )}

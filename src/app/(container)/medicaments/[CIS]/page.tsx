@@ -152,11 +152,11 @@ export default async function Page(props: {
   if (composants.length > 0) {
     breadcrumb.push({
       label: displaySimpleComposants(composants)
-        .map((s) => s.NomLib.trim())
+        .map((s) => (s.substance ?? '').trim())
         .join(", "),
       linkProps: {
         href: `/substances/${displaySimpleComposants(composants)
-          .map((s) => s.NomId.trim())
+          .map((s) => s.code_substance ?? '')
           .join(",")}`,
       },
     });
