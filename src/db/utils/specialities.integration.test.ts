@@ -63,9 +63,9 @@ describe("db utils specialities", () => {
     const specs = await getSubstanceSpecialites("02202");
 
     //DOLIPRANE 500 mg, comprimé orodispersible
-    const isInactiveSpec = specs.findIndex((spec) => spec.SpecId.trim() === "61933092");
+    const isInactiveSpec = specs.findIndex((spec) => spec.cis === "61933092");
     //DOLIPRANE 1000 mg, comprimé
-    const isActiveSpec = specs.findIndex((spec) => spec.SpecId.trim() === "60234100"); 
+    const isActiveSpec = specs.findIndex((spec) => spec.cis === "60234100");
     
     expect(isInactiveSpec).toBe(-1);
     expect(isActiveSpec).not.toBe(-1);
