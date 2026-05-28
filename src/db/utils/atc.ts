@@ -51,16 +51,25 @@ export const getSubstancesByAtc = cache(async (atc2: ATC): Promise<SubstanceNom[
 
   if (!CIS.length) return [];
 
-  return pdbmMySQL
-    .selectFrom("Subs_Nom")
-    .leftJoin("Composant", "Composant.NomId", "Subs_Nom.NomId")
-    .innerJoin("Specialite", "Specialite.SpecId", "Composant.SpecId")
-    .where("Composant.SpecId", "in", CIS)
-    .where("Specialite.IsBdm", "=", 1)
-    .selectAll("Subs_Nom")
-    .groupBy(["Subs_Nom.NomId", "Subs_Nom.NomLib", "Subs_Nom.SubsId"])
-    .orderBy("Subs_Nom.NomLib")
+  const composantRows = await db
+    .selectFrom("bdpm_composant")
+    .where("cis", "in", CIS)
+    .select("code_substance")
+    .distinct()
     .execute();
+
+  const subsIds = composantRows
+    .map((r) => r.code_substance)
+    .filter((id): id is string => id !== null);
+
+  if (subsIds.length === 0) return [];
+
+  return db
+    .selectFrom("resume_substances")
+    .where("SubsId", "in", subsIds)
+    .selectAll()
+    .orderBy("NomLib")
+    .execute() as unknown as SubstanceNom[];
 });
 
 export const getAtcMenuItems = unstable_cache(

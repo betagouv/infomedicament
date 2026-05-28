@@ -11,8 +11,7 @@ import { sql } from "kysely";
 import db from "@/db";
 import { getFullPresentations } from "@/db/utils/presentation";
 import { unstable_cache } from "next/cache";
-import { withSubstances } from "./query";
-import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, ResumeSpecGroup } from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
 import { formatSpecialitesResume, formatSpecialitesResumeFromGroups } from "@/utils/specialites";
@@ -192,14 +191,31 @@ export const getResumeSpecsGroupsWithCISSubsIds = cache(
 
 export const getSubstanceSpecialites = unstable_cache(async function (
   subsNomsIDs: (string | string[])
-): Promise<Specialite[]> {
+) {
   const ids: string[] = !Array.isArray(subsNomsIDs) ? [subsNomsIDs] : subsNomsIDs;
-  return pdbmMySQL
-    .selectFrom("Specialite")
-    .selectAll("Specialite")
-    .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
-    .where("Specialite.IsBdm", "=", 1)
-    .groupBy("Specialite.SpecId")
+  const subsData = await db
+    .selectFrom("resume_substances")
+    .where("NomId", "in", ids)
+    .select("SubsId")
+    .execute();
+  const subsIds = subsData.map((r) => r.SubsId);
+  if (subsIds.length === 0) return [];
+
+  const cisList = await db
+    .selectFrom("bdpm_composant")
+    .where("code_substance", "in", subsIds)
+    .groupBy("cis")
+    .having((eb) => eb(eb.fn.countAll(), ">=", eb.val(subsIds.length)))
+    .select("cis")
+    .execute();
+  const cisCodes = cisList.map((r) => r.cis);
+  if (cisCodes.length === 0) return [];
+
+  return db
+    .selectFrom("bdpm_specialite")
+    .where("cis", "in", cisCodes)
+    .where("statut_amm", "=", "ACTIVE")
+    .selectAll()
     .execute();
 },
   ["substance-specialites"],
@@ -210,14 +226,22 @@ export const getSubstanceSpecialitesCIS = unstable_cache(async function (
   subsNomsIDs: (string | string[])
 ): Promise<string[]> {
   const ids: string[] = !Array.isArray(subsNomsIDs) ? [subsNomsIDs] : subsNomsIDs;
-  const rawCISList = await pdbmMySQL
-    .selectFrom("Specialite")
-    .select("Specialite.SpecId")
-    .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
-    .where("Specialite.IsBdm", "=", 1)
-    .groupBy("Specialite.SpecId")
+  const subsData = await db
+    .selectFrom("resume_substances")
+    .where("NomId", "in", ids)
+    .select("SubsId")
     .execute();
-  return rawCISList.map((CIS) => CIS.SpecId);
+  const subsIds = subsData.map((r) => r.SubsId);
+  if (subsIds.length === 0) return [];
+
+  const cisList = await db
+    .selectFrom("bdpm_composant")
+    .where("code_substance", "in", subsIds)
+    .groupBy("cis")
+    .having((eb) => eb(eb.fn.countAll(), ">=", eb.val(subsIds.length)))
+    .select("cis")
+    .execute();
+  return cisList.map((r) => r.cis);
 },
   ["substance-specialites-cis"],
   { revalidate: 3600 } // cache for one hour
