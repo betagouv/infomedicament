@@ -339,7 +339,7 @@ function GeneralInformations({
           <div>
             <ul className={fr.cx("fr-raw-list")}>
               {presentations.map((pres, index) => (
-                <li key={`${pres.Cip13}-${index}`} className={fr.cx("fr-mb-1w")}>
+                <li key={`${pres.cip}-${index}`} className={fr.cx("fr-mb-1w")}>
                   <div className={fr.cx("fr-mb-0")}>
                     <span
                       className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
@@ -351,59 +351,31 @@ function GeneralInformations({
                       {getPresentationFullPriceText(pres)}
                     </span>
                   </div>
-                  {(pres.Ppttc || pres.HonoDisp) && (
+                  {(pres.date_commercialisation || pres.cip7) && (
                     <div className={fr.cx("fr-mb-0")}>
-                      {pres.Ppttc && (
-                        <span className={fr.cx("fr-mr-2w")}>
-                          Prix hors honoraire de dispensation :{" "}
-                          {Intl.NumberFormat("fr-FR", {
-                            style: "currency",
-                            currency: "EUR",
-                          }).format(pres.Ppttc)}
-                          {" "}
-                        </span>
+                      {pres.cip7 && (
+                        <span className={fr.cx("fr-mr-2w")}>Code CIP : {pres.cip7}</span>
                       )}
-                      {pres.HonoDisp && (
-                        <span>
-                          <WithDefinition
-                            definition={definitions && getDefinition(definitions, "Honoraire de dispensation")}
-                            word="Honoraire de dispensation"
-                          />{" : "}
-                          {Intl.NumberFormat("fr-FR", {
-                            style: "currency",
-                            currency: "EUR",
-                          }).format(pres.HonoDisp)}
-                          {" "}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  {(pres.PresCommDate && pres.PresCodeCip) && (
-                    <div className={fr.cx("fr-mb-0")}>
-                      {pres.PresCodeCip && (
-                        <span className={fr.cx("fr-mr-2w")}>Code CIP : {pres.PresCodeCip}</span>
-                      )}
-                      {pres.PresCommDate && (
-                        <span>Déclaration de commercialisation : {dateShortFormat(pres.PresCommDate)}</span>
+                      {pres.date_commercialisation && (
+                        <span>Déclaration de commercialisation : {dateShortFormat(pres.date_commercialisation)}</span>
                       )}
                     </div>
                   )}
                   {isAbrogee(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
                       Abrogée
-                      {pres.PresStatDAte && ` le ${dateShortFormat(pres.PresStatDAte)}`}
                     </div>
                   )}
                   {isArret(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
                       Déclaration d'arrêt de commercialisation
-                      {pres.PresCommDate && ` : ${dateShortFormat(pres.PresCommDate)}`}
+                      {pres.date_commercialisation && ` : ${dateShortFormat(pres.date_commercialisation)}`}
                     </div>
                   )}
                   {isNotAuthorized(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
                       Arrêt de commercialisation (le médicament n'a plus d'autorisation)
-                      {pres.PresCommDate && ` : ${dateShortFormat(pres.PresCommDate)}`}
+                      {pres.date_commercialisation && ` : ${dateShortFormat(pres.date_commercialisation)}`}
                     </div>
                   )}
                   {isAgree(pres) ? (

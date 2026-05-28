@@ -1,4 +1,3 @@
-import { PresentationComm, PresentationStat } from "@/db/pdbmMySQL/types";
 import { PresentationDetail } from "@/db/types";
 import { AggregateCaraccomplrecipsDetails, AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
 import { capitalize } from "tsafe";
@@ -244,18 +243,19 @@ export function getPresentationName(
       return allPresNames;
   }
 
-  const index = presentation.PresNom01.indexOf("stylo prérempli");
+  const name = presentation.denomination ?? '';
+  const index = name.indexOf("stylo prérempli");
   if(index !== -1){
     if(index === 0){
-      return capitalize(presentation.PresNom01);
+      return capitalize(name);
     }
-    const qt = presentation.PresNom01.substring(0, index).trim();
-    if(!isNaN(Number(qt)) && Number(qt) > 1 && Number(presentation.PresNum) <= 1){
-      return presentation.PresNom01.replaceAll("stylo prérempli", "stylos préremplis");
+    const qt = name.substring(0, index).trim();
+    if(!isNaN(Number(qt)) && Number(qt) > 1){
+      return name.replaceAll("stylo prérempli", "stylos préremplis");
     }
   }
 
-  return presentation.PresNom01;
+  return name;
 }
 
 export function getAggregatePresentationRecipientsTexts(
@@ -282,67 +282,42 @@ export function getAggregatePresentationRecipientsTexts(
   return details;
 }
 
+// TODO PR4: remove or replace — pricing was from CEPS_Prix (MySQL-only)
 export function getPresentationFullPriceText(
-  presentation: Presentation
+  _presentation: Presentation
 ): string {
-  if(presentation.PPF && presentation.TauxPriseEnCharge) {
-    const price: string = Intl.NumberFormat(
-      "fr-FR", {
-        style: "currency",
-        currency: "EUR",
-      }).format(presentation.PPF);
-    return `Prix ${price} - remboursé à ${presentation.TauxPriseEnCharge}`;               
-  } else {
-    return "Prix libre - non remboursable";
-  }                 
+  return "Prix libre - non remboursable";
 }
 
+// TODO PR4: remove or replace — pricing was from CEPS_Prix (MySQL-only)
 export function getPresentationTauxPriseEnChargeText(
-  presentation: Presentation
+  _presentation: Presentation
 ): string {
-  if(presentation.TauxPriseEnCharge) {
-    return `remboursé à ${presentation.TauxPriseEnCharge}`;
-  } else {
-    return "non remboursable";
-  }                 
+  return "non remboursable";
 }
 
+// TODO PR4: remove or replace — pricing was from CEPS_Prix (MySQL-only)
 export function getPresentationPriceText(
-  presentation: Presentation
+  _presentation: Presentation
 ): string {
-  if(presentation.PPF) {
-    const price: string = Intl.NumberFormat(
-      "fr-FR", {
-        style: "currency",
-        currency: "EUR",
-      }).format(presentation.PPF);
-    return price;
-  } else {
-    return "Prix libre";
-  }                 
+  return "Prix libre - non remboursable";
 }
 
-export function isAbrogee(presentation: Presentation): boolean {
-  if(presentation.StatId && Number(presentation.StatId) === PresentationStat.Abrogation)
-    return true;
+// TODO PR4: remove — no bdpm equivalent for abrogation (was MySQL StatId)
+export function isAbrogee(_presentation: Presentation): boolean {
   return false;
 }
 
 export function isArret(presentation: Presentation): boolean {
-  if(presentation.CommId && Number(presentation.CommId) === PresentationComm.Arrêt)
-    return true;
-  return false;
+  return presentation.statut_commercialisation === "ARRETEE";
 }
 
 export function isNotAuthorized(presentation: Presentation): boolean {
-  if(presentation.CommId && Number(presentation.CommId) === PresentationComm["Plus d'autorisation"])
-    return true;
-  return false;
+  return presentation.statut_commercialisation === "RETIREE";
 }
 
-export function isAgree(presentation: Presentation): boolean {
-  if(presentation.AgreColl && presentation.AgreColl === 1)
-    return true;
+// TODO PR4: remove — agrément aux collectivités was from CNAM_AgreColl (MySQL-only)
+export function isAgree(_presentation: Presentation): boolean {
   return false;
 }
 
