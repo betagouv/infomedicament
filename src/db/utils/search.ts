@@ -84,21 +84,23 @@ export const getSearchResults = unstable_cache(async function (
   const withATC = await getResumeSpecsATCLabels(formatted);
 
   // Attach match reasons, sort by score
-  return withATC
-    .map((group) => {
-      const matchReasons = groupMap.get(group.groupName)?.reasons ?? [];
-      return {
-        ...group,
-        matchReasons: matchReasons,
-        score: computeSortScore(query, group.groupName, group.composants, matchReasons, groupMap.get(group.groupName)?.score ?? 0),
-      }
-    })
-    .sort((a, b) => {
-      const scoreA = computeSortScore(query, a.groupName, a.composants, a.matchReasons, groupMap.get(a.groupName)?.score ?? 0);
-      const scoreB = computeSortScore(query, b.groupName, b.composants, b.matchReasons, groupMap.get(b.groupName)?.score ?? 0);
-      if (scoreB !== scoreA) return scoreB - scoreA;
-      return a.groupName.localeCompare(b.groupName, "fr"); // alphabetical tiebreaker
-    });
+  return withATC 
+    ? withATC
+      .map((group) => {
+        const matchReasons = groupMap.get(group.groupName)?.reasons ?? [];
+        return {
+          ...group,
+          matchReasons: matchReasons,
+          score: computeSortScore(query, group.groupName, group.composants, matchReasons, groupMap.get(group.groupName)?.score ?? 0),
+        }
+      })
+      .sort((a, b) => {
+        const scoreA = computeSortScore(query, a.groupName, a.composants, a.matchReasons, groupMap.get(a.groupName)?.score ?? 0);
+        const scoreB = computeSortScore(query, b.groupName, b.composants, b.matchReasons, groupMap.get(b.groupName)?.score ?? 0);
+        if (scoreB !== scoreA) return scoreB - scoreA;
+        return a.groupName.localeCompare(b.groupName, "fr"); // alphabetical tiebreaker
+      }) 
+    : [];
 },
   ["search-results"],
   { revalidate: 3600 } // 1 hour caching max
