@@ -175,8 +175,8 @@ function SearchResultsList({
         }
         if(indicationsFilters.length > 0) {
           //Filter on indication only if there is indication
+          let find: boolean = false;
           if(result.indicationsDetails && result.indicationsDetails.length > 0){
-            let find: boolean = false;
             result.indicationsDetails.forEach((indicationDetail) => {
               const findIndication = indicationsFilters.findIndex(
                 (filter: SearchFilter) => filter.id === indicationDetail.idIndication.toString() && filter.name === indicationDetail.nomIndication.trim()
@@ -185,8 +185,8 @@ function SearchResultsList({
                 find = true;
               } 
             });
-            return find;
           }
+          return find;
         }
         return true;
       })
@@ -221,7 +221,10 @@ function SearchResultsList({
   const onChangeATCFilter = (filter: SearchFilter, checked: boolean) => {
     const atcIndex = allAtcFilters.findIndex((atcFilter) => filter.id === atcFilter.id);
     if(atcIndex !== -1) {
-      const updatedAtcFilters = [...allAtcFilters];
+      const updatedAtcFilters = allAtcFilters.map((filter) => ({
+        ...filter,
+        children: filter.children && filter.children.map((childFilter) => ({...childFilter}))
+      }));
       updatedAtcFilters[atcIndex].selected = checked;
       updatedAtcFilters[atcIndex].children && updatedAtcFilters[atcIndex].children.forEach((childFilter) => {
         childFilter.selected = checked;
@@ -234,9 +237,12 @@ function SearchResultsList({
     //Update atc list
     const atcIndex = allAtcFilters.findIndex((filter) => atcFilter.id === filter.id);
     if(atcIndex !== -1) {
-      const updatedAtcFilters = [...allAtcFilters];
-      const atc2Index = allAtcFilters[atcIndex].children 
-        ? allAtcFilters[atcIndex].children.findIndex((childrenFilter) => atc2Filter.id === childrenFilter.id) 
+      const updatedAtcFilters = allAtcFilters.map((filter) => ({
+        ...filter,
+        children: filter.children && filter.children.map((childFilter) => ({...childFilter}))
+      }));
+      const atc2Index = updatedAtcFilters[atcIndex].children 
+        ? updatedAtcFilters[atcIndex].children.findIndex((childrenFilter) => atc2Filter.id === childrenFilter.id) 
         : -1;
       if(atc2Index !== -1 && updatedAtcFilters[atcIndex].children) {
         updatedAtcFilters[atcIndex].children[atc2Index].selected = checked;

@@ -90,9 +90,9 @@ function DataBlockSpecResult({
     if(specialite.indicationsDetails && specialite.indicationsDetails.length > 0){
       const names: string[] = indicationsFilters
         .filter((filter: SearchFilter) => 
-          specialite.indicationsDetails?.findIndex((indication) => {
+          specialite.indicationsDetails?.findIndex((indication) => 
             indication.idIndication.toString() === filter.id && indication.nomIndication.trim() === filter.name
-          }) === -1
+          ) === -1
         )
         .map((filter: SearchFilter) => filter.name);
       setIndicationsNames(names);
