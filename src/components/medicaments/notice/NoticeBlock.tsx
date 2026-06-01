@@ -42,12 +42,14 @@ interface NoticeBlockProps extends HTMLAttributes<HTMLDivElement> {
   notice?: NoticeData,
   specialite?: DetailedSpecialite,
   definitions?: Definition[],
+  noticeContainerClassName?: string,
 }
 
 function NoticeBlock({
   notice,
   specialite,
   definitions,
+  noticeContainerClassName,
   ...props
 }: NoticeBlockProps) {
 
@@ -58,7 +60,7 @@ function NoticeBlock({
       {...props}
       className={[props.className, fr.cx("fr-mt-3w")].join(" ")}
     >
-      <ContentContainer id="noticeContainer">
+      <ContentContainer className={noticeContainerClassName} id="noticeContainer">
         {(specialite && isCentralisee(specialite)) ? (
           <CentraliseBlock
             pdfURL={specialite.urlCentralise ? specialite.urlCentralise : undefined}

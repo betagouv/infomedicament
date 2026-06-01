@@ -128,6 +128,7 @@ function NoticeContent({
 
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
   const [showKeywordsBox, setShowKeywordsBox] = useState<boolean>(false);
+  const [noticeContainerClassName, setNoticeContainerClassName] = useState<string>("");
 
   useEffect(() => {
     if (marr) {
@@ -154,12 +155,9 @@ function NoticeContent({
     }
   };
   const onCloseQuestionKeywordsBox = () => {
-    const noticeContainer = document.getElementById('noticeContainer');
-    if (noticeContainer) {
-      noticeContainer.className = "";
-      setShowKeywordsBox(false);
-      setCurrentQuestion("");
-    }
+    setNoticeContainerClassName("");
+    setShowKeywordsBox(false);
+    setCurrentQuestion("");
   };
   const loadData = useCallback(
     async (
@@ -228,6 +226,7 @@ function NoticeContent({
               <QuestionsBox 
                 currentQuestion={currentQuestion}
                 updateCurrentQuestion={updateCurrentQuestion}
+                updateNoticeContainerClassName={setNoticeContainerClassName}
               />
             </ContentContainer>
           )}
@@ -383,6 +382,7 @@ function NoticeContent({
             <QuestionsBox
               currentQuestion={currentQuestion}
               updateCurrentQuestion={updateCurrentQuestion}
+              updateNoticeContainerClassName={setNoticeContainerClassName}
             />
           </ContentContainer>
         )}
@@ -411,6 +411,7 @@ function NoticeContent({
                 notice={notice}
                 specialite={specialite}
                 definitions={definitions}
+                noticeContainerClassName={noticeContainerClassName}
               />
             ) :
               (<span>La notice n&rsquo;est pas disponible pour ce médicament.</span>)

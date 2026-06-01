@@ -50,11 +50,13 @@ const QuestionsViewAllBlock = styled.div`
 interface QuestionsBoxProps extends HTMLAttributes<HTMLDivElement> {
   currentQuestion: string | undefined;
   updateCurrentQuestion: (question: string) => void;
+  updateNoticeContainerClassName: (className: string) => void;
 }
 
 function QuestionsBox({
   currentQuestion,
   updateCurrentQuestion,
+  updateNoticeContainerClassName,
   ...props
 }: QuestionsBoxProps) {
 
@@ -62,11 +64,8 @@ function QuestionsBox({
   const [isResizable, setIsResizable] = useState<boolean>(true);
 
   const onClick = (anchorData: QuestionAnchors) => {
-    const noticeContainer = document.getElementById('noticeContainer');
-    if(noticeContainer){
-      noticeContainer.className = "highlight-" + anchorData.id;
-      updateCurrentQuestion(anchorData.id);
-    }
+    updateNoticeContainerClassName("highlight-" + anchorData.id);
+    updateCurrentQuestion(anchorData.id);
     trackEvent("Boîte questions", anchorData.tracking);
   };
 
