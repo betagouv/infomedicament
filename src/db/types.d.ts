@@ -402,7 +402,7 @@ interface IndicationsTable {
 interface SpecialiteMetadataTable {
   CIS: number,
   title: string,
-  description?: string,
+  description: string,
 }
 
 export type LeafletImage = Selectable<LeafletImagesTable>;

@@ -18,16 +18,11 @@ export async function generateMetadata(
 
   const { id } = await props.params;
   const ids = decodeURIComponent(id).split(",");//NomId
-  const substances: SubstanceNom[] = await getSubstances(ids)?? [];
-  if (!substances || substances.length < ids.length) return notFound();
+  const substances: SubstanceNom[] = await getSubstances(ids) ?? [];
+  if (substances.length < ids.length) return notFound();
 
   const definitionsRaw = await getSubstanceDefinition(ids, substances.map((subs) => subs.SubsId.trim()));
-  let definitionString = "";
-  definitionsRaw.forEach((definition) => {
-    if(definitionString !== "")
-      definitionString += " - ";
-    definitionString += `${definition.SA} : ${definition.Definition}`;
-  });
+  const definitionString = definitionsRaw.map(d => `${d.SA} : ${d.Definition}`).join(" - ")
 
   return {
     title: `${substances.map((s) => s.NomLib).join(", ")} - ${(await parent).title?.absolute}`,
@@ -39,8 +34,8 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
   const ids = decodeURIComponent(id).split(",");//NomId
 
-  const substances: SubstanceNom[] = await getSubstances(ids)?? [];
-  if (!substances || substances.length < ids.length) return notFound();
+  const substances: SubstanceNom[] = await getSubstances(ids) ?? [];
+  if (substances.length < ids.length) return notFound();
 
   return (
     <ContentContainer frContainer>
