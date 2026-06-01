@@ -6,8 +6,8 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
 import { HTMLAttributes, useEffect, useState } from "react";
-import { AgregatePresentationDetails, Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
-import { cleanPresentationsDetails, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isAbrogee, isArret, getAgregatePresentationRecipientsTexts } from "@/utils/presentations";
+import { AggregatePresentationDetails, Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
+import { cleanPresentationsDetails, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isAbrogee, isArret, getAggregatePresentationRecipientsTexts } from "@/utils/presentations";
 import styled from "styled-components";
 
 type PresentationToDisplay = {
@@ -68,9 +68,9 @@ const [presentationsDetails, setPresentationsDetails] = useState<PresentationToD
           detailsLines: [],
         }
         if(presentation.details) {
-          const agregateDetails: AgregatePresentationDetails[] = cleanPresentationsDetails(presentation.details);
-          agregateDetails.forEach((details) => {
-            const recipientsTexts = getAgregatePresentationRecipientsTexts(details);
+          const aggregateDetails: AggregatePresentationDetails[] = cleanPresentationsDetails(presentation.details);
+          aggregateDetails.forEach((details) => {
+            const recipientsTexts = getAggregatePresentationRecipientsTexts(details);
             newPresentationDetails.detailsLines.push(recipientsTexts);
           });
         }

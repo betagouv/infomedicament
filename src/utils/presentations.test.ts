@@ -1,10 +1,10 @@
-import { AgregateDispositifDetails, AgregatePresentationDetails, AgregateRecipientDetails } from "@/types/PresentationTypes";
+import { AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails } from "@/types/PresentationTypes";
 import { describe, it, expect } from "vitest";
 import { caracCompDisplay, cleanPresentationsDetails, contenanceDisplay, dispositifDisplay, replacePluralSingular, totalDisplay } from "./presentations";
 import { PresentationDetail } from "@/db/types";
  
   //CIS : 69174918
-  const recipientDetails: AgregateRecipientDetails = {
+  const recipientDetails: AggregateRecipientDetails = {
     caraccomplrecips: [
       {
         caraccomplrecip: "multidose(s)",
@@ -21,9 +21,9 @@ import { PresentationDetail } from "@/db/types";
     recipient: "flacon(s)",
     unitecontenance: "dose(s)"
   };
-  const dispositifDetails: AgregateDispositifDetails[] = [];
+  const dispositifDetails: AggregateDispositifDetails[] = [];
   //CIS : 63886766
-  const recipientDetails2: AgregateRecipientDetails = {
+  const recipientDetails2: AggregateRecipientDetails = {
     caraccomplrecips: [],
     nbrrecipient: 4,
     numrecipient: 2,
@@ -31,7 +31,7 @@ import { PresentationDetail } from "@/db/types";
     recipient: "seringue(s) préremplie(s)",
     unitecontenance: ""
   };
-  const dispositifDetails2: AgregateDispositifDetails[] = [
+  const dispositifDetails2: AggregateDispositifDetails[] = [
     {
       dispositif: "avec aiguille(s)",
       numdispositif: 1,
@@ -46,7 +46,7 @@ import { PresentationDetail } from "@/db/types";
     }
   ];
   //CIS : 60052222
-  const recipientDetails3: AgregateRecipientDetails = {
+  const recipientDetails3: AggregateRecipientDetails = {
     caraccomplrecips: [
       {
         caraccomplrecip: "en verre",
@@ -63,14 +63,14 @@ import { PresentationDetail } from "@/db/types";
     recipient: "flacon(s)",
     unitecontenance: "ml"
   };
-  const dispositifDetails3: AgregateDispositifDetails[] = [
+  const dispositifDetails3: AggregateDispositifDetails[] = [
     {
       dispositif: "avec dispositif(s) pulvérisateur(s)",
       numdispositif: 3,
     }
   ];
   //CIS : 60928110
-  const recipientDetails4: AgregateRecipientDetails = {
+  const recipientDetails4: AggregateRecipientDetails = {
     caraccomplrecips: [
       {
         caraccomplrecip: "aluminium",
@@ -91,7 +91,7 @@ import { PresentationDetail } from "@/db/types";
     recipient: "flacon(s) pressurisé(s)",
     unitecontenance: "dose(s)"
   };
-  const dispositifDetails4: AgregateDispositifDetails[] = [];
+  const dispositifDetails4: AggregateDispositifDetails[] = [];
 
 describe("utils presentations", () => {
 
@@ -232,7 +232,7 @@ describe("utils presentations", () => {
         unitecontenance: "comprimé(s)",
       }
     ];
-    const cleanPresDetails: AgregatePresentationDetails[] = [
+    const cleanPresDetails: AggregatePresentationDetails[] = [
       {
         codecip13: "3400930101001",
         dispositifs: [],
@@ -261,7 +261,7 @@ describe("utils presentations", () => {
         ],
       }
     ];
-    const cleanResult: AgregatePresentationDetails[] = cleanPresentationsDetails(presDetails);
+    const cleanResult: AggregatePresentationDetails[] = cleanPresentationsDetails(presDetails);
     expect(cleanResult).toStrictEqual(cleanPresDetails);
   });
 
@@ -299,7 +299,7 @@ describe("utils presentations", () => {
         unitecontenance: "ml",
       },
     ];
-    const cleanPresDetails: AgregatePresentationDetails[] = [
+    const cleanPresDetails: AggregatePresentationDetails[] = [
       {
         codecip13: "3400930276419",
         dispositifs: [
@@ -329,7 +329,7 @@ describe("utils presentations", () => {
         ],
       }
     ];
-    const cleanResult: AgregatePresentationDetails[] = cleanPresentationsDetails(presDetails);
+    const cleanResult: AggregatePresentationDetails[] = cleanPresentationsDetails(presDetails);
     expect(cleanResult).toStrictEqual(cleanPresDetails);
   });
 
@@ -397,7 +397,7 @@ describe("utils presentations", () => {
         unitecontenance: "comprimé(s)",
       },
     ];
-    const cleanPresDetails: AgregatePresentationDetails[] = [
+    const cleanPresDetails: AggregatePresentationDetails[] = [
       {
         codecip13: "3400935753274",
         dispositifs: [],
@@ -439,7 +439,7 @@ describe("utils presentations", () => {
         ],
       }
     ];
-    const cleanResult: AgregatePresentationDetails[] = cleanPresentationsDetails(presDetails);
+    const cleanResult: AggregatePresentationDetails[] = cleanPresentationsDetails(presDetails);
     expect(cleanResult).toStrictEqual(cleanPresDetails);
   });
 });

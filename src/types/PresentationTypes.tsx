@@ -11,29 +11,29 @@ export type Presentation =
     retro?: PresentationRetro,
   }
 
-export type AgregateDispositifDetails = {
+export type AggregateDispositifDetails = {
   numdispositif: number;
   dispositif: string;
 }
 
-export type AgregateCaraccomplrecipsDetails = {
+export type AggregateCaraccomplrecipsDetails = {
   caraccomplrecip: string;
   numordreedit: number;
 }
 
-export type AgregateRecipientDetails = {
+export type AggregateRecipientDetails = {
   recipient: string;
   numrecipient: number;
   nbrrecipient: number;
   qtecontenance: number;
   unitecontenance: string;
-  caraccomplrecips: AgregateCaraccomplrecipsDetails[],
+  caraccomplrecips: AggregateCaraccomplrecipsDetails[],
 }
 
-export type AgregatePresentationDetails = {
+export type AggregatePresentationDetails = {
   codecip13: string;
-  recipients: AgregateRecipientDetails[];
-  dispositifs: AgregateDispositifDetails[],
+  recipients: AggregateRecipientDetails[];
+  dispositifs: AggregateDispositifDetails[],
 }
 
 export type PresentationRecipientsDetails = {
