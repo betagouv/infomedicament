@@ -1,7 +1,8 @@
-import { AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails } from "@/types/PresentationTypes";
+import { AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation } from "@/types/PresentationTypes";
 import { describe, it, expect } from "vitest";
-import { caracCompDisplay, cleanPresentationsDetails, contenanceDisplay, dispositifDisplay, replacePluralSingular, totalDisplay } from "./presentations";
+import { caracCompDisplay, cleanPresentationsDetails, contenanceDisplay, dispositifDisplay, getAggregatePresentationRecipientsTexts, getPresentationFullPriceText, getPresentationPriceText, getPresentationTauxPriseEnChargeText, replacePluralSingular, totalDisplay } from "./presentations";
 import { PresentationDetail } from "@/db/types";
+import { PresentationComm } from "@/db/pdbmMySQL/types";
  
   //CIS : 69174918
   const recipientDetails: AggregateRecipientDetails = {
@@ -93,51 +94,95 @@ import { PresentationDetail } from "@/db/types";
   };
   const dispositifDetails4: AggregateDispositifDetails[] = [];
 
-describe("utils presentations", () => {
+  const presentations: Presentation[] = [
+  {
+    AgreColl: 1,
+    Cip13: "3400935955838",
+    CommId: PresentationComm.Commercialisation,
+    DateJO: new Date(2002, 12, 19),
+    HonoDisp: 1.02,
+    PPF: 2.18,
+    Ppttc: 1.16,
+    PresCodeCip: "359 558-3 ou 34009 359 558 3 8",
+    PresCommDate: new Date(2003, 1, 2),
+    PresNom01: "plaquette(s) thermoformée(s) PVC-aluminium de 8  comprimé(s)",
+    PresNum: "1",
+    PresStatDAte: null,
+    SpecId: "60234100",
+    StatId: null,
+    TauxPriseEnCharge: "65%",
+    codeCIP13: "3400935955838",
+    details: [
+      {
+        caraccomplrecip: "PVC-Aluminium",
+        codecip13: "3400935955838",
+        dispositif: "",
+        nbrrecipient: 0,
+        nom_presentation: "plaquette(s) thermoformée(s) PVC-aluminium de 8 comprimé(s)",
+        nomelement: "comprimé",
+        numdispositif: 0,
+        numelement: 1,
+        numordreedit: 1,
+        numrecipient: 1,
+        qtecontenance: 8,
+        recipient: "plaquette(s) thermoformée(s)",
+        unitecontenance: "comprimé(s)"
+      }
+    ],
+    retro: {
+      Cip13: "3400935955838",
+      IVG: "non",
+      ListSus: "non",
+      RbtNico: "non ;",
+      Retro: "non",
+      SpecId: "60234100",
+    }
+  },
+  {
+    AgreColl: 1,
+    Cip13: "3400956369553",
+    CommId: PresentationComm.Commercialisation,
+    DateJO: new Date(2002, 12, 19),
+    HonoDisp: null,
+    PPF: null,
+    Ppttc: null,
+    PresCodeCip: "563 695-5 ou 34009 563 695 5 3",
+    PresCommDate: new Date(2003, 3, 17),
+    PresNom01: "plaquette(s) thermoformée(s) PVC-aluminium de 100  comprimé(s)",
+    PresNum: "2",
+    PresStatDAte: null,
+    SpecId: "60234100",
+    StatId: null,
+    TauxPriseEnCharge: null,
+    codeCIP13: "3400956369553",
+    details: [
+      {
+        caraccomplrecip: "PVC-Aluminium",
+        codecip13: "3400956369553",
+        dispositif: "",
+        nbrrecipient: 0,
+        nom_presentation: "plaquette(s) thermoformée(s) PVC-aluminium de 100 comprimé(s)",
+        nomelement: "comprimé",
+        numdispositif: 0,
+        numelement: 1,
+        numordreedit: 1,
+        numrecipient: 1,
+        qtecontenance: 100,
+        recipient: "plaquette(s) thermoformée(s)",
+        unitecontenance: "comprimé(s)"
+      }
+    ],
+    retro: {
+      Cip13: "3400956369553",
+      IVG: "non",
+      ListSus: "non",
+      RbtNico: "non ;",
+      Retro: "non",
+      SpecId: "60234100",
+    }
+  }];
 
-  it("replacePluralSingular", async () => {
-    expect(replacePluralSingular("comprimé(s)", 2)).toBe("comprimés");
-    expect(replacePluralSingular("comprimé(s)", 1)).toBe("comprimé");
-    expect(replacePluralSingular("embout(s) nasal(aux)", 2)).toBe("embouts nasaux");
-    expect(replacePluralSingular("embout(s) nasal(aux)", 1)).toBe("embout nasal");
-    expect(replacePluralSingular("anneau(x)", 2)).toBe("anneaux");
-    expect(replacePluralSingular("anneau(x)", 1)).toBe("anneau");
-    expect(replacePluralSingular("stylo prérempli", 2)).toBe("stylos préremplis");
-    expect(replacePluralSingular("stylo prérempli", 1)).toBe("stylo prérempli");
-  });
-
-  it("totalDisplay", async () => {
-    expect(totalDisplay(recipientDetails)).toBe("100 doses");
-    expect(totalDisplay(recipientDetails2)).toBe("");
-    expect(totalDisplay(recipientDetails3)).toBe("");
-    expect(totalDisplay(recipientDetails4)).toBe("200 doses");
-  });
-
-  it("contenanceDisplay", async () => {
-    expect(contenanceDisplay(recipientDetails)).toBe("10 doses");
-    expect(contenanceDisplay(recipientDetails2)).toBe("");
-    expect(contenanceDisplay(recipientDetails3)).toBe("13,2 ml");
-    expect(contenanceDisplay(recipientDetails4)).toBe("200 doses");
-  });
-
-  it("caracCompDisplay", async () => {
-    expect(caracCompDisplay(recipientDetails.caraccomplrecips, recipientDetails.nbrrecipient, false)).toBe(" multidoses en verre");
-    expect(caracCompDisplay(recipientDetails.caraccomplrecips, recipientDetails.nbrrecipient, true)).toBe("");
-    expect(caracCompDisplay(recipientDetails2.caraccomplrecips, recipientDetails2.nbrrecipient, false)).toBe("");
-    expect(caracCompDisplay(recipientDetails2.caraccomplrecips, recipientDetails2.nbrrecipient, true)).toBe("");
-    expect(caracCompDisplay(recipientDetails3.caraccomplrecips, recipientDetails3.nbrrecipient, false)).toBe(" en verre brun");
-    expect(caracCompDisplay(recipientDetails3.caraccomplrecips, recipientDetails3.nbrrecipient, true)).toBe("");
-    expect(caracCompDisplay(recipientDetails4.caraccomplrecips, recipientDetails4.nbrrecipient, false)).toBe(" aluminium avec valve doseuse avec embout buccal");
-    expect(caracCompDisplay(recipientDetails4.caraccomplrecips, recipientDetails4.nbrrecipient, true)).toBe(" avec valve doseuse avec embout buccal");
-  });
-
-  it("dispositifDisplay", async () => {
-    expect(dispositifDisplay(dispositifDetails)).toBe("");
-    expect(dispositifDisplay(dispositifDetails2)).toBe(" avec aiguille avec adaptateur pour flacon avec tampon alcoolisé");
-    expect(dispositifDisplay(dispositifDetails3)).toBe(" avec dispositif pulvérisateur");
-    expect(dispositifDisplay(dispositifDetails4)).toBe("");
-  });
-
+describe("utils presentations - cleanPresentationsDetails", () => {
   it("cleanPresentationsDetails - PVC-Alumium and PVC - multiple caraccomplrecip with the same value ", async () => {
     //CIS : 60018444
     const presDetails: PresentationDetail[] = [
@@ -442,4 +487,114 @@ describe("utils presentations", () => {
     const cleanResult: AggregatePresentationDetails[] = cleanPresentationsDetails(presDetails);
     expect(cleanResult).toStrictEqual(cleanPresDetails);
   });
+});
+
+describe("utils presentations - text utilities", () => {
+
+  it("replacePluralSingular", async () => {
+    expect(replacePluralSingular("comprimé(s)", 2)).toBe("comprimés");
+    expect(replacePluralSingular("comprimé(s)", 1)).toBe("comprimé");
+    expect(replacePluralSingular("embout(s) nasal(aux)", 2)).toBe("embouts nasaux");
+    expect(replacePluralSingular("embout(s) nasal(aux)", 1)).toBe("embout nasal");
+    expect(replacePluralSingular("anneau(x)", 2)).toBe("anneaux");
+    expect(replacePluralSingular("anneau(x)", 1)).toBe("anneau");
+    expect(replacePluralSingular("stylo prérempli", 2)).toBe("stylos préremplis");
+    expect(replacePluralSingular("stylo prérempli", 1)).toBe("stylo prérempli");
+  });
+
+  it("totalDisplay", async () => {
+    expect(totalDisplay(recipientDetails)).toBe("100 doses");
+    expect(totalDisplay(recipientDetails2)).toBe("");
+    expect(totalDisplay(recipientDetails3)).toBe("");
+    expect(totalDisplay(recipientDetails4)).toBe("200 doses");
+  });
+
+  it("contenanceDisplay", async () => {
+    expect(contenanceDisplay(recipientDetails)).toBe("10 doses");
+    expect(contenanceDisplay(recipientDetails2)).toBe("");
+    expect(contenanceDisplay(recipientDetails3)).toBe("13,2 ml");
+    expect(contenanceDisplay(recipientDetails4)).toBe("200 doses");
+  });
+
+  it("caracCompDisplay", async () => {
+    expect(caracCompDisplay(recipientDetails.caraccomplrecips, recipientDetails.nbrrecipient, false)).toBe(" multidoses en verre");
+    expect(caracCompDisplay(recipientDetails.caraccomplrecips, recipientDetails.nbrrecipient, true)).toBe("");
+    expect(caracCompDisplay(recipientDetails2.caraccomplrecips, recipientDetails2.nbrrecipient, false)).toBe("");
+    expect(caracCompDisplay(recipientDetails2.caraccomplrecips, recipientDetails2.nbrrecipient, true)).toBe("");
+    expect(caracCompDisplay(recipientDetails3.caraccomplrecips, recipientDetails3.nbrrecipient, false)).toBe(" en verre brun");
+    expect(caracCompDisplay(recipientDetails3.caraccomplrecips, recipientDetails3.nbrrecipient, true)).toBe("");
+    expect(caracCompDisplay(recipientDetails4.caraccomplrecips, recipientDetails4.nbrrecipient, false)).toBe(" aluminium avec valve doseuse avec embout buccal");
+    expect(caracCompDisplay(recipientDetails4.caraccomplrecips, recipientDetails4.nbrrecipient, true)).toBe(" avec valve doseuse avec embout buccal");
+  });
+
+  it("dispositifDisplay", async () => {
+    expect(dispositifDisplay(dispositifDetails)).toBe("");
+    expect(dispositifDisplay(dispositifDetails2)).toBe(" avec aiguille avec adaptateur pour flacon avec tampon alcoolisé");
+    expect(dispositifDisplay(dispositifDetails3)).toBe(" avec dispositif pulvérisateur");
+    expect(dispositifDisplay(dispositifDetails4)).toBe("");
+  });
+
+  it("getPresentationFullPriceText", async () => {
+    expect(getPresentationFullPriceText(presentations[0])).toBe("Prix 2,18 € - remboursé à 65%");
+    expect(getPresentationFullPriceText(presentations[1])).toBe("Prix libre - non remboursable");
+  });
+
+  it("getPresentationTauxPriseEnChargeText", async () => {
+    expect(getPresentationTauxPriseEnChargeText(presentations[0])).toBe("remboursé à 65%");
+    expect(getPresentationTauxPriseEnChargeText(presentations[1])).toBe("non remboursable");
+  });
+
+  it("getPresentationPriceText", async () => {
+    expect(getPresentationPriceText(presentations[0])).toBe("2,18 €");
+    expect(getPresentationPriceText(presentations[1])).toBe("Prix libre");
+  });
+
+});
+
+describe("utils presentations - aggregate", () => {
+
+  it("getAggregatePresentationRecipientsTexts", async () => {
+    const presentationsDetails: AggregatePresentationDetails[] = [
+      {
+        codecip13: "3400935955838",
+        dispositifs: [],
+        recipients: [{
+          caraccomplrecips: [{
+            caraccomplrecip: "PVC-Aluminium",
+            numordreedit: 1,
+          }],
+          nbrrecipient: 0,
+          numrecipient: 1,
+          qtecontenance: 8,
+          recipient: "plaquette(s) thermoformée(s)",
+          unitecontenance: "comprimé(s)"
+        }],
+      },
+      {
+        codecip13: "3400956369553",
+        dispositifs: [],
+        recipients: [{
+          caraccomplrecips: [{
+            caraccomplrecip: "PVC-Aluminium",
+            numordreedit: 1,
+          }],
+          nbrrecipient: 0,
+          numrecipient: 1,
+          qtecontenance: 100,
+          recipient: "plaquette(s) thermoformée(s)",
+          unitecontenance: "comprimé(s)"
+        }],
+      }
+    ];
+
+    expect(getAggregatePresentationRecipientsTexts(presentationsDetails[0])).toStrictEqual([{
+      contenance: "8 comprimés",
+      recipient: "plaquette thermoformée"
+    }]);
+    expect(getAggregatePresentationRecipientsTexts(presentationsDetails[1])).toStrictEqual([{
+      contenance: "100 comprimés",
+      recipient: "plaquette thermoformée"
+    }]);
+  });
+
 });
