@@ -22,7 +22,7 @@ const mockSearchResults = [
     CISList: [],
     subsIds: [],
     matchReasons: [],
-    resumeSpecialites: [],
+    shortSpecialites: [],
   },
 ];
 

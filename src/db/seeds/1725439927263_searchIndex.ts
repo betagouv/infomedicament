@@ -90,7 +90,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       await trx
         .insertInto("search_index")
         .values(({ fn, val }) => ({
-          token: fn("unaccent", [val(token)]),
+          token: fn("lower", [fn("unaccent", [val(token)])]),
           match_type: matchType,
           group_name: groupName,
           match_label: matchLabel,

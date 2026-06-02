@@ -14,6 +14,7 @@ export interface Database {
   resume_substances: ResumeSubstancesTable;
   resume_medicaments: ResumeMedicamentsTable;
   resume_generiques: ResumeGenericsTable;
+  resume_specialites: ResumeSpecialitesTable;
   letters: LettersTable;
   ref_articles: RefArticles;
   ref_atc_friendly_niveau_1: RefAtcFriendlyNiveau1;
@@ -115,7 +116,7 @@ interface RatingTable {
   question2?: number,
 }
 
-export type LetterType = "indications" | "substances" | "specialites" | "generiques";
+export type LetterType = "indications" | "substances" | "medicaments" | "generiques";
 interface LettersTable {
   type: LetterType;
   letters: string[];
@@ -145,6 +146,25 @@ interface ResumeMedicamentsTable {
   CISList: string[];
   subsIds: string[];
   indicationsIdsNames: string[][];//idIndication, nomIndication
+}
+
+interface ResumeSpecialitesTable {
+  specId: string;
+  specName: string;
+  groupName: string;
+  composants: string;
+  subsIds: string[];
+  indicationsIds: number[];
+  indicationsIdsNames: string[][]; //idIndication, nomIndication
+  atc1Code?: string;
+  atc2Code?: string;
+  atc5Code?: string; //Keep it to be consistent with table resume_medicaments
+  ProcId: string;
+  isSurveillanceRenforcee: boolean;
+  StatutBdm: number;
+  isAlertPregnancyPlan: boolean;
+  isAlertPregnancyMention: boolean;
+  isAlertPediatricContraindication: boolean;
 }
 
 interface ResumeGenericsTable {
@@ -406,6 +426,7 @@ export type Rating = Selectable<RatingTable>;
 export type ResumeIndication = Selectable<ResumeIndicationsTable>;
 export type ResumeSubstance = Selectable<ResumeSubstancesTable>;
 export type ResumeSpecGroupDB = Selectable<ResumeMedicamentsTable>;
+export type ResumeSpecialiteDB = Selectable<ResumeSpecialitesTable>;
 export type ResumeGeneric = Selectable<ResumeGenericsTable>;
 export type Letters = Selectable<LettersTable>;
 export type ATC = Selectable<Atc>;

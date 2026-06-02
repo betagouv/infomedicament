@@ -1,21 +1,39 @@
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 import styled, { css } from 'styled-components';
 import { ArticleCardResume, ArticleTrackingFromType } from "@/types/ArticlesTypes";
 import Link from "next/link";
-import Badge from "@codegouvfr/react-dsfr/Badge";
 import { trackEvent } from "@/services/tracking";
 
+const ArticlesListContainer = styled.div`
+  @media (max-width: 48em) {
+    display: inline-flex;
+    width: 100%;
+  }
+`;
 
-const ArticleContainer = styled.div<{ $isDark: boolean }>`
+const ArticleBlockContainer = styled.div<{ $isDark: boolean }>`
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
   padding: 0.5rem;
+  margin-bottom: 1rem;
   ${props => css`
     background-color: ${props.$isDark ? 'var(--background-default-grey)' : '#FFF'};
   `}
+  @media (max-width: 48em) {
+    margin-right: 1rem;
+    min-width: 200px;
+    margin-bottom: 0rem;
+  }
 `;
+const ArticlesTitle = styled.h2`
+  margin-bottom: 0.5rem;
+  @media (max-width: 48em) {
+    margin-bottom: 1rem;
+  }
+`;
+
 interface ArticlesResumeListProps extends HTMLAttributes<HTMLDivElement> {
   articles: ArticleCardResume[];
   trackingFrom: ArticleTrackingFromType;
@@ -28,23 +46,16 @@ function ArticlesResumeList({
 
   const { isDark } = useIsDark();
 
-  const [articlesList, setArticlesList] = useState<ArticleCardResume[]>([]);
-
-  useEffect(() => {
-    if(articles)
-      setArticlesList(articles);
-  },[articles, setArticlesList]);  
-
   return (
-    articlesList.length > 0 && (
-      <>
-        <h3 className={fr.cx("fr-h6", "fr-mb-1w")}>
+    articles.length > 0 && (
+      <div>
+        <ArticlesTitle className={fr.cx("fr-h6")}>
           En savoir plus
-        </h3>
-        <div>
-          {articlesList.map((article:ArticleCardResume, index) => {
+        </ArticlesTitle>
+        <ArticlesListContainer>
+          {articles.map((article:ArticleCardResume, index) => {
             return (
-              <ArticleContainer $isDark={isDark} key={index} className={fr.cx("fr-mb-2w")}>
+              <ArticleBlockContainer $isDark={isDark} key={index}>
                 <Link 
                   className={fr.cx("fr-text--sm", "fr-link")}
                   href={`/articles/${article.slug}`}
@@ -53,14 +64,11 @@ function ArticlesResumeList({
                 >
                   {article.title}
                 </Link>
-                <div className={fr.cx("fr-mt-1w")}>
-                  <Badge severity="info" noIcon={true}>ARTICLE</Badge>
-                </div>
-              </ArticleContainer>
+              </ArticleBlockContainer>
             );
           })}
-        </div>
-      </>
+        </ArticlesListContainer>
+      </div>
     )
   );
 };

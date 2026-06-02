@@ -27,7 +27,6 @@
   "dependencies": {
     "@codegouvfr/react-dsfr": "^1.16.0",
     "@gouvfr/dsfr-chart": "^1.0.0",
-    "@hotjar/browser": "^1.0.9",
     "@sentry/nextjs": "^10.43.0",
     "@socialgouv/matomo-next": "^1.9.2",
     "axios": "^1.11.0",
@@ -36,7 +35,7 @@
     "jszip": "^3.10.1",
     "kysely": "^0.28.11",
     "mysql2": "^3.10.2",
-    "next": "16.1.6",
+    "next": "16.2.6",
     "next-mdx-remote": "^6.0.0",
     "node-html-parser": "^7.0.1",
     "pg": "^8.12.0",
@@ -56,7 +55,7 @@
     "windows-1252": "^3.0.4"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "16.1.6",
+    "@next/bundle-analyzer": "16.2.6",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.0.1",
     "@types/node": "^22",
@@ -66,7 +65,7 @@
     "@types/sanitize-html": "^2.13.0",
     "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "16.2.6",
     "eslint-config-prettier": "^10.0.1",
     "global-jsdom": "^26",
     "jsdom": "^26",
