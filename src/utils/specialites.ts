@@ -1,8 +1,8 @@
 import { Specialite, VUEvnts } from "@/db/pdbmMySQL/types";
-import { ResumeSpecGroupDB } from "@/db/types";
+import { ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
 import { MedicamentGroup } from "@/displayUtils";
 import { ShortIndication } from "@/types/IndicationsTypes";
-import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite, ShortSpecialite } from "@/types/SpecialiteTypes";
 
 export function getSpecialiteGroupName(
   specialite: Specialite | string,
@@ -42,21 +42,21 @@ export function isCentralisee(
 };
 
 export function isCommercialisee(
-  specialite: DetailedSpecialite | Specialite | ResumeSpecialite
+  specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite
 ): boolean {
   if(specialite.StatutBdm.toString() === "2") return false;
   return true;
 };
 
 export function isAIP(
-  specialite: DetailedSpecialite | Specialite | ResumeSpecialite
+  specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite
 ): boolean {
   if(specialite.ProcId && specialite.ProcId === "50") return true;
   return false;
 };
 
 export function isAlerteSecurite(
-  specialite: DetailedSpecialite | Specialite | ResumeSpecialite
+  specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite
 ): boolean {
   if(specialite.StatutBdm.toString() === "3") return true;
   return false;
@@ -76,7 +76,7 @@ export function isSurveillanceRenforcee(
 }
 
 export function isHomeopathie(
-  specialite: DetailedSpecialite | Specialite | ResumeSpecialite
+  specialite: DetailedSpecialite | Specialite | ShortSpecialite
 ): boolean {
   if(specialite.ProcId && specialite.ProcId === "60") return true;
   return false;
@@ -94,8 +94,8 @@ export function formatIndicationsDetails(indicationsIdsNames: string[][]): Short
 }
 
 //Format la liste des spécialités issus de la table résumé
-export function formatSpecialitesResume(specialites: string[][]): ResumeSpecialite[] {
-  const formatSpecs: ResumeSpecialite[] = specialites.map((spec) => {
+export function formatShortSpecialites(specialites: string[][]): ShortSpecialite[] {
+  const formatSpecs: ShortSpecialite[] = specialites.map((spec) => {
     const result = {
       SpecId: spec[0],
       SpecDenom01: spec[1],
@@ -113,8 +113,18 @@ export function formatSpecialitesResumeFromGroups(specsGroups: ResumeSpecGroupDB
   return specsGroups.map((group) => {
     return {
       ...group,
-      resumeSpecialites: formatSpecialitesResume(group.specialites),
+      shortSpecialites: formatShortSpecialites(group.specialites),
       indicationsDetails: formatIndicationsDetails(group.indicationsIdsNames),
+    }
+  });
+}
+
+//Format la liste des spécialités issus de la table résumé
+export function formatSpecialitesResume(specialites: ResumeSpecialiteDB[]): ResumeSpecialite[] {
+  return specialites.map((spec) => {
+    return {
+      ...spec,
+      indicationsDetails: formatIndicationsDetails(spec.indicationsIdsNames),
     }
   });
 }

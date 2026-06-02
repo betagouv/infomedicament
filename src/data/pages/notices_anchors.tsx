@@ -5,61 +5,75 @@ export const questionsList: QuestionsListFormat = {
     id: "description",
     highlightClass: "anchor-1",
     question: (
-      <>
-        <strong>À quoi sert-il</strong> ?
-      </>
+      <>À quoi sert-il ?</>
     ),
     headerId: "Ann3bQuestceque",
+    queryText: "À quoi sert ce médicament ?",
     unique: true,
     tracking: "À quoi sert-il",
+    icon: "a_quoi_sert_il.svg",
   },
   commentPrendre: {
     id: "commentPrendre",
     highlightClass: "anchor-2",
     question: (
-      <>
-        <strong>Comment</strong> le prendre ?
-      </>
+      <>Comment le prendre ?</>
     ),
     headerId: "Ann3bCommentPrendre",
-    keywords: [
-      "Mode et voie d’administration",
-      "Mode et voie d'administration",
-      "Mode d’administration",
-      "Mode d'administration",
-      "Fréquence d’administration",
-      "Fréquence d'administration",
-      "Prise du médicament",
-    ],
+    queryText: "Comment prendre ce médicament, mode d'administration ?",
     unique: false,
     tracking: "Comment le prendre ?",
-  },  
+    icon: "comment_le_prendre.svg",
+  },
   combienPrendre: {
     id: "combienPrendre",
     highlightClass: "anchor-3",
     question: (
-      <>
-        <strong>Combien</strong> en prendre ?
-      </>
+      <>Combien en prendre ?</>
     ),
-    keywords: [
-      "Posologie",
-      "Combien en prendre",
-      "Dose recommandée",
-      "Doses",
-      "Dose",
-      "tableau posologique",
-    ],
+    queryText: "Quelle est la posologie, la dose à prendre ?",
     unique: false,
     tracking: "Combien en prendre ?",
+    icon: "combien_en_prendre.svg",
+  },
+  duree: {
+    id: "duree",
+    highlightClass: "anchor-6",
+    question: (
+      <>Durée du traitement</>
+    ),
+    queryText: "Quelle est la durée du traitement ?",
+    unique: false,
+    tracking: "Durée du traitement",
+    icon: "duree_du_traitement.svg",
+  },
+  allergies: {
+    id: "allergies",
+    highlightClass: "anchor-7",
+    question: (
+      <>Allergies</>
+    ),
+    queryText: "Quelles sont les contre-indications et allergies ?",
+    unique: false,
+    tracking: "Allergies",
+    icon: "allergies.svg",
+  },
+  interactions: {
+    id: "interactions",
+    highlightClass: "anchor-10",
+    question: (
+      <>Interactions médicaments</>
+    ),
+    queryText: "Quelles sont les interactions avec d'autres médicaments ?",
+    unique: false,
+    tracking: "Interactions médicaments",
+    icon: "interactions_medicaments.svg",
   },
   pediatrie: {
     id: "pediatrie",
     highlightClass: "anchor-4",
     question: (
-      <>
-        Puis-je le donner à mon <strong>enfant</strong> ?
-      </>
+      <>Enfants</>
     ),
     keywords: [
       "Enfants et adolescents",
@@ -68,18 +82,17 @@ export const questionsList: QuestionsListFormat = {
       "bébé",
       "nourrisson",
       "réservé à l’adulte",
-      "réservé à l'adulte",
+      "réservé à l’adulte",
     ],
     unique: false,
-    tracking: "Puis-je le donner à mon enfant ?",
+    tracking: "Enfants",
+    icon: "enfants.svg",
   },
   grossesse: {
     id: "grossesse",
     highlightClass: "anchor-5",
     question: (
-      <>
-        Puis-je le prendre si je suis <strong>enceinte</strong> ou prévoit de l'être ?
-      </>
+      <>Grossesse et allaitement</>
     ),
     keywords: [
       "Grossesse, allaitement et fertilité",
@@ -90,47 +103,14 @@ export const questionsList: QuestionsListFormat = {
       "Enceinte",
     ],
     unique: false,
-    tracking: "Puis-je le prendre si je suis enceinte ou prévoit de l'être ?",
-  },
-  duree: {
-    id: "duree",
-    highlightClass: "anchor-6",
-    question: (
-      <>
-        Quelle est la <strong>durée</strong> du traitement ?
-      </>
-    ),
-    keywords: [
-      "Durée du traitement",
-      "Durée",
-    ],
-    unique: false,
-    tracking: "Quelle est la durée du traitement ?",
-  },
-  allergies: {
-    id: "allergies",
-    highlightClass: "anchor-7",
-    question: (
-      <>
-        Puis-je le prendre si j’ai des <strong>allergies</strong> ?
-      </>
-    ),
-    keywords: [
-      "Allergies",
-      "Allergie",
-      "Allergiques",
-      "Allergique",
-    ],
-    unique: false,
-    tracking: "Puis-je le prendre si j’ai des allergies ?",
+    tracking: "Grossesse et allaitement",
+    icon: "grossesse_et_allaitement.svg",
   },
   boireManger: {
     id: "boireManger",
     highlightClass: "anchor-8",
     question: (
-      <>
-        Que puis-je <strong>boire et manger</strong> avec ?
-      </>
+      <>Alcool et nourriture</>
     ),
     keywords: [
       "alcoolisées",
@@ -145,15 +125,14 @@ export const questionsList: QuestionsListFormat = {
       "Aliment",
     ],
     unique: false,
-    tracking: "Que puis-je boire et manger avec ?",
+    tracking: "Alcool et nourriture",
+    icon: "alcool_et_nourriture.svg",
   },
   conduite: {
     id: "conduite",
     highlightClass: "anchor-9",
     question: (
-      <>
-        Est-ce dangereux de <strong>conduire</strong> avec ?
-      </>
+      <>Conduite</>
     ),
     keywords: [
       "Conduite de véhicules et utilisation de machines",
@@ -165,65 +144,46 @@ export const questionsList: QuestionsListFormat = {
       "machine",
     ],
     unique: true,
-    tracking: "Est-ce dangereux de conduire avec ?",
-  },
-  interactions: {
-    id: "interactions",
-    highlightClass: "anchor-10",
-    question: (
-      <>
-        Puis-je le prendre <strong>avec d’autres médicaments ?</strong>
-      </>
-    ),
-    keywords: [
-      "si vous prenez en même temps",
-      "si vous prenez un autre médicament",
-      "interaction médicamenteuse",
-      "Autres médicaments et",
-      "si vous prenez le médicament",
-      "si vous prenez",
-    ],
-    unique: false,
-    tracking: "Puis-je le prendre avec d’autres médicaments ?",
+    tracking: "Conduite",
+    icon: "conduite.svg",
   },
   effetsIndesirables: {
     id: "effetsIndesirables",
     highlightClass: "anchor-11",
     question: (
-      <>
-        Quels sont les <strong>effets indésirables ?</strong>
-      </>
+      <>Effets indésirables</>
     ),
     headerId: "Ann3bEffetsIndesirables",
+    queryText: "Quels sont les effets indésirables ?",
     unique: true,
-    tracking: "Quels sont les effets indésirables ?",
+    tracking: "Effets indésirables",
+    icon: "effets_indesirables.svg",
   },
   conservation: {
     id: "conservation",
     highlightClass: "anchor-12",
     question: (
-      <>
-        Comment le <strong>conserver</strong> ?
-      </>
+      <>Conservation</>
     ),
-    headerId:"Ann3bConservation",
+    headerId: "Ann3bConservation",
+    queryText: "Comment conserver ce médicament ?",
     unique: true,
-    tracking: "Comment le conserver ?",
+    tracking: "Conservation",
+    icon: "conservation.svg",
   },
   contenu: {
     id: "contenu",
     highlightClass: "anchor-13",
     question: (
-      <>
-        <strong>Que contient</strong> ce médicament ?
-      </>
+      <>Composition</>
     ),
     headerId: "Ann3bEmballage",
     keywords: [
       "Ce que contient",
     ],
     unique: true,
-    tracking: "Que contient ce médicament ?",
+    tracking: "Composition",
+    icon: "composition.svg",
   },
 };
 export const questionKeys: string[] = Object.keys(questionsList);

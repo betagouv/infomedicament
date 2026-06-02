@@ -1,4 +1,4 @@
-import { MatchReason } from "./search";
+import { MatchReason } from "@/types/SearchTypes";
 
 export function computeSortScore(
     query: string,

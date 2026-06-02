@@ -1,4 +1,3 @@
-import React from "react";
 import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
@@ -15,7 +14,9 @@ import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
 import { getSpecialiteName } from "@/db/utils/specialities";
-import MedicamentContainer from "@/components/medicaments/MedicamentContainer";
+import MedicamentContent from "@/components/medicaments/MedicamentContent";
+import ShareButtons from "@/components/generic/ShareButtons";
+import { getSpecialitesIndications } from "@/db/utils/indications";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -42,6 +43,7 @@ export default async function Page(props: {
   const { CIS } = await props.params;
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);
+  const indications = await getSpecialitesIndications([CIS]);
 
   const atcCode = await getAtcCode(CIS);
   const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
@@ -107,9 +109,16 @@ export default async function Page(props: {
             ) : ""}
           className={fr.cx("fr-mb-2w")}
         />
-        <h1 className={fr.cx("fr-h2")}>
+        <h1 
+          className={fr.cx("fr-h2", "fr-hidden-md")}
+        >
           {pageLabel}
         </h1>
+        <ShareButtons
+          pageName={pageLabel}
+          alignRight
+          className={fr.cx("fr-hidden-md")}
+        />
       </ContentContainer>
       <ContentContainer className={fr.cx("fr-pt-1w", "fr-pb-2w")} style={{
         backgroundColor:
@@ -120,7 +129,7 @@ export default async function Page(props: {
             Le médicament demandé n'existe pas ou il n'entre pas dans le périmètre d'Info Médicament.
           </ContentContainer>
         ) : (
-          <MedicamentContainer
+          <MedicamentContent
             atcList={atcList}
             atc2={atc2}
             atcCode={atcCode}
@@ -129,6 +138,8 @@ export default async function Page(props: {
             delivrance={delivrance}
             presentations={presentations}
             isPrinceps={isPrinceps}
+            title={pageLabel}
+            indications={indications}
           />
         )}
       </ContentContainer>

@@ -1,8 +1,8 @@
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { fr } from "@codegouvfr/react-dsfr";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
-import { MatchReason } from "@/db/utils/search";
 import "./dsfr-custom-tags.css";
+import { MatchReason } from "@/types/SearchTypes";
 
 const config: Record<string, { prefix: string; className: string }> = {
   indication: { prefix: "Indication : ", className: "fr-tag--custom-alt-blue" },

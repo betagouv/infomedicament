@@ -21,8 +21,8 @@ describe("getArticlesFromSearchResults", () => {
     ]);
 
     const articles = await getArticlesFromSearchResults([{
-      groupName: "TEST", composants: "", specialites: [], resumeSpecialites: [], matchReasons: [],
-      CISList: ["111"], subsIds: ["666", "999"], codePathos: [123, 124], atc2Code: "N05",
+      specId: "111", groupName: "TEST", composants: "", matchReasons: [],
+      subsIds: ["666", "999"], codePathos: [123, 124], atc2Code: "N05",
     } as any]);
     
     expect(articles).toHaveLength(3);
