@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { noticeToText } from "./noticesUtils";
 import { NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 
-const block = (overrides: Partial<NoticeRCPContentBlock>): NoticeRCPContentBlock => ({
+const block = (overrides: Partial<Omit<NoticeRCPContentBlock, 'content'>> & { content?: string | string[] }): NoticeRCPContentBlock => ({
   id: 1,
   type: "AmmCorpsTexte",
   content: [],
