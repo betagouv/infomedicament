@@ -2,14 +2,13 @@
 
 import { fr } from "@codegouvfr/react-dsfr";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { formatSpecName } from "@/displayUtils";
 import { SearchBar } from "@codegouvfr/react-dsfr/SearchBar";
 import useSWR from "swr";
-import { SearchResultItem } from "@/db/utils/search";
 import { useRouter } from "next/navigation";
 import { trackSearchEvent } from "@/services/tracking";
-import PregnancyPediatricFilters from "./search/PregnancyPediatricFilters";
+import { SearchResultItem } from "@/types/SearchTypes";
 
 type SearchInputProps = {
   name: string;
@@ -51,7 +50,9 @@ export function AutocompleteSearchInput({
   ) as { data: SearchResultItem[] };
 
   const options = searchResults
-    ? searchResults.map((result) => formatSpecName(result.groupName)).filter(Boolean)
+    ? searchResults.map((result) => formatSpecName(result.groupName))
+      .filter(Boolean)
+      .filter((v,i,a) => a.indexOf(v)==i) //unique
     : [];
 
   function selectOption(value: string) {
@@ -170,37 +171,17 @@ export default function AutocompleteSearch({
   inputName,
   initialValue,
   className: parentClassName,
-  hideFilters,
-  filterPediatric,
-  filterPregnancy,
 }: {
   inputName: string;
   initialValue?: string;
   className?: string;
-  hideFilters?: boolean;
-  filterPediatric?: boolean;
-  filterPregnancy?: boolean;
 }) {
 
   const router = useRouter();
-  const [currentFilterPregnancy, setFilterPregnancy] = useState<boolean>(false);
-  const [currentFilterPediatric, setFilterPediatric] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (filterPediatric)
-      setFilterPediatric(filterPediatric)
-    else setFilterPediatric(false);
-  }, [filterPediatric, setFilterPediatric]);
-
-  useEffect(() => {
-    if (filterPregnancy)
-      setFilterPregnancy(filterPregnancy)
-    else setFilterPregnancy(false);
-  }, [filterPregnancy, setFilterPregnancy]);
 
   const onButtonClick = (search: string) => {
     search && trackSearchEvent(search);
-    router.push(`/rechercher?g=${currentFilterPregnancy}&p=${currentFilterPediatric}&s=${search}`);
+    router.push(`/rechercher?s=${search}`);
   };
 
   return (
@@ -219,14 +200,6 @@ export default function AutocompleteSearch({
         )}
         className={fr.cx("fr-mb-2w")}
       />
-      {!hideFilters && (
-        <PregnancyPediatricFilters
-          setFilterPregnancy={setFilterPregnancy}
-          setFilterPediatric={setFilterPediatric}
-          filterPregnancy={currentFilterPregnancy}
-          filterPediatric={currentFilterPediatric}
-        />
-      )}
     </>
   );
 }

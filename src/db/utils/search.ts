@@ -5,20 +5,11 @@ import db from "@/db";
 import { SearchResult } from "@/db/types";
 import { sql } from "kysely";
 import { unstable_cache } from "next/cache";
-import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
-import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
-import { getResumeSpecsGroupsAlerts } from "@/data/grist/specialites";
-import { formatSpecialitesResumeFromGroups } from "@/utils/specialites";
+import { getResumeSpecsATCLabels } from "@/db/utils/atc";
+import { formatSpecialitesResume } from "@/utils/specialites";
 import { computeSortScore } from "./searchScoring";
+import { MatchReason, SearchResultItem } from "@/types/SearchTypes";
 
-export type MatchReason = {
-  type: "name" | "substance" | "atc" | "indication";
-  label: string;
-};
-
-export type SearchResultItem = ResumeSpecGroup & {
-  matchReasons: MatchReason[];
-};
 
 export const getSearchResults = unstable_cache(async function (
   query: string,
@@ -83,28 +74,33 @@ export const getSearchResults = unstable_cache(async function (
     .slice(0, 100)
     .map(([name]) => name);
   const rawGroups = await db
-    .selectFrom("resume_medicaments")
+    .selectFrom("resume_specialites")
     .where("groupName", "in", groupNames)
     .selectAll()
     .execute();
 
   // Enrich with ATC labels + alerts
-  const formatted = formatSpecialitesResumeFromGroups(rawGroups);
-  const withATC = await getResumeSpecsGroupsATCLabels(formatted);
-  const withAlerts = await getResumeSpecsGroupsAlerts(withATC);
+  const formatted = formatSpecialitesResume(rawGroups);
+  const withATC = await getResumeSpecsATCLabels(formatted);
 
   // Attach match reasons, sort by score
-  return withAlerts
-    .map((group) => ({
-      ...group,
-      matchReasons: groupMap.get(group.groupName)?.reasons ?? [],
-    }))
-    .sort((a, b) => {
-      const scoreA = computeSortScore(query, a.groupName, a.composants, a.matchReasons, groupMap.get(a.groupName)?.score ?? 0);
-      const scoreB = computeSortScore(query, b.groupName, b.composants, b.matchReasons, groupMap.get(b.groupName)?.score ?? 0);
-      if (scoreB !== scoreA) return scoreB - scoreA;
-      return a.groupName.localeCompare(b.groupName, "fr"); // alphabetical tiebreaker
-    });
+  return withATC 
+    ? withATC
+      .map((group) => {
+        const matchReasons = groupMap.get(group.groupName)?.reasons ?? [];
+        return {
+          ...group,
+          matchReasons: matchReasons,
+          score: computeSortScore(query, group.groupName, group.composants, matchReasons, groupMap.get(group.groupName)?.score ?? 0),
+        }
+      })
+      .sort((a, b) => {
+        const scoreA = computeSortScore(query, a.groupName, a.composants, a.matchReasons, groupMap.get(a.groupName)?.score ?? 0);
+        const scoreB = computeSortScore(query, b.groupName, b.composants, b.matchReasons, groupMap.get(b.groupName)?.score ?? 0);
+        if (scoreB !== scoreA) return scoreB - scoreA;
+        return a.groupName.localeCompare(b.groupName, "fr"); // alphabetical tiebreaker
+      }) 
+    : [];
 },
   ["search-results"],
   { revalidate: 3600 } // 1 hour caching max

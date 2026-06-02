@@ -12,8 +12,10 @@ import { getNormalizeLetter } from "@/utils/alphabeticNav";
 import { getAtc1Code, getAtc2Code, getAtcCode } from "@/utils/atc";
 import { getSpecialiteGroupName, groupSpecialites, isSurveillanceRenforcee } from "@/utils/specialites";
 import { ShortIndication } from "@/types/IndicationsTypes";
+import { getAllPregnancyPlanAlerts, getPregnancyMentionAlert } from "@/db/utils/pregnancy";
+import { getPediatrics } from "@/db/utils/pediatrics";
 
-type DataToResumeType = "indications" | "substances" | "specialites" | "atc1" | "atc2" | "generiques";
+type DataToResumeType = "indications" | "substances" | "medicaments" | "atc1" | "atc2" | "generiques" | "specialites";
 
 type RawResumeSubstance = {
   SubsId: string;
@@ -123,7 +125,7 @@ async function createResumeSubstances(): Promise<string[]> {
   return letters;
 }
 
-async function createResumeSpecialites(): Promise<string[]> {
+async function createResumeMedicaments(): Promise<string[]> {
   await db
     .deleteFrom('resume_medicaments')
     .execute();
@@ -227,6 +229,65 @@ async function createResumeGeneriques(): Promise<string[]> {
   return letters;
 }
 
+async function createResumeSpecialites(): Promise<void> {
+  await db
+    .deleteFrom('resume_specialites')
+    .execute();
+
+  const allSpecialites = await getAllSpecialites();
+  const allPregnancyPlanAlerts = await getAllPregnancyPlanAlerts();
+  const results = await Promise.all(
+    allSpecialites.map(async (spec) => {
+      const rawComposants = await getComposants(spec.SpecId);
+      const composants: string = displaySimpleComposants(rawComposants)
+        .map((s) => s.NomLib.trim())
+        .join(", ");
+      const subsIds: string[] = rawComposants.map((subs) => subs.SubsId.trim());
+      const rawIndicationsCodes: ShortIndication[] = await getSpecialitesIndications([spec.SpecId]);
+      const indicationsIds: number[] = rawIndicationsCodes
+        .map((indication) => indication.idIndication)
+        .filter((idIndication, index, arr) => arr.indexOf(idIndication) === index);
+      const indicationsIdsNames: string[][] = rawIndicationsCodes.map((indication) => [
+        indication.idIndication.toString(), 
+        indication.nomIndication ? indication.nomIndication : "",
+      ]);
+      const atc = await getAtcCode(spec.SpecId);
+      const atc1: string | undefined = atc ? getAtc1Code(atc) : undefined;
+      const atc2: string | undefined = atc ? getAtc2Code(atc) : undefined;
+
+      const events = await getEvents(spec.SpecId);
+      const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
+        rawComposants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
+      );
+      const pediatrics = await getPediatrics(spec.SpecId);
+
+      await db
+        .insertInto('resume_specialites')
+        .values({
+          specId: spec.SpecId.trim(),
+          specName: spec.SpecDenom01.trim(),
+          groupName: getSpecialiteGroupName(spec),
+          composants: composants,
+          subsIds: subsIds,
+          indicationsIds: indicationsIds,
+          indicationsIdsNames: indicationsIdsNames,
+          atc1Code: atc1,
+          atc2Code: atc2,
+          atc5Code: atc ?? undefined,
+          ProcId: spec.ProcId,
+          isSurveillanceRenforcee: isSurveillanceRenforcee(events),
+          StatutBdm: spec.StatutBdm,
+          isAlertPregnancyPlan: pregnancyPlanAlert ? true : false,
+          isAlertPregnancyMention: await getPregnancyMentionAlert(spec.SpecId),
+          isAlertPediatricContraindication: pediatrics && pediatrics.contraindication ? true : false,
+        })
+        .execute();
+      return true;
+    })
+  );
+  console.log(`Nombre de spécialités ajoutées: ${results.length}`);
+}
+
 async function saveResumeLetters(
   dataToResume: LetterType,
   letters: string[]
@@ -249,23 +310,23 @@ async function saveResumeLetters(
 }
 
 async function createResumeDataFromBDPM() {
-  if (dataToResume === "indications" || dataToResume === "substances" || dataToResume === "specialites" || dataToResume === "generiques") {
+  if (dataToResume === "indications" || dataToResume === "substances" || dataToResume === "medicaments" || dataToResume === "generiques") {
     let letters: string[] = [];
     if (dataToResume === "indications") {
       letters = await createResumeIndications();
     } else if (dataToResume === "substances") {
       letters = await createResumeSubstances();
-    } else if (dataToResume === "specialites") {
-      letters = await createResumeSpecialites();
+    } else if (dataToResume === "medicaments") {
+      letters = await createResumeMedicaments();
     } else if (dataToResume === "generiques") {
       letters = await createResumeGeneriques();
     }
     await saveResumeLetters(dataToResume, letters);
   } else {
-
-  }/* else if(dataToResume === "atc1"){
-    await createResumeATC1Definition();
-  }*/
+     if (dataToResume === "specialites") {
+      await createResumeSpecialites();
+    }
+  }
   process.exit(0);
 }
 

@@ -11,7 +11,7 @@ export const dynamic = "error";
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const letters = await getLetters("specialites");
+  const letters = await getLetters("medicaments");
   return letters.map((letter) => ({ letter }));
 }
 const PAGE_LABEL: string = "Liste des médicaments";
@@ -22,7 +22,7 @@ export default async function Page(props: {
   const { letter } = await props.params;
 
   const [letters, specsGroups] = await Promise.all([
-    getLetters("specialites"),
+    getLetters("medicaments"),
     getResumeSpecsGroupsWithLetter(letter),
   ]);
   const dataList = (await getResumeSpecsGroupsATCLabels(specsGroups)).sort((a, b) =>

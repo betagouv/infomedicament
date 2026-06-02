@@ -28,3 +28,15 @@
     mask-image:url('notice.svg');
     --icon-size: 2rem;
 }
+.fr-icon--custom-pregnancy-alert::before,
+.fr-icon--custom-pregnancy-alert::after {
+    background-color: unset;
+    background-image:url('pregnancy_alert.svg');
+    --icon-size: 22px;
+}
+.fr-icon--custom-pediatric-alert::before,
+.fr-icon--custom-pediatric-alert::after {
+    background-color: unset;
+    background-image:url('pediatric_alert.svg');
+    --icon-size: 22px;
+}

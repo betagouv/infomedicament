@@ -4,9 +4,8 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import db from "@/db/"
 import slugify from "slugify";
-import { SearchArticlesFilters } from "@/types/SearchTypes";
+import { SearchArticlesFilters, SearchResultItem } from "@/types/SearchTypes";
 import { Article, ArticleCardResume } from "@/types/ArticlesTypes";
-import { SearchResultItem } from "@/db/utils/search";
 
 export const getArticles = unstable_cache(async function(): Promise<Article[]> {
 
@@ -93,10 +92,8 @@ export async function getArticlesFromSearchResults(results: SearchResultItem[]):
     };
 
     for (const item of results) {
-        for (const cis of item.CISList) {
-            if (!articlesFilters.specialitesList.includes(cis.trim()))
-                articlesFilters.specialitesList.push(cis.trim());
-        }
+        if (!articlesFilters.specialitesList.includes(item.specId.trim()))
+            articlesFilters.specialitesList.push(item.specId.trim());
         for (const subsId of item.subsIds) {
             if (!articlesFilters.substancesList.includes(subsId.trim()))
                 articlesFilters.substancesList.push(subsId.trim());
