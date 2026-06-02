@@ -14,18 +14,19 @@ import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } f
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
 import { DetailedSpecialite, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
-import { displayInfosImportantes, getContent } from "@/utils/notices/noticesUtils";
+import { displayInfosImportantes } from "@/utils/notices/noticesUtils";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
-import { getProcedureLibLong, getTypeInfoTxt, isAIP, isCentralisee } from "@/utils/specialites";
+import { getProcedureLibLong, getTypeInfoTxt, isAIP } from "@/utils/specialites";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { getPresentationName, getPresentationPriceText, isAbrogee, isAgree, isArret, isIVG, isListeRetrocession, isListeSus, isNotAuthorized } from "@/utils/presentations";
+import { getPresentationName, getPresentationFullPriceText, isAbrogee, isAgree, isArret, isIVG, isListeRetrocession, isListeSus, isNotAuthorized } from "@/utils/presentations";
 import { FicheInfos, InfosImportantes } from "@/types/FicheInfoTypes";
 import WithDefinition from "@/components/glossary/WithDefinition";
 import { Definition } from "@/types/GlossaireTypes";
 import { getDefinition } from "@/utils/glossary";
+import IndicationsBlock from "../blocks/IndicationsBlock";
 
 const SummaryLineContainer = styled.div<{ $hideBorder?: boolean; }>`
   display: flex;
@@ -33,7 +34,6 @@ const SummaryLineContainer = styled.div<{ $hideBorder?: boolean; }>`
   ${props => !props.$hideBorder && css`
     border-bottom: var(--border-open-blue-france) 1px solid;
   `}
-
 `;
 
 const SummaryCat = styled.span `
@@ -54,12 +54,6 @@ const InfosImportantesBlock = styled.div`
   a {
     background: none;
     text-decoration: underline;
-  }
-`;
-
-const IndicationBlock = styled.div`
-  div {
-    margin-bottom: 1rem;
   }
 `;
 
@@ -99,7 +93,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   ficheInfos?: FicheInfos;
   indicationBlock?: NoticeRCPContentBlock;
   delivrance: SpecDelivrance[];
-  definitions: Definition[];
+  definitions?: Definition[];
 }
 
 function GeneralInformations({ 
@@ -139,7 +133,7 @@ function GeneralInformations({
     (ficheInfos && specialite) && (
     <div {...props}>
       {ficheInfos.listeInformationsImportantes && displayInfosImportantes(ficheInfos) && (
-        <ContentContainer id="informations-importantes" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+        <ContentContainer id="informations-importantes" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
           <h2 className={fr.cx("fr-h6")}>Informations importantes</h2>
           {ficheInfos.listeInformationsImportantes.map((info: InfosImportantes, index) => {
             return (
@@ -162,7 +156,7 @@ function GeneralInformations({
           })}
         </ContentContainer>
       )}    
-      <ContentContainer id="informations-resume" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+      <ContentContainer id="informations-resume" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Résumé</h2>
         <SummaryLine categoryName="Code CIS">
           {formatCIS(specialite.SpecId)}
@@ -270,7 +264,7 @@ function GeneralInformations({
                       {(line.DelivLong.trim() === "liste I" || line.DelivLong.trim() === "liste II")
                         ? (
                           <WithDefinition
-                            definition={getDefinition(definitions, "Liste I et II")}
+                            definition={definitions && getDefinition(definitions, "Liste I et II")}
                             word={line.DelivLong}
                           />
                         )
@@ -286,52 +280,12 @@ function GeneralInformations({
         </SummaryLine>
       </ContentContainer>
 
-      <ContentContainer id="informations-indications" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
-        <h2 className={fr.cx("fr-h6")}>Indications</h2>
-        <IndicationBlock className={fr.cx("fr-mb-0")}>
-          {(specialite && isAIP(specialite)) ? (
-            <span>              
-              Pour visualiser les indications thérapeutiques, consulter la fiche info de la spécialité de réfèrence de cette autorisation d'importation parallèle
-              {(specialite.generiqueName && specialite.SpecGeneId) && (
-                <>
-                  &nbsp;:&nbsp;
-                  <Link
-                    href={`/medicaments/${specialite.SpecGeneId}`}
-                    aria-description="Lien vers le médicament"
-                  >
-                    {specialite.generiqueName}
-                  </Link>
-                </>
-              )}.
-            </span>
-          ) : (
-            (specialite && isCentralisee(specialite)) ? (
-              <span>
-                Vous trouverez les indications thérapeutiques de ce médicament dans le paragraphe 4.1 du RCP ou dans le paragraphe 1 de la notice. 
-                {specialite.urlCentralise && (
-                  <span>
-                    {" "}Ces documents sont disponibles{" "}
-                    <Link href={specialite.urlCentralise} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                    >
-                      en cliquant ici.
-                    </Link>
-                  </span>
-                )}
-              </span>
-            ) : (
-              (indicationBlock && indicationBlock.children && indicationBlock.children.length > 0) ? (
-                <span>{getContent(indicationBlock.children)}</span>
-              ) : (
-                <span>Les indications thérapeutiques ne sont pas disponibles.</span>
-              )
-            )
-          )}
-        </IndicationBlock>
-      </ContentContainer>
+      <IndicationsBlock
+        specialite={specialite}
+        indicationBlock={indicationBlock}
+      />
       
-      <ContentContainer id="informations-composition" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+      <ContentContainer id="informations-composition" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Composition</h2>
         {(ficheInfos.listeElements && ficheInfos.listeElements.length > 0) 
         ? (
@@ -378,7 +332,7 @@ function GeneralInformations({
         )}
       </ContentContainer>
       
-      <ContentContainer id="informations-presentations" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+      <ContentContainer id="informations-presentations" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Présentations</h2>
         {(presentations && presentations.length > 0) ? (
           <div>
@@ -393,7 +347,7 @@ function GeneralInformations({
                       <b>{getPresentationName(pres)}</b>
                     </span>
                     <span>
-                      {getPresentationPriceText(pres)}
+                      {getPresentationFullPriceText(pres)}
                     </span>
                   </div>
                   {(pres.Ppttc || pres.HonoDisp) && (
@@ -411,7 +365,7 @@ function GeneralInformations({
                       {pres.HonoDisp && (
                         <span>
                           <WithDefinition
-                            definition={getDefinition(definitions, "Honoraire de dispensation")}
+                            definition={definitions && getDefinition(definitions, "Honoraire de dispensation")}
                             word="Honoraire de dispensation"
                           />{" : "}
                           {Intl.NumberFormat("fr-FR", {
@@ -455,7 +409,7 @@ function GeneralInformations({
                     <div className={fr.cx("fr-mb-0")}>
                       Cette présentation est{" "}
                       <WithDefinition
-                        definition={getDefinition(definitions,"Agrément aux collectivités")}
+                        definition={definitions && getDefinition(definitions,"Agrément aux collectivités")}
                         word="agréée aux collectivités"
                       />.
                     </div>
@@ -468,11 +422,11 @@ function GeneralInformations({
                     <div>
                       Inscription sur la{" "}
                       <WithDefinition
-                        definition={getDefinition(definitions, "Liste en sus")}
+                        definition={definitions && getDefinition(definitions, "Liste en sus")}
                         word="liste en sus"
                       />, pour au moins l'une de ses indications.{" "}
                       <WithDefinition
-                        definition={getDefinition(definitions, "Tarif de responsabilité")}
+                        definition={definitions && getDefinition(definitions, "Tarif de responsabilité")}
                         word="Tarif de responsabilité"
                       />{" "}publié au Journal Officiel.</div>
                   )}
@@ -480,12 +434,12 @@ function GeneralInformations({
                     <div>
                       Inscription sur la{" "}
                       <WithDefinition
-                        definition={getDefinition(definitions, "Liste de rétrocession")}
+                        definition={definitions && getDefinition(definitions, "Liste de rétrocession")}
                         word="liste de rétrocession"
                       />{" "}
                       au titre de son AMM, selon les conditions précisées au Journal Officiel.{" "}
                       <WithDefinition
-                        definition={getDefinition(definitions, "Prix de cession")}
+                        definition={definitions && getDefinition(definitions, "Prix de cession")}
                         word="Prix de cession"
                       />{" "}publié au Journal Officiel.</div>
                   )}
@@ -512,7 +466,7 @@ function GeneralInformations({
 
 
       {(marr && marr.pdf.length > 0) && (
-        <ContentContainer id="informations-marr" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+        <ContentContainer id="informations-marr" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
           <MarrNoticeAdvanced marr={marr} />
         </ContentContainer>
       )}

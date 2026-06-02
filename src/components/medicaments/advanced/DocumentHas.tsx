@@ -23,12 +23,6 @@ const DocBonUsage = styled.div`
   }
 `;
 
-interface DocumentHasProps extends HTMLAttributes<HTMLDivElement> {
-  ficheInfos?: FicheInfos;
-  SpecGenId?: string;
-  definitions: Definition[];
-}
-
 function getSmrAsmrFormattedValeur(value: string) {
   if(value.trim() === "V")
     return (<span>V&nbsp;(Inexistant)</span>);
@@ -55,6 +49,12 @@ function getSmrAsmrFormattedAvis(date?: Date, link?: string | null) {
   return "";
 }
 
+interface DocumentHasProps extends HTMLAttributes<HTMLDivElement> {
+  ficheInfos?: FicheInfos;
+  SpecGenId?: string;
+  definitions?: Definition[];
+}
+
 function DocumentHas({ 
   ficheInfos,
   SpecGenId,
@@ -63,7 +63,7 @@ function DocumentHas({
 }: DocumentHasProps) {
   return (
     <div {...props}>
-      <ContentContainer id="document-has-bon-usage" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+      <ContentContainer id="document-has-bon-usage" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Documents de bon usage</h2>
         {(ficheInfos && ficheInfos.listeDocumentsBonUsage && ficheInfos.listeDocumentsBonUsage.length > 0) 
           ? (
@@ -96,11 +96,11 @@ function DocumentHas({
         }
       </ContentContainer>
 
-      <ContentContainer id="document-has-smr" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+      <ContentContainer id="document-has-smr" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>
           Service médical rendu (
           <WithDefinition
-            definition={getDefinition(definitions, "SMR")}
+            definition={definitions && getDefinition(definitions, "SMR")}
             word="SMR"
           />)
         </h2>
@@ -128,6 +128,7 @@ function DocumentHas({
                     ];
                   })
                 }
+                className={fr.cx("fr-mb-0")}
               />
             </div>
           ) : (
@@ -153,11 +154,11 @@ function DocumentHas({
         }
       </ContentContainer>
       
-      <ContentContainer id="document-has-asmr" whiteContainer className={fr.cx("fr-mb-4w", "fr-p-2w")}>
+      <ContentContainer id="document-has-asmr" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>
           Amélioration du service médical rendu (
           <WithDefinition
-            definition={getDefinition(definitions, "ASMR")}
+            definition={definitions && getDefinition(definitions, "ASMR")}
             word="ASMR"
           />)
         </h2>
@@ -185,6 +186,7 @@ function DocumentHas({
                     ];
                   })
                 }
+                className={fr.cx("fr-mb-0")}
               />
             </div>
           ) : (

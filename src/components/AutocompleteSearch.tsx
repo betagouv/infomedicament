@@ -140,7 +140,7 @@ export function AutocompleteSearchInput({
         >
           {options.map((option, index) => (
             <li
-              key={option}
+              key={`${option}-${index}`}
               id={`${id}-option-${index}`}
               role="option"
               aria-selected={index === activeIndex}
