@@ -88,7 +88,7 @@ export const getSearchResults = unstable_cache(async function (
   const formatted = formatSpecialitesResume(rawGroups);
   const withATC = await getResumeSpecsATCLabels(formatted);
 
-  // Attach match reasons, sort by score, cap output at 100 to keep cache entries bounded
+  // Attach match reasons, sort by score, cap output at 200 to keep cache entries bounded
   return withATC
     .map((group) => {
       const matchReasons = groupMap.get(group.groupName)?.reasons ?? [];
@@ -104,7 +104,7 @@ export const getSearchResults = unstable_cache(async function (
       if (scoreB !== scoreA) return scoreB - scoreA;
       return a.groupName.localeCompare(b.groupName, "fr"); // alphabetical tiebreaker
     })
-    .slice(0, 100);
+    .slice(0, 200);
 },
   ["search-results"],
   { revalidate: 3600 } // 1 hour caching max
