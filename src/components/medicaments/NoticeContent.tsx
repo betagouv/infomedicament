@@ -1,6 +1,5 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
 import ContentContainer from "../generic/ContentContainer";
 import TagContainer from "../tags/TagContainer";
 import ClassTag from "../tags/ClassTag";
@@ -10,7 +9,7 @@ import { SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/d
 import PrescriptionTag from "../tags/PrescriptionTag";
 import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "./notice/PresentationsList";
-import { HTMLAttributes, useCallback, useEffect, useState } from "react";
+import { HTMLAttributes, useEffect, useState } from "react";
 import styled from 'styled-components';
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import ArticlesResumeList from "../articles/ArticlesResumeList";
@@ -27,8 +26,6 @@ import PregnancyMentionTag from "../tags/PregnancyMentionTag";
 import PregnancyPlanTag from "../tags/PregnancyPlanTag";
 import { ATC } from "@/types/ATCTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
-import { SearchArticlesFilters } from "@/types/SearchTypes";
-import { getArticlesFromFilters } from "@/db/utils/articles";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { isAIP, isCentralisee } from "@/utils/specialites";
 import { Presentation } from "@/types/PresentationTypes";
@@ -40,7 +37,6 @@ import MarrNotice from "../marr/MarrNotice";
 import { AnchorMenu } from "./advanced/DetailedSubMenu";
 import IndicationsBlock from "./blocks/IndicationsBlock";
 import GenericPrincepsTag from "../tags/GenericPrincepsTag";
-import { getSpecialitePathologies } from "@/db/utils/indications";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 import DesktopTitleBlock from "./blocks/DesktopTitleBlock";
 import { ShortIndication } from "@/types/IndicationsTypes";
@@ -98,6 +94,7 @@ interface NoticeContentProps extends HTMLAttributes<HTMLDivElement> {
   indicationBlock?: NoticeRCPContentBlock;
   title: string;
   indications: ShortIndication[];
+  articles: ArticleCardResume[];
   onGoToAdvanced: (advanced: boolean) => void;
   onGoToAdvancedAnchor: (anchor?: AnchorMenu) => void;
 }
@@ -120,12 +117,12 @@ function NoticeContent({
   indicationBlock,
   title,
   indications,
+  articles,
   onGoToAdvanced,
   onGoToAdvancedAnchor,
   ...props
 }: NoticeContentProps) {
 
-  const [articles, setArticles] = useState<ArticleCardResume[]>([]);
   const [currentMarr, setCurrentMarr] = useState<Marr>();
 
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
@@ -186,33 +183,6 @@ function NoticeContent({
     setHitsLoading(false);
     setNoticeContainerClassName("");
   };
-  const loadData = useCallback(
-    async (
-      spec: DetailedSpecialite,
-      composants: Array<SpecComposant & SubstanceNom>
-    ) => {
-      try {
-        const articlesFilters: SearchArticlesFilters = {
-          ATCList: atcList,
-          substancesList: composants.map((compo) => compo.SubsId.trim()),
-          specialitesList: [spec.SpecId],
-          pathologiesList: await getSpecialitePathologies(spec.SpecId),
-        };
-        const newArticles = await getArticlesFromFilters(articlesFilters);
-        setArticles(newArticles);
-      } catch (e) {
-        Sentry.captureException(e);
-      }
-    },
-    [atcList, setArticles]
-  );
-
-  useEffect(() => {
-    if (specialite && composants) {
-      loadData(specialite, composants);
-    }
-  }, [specialite, composants, loadData]);
-
   return (
     <NoticeContentContainer {...props} className={["mobile-display-contents", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ")}>
       <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-md-5")].join(" ")}>
