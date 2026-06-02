@@ -39,7 +39,6 @@ export default function NotFound() {
           </Link>
         </div>
       </div>
-      <div className="hotjar-feedback" />
     </main>
   );
 }

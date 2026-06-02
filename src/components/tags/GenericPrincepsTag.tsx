@@ -1,5 +1,5 @@
 import Tag from "@codegouvfr/react-dsfr/Tag";
-import React, { HTMLAttributes } from "react";
+import { HTMLAttributes } from "react";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import "./dsfr-custom-tags.css";
 import { trackEvent } from "@/services/tracking";
@@ -25,6 +25,7 @@ interface GenericPrincepsTagProps extends HTMLAttributes<HTMLDivElement> {
   type: GenericPrinceps;
   hideIcon?: boolean;
   fromMedicament?: boolean;
+  noLink?: boolean;
 }
 
 function GenericPrincepsTag({ 
@@ -32,6 +33,7 @@ function GenericPrincepsTag({
   type,
   hideIcon,
   fromMedicament,
+  noLink,
   ...props
 } : GenericPrincepsTagProps) {
 
@@ -42,48 +44,62 @@ function GenericPrincepsTag({
   };
 
   return (
-    <div {...props}>
-      <modal.Component title="">
-        <ModalContent>
-          <h4>Princeps et générique, qu’est-ce que c’est ?</h4>
-          <p>
-            Un médicament <b>générique</b> est fabriqué à partir de la même molécule
-            qu&apos;un médicament déjà autorisé, dit médicament de référence ou{" "}
-            <b>princeps</b>. Le générique contient strictement la même quantité de
-            la même substance active que son princeps et est équivalent sur le plan
-            médical.
-          </p>
-          <p>
-            Le médicament de référence et les médicaments qui en sont génériques
-            constituent un <b>groupe générique</b>.
-          </p>
-          <p>
-            Sauf sur recommandation spécifique d&apos;un médecin, un médicament
-            générique peut être substitué par votre pharmacien·ne à un médicament de
-            référence.
-          </p>
-        </ModalContent>
-      </modal.Component>
+    !noLink ? (
+      <div {...props}>
+        <modal.Component title="">
+          <ModalContent>
+            <h4>Princeps et générique, qu’est-ce que c’est ?</h4>
+            <p>
+              Un médicament <b>générique</b> est fabriqué à partir de la même molécule
+              qu&apos;un médicament déjà autorisé, dit médicament de référence ou{" "}
+              <b>princeps</b>. Le générique contient strictement la même quantité de
+              la même substance active que son princeps et est équivalent sur le plan
+              médical.
+            </p>
+            <p>
+              Le médicament de référence et les médicaments qui en sont génériques
+              constituent un <b>groupe générique</b>.
+            </p>
+            <p>
+              Sauf sur recommandation spécifique d&apos;un médecin, un médicament
+              générique peut être substitué par votre pharmacien·ne à un médicament de
+              référence.
+            </p>
+          </ModalContent>
+        </modal.Component>
+        <Tag
+          iconId={!hideIcon ? "fr-icon-capsule-fill" : undefined}
+          nativeButtonProps= {{
+            className: cx("fr-tag--custom-alt-blue"),
+          }}
+          onClick={() => modal.open()}
+        >
+          {type === "generic" ? "Générique" : "Princeps"}
+        </Tag>
+        <div style={{display: "inline"}}>
+          <Link
+            href={`/generiques/${id}`}
+            className={cx("fr-text--sm", "fr-link", "fr-ml-0-5v")}
+            onClick={() => onTrackEvent()}
+            style={{whiteSpace: "nowrap"}}
+          >
+            Voir les alternatives
+          </Link>
+        </div>
+      </div>
+    ) : (
       <Tag
         iconId={!hideIcon ? "fr-icon-capsule-fill" : undefined}
-        nativeButtonProps= {{
+        linkProps= {{
+          href:`/generiques/${id}`,
+          target: "_blank",
           className: cx("fr-tag--custom-alt-blue"),
+          onClick: () => onTrackEvent(),
         }}
-        onClick={() => modal.open()}
       >
         {type === "generic" ? "Générique" : "Princeps"}
       </Tag>
-      <div style={{display: "inline"}}>
-        <Link
-          href={`/generiques/${id}`}
-          className={cx("fr-text--sm", "fr-link", "fr-ml-0-5v")}
-          onClick={() => onTrackEvent()}
-          style={{whiteSpace: "nowrap"}}
-        >
-          Voir les alternatives
-        </Link>
-      </div>
-    </div>
+    )
   );
 }
 

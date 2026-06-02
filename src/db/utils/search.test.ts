@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { getSearchResults, MatchReason } from "./search";
+import { getSearchResults } from "./search";
 import { computeSortScore } from "./searchScoring";
-import { getResumeSpecsGroupsATCLabels } from "./atc";
-import { getResumeSpecsGroupsAlerts } from "@/data/grist/specialites";
-import { formatSpecialitesResumeFromGroups } from "@/utils/specialites";
+import { getResumeSpecsATCLabels } from "./atc";
+import { formatSpecialitesResume } from "@/utils/specialites";
+import { MatchReason } from "@/types/SearchTypes";
 
 // Mocking the cache so it doesn't apply
 vi.mock("next/cache", () => ({
@@ -46,22 +46,30 @@ vi.mock("server-only", () => ({}));
 const makeGroup = (groupName: string, composants = "") => ({
   groupName,
   composants,
-  specialites: [],
-  CISList: [],
-  subsIds: [],
   indicationsIds: [],
+  atc1Code: "",
+  atc2Code: "",
+  atc5Code: "",
+  subsIds: [],
+  indicationsIdsNames: [],
+  specId: "",
+  specName: "",
+  ProcId: "",
+  isSurveillanceRenforcee: true,
+  StatutBdm: 1,
+  isAlertPregnancyPlan: true,
+  isAlertPregnancyMention: true,
+  isAlertPediatricContraindication: true,
 });
 
 describe("Search Engine (getSearchResults)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Pass-through mocks for enrichment functions
-    vi.mocked(formatSpecialitesResumeFromGroups).mockImplementation((groups) =>
-      groups.map((g: any) => ({ ...g, resumeSpecialites: [] })),
+    vi.mocked(formatSpecialitesResume).mockImplementation((spec) =>
+      spec.map((g: any) => ({ ...g, indicationsDetails: [] })),
     );
-    vi.mocked(getResumeSpecsGroupsATCLabels).mockImplementation(async (groups) => groups);
-    vi.mocked(getResumeSpecsGroupsAlerts).mockImplementation(async (groups) => groups);
+    vi.mocked(getResumeSpecsATCLabels).mockImplementation(async (spec) => spec);
   });
 
   it("should return an empty array if the DB finds nothing", async () => {

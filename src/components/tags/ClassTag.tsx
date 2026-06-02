@@ -1,6 +1,6 @@
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
-import React, { HTMLAttributes } from "react";
+import { HTMLAttributes } from "react";
 import "./dsfr-custom-tags.css";
 import { ATC } from "@/types/ATCTypes";
 import { trackEvent } from "@/services/tracking";

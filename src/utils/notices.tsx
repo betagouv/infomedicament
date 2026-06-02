@@ -225,9 +225,9 @@ export function getContent(children:NoticeRCPContentBlock[], definitions?:Defini
 
 export function getIndicationsBlock(notice: NoticeData): NoticeRCPContentBlock | undefined {
   if (notice.children) {
-    const indicationBlock = notice.children
+    const indicationsBlock = notice.children
       .find((child: NoticeRCPContentBlock) => child.anchor === "Ann3bQuestceque");
-    return indicationBlock;
+    return indicationsBlock;
   }
   return undefined;
 }
