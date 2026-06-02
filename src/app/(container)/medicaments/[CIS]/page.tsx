@@ -59,6 +59,8 @@ async function fetchMedicamentData(
   const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
     composants.some((c) => Number(c.SubsId.trim()) === Number(s.id))
   );
+  // TODO: replace with getIndicationsBlock(notice) from @/utils/notices once it
+  // lands on main (currently only on the feat-metadata-v1 branch). See PR #259 review.
   const indicationBlock = notice?.children?.find((c) => c.anchor === "Ann3bQuestceque");
   const articles = await getArticlesFromFilters({
     ATCList: atcList,
