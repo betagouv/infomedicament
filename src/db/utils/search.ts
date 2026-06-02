@@ -20,28 +20,31 @@ export const getSearchResults = unstable_cache(async function (
     return [];
   }
 
+  // Normalize to lowercase+unaccented to match how tokens are stored in the index
+  const normalizedQuery = query.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+
   const matches = (await db
     .selectFrom("search_index")
     .selectAll()
     .select(({ fn, val }) => [
-      fn("word_similarity", [fn("unaccent", [val(query)]), "token"]).as("sml"),
+      fn("word_similarity", [val(normalizedQuery), "token"]).as("sml"),
     ])
     .where((eb) => {
-      if (query.length <= 3) {
+      if (normalizedQuery.length <= 3) {
         // for very short queries, only match from the beginning to limit the number of results
         // also, we only match specialities
         return eb.and([
-          eb("token", "ilike", `${query}%`),
+          eb("token", "like", `${normalizedQuery}%`),
           eb("match_type", "=", "name"),
         ]);
       }
-      if (query.length <= 5) {
+      if (normalizedQuery.length <= 5) {
         // if the query is short, we only do ilike search to avoid too many results
-        return eb("token", "ilike", `%${query}%`);
+        return eb("token", "like", `%${normalizedQuery}%`);
       }
       return eb.or([
-        sql<boolean>`token %> unaccent(${query})`, // fuzzy-search using pg_trgm
-        eb("token", "ilike", `%${query}%`), // exact match using ilike
+        sql<boolean>`token %> ${normalizedQuery}`, // fuzzy-search using pg_trgm
+        eb("token", "like", `%${normalizedQuery}%`), // exact match
       ])
     })
     .orderBy("sml", "desc")
@@ -67,11 +70,13 @@ export const getSearchResults = unstable_cache(async function (
     }
   }
 
-  // Keep only the top 100 groups by score to avoid oversized cache entries
-  // This will also help with performance
+  // Fetch up to 500 candidate groups so computeSortScore can rank them properly
+  // before trimming to the final 100. A tighter pre-filter here caused well-known
+  // brand names (e.g. DOLIPRANE when searching "paracétamol") to be silently dropped
+  // because they shared a max score with many generic name matches.
   const groupNames = [...groupMap.entries()]
     .sort((a, b) => b[1].score - a[1].score)
-    .slice(0, 100)
+    .slice(0, 500)
     .map(([name]) => name);
   const rawGroups = await db
     .selectFrom("resume_specialites")
@@ -83,24 +88,23 @@ export const getSearchResults = unstable_cache(async function (
   const formatted = formatSpecialitesResume(rawGroups);
   const withATC = await getResumeSpecsATCLabels(formatted);
 
-  // Attach match reasons, sort by score
-  return withATC 
-    ? withATC
-      .map((group) => {
-        const matchReasons = groupMap.get(group.groupName)?.reasons ?? [];
-        return {
-          ...group,
-          matchReasons: matchReasons,
-          score: computeSortScore(query, group.groupName, group.composants, matchReasons, groupMap.get(group.groupName)?.score ?? 0),
-        }
-      })
-      .sort((a, b) => {
-        const scoreA = computeSortScore(query, a.groupName, a.composants, a.matchReasons, groupMap.get(a.groupName)?.score ?? 0);
-        const scoreB = computeSortScore(query, b.groupName, b.composants, b.matchReasons, groupMap.get(b.groupName)?.score ?? 0);
-        if (scoreB !== scoreA) return scoreB - scoreA;
-        return a.groupName.localeCompare(b.groupName, "fr"); // alphabetical tiebreaker
-      }) 
-    : [];
+  // Attach match reasons, sort by score, cap output at 200 to keep cache entries bounded
+  return withATC
+    .map((group) => {
+      const matchReasons = groupMap.get(group.groupName)?.reasons ?? [];
+      return {
+        ...group,
+        matchReasons,
+        score: computeSortScore(query, group.groupName, group.composants, matchReasons, groupMap.get(group.groupName)?.score ?? 0),
+      };
+    })
+    .sort((a, b) => {
+      const scoreA = computeSortScore(query, a.groupName, a.composants, a.matchReasons, groupMap.get(a.groupName)?.score ?? 0);
+      const scoreB = computeSortScore(query, b.groupName, b.composants, b.matchReasons, groupMap.get(b.groupName)?.score ?? 0);
+      if (scoreB !== scoreA) return scoreB - scoreA;
+      return a.groupName.localeCompare(b.groupName, "fr"); // alphabetical tiebreaker
+    })
+    .slice(0, 200);
 },
   ["search-results"],
   { revalidate: 3600 } // 1 hour caching max

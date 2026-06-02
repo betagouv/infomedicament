@@ -12,7 +12,7 @@ import { getNormalizeLetter } from "@/utils/alphabeticNav";
 import { getAtc1Code, getAtc2Code, getAtcCode } from "@/utils/atc";
 import { getSpecialiteGroupName, groupSpecialites, isSurveillanceRenforcee } from "@/utils/specialites";
 import { ShortIndication } from "@/types/IndicationsTypes";
-import { getAllPregnancyPlanAlerts, getPregnancyMentionAlert } from "@/db/utils/pregnancy";
+import { getPregnancyMentionAlert } from "@/db/utils/pregnancy";
 import { getPediatrics } from "@/db/utils/pediatrics";
 
 type DataToResumeType = "indications" | "substances" | "medicaments" | "atc1" | "atc2" | "generiques" | "specialites";
@@ -235,7 +235,11 @@ async function createResumeSpecialites(): Promise<void> {
     .execute();
 
   const allSpecialites = await getAllSpecialites();
-  const allPregnancyPlanAlerts = await getAllPregnancyPlanAlerts();
+  const allPregnancyPlanAlerts = await db
+    .selectFrom("ref_grossesse_substances_contre_indiquees")
+    .select(["subs_id", "lien_site_ansm"])
+    .execute()
+    .then((rows) => rows.map((row) => ({ id: row.subs_id?.trim() || "", link: row.lien_site_ansm?.trim() || "" })));
   const results = await Promise.all(
     allSpecialites.map(async (spec) => {
       const rawComposants = await getComposants(spec.SpecId);
