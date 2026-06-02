@@ -66,6 +66,10 @@ const CIS_TEXT_TABLES: Array<[string, string]> = [
   ["ref_pediatrie", "cis"],
   ["ref_marr_url_cis", "cis"],
   ["ref_grossesse_mention", "cis"],
+  // resume_specialites is keyed per-specialité by specId (= the CIS code); the
+  // search query reads result rows from it, so it must be seeded or search
+  // returns empty. Filtered by specId to stay aligned with the seeded CIS subset.
+  ["resume_specialites", "specId"],
 ];
 
 // Pairs of [parent table, content table] for recursive tree copies
