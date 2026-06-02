@@ -14,7 +14,7 @@ import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } f
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
 import { DetailedSpecialite, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
-import { displayInfosImportantes, getContent } from "@/utils/notices";
+import { displayInfosImportantes } from "@/utils/notices";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { PediatricsInfo } from "@/types/PediatricTypes";
