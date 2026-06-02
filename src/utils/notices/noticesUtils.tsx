@@ -14,6 +14,21 @@ export function displayInfosImportantes(ficheInfos?:FicheInfos): boolean{
   return false;
 }
 
+function cleanStringContent(content: string): string {
+  const pos: number = content.indexOf('<a ');
+  if(pos !== -1 && content.indexOf('target=') === -1) {
+    return [content.slice(0, pos + 3), 'target="_blank" rel="noopener noreferrer" ', content.slice(pos + 3)].join("");
+  }
+  return content;
+}
+
+function cleanArrayContent(content: string[]): string[] {
+  return content
+    .map((text: string) => {
+      return cleanStringContent(text);
+    });
+}
+
 function getStyles(styles: string[] | undefined): CSSProperties{
   let formatedStyles:CSSProperties = {};
   if(styles){
@@ -64,8 +79,15 @@ function getTitleElement(content:NoticeRCPContentBlock, definitions?:Definition[
 
 function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definition[]): (React.JSX.Element | undefined){
   if(content.content){
+    if(content.html) { 
+      const cleanHtmlContent = cleanStringContent(content.html);
+      if(definitions) return <WithGlossary definitions={definitions} key={content.id} text={[cleanHtmlContent]} />
+      return (<div dangerouslySetInnerHTML={{__html: cleanHtmlContent}}></div>)
+    };
+
     const styles = getStyles(content.styles);
-    const elementContent = <WithGlossary definitions={definitions} key={content.id} text={content.content}/>;
+    const cleanContent = cleanArrayContent(content.content);
+    const elementContent = <WithGlossary definitions={definitions} key={content.id} text={cleanContent}/>;
     if(content.type && content.type === "AmmCorpsTexte") {
       return (
         <div key={content.id} className={fr.cx("fr-mb-2w")} style={styles}>
@@ -104,7 +126,7 @@ function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definitio
     if(content.type && content.type === "listePuce") {
       return (
         <ul key={content.id} className={fr.cx("fr-ml-2w")} style={styles}>
-          {content.content.map((li, index) => {
+          {cleanContent.map((li, index) => {
             const text = li.charAt(0) === '·' ? li.substring(1) : li;
             if(text.trim().length > 0){
               return (
@@ -167,7 +189,7 @@ function getTableElement(children:NoticeRCPContentBlock[], definitions?:Definiti
             <>{...childElements}</>
           );
       } else if(child.content && child.content.length > 0) {
-        elementContent = <WithGlossary definitions={definitions} key={child.id} text={child.content} />;
+        elementContent = <WithGlossary definitions={definitions} key={child.id} text={cleanArrayContent(child.content)} />;
       }
       if(elementContent){
         content.push((
@@ -191,7 +213,7 @@ function getTableElement(children:NoticeRCPContentBlock[], definitions?:Definiti
 export function getContent(children:NoticeRCPContentBlock[], definitions?:Definition[]): (React.JSX.Element | undefined)[] {
   let content:(React.JSX.Element | undefined)[] = [];
   children.forEach((child, index) => {
-    if(child.type && child.type === "AmmCorpsTexteTable"){
+    if(child.type && child.type === "AmmCorpsTexteTable" && !child.html){
       if(child.children){
         const tableContent:(React.JSX.Element | undefined)[] = getTableElement(child.children, definitions);
         if(tableContent) content.push((

@@ -22,6 +22,7 @@ async function getContent(children: number[]): Promise<any[]>{
         tag: child.tag,
         rowspan: child.rowspan,
         colspan: child.colspan,
+        html: child.html,
       }
       if(child.children && child.children.length > 0) {
         data.children = await getContent(child.children);
