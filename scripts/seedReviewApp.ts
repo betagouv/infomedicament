@@ -66,6 +66,7 @@ const CIS_TEXT_TABLES: Array<[string, string]> = [
   ["ref_pediatrie", "cis"],
   ["ref_marr_url_cis", "cis"],
   ["ref_grossesse_mention", "cis"],
+  ["specialites_metadata", "CIS"],
 ];
 
 // Pairs of [parent table, content table] for recursive tree copies
