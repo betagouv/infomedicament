@@ -44,7 +44,7 @@ describe("bdpm_presentation parity", () => {
     const bdpmRows = await db
       .selectFrom("bdpm_presentation")
       .where("cis", "=", TEST_CIS)
-      .where("statut_commercialisation", "not in", ["ARRETEE", "RETIREE", "SUSPENDUE", "NON_COMMUNIQUEE"])
+      .where("statut_commercialisation", "not in", ["RETIREE", "SUSPENDUE", "NON_COMMUNIQUEE"])
       .select("cip")
       .execute();
 
@@ -65,7 +65,7 @@ describe("bdpm_presentation parity", () => {
     const bdpmRows = await db
       .selectFrom("bdpm_presentation")
       .where("cis", "=", TEST_CIS)
-      .where("statut_commercialisation", "not in", ["ARRETEE", "RETIREE", "SUSPENDUE", "NON_COMMUNIQUEE"])
+      .where("statut_commercialisation", "not in", ["RETIREE", "SUSPENDUE", "NON_COMMUNIQUEE"])
       .select(["cip", "denomination"])
       .execute();
 

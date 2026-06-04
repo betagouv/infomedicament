@@ -251,35 +251,35 @@ async function createResumeSpecialites(): Promise<void> {
     .then((rows) => rows.map((row) => ({ id: row.subs_id?.trim() || "", link: row.lien_site_ansm?.trim() || "" })));
   const results = await Promise.all(
     allSpecialites.map(async (spec) => {
-      const rawComposants = await getComposants(spec.SpecId);
+      const rawComposants = await getComposants(spec.cis);
       const composants: string = displaySimpleComposants(rawComposants)
-        .map((s) => s.NomLib.trim())
+        .map((s) => (s.substance ?? '').trim())
         .join(", ");
-      const subsIds: string[] = rawComposants.map((subs) => subs.SubsId.trim());
-      const rawIndicationsCodes: ShortIndication[] = await getSpecialitesIndications([spec.SpecId]);
+      const subsIds: string[] = rawComposants.map((subs) => subs.code_substance ?? '');
+      const rawIndicationsCodes: ShortIndication[] = await getSpecialitesIndications([spec.cis]);
       const indicationsIds: number[] = rawIndicationsCodes
         .map((indication) => indication.idIndication)
         .filter((idIndication, index, arr) => arr.indexOf(idIndication) === index);
       const indicationsIdsNames: string[][] = rawIndicationsCodes.map((indication) => [
-        indication.idIndication.toString(), 
+        indication.idIndication.toString(),
         indication.nomIndication ? indication.nomIndication : "",
       ]);
-      const atc = await getAtcCode(spec.SpecId);
+      const atc = await getAtcCode(spec.cis);
       const atc1: string | undefined = atc ? getAtc1Code(atc) : undefined;
       const atc2: string | undefined = atc ? getAtc2Code(atc) : undefined;
 
-      const events = await getEvents(spec.SpecId);
+      const events = await getEvents(spec.cis);
       const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
-        rawComposants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
+        rawComposants.find((c) => Number(c.code_substance) === Number(s.id)),
       );
-      const pediatrics = await getPediatrics(spec.SpecId);
+      const pediatrics = await getPediatrics(spec.cis);
 
       await db
         .insertInto('resume_specialites')
         .values({
-          specId: spec.SpecId.trim(),
-          specName: spec.SpecDenom01.trim(),
-          groupName: getSpecialiteGroupName(spec),
+          specId: spec.cis.trim(),
+          specName: (spec.denomination ?? '').trim(),
+          groupName: getSpecialiteGroupName(spec.denomination ?? ''),
           composants: composants,
           subsIds: subsIds,
           indicationsIds: indicationsIds,
@@ -287,11 +287,11 @@ async function createResumeSpecialites(): Promise<void> {
           atc1Code: atc1,
           atc2Code: atc2,
           atc5Code: atc ?? undefined,
-          ProcId: spec.ProcId,
+          ProcId: spec.procedure?.toString() ?? '',
           isSurveillanceRenforcee: isSurveillanceRenforcee(events),
-          StatutBdm: spec.StatutBdm,
+          StatutBdm: 1, // TODO PR4: map from bdpm disponibilite/statut_amm; all specs here are ACTIVE so 1 is correct
           isAlertPregnancyPlan: pregnancyPlanAlert ? true : false,
-          isAlertPregnancyMention: await getPregnancyMentionAlert(spec.SpecId),
+          isAlertPregnancyMention: await getPregnancyMentionAlert(spec.cis),
           isAlertPediatricContraindication: pediatrics && pediatrics.contraindication ? true : false,
         })
         .execute();

@@ -11,7 +11,7 @@ export const getPresentations = cache(
     return db
       .selectFrom("bdpm_presentation")
       .where("cis", "=", CIS)
-      .where("statut_commercialisation", "not in", ["ARRETEE", "RETIREE", "SUSPENDUE", "NON_COMMUNIQUEE"])
+      .where("statut_commercialisation", "not in", ["RETIREE", "SUSPENDUE", "NON_COMMUNIQUEE"])
       .selectAll()
       .orderBy("cip")
       .execute();
