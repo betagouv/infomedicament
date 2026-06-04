@@ -11,7 +11,7 @@ import { sql } from "kysely";
 import db from "@/db";
 import { getFullPresentations } from "@/db/utils/presentation";
 import { unstable_cache } from "next/cache";
-import { DetailedSpecialite, ResumeSpecGroup } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
 import { formatSpecialitesResume, formatSpecialitesResumeFromGroups } from "@/utils/specialites";
@@ -236,10 +236,12 @@ export const getSubstanceSpecialitesCIS = unstable_cache(async function (
 
   const cisList = await db
     .selectFrom("bdpm_composant")
-    .where("code_substance", "in", subsIds)
-    .groupBy("cis")
+    .innerJoin("bdpm_specialite", "bdpm_specialite.cis", "bdpm_composant.cis")
+    .where("bdpm_composant.code_substance", "in", subsIds)
+    .where("bdpm_specialite.statut_amm", "=", "ACTIVE")
+    .groupBy("bdpm_composant.cis")
     .having((eb) => eb(eb.fn.countAll(), ">=", eb.val(subsIds.length)))
-    .select("cis")
+    .select("bdpm_composant.cis")
     .execute();
   return cisList.map((r) => r.cis);
 },
