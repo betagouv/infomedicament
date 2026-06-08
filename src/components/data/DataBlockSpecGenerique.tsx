@@ -5,7 +5,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { formatSpecName } from "@/displayUtils";
 import styled from 'styled-components';
 import { Specialite } from "@/db/pdbmMySQL/types";
-import { DetailedSpecialite } from "@/types/SpecialiteTypes";
+import { BdpmSpecialiteWithStatus, DetailedSpecialite } from "@/types/SpecialiteTypes";
 import DataBlockGenericIcons from "./DataBlockGenericIcons";
 
 const Container = styled.div`
@@ -27,7 +27,7 @@ const Details = styled.div`
 `;
 
 interface DataBlockSpecGeneriqueProps extends HTMLAttributes<HTMLDivElement> {
-  specialite: Specialite | DetailedSpecialite;
+  specialite: Specialite | DetailedSpecialite | BdpmSpecialiteWithStatus;
   isSurveillanceRenforcee?: boolean;
 }
 
