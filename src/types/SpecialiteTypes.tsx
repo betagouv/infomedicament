@@ -1,5 +1,5 @@
 import { Specialite } from "@/db/pdbmMySQL/types";
-import { ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
+import { BdpmSpecialite, ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
 import { PediatricsInfo } from "./PediatricTypes";
 import { ShortIndication } from "./IndicationsTypes";
 
@@ -32,12 +32,19 @@ export type ResumeSpecialite = ResumeSpecialiteDB & {
   indicationsDetails?: ShortIndication[],
 }
 
-export type DetailedSpecialite = Specialite & {
-  urlCentralise: string | null,
+export type DetailedSpecialite = BdpmSpecialite & {
+  // computed from statut_amm
   statutAutorisation: string | null,
+  // computed from commercialisation
   statutComm: string | null,
-  titulairesList?: string,
+  // TODO PR4: map from bdpm_specialite fields — always null for now
+  titulairesList: string | null,
   generiqueName: string | null,
+  urlCentralise: string | null,
+  // kept for compatibility with isAIP/isCommercialisee/isAlerteSecurite/isHomeopathie/isCentralisee
+  // computed from procedure and disponibilite/commercialisation/statut_amm
+  ProcId: string,
+  StatutBdm: number,
 }
 
 export type NoticeBlockType = "generalites" | "usage" | "warnings" | "howTo" | "sideEffects" | "storage" | "composition";

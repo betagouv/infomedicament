@@ -1,4 +1,4 @@
-import { HTMLAttributes } from "react";
+import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import ClassTag from "../tags/ClassTag";
@@ -18,7 +18,6 @@ interface MedicamentGeneriqueContainerProps extends HTMLAttributes<HTMLDivElemen
   groupName: string;
   princeps: DetailedSpecialite;
   generiques: Specialite[];
-  events: VUEvnts[];
 }
 
 function MedicamentGeneriqueContainer({
@@ -27,10 +26,36 @@ function MedicamentGeneriqueContainer({
   groupName,
   princeps,
   generiques,
-  events,
   ...props
 }: MedicamentGeneriqueContainerProps) {
 
+  const [events, setEvents] = useState<VUEvnts[]>();
+
+  //Load all the events of the generiques + princeps
+  const loadEvents = useCallback(
+    async (
+      CISList: string[]
+    ) => {
+      try {
+        const allEvents = await getEvents(CISList);
+        setEvents(allEvents);
+      } catch (e) {
+        Sentry.captureException(e);
+      }
+    },
+    [setEvents]
+  );
+
+  useEffect(() => {
+    const CISList = [];
+    if (generiques) {
+      generiques.forEach((generique) => CISList.push(generique.SpecId));
+    }
+    if(princeps)
+      CISList.push(princeps.cis);
+    if(CISList.length > 0)
+      loadEvents(CISList);
+  }, [generiques, princeps, loadEvents]);
   return (
     <ContentContainer frContainer {...props}>              
       <ul className={fr.cx("fr-tags-group", "fr-mb-1v")}>
@@ -58,7 +83,7 @@ function MedicamentGeneriqueContainer({
         Médicament princeps
       </h2>
       <DataBlockSpecGenerique 
-          key={princeps.SpecId}
+          key={princeps.cis}
           specialite={princeps}
           isSurveillanceRenforcee={false}
         />

@@ -46,39 +46,49 @@ export async function getSpecialiteName(CIS: string): Promise<string> {
   return result?.denomination ?? "";
 }
 
-export const getDetailedSpecialite = cache(
-  async (
-    CIS: string
-  ) : Promise<DetailedSpecialite | undefined> => {
-  const specialite: DetailedSpecialite | undefined = await pdbmMySQL
-    .selectFrom("Specialite")
-    .leftJoin("StatutAdm", "StatutAdm.StatId", "Specialite.StatId")
-    .leftJoin("StatutComm", "StatutComm.CommId", "Specialite.CommId")
-    .leftJoin("Spec_Titu", "Spec_Titu.SpecId", "Specialite.SpecId")
-    .leftJoin("Titulaire", "Titulaire.TituId", "Spec_Titu.TituId")
-    .leftJoin ("Specialite as GenSpecialite", "GenSpecialite.SpecId", "Specialite.SpecGeneId")
-    .where("Specialite.SpecId", "=", CIS)
-    .where("Specialite.IsBdm", "=", 1)
-    .selectAll("Specialite")
-    .select("StatutAdm.StatLibCourt as statutAutorisation")
-    .select("StatutComm.CommLibCourt as statutComm")
-    .select("GenSpecialite.SpecDenom01 as generiqueName")
-    .select(({ selectFrom }) => [
-      selectFrom("VUEmaEpar")
-        .whereRef("Specialite.SpecId", "=", "VUEmaEpar.SpecId")
-        .select("VUEmaEpar.UrlEpar")
-        .limit(1)
-        .as("urlCentralise")
-    ]) // Il n'y en a qu'un
-    .select(({ fn }) => [
-      fn<string>("GROUP_CONCAT", ["Titulaire.TituRSLong"]).as("titulairesList"),
-    ])
-    .groupBy(["Specialite.SpecId"]) //Nécessaire pour le JSON_ARRAYAGG
-    .distinct()
-    .executeTakeFirst();
+function statutAmmToLibCourt(statut: string | null): string | null {
+  switch (statut) {
+    case "ACTIVE":    return "Valide";
+    case "ABROGEE":   return "Abrogée";
+    case "SUSPENDUE": return "Suspendue";
+    case "RETIREE":   return "Retirée";
+    case "INACTIVE":  return "Archivée";
+    default:          return null;
+  }
+}
 
-  return specialite;
-});
+// TODO PR4: mapping is uncertain. StatutBdm 2 (non-commercialisée) and 3 (alerte sécurité) were
+// MySQL-era codes. Verify that disponibilite=ALERTE → 3 and commercialisation=false → 2 before
+// relying on isCommercialisee/isAlerteSecurite for DetailedSpecialite in production.
+function computeStatutBdm(row: { disponibilite: string | null; commercialisation: boolean | null }): number {
+  if (row.disponibilite === "ALERTE") return 3;
+  if (row.commercialisation === false) return 2;
+  return 1;
+}
+
+export const getDetailedSpecialite = cache(
+  async (CIS: string): Promise<DetailedSpecialite | undefined> => {
+    const row = await db
+      .selectFrom("bdpm_specialite")
+      .where("cis", "=", CIS)
+      .where("statut_amm", "=", "ACTIVE")
+      .selectAll()
+      .executeTakeFirst();
+
+    if (!row) return undefined;
+
+    return {
+      ...row,
+      statutAutorisation: statutAmmToLibCourt(row.statut_amm),
+      statutComm: row.commercialisation === true ? "Commercialisée" : "Non communiquée",
+      titulairesList: null,   // TODO PR4: Titulaire table has no bdpm equivalent
+      generiqueName: null,    // TODO PR4: generics still on MySQL
+      urlCentralise: null,    // TODO PR4: VUEmaEpar has no bdpm equivalent
+      ProcId: row.procedure?.toString() ?? '',
+      StatutBdm: computeStatutBdm(row),
+    };
+  }
+);
 
 export const getSpecialite = cache(async (CIS: string) => {
 

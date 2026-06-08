@@ -5,6 +5,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { formatSpecName } from "@/displayUtils";
 import styled from 'styled-components';
 import { Specialite } from "@/db/pdbmMySQL/types";
+import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import DataBlockGenericIcons from "./DataBlockGenericIcons";
 
 const Container = styled.div`
@@ -26,7 +27,7 @@ const Details = styled.div`
 `;
 
 interface DataBlockSpecGeneriqueProps extends HTMLAttributes<HTMLDivElement> {
-  specialite: Specialite;
+  specialite: Specialite | DetailedSpecialite;
   isSurveillanceRenforcee?: boolean;
 }
 
@@ -34,26 +35,29 @@ function DataBlockSpecGenerique({
   specialite,
   isSurveillanceRenforcee,
 }: DataBlockSpecGeneriqueProps) {
-  
+  const id = 'cis' in specialite ? specialite.cis : specialite.SpecId;
+  const name = 'denomination' in specialite ? (specialite.denomination ?? '') : specialite.SpecDenom01;
+  const een = 'Een' in specialite ? specialite.Een : undefined;
+
   return (
     <Container className={fr.cx("fr-mb-1w")}>
       <Link
-        href={`/medicaments/${specialite.SpecId}`}
+        href={`/medicaments/${id}`}
         className={["result-link", fr.cx("fr-p-1w")].join(" ")}
       >
         <Link
-          href={`/medicaments/${specialite.SpecId}`}
+          href={`/medicaments/${id}`}
           className={fr.cx("fr-link")}
         >
-          {formatSpecName(specialite.SpecDenom01)}
+          {formatSpecName(name)}
         </Link>
         <DataBlockGenericIcons
           specialite={specialite}
           isSurveillanceRenforcee={isSurveillanceRenforcee}
         />
-        {specialite.Een && (
+        {een && (
           <Details className={fr.cx("fr-text--sm", "fr-mb-0", "fr-mt-1-5v")}>
-            Excipient(s) à effet notoire : {specialite.Een}
+            Excipient(s) à effet notoire : {een}
           </Details>
         )}
       </Link>
