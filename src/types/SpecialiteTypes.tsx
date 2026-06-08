@@ -79,6 +79,6 @@ export type GroupeGenerique = {
   libelle: string;
 }
 
-export type SpecialiteWithSubstance = Specialite & {
+export type SpecialiteWithSubstance = BdpmSpecialite & {
   NomId: string;
 }

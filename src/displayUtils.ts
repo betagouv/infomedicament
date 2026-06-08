@@ -1,7 +1,7 @@
-import { BdpmComposant } from "@/db/types";
+import { BdpmComposant, BdpmSpecialite } from "@/db/types";
 import { Specialite } from "@/db/pdbmMySQL/types";
 
-export type MedicamentGroup<T extends Specialite = Specialite> = [string, T[]];
+export type MedicamentGroup<T extends Specialite | BdpmSpecialite = Specialite> = [string, T[]];
 
 export const formatSpecName = (name: string): string =>
   name && name
