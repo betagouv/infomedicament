@@ -5,7 +5,7 @@ import { ResumeGeneric } from "../types";
 import db from "..";
 import { sql } from "kysely";
 import { BdpmSpecialiteWithStatus } from "@/types/SpecialiteTypes";
-import { computeStatutBdm } from "./specialities";
+import { computeStatutBdm } from "@/utils/specialites";
 
 export const getGenericsResumeWithLetter = cache(async function(letter: string): Promise<ResumeGeneric[]> {
   const result:ResumeGeneric[] = await db

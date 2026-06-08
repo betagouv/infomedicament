@@ -43,6 +43,14 @@ export function isCentralisee(
   return false;
 };
 
+// TODO PR4: verify that disponibilite=ALERTE → 3 and commercialisation=false → 2 before
+// relying on isCommercialisee/isAlerteSecurite in production (see DATA-GAPS.md #7).
+export function computeStatutBdm(row: { disponibilite: string | null; commercialisation: boolean | null }): number {
+  if (row.disponibilite === "ALERTE") return 3;
+  if (row.commercialisation === false) return 2;
+  return 1;
+}
+
 export function isCommercialisee(
   specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite | BdpmSpecialiteWithStatus
 ): boolean {
