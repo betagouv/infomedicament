@@ -1,19 +1,21 @@
 import { Specialite, VUEvnts } from "@/db/pdbmMySQL/types";
+import { BdpmSpecialite } from "@/db/types";
 import { ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
 import { MedicamentGroup } from "@/displayUtils";
 import { ShortIndication } from "@/types/IndicationsTypes";
-import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite, ShortSpecialite } from "@/types/SpecialiteTypes";
+import { BdpmSpecialiteWithStatus, DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite, ShortSpecialite } from "@/types/SpecialiteTypes";
 
 export function getSpecialiteGroupName(
-  specialite: Specialite | string,
+  specialite: Specialite | BdpmSpecialite | string,
 ): string {
-  const specName =
-    typeof specialite === "string" ? specialite : specialite.SpecDenom01;
+  const specName = typeof specialite === "string" ? specialite
+    : "SpecDenom01" in specialite ? specialite.SpecDenom01
+    : specialite.denomination ?? "";
   const regexMatch = specName.match(/^[^0-9,]+/);
   return (regexMatch ? regexMatch[0] : specName).trim();
 }
 
-export function groupSpecialites<T extends Specialite>(
+export function groupSpecialites<T extends Specialite | BdpmSpecialite>(
   specialites: T[],
   isSort?: boolean,
 ): MedicamentGroup<T>[] {
@@ -42,21 +44,21 @@ export function isCentralisee(
 };
 
 export function isCommercialisee(
-  specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite
+  specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite | BdpmSpecialiteWithStatus
 ): boolean {
   if(specialite.StatutBdm.toString() === "2") return false;
   return true;
 };
 
 export function isAIP(
-  specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite
+  specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite | BdpmSpecialiteWithStatus
 ): boolean {
   if(specialite.ProcId && specialite.ProcId === "50") return true;
   return false;
 };
 
 export function isAlerteSecurite(
-  specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite
+  specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite | BdpmSpecialiteWithStatus
 ): boolean {
   if(specialite.StatutBdm.toString() === "3") return true;
   return false;
