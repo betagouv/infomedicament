@@ -4,7 +4,8 @@ import { fr } from "@codegouvfr/react-dsfr";
 import ClassTag from "../tags/ClassTag";
 import { ATC } from "@/types/ATCTypes";
 import SubstanceTag from "../tags/SubstanceTag";
-import { Specialite, VUEvnts } from "@/db/pdbmMySQL/types";
+import { VUEvnts } from "@/db/pdbmMySQL/types";
+import { BdpmSpecialiteWithStatus } from "@/types/SpecialiteTypes";
 import { BdpmComposant } from "@/db/types";
 import { displayCompleteComposants } from "@/displayUtils";
 import GenericAccordion from "../GenericAccordion";
@@ -17,7 +18,7 @@ interface MedicamentGeneriqueContainerProps extends HTMLAttributes<HTMLDivElemen
   composants: BdpmComposant[];
   groupName: string;
   princeps: DetailedSpecialite;
-  generiques: Specialite[];
+  generiques: BdpmSpecialiteWithStatus[];
 }
 
 function MedicamentGeneriqueContainer({
@@ -49,7 +50,7 @@ function MedicamentGeneriqueContainer({
   useEffect(() => {
     const CISList = [];
     if (generiques) {
-      generiques.forEach((generique) => CISList.push(generique.SpecId));
+      generiques.forEach((generique) => CISList.push(generique.cis));
     }
     if(princeps)
       CISList.push(princeps.cis);
@@ -92,10 +93,10 @@ function MedicamentGeneriqueContainer({
         {generiques.length > 1 && "s"}
       </h2>
       {generiques.map((generique) => (
-        <DataBlockSpecGenerique 
-          key={generique.SpecId}
+        <DataBlockSpecGenerique
+          key={generique.cis}
           specialite={generique}
-          isSurveillanceRenforcee={isSurveillanceRenforcee(events.filter((event) => event.SpecId === generique.SpecId))}
+          isSurveillanceRenforcee={events && isSurveillanceRenforcee(events.filter((event) => event.SpecId === generique.cis))}
         />
       ))}
     </ContentContainer>

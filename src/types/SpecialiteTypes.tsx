@@ -1,5 +1,11 @@
 import { Specialite } from "@/db/pdbmMySQL/types";
 import { BdpmSpecialite, ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
+
+// BdpmSpecialite with computed status fields for lists (generics, ATC pages)
+export type BdpmSpecialiteWithStatus = BdpmSpecialite & {
+  ProcId: string;
+  StatutBdm: number;
+};
 import { PediatricsInfo } from "./PediatricTypes";
 import { ShortIndication } from "./IndicationsTypes";
 

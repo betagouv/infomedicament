@@ -59,7 +59,7 @@ function statutAmmToLibCourt(statut: string | null): string | null {
 // TODO PR4: mapping is uncertain. StatutBdm 2 (non-commercialisée) and 3 (alerte sécurité) were
 // MySQL-era codes. Verify that disponibilite=ALERTE → 3 and commercialisation=false → 2 before
 // relying on isCommercialisee/isAlerteSecurite for DetailedSpecialite in production.
-function computeStatutBdm(row: { disponibilite: string | null; commercialisation: boolean | null }): number {
+export function computeStatutBdm(row: { disponibilite: string | null; commercialisation: boolean | null }): number {
   if (row.disponibilite === "ALERTE") return 3;
   if (row.commercialisation === false) return 2;
   return 1;
