@@ -42,19 +42,19 @@ async function createResumeIndications(): Promise<string[]> {
     .selectFrom("indications")
     .selectAll()
     .execute();
-  const allSpec = await pdbmMySQL
-    .selectFrom("Specialite")
-    .where("Specialite.IsBdm", "=", 1)
-    .select(["SpecId", "SpecDenom01"])
+  const allSpec = await db
+    .selectFrom("bdpm_specialite")
+    .where("statut_amm", "=", "ACTIVE")
+    .select(["cis", "denomination"])
     .execute();
-  
+
   allIndications.forEach((indication: Indication) => {
     const specialites: string[] = [];
     if(indication.CIS.length > 0){
       indication.CIS.forEach((CIS: string) => {
-        const specDetail = allSpec.find((spec) => spec.SpecId === CIS);
+        const specDetail = allSpec.find((spec) => spec.cis === CIS);
         if(specDetail) {
-          specialites.push(getSpecialiteGroupName(specDetail.SpecDenom01))
+          specialites.push(getSpecialiteGroupName(specDetail.denomination ?? ''))
         }
       });
     }
@@ -289,7 +289,8 @@ async function createResumeSpecialites(): Promise<void> {
           atc5Code: atc ?? undefined,
           ProcId: spec.procedure?.toString() ?? '',
           isSurveillanceRenforcee: isSurveillanceRenforcee(events),
-          StatutBdm: 1, // TODO PR4: map from bdpm disponibilite/statut_amm; all specs here are ACTIVE so 1 is correct
+          // TODO PR4: mapping uncertain — verify disponibilite=ALERTE → 3 and commercialisation=false → 2
+          StatutBdm: spec.disponibilite === "ALERTE" ? 3 : spec.commercialisation === false ? 2 : 1,
           isAlertPregnancyPlan: pregnancyPlanAlert ? true : false,
           isAlertPregnancyMention: await getPregnancyMentionAlert(spec.cis),
           isAlertPediatricContraindication: pediatrics && pediatrics.contraindication ? true : false,

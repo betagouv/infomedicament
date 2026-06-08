@@ -95,7 +95,7 @@ function MedicamentContent({
       try {
 
         if (!isCentralisee(spec)) {
-          const newNotice = await getNotice(spec.SpecId);
+          const newNotice = await getNotice(spec.cis);
           setNotice(newNotice);
           if (newNotice) {
             if (newNotice.children) {
@@ -107,19 +107,19 @@ function MedicamentContent({
             }
           }
         }
-        const newFicheInfos = await getFicheInfos(spec.SpecId);
+        const newFicheInfos = await getFicheInfos(spec.cis);
         setFicheInfos(newFicheInfos);
         const newDefinitions = (await getGlossaryDefinitions()).filter(
           (d) => d.a_souligner,
         );
         setDefinitions(newDefinitions);
 
-        const pregnancyMentionAlert = await getPregnancyMentionAlert(spec.SpecId);
+        const pregnancyMentionAlert = await getPregnancyMentionAlert(spec.cis);
         setIsPregnancyMentionAlert(pregnancyMentionAlert);
-        const pediatrics = await getPediatrics(spec.SpecId);
+        const pediatrics = await getPediatrics(spec.cis);
         setPediatrics(pediatrics);
 
-        const marr: Marr = await getMarr(spec.SpecId);
+        const marr: Marr = await getMarr(spec.cis);
         setMarr(marr);
       } catch (e) {
         Sentry.captureException(e);

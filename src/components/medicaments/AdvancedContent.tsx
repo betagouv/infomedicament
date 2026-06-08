@@ -140,7 +140,7 @@ function AdvancedContent({
         <DetailedNoticeContainer id="document-has" $visible={currentPart === DetailsNoticePartsEnum.HAS}>
           <DocumentHas 
             ficheInfos={ficheInfos}
-            SpecGenId={specialite && specialite.SpecGeneId}
+            SpecGenId={specialite?.generique ? String(specialite.generique) : undefined}
             definitions={definitions}
           />
         </DetailedNoticeContainer>

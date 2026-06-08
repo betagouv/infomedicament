@@ -153,14 +153,14 @@ export default async function Page(props: {
   }
   if (specialite) {
     breadcrumb.push({
-      label: formatSpecName(getSpecialiteGroupName(specialite)),
+      label: formatSpecName(getSpecialiteGroupName(specialite.denomination ?? '')),
       linkProps: {
-        href: `/rechercher?s=${formatSpecName(getSpecialiteGroupName(specialite))}`,
+        href: `/rechercher?s=${formatSpecName(getSpecialiteGroupName(specialite.denomination ?? ''))}`,
       },
     });
   }
 
-  const pageLabel = specialite ? formatSpecName(specialite.SpecDenom01) : await getSpecialiteName(CIS);
+  const pageLabel = specialite ? formatSpecName(specialite.denomination ?? '') : await getSpecialiteName(CIS);
 
   return (
     <>
@@ -168,8 +168,8 @@ export default async function Page(props: {
         <Breadcrumb
           segments={breadcrumb}
           currentPageLabel={
-            specialite ? formatSpecName(specialite.SpecDenom01).replace(
-              formatSpecName(getSpecialiteGroupName(specialite)),
+            specialite ? formatSpecName(specialite.denomination ?? '').replace(
+              formatSpecName(getSpecialiteGroupName(specialite.denomination ?? '')),
               "",
             ) : ""}
           className={fr.cx("fr-mb-2w")}

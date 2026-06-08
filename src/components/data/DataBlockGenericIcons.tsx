@@ -4,10 +4,10 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { Tooltip } from "@codegouvfr/react-dsfr/Tooltip";
 import { Specialite } from "@/db/pdbmMySQL/types";
 import { isAIP, isAlerteSecurite, isCommercialisee } from "@/utils/specialites";
-import { ResumeSpecialite, ShortSpecialite } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, ResumeSpecialite, ShortSpecialite } from "@/types/SpecialiteTypes";
 
 interface DataBlockGenericIconsProps extends HTMLAttributes<HTMLDivElement> {
-  specialite: Specialite | ShortSpecialite | ResumeSpecialite;
+  specialite: Specialite | DetailedSpecialite | ShortSpecialite | ResumeSpecialite;
   isSurveillanceRenforcee?: boolean;
   withAlerts?: boolean;
 }
