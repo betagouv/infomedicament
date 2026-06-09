@@ -44,23 +44,23 @@ export interface Database {
   vu_classes_cliniques: VUClassesCliniquesTable;
   indications: IndicationsTable;
   specialites_metadata: SpecialiteMetadataTable;
-  bdpm_specialite: BdpmSpecialiteTable;
-  bdpm_atc: BdpmAtcTable;
-  bdpm_classe_clinique: BdpmClasseCliniqueTable;
-  bdpm_groupe_substance: BdpmGroupeSubstanceTable;
-  bdpm_classe_interaction: BdpmClasseInteractionTable;
-  bdpm_presentation: BdpmPresentationTable;
-  bdpm_element: BdpmElementTable;
-  bdpm_specialite_atc: BdpmSpecialiteAtcTable;
-  bdpm_specialite_classe_clinique: BdpmSpecialiteClasseCliniqueTable;
-  bdpm_classe_groupe_substance: BdpmClasseGroupeSubstanceTable;
-  bdpm_substance_groupe_substance: BdpmSubstanceGroupeSubstanceTable;
-  bdpm_interaction: BdpmInteractionTable;
-  bdpm_composant: BdpmComposantTable;
-  bdpm_recipient: BdpmRecipientTable;
-  bdpm_dispositif: BdpmDispositifTable;
-  bdpm_document: BdpmDocumentTable;
-  bdpm_caracteristique: BdpmCaracteristiqueTable;
+  ansm_specialite: AnsmSpecialiteTable;
+  ansm_atc: AnsmAtcTable;
+  ansm_classe_clinique: AnsmClasseCliniqueTable;
+  ansm_groupe_substance: AnsmGroupeSubstanceTable;
+  ansm_classe_interaction: AnsmClasseInteractionTable;
+  ansm_presentation: AnsmPresentationTable;
+  ansm_element: AnsmElementTable;
+  ansm_specialite_atc: AnsmSpecialiteAtcTable;
+  ansm_specialite_classe_clinique: AnsmSpecialiteClasseCliniqueTable;
+  ansm_classe_groupe_substance: AnsmClasseGroupeSubstanceTable;
+  ansm_substance_groupe_substance: AnsmSubstanceGroupeSubstanceTable;
+  ansm_interaction: AnsmInteractionTable;
+  ansm_composant: AnsmComposantTable;
+  ansm_recipient: AnsmRecipientTable;
+  ansm_dispositif: AnsmDispositifTable;
+  ansm_document: AnsmDocumentTable;
+  ansm_caracteristique: AnsmCaracteristiqueTable;
 }
 
 interface SearchIndexTable {
@@ -450,7 +450,7 @@ interface SpecialiteMetadataTable {
   description: string,
 }
 
-interface BdpmSpecialiteTable {
+interface AnsmSpecialiteTable {
   cis: string;
   denomination: string | null;
   generique: string | null;
@@ -499,9 +499,9 @@ export type Indication = Selectable<IndicationsTable>;
 export type SpecialiteMetadata = Selectable<SpecialiteMetadataTable>;
 export type NoticeDB = Selectable<NoticeTable>;
 export type NoticeContentDB = Selectable<NoticeContentTable>;
-export type BdpmSpecialite = Selectable<BdpmSpecialiteTable>;
+export type AnsmSpecialite = Selectable<AnsmSpecialiteTable>;
 
-interface BdpmAtcTable {
+interface AnsmAtcTable {
   code: number;
   code_parent: number | null;
   libelle_abr: string | null;
@@ -510,35 +510,35 @@ interface BdpmAtcTable {
   libelle_anglais: string | null;
 }
 
-export type BdpmAtc = Selectable<BdpmAtcTable>;
+export type AnsmAtc = Selectable<AnsmAtcTable>;
 
-interface BdpmClasseCliniqueTable {
+interface AnsmClasseCliniqueTable {
   code: number;
   libelle_court: string | null;
   libelle_long: string | null;
 }
 
-export type BdpmClasseClinique = Selectable<BdpmClasseCliniqueTable>;
+export type AnsmClasseClinique = Selectable<AnsmClasseCliniqueTable>;
 
-interface BdpmGroupeSubstanceTable {
+interface AnsmGroupeSubstanceTable {
   code_groupe: number;
   code_groupe_parent: number | null;
   nom: string | null;
   date_modification: Date | null;
 }
 
-export type BdpmGroupeSubstance = Selectable<BdpmGroupeSubstanceTable>;
+export type AnsmGroupeSubstance = Selectable<AnsmGroupeSubstanceTable>;
 
-interface BdpmClasseInteractionTable {
+interface AnsmClasseInteractionTable {
   code_classe: number;
   nom: string | null;
   description: string | null;
   date_modification: Date | null;
 }
 
-export type BdpmClasseInteraction = Selectable<BdpmClasseInteractionTable>;
+export type AnsmClasseInteraction = Selectable<AnsmClasseInteractionTable>;
 
-interface BdpmPresentationTable {
+interface AnsmPresentationTable {
   cip: string;
   cis: string;
   cip7: string | null;
@@ -548,49 +548,49 @@ interface BdpmPresentationTable {
   date_commercialisation: Date | null;
 }
 
-export type BdpmPresentation = Selectable<BdpmPresentationTable>;
+export type AnsmPresentation = Selectable<AnsmPresentationTable>;
 
-interface BdpmElementTable {
+interface AnsmElementTable {
   cis: string;
   numero_element: number;
   denomination: string | null;
   ordre: number | null;
 }
 
-export type BdpmElement = Selectable<BdpmElementTable>;
+export type AnsmElement = Selectable<AnsmElementTable>;
 
-interface BdpmSpecialiteAtcTable {
+interface AnsmSpecialiteAtcTable {
   cis: string;
   code_atc: number;
 }
 
-export type BdpmSpecialiteAtc = Selectable<BdpmSpecialiteAtcTable>;
+export type AnsmSpecialiteAtc = Selectable<AnsmSpecialiteAtcTable>;
 
-interface BdpmSpecialiteClasseCliniqueTable {
+interface AnsmSpecialiteClasseCliniqueTable {
   cis: string;
   code_classe_clinique: number;
 }
 
-export type BdpmSpecialiteClasseClinique = Selectable<BdpmSpecialiteClasseCliniqueTable>;
+export type AnsmSpecialiteClasseClinique = Selectable<AnsmSpecialiteClasseCliniqueTable>;
 
-interface BdpmClasseGroupeSubstanceTable {
+interface AnsmClasseGroupeSubstanceTable {
   code_classe: number;
   code_groupe: number;
 }
 
-export type BdpmClasseGroupeSubstance = Selectable<BdpmClasseGroupeSubstanceTable>;
+export type AnsmClasseGroupeSubstance = Selectable<AnsmClasseGroupeSubstanceTable>;
 
-interface BdpmSubstanceGroupeSubstanceTable {
+interface AnsmSubstanceGroupeSubstanceTable {
   code_groupe: number;
   code_substance: string;
   date_modification: Date | null;
 }
 
-export type BdpmSubstanceGroupeSubstance = Selectable<BdpmSubstanceGroupeSubstanceTable>;
+export type AnsmSubstanceGroupeSubstance = Selectable<AnsmSubstanceGroupeSubstanceTable>;
 
 // Each side is identified by either code_groupe_* OR code_classe_* (exactly one non-null per side).
 // No PK constraint — see migration for explanation.
-interface BdpmInteractionTable {
+interface AnsmInteractionTable {
   code_groupe_1: number | null;
   code_groupe_2: number | null;
   code_classe_1: number | null;
@@ -601,9 +601,9 @@ interface BdpmInteractionTable {
   date_modification: Date | null;
 }
 
-export type BdpmInteraction = Selectable<BdpmInteractionTable>;
+export type AnsmInteraction = Selectable<AnsmInteractionTable>;
 
-interface BdpmComposantTable {
+interface AnsmComposantTable {
   cis: string;
   numero_element: number;
   numero_composant: number;
@@ -614,9 +614,9 @@ interface BdpmComposantTable {
   ordre: number | null;
 }
 
-export type BdpmComposant = Selectable<BdpmComposantTable>;
+export type AnsmComposant = Selectable<AnsmComposantTable>;
 
-interface BdpmRecipientTable {
+interface AnsmRecipientTable {
   cip: string;
   numero_element: number | null;
   numero_recipient: number;
@@ -627,18 +627,18 @@ interface BdpmRecipientTable {
   unite_contenance: string | null;
 }
 
-export type BdpmRecipient = Selectable<BdpmRecipientTable>;
+export type AnsmRecipient = Selectable<AnsmRecipientTable>;
 
-interface BdpmDispositifTable {
+interface AnsmDispositifTable {
   cip: string;
   numero_dispositif: number;
   code_nature_dispositif: string | null;
   nature_dispositif: string | null;
 }
 
-export type BdpmDispositif = Selectable<BdpmDispositifTable>;
+export type AnsmDispositif = Selectable<AnsmDispositifTable>;
 
-interface BdpmDocumentTable {
+interface AnsmDocumentTable {
   cis: string;
   type: "notice" | "rcp";
   date_modification: Date | null;
@@ -647,9 +647,9 @@ interface BdpmDocumentTable {
   images: string[] | null;
 }
 
-export type BdpmDocument = Selectable<BdpmDocumentTable>;
+export type AnsmDocument = Selectable<AnsmDocumentTable>;
 
-interface BdpmCaracteristiqueTable {
+interface AnsmCaracteristiqueTable {
   cip: string;
   numero_recipient: number;
   code_caracteristique: number;
@@ -657,4 +657,4 @@ interface BdpmCaracteristiqueTable {
   libelle: string | null;
 }
 
-export type BdpmCaracteristique = Selectable<BdpmCaracteristiqueTable>;
+export type AnsmCaracteristique = Selectable<AnsmCaracteristiqueTable>;
