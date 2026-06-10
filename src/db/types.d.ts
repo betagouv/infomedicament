@@ -59,6 +59,7 @@ export interface Database {
   ansm_dispositif: AnsmDispositifTable;
   ansm_document: AnsmDocumentTable;
   ansm_caracteristique: AnsmCaracteristiqueTable;
+  ansm_specialite_titulaire: AnsmSpecialiteTitulaireTable;
 }
 
 interface SearchIndexTable {
@@ -444,7 +445,6 @@ interface AnsmSpecialiteTable {
   statut_amm: "INACTIVE" | "ACTIVE" | "ABROGEE" | "SUSPENDUE" | "RETIREE" | null;
   date_modification: Date | null;
   disponibilite: "INDISPONIBLE" | "DISPONIBLE" | "PARTIELLE" | "ALERTE" | null;
-  commercialisation: boolean | null;
 }
 
 export type LeafletImage = Selectable<LeafletImagesTable>;
@@ -579,6 +579,7 @@ interface AnsmInteractionTable {
   niveau: string | null;
   risque: string | null;
   conduite: string | null;
+  commentaire: string | null;
   date_modification: Date | null;
 }
 
@@ -623,6 +624,7 @@ interface AnsmDocumentTable {
   cis: string;
   type: "notice" | "rcp";
   date_modification: Date | null;
+  date_export: Date | null;
   url: string | null;
   sha256: string | null;
   images: string[] | null;
@@ -639,3 +641,14 @@ interface AnsmCaracteristiqueTable {
 }
 
 export type AnsmCaracteristique = Selectable<AnsmCaracteristiqueTable>;
+
+interface AnsmSpecialiteTitulaireTable {
+  cis: string;
+  code_titulaire: string;
+  raison_sociale: string | null;
+  raison_sociale_longue: string | null;
+  pays: string | null;
+  date_debut: Date | null;
+}
+
+export type AnsmSpecialiteTitulaire = Selectable<AnsmSpecialiteTitulaireTable>;

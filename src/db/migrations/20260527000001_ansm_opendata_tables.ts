@@ -12,7 +12,6 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('statut_amm', 'varchar')
     .addColumn('date_modification', 'timestamptz')
     .addColumn('disponibilite', 'varchar')
-    .addColumn('commercialisation', 'boolean')
     .execute()
 
   await db.schema
@@ -117,6 +116,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('niveau', 'varchar')
     .addColumn('risque', 'text')
     .addColumn('conduite', 'text')
+    .addColumn('commentaire', 'text')
     .addColumn('date_modification', 'timestamptz')
     .execute()
 
@@ -164,6 +164,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('cis', 'varchar', (col) => col.notNull())
     .addColumn('type', 'varchar', (col) => col.notNull())
     .addColumn('date_modification', 'timestamptz')
+    .addColumn('date_export', 'timestamptz')
     .addColumn('url', 'varchar')
     .addColumn('sha256', 'varchar')
     .addColumn('images', sql`text[]`)
@@ -180,9 +181,22 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('libelle', 'varchar')
     .addPrimaryKeyConstraint('ansm_caracteristique_pkey', ['cip', 'numero_recipient', 'code_caracteristique'])
     .execute()
+
+  await db.schema
+    .createTable('ansm_specialite_titulaire')
+    .ifNotExists()
+    .addColumn('cis', 'varchar', (col) => col.notNull())
+    .addColumn('code_titulaire', 'varchar', (col) => col.notNull())
+    .addColumn('raison_sociale', 'varchar')
+    .addColumn('raison_sociale_longue', 'varchar')
+    .addColumn('pays', 'varchar')
+    .addColumn('date_debut', 'date')
+    .addPrimaryKeyConstraint('ansm_specialite_titulaire_pkey', ['cis', 'code_titulaire'])
+    .execute()
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
+  await db.schema.dropTable('ansm_specialite_titulaire').ifExists().execute()
   await db.schema.dropTable('ansm_caracteristique').ifExists().execute()
   await db.schema.dropTable('ansm_document').ifExists().execute()
   await db.schema.dropTable('ansm_dispositif').ifExists().execute()
