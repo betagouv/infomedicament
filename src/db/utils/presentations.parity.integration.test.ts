@@ -32,7 +32,7 @@ const presentationIsComm = () => {
 
 const TEST_CIS = "62998997"; // Spasfon injectable
 
-describe("bdpm_presentation parity", () => {
+describe("ansm_presentation parity", () => {
   it("same CIP13 set for a known CIS", async () => {
     const mysqlRows = await pdbmMySQL
       .selectFrom("Presentation")
@@ -42,7 +42,7 @@ describe("bdpm_presentation parity", () => {
       .execute();
 
     const bdpmRows = await db
-      .selectFrom("bdpm_presentation")
+      .selectFrom("ansm_presentation")
       .where("cis", "=", TEST_CIS)
       .where("statut_commercialisation", "not in", ["RETIREE", "SUSPENDUE", "NON_COMMUNIQUEE"])
       .select("cip")
@@ -63,7 +63,7 @@ describe("bdpm_presentation parity", () => {
       .execute();
 
     const bdpmRows = await db
-      .selectFrom("bdpm_presentation")
+      .selectFrom("ansm_presentation")
       .where("cis", "=", TEST_CIS)
       .where("statut_commercialisation", "not in", ["RETIREE", "SUSPENDUE", "NON_COMMUNIQUEE"])
       .select(["cip", "denomination"])

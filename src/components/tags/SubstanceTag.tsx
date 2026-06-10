@@ -1,4 +1,4 @@
-import { BdpmComposant } from "@/db/types";
+import { AnsmComposant } from "@/db/types";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { displaySimpleComposants } from "@/displayUtils";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
@@ -7,7 +7,7 @@ import "./dsfr-custom-tags.css";
 import { trackEvent } from "@/services/tracking";
 
 interface SubstanceTagProps extends HTMLAttributes<HTMLDivElement> {
-  composants: BdpmComposant[];
+  composants: AnsmComposant[];
   fromMedicament?: boolean;
 }
 

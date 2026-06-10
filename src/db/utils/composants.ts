@@ -2,17 +2,17 @@
 import "server-cli-only";
 
 import { cache } from "react";
-import { BdpmComposant } from "@/db/types";
+import { AnsmComposant } from "@/db/types";
 import db from "@/db";
 
 export const getComposants = cache(async function (CIS: string) {
   return await getComposantsList([CIS]);
 });
 
-export const getComposantsList = cache(async (CISList: string[]): Promise<BdpmComposant[]> => {
+export const getComposantsList = cache(async (CISList: string[]): Promise<AnsmComposant[]> => {
   if (CISList.length > 0) {
     return db
-      .selectFrom("bdpm_composant")
+      .selectFrom("ansm_composant")
       .where("cis", "in", CISList)
       .selectAll()
       .execute();

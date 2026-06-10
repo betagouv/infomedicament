@@ -1,7 +1,7 @@
 import { PresentationRetro } from "@/db/pdbmMySQL/types";
-import { BdpmPresentation, PresentationDetail } from "@/db/types";
+import { AnsmPresentation, PresentationDetail } from "@/db/types";
 
-export type Presentation = BdpmPresentation & {
+export type Presentation = AnsmPresentation & {
   details?: PresentationDetail[],
   retro?: PresentationRetro,
 }

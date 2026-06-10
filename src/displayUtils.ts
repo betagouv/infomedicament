@@ -1,7 +1,7 @@
-import { BdpmComposant, BdpmSpecialite } from "@/db/types";
+import { AnsmComposant, AnsmSpecialite } from "@/db/types";
 import { Specialite } from "@/db/pdbmMySQL/types";
 
-export type MedicamentGroup<T extends Specialite | BdpmSpecialite = Specialite> = [string, T[]];
+export type MedicamentGroup<T extends Specialite | AnsmSpecialite = Specialite> = [string, T[]];
 
 export const formatSpecName = (name: string): string =>
   name && name
@@ -11,8 +11,8 @@ export const formatSpecName = (name: string): string =>
     )
     .join(" ");
 
-export function displaySimpleComposants(composants: BdpmComposant[]): BdpmComposant[] {
-  const groups = new Map<number, BdpmComposant[]>();
+export function displaySimpleComposants(composants: AnsmComposant[]): AnsmComposant[] {
+  const groups = new Map<number, AnsmComposant[]>();
   for (const composant of composants) {
     if (groups.has(composant.numero_composant)) {
       groups.get(composant.numero_composant)?.push(composant);
@@ -30,8 +30,8 @@ export function displaySimpleComposants(composants: BdpmComposant[]): BdpmCompos
     .flat();
 }
 
-export function displayCompleteComposants(composants: BdpmComposant[]): string {
-  const groups = new Map<number, BdpmComposant[]>();
+export function displayCompleteComposants(composants: AnsmComposant[]): string {
+  const groups = new Map<number, AnsmComposant[]>();
   for (const composant of composants) {
     if (groups.has(composant.numero_composant)) {
       groups.get(composant.numero_composant)?.push(composant);
