@@ -86,7 +86,7 @@ function MedicamentContentHeaderBlock({
           <Alert
             severity={"warning"}
             title={
-              "Il existe une contre-indication pédiatrique (vérifier selon l’âge)."
+              "Si ce médicament a été prescrit à votre enfant, rapprochez vous de votre prescripteur."
             }
           />
         </ContentContainer>
