@@ -1,3 +1,6 @@
+"use client";
+
+import * as Sentry from "@sentry/nextjs";
 import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
@@ -5,20 +8,21 @@ import ClassTag from "../tags/ClassTag";
 import { ATC } from "@/types/ATCTypes";
 import SubstanceTag from "../tags/SubstanceTag";
 import { VUEvnts } from "@/db/pdbmMySQL/types";
-import { BdpmSpecialiteWithStatus } from "@/types/SpecialiteTypes";
-import { BdpmComposant } from "@/db/types";
+import { AnsmSpecialiteWithStatus } from "@/types/SpecialiteTypes";
+import { AnsmComposant } from "@/db/types";
 import { displayCompleteComposants } from "@/displayUtils";
 import GenericAccordion from "../GenericAccordion";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import DataBlockSpecGenerique from "../data/DataBlockSpecGenerique";
+import { getEvents } from "@/db/utils/ficheInfos";
 import { isSurveillanceRenforcee } from "@/utils/specialites";
 
 interface MedicamentGeneriqueContainerProps extends HTMLAttributes<HTMLDivElement> {
   atc2?: ATC;
-  composants: BdpmComposant[];
+  composants: AnsmComposant[];
   groupName: string;
   princeps: DetailedSpecialite;
-  generiques: BdpmSpecialiteWithStatus[];
+  generiques: AnsmSpecialiteWithStatus[];
 }
 
 function MedicamentGeneriqueContainer({

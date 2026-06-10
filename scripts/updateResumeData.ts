@@ -1,6 +1,6 @@
 import db from "@/db";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { BdpmSpecialite, Letters, LetterType, Indication, ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
+import { AnsmSpecialite, Letters, LetterType, Indication, ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
 import { groupGeneNameToDCI } from "@/displayUtils";
 import { getComposants } from "@/db/utils/composants";
 import { getEvents } from "@/db/utils/ficheInfos";
@@ -43,8 +43,8 @@ async function createResumeIndications(): Promise<string[]> {
     .selectAll()
     .execute();
   const allSpec = await db
-    .selectFrom("bdpm_specialite")
-    .where("statut_amm", "=", "ACTIVE")
+    .selectFrom("ansm_specialite")
+    .where("disponibilite", "!=", "INDISPONIBLE")
     .select(["cis", "denomination"])
     .execute();
 
@@ -131,7 +131,7 @@ async function createResumeMedicaments(): Promise<string[]> {
     .execute();
 
   const allSpecialites = await getAllSpecialites();
-  const groupMap = new Map<string, BdpmSpecialite[]>();
+  const groupMap = new Map<string, AnsmSpecialite[]>();
   for (const spec of allSpecialites) {
     const groupName = getSpecialiteGroupName(spec.denomination ?? '');
     if (groupMap.has(groupName)) {
@@ -157,7 +157,7 @@ async function createResumeMedicaments(): Promise<string[]> {
           return [
             spec.cis,
             spec.denomination ?? '',
-            spec.commercialisation === false ? "2" : "1",
+            spec.disponibilite === "INDISPONIBLE" ? "2" : "1",
             spec.procedure?.toString() ?? '',
             surveillanceRenforcee,
           ];
@@ -289,8 +289,7 @@ async function createResumeSpecialites(): Promise<void> {
           atc5Code: atc ?? undefined,
           ProcId: spec.procedure?.toString() ?? '',
           isSurveillanceRenforcee: isSurveillanceRenforcee(events),
-          // TODO PR4: mapping uncertain — verify disponibilite=ALERTE → 3 and commercialisation=false → 2
-          StatutBdm: spec.disponibilite === "ALERTE" ? 3 : spec.commercialisation === false ? 2 : 1,
+          StatutBdm: spec.disponibilite === "ALERTE" ? 3 : spec.disponibilite === "INDISPONIBLE" ? 2 : 1,
           isAlertPregnancyPlan: pregnancyPlanAlert ? true : false,
           isAlertPregnancyMention: await getPregnancyMentionAlert(spec.cis),
           isAlertPediatricContraindication: pediatrics && pediatrics.contraindication ? true : false,
