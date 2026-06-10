@@ -14,7 +14,6 @@ const detailedSpec: DetailedSpecialite = {
   statut_amm: "ACTIVE",
   date_modification: null,
   disponibilite: "DISPONIBLE",
-  commercialisation: true,
   statutAutorisation: "Valide",
   statutComm: "Commercialisée",
   titulairesList: null,

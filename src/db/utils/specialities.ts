@@ -18,7 +18,7 @@ import { computeStatutBdm, formatSpecialitesResume, formatSpecialitesResumeFromG
 
 export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
   const result = await db
-    .selectFrom("bdpm_document")
+    .selectFrom("ansm_document")
     .select((eb) => eb.fn.max("date_modification").as("lastUpdated"))
     .executeTakeFirst();
 
@@ -27,8 +27,8 @@ export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
 
 export const getMarketedMedicamentCount = unstable_cache(async function(): Promise<number> {
   const result = await db
-    .selectFrom("bdpm_specialite")
-    .where("statut_amm", "=", "ACTIVE")
+    .selectFrom("ansm_specialite")
+    .where("disponibilite", "!=", "INDISPONIBLE")
     .select((eb) => eb.fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 
@@ -37,7 +37,7 @@ export const getMarketedMedicamentCount = unstable_cache(async function(): Promi
 
 export async function getSpecialiteName(CIS: string): Promise<string> {
   const result = await db
-    .selectFrom("bdpm_specialite")
+    .selectFrom("ansm_specialite")
     .where("cis", "=", CIS)
     .select("denomination")
     .executeTakeFirst();
@@ -59,9 +59,9 @@ function statutAmmToLibCourt(statut: string | null): string | null {
 export const getDetailedSpecialite = cache(
   async (CIS: string): Promise<DetailedSpecialite | undefined> => {
     const row = await db
-      .selectFrom("bdpm_specialite")
+      .selectFrom("ansm_specialite")
       .where("cis", "=", CIS)
-      .where("statut_amm", "=", "ACTIVE")
+      .where("disponibilite", "!=", "INDISPONIBLE")
       .selectAll()
       .executeTakeFirst();
 
@@ -70,8 +70,8 @@ export const getDetailedSpecialite = cache(
     return {
       ...row,
       statutAutorisation: statutAmmToLibCourt(row.statut_amm),
-      statutComm: row.commercialisation === true ? "Commercialisée" : "Non communiquée",
-      titulairesList: null,   // TODO PR4: Titulaire table has no bdpm equivalent
+      statutComm: row.disponibilite === "DISPONIBLE" ? "Commercialisée" : "Non communiquée",
+      titulairesList: null,   // TODO PR4: join ansm_specialite_titulaire
       generiqueName: null,    // TODO PR4: generics still on MySQL
       urlCentralise: null,    // TODO PR4: VUEmaEpar has no bdpm equivalent
       ProcId: row.procedure?.toString() ?? '',
@@ -116,8 +116,8 @@ export const getSpecialite = cache(async (CIS: string) => {
 
 export const getAllSpecialites = cache(async function () {
   return await db
-    .selectFrom("bdpm_specialite")
-    .where("statut_amm", "=", "ACTIVE")
+    .selectFrom("ansm_specialite")
+    .where("disponibilite", "!=", "INDISPONIBLE")
     .selectAll()
     .orderBy("denomination")
     .execute();
@@ -202,7 +202,7 @@ export const getSubstanceSpecialites = unstable_cache(async function (
   if (subsIds.length === 0) return [];
 
   const cisList = await db
-    .selectFrom("bdpm_composant")
+    .selectFrom("ansm_composant")
     .where("code_substance", "in", subsIds)
     .groupBy("cis")
     .having((eb) => eb(eb.fn.countAll(), ">=", eb.val(subsIds.length)))
@@ -212,9 +212,9 @@ export const getSubstanceSpecialites = unstable_cache(async function (
   if (cisCodes.length === 0) return [];
 
   return db
-    .selectFrom("bdpm_specialite")
+    .selectFrom("ansm_specialite")
     .where("cis", "in", cisCodes)
-    .where("statut_amm", "=", "ACTIVE")
+    .where("disponibilite", "!=", "INDISPONIBLE")
     .selectAll()
     .execute();
 },
@@ -235,13 +235,13 @@ export const getSubstanceSpecialitesCIS = unstable_cache(async function (
   if (subsIds.length === 0) return [];
 
   const cisList = await db
-    .selectFrom("bdpm_composant")
-    .innerJoin("bdpm_specialite", "bdpm_specialite.cis", "bdpm_composant.cis")
-    .where("bdpm_composant.code_substance", "in", subsIds)
-    .where("bdpm_specialite.statut_amm", "=", "ACTIVE")
-    .groupBy("bdpm_composant.cis")
+    .selectFrom("ansm_composant")
+    .innerJoin("ansm_specialite", "ansm_specialite.cis", "ansm_composant.cis")
+    .where("ansm_composant.code_substance", "in", subsIds)
+    .where("ansm_specialite.disponibilite", "!=", "INDISPONIBLE")
+    .groupBy("ansm_composant.cis")
     .having((eb) => eb(eb.fn.countAll(), ">=", eb.val(subsIds.length)))
-    .select("bdpm_composant.cis")
+    .select("ansm_composant.cis")
     .execute();
   return cisList.map((r) => r.cis);
 },

@@ -27,7 +27,7 @@ export const getSubstances = cache(async function (
 // Done in JS to avoid Kysely HAVING aggregate syntax issues.
 async function buildSingleSubMap(): Promise<Map<string, string>> {
   const rows = await db
-    .selectFrom("bdpm_composant")
+    .selectFrom("ansm_composant")
     .where("code_substance", "is not", null)
     .select(["cis", "code_substance"])
     .distinct()
@@ -66,9 +66,9 @@ export const getAllSubsWithSpecialites = cache(async function () {
 
   // Get active specialites from those CIS
   const specialites = await db
-    .selectFrom("bdpm_specialite")
+    .selectFrom("ansm_specialite")
     .where("cis", "in", singleSubCIS)
-    .where("statut_amm", "=", "ACTIVE")
+    .where("disponibilite", "!=", "INDISPONIBLE")
     .select(["cis", "denomination"])
     .execute();
 
@@ -116,9 +116,9 @@ export const getSubstanceAllSpecialites = unstable_cache(async function (
   if (targetCIS.length === 0) return [];
 
   const rows = await db
-    .selectFrom("bdpm_specialite")
+    .selectFrom("ansm_specialite")
     .where("cis", "in", targetCIS)
-    .where("statut_amm", "=", "ACTIVE")
+    .where("disponibilite", "!=", "INDISPONIBLE")
     .selectAll()
     .execute();
 
