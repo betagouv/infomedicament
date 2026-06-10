@@ -293,7 +293,6 @@ function NoticeContent({
                     <PediatricsTags 
                       info={pediatrics} 
                       fromMedicament
-                      hideLast
                     />
                   )}
               </TagContainer>
