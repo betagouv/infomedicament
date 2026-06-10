@@ -9,7 +9,7 @@ import db from "..";
 export const getPresentations = cache(
   async (CIS: string): Promise<Presentation[]> => {
     return db
-      .selectFrom("bdpm_presentation")
+      .selectFrom("ansm_presentation")
       .where("cis", "=", CIS)
       .where("statut_commercialisation", "not in", ["RETIREE", "SUSPENDUE", "NON_COMMUNIQUEE"])
       .selectAll()

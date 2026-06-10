@@ -6,7 +6,7 @@ import { HTMLAttributes, PropsWithChildren } from "react";
 import styled, {css} from 'styled-components';
 import GenericPrincepsTag from "@/components/tags/GenericPrincepsTag";
 import { SpecDelivrance } from "@/db/pdbmMySQL/types";
-import { BdpmComposant } from "@/db/types";
+import { AnsmComposant } from "@/db/types";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import PediatricsTags from "@/components/tags/PediatricsTags";
 import Link from "next/link";
@@ -84,7 +84,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   updateVisiblePart: (visiblePart: DetailsNoticePartsEnum) => void;
   specialite?: DetailedSpecialite;
   atcCode?: string;
-  composants: BdpmComposant[];
+  composants: AnsmComposant[];
   isPrinceps: boolean;
   isPregnancyPlanAlert: boolean;
   isPregnancyMentionAlert: boolean;

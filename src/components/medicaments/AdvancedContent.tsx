@@ -3,7 +3,7 @@
 import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import { SpecDelivrance } from "@/db/pdbmMySQL/types";
-import { BdpmComposant } from "@/db/types";
+import { AnsmComposant } from "@/db/types";
 import { HTMLAttributes, useState } from "react";
 import styled, { css } from 'styled-components';
 import DetailedSubMenu, { AnchorMenu } from "./advanced/DetailedSubMenu";
@@ -47,7 +47,7 @@ const DetailedNoticeContainer = styled.div<{ $visible: boolean; }> `
 interface AdvancedContentProps extends HTMLAttributes<HTMLDivElement> {
   atcCode?: string;
   specialite?: DetailedSpecialite;
-  composants: BdpmComposant[];
+  composants: AnsmComposant[];
   isPrinceps: boolean;
   delivrance: SpecDelivrance[];
   pregnancyPlanAlert: PregnancyAlert | undefined;

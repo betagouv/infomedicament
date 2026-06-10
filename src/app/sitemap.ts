@@ -48,7 +48,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getLetters("substances"),
     getLetters("indications"),
     getLetters("generiques"),
-    db.selectFrom("bdpm_specialite").where("generique", "is not", null).select("generique").distinct().execute(),
+    db.selectFrom("ansm_specialite").where("generique", "is not", null).select("generique").distinct().execute(),
   ]);
 
   const staticEntries: MetadataRoute.Sitemap = STATIC_ROUTES.map((path) => ({

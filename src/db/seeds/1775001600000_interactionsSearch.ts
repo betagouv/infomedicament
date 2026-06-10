@@ -6,11 +6,11 @@ export async function seed(db: Kysely<any>): Promise<void> {
 
   const [substances, substMapping, medicaments, pureClasses] = await Promise.all([
     db
-      .selectFrom("bdpm_groupe_substance")
+      .selectFrom("ansm_groupe_substance")
       .select(["code_groupe", "nom"])
       .execute(),
     db
-      .selectFrom("bdpm_substance_groupe_substance")
+      .selectFrom("ansm_substance_groupe_substance")
       .select(["code_groupe", "code_substance"])
       .execute(),
     db
@@ -18,25 +18,25 @@ export async function seed(db: Kysely<any>): Promise<void> {
       .select(["groupName", "subsIds"])
       .execute(),
     // Pure classes: pharmacological classes that have no corresponding substance group.
-    // (Substance groups are those with entries in bdpm_substance_groupe_substance.)
+    // (Substance groups are those with entries in ansm_substance_groupe_substance.)
     db
-      .selectFrom("bdpm_classe_interaction")
+      .selectFrom("ansm_classe_interaction")
       .select(["code_classe", "nom"])
       .where(
         "code_classe",
         "not in",
-        db.selectFrom("bdpm_substance_groupe_substance").select("code_groupe").distinct(),
+        db.selectFrom("ansm_substance_groupe_substance").select("code_groupe").distinct(),
       )
       .execute(),
   ]);
 
   if (substances.length === 0) {
     throw new Error(
-      "No rows in bdpm_groupe_substance — run the bdpm import first"
+      "No rows in ansm_groupe_substance — run the bdpm import first"
     );
   }
 
-  // code_substance (BDPM) -> code_groupe[] (bdpm_substance_groupe_substance)
+  // code_substance (BDPM) -> code_groupe[] (ansm_substance_groupe_substance)
   const groupsBySubstance = new Map<string, number[]>();
   for (const row of substMapping) {
     const existing = groupsBySubstance.get(row.code_substance) ?? [];

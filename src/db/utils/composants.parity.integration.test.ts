@@ -8,7 +8,7 @@ vi.mock("server-cli-only", () => ({}));
 // Spasfon solution injectable — well-known single-composant drug
 const CIS_SPASFON = "62998997";
 
-describe("bdpm_composant + bdpm_element parity", () => {
+describe("ansm_composant + ansm_element parity", () => {
   it("same composant count for a known CIS", async () => {
     const mysqlRows = await pdbmMySQL
       .selectFrom("Composant")
@@ -18,7 +18,7 @@ describe("bdpm_composant + bdpm_element parity", () => {
       .execute();
 
     const pgRows = await db
-      .selectFrom("bdpm_composant")
+      .selectFrom("ansm_composant")
       .where("cis", "=", CIS_SPASFON)
       .selectAll()
       .execute();
@@ -36,7 +36,7 @@ describe("bdpm_composant + bdpm_element parity", () => {
       .execute();
 
     const pgSubstances = await db
-      .selectFrom("bdpm_composant")
+      .selectFrom("ansm_composant")
       .where("cis", "=", CIS_SPASFON)
       .select("substance")
       .distinct()
@@ -56,7 +56,7 @@ describe("bdpm_composant + bdpm_element parity", () => {
       .execute();
 
     const pgElements = await db
-      .selectFrom("bdpm_element")
+      .selectFrom("ansm_element")
       .where("cis", "=", CIS_SPASFON)
       .selectAll()
       .execute();

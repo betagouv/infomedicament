@@ -1,8 +1,8 @@
 import { Specialite } from "@/db/pdbmMySQL/types";
-import { BdpmSpecialite, ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
+import { AnsmSpecialite, ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
 
-// BdpmSpecialite with computed status fields for lists (generics, ATC pages)
-export type BdpmSpecialiteWithStatus = BdpmSpecialite & {
+// AnsmSpecialite with computed status fields for lists (generics, ATC pages)
+export type AnsmSpecialiteWithStatus = AnsmSpecialite & {
   ProcId: string;
   StatutBdm: number;
 };
@@ -38,17 +38,17 @@ export type ResumeSpecialite = ResumeSpecialiteDB & {
   indicationsDetails?: ShortIndication[],
 }
 
-export type DetailedSpecialite = BdpmSpecialite & {
+export type DetailedSpecialite = AnsmSpecialite & {
   // computed from statut_amm
   statutAutorisation: string | null,
-  // computed from commercialisation
+  // computed from disponibilite
   statutComm: string | null,
-  // TODO PR4: map from bdpm_specialite fields — always null for now
+  // TODO PR4: still always null — needs query join on ansm_specialite_titulaire
   titulairesList: string | null,
   generiqueName: string | null,
   urlCentralise: string | null,
   // kept for compatibility with isAIP/isCommercialisee/isAlerteSecurite/isHomeopathie/isCentralisee
-  // computed from procedure and disponibilite/commercialisation/statut_amm
+  // computed from procedure and disponibilite/statut_amm
   ProcId: string,
   StatutBdm: number,
 }
@@ -85,6 +85,6 @@ export type GroupeGenerique = {
   libelle: string;
 }
 
-export type SpecialiteWithSubstance = BdpmSpecialite & {
+export type SpecialiteWithSubstance = AnsmSpecialite & {
   NomId: string;
 }

@@ -5,7 +5,7 @@ import { pdbmMySQL } from '../pdbmMySQL';
 import { VUEvnts } from '../pdbmMySQL/types';
 import { isSurveillanceRenforcee } from '@/utils/specialites';
 import db from '@/db';
-import { BdpmComposant } from '@/db/types';
+import { AnsmComposant } from '@/db/types';
 
 export async function getEvents(CISList: string | string[]): Promise<VUEvnts[]> {
   const allCIS: string[] = !Array.isArray(CISList) ? [CISList] : CISList;
@@ -60,14 +60,14 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
     .execute();
 
   const elementsRaw = await db
-    .selectFrom("bdpm_element")
+    .selectFrom("ansm_element")
     .where("cis", "=", CIS)
     .selectAll()
     .orderBy("numero_element")
     .execute();
 
-  const composantsRaw: BdpmComposant[] = await db
-    .selectFrom("bdpm_composant")
+  const composantsRaw: AnsmComposant[] = await db
+    .selectFrom("ansm_composant")
     .where("cis", "=", CIS)
     .selectAll()
     .execute();
