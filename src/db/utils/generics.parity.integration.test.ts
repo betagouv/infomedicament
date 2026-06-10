@@ -28,11 +28,11 @@ describe("getSubstanceSpecialitesCIS parity", () => {
       .execute();
 
     const bdpmRows = await db
-      .selectFrom("bdpm_composant")
-      .innerJoin("bdpm_specialite", "bdpm_specialite.cis", "bdpm_composant.cis")
-      .where("bdpm_composant.code_substance", "=", subsId)
-      .where("bdpm_specialite.statut_amm", "=", "ACTIVE")
-      .select("bdpm_specialite.cis")
+      .selectFrom("ansm_composant")
+      .innerJoin("ansm_specialite", "ansm_specialite.cis", "ansm_composant.cis")
+      .where("ansm_composant.code_substance", "=", subsId)
+      .where("ansm_specialite.disponibilite", "!=", "INDISPONIBLE")
+      .select("ansm_specialite.cis")
       .distinct()
       .execute();
 

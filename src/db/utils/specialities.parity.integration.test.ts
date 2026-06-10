@@ -9,8 +9,8 @@ vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
 const CIS_ACTIVE = "60234100"; // DOLIPRANE 1000 mg, comprimé
 const CIS_INACTIVE = "61933092"; // DOLIPRANE 500 mg, comprimé orodispersible (inactive)
 
-describe("bdpm_specialite parity", () => {
-  it("active count is close between MySQL (IsBdm=1) and bdpm (statut_amm=ACTIVE)", async () => {
+describe("ansm_specialite parity", () => {
+  it("active count is close between MySQL (IsBdm=1) and ansm (disponibilite!=INDISPONIBLE)", async () => {
     const mysqlResult = await pdbmMySQL
       .selectFrom("Specialite")
       .where("IsBdm", "=", 1)
@@ -18,17 +18,16 @@ describe("bdpm_specialite parity", () => {
       .executeTakeFirstOrThrow();
 
     const pgResult = await db
-      .selectFrom("bdpm_specialite")
-      .where("statut_amm", "=", "ACTIVE")
+      .selectFrom("ansm_specialite")
+      .where("disponibilite", "!=", "INDISPONIBLE")
       .select((eb) => eb.fn.countAll<number>().as("count"))
       .executeTakeFirstOrThrow();
 
-    // bdpm statut_amm='ACTIVE' is stricter than IsBdm=1: ~14.5% more drugs in bdpm
-    // (newer approvals) and ~1000 fewer in MySQL (IsBdm included abrogated drugs).
+    // disponibilite!=INDISPONIBLE is a very close equivalent of IsBdm=1 (~0.4% drift).
     // See DATA-GAPS.md #12.
     const ratio = Number(pgResult.count) / Number(mysqlResult.count);
-    expect(ratio).toBeGreaterThan(0.90);
-    expect(ratio).toBeLessThan(1.25);
+    expect(ratio).toBeGreaterThan(0.98);
+    expect(ratio).toBeLessThan(1.02);
   });
 
   it("known active CIS present and denomination matches", async () => {
@@ -39,7 +38,7 @@ describe("bdpm_specialite parity", () => {
       .executeTakeFirst();
 
     const pgSpec = await db
-      .selectFrom("bdpm_specialite")
+      .selectFrom("ansm_specialite")
       .where("cis", "=", CIS_ACTIVE)
       .select("denomination")
       .executeTakeFirst();
@@ -58,9 +57,9 @@ describe("bdpm_specialite parity", () => {
       .executeTakeFirst();
 
     const pgSpec = await db
-      .selectFrom("bdpm_specialite")
+      .selectFrom("ansm_specialite")
       .where("cis", "=", CIS_INACTIVE)
-      .where("statut_amm", "=", "ACTIVE")
+      .where("disponibilite", "!=", "INDISPONIBLE")
       .select("cis")
       .executeTakeFirst();
 
@@ -68,14 +67,14 @@ describe("bdpm_specialite parity", () => {
     expect(pgSpec).toBeUndefined();
   });
 
-  it("getNoticeRcpLastUpdated parity: bdpm_document max date is close to Document max date", async () => {
+  it("getNoticeRcpLastUpdated parity: ansm_document max date is close to Document max date", async () => {
     const mysqlResult = await pdbmMySQL
       .selectFrom("Document")
       .select((eb) => eb.fn.max("DocDateMaj").as("lastUpdated"))
       .executeTakeFirst();
 
     const pgResult = await db
-      .selectFrom("bdpm_document")
+      .selectFrom("ansm_document")
       .select((eb) => eb.fn.max("date_modification").as("lastUpdated"))
       .executeTakeFirst();
 

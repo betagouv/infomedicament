@@ -50,7 +50,7 @@ export const getSubstancesByAtc = cache(async (atc2: ATC): Promise<SubstanceNom[
   if (!CIS.length) return [];
 
   const composantRows = await db
-    .selectFrom("bdpm_composant")
+    .selectFrom("ansm_composant")
     .where("cis", "in", CIS)
     .select("code_substance")
     .distinct()
@@ -293,13 +293,13 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubsSpecs[]>
     return atc1.children.map((atc2) => ({ atc: atc2, substances: [], specialites: [] }));
   }
 
-  // Substances for each CIS via bdpm_composant → resume_substances
+  // Substances for each CIS via ansm_composant → resume_substances
   const composantRows = await db
-    .selectFrom("bdpm_composant")
-    .innerJoin("resume_substances", "resume_substances.SubsId", "bdpm_composant.code_substance")
-    .where("bdpm_composant.cis", "in", uniqueCIS)
+    .selectFrom("ansm_composant")
+    .innerJoin("resume_substances", "resume_substances.SubsId", "ansm_composant.code_substance")
+    .where("ansm_composant.cis", "in", uniqueCIS)
     .selectAll("resume_substances")
-    .select("bdpm_composant.cis as cis")
+    .select("ansm_composant.cis as cis")
     .execute();
 
   if (composantRows.length === 0) {
@@ -325,7 +325,7 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubsSpecs[]>
   const allSubsIds = [...new Set(composantRows.map((r) => r.SubsId))];
 
   const activeSubRows = await db
-    .selectFrom("bdpm_composant")
+    .selectFrom("ansm_composant")
     .where("code_substance", "is not", null)
     .select(["cis", "code_substance"])
     .distinct()
@@ -341,13 +341,13 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubsSpecs[]>
 
   const allSpecialites = allSubsIds.length > 0
     ? await db
-      .selectFrom("bdpm_composant")
-      .innerJoin("bdpm_specialite", "bdpm_specialite.cis", "bdpm_composant.cis")
-      .where("bdpm_composant.code_substance", "in", allSubsIds)
-      .where("bdpm_specialite.statut_amm", "=", "ACTIVE")
-      .where("bdpm_composant.cis", "in", [...singleSubCIS])
-      .selectAll("bdpm_specialite")
-      .select("bdpm_composant.code_substance as SubsId")
+      .selectFrom("ansm_composant")
+      .innerJoin("ansm_specialite", "ansm_specialite.cis", "ansm_composant.cis")
+      .where("ansm_composant.code_substance", "in", allSubsIds)
+      .where("ansm_specialite.disponibilite", "!=", "INDISPONIBLE")
+      .where("ansm_composant.cis", "in", [...singleSubCIS])
+      .selectAll("ansm_specialite")
+      .select("ansm_composant.code_substance as SubsId")
       .distinct()
       .execute()
     : [];

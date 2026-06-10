@@ -21,7 +21,7 @@ export type InteractionResult = {
   niveau: string | null;
   risque: string | null;
   conduite: string | null;
-  commentaire: string | null; // TODO PR4: not present in bdpm_interaction — always null
+  commentaire: string | null;
   subst1Name: string;
   subst2Name: string;
   subst1ClassName: string | null;
@@ -50,14 +50,14 @@ export async function lookupInteractions(
   const [classes1Rows, classes2Rows] = await Promise.all([
     groupIds1.length > 0
       ? db
-          .selectFrom("bdpm_classe_groupe_substance")
+          .selectFrom("ansm_classe_groupe_substance")
           .select("code_classe")
           .where("code_groupe", "in", groupIds1)
           .execute()
       : Promise.resolve([]),
     groupIds2.length > 0
       ? db
-          .selectFrom("bdpm_classe_groupe_substance")
+          .selectFrom("ansm_classe_groupe_substance")
           .select("code_classe")
           .where("code_groupe", "in", groupIds2)
           .execute()
@@ -75,13 +75,13 @@ export async function lookupInteractions(
     ids.length === 0
       ? Promise.resolve([] as { code_classe: number }[])
       : db
-          .selectFrom("bdpm_classe_interaction as a")
+          .selectFrom("ansm_classe_interaction as a")
           .select("a.code_classe")
           .where(
             sql<string>`unaccent(lower(a.nom))`,
             "in",
             db
-              .selectFrom("bdpm_classe_interaction as p")
+              .selectFrom("ansm_classe_interaction as p")
               .select(sql<string>`unaccent(lower('autres ' || p.nom))`.as("nom"))
               .where("p.code_classe", "in", ids)
               .where("p.nom", "is not", null),
@@ -92,33 +92,33 @@ export async function lookupInteractions(
   classes2 = [...new Set([...classes2, ...a2.map((r) => r.code_classe)])];
 
   const rows = (await db
-    .selectFrom("bdpm_interaction")
+    .selectFrom("ansm_interaction")
     // LEFT JOIN because when slot is class-based, code_groupe_* is null and gs1/gs2 won't match.
-    .leftJoin("bdpm_groupe_substance as gs1", "gs1.code_groupe", "bdpm_interaction.code_groupe_1")
-    .leftJoin("bdpm_groupe_substance as gs2", "gs2.code_groupe", "bdpm_interaction.code_groupe_2")
-    .leftJoin("bdpm_classe_interaction as c1", "c1.code_classe", "bdpm_interaction.code_classe_1")
-    .leftJoin("bdpm_classe_interaction as c2", "c2.code_classe", "bdpm_interaction.code_classe_2")
+    .leftJoin("ansm_groupe_substance as gs1", "gs1.code_groupe", "ansm_interaction.code_groupe_1")
+    .leftJoin("ansm_groupe_substance as gs2", "gs2.code_groupe", "ansm_interaction.code_groupe_2")
+    .leftJoin("ansm_classe_interaction as c1", "c1.code_classe", "ansm_interaction.code_classe_1")
+    .leftJoin("ansm_classe_interaction as c2", "c2.code_classe", "ansm_interaction.code_classe_2")
     .select([
-      "bdpm_interaction.niveau",
-      "bdpm_interaction.risque",
-      "bdpm_interaction.conduite",
-      sql<string | null>`NULL`.as("commentaire"), // TODO PR4: not present in bdpm_interaction
-      sql<string>`CASE WHEN bdpm_interaction.code_groupe_1 IS NOT NULL THEN gs1.nom ELSE c1.nom END`.as(
+      "ansm_interaction.niveau",
+      "ansm_interaction.risque",
+      "ansm_interaction.conduite",
+      "ansm_interaction.commentaire",
+      sql<string>`CASE WHEN ansm_interaction.code_groupe_1 IS NOT NULL THEN gs1.nom ELSE c1.nom END`.as(
         "subst1Name",
       ),
-      sql<string>`CASE WHEN bdpm_interaction.code_groupe_2 IS NOT NULL THEN gs2.nom ELSE c2.nom END`.as(
+      sql<string>`CASE WHEN ansm_interaction.code_groupe_2 IS NOT NULL THEN gs2.nom ELSE c2.nom END`.as(
         "subst2Name",
       ),
-      sql<string | null>`CASE WHEN bdpm_interaction.code_groupe_1 IS NOT NULL THEN NULL ELSE c1.nom END`.as(
+      sql<string | null>`CASE WHEN ansm_interaction.code_groupe_1 IS NOT NULL THEN NULL ELSE c1.nom END`.as(
         "subst1ClassName",
       ),
-      sql<string | null>`CASE WHEN bdpm_interaction.code_groupe_2 IS NOT NULL THEN NULL ELSE c2.nom END`.as(
+      sql<string | null>`CASE WHEN ansm_interaction.code_groupe_2 IS NOT NULL THEN NULL ELSE c2.nom END`.as(
         "subst2ClassName",
       ),
-      sql<string | null>`CASE WHEN bdpm_interaction.code_groupe_1 IS NOT NULL THEN NULL ELSE c1.description END`.as(
+      sql<string | null>`CASE WHEN ansm_interaction.code_groupe_1 IS NOT NULL THEN NULL ELSE c1.description END`.as(
         "subst1Chapeau",
       ),
-      sql<string | null>`CASE WHEN bdpm_interaction.code_groupe_2 IS NOT NULL THEN NULL ELSE c2.description END`.as(
+      sql<string | null>`CASE WHEN ansm_interaction.code_groupe_2 IS NOT NULL THEN NULL ELSE c2.description END`.as(
         "subst2Chapeau",
       ),
     ])
@@ -128,22 +128,22 @@ export async function lookupInteractions(
       const slot1Matches = (groupIds: number[], classIds: number[]) =>
         eb.or([
           ...(groupIds.length > 0
-            ? [eb("bdpm_interaction.code_groupe_1", "in", groupIds)]
+            ? [eb("ansm_interaction.code_groupe_1", "in", groupIds)]
             : []),
           ...(classIds.length > 0
-            ? [eb("bdpm_interaction.code_classe_1", "in", classIds)]
+            ? [eb("ansm_interaction.code_classe_1", "in", classIds)]
             : []),
         ]);
       const slot2Matches = (groupIds: number[], classIds: number[]) =>
         eb.or([
           ...(groupIds.length > 0
-            ? [eb("bdpm_interaction.code_groupe_2", "in", groupIds)]
+            ? [eb("ansm_interaction.code_groupe_2", "in", groupIds)]
             : []),
           ...(classIds.length > 0
-            ? [eb("bdpm_interaction.code_classe_2", "in", classIds)]
+            ? [eb("ansm_interaction.code_classe_2", "in", classIds)]
             : []),
         ]);
-      // bdpm_interaction stores interactions bidirectionally.
+      // ansm_interaction stores interactions bidirectionally.
       return eb.and([slot1Matches(groupIds1, classes1), slot2Matches(groupIds2, classes2)]);
     })
     // Sort non-"autres" rows first so deduplication keeps the forward-direction row.
