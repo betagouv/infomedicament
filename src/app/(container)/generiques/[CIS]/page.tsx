@@ -16,7 +16,7 @@ import { getSpecialiteGroupName } from "@/utils/specialites";
 import { ATCError, getAtcCode } from "@/utils/atc";
 import MedicamentGeneriqueContainer from "@/components/medicamentsGeneriques/MedicamentGeneriqueContainer";
 import { getGeneriques, getGroupeGene } from "@/db/utils/generics";
-import { BdpmSpecialiteWithStatus } from "@/types/SpecialiteTypes";
+import { AnsmSpecialiteWithStatus } from "@/types/SpecialiteTypes";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -32,7 +32,7 @@ export default async function Page(props: {
   const { specialite, composants } = await getSpecialite(group.SpecId);
   if (!specialite) notFound();
 
-  const generiques: BdpmSpecialiteWithStatus[] = await getGeneriques(CIS);
+  const generiques: AnsmSpecialiteWithStatus[] = await getGeneriques(CIS);
 
   let atcCode;
   try {

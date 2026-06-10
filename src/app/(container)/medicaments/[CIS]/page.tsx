@@ -26,8 +26,8 @@ import { getArticlesFromFilters } from "@/db/utils/articles";
 import { getFicheInfos } from "@/db/utils/ficheInfos";
 import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
-import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { getIndicationsBlock } from "@/utils/notices";
+import { AnsmComposant } from "@/db/types";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -44,7 +44,7 @@ export async function generateStaticParams() {
 async function fetchMedicamentData(
   CIS: string,
   specialite: DetailedSpecialite,
-  composants: Array<SpecComposant & SubstanceNom>,
+  composants: AnsmComposant[],
   atcList: string[],
 ) {
   const [
@@ -68,12 +68,12 @@ async function fetchMedicamentData(
   ]);
 
   const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
-    composants.some((c) => Number(c.SubsId.trim()) === Number(s.id))
+    composants.some((c) => Number(c.code_substance) === Number(s.id))
   );
   const indicationsBlock = notice && getIndicationsBlock(notice);
   const articles = await getArticlesFromFilters({
     ATCList: atcList,
-    substancesList: composants.map((c) => c.SubsId.trim()),
+    substancesList: composants.map((c) => c.code_substance ?? ''),
     specialitesList: [CIS],
     pathologiesList: specialitePathologies,
   });
@@ -98,7 +98,7 @@ export async function generateMetadata(
   const { CIS } = await props.params;
 
   const metadata = await getSpecialiteMetadata(Number(CIS.trim()));
-  if(!metadata) return notFound();
+  if (!metadata) return notFound();
 
   const name = formatSpecName(metadata.title);
   return {
@@ -184,7 +184,7 @@ export default async function Page(props: {
             ) : ""}
           className={fr.cx("fr-mb-2w")}
         />
-        <h1 
+        <h1
           className={fr.cx("fr-h2", "fr-hidden-md")}
         >
           {pageLabel}
