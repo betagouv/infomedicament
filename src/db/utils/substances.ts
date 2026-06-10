@@ -55,14 +55,20 @@ export const getAllSubsWithSpecialites = cache(async function () {
   const singleSubCIS = [...singleSubMap.keys()];
   const singleSubCodes = [...new Set(singleSubMap.values())];
 
-  // Get substance names for those codes
-  const substances = await db
-    .selectFrom("resume_substances")
-    .where("SubsId", "in", singleSubCodes)
-    .selectAll()
+  // Get substance names from ansm_composant — use code_substance as both SubsId and NomId
+  const substanceNames = await db
+    .selectFrom("ansm_composant")
+    .where("code_substance", "in", singleSubCodes)
+    .select(["code_substance", "substance"])
+    .distinct()
     .execute();
 
-  const subsIdToSub = new Map(substances.map((s) => [s.SubsId, s]));
+  const subsIdToSub = new Map(
+    substanceNames.map((s) => [
+      s.code_substance!,
+      { SubsId: s.code_substance!, NomId: s.code_substance!, NomLib: s.substance ?? "" },
+    ])
+  );
 
   // Get active specialites from those CIS
   const specialites = await db
