@@ -4,9 +4,12 @@ import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { getSubstanceDefinition, getSubstances } from "@/db/utils/substances";
-import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinitionContent";
 import { Metadata, ResolvingMetadata } from "next";
+import { getSubstances, getSubstanceDefinition } from "@/db/utils/substances";
+import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinitionContent";
+import { getArticlesFromSubstances } from "@/db/utils/articles";
+import { getResumeSpecsGroupsWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
+import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -37,6 +40,21 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   const substances: SubstanceNom[] = await getSubstances(ids) ?? [];
   if (substances.length < ids.length) return notFound();
 
+  const subsIds = substances.map((s) => s.SubsId.trim());
+
+  const [articles, definitions, CISList] = await Promise.all([
+    getArticlesFromSubstances(ids),
+    getSubstanceDefinition(ids, subsIds),
+    getSubstanceSpecialitesCIS(ids),
+  ]);
+
+  const definition = definitions.map((d) => ({ title: d.SA, desc: d.Definition }));
+
+  const allSpecsGroups = await getResumeSpecsGroupsWithCIS(CISList);
+  const dataList = allSpecsGroups.length > 0
+    ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
+    : [];
+
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
@@ -55,9 +73,12 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           />
         </div>
       </div>
-      <SubstanceDefinitionContent 
+      <SubstanceDefinitionContent
         ids={ids}
         substances={substances}
+        articles={articles}
+        definition={definition}
+        dataList={dataList}
       />
       <RatingToaster
         pageId={substances.map((s) => s.NomLib).join(", ")}

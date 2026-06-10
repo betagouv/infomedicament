@@ -11,15 +11,76 @@ import { getSpecialite } from "@/db/utils";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { getSpecialiteGroupName } from "@/utils/specialites";
+import { getSpecialiteGroupName, isCentralisee } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
 import { getSpecialiteMetadata, getSpecialiteName } from "@/db/utils/specialities";
 import MedicamentContent from "@/components/medicaments/MedicamentContent";
 import ShareButtons from "@/components/generic/ShareButtons";
-import { getSpecialitesIndications } from "@/db/utils/indications";
+import { getSpecialitesIndications, getSpecialitePathologies } from "@/db/utils/indications";
+import { getNotice } from "@/db/utils/notice";
+import { getPregnancyMentionAlert, getAllPregnancyPlanAlerts } from "@/db/utils/pregnancy";
+import { getPediatrics } from "@/db/utils/pediatrics";
+import { getMarr } from "@/db/utils/marr";
+import { getArticlesFromFilters } from "@/db/utils/articles";
+import { getFicheInfos } from "@/db/utils/ficheInfos";
+import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
+import { DetailedSpecialite } from "@/types/SpecialiteTypes";
+import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+
+async function fetchMedicamentData(
+  CIS: string,
+  specialite: DetailedSpecialite,
+  composants: Array<SpecComposant & SubstanceNom>,
+  atcList: string[],
+) {
+  const [
+    notice,
+    ficheInfos,
+    definitions,
+    pregnancyMentionAlert,
+    pediatrics,
+    marr,
+    allPregnancyPlanAlerts,
+    specialitePathologies,
+  ] = await Promise.all([
+    !isCentralisee(specialite) ? getNotice(CIS) : Promise.resolve(undefined),
+    getFicheInfos(CIS),
+    getHighlightedGlossaryDefinitions(),
+    getPregnancyMentionAlert(CIS),
+    getPediatrics(CIS),
+    getMarr(CIS),
+    getAllPregnancyPlanAlerts(),
+    getSpecialitePathologies(CIS),
+  ]);
+
+  const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
+    composants.some((c) => Number(c.SubsId.trim()) === Number(s.id))
+  );
+  // TODO: replace with getIndicationsBlock(notice) from @/utils/notices once it
+  // lands on main (currently only on the feat-metadata-v1 branch). See PR #259 review.
+  const indicationBlock = notice?.children?.find((c) => c.anchor === "Ann3bQuestceque");
+  const articles = await getArticlesFromFilters({
+    ATCList: atcList,
+    substancesList: composants.map((c) => c.SubsId.trim()),
+    specialitesList: [CIS],
+    pathologiesList: specialitePathologies,
+  });
+
+  return {
+    notice,
+    ficheInfos,
+    definitions,
+    pregnancyMentionAlert,
+    pediatrics,
+    marr,
+    pregnancyPlanAlert,
+    indicationBlock,
+    articles,
+  };
+}
 
 export async function generateMetadata(
   props: { params: Promise<{ CIS: string }> },
@@ -62,7 +123,7 @@ export default async function Page(props: {
       .where("GroupeGene.SpecId", "=", CIS)
       .executeTakeFirst());
 
-  const atcList = [];
+  const atcList: string[] = [];
   const breadcrumb = [
     { label: "Accueil", linkProps: { href: "/" } },
   ];
@@ -74,6 +135,10 @@ export default async function Page(props: {
     atcList.push(atc2.code.trim());
     breadcrumb.push({ label: atc2.label, linkProps: { href: `/atc/${atc2.code}` } });
   }
+
+  const medData = specialite
+    ? await fetchMedicamentData(CIS, specialite, composants, atcList)
+    : undefined;
 
   if (composants.length > 0) {
     breadcrumb.push({
@@ -125,7 +190,7 @@ export default async function Page(props: {
         backgroundColor:
           fr.colors.decisions.background.alt.grey.default,
       }}>
-        {!specialite ? (
+        {(!specialite || !medData) ? (
           <ContentContainer frContainer>
             Le médicament demandé n'existe pas ou il n'entre pas dans le périmètre d'Info Médicament.
           </ContentContainer>
@@ -141,6 +206,15 @@ export default async function Page(props: {
             isPrinceps={isPrinceps}
             title={pageLabel}
             indications={indications}
+            notice={medData.notice}
+            indicationsBlock={medData.indicationBlock}
+            ficheInfos={medData.ficheInfos}
+            definitions={medData.definitions}
+            pregnancyPlanAlert={medData.pregnancyPlanAlert}
+            isPregnancyMentionAlert={medData.pregnancyMentionAlert}
+            pediatrics={medData.pediatrics}
+            marr={medData.marr}
+            articles={medData.articles}
           />
         )}
       </ContentContainer>
