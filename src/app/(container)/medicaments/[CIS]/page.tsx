@@ -8,7 +8,7 @@ import {
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getAtc1, getAtc2 } from "@/db/utils/atc";
 import { getSpecialite } from "@/db/utils";
-import { pdbmMySQL } from "@/db/pdbmMySQL";
+import db from "@/db";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName, isCentralisee } from "@/utils/specialites";
@@ -110,17 +110,12 @@ export default async function Page(props: {
   const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
   const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
-  const isPrinceps =
-    !!(await pdbmMySQL
-      .selectFrom("Specialite")
-      .select("Specialite.SpecId")
-      .where("Specialite.SpecGeneId", "=", CIS)
-      .executeTakeFirst()) &&
-    !!(await pdbmMySQL
-      .selectFrom("GroupeGene")
-      .select("GroupeGene.SpecId")
-      .where("GroupeGene.SpecId", "=", CIS)
-      .executeTakeFirst());
+  const isPrinceps = !!(await db
+    .selectFrom("ansm_specialite")
+    .select("cis")
+    .where("generique", "=", CIS)
+    .limit(1)
+    .executeTakeFirst());
 
   const atcList: string[] = [];
   const breadcrumb = [
