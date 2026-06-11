@@ -34,23 +34,35 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
     }
   });
 
-  const hasSMR: Smr[] = await pdbmMySQL
-    .selectFrom("HAS_SMR")
-    .leftJoin("HAS_LiensPageCT", "HAS_LiensPageCT.CodeEvamed", "HAS_SMR.CodeEvamed")
-    .where("HAS_SMR.SpecId", "=", CIS)
-    .select(["HAS_SMR.DateAvis", "HAS_SMR.ValeurSmr", "HAS_SMR.MotifEval", "HAS_SMR.LibelleSmr"])
-    .select(["HAS_LiensPageCT.HASLiensPageCT"])
+  const hasSMR: Smr[] = await db
+    .selectFrom("smr")
+    .leftJoin("url_has", "url_has.code_ct", "smr.code_evamed")
+    .where("smr.code_cis", "=", CIS)
+    .select(["smr.date_avis_definitif", "smr.valeur_smr", "smr.motif_demande", "smr.smr", "url_has.url"])
     .distinct()
-    .execute();
+    .execute()
+    .then((rows) => rows.map((r) => ({
+      DateAvis: r.date_avis_definitif,
+      ValeurSmr: r.valeur_smr ?? '',
+      MotifEval: r.motif_demande ?? '',
+      LibelleSmr: r.smr ?? '',
+      HASLiensPageCT: r.url ?? null,
+    })));
 
-  const hasASMR: Asmr[] = await pdbmMySQL
-    .selectFrom("HAS_ASMR")
-    .leftJoin("HAS_LiensPageCT", "HAS_LiensPageCT.CodeEvamed", "HAS_ASMR.CodeEvamed")
-    .where("HAS_ASMR.SpecId", "=", CIS)
-    .select(["HAS_ASMR.DateAvis", "HAS_ASMR.ValeurAsmr", "HAS_ASMR.MotifEval", "HAS_ASMR.LibelleAsmr"])
-    .select(["HAS_LiensPageCT.HASLiensPageCT"])
+  const hasASMR: Asmr[] = await db
+    .selectFrom("asmr")
+    .leftJoin("url_has", "url_has.code_ct", "asmr.code_evamed")
+    .where("asmr.code_cis", "=", CIS)
+    .select(["asmr.date_avis_definitif", "asmr.valeur_asmr", "asmr.motif_demande", "asmr.asmr", "url_has.url"])
     .distinct()
-    .execute();
+    .execute()
+    .then((rows) => rows.map((r) => ({
+      DateAvis: r.date_avis_definitif,
+      ValeurAsmr: r.valeur_asmr ?? '',
+      MotifEval: r.motif_demande ?? '',
+      LibelleAsmr: r.asmr ?? '',
+      HASLiensPageCT: r.url ?? null,
+    })));
 
   const hasDocsBU: DocBonUsage[] = await pdbmMySQL
     .selectFrom("HAS_DocsBonUsage")

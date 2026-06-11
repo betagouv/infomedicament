@@ -29,7 +29,7 @@ function getSmrAsmrFormattedValeur(value: string) {
   return value;
 }
 
-function getSmrAsmrFormattedAvis(date?: Date, link?: string | null) {
+function getSmrAsmrFormattedAvis(date?: string | null, link?: string | null) {
   const formattedDate = date ? new Date(date) : "";
   if(formattedDate){
     if(link)
