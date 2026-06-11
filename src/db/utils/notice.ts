@@ -2,6 +2,8 @@
 
 import db from '@/db';
 import { NoticeData, NoticeRCPContentBlock } from '@/types/SpecialiteTypes';
+import { NoticeContentDB, NoticeDB } from '../types';
+import { formatNoticeDateNotif } from '@/utils/notices';
 
 async function getContent(children: number[]): Promise<any[]>{
   const childrenData = await db
@@ -48,10 +50,24 @@ export async function getNotice(CIS: string): Promise<NoticeData | undefined> {
   if(!noticeRaw) return undefined;
 
   notice.title = noticeRaw.title;
-  notice.dateNotif = noticeRaw.dateNotif?.replace("ANSM - Mis à jour le : ", "Notice mise à jour le ");
+  notice.dateNotif = formatNoticeDateNotif(noticeRaw.dateNotif);
   
   if(noticeRaw.children && noticeRaw.children.length > 0) 
     notice.children = await getContent(noticeRaw.children);
 
   return notice;
+};
+
+export async function getAllNoticesWithoutChildren(): Promise<NoticeDB[]> {
+  return await db
+    .selectFrom("notices")
+    .selectAll()
+    .execute();
+};
+
+export async function getAllNoticesContent(): Promise<NoticeContentDB[]> {
+  return await db
+    .selectFrom("notices_content")
+    .selectAll()
+    .execute();
 };

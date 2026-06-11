@@ -3,12 +3,11 @@ import { getAtc1, getAtc2, getAtc1DefinitionData, getSubstancesByAtc } from "@/d
 import { ATC, ATC1, ATCSubsSpecs } from "@/types/ATCTypes";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
-import React from "react";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import ATC1DefinitionContent from "@/components/definition/ATC1DefinitionContent";
 import ATC2DefinitionContent from "@/components/definition/ATC2DefinitionContent";
-import { ATCError } from "@/utils/atc";
+import { Metadata, ResolvingMetadata } from "next";
 import { getArticlesFromATC } from "@/db/utils/articles";
 import { groupSpecialites } from "@/utils/specialites";
 import { AdvancedATCClass } from "@/types/DataTypes";
@@ -19,6 +18,31 @@ import { ArticleCardResume } from "@/types/ArticlesTypes";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+
+export async function generateMetadata(
+  props: { params: Promise<{ code: string }> },
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  
+  const { code } = await props.params;
+
+  const atc1 = await getAtc1(code);
+  const atc2 = code.length === 3 ? await getAtc2(code) : undefined;
+
+  if (!atc1 && !atc2) notFound();
+  let title = "";
+  if(atc2) {
+    title += atc2.label + (atc1 && ' - ');
+  } 
+  if(atc1) {
+    title += atc1.label;
+  }
+
+  return {
+    title: `${title} - ${(await parent).title?.absolute}`,
+    description: atc2 ? atc2.description : atc1 ? atc1.description : "",
+  };
+};
 
 async function fetchATC1Data(atc1: ATC1): Promise<{ articles: ArticleCardResume[]; dataList: AdvancedATCClass[] }> {
   const [articles, allATC] = await Promise.all([
@@ -55,14 +79,8 @@ export default async function Page(props: {
 }) {
   const { code } = await props.params;
 
-  let atc1, atc2;
-  try {
-    atc1 = code ? await getAtc1(code) : undefined;
-    atc2 = code && code.length === 3 ? await getAtc2(code) : undefined;
-  } catch (e) {
-    if (e instanceof ATCError) notFound();
-    throw e;
-  }
+  const atc1 = await getAtc1(code);
+  const atc2 = code.length === 3 ? await getAtc2(code) : undefined;
   const currentAtc = atc2 || atc1 || undefined;
 
   if (!currentAtc || !atc1) notFound();
