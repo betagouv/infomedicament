@@ -77,11 +77,6 @@ export function displayCompleteComposants(composants: AnsmComposant[]): string {
     .join("; ");
 }
 
-export function groupGeneNameToDCI(name: string): string {
-  const regexMatch = name.match(/^[^\-]+/);
-  return regexMatch ? regexMatch[0].trim() : name;
-}
-
 export function dateShortFormat(date: Date): string {
   return date.toLocaleDateString("fr-FR", {
     year: "numeric",
