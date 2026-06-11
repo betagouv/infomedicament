@@ -27,14 +27,14 @@ export type ElementComposition = {
 }
 
 export type Smr = {
-  DateAvis: Date;
+  DateAvis: string | null;
   ValeurSmr: string;
   MotifEval: string;
   LibelleSmr: string;
   HASLiensPageCT: string | null;
 }
 export type Asmr = {
-  DateAvis: Date;
+  DateAvis: string | null;
   ValeurAsmr: string;
   MotifEval: string;
   LibelleAsmr: string;
