@@ -59,21 +59,40 @@ function statutAmmToLibCourt(statut: string | null): string | null {
 
 export const getDetailedSpecialite = cache(
   async (CIS: string): Promise<DetailedSpecialite | undefined> => {
-    const row = await db
-      .selectFrom("ansm_specialite")
-      .where("cis", "=", CIS)
-      .where("disponibilite", "!=", "INDISPONIBLE")
-      .selectAll()
-      .executeTakeFirst();
+    const [row, titulaires] = await Promise.all([
+      db
+        .selectFrom("ansm_specialite")
+        .where("cis", "=", CIS)
+        .where("disponibilite", "!=", "INDISPONIBLE")
+        .selectAll()
+        .executeTakeFirst(),
+      db
+        .selectFrom("ansm_specialite_titulaire")
+        .where("cis", "=", CIS)
+        .select("raison_sociale")
+        .execute(),
+    ]);
 
     if (!row) return undefined;
+
+    const titulairesList = titulaires.length > 0
+      ? titulaires.map((t) => t.raison_sociale).filter(Boolean).join(", ")
+      : null;
+
+    const generiqueName = row.generique
+      ? (await db
+          .selectFrom("ansm_specialite")
+          .where("cis", "=", row.generique)
+          .select("denomination")
+          .executeTakeFirst())?.denomination ?? null
+      : null;
 
     return {
       ...row,
       statutAutorisation: statutAmmToLibCourt(row.statut_amm),
       statutComm: row.disponibilite === "DISPONIBLE" ? "Commercialisée" : "Non communiquée",
-      titulairesList: null,   // TODO PR4: join ansm_specialite_titulaire
-      generiqueName: null,    // TODO PR4: generics still on MySQL
+      titulairesList,
+      generiqueName,
       urlCentralise: null,    // TODO PR4: VUEmaEpar has no bdpm equivalent
       ProcId: row.procedure?.toString() ?? '',
       StatutBdm: computeStatutBdm(row),

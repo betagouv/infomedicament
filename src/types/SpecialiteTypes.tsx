@@ -43,7 +43,6 @@ export type DetailedSpecialite = AnsmSpecialite & {
   statutAutorisation: string | null,
   // computed from disponibilite
   statutComm: string | null,
-  // TODO PR4: still always null — needs query join on ansm_specialite_titulaire
   titulairesList: string | null,
   generiqueName: string | null,
   urlCentralise: string | null,
