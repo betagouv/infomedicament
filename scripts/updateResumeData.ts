@@ -1,7 +1,6 @@
 import db from "@/db";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { AnsmSpecialite, Letters, LetterType, Indication, ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
-import { groupGeneNameToDCI } from "@/displayUtils";
 import { getComposants } from "@/db/utils/composants";
 import { getEvents } from "@/db/utils/ficheInfos";
 import { getSpecialitesIndications } from "@/db/utils/indications";
@@ -208,27 +207,35 @@ async function createResumeGeneriques(): Promise<string[]> {
     .deleteFrom('resume_generiques')
     .execute();
 
-  const allGenerics = await pdbmMySQL
-    .selectFrom("Specialite")
-    .innerJoin("GroupeGene", "Specialite.SpecGeneId", "GroupeGene.SpecId")
-    .where("Specialite.ProcId", "!=", "50") //Not AIP
-    .where("Specialite.IsBdm", "=", 1)
-    .select(["Specialite.SpecGeneId", "GroupeGene.LibLong"])
-    .groupBy(["GroupeGene.LibLong", "GroupeGene.SpecId"])
-    .orderBy("GroupeGene.LibLong")
+  // Collect distinct princeps CIS codes from active, non-AIP generics
+  const principeCIS = await db
+    .selectFrom("ansm_specialite")
+    .where("generique", "is not", null)
+    .where("disponibilite", "!=", "INDISPONIBLE")
+    .where("procedure", "!=", 50) // exclude AIP
+    .select("generique")
+    .distinct()
+    .execute()
+    .then((rows) => rows.map((r) => r.generique!));
+
+  const princepsRows = await db
+    .selectFrom("ansm_specialite")
+    .where("cis", "in", principeCIS)
+    .select(["cis", "denomination"])
+    .orderBy("denomination")
     .execute();
 
   const letters: string[] = [];
-  const resumeData: ResumeGeneric[] = allGenerics
-    .map((generic) => {
-      const genericName: string = formatSpecName(groupGeneNameToDCI(generic.LibLong));
-      const subLetter = getNormalizeLetter(genericName.substring(0, 1));
-      if (!letters.includes(subLetter)) letters.push(subLetter);
-      return {
-        SpecId: generic.SpecGeneId,
-        SpecName: genericName,
-      }
-    });
+  const resumeData: ResumeGeneric[] = princepsRows.map((row) => {
+    const genericName = formatSpecName(getSpecialiteGroupName(row.denomination ?? ''));
+    const subLetter = getNormalizeLetter(genericName.substring(0, 1));
+    if (!letters.includes(subLetter)) letters.push(subLetter);
+    return {
+      SpecId: row.cis,
+      SpecName: genericName,
+    };
+  });
+
   const result = await db
     .insertInto('resume_generiques')
     .values(resumeData)

@@ -1,8 +1,5 @@
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import {
-  getSpecialite,
-  groupGeneNameToDCI,
-} from "@/db/utils";
+import { getSpecialite } from "@/db/utils";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import React from "react";
@@ -51,8 +48,8 @@ export default async function Page(props: {
   //if (!atcCode) throw new ATCError(CIS);
   const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
-  const pageLabel = formatSpecName(groupGeneNameToDCI(group.LibLong));
-  const groupName = getSpecialiteGroupName(groupGeneNameToDCI(group.LibLong));
+  const pageLabel = formatSpecName(group.LibLong);
+  const groupName = getSpecialiteGroupName(group.LibLong);
 
   return (
     <>
