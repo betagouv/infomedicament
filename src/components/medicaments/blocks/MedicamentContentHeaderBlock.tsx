@@ -156,11 +156,11 @@ function MedicamentContentHeaderBlock({
           />
           <div>
             Ce médicament est mis sur le marché en France en tant qu'importation parallèle
-            {(specialite.generiqueName && specialite.SpecGeneId) && (
+            {(specialite.generiqueName && specialite.generique) && (
               <>
                 {" "}du médicament{" "}
                 <Link
-                  href={`/medicaments/${specialite.SpecGeneId}`}
+                  href={`/medicaments/${specialite.generique}`}
                   aria-description="Lien vers le médicament"
                 >
                   {specialite.generiqueName}

@@ -4,8 +4,8 @@ import { cache } from "react";
 import { ResumeGeneric } from "../types";
 import db from "..";
 import { sql } from "kysely";
-import { pdbmMySQL } from "../pdbmMySQL";
-import { Specialite } from "../pdbmMySQL/types";
+import { AnsmSpecialiteWithStatus } from "@/types/SpecialiteTypes";
+import { computeStatutBdm } from "@/utils/specialites";
 
 export const getGenericsResumeWithLetter = cache(async function(letter: string): Promise<ResumeGeneric[]> {
   const result:ResumeGeneric[] = await db
@@ -20,22 +20,38 @@ export const getGenericsResumeWithLetter = cache(async function(letter: string):
   return result;
 });
 
-export async function getGroupeGene(CIS: string) {
-  return pdbmMySQL
-    .selectFrom("GroupeGene")
-    .where("SpecId", "=", CIS)
-    .selectAll("GroupeGene")
+export async function getGroupeGene(CIS: string): Promise<{ SpecId: string; LibLong: string } | undefined> {
+  const princeps = await db
+    .selectFrom("ansm_specialite")
+    .where("cis", "=", CIS)
+    .select(["cis", "denomination"])
     .executeTakeFirst();
+
+  if (!princeps?.denomination) return undefined;
+
+  const hasGenerics = await db
+    .selectFrom("ansm_specialite")
+    .where("generique", "=", CIS)
+    .select("cis")
+    .limit(1)
+    .executeTakeFirst();
+
+  if (!hasGenerics) return undefined;
+
+  return { SpecId: CIS, LibLong: princeps.denomination };
 }
 
-export async function getGeneriques(CIS: string): Promise<Specialite[]> {
-  return (
-    pdbmMySQL
-      .selectFrom("Specialite")
-      .where("SpecGeneId", "=", CIS)
-      .where("SpecId", "!=", CIS)
-      .where("IsBdm", "=", 1)
-      .selectAll()
-      .execute()
-  );
+export async function getGeneriques(CIS: string): Promise<AnsmSpecialiteWithStatus[]> {
+  const rows = await db
+    .selectFrom("ansm_specialite")
+    .where("generique", "=", CIS)
+    .where("disponibilite", "!=", "INDISPONIBLE")
+    .selectAll()
+    .execute();
+
+  return rows.map((row) => ({
+    ...row,
+    StatutBdm: computeStatutBdm(row),
+    ProcId: row.procedure?.toString() ?? "",
+  }));
 }

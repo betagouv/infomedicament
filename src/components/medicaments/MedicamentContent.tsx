@@ -1,7 +1,8 @@
 "use client";
 
 import ContentContainer from "../generic/ContentContainer";
-import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecDelivrance } from "@/db/pdbmMySQL/types";
+import { AnsmComposant } from "@/db/types";
 import { HTMLAttributes, lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Marr } from "@/types/MarrTypes";
 import { ATC } from "@/types/ATCTypes";
@@ -25,7 +26,7 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   atc2?: ATC;
   atcCode?: string;
   specialite?: DetailedSpecialite;
-  composants: Array<SpecComposant & SubstanceNom>;
+  composants: AnsmComposant[];
   isPrinceps: boolean;
   delivrance: SpecDelivrance[];
   presentations: Presentation[];

@@ -1,19 +1,21 @@
 import { Specialite, VUEvnts } from "@/db/pdbmMySQL/types";
+import { AnsmSpecialite } from "@/db/types";
 import { ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
 import { MedicamentGroup } from "@/displayUtils";
 import { ShortIndication } from "@/types/IndicationsTypes";
-import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite, ShortSpecialite } from "@/types/SpecialiteTypes";
+import { AnsmSpecialiteWithStatus, DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite, ShortSpecialite } from "@/types/SpecialiteTypes";
 
 export function getSpecialiteGroupName(
-  specialite: Specialite | string,
+  specialite: Specialite | AnsmSpecialite | string,
 ): string {
-  const specName =
-    typeof specialite === "string" ? specialite : specialite.SpecDenom01;
+  const specName = typeof specialite === "string" ? specialite
+    : "SpecDenom01" in specialite ? specialite.SpecDenom01
+    : specialite.denomination ?? "";
   const regexMatch = specName.match(/^[^0-9,]+/);
   return (regexMatch ? regexMatch[0] : specName).trim();
 }
 
-export function groupSpecialites<T extends Specialite>(
+export function groupSpecialites<T extends Specialite | AnsmSpecialite>(
   specialites: T[],
   isSort?: boolean,
 ): MedicamentGroup<T>[] {
@@ -41,22 +43,29 @@ export function isCentralisee(
   return false;
 };
 
+// TODO PR4: verify mapping — ALERTE→3, INDISPONIBLE→2 (see DATA-GAPS.md #7).
+export function computeStatutBdm(row: { disponibilite: string | null }): number {
+  if (row.disponibilite === "ALERTE") return 3;
+  if (row.disponibilite === "INDISPONIBLE") return 2;
+  return 1;
+}
+
 export function isCommercialisee(
-  specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite
+  specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite | AnsmSpecialiteWithStatus
 ): boolean {
   if(specialite.StatutBdm.toString() === "2") return false;
   return true;
 };
 
 export function isAIP(
-  specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite
+  specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite | AnsmSpecialiteWithStatus
 ): boolean {
   if(specialite.ProcId && specialite.ProcId === "50") return true;
   return false;
 };
 
 export function isAlerteSecurite(
-  specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite
+  specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite | AnsmSpecialiteWithStatus
 ): boolean {
   if(specialite.StatutBdm.toString() === "3") return true;
   return false;

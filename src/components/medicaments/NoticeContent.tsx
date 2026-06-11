@@ -5,7 +5,8 @@ import TagContainer from "../tags/TagContainer";
 import ClassTag from "../tags/ClassTag";
 import { fr } from "@codegouvfr/react-dsfr";
 import SubstanceTag from "../tags/SubstanceTag";
-import { SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecDelivrance } from "@/db/pdbmMySQL/types";
+import { AnsmComposant } from "@/db/types";
 import PrescriptionTag from "../tags/PrescriptionTag";
 import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "./notice/PresentationsList";
@@ -80,7 +81,7 @@ interface NoticeContentProps extends HTMLAttributes<HTMLDivElement> {
   atcList: string[];
   atc2?: ATC;
   specialite?: DetailedSpecialite;
-  composants: Array<SpecComposant & SubstanceNom>;
+  composants: AnsmComposant[];
   isPrinceps: boolean;
   delivrance: SpecDelivrance[];
   pregnancyPlanAlert: PregnancyAlert | undefined;
@@ -159,7 +160,7 @@ function NoticeContent({
     setHitsLoading(true);
     setNoticeHits(null);
     if (question.queryText && specialite) {
-      const res = await fetch(`/medicaments/${specialite.SpecId}/notice-search?q=${encodeURIComponent(question.queryText)}`);
+      const res = await fetch(`/medicaments/${specialite.cis}/notice-search?q=${encodeURIComponent(question.queryText)}`);
       const data = await res.json();
       setNoticeHits(data.hits ?? []);
     }
@@ -171,7 +172,7 @@ function NoticeContent({
     setActiveQuestion(null);
     setHitsLoading(true);
     setNoticeHits(null);
-    const res = await fetch(`/medicaments/${specialite.SpecId}/notice-search?q=${encodeURIComponent(query)}`);
+    const res = await fetch(`/medicaments/${specialite.cis}/notice-search?q=${encodeURIComponent(query)}`);
     const data = await res.json();
     setNoticeHits(data.hits ?? []);
     setHitsLoading(false);
@@ -238,7 +239,7 @@ function NoticeContent({
           )}
           <ContentContainer whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
             {(atc2 || 
-              (specialite && !isAIP(specialite) && (isPrinceps || !!specialite.SpecGeneId)) 
+              (specialite && !isAIP(specialite) && (isPrinceps || (!!specialite.generique && !!specialite.generiqueName))) 
               || !!delivrance.length) && (
               <TagContainer>
                 <DetailsContainer>
@@ -250,16 +251,16 @@ function NoticeContent({
                   )}
                   {(specialite && isPrinceps && !isAIP(specialite)) && (
                     <GenericPrincepsTag
-                      id={specialite.SpecId}
+                      id={specialite.cis}
                       type="princeps"
                       fromMedicament
                       hideIcon
                       noLink
                     />
                   )}
-                  {(specialite && !!specialite.SpecGeneId && !isAIP(specialite)) && (
+                  {(specialite && !!specialite.generique && !!specialite.generiqueName && !isAIP(specialite)) && (
                     <GenericPrincepsTag
-                      id={specialite.SpecGeneId}
+                      id={String(specialite.generique)}
                       type="generic"
                       fromMedicament
                       hideIcon
@@ -308,11 +309,6 @@ function NoticeContent({
                   <span className={fr.cx("fr-text--sm", "fr-mb-0")}> 
                     {specialite.statutAutorisation}
                   </span>
-                  {(specialite.StatId && Number(specialite.StatId) === SpecialiteStat.Abrogée && specialite.SpecStatDate) && (
-                    <span className={fr.cx("fr-text--sm", "fr-mb-0")}>
-                      {" "}le {(specialite.SpecStatDate).toLocaleDateString('fr-FR')}
-                    </span>
-                  )}
                 </span>
               ) : (
                 <span>Non communiqué</span>
@@ -323,9 +319,9 @@ function NoticeContent({
               inLine
               hideSeparator
             >
-              {(specialite && specialite.SpecDateAMM) ? (
+              {(specialite && specialite.date_amm) ? (
                 <span className={fr.cx("fr-text--sm", "fr-mb-0")}>
-                  {(specialite.SpecDateAMM).toLocaleDateString('fr-FR')}
+                  {(specialite.date_amm).toLocaleDateString('fr-FR')}
                 </span>
               ) : (
                 <span>Non communiquée</span>

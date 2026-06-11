@@ -3,35 +3,32 @@ import "server-cli-only";
 
 import { cache } from "react";
 import {
-  SpecComposant,
   SpecDelivrance,
   Specialite,
-  SubstanceNom,
 } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { sql } from "kysely";
 import db from "@/db";
 import { getFullPresentations } from "@/db/utils/presentation";
 import { unstable_cache } from "next/cache";
-import { withSubstances } from "./query";
 import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
-import { formatSpecialitesResume, formatSpecialitesResumeFromGroups } from "@/utils/specialites";
+import { computeStatutBdm, formatSpecialitesResume, formatSpecialitesResumeFromGroups } from "@/utils/specialites";
 
 export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
-  const result = await pdbmMySQL
-    .selectFrom("Document")
-    .select((eb) => eb.fn.max("DocDateMaj").as("lastUpdated"))
+  const result = await db
+    .selectFrom("ansm_document")
+    .select((eb) => eb.fn.max("date_modification").as("lastUpdated"))
     .executeTakeFirst();
 
   return result?.lastUpdated ?? null;
 }
 
 export const getMarketedMedicamentCount = unstable_cache(async function(): Promise<number> {
-  const result = await pdbmMySQL
-    .selectFrom("Specialite")
-    .where("Specialite.IsBdm", "=", 1)
+  const result = await db
+    .selectFrom("ansm_specialite")
+    .where("disponibilite", "!=", "INDISPONIBLE")
     .select((eb) => eb.fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 
@@ -39,57 +36,74 @@ export const getMarketedMedicamentCount = unstable_cache(async function(): Promi
 }, ["marketed-medicament-count"], { revalidate: 3600 });
 
 export async function getSpecialiteName(CIS: string): Promise<string> {
-  const result = await pdbmMySQL
-    .selectFrom("Specialite")
-    .where("SpecId", "=", CIS)
-    .select("SpecDenom01")
+  const result = await db
+    .selectFrom("ansm_specialite")
+    .where("cis", "=", CIS)
+    .select("denomination")
     .executeTakeFirst();
 
-  return result ? result.SpecDenom01 : "";
+  return result?.denomination ?? "";
+}
+
+function statutAmmToLibCourt(statut: string | null): string | null {
+  switch (statut) {
+    case "ACTIVE":    return "Valide";
+    case "ABROGEE":   return "Abrogée";
+    case "SUSPENDUE": return "Suspendue";
+    case "RETIREE":   return "Retirée";
+    case "INACTIVE":  return "Archivée";
+    default:          return null;
+  }
 }
 
 export const getDetailedSpecialite = cache(
-  async (
-    CIS: string
-  ) : Promise<DetailedSpecialite | undefined> => {
-  const specialite: DetailedSpecialite | undefined = await pdbmMySQL
-    .selectFrom("Specialite")
-    .leftJoin("StatutAdm", "StatutAdm.StatId", "Specialite.StatId")
-    .leftJoin("StatutComm", "StatutComm.CommId", "Specialite.CommId")
-    .leftJoin("Spec_Titu", "Spec_Titu.SpecId", "Specialite.SpecId")
-    .leftJoin("Titulaire", "Titulaire.TituId", "Spec_Titu.TituId")
-    .leftJoin ("Specialite as GenSpecialite", "GenSpecialite.SpecId", "Specialite.SpecGeneId")
-    .where("Specialite.SpecId", "=", CIS)
-    .where("Specialite.IsBdm", "=", 1)
-    .selectAll("Specialite")
-    .select("StatutAdm.StatLibCourt as statutAutorisation")
-    .select("StatutComm.CommLibCourt as statutComm")
-    .select("GenSpecialite.SpecDenom01 as generiqueName")
-    .select(({ selectFrom }) => [
-      selectFrom("VUEmaEpar")
-        .whereRef("Specialite.SpecId", "=", "VUEmaEpar.SpecId")
-        .select("VUEmaEpar.UrlEpar")
-        .limit(1)
-        .as("urlCentralise")
-    ]) // Il n'y en a qu'un
-    .select(({ fn }) => [
-      fn<string>("GROUP_CONCAT", ["Titulaire.TituRSLong"]).as("titulairesList"),
-    ])
-    .groupBy(["Specialite.SpecId"]) //Nécessaire pour le JSON_ARRAYAGG
-    .distinct()
-    .executeTakeFirst();
+  async (CIS: string): Promise<DetailedSpecialite | undefined> => {
+    const [row, titulaires] = await Promise.all([
+      db
+        .selectFrom("ansm_specialite")
+        .where("cis", "=", CIS)
+        .where("disponibilite", "!=", "INDISPONIBLE")
+        .selectAll()
+        .executeTakeFirst(),
+      db
+        .selectFrom("ansm_specialite_titulaire")
+        .where("cis", "=", CIS)
+        .select("raison_sociale")
+        .execute(),
+    ]);
 
-  return specialite;
-});
+    if (!row) return undefined;
+
+    const titulairesList = titulaires.length > 0
+      ? titulaires.map((t) => t.raison_sociale).filter(Boolean).join(", ")
+      : null;
+
+    const generiqueName = row.generique
+      ? (await db
+          .selectFrom("ansm_specialite")
+          .where("cis", "=", row.generique)
+          .select("denomination")
+          .executeTakeFirst())?.denomination ?? null
+      : null;
+
+    return {
+      ...row,
+      statutAutorisation: statutAmmToLibCourt(row.statut_amm),
+      statutComm: row.disponibilite === "DISPONIBLE" ? "Commercialisée" : "Non communiquée",
+      titulairesList,
+      generiqueName,
+      urlCentralise: null,    // TODO PR4: VUEmaEpar has no bdpm equivalent
+      ProcId: row.procedure?.toString() ?? '',
+      StatutBdm: computeStatutBdm(row),
+    };
+  }
+);
 
 export const getSpecialite = cache(async (CIS: string) => {
 
   const specialite: DetailedSpecialite | undefined = await getDetailedSpecialite(CIS);
 
-  const composants: Array<SpecComposant & SubstanceNom> = 
-    specialite 
-      ? await getComposants(CIS)
-      : [];
+  const composants = specialite ? await getComposants(CIS) : [];
 
   const presentations: Presentation[] = 
     specialite 
@@ -120,12 +134,11 @@ export const getSpecialite = cache(async (CIS: string) => {
 });
 
 export const getAllSpecialites = cache(async function () {
-  return await pdbmMySQL
-    .selectFrom("Specialite")
-    .where("Specialite.IsBdm", "=", 1)
+  return await db
+    .selectFrom("ansm_specialite")
+    .where("disponibilite", "!=", "INDISPONIBLE")
     .selectAll()
-    .distinct()
-    .orderBy("SpecDenom01")
+    .orderBy("denomination")
     .execute();
 })
 
@@ -197,14 +210,31 @@ export const getResumeSpecsGroupsWithCISSubsIds = cache(
 
 export const getSubstanceSpecialites = unstable_cache(async function (
   subsNomsIDs: (string | string[])
-): Promise<Specialite[]> {
+) {
   const ids: string[] = !Array.isArray(subsNomsIDs) ? [subsNomsIDs] : subsNomsIDs;
-  return pdbmMySQL
-    .selectFrom("Specialite")
-    .selectAll("Specialite")
-    .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
-    .where("Specialite.IsBdm", "=", 1)
-    .groupBy("Specialite.SpecId")
+  const subsData = await db
+    .selectFrom("resume_substances")
+    .where("NomId", "in", ids)
+    .select("SubsId")
+    .execute();
+  const subsIds = subsData.map((r) => r.SubsId);
+  if (subsIds.length === 0) return [];
+
+  const cisList = await db
+    .selectFrom("ansm_composant")
+    .where("code_substance", "in", subsIds)
+    .groupBy("cis")
+    .having((eb) => eb(eb.fn.countAll(), ">=", eb.val(subsIds.length)))
+    .select("cis")
+    .execute();
+  const cisCodes = cisList.map((r) => r.cis);
+  if (cisCodes.length === 0) return [];
+
+  return db
+    .selectFrom("ansm_specialite")
+    .where("cis", "in", cisCodes)
+    .where("disponibilite", "!=", "INDISPONIBLE")
+    .selectAll()
     .execute();
 },
   ["substance-specialites"],
@@ -215,14 +245,24 @@ export const getSubstanceSpecialitesCIS = unstable_cache(async function (
   subsNomsIDs: (string | string[])
 ): Promise<string[]> {
   const ids: string[] = !Array.isArray(subsNomsIDs) ? [subsNomsIDs] : subsNomsIDs;
-  const rawCISList = await pdbmMySQL
-    .selectFrom("Specialite")
-    .select("Specialite.SpecId")
-    .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
-    .where("Specialite.IsBdm", "=", 1)
-    .groupBy("Specialite.SpecId")
+  const subsData = await db
+    .selectFrom("resume_substances")
+    .where("NomId", "in", ids)
+    .select("SubsId")
     .execute();
-  return rawCISList.map((CIS) => CIS.SpecId);
+  const subsIds = subsData.map((r) => r.SubsId);
+  if (subsIds.length === 0) return [];
+
+  const cisList = await db
+    .selectFrom("ansm_composant")
+    .innerJoin("ansm_specialite", "ansm_specialite.cis", "ansm_composant.cis")
+    .where("ansm_composant.code_substance", "in", subsIds)
+    .where("ansm_specialite.disponibilite", "!=", "INDISPONIBLE")
+    .groupBy("ansm_composant.cis")
+    .having((eb) => eb(eb.fn.countAll(), ">=", eb.val(subsIds.length)))
+    .select("ansm_composant.cis")
+    .execute();
+  return cisList.map((r) => r.cis);
 },
   ["substance-specialites-cis"],
   { revalidate: 3600 } // cache for one hour

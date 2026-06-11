@@ -1,0 +1,47 @@
+import { describe, it, expect } from "vitest";
+import { vi } from "vitest";
+vi.mock("server-only", () => ({}));
+vi.mock("server-cli-only", () => ({}));
+vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
+
+import { pdbmMySQL } from "@/db/pdbmMySQL";
+import db from "@/db";
+
+describe("getSubstanceSpecialitesCIS parity", () => {
+  it("same CIS set for a known NomId (single substance)", async () => {
+    const sample = await db
+      .selectFrom("resume_substances")
+      .select(["NomId", "SubsId"])
+      .limit(1)
+      .executeTakeFirstOrThrow();
+
+    const nomId = sample.NomId;
+    const subsId = sample.SubsId;
+
+    const mysqlRows = await pdbmMySQL
+      .selectFrom("Specialite")
+      .innerJoin("Composant", "Specialite.SpecId", "Composant.SpecId")
+      .where("Composant.NomId", "=", nomId)
+      .where("Specialite.IsBdm", "=", 1)
+      .select("Specialite.SpecId")
+      .distinct()
+      .execute();
+
+    const bdpmRows = await db
+      .selectFrom("ansm_composant")
+      .innerJoin("ansm_specialite", "ansm_specialite.cis", "ansm_composant.cis")
+      .where("ansm_composant.code_substance", "=", subsId)
+      .where("ansm_specialite.disponibilite", "!=", "INDISPONIBLE")
+      .select("ansm_specialite.cis")
+      .distinct()
+      .execute();
+
+    const mysqlCIS = new Set(mysqlRows.map((r) => r.SpecId));
+    const bdpmCIS = new Set(bdpmRows.map((r) => r.cis));
+
+    // bdpm may include newer drugs absent from the MySQL snapshot — check MySQL is a subset
+    for (const cis of mysqlCIS) {
+      expect(bdpmCIS.has(cis), `CIS ${cis} present in MySQL IsBdm=1 but missing from bdpm ACTIVE`).toBe(true);
+    }
+  });
+});
