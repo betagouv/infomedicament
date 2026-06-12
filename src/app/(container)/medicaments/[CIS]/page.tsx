@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
@@ -29,6 +31,22 @@ import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+export const revalidate = 86400; // 24h ISR: refresh top-500 between deploys
+
+// Prerender the top ~500 medicaments at build time so they are served as static
+// HTML before the first request. Other CIS are still rendered on-demand
+// (dynamicParams = true). The list is curated in scripts/seed_cis_codes.txt.
+export async function generateStaticParams() {
+  const file = readFileSync(
+    join(process.cwd(), "scripts/seed_cis_codes.txt"),
+    "utf8",
+  );
+  return file
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((CIS) => ({ CIS }));
+}
 
 async function fetchMedicamentData(
   CIS: string,
