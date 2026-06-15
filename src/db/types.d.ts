@@ -3,6 +3,7 @@ import { Selectable } from "kysely";
 
 export interface Database {
   search_index: SearchIndexTable;
+  search_synonyms: SearchSynonymsTable;
   leaflet_images: LeafletImagesTable;
   presentations: PresentationTable;
   rcp: RcpTable;
@@ -50,6 +51,12 @@ interface SearchIndexTable {
   group_name: string;
   match_label: string;
   spec_id?: string | null;
+}
+
+interface SearchSynonymsTable {
+  id: Generated<number>;
+  alias: string; // lay term, stored normalized (lowercase, unaccented)
+  canonical: string; // medical term, accented form; normalized at query time
 }
 
 interface LeafletImagesTable {
@@ -421,6 +428,7 @@ interface IndicationsTable {
 
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
+export type SearchSynonym = Selectable<SearchSynonymsTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
 export type RCPContent = Selectable<RcpContentTable>;
 export type Rating = Selectable<RatingTable>;

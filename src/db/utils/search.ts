@@ -8,6 +8,7 @@ import { unstable_cache } from "next/cache";
 import { getResumeSpecsATCLabels } from "@/db/utils/atc";
 import { formatSpecialitesResume } from "@/utils/specialites";
 import { computeSortScore } from "./searchScoring";
+import { expandQuery, getSynonymMap } from "./searchSynonyms";
 import { MatchReason, SearchResultItem } from "@/types/SearchTypes";
 
 
@@ -23,29 +24,42 @@ export const getSearchResults = unstable_cache(async function (
   // Normalize to lowercase+unaccented to match how tokens are stored in the index
   const normalizedQuery = query.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 
+  // Expand with curated synonyms: a lay term ("mal de tête") adds its canonical
+  // medical term ("céphalées") as an extra search term. Additive — no synonym match
+  // leaves terms = [normalizedQuery], i.e. unchanged behaviour.
+  const terms = expandQuery(normalizedQuery, await getSynonymMap());
+
+  // Each match's similarity is the best (GREATEST) word_similarity across all terms,
+  // so a synonym-driven hit scores against its canonical term, not the lay query.
+  const smlExpr = sql<number>`greatest(${sql.join(
+    terms.map((term) => sql`word_similarity(${term}, token)`),
+  )})`;
+
   const matches = (await db
     .selectFrom("search_index")
     .selectAll()
-    .select(({ fn, val }) => [
-      fn("word_similarity", [val(normalizedQuery), "token"]).as("sml"),
-    ])
+    .select(smlExpr.as("sml"))
     .where((eb) => {
-      if (normalizedQuery.length <= 3) {
-        // for very short queries, only match from the beginning to limit the number of results
-        // also, we only match specialities
-        return eb.and([
-          eb("token", "like", `${normalizedQuery}%`),
-          eb("match_type", "=", "name"),
+      // Same tiered matching as before, applied per term and OR-ed together.
+      const termPredicate = (term: string) => {
+        if (term.length <= 3) {
+          // for very short queries, only match from the beginning to limit the number of results
+          // also, we only match specialities
+          return eb.and([
+            eb("token", "like", `${term}%`),
+            eb("match_type", "=", "name"),
+          ]);
+        }
+        if (term.length <= 5) {
+          // if the query is short, we only do ilike search to avoid too many results
+          return eb("token", "like", `%${term}%`);
+        }
+        return eb.or([
+          sql<boolean>`token %> ${term}`, // fuzzy-search using pg_trgm
+          eb("token", "like", `%${term}%`), // exact match
         ]);
-      }
-      if (normalizedQuery.length <= 5) {
-        // if the query is short, we only do ilike search to avoid too many results
-        return eb("token", "like", `%${normalizedQuery}%`);
-      }
-      return eb.or([
-        sql<boolean>`token %> ${normalizedQuery}`, // fuzzy-search using pg_trgm
-        eb("token", "like", `%${normalizedQuery}%`), // exact match
-      ])
+      };
+      return eb.or(terms.map(termPredicate));
     })
     .orderBy("sml", "desc")
     .orderBy(({ fn }) => fn("length", ["token"]))

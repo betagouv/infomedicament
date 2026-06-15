@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { getSearchResults } from "./search";
 import { computeSortScore } from "./searchScoring";
+import { getSynonymMap } from "./searchSynonyms";
 import { getResumeSpecsATCLabels } from "./atc";
 import { formatSpecialitesResume } from "@/utils/specialites";
 import { MatchReason } from "@/types/SearchTypes";
@@ -40,6 +41,13 @@ vi.mock("@/db/pdbmMySQL", () => ({ pdbmMySQL: {} }));
 vi.mock("@/data/grist/specialites");
 vi.mock("@/utils/specialites");
 
+// Keep the real (pure) expandQuery; stub getSynonymMap so it doesn't hit the DB
+// and doesn't consume a mockExecute value meant for the search_index/resume queries.
+vi.mock("./searchSynonyms", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./searchSynonyms")>();
+  return { ...actual, getSynonymMap: vi.fn() };
+});
+
 // Disable server-only for tests
 vi.mock("server-only", () => ({}));
 
@@ -70,6 +78,7 @@ describe("Search Engine (getSearchResults)", () => {
       spec.map((g: any) => ({ ...g, indicationsDetails: [] })),
     );
     vi.mocked(getResumeSpecsATCLabels).mockImplementation(async (spec) => spec);
+    vi.mocked(getSynonymMap).mockResolvedValue([]);
   });
 
   it("should return an empty array if the DB finds nothing", async () => {
@@ -205,6 +214,7 @@ describe("Search Engine (per-spécialité ranking)", () => {
       spec.map((g: any) => ({ ...g, indicationsDetails: [] })),
     );
     vi.mocked(getResumeSpecsATCLabels).mockImplementation(async (spec) => spec);
+    vi.mocked(getSynonymMap).mockResolvedValue([]);
   });
 
   it("ranks the variant whose name best matches the query above its siblings", async () => {
@@ -224,5 +234,34 @@ describe("Search Engine (per-spécialité ranking)", () => {
     expect(results).toHaveLength(2);
     expect(results[0].specId).toBe("CIS1000");
     expect(results[1].specId).toBe("CIS500");
+  });
+});
+
+describe("Search Engine (synonyms)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(formatSpecialitesResume).mockImplementation((spec) =>
+      spec.map((g: any) => ({ ...g, indicationsDetails: [] })),
+    );
+    vi.mocked(getResumeSpecsATCLabels).mockImplementation(async (spec) => spec);
+  });
+
+  it("expands a lay-term query to its canonical medical term and surfaces the indicated group", async () => {
+    vi.mocked(getSynonymMap).mockResolvedValue([
+      { id: 0, alias: "mal de tete", canonical: "céphalées" },
+    ]);
+    // The canonical term ("céphalées") hits an indication token in the index; the
+    // existing pipeline attaches the real, accented indication name as the match reason.
+    mockExecute.mockResolvedValueOnce([
+      { match_type: "indication", group_name: "DOLIPRANE", match_label: "Céphalées", token: "cephalees", spec_id: null, sml: 0.9 },
+    ]);
+    mockExecute.mockResolvedValueOnce([makeGroup("DOLIPRANE")]);
+
+    const results = await getSearchResults("mal de tête");
+
+    expect(getSynonymMap).toHaveBeenCalled();
+    expect(results).toHaveLength(1);
+    expect(results[0].groupName).toBe("DOLIPRANE");
+    expect(results[0].matchReasons).toEqual([{ type: "indication", label: "Céphalées" }]);
   });
 });
