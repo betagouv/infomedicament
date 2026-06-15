@@ -49,6 +49,7 @@ interface SearchIndexTable {
   match_type: "name" | "substance" | "atc" | "indication";
   group_name: string;
   match_label: string;
+  spec_id?: string | null;
 }
 
 interface LeafletImagesTable {
