@@ -197,3 +197,32 @@ describe("computeSortScore", () => {
     expect(high).toBeGreaterThan(low);
   });
 });
+
+describe("Search Engine (per-spécialité ranking)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(formatSpecialitesResume).mockImplementation((spec) =>
+      spec.map((g: any) => ({ ...g, indicationsDetails: [] })),
+    );
+    vi.mocked(getResumeSpecsATCLabels).mockImplementation(async (spec) => spec);
+  });
+
+  it("ranks the variant whose name best matches the query above its siblings", async () => {
+    // Name tokens of two variants in the same group, attributed to their spec_id
+    mockExecute.mockResolvedValueOnce([
+      { match_type: "name", group_name: "DOLIPRANE", match_label: "DOLIPRANE 1000 mg", token: "doliprane 1000 mg", spec_id: "CIS1000", sml: 0.95 },
+      { match_type: "name", group_name: "DOLIPRANE", match_label: "DOLIPRANE 500 mg", token: "doliprane 500 mg", spec_id: "CIS500", sml: 0.6 },
+    ]);
+    // resume_specialites returns one row per spécialité
+    mockExecute.mockResolvedValueOnce([
+      { ...makeGroup("DOLIPRANE"), specId: "CIS1000", specName: "DOLIPRANE 1000 mg" },
+      { ...makeGroup("DOLIPRANE"), specId: "CIS500", specName: "DOLIPRANE 500 mg" },
+    ]);
+
+    const results = await getSearchResults("doliprane 1000");
+
+    expect(results).toHaveLength(2);
+    expect(results[0].specId).toBe("CIS1000");
+    expect(results[1].specId).toBe("CIS500");
+  });
+});
