@@ -54,16 +54,32 @@ const nextConfig = {
         destination: "/alpha_lists/medicaments/:letter",
       },
       {
+        source: "/medicaments",
+        destination: "/alpha_lists/medicaments/A",
+      },
+      {
         source: "/indications/:letter([A-Za-z])",
         destination: "/alpha_lists/indications/:letter",
+      },
+      {
+        source: "/indications",
+        destination: "/alpha_lists/indications/A",
       },
       {
         source: "/substances/:letter([A-Za-z0-9\\(\\[])",
         destination: "/alpha_lists/substances/:letter",
       },
       {
+        source: "/substances",
+        destination: "/alpha_lists/substances/%28",
+      },
+      {
         source: "/generiques/:letter([A-Za-z])",
         destination: "/alpha_lists/generiques/:letter",
+      },
+      {
+        source: "/generiques",
+        destination: "/alpha_lists/generiques/A",
       },
     ];
   },
