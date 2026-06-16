@@ -87,6 +87,7 @@ export const getDetailedSpecialites = cache(
       fn<string>("GROUP_CONCAT", ["Titulaire.TituRSLong"]).as("titulairesList"),
     ])
     .groupBy(["Specialite.SpecId"]) //Nécessaire pour le JSON_ARRAYAGG
+    .orderBy("Specialite.SpecDenom01")
     .distinct()
     .execute();
 });
