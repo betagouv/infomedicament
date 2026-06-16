@@ -199,27 +199,31 @@ async function createResumeGeneriques(): Promise<string[]> {
     .deleteFrom('resume_generiques')
     .execute();
 
-  const allGenerics = await pdbmMySQL
-    .selectFrom("Specialite")
-    .innerJoin("GroupeGene", "Specialite.SpecGeneId", "GroupeGene.SpecId")
-    .where("Specialite.ProcId", "!=", "50") //Not AIP
-    .where("Specialite.IsBdm", "=", 1)
-    .select(["Specialite.SpecGeneId", "GroupeGene.LibLong"])
-    .groupBy(["GroupeGene.LibLong", "GroupeGene.SpecId"])
-    .orderBy("GroupeGene.LibLong")
+  const allGroupsGene = await pdbmMySQL
+    .selectFrom("GroupeGene")
+    .where("GroupeGene.codeStat", "=", 0)
+    .selectAll("GroupeGene")
+    .orderBy("GroupeGene.idGrp")
+    .orderBy("GroupeGene.rangSpec")
     .execute();
+  const groupsGeneIds = allGroupsGene
+    .map((princeps) => princeps.idGrp)
+    .filter((value, index, list) => list.indexOf(value) === index);
 
   const letters: string[] = [];
-  const resumeData: ResumeGeneric[] = allGenerics
-    .map((generic) => {
-      const genericName: string = formatSpecName(groupGeneNameToDCI(generic.LibLong));
-      const subLetter = getNormalizeLetter(genericName.substring(0, 1));
-      if (!letters.includes(subLetter)) letters.push(subLetter);
-      return {
-        SpecId: generic.SpecGeneId,
-        SpecName: genericName,
-      }
+  const resumeData: ResumeGeneric[] = [];
+
+  groupsGeneIds.forEach((idGrp: number) => {
+    const princepsList = allGroupsGene.filter((p) => p.idGrp === idGrp);
+    const groupName: string = formatSpecName(groupGeneNameToDCI(princepsList[0].LibLong));
+    resumeData.push({
+      SpecId: princepsList[0].SpecId,
+      SpecName: groupName,
     });
+    const subLetter = getNormalizeLetter(groupName.substring(0, 1));
+    if (!letters.includes(subLetter)) letters.push(subLetter);
+  });
+
   const result = await db
     .insertInto('resume_generiques')
     .values(resumeData)
