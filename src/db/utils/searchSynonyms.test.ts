@@ -5,7 +5,7 @@ import { describe, it, expect, vi } from "vitest";
 vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
 vi.mock("@/db", () => ({ default: {} }));
 
-import { expandQuery } from "./searchSynonyms";
+import { expandQuery, matchedCanonicals } from "./searchSynonyms";
 import { SearchSynonym } from "@/db/types";
 
 const syn = (alias: string, canonical: string): SearchSynonym => ({ id: 0, alias, canonical });
@@ -42,5 +42,25 @@ describe("expandQuery", () => {
       syn("mal de tete", "céphalées"),
     ]);
     expect(terms).toEqual(["mal de tete", "cephalees"]);
+  });
+});
+
+describe("matchedCanonicals", () => {
+  it("returns the canonical term in its accented form when an alias matches", () => {
+    const terms = matchedCanonicals("mal de tete", [syn("mal de tete", "céphalées")]);
+    expect(terms).toEqual(["céphalées"]);
+  });
+
+  it("returns nothing when no alias matches", () => {
+    const terms = matchedCanonicals("doliprane", [syn("mal de tete", "céphalées")]);
+    expect(terms).toEqual([]);
+  });
+
+  it("dedupes by normalized form when several aliases map to the same canonical", () => {
+    const terms = matchedCanonicals("mal de tete", [
+      syn("mal de tete", "céphalées"),
+      syn("mal de tete", "Céphalées"),
+    ]);
+    expect(terms).toEqual(["céphalées"]);
   });
 });
