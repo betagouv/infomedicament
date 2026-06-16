@@ -27,7 +27,6 @@ export async function getGroupeGene(CIS: string): Promise<GroupeGene[]> {
     .where("specGene.SpecId", "=", CIS)
     .where("groupeGene.codeStat", "=", 0)
     .selectAll("groupeGene")
-    .orderBy("groupeGene.rangSpec")
     .execute();
 }
 
@@ -38,7 +37,23 @@ export async function getGeneriques(CIS: string): Promise<Specialite[]> {
       .where("SpecGeneId", "=", CIS)
       .where("SpecId", "!=", CIS)
       .where("IsBdm", "=", 1)
+      .orderBy("Specialite.SpecDenom01")
       .selectAll()
       .execute()
   );
+}
+
+export async function getIsPrinceps(CIS: string): Promise<boolean> {
+  const isPrinceps =
+    !!(await pdbmMySQL
+      .selectFrom("Specialite")
+      .select("Specialite.SpecId")
+      .where("Specialite.SpecGeneId", "=", CIS)
+      .executeTakeFirst()) &&
+    !!(await pdbmMySQL
+      .selectFrom("GroupeGene")
+      .select("GroupeGene.SpecId")
+      .where("GroupeGene.SpecId", "=", CIS)
+      .executeTakeFirst());
+  return isPrinceps;
 }
