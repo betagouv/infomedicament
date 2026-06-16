@@ -30,25 +30,42 @@ function queryContainsAlias(queryWords: string[], aliasNormalized: string): bool
   return aliasWords.length > 0 && aliasWords.every((aw) => wordCovered(aw, queryWords));
 }
 
-/**
- * Expand a (normalized) query with the canonical terms of any matching synonym alias.
- * Returns the original query plus deduped canonical terms (normalized for the index),
- * original query first. Additive: a query that matches no alias is returned unchanged.
- */
+// Synonyms whose alias phrase is present in the query.
+function matchingSynonyms(query: string, synonyms: SearchSynonym[]): SearchSynonym[] {
+  const queryWords = normalize(query).split(/\s+/).filter(Boolean);
+  return synonyms.filter((syn) => queryContainsAlias(queryWords, normalize(syn.alias)));
+}
+
+// Expand a (normalized) query with the canonical terms of any matching synonym alias.
+// Returns the original query plus deduped canonical terms (normalized for the index),
+// original query first. Additive: a query that matches no alias is returned unchanged.
 export function expandQuery(normalizedQuery: string, synonyms: SearchSynonym[]): string[] {
-  const queryWords = normalize(normalizedQuery).split(/\s+/).filter(Boolean);
   const terms = [normalizedQuery];
   const seen = new Set([normalizedQuery]);
-  for (const syn of synonyms) {
-    if (queryContainsAlias(queryWords, normalize(syn.alias))) {
-      const term = normalize(syn.canonical);
-      if (term && !seen.has(term)) {
-        seen.add(term);
-        terms.push(term);
-      }
+  for (const syn of matchingSynonyms(normalizedQuery, synonyms)) {
+    const term = normalize(syn.canonical);
+    if (term && !seen.has(term)) {
+      seen.add(term);
+      terms.push(term);
     }
   }
   return terms;
+}
+
+// Canonical terms of the synonyms a query triggered, in their original accented form
+// (deduped) — for displaying a "Vouliez-vous dire : …" mention. Empty when no alias matched.
+export function matchedCanonicals(query: string, synonyms: SearchSynonym[]): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const syn of matchingSynonyms(query, synonyms)) {
+    const display = syn.canonical.trim();
+    const key = normalize(display);
+    if (key && !seen.has(key)) {
+      seen.add(key);
+      out.push(display);
+    }
+  }
+  return out;
 }
 
 // Small curated table — load all rows once and cache, like getSearchResults.
@@ -59,3 +76,10 @@ export const getSynonymMap = unstable_cache(
   ["search-synonyms"],
   { revalidate: 3600 },
 );
+
+// Canonical medical terms a (raw) query triggered via synonyms, for the
+// "Vouliez-vous dire : …" mention. Empty unless an alias actually matched.
+export async function getSynonymSuggestion(query: string): Promise<string[]> {
+  if (!query || !query.trim()) return [];
+  return matchedCanonicals(query, await getSynonymMap());
+}
