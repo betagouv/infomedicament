@@ -22,6 +22,10 @@ const STATIC_ROUTES = [
   "/politique-de-confidentialite",
   "/rechercher",
   "/statistiques",
+  "/medicaments",
+  "/indications",
+  "/substances",
+  "/generiques",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
