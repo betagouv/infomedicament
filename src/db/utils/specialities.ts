@@ -52,25 +52,14 @@ export const getDetailedSpecialite = cache(
   async (
     CIS: string
   ) : Promise<DetailedSpecialite | undefined> => {
-  const specialites = await getDetailedSpecialites([CIS]);
-  if(specialites && specialites.length > 0)
-    return specialites[0];
-  return undefined;
-});
-
-export const getDetailedSpecialites = cache(
-  async (
-    CISList: string[]
-  ) : Promise<DetailedSpecialite[] | undefined> => {
-
-  return await pdbmMySQL
+  const specialite: DetailedSpecialite | undefined = await pdbmMySQL
     .selectFrom("Specialite")
     .leftJoin("StatutAdm", "StatutAdm.StatId", "Specialite.StatId")
     .leftJoin("StatutComm", "StatutComm.CommId", "Specialite.CommId")
     .leftJoin("Spec_Titu", "Spec_Titu.SpecId", "Specialite.SpecId")
     .leftJoin("Titulaire", "Titulaire.TituId", "Spec_Titu.TituId")
     .leftJoin ("Specialite as GenSpecialite", "GenSpecialite.SpecId", "Specialite.SpecGeneId")
-    .where("Specialite.SpecId", "in", CISList)
+    .where("Specialite.SpecId", "=", CIS)
     .where("Specialite.IsBdm", "=", 1)
     .selectAll("Specialite")
     .select("StatutAdm.StatLibCourt as statutAutorisation")
@@ -88,7 +77,9 @@ export const getDetailedSpecialites = cache(
     ])
     .groupBy(["Specialite.SpecId"]) //Nécessaire pour le JSON_ARRAYAGG
     .distinct()
-    .execute();
+    .executeTakeFirst();
+
+  return specialite;
 });
 
 export const getSpecialite = cache(async (CIS: string) => {

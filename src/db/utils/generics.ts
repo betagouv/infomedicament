@@ -5,7 +5,7 @@ import { ResumeGeneric } from "../types";
 import db from "..";
 import { sql } from "kysely";
 import { pdbmMySQL } from "../pdbmMySQL";
-import { GroupeGene, Specialite } from "../pdbmMySQL/types";
+import { Specialite } from "../pdbmMySQL/types";
 
 export const getGenericsResumeWithLetter = cache(async function(letter: string): Promise<ResumeGeneric[]> {
   const result:ResumeGeneric[] = await db
@@ -20,15 +20,12 @@ export const getGenericsResumeWithLetter = cache(async function(letter: string):
   return result;
 });
 
-export async function getGroupeGene(CIS: string): Promise<GroupeGene[]> {
-  return await pdbmMySQL
-    .selectFrom("GroupeGene as specGene")
-    .innerJoin("GroupeGene as groupeGene", "specGene.idGrp", 'groupeGene.idGrp')
-    .where("specGene.SpecId", "=", CIS)
-    .where("groupeGene.codeStat", "=", 0)
-    .selectAll("groupeGene")
-    .orderBy("groupeGene.rangSpec")
-    .execute();
+export async function getGroupeGene(CIS: string) {
+  return pdbmMySQL
+    .selectFrom("GroupeGene")
+    .where("SpecId", "=", CIS)
+    .selectAll("GroupeGene")
+    .executeTakeFirst();
 }
 
 export async function getGeneriques(CIS: string): Promise<Specialite[]> {
