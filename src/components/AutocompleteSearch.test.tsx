@@ -16,6 +16,8 @@ vi.mock("@/services/tracking", () => ({
 const mockSearchResults = [
   {
     groupName: "DOLIPRANE",
+    specName: "DOLIPRANE 1000 mg",
+    specId: "61234567",
     composants: "paracetamol",
     specialites: [],
     indicationsIds: [],
@@ -23,6 +25,7 @@ const mockSearchResults = [
     subsIds: [],
     matchReasons: [],
     shortSpecialites: [],
+    score: 5,
   },
 ];
 
@@ -112,5 +115,33 @@ describe("AutocompleteSearchInput", () => {
     expect(screen.getByRole("listbox")).toBeDefined();
     fireEvent.keyDown(input, { key: "Escape" });
     expect(screen.queryByRole("listbox")).toBeNull();
+  });
+
+  it("should navigate to the medicament page when selecting a spécialité", () => {
+    renderAutocomplete();
+    const input = screen.getByRole("combobox");
+    fireEvent.change(input, { target: { value: "doli" } });
+
+    const option = screen
+      .getAllByRole("option")
+      .find((o) => o.textContent === "Doliprane 1000 mg")!;
+    fireEvent.mouseDown(option);
+
+    expect(mockPush).toHaveBeenCalledWith("/medicaments/61234567");
+  });
+
+  it("should navigate to the medicament page for a spécialité even when onSearch is provided", () => {
+    const onSearch = vi.fn();
+    renderAutocomplete(onSearch);
+    const input = screen.getByRole("combobox");
+    fireEvent.change(input, { target: { value: "doli" } });
+
+    const option = screen
+      .getAllByRole("option")
+      .find((o) => o.textContent === "Doliprane 1000 mg")!;
+    fireEvent.mouseDown(option);
+
+    expect(mockPush).toHaveBeenCalledWith("/medicaments/61234567");
+    expect(onSearch).not.toHaveBeenCalled();
   });
 });

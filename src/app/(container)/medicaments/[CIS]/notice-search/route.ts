@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { unstable_cache } from "next/cache";
 import { answerNoticeQuestion } from "@/lib/albert";
 import { getNotice } from "@/db/utils/notice";
-import { noticeToText } from "@/utils/notices/noticesUtils";
+import { noticeToText } from "@/utils/notices";
 
 export interface NoticeChunkHit {
   section_anchor: string;

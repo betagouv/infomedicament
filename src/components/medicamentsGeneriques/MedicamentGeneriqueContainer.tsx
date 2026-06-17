@@ -1,7 +1,4 @@
-"use client";
-
-import * as Sentry from "@sentry/nextjs";
-import { HTMLAttributes, useCallback, useEffect, useState } from "react";
+import { HTMLAttributes } from "react";
 import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import ClassTag from "../tags/ClassTag";
@@ -12,7 +9,6 @@ import { displayCompleteComposants } from "@/displayUtils";
 import GenericAccordion from "../GenericAccordion";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import DataBlockSpecGenerique from "../data/DataBlockSpecGenerique";
-import { getEvents } from "@/db/utils/ficheInfos";
 import { isSurveillanceRenforcee } from "@/utils/specialites";
 
 interface MedicamentGeneriqueContainerProps extends HTMLAttributes<HTMLDivElement> {
@@ -21,6 +17,7 @@ interface MedicamentGeneriqueContainerProps extends HTMLAttributes<HTMLDivElemen
   groupName: string;
   princeps: DetailedSpecialite;
   generiques: Specialite[];
+  events: VUEvnts[];
 }
 
 function MedicamentGeneriqueContainer({
@@ -29,36 +26,9 @@ function MedicamentGeneriqueContainer({
   groupName,
   princeps,
   generiques,
+  events,
   ...props
 }: MedicamentGeneriqueContainerProps) {
-
-  const [events, setEvents] = useState<VUEvnts[]>();
-
-  //Load all the events of the generiques + princeps
-  const loadEvents = useCallback(
-    async (
-      CISList: string[]
-    ) => {
-      try {
-        const allEvents = await getEvents(CISList);
-        setEvents(allEvents);
-      } catch (e) {
-        Sentry.captureException(e);
-      }
-    },
-    [setEvents]
-  );
-
-  useEffect(() => {
-    const CISList = [];
-    if (generiques) {
-      generiques.forEach((generique) => CISList.push(generique.SpecId));
-    }
-    if(princeps)
-      CISList.push(princeps.SpecId);
-    if(CISList.length > 0)
-      loadEvents(CISList);
-  }, [generiques, princeps, loadEvents]);
 
   return (
     <ContentContainer frContainer {...props}>              
@@ -99,7 +69,7 @@ function MedicamentGeneriqueContainer({
         <DataBlockSpecGenerique 
           key={generique.SpecId}
           specialite={generique}
-          isSurveillanceRenforcee={events && isSurveillanceRenforcee(events.filter((event) => event.SpecId === generique.SpecId))}
+          isSurveillanceRenforcee={isSurveillanceRenforcee(events.filter((event) => event.SpecId === generique.SpecId))}
         />
       ))}
     </ContentContainer>

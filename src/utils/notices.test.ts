@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { noticeToText } from "./noticesUtils";
 import { NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
+import { noticeToText } from "./notices";
 
 const block = (overrides: Partial<Omit<NoticeRCPContentBlock, 'content'>> & { content?: string | string[] }): NoticeRCPContentBlock => ({
   id: 1,

@@ -1,30 +1,23 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
 import ContentContainer from "../generic/ContentContainer";
 import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
-import { getPediatrics } from "@/db/utils/pediatrics";
 import { HTMLAttributes, lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Marr } from "@/types/MarrTypes";
 import { ATC } from "@/types/ATCTypes";
-import { getPregnancyMentionAlert, getAllPregnancyPlanAlerts } from "@/db/utils/pregnancy";
-import { getMarr } from "@/db/utils/marr";
 import { DetailedSpecialite, NoticeData, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { trackEvent } from "@/services/tracking";
-import { isCentralisee } from "@/utils/specialites";
 import { FicheInfos } from "@/types/FicheInfoTypes";
-import { getNotice } from "@/db/utils/notice";
-import { getFicheInfos } from "@/db/utils/ficheInfos";
 const AdvancedContent = lazy(() => import("./AdvancedContent"));
 import NoticeContent from "./NoticeContent";
 import { AnchorMenu } from "./advanced/DetailedSubMenu";
-import getGlossaryDefinitions from "@/db/utils/glossary";
 import { Definition } from "@/types/GlossaireTypes";
 import GoTopButton from "../generic/GoTopButton";
 import { ShortIndication } from "@/types/IndicationsTypes";
+import { ArticleCardResume } from "@/types/ArticlesTypes";
 
 
 interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
@@ -38,6 +31,15 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   presentations: Presentation[];
   title: string;
   indications: ShortIndication[];
+  notice?: NoticeData;
+  indicationsBlock?: NoticeRCPContentBlock;
+  ficheInfos?: FicheInfos;
+  definitions: Definition[];
+  pregnancyPlanAlert?: PregnancyAlert;
+  isPregnancyMentionAlert: boolean;
+  pediatrics?: PediatricsInfo;
+  marr?: Marr;
+  articles: ArticleCardResume[];
 }
 
 function MedicamentContent({
@@ -51,18 +53,17 @@ function MedicamentContent({
   presentations,
   title,
   indications,
+  notice,
+  indicationsBlock,
+  ficheInfos,
+  definitions,
+  pregnancyPlanAlert,
+  isPregnancyMentionAlert,
+  pediatrics,
+  marr,
+  articles,
   ...props
 }: MedicamentContentProps) {
-
-  const [notice, setNotice] = useState<NoticeData>();
-  const [indicationBlock, setIndicationBlock] = useState<NoticeRCPContentBlock>();
-  const [ficheInfos, setFicheInfos] = useState<FicheInfos>();
-  const [definitions, setDefinitions] = useState<Definition[]>([]);
-
-  const [pregnancyPlanAlert, setIsPregnancyPlanAlert] = useState<PregnancyAlert>();
-  const [isPregnancyMentionAlert, setIsPregnancyMentionAlert] = useState<boolean>(false);
-  const [pediatrics, setPediatrics] = useState<PediatricsInfo | undefined>(undefined);
-  const [marr, setMarr] = useState<Marr>();
 
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
   const [advancedAnchor, setAdvancedAnchor] = useState<AnchorMenu>();
@@ -84,73 +85,6 @@ function MedicamentContent({
     },
     [setIsAdvanced, setAdvancedAnchor]
   );
-
-  const loadData = useCallback(
-    async (
-      spec: DetailedSpecialite
-    ) => {
-      try {
-
-        if (!isCentralisee(spec)) {
-          const newNotice = await getNotice(spec.SpecId);
-          setNotice(newNotice);
-          if (newNotice) {
-            if (newNotice.children) {
-              newNotice.children.forEach((child: NoticeRCPContentBlock) => {
-                if (child.anchor === "Ann3bQuestceque") {
-                  setIndicationBlock(child);
-                }
-              })
-            }
-          }
-        }
-        const newFicheInfos = await getFicheInfos(spec.SpecId);
-        setFicheInfos(newFicheInfos);
-        const newDefinitions = (await getGlossaryDefinitions()).filter(
-          (d) => d.a_souligner,
-        );
-        setDefinitions(newDefinitions);
-
-        const pregnancyMentionAlert = await getPregnancyMentionAlert(spec.SpecId);
-        setIsPregnancyMentionAlert(pregnancyMentionAlert);
-        const pediatrics = await getPediatrics(spec.SpecId);
-        setPediatrics(pediatrics);
-
-        const marr: Marr = await getMarr(spec.SpecId);
-        setMarr(marr);
-      } catch (e) {
-        Sentry.captureException(e);
-      }
-    },
-    [setIsPregnancyMentionAlert, setPediatrics, setMarr]
-  );
-
-  const loadPregnancyPlanAlert = useCallback(
-    async (
-      composants: Array<SpecComposant & SubstanceNom>
-    ) => {
-      try {
-        const pregnancyPlanAlert = (await getAllPregnancyPlanAlerts()).find((s) =>
-          composants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
-        );
-        setIsPregnancyPlanAlert(pregnancyPlanAlert);
-      } catch (e) {
-        Sentry.captureException(e);
-      }
-    }, [setIsPregnancyPlanAlert,]
-  );
-
-  useEffect(() => {
-    if (composants) {
-      loadPregnancyPlanAlert(composants);
-    }
-  }, [composants, loadPregnancyPlanAlert]);
-
-  useEffect(() => {
-    if (specialite) {
-      loadData(specialite);
-    }
-  }, [specialite, loadData]);
 
   useEffect(() => {
     const handler = () => {
@@ -181,7 +115,7 @@ function MedicamentContent({
               marr={marr}
               ficheInfos={ficheInfos}
               definitions={definitions}
-              indicationBlock={indicationBlock}
+              indicationsBlock={indicationsBlock}
               advancedAnchor={advancedAnchor}
               title={title}
               onGoToAdvanced={onGoToAdvanced}
@@ -203,9 +137,10 @@ function MedicamentContent({
             notice={notice}
             ficheInfos={ficheInfos}
             definitions={definitions}
-            indicationBlock={indicationBlock}
+            indicationsBlock={indicationsBlock}
             title={title}
             indications={indications}
+            articles={articles}
             onGoToAdvanced={onGoToAdvanced}
             onGoToAdvancedAnchor={onGoToAdvancedAnchor}
           />

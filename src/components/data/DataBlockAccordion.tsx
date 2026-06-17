@@ -239,21 +239,8 @@ function DataBlockAccordion({
                 {(!pregnancyPlanAlert && pregnancyMentionAlert) && (
                   <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Mention contre-indication grossesse pour certains des médicaments</RedText>
                 )}
-                {pediatricsInfo && (
-                  <>
-                    {pediatricsInfo.indication && (
-                      <GreenText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Peut être utilisé chez l&apos;enfant selon l&apos;âge</GreenText>
-                    )}
-                    {pediatricsInfo.contraindication && (
-                      <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Contre-indiqué pour un enfant selon l&apos;âge</RedText>                    
-                    )}
-                    {pediatricsInfo.doctorAdvice && (
-                      <YellowText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Utilisation chez l&apos;enfant sur avis d&apos;un professionnel de santé</YellowText>
-                    )}
-                    {pediatricsInfo.mention && (
-                      <GreenText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Mention contre-indication enfant</GreenText>
-                    )}
-                  </>
+                {(pediatricsInfo && pediatricsInfo.contraindication) && (
+                  <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Contre-indiqué pour un enfant selon l&apos;âge</RedText>                    
                 )}
               </div>
             )}

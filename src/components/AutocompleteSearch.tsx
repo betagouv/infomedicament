@@ -10,6 +10,13 @@ import { useRouter } from "next/navigation";
 import { trackSearchEvent } from "@/services/tracking";
 import { SearchResultItem } from "@/types/SearchTypes";
 
+type AutocompleteOption = {
+  label: string;
+  type: "group" | "specialite";
+  specId?: string;
+  score: number;
+};
+
 type SearchInputProps = {
   name: string;
   initialValue?: string;
@@ -49,21 +56,54 @@ export function AutocompleteSearchInput({
     },
   ) as { data: SearchResultItem[] };
 
-  const options = searchResults
-    ? searchResults.map((result) => formatSpecName(result.groupName))
-      .filter(Boolean)
-      .filter((v,i,a) => a.indexOf(v)==i) //unique
-    : [];
+  // Build a mixed list: each spécialité (→ medicament page) plus its generic group
+  // (→ full search page). The group entry is kept so users can still browse all variants.
+  const options: AutocompleteOption[] = (() => {
+    if (!searchResults) return [];
+    const specOptions: AutocompleteOption[] = [];
+    const groupScores = new Map<string, number>();
+    for (const result of searchResults) {
+      if (result.specName && result.specId) {
+        specOptions.push({
+          label: formatSpecName(result.specName),
+          type: "specialite",
+          specId: result.specId,
+          score: result.score,
+        });
+      }
+      if (result.groupName) {
+        const groupLabel = formatSpecName(result.groupName);
+        groupScores.set(groupLabel, Math.max(groupScores.get(groupLabel) ?? 0, result.score));
+      }
+    }
+    const groupOptions: AutocompleteOption[] = [...groupScores.entries()].map(
+      ([label, score]) => ({ label, type: "group", score }),
+    );
+    return [...groupOptions, ...specOptions]
+      .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        // on a tie, surface the group entry above its variants
+        if (a.type !== b.type) return a.type === "group" ? -1 : 1;
+        return a.label.localeCompare(b.label, "fr");
+      })
+      .filter((opt, i, arr) => arr.findIndex((o) => o.type === opt.type && o.label === opt.label) === i)
+      .slice(0, 10);
+  })();
 
-  function selectOption(value: string) {
-    setInputValue(value);
+  function selectOption(option: AutocompleteOption) {
+    setInputValue(option.label);
     setIsOpen(false);
     setActiveIndex(-1);
+    if (option.type === "specialite") {
+      trackSearchEvent(option.label);
+      router.push(`/medicaments/${option.specId}`);
+      return;
+    }
     if (onSearch) {
-      onSearch(value);
+      onSearch(option.label);
     } else {
-      trackSearchEvent(value);
-      router.push(`/rechercher?s=${value}`);
+      trackSearchEvent(option.label);
+      router.push(`/rechercher?s=${option.label}`);
     }
   }
 
@@ -140,7 +180,7 @@ export function AutocompleteSearchInput({
         >
           {options.map((option, index) => (
             <li
-              key={`${option}-${index}`}
+              key={`${option.type}-${option.label}-${index}`}
               id={`${id}-option-${index}`}
               role="option"
               aria-selected={index === activeIndex}
@@ -158,7 +198,7 @@ export function AutocompleteSearchInput({
                   : undefined,
               }}
             >
-              {option}
+              {option.label}
             </li>
           ))}
         </ul>
