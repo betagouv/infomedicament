@@ -85,9 +85,8 @@ function MedicamentContentHeaderBlock({
         <ContentContainer whiteContainer className={fr.cx("fr-mb-2w")}>
           <Alert
             severity={"warning"}
-            title={
-              "Si ce médicament a été prescrit à votre enfant, rapprochez vous de votre prescripteur."
-            }
+            title="Il existe une contre-indication pédiatrique (vérifier selon l’âge)."
+            description="Si ce médicament a été prescrit à votre enfant, rapprochez vous de votre prescripteur."
           />
         </ContentContainer>
       )}
