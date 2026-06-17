@@ -2,7 +2,7 @@
 
 import ContentContainer from "@/components/generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import useSWR from "swr";
 import styled from 'styled-components';
 import { fetchJSON } from '@/utils/network';
@@ -137,8 +137,9 @@ function Statistics() {
         <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
           <Container>
             <h2 className={fr.cx("fr-h4")}>Score de satisfaction (global)</h2>
-            <Number className={fr.cx("fr-h1")}>4,5/5</Number>
-            <>au 12 juin 2025</>
+            <Number className={fr.cx("fr-h1")}>4,18/5</Number>
+            <>au 22 juin 2026<br/></>
+            <>basé sur un test réalisé sur un panel de 500 personnes représentatif de la population française</>
           </Container>
           <Container>
             <>Au {lastDayLastMonth}</>
