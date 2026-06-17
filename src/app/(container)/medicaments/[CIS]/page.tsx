@@ -14,7 +14,7 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName, isCentralisee } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
-import { getSpecialiteName } from "@/db/utils/specialities";
+import { getSpecialiteMetadata, getSpecialiteName } from "@/db/utils/specialities";
 import MedicamentContent from "@/components/medicaments/MedicamentContent";
 import ShareButtons from "@/components/generic/ShareButtons";
 import { getSpecialitesIndications, getSpecialitePathologies } from "@/db/utils/indications";
@@ -27,6 +27,7 @@ import { getFicheInfos } from "@/db/utils/ficheInfos";
 import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { getIndicationsBlock } from "@/utils/notices";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -69,9 +70,7 @@ async function fetchMedicamentData(
   const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
     composants.some((c) => Number(c.SubsId.trim()) === Number(s.id))
   );
-  // TODO: replace with getIndicationsBlock(notice) from @/utils/notices once it
-  // lands on main (currently only on the feat-metadata-v1 branch). See PR #259 review.
-  const indicationBlock = notice?.children?.find((c) => c.anchor === "Ann3bQuestceque");
+  const indicationsBlock = notice && getIndicationsBlock(notice);
   const articles = await getArticlesFromFilters({
     ATCList: atcList,
     substancesList: composants.map((c) => c.SubsId.trim()),
@@ -87,7 +86,7 @@ async function fetchMedicamentData(
     pediatrics,
     marr,
     pregnancyPlanAlert,
-    indicationBlock,
+    indicationsBlock,
     articles,
   };
 }
@@ -98,12 +97,13 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { CIS } = await props.params;
 
-  const SpecDenom01 = await getSpecialiteName(CIS);
-  if (!SpecDenom01) return notFound();
+  const metadata = await getSpecialiteMetadata(Number(CIS.trim()));
+  if(!metadata) return notFound();
 
-  const name = formatSpecName(SpecDenom01);
+  const name = formatSpecName(metadata.title);
   return {
     title: `${name} - ${(await parent).title?.absolute}`,
+    description: metadata.description,
   };
 }
 
@@ -216,7 +216,7 @@ export default async function Page(props: {
             title={pageLabel}
             indications={indications}
             notice={medData.notice}
-            indicationBlock={medData.indicationBlock}
+            indicationsBlock={medData.indicationsBlock}
             ficheInfos={medData.ficheInfos}
             definitions={medData.definitions}
             pregnancyPlanAlert={medData.pregnancyPlanAlert}

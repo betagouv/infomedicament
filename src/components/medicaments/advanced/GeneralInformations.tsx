@@ -14,7 +14,7 @@ import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } f
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
 import { DetailedSpecialite, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
-import { displayInfosImportantes } from "@/utils/notices/noticesUtils";
+import { displayInfosImportantes } from "@/utils/notices";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { PediatricsInfo } from "@/types/PediatricTypes";
@@ -91,7 +91,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   presentations: Presentation[];
   marr?: Marr;
   ficheInfos?: FicheInfos;
-  indicationBlock?: NoticeRCPContentBlock;
+  indicationsBlock?: NoticeRCPContentBlock;
   delivrance: SpecDelivrance[];
   definitions?: Definition[];
 }
@@ -108,7 +108,7 @@ function GeneralInformations({
   presentations,
   marr,
   ficheInfos,
-  indicationBlock,
+  indicationsBlock,
   delivrance,
   definitions,
   ...props 
@@ -282,7 +282,7 @@ function GeneralInformations({
 
       <IndicationsBlock
         specialite={specialite}
-        indicationBlock={indicationBlock}
+        indicationsBlock={indicationsBlock}
       />
       
       <ContentContainer id="informations-composition" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>

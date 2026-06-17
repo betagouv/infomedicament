@@ -43,6 +43,7 @@ export interface Database {
   classes_cliniques: ClassesCliniquesTable;
   vu_classes_cliniques: VUClassesCliniquesTable;
   indications: IndicationsTable;
+  specialites_metadata: SpecialiteMetadataTable;
 }
 
 interface SearchIndexTable {
@@ -426,6 +427,12 @@ interface IndicationsTable {
   CIS: string[],
 }
 
+interface SpecialiteMetadataTable {
+  CIS: number,
+  title: string,
+  description: string,
+}
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type SearchSynonym = Selectable<SearchSynonymsTable>;
@@ -460,3 +467,6 @@ export type TriamClasseGrpSubst = Selectable<TriamClasseGrpSubstTable>;
 export type TriamInteraction = Selectable<TriamInteractionsTable>;
 export type InteractionsSearchEntry = Selectable<InteractionsSearchTable>;
 export type Indication = Selectable<IndicationsTable>;
+export type SpecialiteMetadata = Selectable<SpecialiteMetadataTable>;
+export type NoticeDB = Selectable<NoticeTable>;
+export type NoticeContentDB = Selectable<NoticeContentTable>;
