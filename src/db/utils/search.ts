@@ -55,6 +55,9 @@ export const getSearchResults = unstable_cache(async function (
 
   // Group by group_name to deduplicate, collect best score + match reasons
   const groupMap = new Map<string, { score: number; reasons: MatchReason[] }>();
+  // Per-spécialité name similarity: best sml of a "name" token attributed to a specId.
+  // Lets us rank variants within a group (e.g. "Doliprane 1000" above "Doliprane 500").
+  const specNameSml = new Map<string, number>();
   for (const match of matches) {
     const matchGroup = groupMap.get(match.group_name);
     const reason: MatchReason = { type: match.match_type, label: match.match_label };
@@ -67,6 +70,9 @@ export const getSearchResults = unstable_cache(async function (
       }
     } else {
       groupMap.set(match.group_name, { score: match.sml, reasons: [reason] });
+    }
+    if (match.match_type === "name" && match.spec_id) {
+      specNameSml.set(match.spec_id, Math.max(specNameSml.get(match.spec_id) ?? 0, match.sml));
     }
   }
 
@@ -88,21 +94,22 @@ export const getSearchResults = unstable_cache(async function (
   const formatted = formatSpecialitesResume(rawGroups);
   const withATC = await getResumeSpecsATCLabels(formatted);
 
-  // Attach match reasons, sort by score, cap output at 200 to keep cache entries bounded
+  // Attach match reasons, score per spécialité, sort, cap output at 200 to keep cache entries bounded
   return withATC
-    .map((group) => {
-      const matchReasons = groupMap.get(group.groupName)?.reasons ?? [];
+    .map((spec) => {
+      const matchReasons = groupMap.get(spec.groupName)?.reasons ?? [];
+      // Prefer this spécialité's own name similarity so variants rank against the query
+      // individually; fall back to the group's best score for substance/atc/indication matches.
+      const baseSml = specNameSml.get(spec.specId) ?? groupMap.get(spec.groupName)?.score ?? 0;
       return {
-        ...group,
+        ...spec,
         matchReasons,
-        score: computeSortScore(query, group.groupName, group.composants, matchReasons, groupMap.get(group.groupName)?.score ?? 0),
+        score: computeSortScore(query, spec.specName, spec.composants, matchReasons, baseSml),
       };
     })
     .sort((a, b) => {
-      const scoreA = computeSortScore(query, a.groupName, a.composants, a.matchReasons, groupMap.get(a.groupName)?.score ?? 0);
-      const scoreB = computeSortScore(query, b.groupName, b.composants, b.matchReasons, groupMap.get(b.groupName)?.score ?? 0);
-      if (scoreB !== scoreA) return scoreB - scoreA;
-      return a.groupName.localeCompare(b.groupName, "fr"); // alphabetical tiebreaker
+      if (b.score !== a.score) return b.score - a.score;
+      return a.specName.localeCompare(b.specName, "fr"); // alphabetical tiebreaker
     })
     .slice(0, 200);
 },

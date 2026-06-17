@@ -8,6 +8,7 @@ import {
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getAtc1, getAtc2 } from "@/db/utils/atc";
 import { getSpecialite } from "@/db/utils";
+import { getWarmupCISCodes } from "@/db/utils/warmup";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
@@ -30,6 +31,15 @@ import { getIndicationsBlock } from "@/utils/notices";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+export const revalidate = 86400; // 24h ISR: refresh top-500 between deploys
+
+// Prerender the top ~500 medicaments at build time so they are served as static
+// HTML before the first request. Other CIS are still rendered on-demand
+// (dynamicParams = true). Returns [] on unseeded DBs (e.g. review-app builds).
+export async function generateStaticParams() {
+  const cisCodes = await getWarmupCISCodes();
+  return cisCodes.map((CIS) => ({ CIS }));
+}
 
 async function fetchMedicamentData(
   CIS: string,
