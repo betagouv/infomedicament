@@ -12,6 +12,7 @@ export const TitulaireAddressContainer = styled.p`
 `;
 
 export const RcpNoticeContainer = styled.div`
+  word-break: break-word;
   h3, h4, h5, h6{
     margin-top: 1.5rem;
   }

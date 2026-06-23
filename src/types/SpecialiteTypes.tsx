@@ -1,5 +1,5 @@
 import { Specialite } from "@/db/pdbmMySQL/types";
-import { ResumeSpecGroupDB } from "@/db/types";
+import { ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
 import { PediatricsInfo } from "./PediatricTypes";
 import { ShortIndication } from "./IndicationsTypes";
 
@@ -9,7 +9,7 @@ export type SpecialiteAlerts = {
   pregnancyPlanAlert?: boolean;
 }
 
-export type ResumeSpecialite = {
+export type ShortSpecialite = {
   SpecId: string,
   SpecDenom01: string,
   StatutBdm: string,
@@ -19,10 +19,16 @@ export type ResumeSpecialite = {
 }
 
 export type ResumeSpecGroup = ResumeSpecGroupDB & {
-  resumeSpecialites: ResumeSpecialite[],
+  shortSpecialites: ShortSpecialite[],
   atc1Label?: string,
   atc2Label?: string,
   alerts?: SpecialiteAlerts,
+  indicationsDetails?: ShortIndication[],
+}
+
+export type ResumeSpecialite = ResumeSpecialiteDB & {
+  atc1Label?: string,
+  atc2Label?: string,
   indicationsDetails?: ShortIndication[],
 }
 

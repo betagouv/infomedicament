@@ -6,8 +6,10 @@ export type QuestionAnchors = {
   question: JSX.Element;
   headerId?: string;
   keywords?: string[];
+  queryText?: string;
   unique: boolean;
   tracking: string;
+  icon: string;
 };
 
 export interface QuestionsListFormat {

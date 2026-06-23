@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { getSearchResults, MatchReason } from "./search";
+import { getSearchResults } from "./search";
 import { computeSortScore } from "./searchScoring";
-import { getResumeSpecsGroupsATCLabels } from "./atc";
-import { getResumeSpecsGroupsAlerts } from "@/data/grist/specialites";
-import { formatSpecialitesResumeFromGroups } from "@/utils/specialites";
+import { getSynonymMap } from "./searchSynonyms";
+import { getResumeSpecsATCLabels } from "./atc";
+import { formatSpecialitesResume } from "@/utils/specialites";
+import { MatchReason } from "@/types/SearchTypes";
 
 // Mocking the cache so it doesn't apply
 vi.mock("next/cache", () => ({
@@ -40,28 +41,44 @@ vi.mock("@/db/pdbmMySQL", () => ({ pdbmMySQL: {} }));
 vi.mock("@/data/grist/specialites");
 vi.mock("@/utils/specialites");
 
+// Keep the real (pure) expandQuery; stub getSynonymMap so it doesn't hit the DB
+// and doesn't consume a mockExecute value meant for the search_index/resume queries.
+vi.mock("./searchSynonyms", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./searchSynonyms")>();
+  return { ...actual, getSynonymMap: vi.fn() };
+});
+
 // Disable server-only for tests
 vi.mock("server-only", () => ({}));
 
 const makeGroup = (groupName: string, composants = "") => ({
   groupName,
   composants,
-  specialites: [],
-  CISList: [],
-  subsIds: [],
   indicationsIds: [],
+  atc1Code: "",
+  atc2Code: "",
+  atc5Code: "",
+  subsIds: [],
+  indicationsIdsNames: [],
+  specId: "",
+  specName: "",
+  ProcId: "",
+  isSurveillanceRenforcee: true,
+  StatutBdm: 1,
+  isAlertPregnancyPlan: true,
+  isAlertPregnancyMention: true,
+  isAlertPediatricContraindication: true,
 });
 
 describe("Search Engine (getSearchResults)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Pass-through mocks for enrichment functions
-    vi.mocked(formatSpecialitesResumeFromGroups).mockImplementation((groups) =>
-      groups.map((g: any) => ({ ...g, resumeSpecialites: [] })),
+    vi.mocked(formatSpecialitesResume).mockImplementation((spec) =>
+      spec.map((g: any) => ({ ...g, indicationsDetails: [] })),
     );
-    vi.mocked(getResumeSpecsGroupsATCLabels).mockImplementation(async (groups) => groups);
-    vi.mocked(getResumeSpecsGroupsAlerts).mockImplementation(async (groups) => groups);
+    vi.mocked(getResumeSpecsATCLabels).mockImplementation(async (spec) => spec);
+    vi.mocked(getSynonymMap).mockResolvedValue([]);
   });
 
   it("should return an empty array if the DB finds nothing", async () => {
@@ -187,5 +204,64 @@ describe("computeSortScore", () => {
     const high = computeSortScore("doli", "DOLIPRANE", "paracétamol", [nameReason()], 0.9);
     const low = computeSortScore("doli", "DOLIPRANE", "paracétamol", [nameReason()], 0.5);
     expect(high).toBeGreaterThan(low);
+  });
+});
+
+describe("Search Engine (per-spécialité ranking)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(formatSpecialitesResume).mockImplementation((spec) =>
+      spec.map((g: any) => ({ ...g, indicationsDetails: [] })),
+    );
+    vi.mocked(getResumeSpecsATCLabels).mockImplementation(async (spec) => spec);
+    vi.mocked(getSynonymMap).mockResolvedValue([]);
+  });
+
+  it("ranks the variant whose name best matches the query above its siblings", async () => {
+    // Name tokens of two variants in the same group, attributed to their spec_id
+    mockExecute.mockResolvedValueOnce([
+      { match_type: "name", group_name: "DOLIPRANE", match_label: "DOLIPRANE 1000 mg", token: "doliprane 1000 mg", spec_id: "CIS1000", sml: 0.95 },
+      { match_type: "name", group_name: "DOLIPRANE", match_label: "DOLIPRANE 500 mg", token: "doliprane 500 mg", spec_id: "CIS500", sml: 0.6 },
+    ]);
+    // resume_specialites returns one row per spécialité
+    mockExecute.mockResolvedValueOnce([
+      { ...makeGroup("DOLIPRANE"), specId: "CIS1000", specName: "DOLIPRANE 1000 mg" },
+      { ...makeGroup("DOLIPRANE"), specId: "CIS500", specName: "DOLIPRANE 500 mg" },
+    ]);
+
+    const results = await getSearchResults("doliprane 1000");
+
+    expect(results).toHaveLength(2);
+    expect(results[0].specId).toBe("CIS1000");
+    expect(results[1].specId).toBe("CIS500");
+  });
+});
+
+describe("Search Engine (synonyms)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(formatSpecialitesResume).mockImplementation((spec) =>
+      spec.map((g: any) => ({ ...g, indicationsDetails: [] })),
+    );
+    vi.mocked(getResumeSpecsATCLabels).mockImplementation(async (spec) => spec);
+  });
+
+  it("expands a lay-term query to its canonical medical term and surfaces the indicated group", async () => {
+    vi.mocked(getSynonymMap).mockResolvedValue([
+      { id: 0, alias: "mal de tete", canonical: "céphalées" },
+    ]);
+    // The canonical term ("céphalées") hits an indication token in the index; the
+    // existing pipeline attaches the real, accented indication name as the match reason.
+    mockExecute.mockResolvedValueOnce([
+      { match_type: "indication", group_name: "DOLIPRANE", match_label: "Céphalées", token: "cephalees", spec_id: null, sml: 0.9 },
+    ]);
+    mockExecute.mockResolvedValueOnce([makeGroup("DOLIPRANE")]);
+
+    const results = await getSearchResults("mal de tête");
+
+    expect(getSynonymMap).toHaveBeenCalled();
+    expect(results).toHaveLength(1);
+    expect(results[0].groupName).toBe("DOLIPRANE");
+    expect(results[0].matchReasons).toEqual([{ type: "indication", label: "Céphalées" }]);
   });
 });

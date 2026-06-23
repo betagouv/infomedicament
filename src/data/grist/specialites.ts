@@ -1,4 +1,4 @@
-import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
+import { ResumeSpecGroup, ShortSpecialite } from "@/types/SpecialiteTypes";
 import { getAllPregnancyMentionAlerts, getAllPregnancyPlanAlerts } from "@/db/utils/pregnancy";
 import { getAllPediatrics } from "@/db/utils/pediatrics";
 
@@ -19,7 +19,7 @@ export const getResumeSpecsGroupsAlerts = async function (specsGroups: ResumeSpe
       mention: false,
     }
     let pregnancyMentionAlert = false;
-    const specialites: ResumeSpecialite[] = group.resumeSpecialites.map((spec: ResumeSpecialite) => {
+    const specialites: ShortSpecialite[] = group.shortSpecialites.map((spec: ShortSpecialite) => {
       const pediatrics = allPediatricsInfo.find((info) => info.CIS === spec.SpecId);
       if (pediatrics) {
         if (pediatrics.indication) pediatricsInfo.indication = true;
@@ -46,7 +46,7 @@ export const getResumeSpecsGroupsAlerts = async function (specsGroups: ResumeSpe
         pregnancyMentionAlert: pregnancyMentionAlert,
         pediatrics: (pediatricsInfo.indication || pediatricsInfo.contraindication || pediatricsInfo.doctorAdvice || pediatricsInfo.mention) ? pediatricsInfo : undefined
       },
-      resumeSpecialites: specialites,
+      shortSpecialites: specialites,
     }
   })
 }

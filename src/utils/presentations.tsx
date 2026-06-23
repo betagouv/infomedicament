@@ -1,6 +1,6 @@
 import { PresentationComm, PresentationStat } from "@/db/pdbmMySQL/types";
 import { PresentationDetail } from "@/db/types";
-import { AgregateCaraccomplrecipsDetails, AgregateDispositifDetails, AgregatePresentationDetails, AgregateRecipientDetails, Presentation } from "@/types/PresentationTypes";
+import { AggregateCaraccomplrecipsDetails, AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
 import { capitalize } from "tsafe";
 
 const unitesMesures = [
@@ -35,7 +35,7 @@ export function replacePluralSingular(textToReplace: string, nb: number, shortNa
   return newText;
 }
 
-export function totalDisplay(recipientDetails: AgregateRecipientDetails): string {
+export function totalDisplay(recipientDetails: AggregateRecipientDetails): string {
   if(recipientDetails.nbrrecipient && recipientDetails.qtecontenance && recipientDetails.qtecontenance > 1 && recipientDetails.unitecontenance && !unitesMesures.includes(recipientDetails.unitecontenance)) {
     const total: number = recipientDetails.nbrrecipient * recipientDetails.qtecontenance;
     return `${total} ${replacePluralSingular(recipientDetails.unitecontenance, total)}`;
@@ -43,16 +43,16 @@ export function totalDisplay(recipientDetails: AgregateRecipientDetails): string
   else return "";
 }
 
-export function contenanceDisplay(recipientDetails: AgregateRecipientDetails): string {
+export function contenanceDisplay(recipientDetails: AggregateRecipientDetails): string {
   if(recipientDetails.qtecontenance && recipientDetails.unitecontenance){  
     return `${recipientDetails.qtecontenance.toLocaleString('fr-FR')} ${replacePluralSingular(recipientDetails.unitecontenance, recipientDetails.qtecontenance)}`;
   }
   else return "";
 }
 
-export function caracCompDisplay(caraccomplrecipDetails: AgregateCaraccomplrecipsDetails[], nbRecipient: number, shortName?: boolean): string {
+export function caracCompDisplay(caraccomplrecipDetails: AggregateCaraccomplrecipsDetails[], nbRecipient: number, shortName?: boolean): string {
   let detailsText: string = "";
-  caraccomplrecipDetails.forEach((details: AgregateCaraccomplrecipsDetails) => {
+  caraccomplrecipDetails.forEach((details: AggregateCaraccomplrecipsDetails) => {
     if(details.caraccomplrecip && 
       (!shortName || (shortName && details.caraccomplrecip.startsWith("avec")))
     )
@@ -61,9 +61,9 @@ export function caracCompDisplay(caraccomplrecipDetails: AgregateCaraccomplrecip
   return detailsText;
 }
 
-export function dispositifDisplay(dispositifDetails: AgregateDispositifDetails[]): string {
+export function dispositifDisplay(dispositifDetails: AggregateDispositifDetails[]): string {
   let detailsText: string = "";
-  dispositifDetails.forEach((details: AgregateDispositifDetails) => {
+  dispositifDetails.forEach((details: AggregateDispositifDetails) => {
     if(details.numdispositif) {
       //Singular all the time
       detailsText += ` ${replacePluralSingular(details.dispositif, 0)}`;
@@ -82,7 +82,7 @@ function isCaraccomplrecipDetails(details: PresentationDetail): boolean {
   return false;
 }
 
-function cleanRecipientDetails(details: PresentationDetail): AgregateRecipientDetails {
+function cleanRecipientDetails(details: PresentationDetail): AggregateRecipientDetails {
   return {
       recipient: details.recipient,
       numrecipient: details.numrecipient,
@@ -98,7 +98,7 @@ function cleanRecipientDetails(details: PresentationDetail): AgregateRecipientDe
     };
 }
 
-function sortCleanPresentationsDetails(cleanPresDetails: AgregatePresentationDetails[]): AgregatePresentationDetails[] {
+function sortCleanPresentationsDetails(cleanPresDetails: AggregatePresentationDetails[]): AggregatePresentationDetails[] {
   return cleanPresDetails
     .map((presDetails) => {
       //Sort recipients details
@@ -106,7 +106,7 @@ function sortCleanPresentationsDetails(cleanPresDetails: AgregatePresentationDet
         .map((presRecipient) => {
           //Sort caraccomplrecips
           presRecipient.caraccomplrecips = presRecipient.caraccomplrecips
-            .filter((detailA: AgregateCaraccomplrecipsDetails, indexA: number) => {
+            .filter((detailA: AggregateCaraccomplrecipsDetails, indexA: number) => {
               //Only one of each caraccomplrecips
               const findIndex = presRecipient.caraccomplrecips.findIndex(
                 (detailB, indexB) => indexA !== indexB && detailB.caraccomplrecip.toLowerCase().trim() === detailA.caraccomplrecip.toLowerCase().trim()
@@ -131,7 +131,7 @@ function sortCleanPresentationsDetails(cleanPresDetails: AgregatePresentationDet
         );
       //Sort dispositifs
       presDetails.dispositifs = presDetails.dispositifs
-        .filter((detailA: AgregateDispositifDetails, index: number) => {
+        .filter((detailA: AggregateDispositifDetails, index: number) => {
           //Only one of each dispositifs
           const findIndex = presDetails.dispositifs.findIndex(
             (detailB) => detailB.dispositif.toLowerCase().trim() === detailA.dispositif.toLowerCase().trim()
@@ -147,9 +147,8 @@ function sortCleanPresentationsDetails(cleanPresDetails: AgregatePresentationDet
     });
 }
 
-
-export function cleanPresentationsDetails(presDetails: PresentationDetail[]): AgregatePresentationDetails[]{
-  const cleanPresDetails:AgregatePresentationDetails[] = [];
+export function cleanPresentationsDetails(presDetails: PresentationDetail[]): AggregatePresentationDetails[]{
+  const cleanPresDetails:AggregatePresentationDetails[] = [];
   presDetails.forEach((details: PresentationDetail) => {
     const index = cleanPresDetails.findIndex((cleanDetails) => cleanDetails.codecip13 === details.codecip13);
     if(index === -1){
@@ -203,12 +202,12 @@ export function getPresentationName(
   shortName?: boolean,
 ): string {
   if(presentation.details && presentation.details.length > 0){
-    const allPresDetails: AgregatePresentationDetails[] = cleanPresentationsDetails(presentation.details);
+    const allPresDetails: AggregatePresentationDetails[] = cleanPresentationsDetails(presentation.details);
     let allPresNames: string = "";
-    allPresDetails.forEach((presDetails: AgregatePresentationDetails) => {
+    allPresDetails.forEach((presDetails: AggregatePresentationDetails) => {
       if(presDetails.recipients.length === 0) return;
       let name = "";
-      presDetails.recipients.forEach((recipientDetails: AgregateRecipientDetails) => {
+      presDetails.recipients.forEach((recipientDetails: AggregateRecipientDetails) => {
         if(!recipientDetails.recipient) return;
 
         const nbRecipient: number = (recipientDetails.nbrrecipient !== 0 &&recipientDetails.nbrrecipient)
@@ -259,7 +258,31 @@ export function getPresentationName(
   return presentation.PresNom01;
 }
 
-export function getPresentationPriceText(
+export function getAggregatePresentationRecipientsTexts(
+  presentationDetails: AggregatePresentationDetails,
+): PresentationRecipientsDetails[] {
+  const details: PresentationRecipientsDetails[]= [];
+
+  if(presentationDetails.recipients.length === 0) return [];
+  presentationDetails.recipients.forEach((recipientDetails: AggregateRecipientDetails) => {
+    if(!recipientDetails.recipient) return;
+    const nbRecipient: number = (recipientDetails.nbrrecipient !== 0 &&recipientDetails.nbrrecipient)
+      ? recipientDetails.nbrrecipient
+      : 1;
+
+    const recipient: string = replacePluralSingular(recipientDetails.recipient, nbRecipient);
+    const contenance: string = contenanceDisplay(recipientDetails);
+
+    const detail: PresentationRecipientsDetails = {
+      contenance: contenance,
+      recipient: nbRecipient > 1 ? `${nbRecipient.toString()} ${recipient}` : recipient,
+    }
+    details.push(detail);
+  });
+  return details;
+}
+
+export function getPresentationFullPriceText(
   presentation: Presentation
 ): string {
   if(presentation.PPF && presentation.TauxPriseEnCharge) {
@@ -270,7 +293,32 @@ export function getPresentationPriceText(
       }).format(presentation.PPF);
     return `Prix ${price} - remboursé à ${presentation.TauxPriseEnCharge}`;               
   } else {
-    return "Prix libre - non remboursable"
+    return "Prix libre - non remboursable";
+  }                 
+}
+
+export function getPresentationTauxPriseEnChargeText(
+  presentation: Presentation
+): string {
+  if(presentation.TauxPriseEnCharge) {
+    return `remboursé à ${presentation.TauxPriseEnCharge}`;
+  } else {
+    return "non remboursable";
+  }                 
+}
+
+export function getPresentationPriceText(
+  presentation: Presentation
+): string {
+  if(presentation.PPF) {
+    const price: string = Intl.NumberFormat(
+      "fr-FR", {
+        style: "currency",
+        currency: "EUR",
+      }).format(presentation.PPF);
+    return price;
+  } else {
+    return "Prix libre";
   }                 
 }
 

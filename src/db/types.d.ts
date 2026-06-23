@@ -3,6 +3,7 @@ import { Selectable } from "kysely";
 
 export interface Database {
   search_index: SearchIndexTable;
+  search_synonyms: SearchSynonymsTable;
   leaflet_images: LeafletImagesTable;
   presentations: PresentationTable;
   rcp: RcpTable;
@@ -14,6 +15,7 @@ export interface Database {
   resume_substances: ResumeSubstancesTable;
   resume_medicaments: ResumeMedicamentsTable;
   resume_generiques: ResumeGenericsTable;
+  resume_specialites: ResumeSpecialitesTable;
   letters: LettersTable;
   ref_articles: RefArticles;
   ref_atc_friendly_niveau_1: RefAtcFriendlyNiveau1;
@@ -41,6 +43,7 @@ export interface Database {
   classes_cliniques: ClassesCliniquesTable;
   vu_classes_cliniques: VUClassesCliniquesTable;
   indications: IndicationsTable;
+  specialites_metadata: SpecialiteMetadataTable;
 }
 
 interface SearchIndexTable {
@@ -48,6 +51,13 @@ interface SearchIndexTable {
   match_type: "name" | "substance" | "atc" | "indication";
   group_name: string;
   match_label: string;
+  spec_id?: string | null;
+}
+
+interface SearchSynonymsTable {
+  id: Generated<number>;
+  alias: string; // lay term, stored normalized (lowercase, unaccented)
+  canonical: string; // medical term, accented form; normalized at query time
 }
 
 interface LeafletImagesTable {
@@ -117,7 +127,7 @@ interface RatingTable {
   question2?: number,
 }
 
-export type LetterType = "indications" | "substances" | "specialites" | "generiques";
+export type LetterType = "indications" | "substances" | "medicaments" | "generiques";
 interface LettersTable {
   type: LetterType;
   letters: string[];
@@ -147,6 +157,25 @@ interface ResumeMedicamentsTable {
   CISList: string[];
   subsIds: string[];
   indicationsIdsNames: string[][];//idIndication, nomIndication
+}
+
+interface ResumeSpecialitesTable {
+  specId: string;
+  specName: string;
+  groupName: string;
+  composants: string;
+  subsIds: string[];
+  indicationsIds: number[];
+  indicationsIdsNames: string[][]; //idIndication, nomIndication
+  atc1Code?: string;
+  atc2Code?: string;
+  atc5Code?: string; //Keep it to be consistent with table resume_medicaments
+  ProcId: string;
+  isSurveillanceRenforcee: boolean;
+  StatutBdm: number;
+  isAlertPregnancyPlan: boolean;
+  isAlertPregnancyMention: boolean;
+  isAlertPediatricContraindication: boolean;
 }
 
 interface ResumeGenericsTable {
@@ -400,14 +429,22 @@ interface IndicationsTable {
   CIS: string[],
 }
 
+interface SpecialiteMetadataTable {
+  CIS: number,
+  title: string,
+  description: string,
+}
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
+export type SearchSynonym = Selectable<SearchSynonymsTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
 export type RCPContent = Selectable<RcpContentTable>;
 export type Rating = Selectable<RatingTable>;
 export type ResumeIndication = Selectable<ResumeIndicationsTable>;
 export type ResumeSubstance = Selectable<ResumeSubstancesTable>;
 export type ResumeSpecGroupDB = Selectable<ResumeMedicamentsTable>;
+export type ResumeSpecialiteDB = Selectable<ResumeSpecialitesTable>;
 export type ResumeGeneric = Selectable<ResumeGenericsTable>;
 export type Letters = Selectable<LettersTable>;
 export type ATC = Selectable<Atc>;
@@ -432,3 +469,6 @@ export type TriamClasseGrpSubst = Selectable<TriamClasseGrpSubstTable>;
 export type TriamInteraction = Selectable<TriamInteractionsTable>;
 export type InteractionsSearchEntry = Selectable<InteractionsSearchTable>;
 export type Indication = Selectable<IndicationsTable>;
+export type SpecialiteMetadata = Selectable<SpecialiteMetadataTable>;
+export type NoticeDB = Selectable<NoticeTable>;
+export type NoticeContentDB = Selectable<NoticeContentTable>;

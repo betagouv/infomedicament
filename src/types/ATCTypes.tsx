@@ -17,3 +17,8 @@ export type ATCSubsSpecs = {
   substances: SubstanceNom[];
   specialites: SpecialiteWithSubstance[];
 }
+
+export type ATCLabels = {
+  atc1Label: string;
+  atc2Label: string;
+}

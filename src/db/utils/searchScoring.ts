@@ -1,8 +1,8 @@
-import { MatchReason } from "./search";
+import { MatchReason } from "@/types/SearchTypes";
 
 export function computeSortScore(
     query: string,
-    groupName: string,
+    specName: string,
     composants: string,
     matchReasons: MatchReason[],
     baseSmlScore: number,
@@ -11,8 +11,8 @@ export function computeSortScore(
     const hasSubstance = matchReasons.some((r) => r.type === "substance");
     const substanceLabel = matchReasons.find((r) => r.type === "substance")?.label ?? "";
 
-    if (hasName && groupName.toLowerCase().startsWith(query.toLowerCase()))
-        return 6 + baseSmlScore; // name starts with query
+    if (hasName && specName.toLowerCase().startsWith(query.toLowerCase()))
+        return 6 + baseSmlScore; // spécialité name starts with query
     if (hasName) return 4 + baseSmlScore; // name contains query
     if (hasSubstance && !composants.includes(",")) return 3 + baseSmlScore; // single substance
     // Check if matched substance is the first in the composants list (both from DB, same encoding)

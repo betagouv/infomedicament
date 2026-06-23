@@ -86,14 +86,16 @@ export async function seed(db: Kysely<any>): Promise<void> {
       groupName: string,
       token: string,
       matchLabel: string,
+      specId: string | null,
     ) {
       await trx
         .insertInto("search_index")
         .values(({ fn, val }) => ({
-          token: fn("unaccent", [val(token)]),
+          token: fn("lower", [fn("unaccent", [val(token)])]),
           match_type: matchType,
           group_name: groupName,
           match_label: matchLabel,
+          spec_id: specId,
         }))
         .execute();
       totalRows++;
@@ -108,10 +110,10 @@ export async function seed(db: Kysely<any>): Promise<void> {
         const ciscode = spec[0]; // SpecId
         const specName = spec[1]; // SpecDenom01
         if (specName) {
-          await addIndex("name", gn, specName, specName);
+          await addIndex("name", gn, specName, specName, ciscode);
         }
         if (ciscode) {
-          await addIndex("name", gn, ciscode, ciscode);
+          await addIndex("name", gn, ciscode, ciscode, ciscode);
         }
       }
 
@@ -120,7 +122,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       for (const subsId of subsIds) {
         const nomLib = substanceMap.get(subsId.trim());
         if (nomLib) {
-          await addIndex("substance", gn, nomLib, nomLib);
+          await addIndex("substance", gn, nomLib, nomLib, null);
         }
       }
 
@@ -129,7 +131,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       for (const code of indicationsIds) {
         const nomIndication = indicationsMap.get(code);
         if (nomIndication) {
-          await addIndex("indication", gn, nomIndication, nomIndication);
+          await addIndex("indication", gn, nomIndication, nomIndication, null);
         }
       }
 
@@ -144,12 +146,12 @@ export async function seed(db: Kysely<any>): Promise<void> {
         }
         for (const prefix of prefixes) {
           // Index the ATC code itself (e.g., "N05BA01") so professionals can search by code
-          await addIndex("atc", gn, prefix, prefix);
+          await addIndex("atc", gn, prefix, prefix, null);
           // Index ATC labels for this code
           const labels = atcLabelMap.get(prefix);
           if (labels) {
             for (const label of labels) {
-              await addIndex("atc", gn, label, label);
+              await addIndex("atc", gn, label, label, null);
             }
           }
         }

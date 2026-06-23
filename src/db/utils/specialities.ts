@@ -14,10 +14,11 @@ import db from "@/db";
 import { getFullPresentations } from "@/db/utils/presentation";
 import { unstable_cache } from "next/cache";
 import { withSubstances } from "./query";
-import { DetailedSpecialite, ResumeSpecGroup } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
-import { formatSpecialitesResumeFromGroups } from "@/utils/specialites";
+import { formatSpecialitesResume, formatSpecialitesResumeFromGroups } from "@/utils/specialites";
+import { SpecialiteMetadata } from "../types";
 
 export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
   const result = await pdbmMySQL
@@ -28,7 +29,7 @@ export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
   return result?.lastUpdated ?? null;
 }
 
-export async function getMarketedMedicamentCount(): Promise<number> {
+export const getMarketedMedicamentCount = unstable_cache(async function(): Promise<number> {
   const result = await pdbmMySQL
     .selectFrom("Specialite")
     .where("Specialite.IsBdm", "=", 1)
@@ -36,7 +37,7 @@ export async function getMarketedMedicamentCount(): Promise<number> {
     .executeTakeFirstOrThrow();
 
   return result.count;
-}
+}, ["marketed-medicament-count"], { revalidate: 3600 });
 
 export async function getSpecialiteName(CIS: string): Promise<string> {
   const result = await pdbmMySQL
@@ -162,6 +163,17 @@ export const getResumeSpecsGroupsWithCIS = cache(async function (CISList: string
   return formatSpecialitesResumeFromGroups(result);
 });
 
+export const getResumeSpecialitesWithCIS = cache(async function (CISList: string[]): Promise<ResumeSpecialite[]> {
+  if (CISList.length === 0) return [];
+  const result = await db
+    .selectFrom("resume_specialites")
+    .where("specId", "in", CISList)
+    .selectAll()
+    .orderBy("groupName")
+    .execute();
+  return formatSpecialitesResume(result);
+});
+
 export const getResumeSpecsGroupsWithCISSubsIds = cache(
   async function (
     CISList: string[],
@@ -216,3 +228,11 @@ export const getSubstanceSpecialitesCIS = unstable_cache(async function (
   ["substance-specialites-cis"],
   { revalidate: 3600 } // cache for one hour
 );
+
+export async function getSpecialiteMetadata(CIS: number): Promise<SpecialiteMetadata | undefined> {
+  return await db
+    .selectFrom("specialites_metadata")
+    .where("CIS", "=", CIS)
+    .selectAll()
+    .executeTakeFirst();
+};

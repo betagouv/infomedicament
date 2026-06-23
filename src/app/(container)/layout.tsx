@@ -1,19 +1,11 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { Footer } from "@codegouvfr/react-dsfr/Footer";
 import { Notice } from "@codegouvfr/react-dsfr/Notice";
 import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
-import { StartHotjar } from "@/app/StartHotjar";
 import GlossaryModals from "@/components/glossary/GlossaryModals";
 import GlossaryContextProvider from "@/components/glossary/GlossaryContextProvider";
 import GreetingModal from "@/components/GreetingModal";
 import { getNoticeRcpLastUpdated } from "@/db/utils/specialities";
-import Matomo from "@/components/Matomo";
-import {
-  ConsentBannerAndConsentManagement,
-  FooterConsentManagementItem,
-  FooterPersonalDataPolicyItem,
-} from "@/consentManagement";
-
 export default async function ContainerLayout({
   children,
   header,
@@ -24,7 +16,6 @@ export default async function ContainerLayout({
   const dataLastUpdated = await getNoticeRcpLastUpdated();
   return (
     <GlossaryContextProvider>
-      {process.env.NEXT_PUBLIC_HOTJAR_SITE_ID && <StartHotjar />}
       <Notice
         title={
           <>
@@ -38,11 +29,9 @@ export default async function ContainerLayout({
           </>
         }
       />
-      <ConsentBannerAndConsentManagement />
       {header}
       <main>
         {children}
-        <div className="hotjar-feedback" />
       </main>
       <Footer
         brandTop={
@@ -62,8 +51,18 @@ export default async function ContainerLayout({
           title: "Mentions légales",
         }}
         bottomItems={[
-          <FooterPersonalDataPolicyItem key={"dp"} />,
-          <FooterConsentManagementItem key={"fc"} />,
+          {
+            text: "À propos",
+            linkProps: {
+              href: "/a-propos",
+            },
+          },
+          {
+            text: "Politique de confidentialité",
+            linkProps: {
+              href: "/politique-de-confidentialite",
+            },
+          },
           {
             text: "Statistiques",
             linkProps: {
@@ -80,10 +79,7 @@ export default async function ContainerLayout({
         ]}
       />
       <GlossaryModals />
-      <Suspense fallback={null}>
-        <Matomo />
-      </Suspense>
-      <GreetingModal dataLastUpdated={dataLastUpdated} />
+<GreetingModal dataLastUpdated={dataLastUpdated} />
     </GlossaryContextProvider>
   );
 }

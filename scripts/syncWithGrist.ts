@@ -7,11 +7,16 @@ import { type Insertable } from "kysely";
 // We're converting some values that are numeric in Grist to strings in our DB
 const safeString = (val: any) => (val === null || val === undefined) ? null : String(val).trim();
 
+// Normalize lay-term aliases the same way search queries are normalized (lowercase, unaccented),
+// so stored aliases line up with the normalized query at search time.
+const normalizeAlias = (val: any) =>
+  String(val ?? "").toLowerCase().normalize("NFD").replace(/\p{Mn}/gu, "").trim();
+
 async function syncTable<TN extends keyof Database>(
     tableName: TN,
     gristTableId: string,
     gristColumns: string[],
-    mapper: (record: any) => Insertable<Database[TN]>
+    mapper: (record: any) => Insertable<Database[TN]> | Insertable<Database[TN]>[]
 ) {
     console.log(`Fetching ${gristTableId} from Grist document ${process.env.GRIST_DOC_ID}...`);
     const gristData = await getGristTableData(gristTableId, gristColumns);
@@ -21,10 +26,11 @@ async function syncTable<TN extends keyof Database>(
         return;
     }
 
-    // Mapping Grist records to our DB schema
-    const rows = gristData.map((r, index) => {
+    // Mapping Grist records to our DB schema (a record may map to several rows)
+    const rows = gristData.flatMap((r, index) => {
         try {
-            return mapper(r);
+            const mapped = mapper(r);
+            return Array.isArray(mapped) ? mapped : [mapped];
         } catch (e) {
             console.error(`❌ Error mapping line ${index} of table ${gristTableId}`, r);
             throw e;
@@ -38,7 +44,9 @@ async function syncTable<TN extends keyof Database>(
         await trx.deleteFrom(tableName).execute();
 
         // Insert new data
-        await trx.insertInto(tableName).values(rows).execute();
+        if (rows.length) {
+            await trx.insertInto(tableName).values(rows).execute();
+        }
     });
 }
 
@@ -150,6 +158,19 @@ async function main() {
                 definition_sous_classe: r.fields.Libelles_niveau_2_Definition_sous_classe,
             })
         );
+
+        // 9. SEARCH SYNONYMS (lay term → medical term)
+        // One Grist row per canonical; the Alias cell may list several lay terms,
+        // comma-separated. Each alias becomes its own row in search_synonyms.
+        await syncTable('search_synonyms', 'SearchSynonyms', ['Alias', 'Canonical'], (r) => {
+            const canonical = safeString(r.fields.Canonical); // accented form, normalized at query time
+            if (!canonical) return [];
+            const aliases = String(r.fields.Alias ?? "")
+                .split(",")
+                .map(normalizeAlias)
+                .filter(Boolean);
+            return aliases.map((alias) => ({ alias, canonical }));
+        });
 
         console.log("✅ Synchronization complete!");
         process.exit(0);

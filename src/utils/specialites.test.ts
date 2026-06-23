@@ -1,8 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { formatIndicationsDetails, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isSurveillanceRenforcee } from "./specialites";
+import { formatIndicationsDetails, formatSpecialitesResume, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isSurveillanceRenforcee } from "./specialites";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { SpecialiteComm, SpecialiteStat, VUEvnts } from "@/db/pdbmMySQL/types";
 import { ShortIndication } from "@/types/IndicationsTypes";
+import { ResumeSpecialiteDB } from "@/db/types";
 
 const detailedSpec: DetailedSpecialite = {
   SpecId: "60035714",
@@ -168,6 +169,41 @@ describe("utils specialities", () => {
       },
     ];
     expect(formatIndicationsDetails(indicationssList)).toStrictEqual(expectedIndicationsList);
-  })
+  });
+
+  it("formatSpecialitesResume", async () => {
+    const specs:ResumeSpecialiteDB[] = [{
+      ProcId: "10",
+      StatutBdm: 1,
+      atc1Code: "N",
+      atc2Code: "N03",
+      atc5Code: "N03AG01",
+      composants: "sodium (valproate de)",
+      groupName: "DEPAKINE",
+      indicationsIds: [36, 162],
+      indicationsIdsNames: [
+        ['36', 'Epilepsie'],
+        ['162', 'Convulsions']
+      ],
+      isAlertPediatricContraindication: false,
+      isAlertPregnancyMention: true,
+      isAlertPregnancyPlan: true,
+      isSurveillanceRenforcee: true,
+      specId: "67623734",
+      specName: "DEPAKINE 200 mg, comprimé gastro-résistant",
+      subsIds: ['05562'],
+    }]
+    const formattedSpecs = formatSpecialitesResume(specs);
+    const expectedIndicationsDetails = [{
+      idIndication: 36,
+      nomIndication: "Epilepsie",
+    },
+    {
+      idIndication: 162,
+      nomIndication: "Convulsions",
+    }];
+    
+    expect(formattedSpecs[0].indicationsDetails).toStrictEqual(expectedIndicationsDetails);
+  });
 
 });

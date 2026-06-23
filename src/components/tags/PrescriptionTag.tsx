@@ -1,5 +1,5 @@
 import Tag from "@codegouvfr/react-dsfr/Tag";
-import React, { HTMLAttributes } from "react";
+import { HTMLAttributes } from "react";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import "./dsfr-custom-tags.css";
 

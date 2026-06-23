@@ -6,15 +6,15 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { formatSpecName } from "@/displayUtils";
 import styled, {css} from 'styled-components';
 import Button from "@codegouvfr/react-dsfr/Button";
-import { MatchReason } from "@/db/utils/search";
 import MatchReasonTags from "../tags/MatchReasonTags";
 import PediatricsTags from "../tags/PediatricsTags";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
-import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
+import { ResumeSpecGroup, ShortSpecialite } from "@/types/SpecialiteTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import DataBlockGenericIcons from "./DataBlockGenericIcons";
 import { ShortIndication } from "@/types/IndicationsTypes";
+import { MatchReason } from "@/types/SearchTypes";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
@@ -85,8 +85,6 @@ const FiltersTagContainer = styled.div`
 interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
   item: ResumeSpecGroup;
   matchReasons?: MatchReason[];
-  filterPregnancy?: boolean;
-  filterPediatric?: boolean;
   withAlert?: boolean;
 }
 
@@ -94,14 +92,12 @@ interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
 function DataBlockAccordion({
   item,
   matchReasons,
-  filterPregnancy,
-  filterPediatric,
   withAlert
 }: DataBlockAccordionProps) {
 
   const [specialitesGroup, setSpecialitesGroup] = useState< ResumeSpecGroup>();
   const [groupName, setGroupName] = useState<string>("");
-  const [specialites, setSpecialites] = useState<ResumeSpecialite[]>();
+  const [specialites, setSpecialites] = useState<ShortSpecialite[]>();
 
   const [fullListeComposants, setFullListeComposants] = useState<string>("");
   const [listeComposants, setListeComposants] = useState<string>("");
@@ -121,7 +117,7 @@ function DataBlockAccordion({
   useEffect(() => {
     setSpecialitesGroup(item);
     setGroupName(formatSpecName(item.groupName));
-    setSpecialites(item.resumeSpecialites);
+    setSpecialites(item.shortSpecialites);
     setFullListeComposants(item.composants);
     setListeComposants(item.composants.slice(0, composantsTruncLength) + (item.composants.length > composantsTruncLength ? "..." : ""));
     setAtc1Label(item.atc1Label);
@@ -133,7 +129,6 @@ function DataBlockAccordion({
     if(withAlert 
       && specialitesGroup 
       && specialitesGroup.alerts 
-      && filterPregnancy
       && (specialitesGroup.alerts.pregnancyPlanAlert || specialitesGroup.alerts.pregnancyMentionAlert)
     ){
       if (specialitesGroup.alerts.pregnancyPlanAlert) setPregnancyPlanAlert(true)
@@ -146,20 +141,19 @@ function DataBlockAccordion({
       setPregnancyMentionAlert(false);
     }
 
-  }, [withAlert, filterPregnancy, specialitesGroup, setPregnancyPlanAlert, setPregnancyMentionAlert]);
+  }, [withAlert, specialitesGroup, setPregnancyPlanAlert, setPregnancyMentionAlert]);
 
   useEffect(() => {
     if(withAlert 
       && specialitesGroup 
       && specialitesGroup.alerts
-      && filterPediatric 
       && specialitesGroup.alerts.pediatrics
     )
       setPediatricsInfo(specialitesGroup.alerts.pediatrics);
     else
       setPediatricsInfo(undefined);
 
-  }, [withAlert, filterPediatric, specialitesGroup, setPediatricsInfo]);
+  }, [withAlert, specialitesGroup, setPediatricsInfo]);
 
   function onDetailsVisibles(isVisible: boolean) {
     setIsDetailsVisible(isVisible);
@@ -245,21 +239,8 @@ function DataBlockAccordion({
                 {(!pregnancyPlanAlert && pregnancyMentionAlert) && (
                   <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Mention contre-indication grossesse pour certains des médicaments</RedText>
                 )}
-                {pediatricsInfo && (
-                  <>
-                    {pediatricsInfo.indication && (
-                      <GreenText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Peut être utilisé chez l&apos;enfant selon l&apos;âge</GreenText>
-                    )}
-                    {pediatricsInfo.contraindication && (
-                      <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Contre-indiqué pour un enfant selon l&apos;âge</RedText>                    
-                    )}
-                    {pediatricsInfo.doctorAdvice && (
-                      <YellowText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Utilisation chez l&apos;enfant sur avis d&apos;un professionnel de santé</YellowText>
-                    )}
-                    {pediatricsInfo.mention && (
-                      <GreenText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Mention contre-indication enfant</GreenText>
-                    )}
-                  </>
+                {(pediatricsInfo && pediatricsInfo.contraindication) && (
+                  <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Contre-indiqué pour un enfant selon l&apos;âge</RedText>                    
                 )}
               </div>
             )}
