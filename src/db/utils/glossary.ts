@@ -22,6 +22,16 @@ export default async function getGlossaryDefinitions(): Promise<Definition[]> {
     return typedRows.sort((a, b) => a.nom.localeCompare(b.nom, 'fr', { sensitivity: 'base' }));
 };
 
+export async function getHighlightedGlossaryDefinitions(): Promise<Definition[]> {
+    const rows = await db.selectFrom("ref_glossaire")
+        .select(["nom", "definition", "source", "a_souligner"])
+        .where("a_souligner", "=", true)
+        .distinct()
+        .execute();
+    return rows.map((row) => mapDataBaseToDefinition(row))
+        .sort((a, b) => a.nom.localeCompare(b.nom, 'fr', { sensitivity: 'base' }));
+}
+
 export async function getGlossaryDefinitionsByFirstLetter(firstLetter: string): Promise<Definition[]> {
     const rows = await db.selectFrom("ref_glossaire")
         .select(["nom", "definition", "source", "a_souligner"])

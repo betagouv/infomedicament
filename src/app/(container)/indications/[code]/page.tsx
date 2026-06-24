@@ -4,11 +4,30 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getIndications } from "@/db/utils/indications";
+import { getResumeSpecsGroupsWithIndication } from "@/db/utils/specialities";
 import IndicationDefinitionContent from "@/components/definition/IndicationDefinitionContent";
 import { Indication } from "@/db/types";
+import { Metadata, ResolvingMetadata } from "next";
+import { getArticlesFromPatho } from "@/db/utils/articles";
+import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+
+export async function generateMetadata(
+  props: { params: Promise<{ code: `${number}` }> },
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+
+  const { code } = await props.params;
+  const indication: Indication | undefined = await getIndications(Number(code));
+  if (!indication) return notFound();
+
+  return {
+    title: `${indication.nom} - ${(await parent).title?.absolute}`,
+    description: indication.definition || "",
+  };
+}
 
 export default async function Page(props: {
   params: Promise<{ code: `${number}` }>;
@@ -16,6 +35,15 @@ export default async function Page(props: {
   const { code } = await props.params;
   const indication: Indication | undefined = await getIndications(Number(code));
   if (!indication) return notFound();
+
+  const [articles, allSpecsGroups] = await Promise.all([
+    indication.codePatho ? getArticlesFromPatho(indication.codePatho) : Promise.resolve([]),
+    getResumeSpecsGroupsWithIndication(indication.id),
+  ]);
+
+  const dataList = allSpecsGroups.length > 0
+    ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
+    : [];
 
   return (
     <ContentContainer frContainer>
@@ -37,6 +65,8 @@ export default async function Page(props: {
       </div>
       <IndicationDefinitionContent
         indication={indication}
+        articles={articles}
+        dataList={dataList}
       />
       <RatingToaster
         pageId={indication.nom}

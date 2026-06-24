@@ -1,4 +1,4 @@
-import { getSearchResults } from "@/db/utils";
+import { getSearchResults, getSynonymSuggestion } from "@/db/utils";
 import { getArticlesFromSearchResults } from "@/db/utils/articles";
 import SearchPage from "@/components/search/SearchPage";
 import RatingToaster from "@/components/rating/RatingToaster";
@@ -9,7 +9,12 @@ export default async function Page(props: {
 }) {
   const searchParams = await props.searchParams;
   const search = searchParams && "s" in searchParams && searchParams["s"];
-  const results = search ? await getSearchResults(searchParams["s"]) : [];
+  const [results, synonymTerms] = search
+    ? await Promise.all([
+        getSearchResults(searchParams["s"]),
+        getSynonymSuggestion(searchParams["s"]),
+      ])
+    : [[], []];
   // const articlesList = results.length > 0
   //   ? await getArticlesFromSearchResults(results)
   //   : [];
@@ -20,6 +25,7 @@ export default async function Page(props: {
       <SearchPage
         search={search ? search : undefined}
         searchResults={results}
+        synonymTerms={synonymTerms}
         articlesList={articlesList}
       />
       <RatingToaster

@@ -3,6 +3,7 @@ import { Selectable } from "kysely";
 
 export interface Database {
   search_index: SearchIndexTable;
+  search_synonyms: SearchSynonymsTable;
   leaflet_images: LeafletImagesTable;
   presentations: PresentationTable;
   rcp: RcpTable;
@@ -42,6 +43,7 @@ export interface Database {
   classes_cliniques: ClassesCliniquesTable;
   vu_classes_cliniques: VUClassesCliniquesTable;
   indications: IndicationsTable;
+  specialites_metadata: SpecialiteMetadataTable;
 }
 
 interface SearchIndexTable {
@@ -49,6 +51,13 @@ interface SearchIndexTable {
   match_type: "name" | "substance" | "atc" | "indication";
   group_name: string;
   match_label: string;
+  spec_id?: string | null;
+}
+
+interface SearchSynonymsTable {
+  id: Generated<number>;
+  alias: string; // lay term, stored normalized (lowercase, unaccented)
+  canonical: string; // medical term, accented form; normalized at query time
 }
 
 interface LeafletImagesTable {
@@ -418,8 +427,15 @@ interface IndicationsTable {
   CIS: string[],
 }
 
+interface SpecialiteMetadataTable {
+  CIS: number,
+  title: string,
+  description: string,
+}
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
+export type SearchSynonym = Selectable<SearchSynonymsTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
 export type RCPContent = Selectable<RcpContentTable>;
 export type Rating = Selectable<RatingTable>;
@@ -451,3 +467,6 @@ export type TriamClasseGrpSubst = Selectable<TriamClasseGrpSubstTable>;
 export type TriamInteraction = Selectable<TriamInteractionsTable>;
 export type InteractionsSearchEntry = Selectable<InteractionsSearchTable>;
 export type Indication = Selectable<IndicationsTable>;
+export type SpecialiteMetadata = Selectable<SpecialiteMetadataTable>;
+export type NoticeDB = Selectable<NoticeTable>;
+export type NoticeContentDB = Selectable<NoticeContentTable>;

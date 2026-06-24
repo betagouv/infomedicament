@@ -36,7 +36,7 @@ function RatingToaster({
       setIsOpen(true);
       const theme = isDark ? "dark" : "light";
       toast(<RatingPage pageId={pageId} />, {
-        delay: 2000,
+        delay: 10000,
         style: {width: "490px"},
         theme: theme,
       });

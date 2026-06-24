@@ -2,7 +2,7 @@ import WithGlossary from "@/components/glossary/WithGlossary";
 import { TitulaireAddressContainer, TitulaireNomContainer } from "@/components/medicaments/blocks/GenericBlocks";
 import { FicheInfos } from "@/types/FicheInfoTypes";
 import { Definition } from "@/types/GlossaireTypes";
-import { NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
+import { NoticeData, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import { fr } from "@codegouvfr/react-dsfr";
 import { CSSProperties } from "react";
 
@@ -238,4 +238,22 @@ export function getContent(children:NoticeRCPContentBlock[], definitions?:Defini
     }
   })
   return content;
+}
+
+export function getIndicationsBlock(notice: NoticeData): NoticeRCPContentBlock | undefined {
+  if (notice.children) {
+    const indicationsBlock = notice.children
+      .find((child: NoticeRCPContentBlock) => child.anchor === "Ann3bQuestceque");
+    return indicationsBlock;
+  }
+  return undefined;
+}
+
+export function formatNoticeDateNotif(dateNotif: string | undefined): string {
+  if(dateNotif) 
+    return dateNotif
+      .replace("ANSM - Mis à jour le : ", "Notice mise à jour le ")
+      .replace("Mis à jour : ", "Notice mise à jour le ");
+  return "";
+
 }
