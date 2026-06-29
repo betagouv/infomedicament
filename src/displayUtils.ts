@@ -44,6 +44,12 @@ export function displayCompleteComposants(composants: AnsmComposant[]): string {
     const substances = group.filter((c) => c.nature === "Substance active");
     const fractions = group.filter((c) => c.nature === "Fraction active");
 
+    // When nature is null for all composants in the group (gap #13: ansm_composant.nature
+    // unpopulated), fall back to displaying the whole group rather than an empty list.
+    if (substances.length === 0 && fractions.length === 0) {
+      return { primary: group, secondary: [] as AnsmComposant[], isFractionFirst: false };
+    }
+
     let displayListAs: "Substance active" | "Fraction active";
     if (substances.length - fractions.length >= 1 && fractions.length <= 1) {
       displayListAs = "Substance active";
@@ -55,18 +61,21 @@ export function displayCompleteComposants(composants: AnsmComposant[]): string {
       displayListAs = "Substance active";
     }
 
-    return { displayListAs, substances, fractions };
+    const isFractionFirst = displayListAs === "Fraction active";
+    return {
+      primary: isFractionFirst ? fractions : substances,
+      secondary: isFractionFirst ? substances : fractions,
+      isFractionFirst,
+    };
   });
 
   return displayGroups
-    .map(({ displayListAs, substances, fractions }) =>
-      (displayListAs === "Fraction active" ? fractions : substances).map(
+    .map(({ primary, secondary, isFractionFirst }) =>
+      primary.map(
         (c) =>
           `${c.substance} (${(c.dosage ?? '').trim()})${
-            (displayListAs === "Fraction active" ? substances : fractions).length > 0
-              ? `${displayListAs === "Fraction active" ? " sous forme de" : "correspondant à"} ${(
-                  displayListAs === "Fraction active" ? substances : fractions
-                )
+            secondary.length > 0
+              ? `${isFractionFirst ? " sous forme de" : "correspondant à"} ${secondary
                   .map((c) => `${c.substance}${c.dosage ? `(${c.dosage})` : ""}`)
                   .join(" et ")}.`
               : ""

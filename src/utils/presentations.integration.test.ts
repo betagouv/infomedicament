@@ -75,8 +75,7 @@ describe("utils presentations", () => {
     expect(shortPresentationName).toBe("Plaquette de 12 comprimés - Plaquette de 4 comprimés");
   });
 
-  // TODO PR4: isAbrogee always returns false — abrogation was from MySQL StatId, no bdpm equivalent yet
-  it.skip("getFullPresentations - abrogée status", async () => {
+  it("getFullPresentations - abrogée status", async () => {
     const presentationsA: Presentation[] = await getFullPresentations("69174918");
     expect(isAbrogee(presentationsA[0])).toBe(true);
     const presentationsB: Presentation[] = await getFullPresentations("62772966");

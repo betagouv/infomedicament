@@ -303,9 +303,10 @@ export function getPresentationPriceText(
   return "Prix libre - non remboursable";
 }
 
-// TODO PR4: remove — no bdpm equivalent for abrogation (was MySQL StatId)
-export function isAbrogee(_presentation: Presentation): boolean {
-  return false;
+// abrogee is populated from MySQL Presentation.StatId in getFullPresentations;
+// ansm_presentation has no equivalent field yet (data gap).
+export function isAbrogee(presentation: Presentation): boolean {
+  return presentation.abrogee === true;
 }
 
 export function isArret(presentation: Presentation): boolean {

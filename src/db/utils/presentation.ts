@@ -1,6 +1,6 @@
 import "server-cli-only";
 import { cache } from "react";
-import { PresentationRetro } from "@/db/pdbmMySQL/types";
+import { PresentationRetro, PresentationStat } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { Presentation } from "@/types/PresentationTypes";
 import { PresentationDetail } from "../types";
@@ -68,6 +68,15 @@ export const getFullPresentations = cache(
     const codesCIP13: string[] = presentations.map((p) => p.cip);
     const presentationsDetails: PresentationDetail[] = await getPresentationsDetails(codesCIP13);
     const presentationsRetro: PresentationRetro[] = await getPresentationsRetro(codesCIP13);
+    const abrogeeCips: Set<string> = codesCIP13.length
+      ? await pdbmMySQL
+          .selectFrom("Presentation")
+          .where("codeCIP13", "in", codesCIP13)
+          .where("StatId", "=", PresentationStat.Abrogation)
+          .select("codeCIP13")
+          .execute()
+          .then((rows) => new Set(rows.map((r) => r.codeCIP13.trim())))
+      : new Set();
 
     presentations.forEach((p) => {
       const details = presentationsDetails.filter(
@@ -80,6 +89,9 @@ export const getFullPresentations = cache(
       if (retro.length > 0) {
         //Only one per presentation
         p.retro = retro[0];
+      }
+      if (abrogeeCips.has(p.cip.trim())) {
+        p.abrogee = true;
       }
     });
 

@@ -3,7 +3,7 @@ import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
 import { HTMLAttributes, useEffect, useState } from "react";
 import { AggregatePresentationDetails, Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
-import { cleanPresentationsDetails, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isAbrogee, isArret, getAggregatePresentationRecipientsTexts } from "@/utils/presentations";
+import { cleanPresentationsDetails, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isArret, getAggregatePresentationRecipientsTexts } from "@/utils/presentations";
 import styled from "styled-components";
 
 type PresentationToDisplay = {

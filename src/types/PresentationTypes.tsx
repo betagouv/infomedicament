@@ -4,6 +4,7 @@ import { AnsmPresentation, PresentationDetail } from "@/db/types";
 export type Presentation = AnsmPresentation & {
   details?: PresentationDetail[],
   retro?: PresentationRetro,
+  abrogee?: boolean,
 }
 
 export type AggregateDispositifDetails = {
