@@ -348,16 +348,12 @@ function GeneralInformations({
                       {getPresentationFullPriceText(pres)}
                     </span>
                   </div>
-                  {(pres.date_commercialisation || pres.cip7) && (
-                    <div className={fr.cx("fr-mb-0")}>
-                      {pres.cip7 && (
-                        <span className={fr.cx("fr-mr-2w")}>Code CIP : {pres.cip7}</span>
-                      )}
-                      {pres.date_commercialisation && (
-                        <span>Déclaration de commercialisation : {dateShortFormat(pres.date_commercialisation)}</span>
-                      )}
-                    </div>
-                  )}
+                  <div className={fr.cx("fr-mb-0")}>
+                    <span className={fr.cx("fr-mr-2w")}>Code CIP : {pres.cip7 ?? pres.cip}</span>
+                    {pres.date_commercialisation && (
+                      <span>Déclaration de commercialisation : {dateShortFormat(pres.date_commercialisation)}</span>
+                    )}
+                  </div>
                   {isAbrogee(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
                       Abrogée
