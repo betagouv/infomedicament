@@ -8,10 +8,16 @@ import db from "..";
 
 export const getPresentations = cache(
   async (CIS: string): Promise<Presentation[]> => {
+    const cutoff = new Date(Date.now() - 730 * 24 * 60 * 60 * 1000);
     return db
       .selectFrom("ansm_presentation")
       .where("cis", "=", CIS)
       .where("statut_commercialisation", "not in", ["RETIREE", "SUSPENDUE", "NON_COMMUNIQUEE"])
+      .where((eb) => eb.or([
+        eb("statut_commercialisation", "!=", "ARRETEE"),
+        eb("date_commercialisation", "is", null),
+        eb("date_commercialisation", ">=", cutoff),
+      ]))
       .selectAll()
       .orderBy("cip")
       .execute();
