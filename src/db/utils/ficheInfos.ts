@@ -38,14 +38,14 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
     .selectFrom("smr")
     .leftJoin("url_has", "url_has.code_ct", "smr.code_evamed")
     .where("smr.code_cis", "=", CIS)
-    .select(["smr.date_avis_definitif", "smr.valeur_smr", "smr.motif_demande", "smr.smr", "url_has.url"])
+    .select(["smr.date_avis_definitif", "smr.valeur_smr", "smr.motif_demande", "smr.libelle_smr", "url_has.url"])
     .distinct()
     .execute()
     .then((rows) => rows.map((r) => ({
       DateAvis: r.date_avis_definitif,
       ValeurSmr: r.valeur_smr ?? '',
       MotifEval: r.motif_demande ?? '',
-      LibelleSmr: r.smr ?? '',
+      LibelleSmr: r.libelle_smr ?? '',
       HASLiensPageCT: r.url ?? null,
     })));
 
@@ -53,14 +53,14 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
     .selectFrom("asmr")
     .leftJoin("url_has", "url_has.code_ct", "asmr.code_evamed")
     .where("asmr.code_cis", "=", CIS)
-    .select(["asmr.date_avis_definitif", "asmr.valeur_asmr", "asmr.motif_demande", "asmr.asmr", "url_has.url"])
+    .select(["asmr.date_avis_definitif", "asmr.valeur_asmr", "asmr.motif_demande", "asmr.libelle_asmr", "url_has.url"])
     .distinct()
     .execute()
     .then((rows) => rows.map((r) => ({
       DateAvis: r.date_avis_definitif,
       ValeurAsmr: r.valeur_asmr ?? '',
       MotifEval: r.motif_demande ?? '',
-      LibelleAsmr: r.asmr ?? '',
+      LibelleAsmr: r.libelle_asmr ?? '',
       HASLiensPageCT: r.url ?? null,
     })));
 
