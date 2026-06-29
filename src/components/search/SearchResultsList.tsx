@@ -8,6 +8,8 @@ import Button from "@codegouvfr/react-dsfr/Button";
 import SearchFilterBlock from "./blocks/SearchFilterBlock";
 import { SearchFilter, SearchResultItem, SortType } from "@/types/SearchTypes";
 import DataBlockSpecResult from "../data/DataBlockSpecResult";
+import DataListPagination from "../data/DataListPagination";
+import SearchResultsPagination from "./blocks/SearchResultsPagination";
 
 const Container = styled.div `
   .display-inline {
@@ -368,15 +370,14 @@ function SearchResultsList({
             size="small"
           />
         </SortContainer>
-        {filteredResultsList && filteredResultsList.map((result, index) => (
-          <DataBlockSpecResult
-            key={index}
-            specialite={result}
-            subsFilters={allSubsFilters.filter((filter) => filter.selected)}
-            atcsFilters={allAtcFilters.filter((filter) => filter.selected)}
-            indicationsFilters={allIndicationsFilters.filter((filter) => filter.selected)}
+        {filteredResultsList && (
+          <SearchResultsPagination
+            resultsList={filteredResultsList}
+            allSubsFilters={allSubsFilters}
+            allAtcFilters={allAtcFilters}
+            allIndicationsFilters={allIndicationsFilters}
           />
-        ))}
+        )}
       </div>
     </Container>
   );
