@@ -98,7 +98,12 @@ export async function generateMetadata(
   const { CIS } = await props.params;
 
   const metadata = await getSpecialiteMetadata(Number(CIS.trim()));
-  if(!metadata) return notFound();
+
+  if (!metadata) {
+    return {
+      title: 'Médicament',
+    };
+  }
 
   const name = formatSpecName(metadata.title);
   return {
