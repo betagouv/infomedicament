@@ -6,11 +6,11 @@ import { HTMLAttributes, useState } from "react";
 import styled, { css } from 'styled-components';
 import Link from "next/link";
 import { DetailedSpecialite, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
-import { getContent } from "@/utils/notices/noticesUtils";
 import { isAIP, isCentralisee } from "@/utils/specialites";
 import { ShortIndication } from "@/types/IndicationsTypes";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
+import { getContent } from "@/utils/notices";
 
 const IndicationBlock = styled.div<{
   $small?: boolean;
@@ -66,7 +66,7 @@ const IndicationsContainer = styled.div`
 interface IndicationsBlockProps extends HTMLAttributes<HTMLDivElement> {
   specialite?: DetailedSpecialite;
   indications?: ShortIndication[];
-  indicationBlock?: NoticeRCPContentBlock;
+  indicationsBlock?: NoticeRCPContentBlock;
   title?: string;
   resizable?: boolean;
   small?: boolean;
@@ -75,7 +75,7 @@ interface IndicationsBlockProps extends HTMLAttributes<HTMLDivElement> {
 function IndicationsBlock({ 
   specialite,
   indications,
-  indicationBlock,
+  indicationsBlock,
   title,
   resizable,
   small,
@@ -135,10 +135,10 @@ function IndicationsBlock({
                 )}
               </span>
             ) : (
-              (indicationBlock && indicationBlock.children && indicationBlock.children.length > 0) ? (
+              (indicationsBlock && indicationsBlock.children && indicationsBlock.children.length > 0) ? (
                 <div>
                   <IndicationBlockContent $isFullHeight={resizable ? isFullHeight : true}>
-                    {getContent(indicationBlock.children)}
+                    {getContent(indicationsBlock.children)}
                   </IndicationBlockContent>
                   {(resizable && !isFullHeight) && (<span>{"..."}<br/></span>)}
                   {resizable && (

@@ -18,6 +18,7 @@ import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite } from "@/types/S
 import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
 import { formatSpecialitesResume, formatSpecialitesResumeFromGroups } from "@/utils/specialites";
+import { SpecialiteMetadata } from "../types";
 
 export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
   const result = await pdbmMySQL
@@ -237,3 +238,11 @@ export const getSubstanceSpecialitesCIS = unstable_cache(async function (
   ["substance-specialites-cis"],
   { revalidate: 3600 } // cache for one hour
 );
+
+export async function getSpecialiteMetadata(CIS: number): Promise<SpecialiteMetadata | undefined> {
+  return await db
+    .selectFrom("specialites_metadata")
+    .where("CIS", "=", CIS)
+    .selectAll()
+    .executeTakeFirst();
+};

@@ -91,7 +91,7 @@ interface NoticeContentProps extends HTMLAttributes<HTMLDivElement> {
   notice?: NoticeData;
   ficheInfos?: FicheInfos;
   definitions?: Definition[];
-  indicationBlock?: NoticeRCPContentBlock;
+  indicationsBlock?: NoticeRCPContentBlock;
   title: string;
   indications: ShortIndication[];
   articles: ArticleCardResume[];
@@ -114,7 +114,7 @@ function NoticeContent({
   notice,
   ficheInfos,
   definitions,
-  indicationBlock,
+  indicationsBlock,
   title,
   indications,
   articles,
@@ -208,7 +208,7 @@ function NoticeContent({
           />
           <IndicationsBlock
             specialite={specialite}
-            indicationBlock={indicationBlock}
+            indicationsBlock={indicationsBlock}
             title="À quoi sert-il ?"
             resizable
             small
@@ -293,7 +293,6 @@ function NoticeContent({
                     <PediatricsTags 
                       info={pediatrics} 
                       fromMedicament
-                      hideLast
                     />
                   )}
               </TagContainer>

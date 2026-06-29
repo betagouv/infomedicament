@@ -32,7 +32,7 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
   indications: ShortIndication[];
   notice?: NoticeData;
-  indicationBlock?: NoticeRCPContentBlock;
+  indicationsBlock?: NoticeRCPContentBlock;
   ficheInfos?: FicheInfos;
   definitions: Definition[];
   pregnancyPlanAlert?: PregnancyAlert;
@@ -54,7 +54,7 @@ function MedicamentContent({
   title,
   indications,
   notice,
-  indicationBlock,
+  indicationsBlock,
   ficheInfos,
   definitions,
   pregnancyPlanAlert,
@@ -115,7 +115,7 @@ function MedicamentContent({
               marr={marr}
               ficheInfos={ficheInfos}
               definitions={definitions}
-              indicationBlock={indicationBlock}
+              indicationsBlock={indicationsBlock}
               advancedAnchor={advancedAnchor}
               title={title}
               onGoToAdvanced={onGoToAdvanced}
@@ -137,7 +137,7 @@ function MedicamentContent({
             notice={notice}
             ficheInfos={ficheInfos}
             definitions={definitions}
-            indicationBlock={indicationBlock}
+            indicationsBlock={indicationsBlock}
             title={title}
             indications={indications}
             articles={articles}
