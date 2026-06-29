@@ -44,6 +44,24 @@ export interface Database {
   vu_classes_cliniques: VUClassesCliniquesTable;
   indications: IndicationsTable;
   specialites_metadata: SpecialiteMetadataTable;
+  ansm_specialite: AnsmSpecialiteTable;
+  ansm_atc: AnsmAtcTable;
+  ansm_classe_clinique: AnsmClasseCliniqueTable;
+  ansm_groupe_substance: AnsmGroupeSubstanceTable;
+  ansm_classe_interaction: AnsmClasseInteractionTable;
+  ansm_presentation: AnsmPresentationTable;
+  ansm_element: AnsmElementTable;
+  ansm_specialite_atc: AnsmSpecialiteAtcTable;
+  ansm_specialite_classe_clinique: AnsmSpecialiteClasseCliniqueTable;
+  ansm_classe_groupe_substance: AnsmClasseGroupeSubstanceTable;
+  ansm_substance_groupe_substance: AnsmSubstanceGroupeSubstanceTable;
+  ansm_interaction: AnsmInteractionTable;
+  ansm_composant: AnsmComposantTable;
+  ansm_recipient: AnsmRecipientTable;
+  ansm_dispositif: AnsmDispositifTable;
+  ansm_document: AnsmDocumentTable;
+  ansm_caracteristique: AnsmCaracteristiqueTable;
+  ansm_specialite_titulaire: AnsmSpecialiteTitulaireTable;
 }
 
 interface SearchIndexTable {
@@ -433,6 +451,17 @@ interface SpecialiteMetadataTable {
   description: string,
 }
 
+interface AnsmSpecialiteTable {
+  cis: string;
+  denomination: string | null;
+  generique: string | null;
+  procedure: number | null;
+  date_amm: Date | null;
+  statut_amm: "INACTIVE" | "ACTIVE" | "ABROGEE" | "SUSPENDUE" | "RETIREE" | null;
+  date_modification: Date | null;
+  disponibilite: "INDISPONIBLE" | "DISPONIBLE" | "PARTIELLE" | "ALERTE" | null;
+}
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type SearchSynonym = Selectable<SearchSynonymsTable>;
@@ -470,3 +499,175 @@ export type Indication = Selectable<IndicationsTable>;
 export type SpecialiteMetadata = Selectable<SpecialiteMetadataTable>;
 export type NoticeDB = Selectable<NoticeTable>;
 export type NoticeContentDB = Selectable<NoticeContentTable>;
+export type AnsmSpecialite = Selectable<AnsmSpecialiteTable>;
+
+interface AnsmAtcTable {
+  code: number;
+  code_parent: number | null;
+  libelle_abr: string | null;
+  libelle_court: string | null;
+  libelle_long: string | null;
+  libelle_anglais: string | null;
+}
+
+export type AnsmAtc = Selectable<AnsmAtcTable>;
+
+interface AnsmClasseCliniqueTable {
+  code: number;
+  libelle_court: string | null;
+  libelle_long: string | null;
+}
+
+export type AnsmClasseClinique = Selectable<AnsmClasseCliniqueTable>;
+
+interface AnsmGroupeSubstanceTable {
+  code_groupe: number;
+  code_groupe_parent: number | null;
+  nom: string | null;
+  date_modification: Date | null;
+}
+
+export type AnsmGroupeSubstance = Selectable<AnsmGroupeSubstanceTable>;
+
+interface AnsmClasseInteractionTable {
+  code_classe: number;
+  nom: string | null;
+  description: string | null;
+  date_modification: Date | null;
+}
+
+export type AnsmClasseInteraction = Selectable<AnsmClasseInteractionTable>;
+
+interface AnsmPresentationTable {
+  cip: string;
+  cis: string;
+  cip7: string | null;
+  denomination: string | null;
+  date_modification: Date | null;
+  statut_commercialisation: "INCONNUE" | "COMMERCIALISEE" | "ARRETEE" | "SUSPENDUE" | "NON_COMMUNIQUEE" | "RETIREE" | null;
+  date_commercialisation: Date | null;
+}
+
+export type AnsmPresentation = Selectable<AnsmPresentationTable>;
+
+interface AnsmElementTable {
+  cis: string;
+  numero_element: number;
+  denomination: string | null;
+  ordre: number | null;
+}
+
+export type AnsmElement = Selectable<AnsmElementTable>;
+
+interface AnsmSpecialiteAtcTable {
+  cis: string;
+  code_atc: number;
+}
+
+export type AnsmSpecialiteAtc = Selectable<AnsmSpecialiteAtcTable>;
+
+interface AnsmSpecialiteClasseCliniqueTable {
+  cis: string;
+  code_classe_clinique: number;
+}
+
+export type AnsmSpecialiteClasseClinique = Selectable<AnsmSpecialiteClasseCliniqueTable>;
+
+interface AnsmClasseGroupeSubstanceTable {
+  code_classe: number;
+  code_groupe: number;
+}
+
+export type AnsmClasseGroupeSubstance = Selectable<AnsmClasseGroupeSubstanceTable>;
+
+interface AnsmSubstanceGroupeSubstanceTable {
+  code_groupe: number;
+  code_substance: string;
+  date_modification: Date | null;
+}
+
+export type AnsmSubstanceGroupeSubstance = Selectable<AnsmSubstanceGroupeSubstanceTable>;
+
+// Each side is identified by either code_groupe_* OR code_classe_* (exactly one non-null per side).
+// No PK constraint — see migration for explanation.
+interface AnsmInteractionTable {
+  code_groupe_1: number | null;
+  code_groupe_2: number | null;
+  code_classe_1: number | null;
+  code_classe_2: number | null;
+  niveau: string | null;
+  risque: string | null;
+  conduite: string | null;
+  commentaire: string | null;
+  date_modification: Date | null;
+}
+
+export type AnsmInteraction = Selectable<AnsmInteractionTable>;
+
+interface AnsmComposantTable {
+  cis: string;
+  numero_element: number;
+  numero_composant: number;
+  code_substance: string | null;
+  substance: string | null;
+  nature: "Substance active" | "Fraction active" | null;
+  dosage: string | null;
+  ordre: number | null;
+}
+
+export type AnsmComposant = Selectable<AnsmComposantTable>;
+
+interface AnsmRecipientTable {
+  cip: string;
+  numero_element: number | null;
+  numero_recipient: number;
+  nature_recipient: string | null;
+  nombre: number | null;
+  quantite_contenance: number | null;
+  code_unite_contenance: string | null;
+  unite_contenance: string | null;
+}
+
+export type AnsmRecipient = Selectable<AnsmRecipientTable>;
+
+interface AnsmDispositifTable {
+  cip: string;
+  numero_dispositif: number;
+  code_nature_dispositif: string | null;
+  nature_dispositif: string | null;
+}
+
+export type AnsmDispositif = Selectable<AnsmDispositifTable>;
+
+interface AnsmDocumentTable {
+  cis: string;
+  type: "notice" | "rcp";
+  date_modification: Date | null;
+  date_export: Date | null;
+  url: string | null;
+  sha256: string | null;
+  images: string[] | null;
+}
+
+export type AnsmDocument = Selectable<AnsmDocumentTable>;
+
+interface AnsmCaracteristiqueTable {
+  cip: string;
+  numero_recipient: number;
+  code_caracteristique: number;
+  ordre: number | null;
+  libelle: string | null;
+}
+
+export type AnsmCaracteristique = Selectable<AnsmCaracteristiqueTable>;
+
+interface AnsmSpecialiteTitulaireTable {
+  cis: string;
+  code_titulaire: string;
+  raison_sociale: string | null;
+  raison_sociale_longue: string | null;
+  pays: string | null;
+  date_debut: Date | null;
+}
+
+export type AnsmSpecialiteTitulaire = Selectable<AnsmSpecialiteTitulaireTable>;
