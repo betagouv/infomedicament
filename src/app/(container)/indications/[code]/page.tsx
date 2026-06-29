@@ -21,7 +21,11 @@ export async function generateMetadata(
 
   const { code } = await props.params;
   const indication: Indication | undefined = await getIndications(Number(code));
-  if (!indication) return notFound();
+  if (!indication){
+    return {
+      title: `Indication - ${(await parent).title?.absolute}`,
+    };
+  }
 
   return {
     title: `${indication.nom} - ${(await parent).title?.absolute}`,

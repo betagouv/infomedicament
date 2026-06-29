@@ -22,7 +22,11 @@ export async function generateMetadata(
   const { id } = await props.params;
   const ids = decodeURIComponent(id).split(",");//NomId
   const substances: SubstanceNom[] = await getSubstances(ids) ?? [];
-  if (substances.length < ids.length) return notFound();
+  if (substances.length < ids.length) {
+    return {
+      title: 'Substance',
+    };
+  }
 
   const definitionsRaw = await getSubstanceDefinition(ids, substances.map((subs) => subs.SubsId.trim()));
   const definitionString = definitionsRaw.map(d => `${d.SA} : ${d.Definition}`).join(" - ")
