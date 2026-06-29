@@ -9,7 +9,7 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getAtc1, getAtc2 } from "@/db/utils/atc";
 import { getSpecialite } from "@/db/utils";
 import { getWarmupCISCodes } from "@/db/utils/warmup";
-import { pdbmMySQL } from "@/db/pdbmMySQL";
+import db from "@/db";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName, isCentralisee } from "@/utils/specialites";
@@ -26,8 +26,8 @@ import { getArticlesFromFilters } from "@/db/utils/articles";
 import { getFicheInfos } from "@/db/utils/ficheInfos";
 import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
-import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { getIndicationsBlock } from "@/utils/notices";
+import { AnsmComposant } from "@/db/types";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -44,7 +44,7 @@ export async function generateStaticParams() {
 async function fetchMedicamentData(
   CIS: string,
   specialite: DetailedSpecialite,
-  composants: Array<SpecComposant & SubstanceNom>,
+  composants: AnsmComposant[],
   atcList: string[],
 ) {
   const [
@@ -68,12 +68,12 @@ async function fetchMedicamentData(
   ]);
 
   const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
-    composants.some((c) => Number(c.SubsId.trim()) === Number(s.id))
+    composants.some((c) => Number(c.code_substance) === Number(s.id))
   );
   const indicationsBlock = notice && getIndicationsBlock(notice);
   const articles = await getArticlesFromFilters({
     ATCList: atcList,
-    substancesList: composants.map((c) => c.SubsId.trim()),
+    substancesList: composants.map((c) => c.code_substance ?? ''),
     specialitesList: [CIS],
     pathologiesList: specialitePathologies,
   });
@@ -98,7 +98,7 @@ export async function generateMetadata(
   const { CIS } = await props.params;
 
   const metadata = await getSpecialiteMetadata(Number(CIS.trim()));
-  if(!metadata) return notFound();
+  if (!metadata) return notFound();
 
   const name = formatSpecName(metadata.title);
   return {
@@ -120,17 +120,12 @@ export default async function Page(props: {
   const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
   const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
-  const isPrinceps =
-    !!(await pdbmMySQL
-      .selectFrom("Specialite")
-      .select("Specialite.SpecId")
-      .where("Specialite.SpecGeneId", "=", CIS)
-      .executeTakeFirst()) &&
-    !!(await pdbmMySQL
-      .selectFrom("GroupeGene")
-      .select("GroupeGene.SpecId")
-      .where("GroupeGene.SpecId", "=", CIS)
-      .executeTakeFirst());
+  const isPrinceps = !!(await db
+    .selectFrom("ansm_specialite")
+    .select("cis")
+    .where("generique", "=", CIS)
+    .limit(1)
+    .executeTakeFirst());
 
   const atcList: string[] = [];
   const breadcrumb = [
@@ -152,25 +147,25 @@ export default async function Page(props: {
   if (composants.length > 0) {
     breadcrumb.push({
       label: displaySimpleComposants(composants)
-        .map((s) => s.NomLib.trim())
+        .map((s) => (s.substance ?? '').trim())
         .join(", "),
       linkProps: {
         href: `/substances/${displaySimpleComposants(composants)
-          .map((s) => s.NomId.trim())
+          .map((s) => s.code_substance ?? '')
           .join(",")}`,
       },
     });
   }
   if (specialite) {
     breadcrumb.push({
-      label: formatSpecName(getSpecialiteGroupName(specialite)),
+      label: formatSpecName(getSpecialiteGroupName(specialite.denomination ?? '')),
       linkProps: {
-        href: `/rechercher?s=${formatSpecName(getSpecialiteGroupName(specialite))}`,
+        href: `/rechercher?s=${formatSpecName(getSpecialiteGroupName(specialite.denomination ?? ''))}`,
       },
     });
   }
 
-  const pageLabel = specialite ? formatSpecName(specialite.SpecDenom01) : await getSpecialiteName(CIS);
+  const pageLabel = specialite ? formatSpecName(specialite.denomination ?? '') : await getSpecialiteName(CIS);
 
   return (
     <>
@@ -178,13 +173,13 @@ export default async function Page(props: {
         <Breadcrumb
           segments={breadcrumb}
           currentPageLabel={
-            specialite ? formatSpecName(specialite.SpecDenom01).replace(
-              formatSpecName(getSpecialiteGroupName(specialite)),
+            specialite ? formatSpecName(specialite.denomination ?? '').replace(
+              formatSpecName(getSpecialiteGroupName(specialite.denomination ?? '')),
               "",
             ) : ""}
           className={fr.cx("fr-mb-2w")}
         />
-        <h1 
+        <h1
           className={fr.cx("fr-h2", "fr-hidden-md")}
         >
           {pageLabel}

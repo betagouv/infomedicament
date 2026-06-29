@@ -1,16 +1,15 @@
 import db from "@/db";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { Letters, LetterType, Indication, ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
-import { groupGeneNameToDCI } from "@/displayUtils";
+import { AnsmSpecialite, Letters, LetterType, Indication, ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
 import { getComposants } from "@/db/utils/composants";
 import { getEvents } from "@/db/utils/ficheInfos";
 import { getSpecialitesIndications } from "@/db/utils/indications";
 import { getAllSpecialites } from "@/db/utils/specialities";
 import { getAllSubsWithSpecialites } from "@/db/utils/substances";
-import { displaySimpleComposants, formatSpecName, MedicamentGroup } from "@/displayUtils";
+import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
 import { getAtc1Code, getAtc2Code, getAtcCode } from "@/utils/atc";
-import { getSpecialiteGroupName, groupSpecialites, isSurveillanceRenforcee } from "@/utils/specialites";
+import { getSpecialiteGroupName, isSurveillanceRenforcee } from "@/utils/specialites";
 import { ShortIndication } from "@/types/IndicationsTypes";
 import { getPregnancyMentionAlert } from "@/db/utils/pregnancy";
 import { getPediatrics } from "@/db/utils/pediatrics";
@@ -42,19 +41,19 @@ async function createResumeIndications(): Promise<string[]> {
     .selectFrom("indications")
     .selectAll()
     .execute();
-  const allSpec = await pdbmMySQL
-    .selectFrom("Specialite")
-    .where("Specialite.IsBdm", "=", 1)
-    .select(["SpecId", "SpecDenom01"])
+  const allSpec = await db
+    .selectFrom("ansm_specialite")
+    .where("disponibilite", "!=", "INDISPONIBLE")
+    .select(["cis", "denomination"])
     .execute();
-  
+
   allIndications.forEach((indication: Indication) => {
     const specialites: string[] = [];
     if(indication.CIS.length > 0){
       indication.CIS.forEach((CIS: string) => {
-        const specDetail = allSpec.find((spec) => spec.SpecId === CIS);
+        const specDetail = allSpec.find((spec) => spec.cis === CIS);
         if(specDetail) {
-          specialites.push(getSpecialiteGroupName(specDetail.SpecDenom01))
+          specialites.push(getSpecialiteGroupName(specDetail.denomination ?? ''))
         }
       });
     }
@@ -131,30 +130,39 @@ async function createResumeMedicaments(): Promise<string[]> {
     .execute();
 
   const allSpecialites = await getAllSpecialites();
-  const medicaments: MedicamentGroup[] = groupSpecialites(allSpecialites);
+  const groupMap = new Map<string, AnsmSpecialite[]>();
+  for (const spec of allSpecialites) {
+    const groupName = getSpecialiteGroupName(spec.denomination ?? '');
+    if (groupMap.has(groupName)) {
+      groupMap.get(groupName)?.push(spec);
+    } else {
+      groupMap.set(groupName, [spec]);
+    }
+  }
+  const medicaments = Array.from(groupMap.entries());
   const letters: string[] = [];
   const results = await Promise.all(
     medicaments.map(async (medGroup) => {
       const [groupName, rawSpecialites] = medGroup;
-      const rawComposants = await getComposants(rawSpecialites[0].SpecId);
+      const rawComposants = await getComposants(rawSpecialites[0].cis);
       const composants: string = displaySimpleComposants(rawComposants)
-        .map((s) => s.NomLib.trim())
+        .map((s) => (s.substance ?? '').trim())
         .join(", ");
-      const subsIds: string[] = rawComposants.map((subs) => subs.SubsId.trim());
+      const subsIds: string[] = rawComposants.map((subs) => subs.code_substance ?? '');
       const specialites: string[][] = await Promise.all(
         rawSpecialites.map(async (spec) => {
-          const events = await getEvents(spec.SpecId);
+          const events = await getEvents(spec.cis);
           const surveillanceRenforcee: string = isSurveillanceRenforcee(events) ? "true" : "false";
           return [
-            spec.SpecId,
-            spec.SpecDenom01,
-            spec.StatutBdm.toString(),
-            spec.ProcId,
+            spec.cis,
+            spec.denomination ?? '',
+            spec.disponibilite === "INDISPONIBLE" ? "2" : "1",
+            spec.procedure?.toString() ?? '',
             surveillanceRenforcee,
           ];
         })
       );
-      const CISList: string[] = rawSpecialites.map((spec) => spec.SpecId.trim());
+      const CISList: string[] = rawSpecialites.map((spec) => spec.cis);
       const rawIndicationsCodes: ShortIndication[] = await getSpecialitesIndications(CISList);
       const indicationsIds: number[] = rawIndicationsCodes
         .map((indication) => indication.idIndication)
@@ -164,7 +172,7 @@ async function createResumeMedicaments(): Promise<string[]> {
         indication.nomIndication ? indication.nomIndication : "",
       ]);
 
-      const atc = await getAtcCode(rawSpecialites[0].SpecId);
+      const atc = await getAtcCode(rawSpecialites[0].cis);
       const atc1: string | undefined = atc ? getAtc1Code(atc) : undefined;
       const atc2: string | undefined = atc ? getAtc2Code(atc) : undefined;
 
@@ -199,27 +207,35 @@ async function createResumeGeneriques(): Promise<string[]> {
     .deleteFrom('resume_generiques')
     .execute();
 
-  const allGenerics = await pdbmMySQL
-    .selectFrom("Specialite")
-    .innerJoin("GroupeGene", "Specialite.SpecGeneId", "GroupeGene.SpecId")
-    .where("Specialite.ProcId", "!=", "50") //Not AIP
-    .where("Specialite.IsBdm", "=", 1)
-    .select(["Specialite.SpecGeneId", "GroupeGene.LibLong"])
-    .groupBy(["GroupeGene.LibLong", "GroupeGene.SpecId"])
-    .orderBy("GroupeGene.LibLong")
+  // Collect distinct princeps CIS codes from active, non-AIP generics
+  const principeCIS = await db
+    .selectFrom("ansm_specialite")
+    .where("generique", "is not", null)
+    .where("disponibilite", "!=", "INDISPONIBLE")
+    .where("procedure", "!=", 50) // exclude AIP
+    .select("generique")
+    .distinct()
+    .execute()
+    .then((rows) => rows.map((r) => r.generique!));
+
+  const princepsRows = await db
+    .selectFrom("ansm_specialite")
+    .where("cis", "in", principeCIS)
+    .select(["cis", "denomination"])
+    .orderBy("denomination")
     .execute();
 
   const letters: string[] = [];
-  const resumeData: ResumeGeneric[] = allGenerics
-    .map((generic) => {
-      const genericName: string = formatSpecName(groupGeneNameToDCI(generic.LibLong));
-      const subLetter = getNormalizeLetter(genericName.substring(0, 1));
-      if (!letters.includes(subLetter)) letters.push(subLetter);
-      return {
-        SpecId: generic.SpecGeneId,
-        SpecName: genericName,
-      }
-    });
+  const resumeData: ResumeGeneric[] = princepsRows.map((row) => {
+    const genericName = formatSpecName(getSpecialiteGroupName(row.denomination ?? ''));
+    const subLetter = getNormalizeLetter(genericName.substring(0, 1));
+    if (!letters.includes(subLetter)) letters.push(subLetter);
+    return {
+      SpecId: row.cis,
+      SpecName: genericName,
+    };
+  });
+
   const result = await db
     .insertInto('resume_generiques')
     .values(resumeData)
@@ -242,35 +258,35 @@ async function createResumeSpecialites(): Promise<void> {
     .then((rows) => rows.map((row) => ({ id: row.subs_id?.trim() || "", link: row.lien_site_ansm?.trim() || "" })));
   const results = await Promise.all(
     allSpecialites.map(async (spec) => {
-      const rawComposants = await getComposants(spec.SpecId);
+      const rawComposants = await getComposants(spec.cis);
       const composants: string = displaySimpleComposants(rawComposants)
-        .map((s) => s.NomLib.trim())
+        .map((s) => (s.substance ?? '').trim())
         .join(", ");
-      const subsIds: string[] = rawComposants.map((subs) => subs.SubsId.trim());
-      const rawIndicationsCodes: ShortIndication[] = await getSpecialitesIndications([spec.SpecId]);
+      const subsIds: string[] = rawComposants.map((subs) => subs.code_substance ?? '');
+      const rawIndicationsCodes: ShortIndication[] = await getSpecialitesIndications([spec.cis]);
       const indicationsIds: number[] = rawIndicationsCodes
         .map((indication) => indication.idIndication)
         .filter((idIndication, index, arr) => arr.indexOf(idIndication) === index);
       const indicationsIdsNames: string[][] = rawIndicationsCodes.map((indication) => [
-        indication.idIndication.toString(), 
+        indication.idIndication.toString(),
         indication.nomIndication ? indication.nomIndication : "",
       ]);
-      const atc = await getAtcCode(spec.SpecId);
+      const atc = await getAtcCode(spec.cis);
       const atc1: string | undefined = atc ? getAtc1Code(atc) : undefined;
       const atc2: string | undefined = atc ? getAtc2Code(atc) : undefined;
 
-      const events = await getEvents(spec.SpecId);
+      const events = await getEvents(spec.cis);
       const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
-        rawComposants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
+        rawComposants.find((c) => Number(c.code_substance) === Number(s.id)),
       );
-      const pediatrics = await getPediatrics(spec.SpecId);
+      const pediatrics = await getPediatrics(spec.cis);
 
       await db
         .insertInto('resume_specialites')
         .values({
-          specId: spec.SpecId.trim(),
-          specName: spec.SpecDenom01.trim(),
-          groupName: getSpecialiteGroupName(spec),
+          specId: spec.cis.trim(),
+          specName: (spec.denomination ?? '').trim(),
+          groupName: getSpecialiteGroupName(spec.denomination ?? ''),
           composants: composants,
           subsIds: subsIds,
           indicationsIds: indicationsIds,
@@ -278,11 +294,11 @@ async function createResumeSpecialites(): Promise<void> {
           atc1Code: atc1,
           atc2Code: atc2,
           atc5Code: atc ?? undefined,
-          ProcId: spec.ProcId,
+          ProcId: spec.procedure?.toString() ?? '',
           isSurveillanceRenforcee: isSurveillanceRenforcee(events),
-          StatutBdm: spec.StatutBdm,
+          StatutBdm: spec.disponibilite === "ALERTE" ? 3 : spec.disponibilite === "INDISPONIBLE" ? 2 : 1,
           isAlertPregnancyPlan: pregnancyPlanAlert ? true : false,
-          isAlertPregnancyMention: await getPregnancyMentionAlert(spec.SpecId),
+          isAlertPregnancyMention: await getPregnancyMentionAlert(spec.cis),
           isAlertPediatricContraindication: pediatrics && pediatrics.contraindication ? true : false,
         })
         .execute();

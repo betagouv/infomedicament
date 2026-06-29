@@ -32,7 +32,7 @@ function RcpBlock({
     ) => {
       try {
         if(!isCentralisee(spec)) {
-          const newNotice = await getRCP(spec.SpecId);
+          const newNotice = await getRCP(spec.cis);
           setCurrentRcp(newNotice);
         }
         setLoaded(true);

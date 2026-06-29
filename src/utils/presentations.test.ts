@@ -2,7 +2,6 @@ import { AggregateDispositifDetails, AggregatePresentationDetails, AggregateReci
 import { describe, it, expect } from "vitest";
 import { caracCompDisplay, cleanPresentationsDetails, contenanceDisplay, dispositifDisplay, getAggregatePresentationRecipientsTexts, getPresentationFullPriceText, getPresentationPriceText, getPresentationTauxPriseEnChargeText, replacePluralSingular, totalDisplay } from "./presentations";
 import { PresentationDetail } from "@/db/types";
-import { PresentationComm } from "@/db/pdbmMySQL/types";
  
   //CIS : 69174918
   const recipientDetails: AggregateRecipientDetails = {
@@ -96,22 +95,13 @@ import { PresentationComm } from "@/db/pdbmMySQL/types";
 
   const presentations: Presentation[] = [
   {
-    AgreColl: 1,
-    Cip13: "3400935955838",
-    CommId: PresentationComm.Commercialisation,
-    DateJO: new Date(2002, 12, 19),
-    HonoDisp: 1.02,
-    PPF: 2.18,
-    Ppttc: 1.16,
-    PresCodeCip: "359 558-3 ou 34009 359 558 3 8",
-    PresCommDate: new Date(2003, 1, 2),
-    PresNom01: "plaquette(s) thermoformée(s) PVC-aluminium de 8  comprimé(s)",
-    PresNum: "1",
-    PresStatDAte: null,
-    SpecId: "60234100",
-    StatId: null,
-    TauxPriseEnCharge: "65%",
-    codeCIP13: "3400935955838",
+    cip: "3400935955838",
+    cis: "60234100",
+    cip7: null,
+    denomination: "plaquette(s) thermoformée(s) PVC-aluminium de 8  comprimé(s)",
+    date_modification: null,
+    statut_commercialisation: "COMMERCIALISEE",
+    date_commercialisation: new Date(2003, 1, 2),
     details: [
       {
         caraccomplrecip: "PVC-Aluminium",
@@ -139,22 +129,13 @@ import { PresentationComm } from "@/db/pdbmMySQL/types";
     }
   },
   {
-    AgreColl: 1,
-    Cip13: "3400956369553",
-    CommId: PresentationComm.Commercialisation,
-    DateJO: new Date(2002, 12, 19),
-    HonoDisp: null,
-    PPF: null,
-    Ppttc: null,
-    PresCodeCip: "563 695-5 ou 34009 563 695 5 3",
-    PresCommDate: new Date(2003, 3, 17),
-    PresNom01: "plaquette(s) thermoformée(s) PVC-aluminium de 100  comprimé(s)",
-    PresNum: "2",
-    PresStatDAte: null,
-    SpecId: "60234100",
-    StatId: null,
-    TauxPriseEnCharge: null,
-    codeCIP13: "3400956369553",
+    cip: "3400956369553",
+    cis: "60234100",
+    cip7: null,
+    denomination: "plaquette(s) thermoformée(s) PVC-aluminium de 100  comprimé(s)",
+    date_modification: null,
+    statut_commercialisation: "COMMERCIALISEE",
+    date_commercialisation: new Date(2003, 3, 17),
     details: [
       {
         caraccomplrecip: "PVC-Aluminium",
@@ -534,19 +515,20 @@ describe("utils presentations - text utilities", () => {
     expect(dispositifDisplay(dispositifDetails4)).toBe("");
   });
 
+  // TODO PR4: update when pricing functions are restored from CEPS_Prix data
   it("getPresentationFullPriceText", async () => {
-    expect(getPresentationFullPriceText(presentations[0])).toBe("Prix 2,18 € - remboursé à 65%");
+    expect(getPresentationFullPriceText(presentations[0])).toBe("Prix libre - non remboursable");
     expect(getPresentationFullPriceText(presentations[1])).toBe("Prix libre - non remboursable");
   });
 
   it("getPresentationTauxPriseEnChargeText", async () => {
-    expect(getPresentationTauxPriseEnChargeText(presentations[0])).toBe("remboursé à 65%");
+    expect(getPresentationTauxPriseEnChargeText(presentations[0])).toBe("non remboursable");
     expect(getPresentationTauxPriseEnChargeText(presentations[1])).toBe("non remboursable");
   });
 
   it("getPresentationPriceText", async () => {
-    expect(getPresentationPriceText(presentations[0])).toBe("2,18 €");
-    expect(getPresentationPriceText(presentations[1])).toBe("Prix libre");
+    expect(getPresentationPriceText(presentations[0])).toBe("Prix libre - non remboursable");
+    expect(getPresentationPriceText(presentations[1])).toBe("Prix libre - non remboursable");
   });
 
 });

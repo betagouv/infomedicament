@@ -1,5 +1,11 @@
 import { Specialite } from "@/db/pdbmMySQL/types";
-import { ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
+import { AnsmSpecialite, ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
+
+// AnsmSpecialite with computed status fields for lists (generics, ATC pages)
+export type AnsmSpecialiteWithStatus = AnsmSpecialite & {
+  ProcId: string;
+  StatutBdm: number;
+};
 import { PediatricsInfo } from "./PediatricTypes";
 import { ShortIndication } from "./IndicationsTypes";
 
@@ -32,12 +38,18 @@ export type ResumeSpecialite = ResumeSpecialiteDB & {
   indicationsDetails?: ShortIndication[],
 }
 
-export type DetailedSpecialite = Specialite & {
-  urlCentralise: string | null,
+export type DetailedSpecialite = AnsmSpecialite & {
+  // computed from statut_amm
   statutAutorisation: string | null,
+  // computed from disponibilite
   statutComm: string | null,
-  titulairesList?: string,
+  titulairesList: string | null,
   generiqueName: string | null,
+  urlCentralise: string | null,
+  // kept for compatibility with isAIP/isCommercialisee/isAlerteSecurite/isHomeopathie/isCentralisee
+  // computed from procedure and disponibilite/statut_amm
+  ProcId: string,
+  StatutBdm: number,
 }
 
 export type NoticeBlockType = "generalites" | "usage" | "warnings" | "howTo" | "sideEffects" | "storage" | "composition";
@@ -72,6 +84,6 @@ export type GroupeGenerique = {
   libelle: string;
 }
 
-export type SpecialiteWithSubstance = Specialite & {
+export type SpecialiteWithSubstance = AnsmSpecialite & {
   NomId: string;
 }

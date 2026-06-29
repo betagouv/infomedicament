@@ -1,6 +1,5 @@
 import db from "@/db";
-import { Specialite } from "@/db/pdbmMySQL/types";
-import { NoticeDB, SpecialiteMetadata } from "@/db/types";
+import { AnsmSpecialite, NoticeDB, SpecialiteMetadata } from "@/db/types";
 import { getAllNoticesWithoutChildren, getIndicationsText } from "@/db/utils/notice";
 import { getAllSpecialites } from "@/db/utils/specialities";
 
@@ -16,7 +15,7 @@ export async function populateSpecMetadataTable(): Promise<void> {
     .deleteFrom('specialites_metadata')
     .execute();
 
-  const allSpecialites: Specialite[] = await getAllSpecialites();
+  const allSpecialites: AnsmSpecialite[] = await getAllSpecialites();
   const allNotices: NoticeDB[] = await getAllNoticesWithoutChildren();
 
   // Notices carry their top-level children ids but no content text, so this map
@@ -27,7 +26,7 @@ export async function populateSpecMetadataTable(): Promise<void> {
 
   // Only the specialites that have a matching notice get a metadata row.
   const specsWithNotice = allSpecialites.flatMap((spec) => {
-    const noticeDB = noticeByCIS.get(spec.SpecId.trim());
+    const noticeDB = noticeByCIS.get(spec.cis.trim());
     return noticeDB ? [{ spec, noticeDB }] : [];
   });
 
@@ -55,7 +54,7 @@ export async function populateSpecMetadataTable(): Promise<void> {
             : "";
         return {
           CIS: noticeDB.codeCIS,
-          title: spec.SpecDenom01,
+          title: spec.denomination ?? '',
           description,
         };
       }),

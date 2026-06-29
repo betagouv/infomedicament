@@ -105,11 +105,11 @@ function IndicationsBlock({
           {(specialite && isAIP(specialite)) ? (
             <span>              
               Pour visualiser les indications thérapeutiques, consulter la fiche info de la spécialité de réfèrence de cette autorisation d'importation parallèle
-              {(specialite.generiqueName && specialite.SpecGeneId) && (
+              {(specialite.generiqueName && specialite.generique) && (
                 <>
                   &nbsp;:&nbsp;
                   <Link
-                    href={`/medicaments/${specialite.SpecGeneId}`}
+                    href={`/medicaments/${specialite.generique}`}
                     aria-description="Lien vers le médicament"
                   >
                     {specialite.generiqueName}

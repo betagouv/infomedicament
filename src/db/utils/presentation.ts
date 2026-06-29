@@ -1,68 +1,27 @@
 import "server-cli-only";
 import { cache } from "react";
-import {
-  PdbmMySQL,
-  PresentationComm,
-  PresentationStat,
-  PresentationRetro,
-} from "@/db/pdbmMySQL/types";
+import { PresentationRetro, PresentationStat } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { expressionBuilder, sql } from "kysely";
 import { Presentation } from "@/types/PresentationTypes";
 import { PresentationDetail } from "../types";
 import db from "..";
 
-export const presentationIsComm = () => {
-  const eb = expressionBuilder<PdbmMySQL, "Presentation">();
-  return eb.and([
-    eb.or([
-      eb("Presentation.CommId", "=", PresentationComm.Commercialisation),
-      eb.and([
-        eb("Presentation.CommId", "in", [
-          PresentationComm["Arrêt"],
-          PresentationComm.Suspension,
-          PresentationComm["Plus d'autorisation"],
-        ]),
-        eb(
-          "Presentation.PresCommDate",
-          ">=",
-          sql<Date>`DATE_ADD(NOW(),INTERVAL -730 DAY)`,
-        ),
-      ]),
-    ]),
-    eb.or([
-      eb("Presentation.StatId", "is", null),
-      eb("Presentation.StatId", "!=", PresentationStat.Abrogation),
-      eb(
-        "Presentation.PresStatDAte",
-        ">=",
-        sql<Date>`DATE_ADD(NOW(),INTERVAL -730 DAY)`,
-      ),
-    ]),
-  ]);
-};
-
 export const getPresentations = cache(
-  async (
-    CIS: string,
-  ): Promise<Presentation[]> => {
-    const result = (
-      await pdbmMySQL
-        .selectFrom("Presentation")
-        .where("SpecId", "=", CIS)
-        .where(presentationIsComm())
-        .leftJoin("CEPS_Prix", "Presentation.codeCIP13", "CEPS_Prix.Cip13")
-        .leftJoin("CNAM_AgreColl", "Presentation.codeCIP13", "CNAM_AgreColl.Cip13")
-        .selectAll()
-      //  .select(({ fn, val }) => [
-      //     fn<boolean>("", [val(presentationIsComm())]).as("isCommercialisee"),
-      //   ])
-        .execute()
-    )
-    .sort((a, b) =>
-      a.PPF && b.PPF ? a.PPF - b.PPF : a.PPF ? -1 : b.PPF ? 1 : 0,
-    );
-    return result;
+  async (CIS: string): Promise<Presentation[]> => {
+    const cutoff = new Date(Date.now() - 730 * 24 * 60 * 60 * 1000);
+    return db
+      .selectFrom("ansm_presentation")
+      .where("cis", "=", CIS)
+      .where((eb) => eb.or([
+        eb("statut_commercialisation", "=", "COMMERCIALISEE"),
+        eb.and([
+          eb("statut_commercialisation", "in", ["ARRETEE", "SUSPENDUE", "RETIREE"]),
+          eb("date_commercialisation", ">=", cutoff),
+        ]),
+      ]))
+      .selectAll()
+      .orderBy("cip")
+      .execute();
   },
 );
 
@@ -113,21 +72,33 @@ export const getFullPresentations = cache(
     CIS: string,
   ): Promise<Presentation[]> => {
     const presentations: Presentation[] = await getPresentations(CIS);
-    const codesCIP13: string[] = presentations.map((p) => p.codeCIP13);
+    const codesCIP13: string[] = presentations.map((p) => p.cip);
     const presentationsDetails: PresentationDetail[] = await getPresentationsDetails(codesCIP13);
     const presentationsRetro: PresentationRetro[] = await getPresentationsRetro(codesCIP13);
+    const abrogeeCips: Set<string> = codesCIP13.length
+      ? await pdbmMySQL
+          .selectFrom("Presentation")
+          .where("codeCIP13", "in", codesCIP13)
+          .where("StatId", "=", PresentationStat.Abrogation)
+          .select("codeCIP13")
+          .execute()
+          .then((rows) => new Set(rows.map((r) => r.codeCIP13.trim())))
+      : new Set();
 
     presentations.forEach((p) => {
       const details = presentationsDetails.filter(
-        (d) => d.codecip13.trim() === p.codeCIP13.trim(),
+        (d) => d.codecip13.trim() === p.cip.trim(),
       );
       p.details = details;
       const retro = presentationsRetro.filter(
-        (r) => r.Cip13.trim() === p.codeCIP13.trim(),
+        (r) => r.Cip13.trim() === p.cip.trim(),
       );
       if (retro.length > 0) {
         //Only one per presentation
         p.retro = retro[0];
+      }
+      if (abrogeeCips.has(p.cip.trim())) {
+        p.abrogee = true;
       }
     });
 

@@ -5,7 +5,8 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, PropsWithChildren } from "react";
 import styled, {css} from 'styled-components';
 import GenericPrincepsTag from "@/components/tags/GenericPrincepsTag";
-import { SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecDelivrance } from "@/db/pdbmMySQL/types";
+import { AnsmComposant } from "@/db/types";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import PediatricsTags from "@/components/tags/PediatricsTags";
 import Link from "next/link";
@@ -83,7 +84,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   updateVisiblePart: (visiblePart: DetailsNoticePartsEnum) => void;
   specialite?: DetailedSpecialite;
   atcCode?: string;
-  composants: Array<SpecComposant & SubstanceNom>;
+  composants: AnsmComposant[];
   isPrinceps: boolean;
   isPregnancyPlanAlert: boolean;
   isPregnancyMentionAlert: boolean;
@@ -159,13 +160,13 @@ function GeneralInformations({
       <ContentContainer id="informations-resume" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
         <h2 className={fr.cx("fr-h6")}>Résumé</h2>
         <SummaryLine categoryName="Code CIS">
-          {formatCIS(specialite.SpecId)}
+          {formatCIS(specialite.cis)}
         </SummaryLine>
         {atcCode && (
           <SummaryLine categoryName="Classe ATC">
             {atcCode}{" "}
             <span style={{textTransform:"capitalize"}}>
-              {displaySimpleComposants(composants).map((s) => s.NomLib.trim()).join(", ")}
+              {displaySimpleComposants(composants).map((s) => (s.substance ?? '').trim()).join(", ")}
             </span>
           </SummaryLine>
         )}
@@ -175,17 +176,17 @@ function GeneralInformations({
         <SummaryLine categoryName="Statut générique">
           <>
             {(isPrinceps && !isAIP(specialite)) ? (
-              <GenericPrincepsTag 
-                id={specialite.SpecId} 
+              <GenericPrincepsTag
+                id={specialite.cis}
                 type="princeps"
                 hideIcon
               />
             ) : (
-              (specialite.SpecGeneId && !isAIP(specialite))
+              (specialite.generique && specialite.generiqueName && !isAIP(specialite))
               ? (
                 <>
-                  <GenericPrincepsTag 
-                    id={specialite.SpecGeneId}
+                  <GenericPrincepsTag
+                    id={String(specialite.generique)}
                     type="generic"
                     hideIcon
                   />
@@ -221,17 +222,14 @@ function GeneralInformations({
             ? (
               <>
                 <span>{specialite.statutAutorisation}</span>
-                {(specialite.StatId && Number(specialite.StatId) === SpecialiteStat.Abrogée && specialite.SpecStatDate) && (
-                  <span className={fr.cx("fr-text--sm")}>{" "}le {(specialite.SpecStatDate).toLocaleDateString('fr-FR')}</span>
-                )}
               </>
             )
             : (<span>Non communiqué</span>)
           }
         </SummaryLine>
         <SummaryLine categoryName="Date d'autorisation de mise sur le marché">
-          {specialite.SpecDateAMM 
-            ? (<span>Le&nbsp;{(specialite.SpecDateAMM).toLocaleDateString('fr-FR')}</span>)
+          {specialite.date_amm
+            ? (<span>Le&nbsp;{(specialite.date_amm).toLocaleDateString('fr-FR')}</span>)
             : (<span>Non communiquée</span>)
           }
         </SummaryLine>
@@ -338,7 +336,7 @@ function GeneralInformations({
           <div>
             <ul className={fr.cx("fr-raw-list")}>
               {presentations.map((pres, index) => (
-                <li key={`${pres.Cip13}-${index}`} className={fr.cx("fr-mb-1w")}>
+                <li key={`${pres.cip}-${index}`} className={fr.cx("fr-mb-1w")}>
                   <div className={fr.cx("fr-mb-0")}>
                     <span
                       className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
@@ -350,59 +348,27 @@ function GeneralInformations({
                       {getPresentationFullPriceText(pres)}
                     </span>
                   </div>
-                  {(pres.Ppttc || pres.HonoDisp) && (
-                    <div className={fr.cx("fr-mb-0")}>
-                      {pres.Ppttc && (
-                        <span className={fr.cx("fr-mr-2w")}>
-                          Prix hors honoraire de dispensation :{" "}
-                          {Intl.NumberFormat("fr-FR", {
-                            style: "currency",
-                            currency: "EUR",
-                          }).format(pres.Ppttc)}
-                          {" "}
-                        </span>
-                      )}
-                      {pres.HonoDisp && (
-                        <span>
-                          <WithDefinition
-                            definition={definitions && getDefinition(definitions, "Honoraire de dispensation")}
-                            word="Honoraire de dispensation"
-                          />{" : "}
-                          {Intl.NumberFormat("fr-FR", {
-                            style: "currency",
-                            currency: "EUR",
-                          }).format(pres.HonoDisp)}
-                          {" "}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  {(pres.PresCommDate && pres.PresCodeCip) && (
-                    <div className={fr.cx("fr-mb-0")}>
-                      {pres.PresCodeCip && (
-                        <span className={fr.cx("fr-mr-2w")}>Code CIP : {pres.PresCodeCip}</span>
-                      )}
-                      {pres.PresCommDate && (
-                        <span>Déclaration de commercialisation : {dateShortFormat(pres.PresCommDate)}</span>
-                      )}
-                    </div>
-                  )}
+                  <div className={fr.cx("fr-mb-0")}>
+                    <span className={fr.cx("fr-mr-2w")}>Code CIP : {pres.cip7 ?? pres.cip}</span>
+                    {pres.date_commercialisation && (
+                      <span>Déclaration de commercialisation : {dateShortFormat(pres.date_commercialisation)}</span>
+                    )}
+                  </div>
                   {isAbrogee(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
                       Abrogée
-                      {pres.PresStatDAte && ` le ${dateShortFormat(pres.PresStatDAte)}`}
                     </div>
                   )}
                   {isArret(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
                       Déclaration d'arrêt de commercialisation
-                      {pres.PresCommDate && ` : ${dateShortFormat(pres.PresCommDate)}`}
+                      {pres.date_commercialisation && ` : ${dateShortFormat(pres.date_commercialisation)}`}
                     </div>
                   )}
                   {isNotAuthorized(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
                       Arrêt de commercialisation (le médicament n'a plus d'autorisation)
-                      {pres.PresCommDate && ` : ${dateShortFormat(pres.PresCommDate)}`}
+                      {pres.date_commercialisation && ` : ${dateShortFormat(pres.date_commercialisation)}`}
                     </div>
                   )}
                   {isAgree(pres) ? (

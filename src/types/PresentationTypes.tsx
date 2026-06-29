@@ -1,15 +1,11 @@
-import { PresAgreColl, PresentationLight, PresentationRetro, PresInfoTarif } from "@/db/pdbmMySQL/types";
-import { PresentationDetail } from "@/db/types";
-import { Nullable } from "kysely";
+import { PresentationRetro } from "@/db/pdbmMySQL/types";
+import { AnsmPresentation, PresentationDetail } from "@/db/types";
 
-export type Presentation = 
-  PresentationLight 
-  & Nullable<PresInfoTarif> 
-  & Nullable<PresAgreColl> 
-  & { 
-    details?: PresentationDetail[],
-    retro?: PresentationRetro,
-  }
+export type Presentation = AnsmPresentation & {
+  details?: PresentationDetail[],
+  retro?: PresentationRetro,
+  abrogee?: boolean,
+}
 
 export type AggregateDispositifDetails = {
   numdispositif: number;

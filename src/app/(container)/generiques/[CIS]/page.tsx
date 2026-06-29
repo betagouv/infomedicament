@@ -1,8 +1,5 @@
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import {
-  getSpecialite,
-  groupGeneNameToDCI,
-} from "@/db/utils";
+import { getSpecialite } from "@/db/utils";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import React from "react";
@@ -16,8 +13,7 @@ import { getSpecialiteGroupName } from "@/utils/specialites";
 import { ATCError, getAtcCode } from "@/utils/atc";
 import MedicamentGeneriqueContainer from "@/components/medicamentsGeneriques/MedicamentGeneriqueContainer";
 import { getGeneriques, getGroupeGene } from "@/db/utils/generics";
-import { Specialite } from "@/db/pdbmMySQL/types";
-import { getEvents } from "@/db/utils/ficheInfos";
+import { AnsmSpecialiteWithStatus } from "@/types/SpecialiteTypes";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -33,10 +29,7 @@ export default async function Page(props: {
   const { specialite, composants } = await getSpecialite(group.SpecId);
   if (!specialite) notFound();
 
-  const generiques: Specialite[] = await getGeneriques(CIS);
-
-  const CISList = generiques.map((g) => g.SpecId).concat(specialite.SpecId);
-  const events = await getEvents(CISList);
+  const generiques: AnsmSpecialiteWithStatus[] = await getGeneriques(CIS);
 
   let atcCode;
   try {
@@ -45,7 +38,7 @@ export default async function Page(props: {
     if (!(e instanceof ATCError)) throw e;
     for (const specialite of generiques) {
       try {
-        atcCode = await getAtcCode(specialite.SpecId);
+        atcCode = await getAtcCode(specialite.cis);
         break;
       } catch (e) {
         if (!(e instanceof ATCError)) throw e;
@@ -55,8 +48,8 @@ export default async function Page(props: {
   //if (!atcCode) throw new ATCError(CIS);
   const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
-  const pageLabel = formatSpecName(groupGeneNameToDCI(group.LibLong));
-  const groupName = getSpecialiteGroupName(groupGeneNameToDCI(group.LibLong));
+  const pageLabel = formatSpecName(group.LibLong);
+  const groupName = getSpecialiteGroupName(group.LibLong);
 
   return (
     <>
@@ -82,7 +75,6 @@ export default async function Page(props: {
         groupName={groupName}
         princeps={specialite}
         generiques={generiques}
-        events={events}
       />
       <RatingToaster
         pageId={pageLabel}

@@ -1,11 +1,7 @@
-import {
-  ComposantNatureId,
-  SpecComposant,
-  Specialite,
-  SubstanceNom,
-} from "@/db/pdbmMySQL/types";
+import { AnsmComposant, AnsmSpecialite } from "@/db/types";
+import { Specialite } from "@/db/pdbmMySQL/types";
 
-export type MedicamentGroup<T extends Specialite = Specialite> = [string, T[]];
+export type MedicamentGroup<T extends Specialite | AnsmSpecialite = Specialite> = [string, T[]];
 
 export const formatSpecName = (name: string): string =>
   name && name
@@ -15,102 +11,72 @@ export const formatSpecName = (name: string): string =>
     )
     .join(" ");
 
-export function displaySimpleComposants(
-  composants: (SpecComposant & SubstanceNom)[],
-): SubstanceNom[] {
-  const groups = new Map<number, (SpecComposant & SubstanceNom)[]>();
+export function displaySimpleComposants(composants: AnsmComposant[]): AnsmComposant[] {
+  const groups = new Map<number, AnsmComposant[]>();
   for (const composant of composants) {
-    if (groups.has(composant.CompNum)) {
-      groups.get(composant.CompNum)?.push(composant);
+    if (groups.has(composant.numero_composant)) {
+      groups.get(composant.numero_composant)?.push(composant);
     } else {
-      groups.set(composant.CompNum, [composant]);
+      groups.set(composant.numero_composant, [composant]);
     }
   }
 
   return Array.from(groups.values())
-    .map((composants: (SpecComposant & SubstanceNom)[]) =>
-      composants.filter(
-        (composant) => composant.NatuId === ComposantNatureId.Fraction,
-      ).length
-        ? composants.filter(
-            (composant) => composant.NatuId === ComposantNatureId.Fraction,
-          )
-        : composants,
+    .map((group) =>
+      group.filter((c) => c.nature === "Fraction active").length
+        ? group.filter((c) => c.nature === "Fraction active")
+        : group,
     )
     .flat();
 }
 
-export function displayCompleteComposants(
-  composants: (SpecComposant & SubstanceNom)[],
-): string {
-  const groups = new Map<number, (SpecComposant & SubstanceNom)[]>();
+export function displayCompleteComposants(composants: AnsmComposant[]): string {
+  const groups = new Map<number, AnsmComposant[]>();
   for (const composant of composants) {
-    if (groups.has(composant.CompNum)) {
-      groups.get(composant.CompNum)?.push(composant);
+    if (groups.has(composant.numero_composant)) {
+      groups.get(composant.numero_composant)?.push(composant);
     } else {
-      groups.set(composant.CompNum, [composant]);
+      groups.set(composant.numero_composant, [composant]);
     }
   }
 
-  const displayGroups = Array.from(groups.values()).map(
-    (composants: (SpecComposant & SubstanceNom)[]) => {
-      const substances = composants.filter(
-        (composant) => composant.NatuId === ComposantNatureId.Substance,
-      );
-      const fractions = composants.filter(
-        (composant) => composant.NatuId === ComposantNatureId.Fraction,
-      );
+  const displayGroups = Array.from(groups.values()).map((group) => {
+    const substances = group.filter((c) => c.nature === "Substance active");
+    const fractions = group.filter((c) => c.nature === "Fraction active");
 
-      let displayListAs;
-      // This is copied from the original PDBM code
-      if (
-        // If there is many substances or just a substance without therapeutic fraction,
-        // we will just display a list of substances
-        substances.length - fractions.length >= 1 &&
-        fractions.length <= 1
-      ) {
-        displayListAs = ComposantNatureId.Substance;
-      } else if (
-        // If there is many fractions in a substance or just a fraction without the substance
-        // we will display a list of fractions
-        // with maybe the precision "under the form of [name of the substance]"
-        fractions.length - substances.length >= 1 &&
-        substances.length <= 1
-      ) {
-        displayListAs = ComposantNatureId.Fraction;
-      } else if (fractions.length === substances.length) {
-        // Same
-        displayListAs = ComposantNatureId.Fraction;
-      } else {
-        // If there is many substances and fractions, we will display a list of substances
-        displayListAs = ComposantNatureId.Substance;
-      }
+    // When nature is null for all composants in the group (gap #13: ansm_composant.nature
+    // unpopulated), fall back to displaying the whole group rather than an empty list.
+    if (substances.length === 0 && fractions.length === 0) {
+      return { primary: group, secondary: [] as AnsmComposant[], isFractionFirst: false };
+    }
 
-      return { displayListAs, substances, fractions };
-    },
-  );
+    let displayListAs: "Substance active" | "Fraction active";
+    if (substances.length - fractions.length >= 1 && fractions.length <= 1) {
+      displayListAs = "Substance active";
+    } else if (fractions.length - substances.length >= 1 && substances.length <= 1) {
+      displayListAs = "Fraction active";
+    } else if (fractions.length === substances.length) {
+      displayListAs = "Fraction active";
+    } else {
+      displayListAs = "Substance active";
+    }
+
+    const isFractionFirst = displayListAs === "Fraction active";
+    return {
+      primary: isFractionFirst ? fractions : substances,
+      secondary: isFractionFirst ? substances : fractions,
+      isFractionFirst,
+    };
+  });
 
   return displayGroups
-    .map(({ displayListAs, substances, fractions }) =>
-      (displayListAs === ComposantNatureId.Fraction
-        ? fractions
-        : substances
-      ).map(
+    .map(({ primary, secondary, isFractionFirst }) =>
+      primary.map(
         (c) =>
-          `${c.NomLib} (${c.CompDosage.trim()})${
-            (displayListAs === ComposantNatureId.Fraction
-              ? substances
-              : fractions
-            ).length > 0
-              ? `${displayListAs === ComposantNatureId.Fraction ? " sous forme de" : "correspondant à"} ${(displayListAs ===
-                ComposantNatureId.Fraction
-                  ? substances
-                  : fractions
-                )
-                  .map(
-                    (c) =>
-                      `${c.NomLib}${c.CompDosage ? `(${c.CompDosage})` : ""}`,
-                  )
+          `${c.substance} (${(c.dosage ?? '').trim()})${
+            secondary.length > 0
+              ? `${isFractionFirst ? " sous forme de" : "correspondant à"} ${secondary
+                  .map((c) => `${c.substance}${c.dosage ? `(${c.dosage})` : ""}`)
                   .join(" et ")}.`
               : ""
           }`,
@@ -118,11 +84,6 @@ export function displayCompleteComposants(
     )
     .flat()
     .join("; ");
-}
-
-export function groupGeneNameToDCI(name: string): string {
-  const regexMatch = name.match(/^[^\-]+/);
-  return regexMatch ? regexMatch[0].trim() : name;
 }
 
 export function dateShortFormat(date: Date): string {

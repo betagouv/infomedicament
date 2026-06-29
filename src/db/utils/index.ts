@@ -5,7 +5,7 @@ import { NoResultError } from "kysely";
 export {
   getSpecialite,
 } from "./specialities";
-export { getPresentations, presentationIsComm } from "./presentation";
+export { getPresentations } from "./presentation";
 export { getSearchResults } from "./search";
 export { getSynonymSuggestion } from "./searchSynonyms";
 export { groupGeneNameToDCI } from "@/displayUtils";
