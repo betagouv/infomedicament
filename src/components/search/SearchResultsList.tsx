@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, useCallback, useEffect, useState } from "react";
+import { HTMLAttributes, useEffect, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from 'styled-components';
 import Link from "next/link";
@@ -59,25 +59,6 @@ function SearchResultsList({
 
   const [currentSortType, setCurrentSortType] = useState<SortType>("score");
   const [isSortAsc, setIsSortAsc] = useState<boolean>(true);
-
-  const onSortFilters = useCallback((
-    newSubsFilters: SearchFilter[],
-  ): SearchFilter[] => {
-    if(newSubsFilters.length > 0 && newSubsFilters[0].children) {
-      newSubsFilters.forEach((filter) => {
-        if(filter.children) {
-          filter.children.sort((a,b) => { 
-            if(a.count === b.count) return a.name.localeCompare(b.name);
-            return b.count - a.count;
-          });
-        }
-      })
-    }
-    return newSubsFilters.sort((a: SearchFilter, b: SearchFilter) => { 
-      if(a.count === b.count) return a.name.localeCompare(b.name);
-      return b.count - a.count;
-    });
-  },[]);
 
   //Loading
   useEffect(() => {
@@ -149,10 +130,10 @@ function SearchResultsList({
         });
       }
     });
-    setAllSubsFilters(onSortFilters(newSubsFilters));
-    setAllAtcFilters(onSortFilters(newATCFilters));
-    setAllIndicationsFilters(onSortFilters(newIndicationsFilters));
-  }, [resultsList, setAllSubsFilters, setAllAtcFilters, setAllIndicationsFilters, onSortFilters]);
+    setAllSubsFilters(newSubsFilters);
+    setAllAtcFilters(newATCFilters);
+    setAllIndicationsFilters(newIndicationsFilters);
+  }, [resultsList, setAllSubsFilters, setAllAtcFilters, setAllIndicationsFilters]);
 
   //Update the results list after filters updates
   useEffect(() => {
