@@ -12,11 +12,12 @@ export const getPresentations = cache(
     return db
       .selectFrom("ansm_presentation")
       .where("cis", "=", CIS)
-      .where("statut_commercialisation", "not in", ["RETIREE", "SUSPENDUE", "NON_COMMUNIQUEE"])
       .where((eb) => eb.or([
-        eb("statut_commercialisation", "!=", "ARRETEE"),
-        eb("date_commercialisation", "is", null),
-        eb("date_commercialisation", ">=", cutoff),
+        eb("statut_commercialisation", "=", "COMMERCIALISEE"),
+        eb.and([
+          eb("statut_commercialisation", "in", ["ARRETEE", "SUSPENDUE", "RETIREE"]),
+          eb("date_commercialisation", ">=", cutoff),
+        ]),
       ]))
       .selectAll()
       .orderBy("cip")
