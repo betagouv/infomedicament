@@ -6,6 +6,7 @@ export {
   getSpecialite,
 } from "./specialities";
 export { getPresentations, presentationIsComm } from "./presentation";
+export { getAutocompleteSuggestions } from "./autocomplete";
 export { getSearchResults } from "./search";
 export { getSynonymSuggestion } from "./searchSynonyms";
 export { groupGeneNameToDCI } from "@/displayUtils";
@@ -30,4 +31,3 @@ export const getLeafletImage = async ({ src }: { src: string }) => {
     throw e;
   }
 };
-
