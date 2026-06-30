@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, useCallback, useEffect, useState } from "react";
+import { HTMLAttributes, useEffect, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from 'styled-components';
 import Link from "next/link";
@@ -8,6 +8,8 @@ import Button from "@codegouvfr/react-dsfr/Button";
 import SearchFilterBlock from "./blocks/SearchFilterBlock";
 import { SearchFilter, SearchResultItem, SortType } from "@/types/SearchTypes";
 import DataBlockSpecResult from "../data/DataBlockSpecResult";
+import DataListPagination from "../data/DataListPagination";
+import SearchResultsPagination from "./blocks/SearchResultsPagination";
 
 const Container = styled.div `
   .display-inline {
@@ -57,25 +59,6 @@ function SearchResultsList({
 
   const [currentSortType, setCurrentSortType] = useState<SortType>("score");
   const [isSortAsc, setIsSortAsc] = useState<boolean>(true);
-
-  const onSortFilters = useCallback((
-    newSubsFilters: SearchFilter[],
-  ): SearchFilter[] => {
-    if(newSubsFilters.length > 0 && newSubsFilters[0].children) {
-      newSubsFilters.forEach((filter) => {
-        if(filter.children) {
-          filter.children.sort((a,b) => { 
-            if(a.count === b.count) return a.name.localeCompare(b.name);
-            return b.count - a.count;
-          });
-        }
-      })
-    }
-    return newSubsFilters.sort((a: SearchFilter, b: SearchFilter) => { 
-      if(a.count === b.count) return a.name.localeCompare(b.name);
-      return b.count - a.count;
-    });
-  },[]);
 
   //Loading
   useEffect(() => {
@@ -147,10 +130,10 @@ function SearchResultsList({
         });
       }
     });
-    setAllSubsFilters(onSortFilters(newSubsFilters));
-    setAllAtcFilters(onSortFilters(newATCFilters));
-    setAllIndicationsFilters(onSortFilters(newIndicationsFilters));
-  }, [resultsList, setAllSubsFilters, setAllAtcFilters, setAllIndicationsFilters, onSortFilters]);
+    setAllSubsFilters(newSubsFilters);
+    setAllAtcFilters(newATCFilters);
+    setAllIndicationsFilters(newIndicationsFilters);
+  }, [resultsList, setAllSubsFilters, setAllAtcFilters, setAllIndicationsFilters]);
 
   //Update the results list after filters updates
   useEffect(() => {
@@ -368,15 +351,14 @@ function SearchResultsList({
             size="small"
           />
         </SortContainer>
-        {filteredResultsList && filteredResultsList.map((result, index) => (
-          <DataBlockSpecResult
-            key={index}
-            specialite={result}
-            subsFilters={allSubsFilters.filter((filter) => filter.selected)}
-            atcsFilters={allAtcFilters.filter((filter) => filter.selected)}
-            indicationsFilters={allIndicationsFilters.filter((filter) => filter.selected)}
+        {filteredResultsList && (
+          <SearchResultsPagination
+            resultsList={filteredResultsList}
+            allSubsFilters={allSubsFilters}
+            allAtcFilters={allAtcFilters}
+            allIndicationsFilters={allIndicationsFilters}
           />
-        ))}
+        )}
       </div>
     </Container>
   );

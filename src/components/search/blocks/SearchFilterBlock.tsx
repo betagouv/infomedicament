@@ -55,18 +55,26 @@ function SearchFilterBlock({
   const [filteredFiltersList, setFilteredFiltersList] = useState<SearchFilter[]>([]);
 
   useEffect(() => {
-    const newList: SearchFilter[] = filtersList
-      .sort((a,b) => Number(b.selected) - Number(a.selected));
-    if(newList.length > 0 && newList[0].children) {
-      newList.forEach((filter) => {
+    const newList = filtersList
+      .map((filter: SearchFilter) => {
         if(filter.children) {
-          filter.children = filter.children
-            .sort((a,b) => Number(b.selected) - Number(a.selected));
+          if(filter.children) {
+            filter.children
+              .sort((a: SearchFilter, b: SearchFilter) => { 
+                if(a.count === b.count) return a.name.localeCompare(b.name);
+                return b.count - a.count;
+              })
+              .sort((a: SearchFilter, b: SearchFilter) => Number(b.selected) - Number(a.selected));
+          }
         }
+        return filter;
       })
-    }
+      .sort((a: SearchFilter, b: SearchFilter) => { 
+        if(a.count === b.count) return a.name.localeCompare(b.name);
+        return b.count - a.count;
+      })
+      .sort((a: SearchFilter, b: SearchFilter) => Number(b.selected) - Number(a.selected));
     setFilteredFiltersList(newList);
-
   }, [filtersList, setFilteredFiltersList]);
 
   return filteredFiltersList.length > 0 && (
