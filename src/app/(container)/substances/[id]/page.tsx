@@ -24,7 +24,7 @@ export async function generateMetadata(
   const substances: SubstanceNom[] = await getSubstances(ids) ?? [];
   if (substances.length < ids.length) {
     return {
-      title: 'Substance',
+      title: `Substance ${id}`,
     };
   }
 

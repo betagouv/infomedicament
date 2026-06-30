@@ -31,7 +31,7 @@ export async function generateMetadata(
 
   if (!atc1 && !atc2){
     return {
-      title: `Classe de médicaments - ${(await parent).title?.absolute}`,
+      title: `Classe de médicaments ${code} - ${(await parent).title?.absolute}`,
     };
   }
   let title = "";
