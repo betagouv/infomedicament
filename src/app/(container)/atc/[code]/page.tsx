@@ -29,7 +29,11 @@ export async function generateMetadata(
   const atc1 = await getAtc1(code);
   const atc2 = code.length === 3 ? await getAtc2(code) : undefined;
 
-  if (!atc1 && !atc2) notFound();
+  if (!atc1 && !atc2){
+    return {
+      title: `Classe de médicaments ${code} - ${(await parent).title?.absolute}`,
+    };
+  }
   let title = "";
   if(atc2) {
     title += atc2.label + (atc1 && ' - ');
