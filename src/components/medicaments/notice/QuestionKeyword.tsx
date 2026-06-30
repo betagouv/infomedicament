@@ -1,3 +1,5 @@
+"use client";
+
 function QuestionKeyword({
   keyword,
   questionId,
