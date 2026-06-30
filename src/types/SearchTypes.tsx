@@ -26,3 +26,20 @@ export type SearchResultItem = ResumeSpecialite & {
   matchReasons: MatchReason[];
   score: number;
 };
+
+export type AutocompleteSuggestionType = "specialite" | "substance" | "indication";
+
+export type AutocompleteSuggestion = {
+  type: AutocompleteSuggestionType;
+  label: string;
+  href: string;
+  score: number;
+  matchReasons?: MatchReason[];
+};
+
+export type AutocompleteSection = {
+  type: AutocompleteSuggestionType;
+  title: string;
+  highestScore: number;
+  items: AutocompleteSuggestion[];
+};
