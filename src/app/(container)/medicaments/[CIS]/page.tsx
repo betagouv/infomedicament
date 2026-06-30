@@ -101,7 +101,7 @@ export async function generateMetadata(
 
   if (!metadata) {
     return {
-      title: 'Médicament',
+      title: `Médicament ${CIS}`,
     };
   }
 

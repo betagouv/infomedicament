@@ -23,7 +23,7 @@ export async function generateMetadata(
   const indication: Indication | undefined = await getIndications(Number(code));
   if (!indication){
     return {
-      title: `Indication - ${(await parent).title?.absolute}`,
+      title: `Indication ${code}- ${(await parent).title?.absolute}`,
     };
   }
 
