@@ -5,7 +5,7 @@ import { ResumeGeneric } from "../types";
 import db from "..";
 import { sql } from "kysely";
 import { pdbmMySQL } from "../pdbmMySQL";
-import { Specialite } from "../pdbmMySQL/types";
+import { GroupeGene, Specialite } from "../pdbmMySQL/types";
 
 export const getGenericsResumeWithLetter = cache(async function(letter: string): Promise<ResumeGeneric[]> {
   const result:ResumeGeneric[] = await db
@@ -20,12 +20,14 @@ export const getGenericsResumeWithLetter = cache(async function(letter: string):
   return result;
 });
 
-export async function getGroupeGene(CIS: string) {
-  return pdbmMySQL
-    .selectFrom("GroupeGene")
-    .where("SpecId", "=", CIS)
-    .selectAll("GroupeGene")
-    .executeTakeFirst();
+export async function getGroupeGene(CIS: string): Promise<GroupeGene[]> {
+  return await pdbmMySQL
+    .selectFrom("GroupeGene as specGene")
+    .innerJoin("GroupeGene as groupeGene", "specGene.idGrp", 'groupeGene.idGrp')
+    .where("specGene.SpecId", "=", CIS)
+    .where("groupeGene.codeStat", "=", 0)
+    .selectAll("groupeGene")
+    .execute();
 }
 
 export async function getGeneriques(CIS: string): Promise<Specialite[]> {
@@ -35,7 +37,23 @@ export async function getGeneriques(CIS: string): Promise<Specialite[]> {
       .where("SpecGeneId", "=", CIS)
       .where("SpecId", "!=", CIS)
       .where("IsBdm", "=", 1)
+      .orderBy("Specialite.SpecDenom01")
       .selectAll()
       .execute()
   );
+}
+
+export async function getIsPrinceps(CIS: string): Promise<boolean> {
+  const isPrinceps =
+    !!(await pdbmMySQL
+      .selectFrom("Specialite")
+      .select("Specialite.SpecId")
+      .where("Specialite.SpecGeneId", "=", CIS)
+      .executeTakeFirst()) &&
+    !!(await pdbmMySQL
+      .selectFrom("GroupeGene")
+      .select("GroupeGene.SpecId")
+      .where("GroupeGene.SpecId", "=", CIS)
+      .executeTakeFirst());
+  return isPrinceps;
 }
