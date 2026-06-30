@@ -1,3 +1,5 @@
+"use client";
+
 import { HTMLAttributes } from "react";
 import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";

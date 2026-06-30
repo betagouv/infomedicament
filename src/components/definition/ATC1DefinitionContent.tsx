@@ -1,4 +1,6 @@
-import React, { HTMLAttributes } from "react";
+"use client";
+
+import { HTMLAttributes } from "react";
 import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import PageDefinitionContent from "./PageDefinitionContent";
