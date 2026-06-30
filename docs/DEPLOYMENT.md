@@ -27,13 +27,11 @@ On ne **commit jamais directement** sur `staging` ou `production`. Tout passe pa
 
 Une review app est automatiquement déployée sur Scalingo pour chaque Pull Request ouverte.
 
-**Attention** : les review apps utilisent la **base de données de staging**.
+Chaque review app dispose de sa propre base PostgreSQL. Au déploiement, les
+migrations de la PR sont jouées sur cette base dédiée, puis un jeu de données
+simple est chargé avec les 500 médicaments les plus fréquents.
 
-Cela signifie que :
-- Les migrations présentes dans une PR s'exécutent sur la base de staging dès le déploiement de la review app, ce qui peut casser l'appli de staging
-- Une migration destructive (suppression de colonne, etc.) peut aussi particulièrement impacter l'environnement de staging
-
-Pour les PRs contenant des migrations sensibles, le mieux serait de désactiver temporairement le déploiement automatique de la review app.
+La base de staging n'est donc pas modifiée par les migrations d'une review app.
 
 ## Workflow quotidien
 
