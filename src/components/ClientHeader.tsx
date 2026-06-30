@@ -2,7 +2,7 @@
 
 import { Header } from "@codegouvfr/react-dsfr/Header";
 import Image from "next/image";
-import { AutocompleteSearchInput } from "@/components/AutocompleteSearch";
+import { AutocompleteSearchInput } from "@/components/search/autocomplete/AutocompleteSearch";
 import { useRouter } from "next/navigation";
 import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 import { useTracking } from "@/services/tracking";
