@@ -1,0 +1,38 @@
+name: End-to-end tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
+      PDBM_URL: mysql://root:mysql@127.0.0.1:3306/pdbm_bdd
+      NEXT_TELEMETRY_DISABLED: "1"
+      PLAYWRIGHT_BASE_URL: http://localhost:3000
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Start databases
+        run: docker compose -f .devcontainer/docker-compose.yml up -d --wait db-postgres db-mysql
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Run migrations
+        run: npm run db:migrate:latest
+      - name: End-to-end tests
+        run: npm run test:e2e
