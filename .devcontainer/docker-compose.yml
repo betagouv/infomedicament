@@ -42,7 +42,7 @@ services:
       - mysql-data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: mysql
-      MYSQL_DATABASE: mysql
+      MYSQL_DATABASE: pdbm_bdd
 
     # Add "forwardPorts": ["3306"] to **devcontainer.json** to forward MySQL locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
