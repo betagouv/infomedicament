@@ -44,13 +44,13 @@ function NoticeBlock({
       className={[props.className, fr.cx("fr-mt-3w")].join(" ")}
     >
       <ContentContainer className={noticeContainerClassName} id="noticeContainer">
-        {(specialite && isCentralisee(specialite)) ? (
+        {(notice && notice.children) ? (
+          <RcpNoticeContainer>{getContent(notice.children, definitions)}</RcpNoticeContainer>
+        ) : (specialite && isCentralisee(specialite)) ? (
           <CentraliseBlock
             pdfURL={specialite.urlCentralise ? specialite.urlCentralise : undefined}
           />
-        ) : (notice && notice.children) && (
-          <RcpNoticeContainer>{getContent(notice.children, definitions)}</RcpNoticeContainer>
-        )}
+        ) : null}
       </ContentContainer>
     </NoticeBlockContainer>
   );

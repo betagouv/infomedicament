@@ -12,7 +12,7 @@ import { getWarmupCISCodes } from "@/db/utils/warmup";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { getSpecialiteGroupName, isCentralisee } from "@/utils/specialites";
+import { getSpecialiteGroupName } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
 import { getSpecialiteMetadata, getSpecialiteName } from "@/db/utils/specialities";
 import MedicamentContent from "@/components/medicaments/MedicamentContent";
@@ -57,7 +57,7 @@ async function fetchMedicamentData(
     allPregnancyPlanAlerts,
     specialitePathologies,
   ] = await Promise.all([
-    !isCentralisee(specialite) ? getNotice(CIS) : Promise.resolve(undefined),
+    getNotice(CIS),
     getFicheInfos(CIS),
     getHighlightedGlossaryDefinitions(),
     getPregnancyMentionAlert(CIS),
