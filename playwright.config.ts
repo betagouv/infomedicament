@@ -18,17 +18,6 @@ export default defineConfig({
     baseURL,
     trace: "on-first-retry",
   },
-  webServer: {
-    command: `npm run dev -- --hostname localhost --port ${port}`,
-    url: baseURL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-    env: {
-      ...process.env,
-      NEXT_TELEMETRY_DISABLED: "1",
-      PORT: String(port),
-    },
-  },
   projects: [
     {
       name: "chromium",

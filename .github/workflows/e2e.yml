@@ -1,9 +1,6 @@
 name: End-to-end tests
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -15,24 +12,30 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
-      PDBM_URL: mysql://root:mysql@127.0.0.1:3306/pdbm_bdd
-      NEXT_TELEMETRY_DISABLED: "1"
-      PLAYWRIGHT_BASE_URL: http://localhost:3000
+      FALLBACK_BASE_URL: https://infomedicament.beta.gouv.fr
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.sha }}
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Start databases
-        run: docker compose -f .devcontainer/docker-compose.yml up -d --wait db-postgres db-mysql
       - name: Install dependencies
         run: npm ci
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
-      - name: Run migrations
-        run: npm run db:migrate:latest
+      - name: Resolve target URL
+        run: |
+          REVIEW_URL="https://infomedicament-staging-pr${{ github.event.pull_request.number }}.osc-fr1.scalingo.io"
+
+          if curl --fail --silent --max-time 20 --output /dev/null "$REVIEW_URL"; then
+            echo "PLAYWRIGHT_BASE_URL=${REVIEW_URL%/}" >> "$GITHUB_ENV"
+            echo "Using review app: ${REVIEW_URL%/}"
+          else
+            echo "PLAYWRIGHT_BASE_URL=$FALLBACK_BASE_URL" >> "$GITHUB_ENV"
+            echo "Review app unavailable, using fallback: $FALLBACK_BASE_URL"
+          fi
       - name: End-to-end tests
         run: npm run test:e2e
