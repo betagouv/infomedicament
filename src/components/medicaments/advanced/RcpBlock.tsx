@@ -31,10 +31,8 @@ function RcpBlock({
       spec: DetailedSpecialite,
     ) => {
       try {
-        if(!isCentralisee(spec)) {
-          const newNotice = await getRCP(spec.SpecId);
-          setCurrentRcp(newNotice);
-        }
+        const newNotice = await getRCP(spec.SpecId);
+        setCurrentRcp(newNotice);
         setLoaded(true);
       } catch (e) {
         Sentry.captureException(e);
@@ -52,11 +50,7 @@ function RcpBlock({
   return (
     <>
       <h2>Résumé des caractéristiques du produit</h2>
-      {(currentSpec && isCentralisee(currentSpec)) ? (
-          <CentraliseBlock
-            pdfURL={currentSpec.urlCentralise ? currentSpec.urlCentralise : undefined}
-          />
-        ) : currentRcp ? (
+      {currentRcp ? (
           <>
             {currentRcp.dateNotif && (
               <Badge severity={"info"} className={fr.cx("fr-mb-4w")}>{currentRcp.dateNotif}</Badge>
@@ -65,6 +59,10 @@ function RcpBlock({
               <RcpNoticeContainer>{getContent(currentRcp.children)}</RcpNoticeContainer>
             )}
           </>
+        ) : (currentSpec && isCentralisee(currentSpec)) ? (
+          <CentraliseBlock
+            pdfURL={currentSpec.urlCentralise ? currentSpec.urlCentralise : undefined}
+          />
         ) : (
           loaded && (<span>Le résumé des caractéristiques du produit n&rsquo;est pas disponible pour ce médicament.</span>)
         )}
