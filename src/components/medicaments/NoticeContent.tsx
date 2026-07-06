@@ -27,7 +27,7 @@ import PregnancyPlanTag from "../tags/PregnancyPlanTag";
 import { ATC } from "@/types/ATCTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
-import { isAIP, isCentralisee } from "@/utils/specialites";
+import { isAIP, isCentralisee, isHospitalDelivrance } from "@/utils/specialites";
 import { Presentation } from "@/types/PresentationTypes";
 import MedicamentContentHeaderBlock from "./blocks/MedicamentContentHeaderBlock";
 import { FicheInfos } from "@/types/FicheInfoTypes";
@@ -40,6 +40,9 @@ import GenericPrincepsTag from "../tags/GenericPrincepsTag";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 import DesktopTitleBlock from "./blocks/DesktopTitleBlock";
 import { ShortIndication } from "@/types/IndicationsTypes";
+import HospitalTag from "../tags/HospitalTag";
+import { isReimbursable } from "@/utils/presentations";
+import ReimbursableTag from "../tags/ReimbursableTag";
 
 const NoticeContentContainer = styled.div`
   @media (max-width: 48em) {
@@ -247,6 +250,12 @@ function NoticeContent({
                   )}
                   {!!delivrance.length && (
                     <PrescriptionTag hideIcon/>
+                  )}
+                  {isReimbursable(presentations) && (
+                    <ReimbursableTag hideIcon/>
+                  )}
+                  {isHospitalDelivrance(delivrance) && (
+                    <HospitalTag hideIcon/>
                   )}
                   {(specialite && isPrinceps && !isAIP(specialite)) && (
                     <GenericPrincepsTag

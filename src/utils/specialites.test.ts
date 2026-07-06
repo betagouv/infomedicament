@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { formatIndicationsDetails, formatSpecialitesResume, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isSurveillanceRenforcee } from "./specialites";
+import { formatIndicationsDetails, formatSpecialitesResume, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isHospitalDelivrance, isSurveillanceRenforcee } from "./specialites";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
-import { SpecialiteComm, SpecialiteStat, VUEvnts } from "@/db/pdbmMySQL/types";
+import { SpecDelivrance, SpecialiteComm, SpecialiteStat, VUEvnts } from "@/db/pdbmMySQL/types";
 import { ShortIndication } from "@/types/IndicationsTypes";
 import { ResumeSpecialiteDB } from "@/db/types";
 
@@ -206,4 +206,58 @@ describe("utils specialities", () => {
     expect(formattedSpecs[0].indicationsDetails).toStrictEqual(expectedIndicationsDetails);
   });
 
+});
+
+describe("utils specialities - delivrance", () => {
+
+  it("isHospitalDelivrance", async () => {
+    //Usage hospitalier
+    const delivrances_1: SpecDelivrance[] = [{
+      DelivCourt: "liste I",
+      DelivId: "120",
+      DelivLong: "liste I",
+      SpecId: "60199966",
+    },
+    {
+      DelivCourt:"nécessitant surveillance particulière pendant traitement",
+      DelivId: "13",
+      DelivLong: "médicament nécessitant une surveillance particulière pendant le traitement",
+      SpecId: "60199966",
+    },
+    {
+      DelivCourt: "médecins compétents en CANCEROLOGIE",
+      DelivId: "211",
+      DelivLong: "prescription réservée aux médecins compétents en CANCEROLOGIE",
+      SpecId: "60199966",
+    },
+    {
+      DelivCourt: "spécialistes et services ONCOLOGIE MEDICALE",
+      DelivId: "15",
+      DelivLong: "prescription réservée aux spécialistes et services ONCOLOGIE MEDICALE",
+      SpecId: "60199966",
+    },
+    {
+      DelivCourt: "réservé à l'usage HOSPITALIER",
+      DelivId: "3",
+      DelivLong: "réservé à l'usage HOSPITALIER",
+      SpecId: "60199966",
+    }];
+    expect(isHospitalDelivrance(delivrances_1)).toBe(true);
+
+    //Not "Usage hospitalier"
+    const delivrances_2: SpecDelivrance[] = [{
+      DelivCourt: "hors ETS : prescr. par médecins, sages-femmes et centres habilités art L.2212-2",
+      DelivId: "199",
+      DelivLong: "hors établissement de santé : prescription réservée aux médecins, sages-femmes et centres habilités conformément à l'article L.2212-2 du code de la santé publique",
+      SpecId: "69981979",
+    },
+    {
+      DelivCourt: "liste I",
+      DelivId: "120",
+      DelivLong: "liste I",
+      SpecId: "69981979",
+    }];
+    
+    expect(isHospitalDelivrance(delivrances_2)).toBe(false);
+  });
 });
