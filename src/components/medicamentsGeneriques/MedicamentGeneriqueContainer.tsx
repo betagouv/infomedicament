@@ -17,7 +17,7 @@ interface MedicamentGeneriqueContainerProps extends HTMLAttributes<HTMLDivElemen
   atc2?: ATC;
   composants : Array<SpecComposant & SubstanceNom>;
   groupName: string;
-  princeps: DetailedSpecialite;
+  princeps: DetailedSpecialite[];
   generiques: Specialite[];
   events: VUEvnts[];
 }
@@ -56,13 +56,15 @@ function MedicamentGeneriqueContainer({
       <GenericAccordion />
 
       <h2 className={fr.cx("fr-h6", "fr-mt-2w", "fr-mb-1w")}>
-        Médicament princeps
+        Médicament{princeps.length > 1 && "s"} princeps
       </h2>
-      <DataBlockSpecGenerique 
-          key={princeps.SpecId}
-          specialite={princeps}
+      {princeps.map((spec, i) => (
+        <DataBlockSpecGenerique 
+          key={spec.SpecId}
+          specialite={spec}
           isSurveillanceRenforcee={false}
         />
+      ))}
       <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
         {generiques.length} médicament{generiques.length > 1 && "s"} générique
         {generiques.length > 1 && "s"}
