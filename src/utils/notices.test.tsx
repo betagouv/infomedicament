@@ -8,16 +8,16 @@ describe("utils notices", () => {
   });
 
   it("cleanStringContent", async () => {
-    const rawStr: string = `<p class="AmmCorpsTexte">Si vous ressentez un quelconque effet indésirable, parlez-en à votre médecin, votre pharmacien ou à votre infirmier/ère. 
+    const rawStr: string = `<span class="AmmCorpsTexte">Si vous ressentez un quelconque effet indésirable, parlez-en à votre médecin, votre pharmacien ou à votre infirmier/ère. 
     Ceci s’applique aussi à tout effet indésirable qui ne serait pas mentionné dans cette notice. 
     Vous pouvez également déclarer les effets indésirables directement via le système national de déclaration : 
     <a href="https://ansm.sante.fr/">Agence nationale de sécurité du médicament et des produits de santé (ANSM)</a> et réseau des Centres Régionaux de Pharmacovigilance - Site internet :
-    <span style="color:red"> </span><a href="https://signalement.social-sante.gouv.fr/">https://signalement.social-sante.gouv.fr</a></p>"`;
-    const finalStr: string = `<p class="AmmCorpsTexte">Si vous ressentez un quelconque effet indésirable, parlez-en à votre médecin, votre pharmacien ou à votre infirmier/ère. 
+    <span style="color:red"> </span><a href="https://signalement.social-sante.gouv.fr/">https://signalement.social-sante.gouv.fr</a></span>"`;
+    const finalStr: string = `<span class="AmmCorpsTexte">Si vous ressentez un quelconque effet indésirable, parlez-en à votre médecin, votre pharmacien ou à votre infirmier/ère. 
     Ceci s’applique aussi à tout effet indésirable qui ne serait pas mentionné dans cette notice. 
     Vous pouvez également déclarer les effets indésirables directement via le système national de déclaration : 
     <a target="_blank" rel="noopener noreferrer" href="https://ansm.sante.fr/">Agence nationale de sécurité du médicament et des produits de santé (ANSM)</a> et réseau des Centres Régionaux de Pharmacovigilance - Site internet :
-    <span style="color:red"> </span><a target="_blank" rel="noopener noreferrer" href="https://signalement.social-sante.gouv.fr/">https://signalement.social-sante.gouv.fr</a></p>"`;
+    <span style="color:red"> </span><a target="_blank" rel="noopener noreferrer" href="https://signalement.social-sante.gouv.fr/">https://signalement.social-sante.gouv.fr</a></span>"`;
 
     expect(cleanStringContent(rawStr)).toBe(finalStr);
   });
