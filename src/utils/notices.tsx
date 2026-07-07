@@ -31,12 +31,11 @@ export function displayInfosImportantes(ficheInfos?:FicheInfos): boolean{
   return false;
 }
 
-function cleanStringContent(content: string): string {
-  const pos: number = content.indexOf('<a ');
-  if(pos !== -1 && content.indexOf('target=') === -1) {
-    return [content.slice(0, pos + 3), 'target="_blank" rel="noopener noreferrer" ', content.slice(pos + 3)].join("");
-  }
-  return content;
+export function cleanStringContent(content: string): string {
+  return content.replace(/<a\s[^>]*>/g, (tag) => {
+    if(tag.includes('target=')) return tag;
+    return tag.replace('<a ', '<a target="_blank" rel="noopener noreferrer" ');
+  });
 }
 
 function cleanArrayContent(content: string[]): string[] {
@@ -99,7 +98,7 @@ function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definitio
     if(content.html) { 
       const cleanHtmlContent = cleanStringContent(content.html);
       if(definitions) return <WithGlossary definitions={definitions} key={content.id} text={[cleanHtmlContent]} />
-      return (<div dangerouslySetInnerHTML={{__html: cleanHtmlContent}}></div>)
+      return (<div dangerouslySetInnerHTML={{__html: cleanHtmlContent}} key={content.id}></div>)
     };
 
     const styles = getStyles(content.styles);
@@ -201,6 +200,7 @@ function getTableElement(children:NoticeRCPContentBlock[], definitions?:Definiti
           if(childElement)
             childElements.push(childElement);
         });
+        //TODO key ?
         if(childElements && childElements.length > 0)
           elementContent = (
             <>{...childElements}</>
@@ -216,7 +216,7 @@ function getTableElement(children:NoticeRCPContentBlock[], definitions?:Definiti
             rowSpan={child.rowspan ? child.rowspan : 1}
             {...(styles && {style: styles})}
           >
-            <span className={fr.cx("fr-text--sm")} key={child.id} style={styles}>
+            <span className={fr.cx("fr-text--sm")} style={styles}>
               {elementContent}
             </span>
           </td>
@@ -234,8 +234,8 @@ export function getContent(children:NoticeRCPContentBlock[], definitions?:Defini
       if(child.children){
         const tableContent:(React.JSX.Element | undefined)[] = getTableElement(child.children, definitions);
         if(tableContent) content.push((
-          <div className="rcp-notice-block">
-            <table key={child.id+'-'+index}>
+          <div className="rcp-notice-block" key={child.id+'-'+index}>
+            <table>
               {...tableContent}
             </table>
           </div>
