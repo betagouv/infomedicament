@@ -4,7 +4,6 @@ import { Selectable } from "kysely";
 export interface Database {
   search_index: SearchIndexTable;
   search_synonyms: SearchSynonymsTable;
-  leaflet_images: LeafletImagesTable;
   presentations: PresentationTable;
   rcp: RcpTable;
   rcp_content: RcpContentTable;
