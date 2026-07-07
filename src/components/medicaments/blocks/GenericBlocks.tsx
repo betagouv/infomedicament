@@ -1,14 +1,18 @@
 "use client";
 import styled from 'styled-components';
 
-export const TitulaireNomContainer = styled.p`
+export const TitulaireNomContainer = styled.span`
   font-weight: bold;
   text-decoration: underline;
   margin-bottom: 0px;
 `;
 
-export const TitulaireAddressContainer = styled.p`
+export const TitulaireAddressContainer = styled.span`
   margin-bottom: 0px;
+`;
+
+export const RcpNoticeTextBlock = styled.div`
+  margin: var(--text-spacing) !important;
 `;
 
 export const RcpNoticeContainer = styled.div`
