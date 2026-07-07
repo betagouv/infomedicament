@@ -174,8 +174,5 @@ export function getTypeInfoTxt(codeTypeInfo: number): string{
 }
 
 export function isHospitalDelivrance(delivrances: SpecDelivrance[]): boolean {
-  console.log(delivrances);
-  const isHospital = delivrances.find((delivrance: SpecDelivrance) => delivrance.DelivId === "3");
-  if(isHospital) return true;
-  return false;
+  return delivrances.some((delivrance: SpecDelivrance) => delivrance.DelivId === "3");
 }
