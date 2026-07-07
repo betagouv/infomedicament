@@ -1,4 +1,4 @@
-import { Specialite, VUEvnts } from "@/db/pdbmMySQL/types";
+import { SpecDelivrance, Specialite, VUEvnts } from "@/db/pdbmMySQL/types";
 import { ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
 import { MedicamentGroup } from "@/displayUtils";
 import { ShortIndication } from "@/types/IndicationsTypes";
@@ -171,4 +171,8 @@ export function getTypeInfoTxt(codeTypeInfo: number): string{
     return "Dossiers thématiques";
 
   return "Non catégorisée";
+}
+
+export function isHospitalDelivrance(delivrances: SpecDelivrance[]): boolean {
+  return delivrances.some((delivrance: SpecDelivrance) => delivrance.DelivId === "3");
 }

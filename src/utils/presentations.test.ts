@@ -1,6 +1,6 @@
 import { AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation } from "@/types/PresentationTypes";
 import { describe, it, expect } from "vitest";
-import { caracCompDisplay, cleanPresentationsDetails, contenanceDisplay, dispositifDisplay, getAggregatePresentationRecipientsTexts, getPresentationFullPriceText, getPresentationPriceText, getPresentationTauxPriseEnChargeText, replacePluralSingular, totalDisplay } from "./presentations";
+import { caracCompDisplay, cleanPresentationsDetails, contenanceDisplay, dispositifDisplay, getAggregatePresentationRecipientsTexts, getPresentationFullPriceText, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isReimbursable, replacePluralSingular, totalDisplay } from "./presentations";
 import { PresentationDetail } from "@/db/types";
 import { PresentationComm } from "@/db/pdbmMySQL/types";
  
@@ -598,3 +598,10 @@ describe("utils presentations - aggregate", () => {
   });
 
 });
+
+describe("utils presentations", () => {
+  it("isReimbursable", async () => {
+    expect(isReimbursable(presentations)).toBe(true);
+    expect(isReimbursable([presentations[1]])).toBe(false);
+  });
+})

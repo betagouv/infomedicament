@@ -363,3 +363,7 @@ export function isIVG(presentation: Presentation): boolean {
     return true;
   return false;
 }
+
+export function isReimbursable(presentations: Presentation[]): boolean {
+  return presentations.some((pres) => pres.TauxPriseEnCharge);
+}
