@@ -243,7 +243,7 @@ export function getContent(children:NoticeRCPContentBlock[], definitions?:Defini
     if(child.type && child.type === "AmmCorpsTexteTable" && !child.html){
       if(child.children){
         const tableContent:(React.JSX.Element | undefined)[] = getTableElement(child.children, definitions);
-        if(tableContent) content.push((
+        if(tableContent.length > 0) content.push((
           <RcpNoticeTextBlock className="rcp-notice-block" key={child.id+'-'+index}>
             <table>
               {...tableContent}
@@ -262,7 +262,7 @@ export function getContent(children:NoticeRCPContentBlock[], definitions?:Defini
 
       if(child.children){
         const childContent:(React.JSX.Element | undefined)[] = getContent(child.children, definitions);
-        if(childContent){
+        if(childContent.length > 0){
           if(titleContent) content = content.concat((<RcpNoticeTextBlock key={child.id+'-'+index}>{...childContent}</RcpNoticeTextBlock>));
           else content = content.concat(childContent);
         }

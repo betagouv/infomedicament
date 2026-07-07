@@ -44,7 +44,7 @@ function NoticeBlock({
       className={[props.className, fr.cx("fr-mt-3w")].join(" ")}
     >
       <ContentContainer className={noticeContainerClassName} id="noticeContainer">
-        {(notice && notice.children) ? (
+        {(notice && notice.children && notice.children.length > 0) ? (
           <RcpNoticeContainer>{getContent(notice.children, definitions)}</RcpNoticeContainer>
         ) : (specialite && isCentralisee(specialite)) ? (
           <CentraliseBlock
