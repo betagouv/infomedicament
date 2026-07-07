@@ -1,5 +1,6 @@
+"use client";
+
 import Accordion from "@codegouvfr/react-dsfr/Accordion";
-import React from "react";
 
 export default function GenericAccordion({
   className,
