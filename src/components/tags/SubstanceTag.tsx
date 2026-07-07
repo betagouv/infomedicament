@@ -1,8 +1,10 @@
+"use client";
+
 import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { displaySimpleComposants } from "@/displayUtils";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
-import React, { HTMLAttributes } from "react";
+import { HTMLAttributes } from "react";
 import "./dsfr-custom-tags.css";
 import { trackEvent } from "@/services/tracking";
 
