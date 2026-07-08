@@ -11,8 +11,8 @@ import { expandQuery, getSynonymMap } from "./searchSynonyms";
 import { MatchReason, SearchResultItem } from "@/types/SearchTypes";
 import { normalizeString } from "@/utils/alphabeticNav";
 import {
-  buildRequiredTermGroups,
   rowMatchesRequiredTermsPredicate,
+  termsSimilarityExpression,
 } from "./searchTerms";
 
 const MIN_SEARCH_SIMILARITY = 0.55;
@@ -44,27 +44,15 @@ export async function getSearchMatches(
   // medical term ("céphalées") as an extra search term. Additive — no synonym match
   // leaves terms = [normalizedQuery], i.e. unchanged behaviour.
   const queryAndSynonyms = expandQuery(normalizedQuery, await getSynonymMap());
-  // Gives us [["mal", "tête"], ["céphalées"]]
-  // Eg: when searching for "acide folique" we dont want to match on "acide" alone
-  const requiredTermGroups = buildRequiredTermGroups(queryAndSynonyms);
-  if (requiredTermGroups.length === 0) {
-    return [];
-  }
 
   const matchesQuery = db
     .selectFrom("search_index")
     .selectAll()
-    .select((eb) =>
-      eb
-        .fn<number>(
-          "greatest",
-          queryAndSynonyms.map((term) =>
-            eb.fn<number>("word_similarity", [eb.val(term), "token"]),
-          ),
-        )
-        .as("sml"),
-    )
-    .where((eb) => rowMatchesRequiredTermsPredicate(eb, requiredTermGroups))
+    .select((eb) => {
+      const smlExpr = termsSimilarityExpression(eb, queryAndSynonyms);
+      return smlExpr.as("sml");
+    })
+    .where((eb) => rowMatchesRequiredTermsPredicate(eb, queryAndSynonyms))
     .as("matches");
 
   return await db
@@ -175,7 +163,6 @@ export async function getSearchResultsFromMatches(
 export const getSearchResults = unstable_cache(
   async function (query: string): Promise<SearchResultItem[]> {
     const matches = await getSearchMatches(query);
-    console.log(matches);
     return getSearchResultsFromMatches(query, matches);
   },
   ["search-results"],
