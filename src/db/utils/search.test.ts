@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { getSearchResults } from "./search";
+import { buildRequiredTermGroups } from "./searchTerms";
 import { computeSortScore } from "./searchScoring";
 import { getSynonymMap } from "./searchSynonyms";
 import { getResumeSpecsATCLabels } from "./atc";
@@ -22,6 +23,7 @@ const { dbMock, mockExecute } = vi.hoisted(() => {
     select: vi.fn().mockReturnThis(),
     where: vi.fn().mockReturnThis(),
     orderBy: vi.fn().mockReturnThis(),
+    as: vi.fn().mockReturnThis(),
     execute: execute,
   };
 
@@ -68,6 +70,23 @@ const makeGroup = (groupName: string, composants = "") => ({
   isAlertPregnancyPlan: true,
   isAlertPregnancyMention: true,
   isAlertPediatricContraindication: true,
+});
+
+describe("buildRequiredTermGroups", () => {
+  it("requires every meaningful word from a multi-word query", () => {
+    expect(buildRequiredTermGroups(["acide folique"])).toEqual([["acide", "folique"]]);
+  });
+
+  it("keeps synonym canonical terms as an alternative required term group", () => {
+    expect(buildRequiredTermGroups(["mal de tete", "cephalees"])).toEqual([
+      ["mal", "tete"],
+      ["cephalees"],
+    ]);
+  });
+
+  it("ignores connector-only queries", () => {
+    expect(buildRequiredTermGroups(["de la"])).toEqual([]);
+  });
 });
 
 describe("Search Engine (getSearchResults)", () => {

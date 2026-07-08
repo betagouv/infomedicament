@@ -33,14 +33,14 @@ export const getAutocompleteSuggestions = unstable_cache(
       .filter((match) => match.match_type === "substance")
       .map((match) => ({
         label: match.match_label,
-        score: match.sml + (match.direct_sml ?? 0) * 0.01,
+        score: match.sml,
       }))
       .slice(0, AUTOCOMPLETE_ENTITY_LIMIT);
     const indicationLabels = matchesUniqueByLabel
       .filter((match) => match.match_type === "indication")
       .map((match) => ({
         label: match.match_label,
-        score: match.sml + (match.direct_sml ?? 0) * 0.01,
+        score: match.sml,
       }))
       .slice(0, AUTOCOMPLETE_ENTITY_LIMIT);
 
@@ -118,10 +118,9 @@ export const getAutocompleteSuggestions = unstable_cache(
 
     const groupScore = new Map<string, number>();
     for (const match of matches) {
-      const score = match.sml + (match.direct_sml ?? 0) * 0.01;
       groupScore.set(
         match.group_name,
-        Math.max(groupScore.get(match.group_name) ?? 0, score),
+        Math.max(groupScore.get(match.group_name) ?? 0, match.sml),
       );
     }
     const medicineSuggestions = searchResults

@@ -3,7 +3,6 @@
 import "server-cli-only";
 import db from "@/db";
 import { SearchResult } from "@/db/types";
-import { sql } from "kysely";
 import { unstable_cache } from "next/cache";
 import { getResumeSpecsATCLabels } from "@/db/utils/atc";
 import { formatSpecialitesResume } from "@/utils/specialites";
@@ -11,15 +10,19 @@ import { computeSortScore } from "./searchScoring";
 import { expandQuery, getSynonymMap } from "./searchSynonyms";
 import { MatchReason, SearchResultItem } from "@/types/SearchTypes";
 import { normalizeString } from "@/utils/alphabeticNav";
+import {
+  buildRequiredTermGroups,
+  rowMatchesRequiredTermsPredicate,
+} from "./searchTerms";
+
+const MIN_SEARCH_SIMILARITY = 0.55;
 
 export type SearchIndexMatch = SearchResult & {
   sml: number;
-  direct_sml?: number;
 };
 
 type GroupMatch = {
   score: number;
-  directScore: number;
   reasons: MatchReason[];
 };
 
@@ -33,46 +36,41 @@ export async function getSearchMatches(
 
   // Normalize to lowercase+unaccented to match how tokens are stored in the index
   const normalizedQuery = normalizeString(query);
+  if (normalizedQuery.length === 0) {
+    return [];
+  }
 
   // Expand with curated synonyms: a lay term ("mal de tête") adds its canonical
   // medical term ("céphalées") as an extra search term. Additive — no synonym match
   // leaves terms = [normalizedQuery], i.e. unchanged behaviour.
-  const terms = expandQuery(normalizedQuery, await getSynonymMap());
+  const queryAndSynonyms = expandQuery(normalizedQuery, await getSynonymMap());
+  // Gives us [["mal", "tête"], ["céphalées"]]
+  // Eg: when searching for "acide folique" we dont want to match on "acide" alone
+  const requiredTermGroups = buildRequiredTermGroups(queryAndSynonyms);
+  if (requiredTermGroups.length === 0) {
+    return [];
+  }
 
-  // Each match's similarity is the best (GREATEST) word_similarity across all terms,
-  // so a synonym-driven hit scores against its canonical term, not the lay query.
-  const smlExpr = sql<number>`greatest(${sql.join(
-    terms.map((term) => sql`word_similarity(${term}, token)`),
-  )})`;
-  const directSmlExpr = sql<number>`word_similarity(${normalizedQuery}, token)`;
-
-  return await db
+  const matchesQuery = db
     .selectFrom("search_index")
     .selectAll()
-    .select(smlExpr.as("sml"))
-    .select(directSmlExpr.as("direct_sml"))
-    .where((eb) => {
-      // Same tiered matching as before, applied per term and OR-ed together.
-      const termPredicate = (term: string) => {
-        if (term.length <= 3) {
-          // for very short queries, only match from the beginning to limit the number of results
-          // also, we only match specialities
-          return eb.and([
-            eb("token", "like", `${term}%`),
-            eb("match_type", "=", "name"),
-          ]);
-        }
-        if (term.length <= 5) {
-          // if the query is short, we only do ilike search to avoid too many results
-          return eb("token", "like", `%${term}%`);
-        }
-        return eb.or([
-          sql<boolean>`token %> ${term}`, // fuzzy-search using pg_trgm
-          eb("token", "like", `%${term}%`), // exact match
-        ]);
-      };
-      return eb.or(terms.map(termPredicate));
-    })
+    .select((eb) =>
+      eb
+        .fn<number>(
+          "greatest",
+          queryAndSynonyms.map((term) =>
+            eb.fn<number>("word_similarity", [eb.val(term), "token"]),
+          ),
+        )
+        .as("sml"),
+    )
+    .where((eb) => rowMatchesRequiredTermsPredicate(eb, requiredTermGroups))
+    .as("matches");
+
+  return await db
+    .selectFrom(matchesQuery)
+    .selectAll()
+    .where("sml", ">=", MIN_SEARCH_SIMILARITY)
     .orderBy("sml", "desc")
     .orderBy(({ fn }) => fn("length", ["token"]))
     .execute();
@@ -92,10 +90,8 @@ function groupMatches(matches: SearchIndexMatch[]) {
       type: match.match_type,
       label: match.match_label,
     };
-    const directScore = match.direct_sml ?? match.sml;
     if (matchGroup) {
       matchGroup.score = Math.max(matchGroup.score, match.sml);
-      matchGroup.directScore = Math.max(matchGroup.directScore, directScore);
       // Deduplicate: the seed can produce identical rows per group, e.g. when
       // multiple subsIds resolve to the same substance name, or duplicate indicationsIds
       if (
@@ -108,7 +104,6 @@ function groupMatches(matches: SearchIndexMatch[]) {
     } else {
       groupMap.set(match.group_name, {
         score: match.sml,
-        directScore,
         reasons: [reason],
       });
     }
@@ -159,19 +154,16 @@ export async function getSearchResultsFromMatches(
         specNameSml.get(spec.specId) ??
         groupMap.get(spec.groupName)?.score ??
         0;
-      const directScore = groupMap.get(spec.groupName)?.directScore ?? baseSml;
       return {
         ...spec,
         matchReasons,
-        score:
-          computeSortScore(
-            query,
-            spec.specName,
-            spec.composants,
-            matchReasons,
-            baseSml,
-          ) +
-          directScore * 0.01,
+        score: computeSortScore(
+          query,
+          spec.specName,
+          spec.composants,
+          matchReasons,
+          baseSml,
+        ),
       };
     })
     .sort((a, b) => {
@@ -184,6 +176,7 @@ export async function getSearchResultsFromMatches(
 export const getSearchResults = unstable_cache(
   async function (query: string): Promise<SearchResultItem[]> {
     const matches = await getSearchMatches(query);
+    console.log(matches);
     return getSearchResultsFromMatches(query, matches);
   },
   ["search-results"],
