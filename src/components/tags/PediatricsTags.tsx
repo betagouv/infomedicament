@@ -1,3 +1,5 @@
+"use client";
+
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { HTMLAttributes } from "react";
 import type { FrIconClassName } from "@codegouvfr/react-dsfr/src/fr/generatedFromCss/classNames";

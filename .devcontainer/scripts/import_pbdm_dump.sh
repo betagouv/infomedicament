@@ -47,7 +47,7 @@ echo "Done. Output written to $OUTPUT"
 
 # Recreating PSQL resume_* tables
 echo "Recreating PostgreSQL resume_* tables..."
-for x in pathos substances specialites atc1 atc2 generiques; do
+for x in indications substances specialites atc1 atc2 generiques medicaments; do
   npm run db:update-resume -- $x
 done
 
