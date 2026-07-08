@@ -18,6 +18,7 @@ const { dbMock, mockExecute } = vi.hoisted(() => {
     select: vi.fn().mockReturnThis(),
     where: vi.fn().mockReturnThis(),
     orderBy: vi.fn().mockReturnThis(),
+    as: vi.fn().mockReturnThis(),
     execute,
   };
 
@@ -74,7 +75,7 @@ describe("Autocomplete suggestions", () => {
 
   it("surfaces a matched substance and linked medicines", async () => {
     mockExecute.mockResolvedValueOnce([
-      { match_type: "substance", group_name: "DOLIPRANE", match_label: "Paracétamol", token: "paracetamol", spec_id: null, sml: 0.9, direct_sml: 0.9 },
+      { match_type: "substance", group_name: "DOLIPRANE", match_label: "Paracétamol", token: "paracetamol", spec_id: null, sml: 0.9 },
     ]);
     mockExecute.mockResolvedValueOnce([
       { ...makeGroup("DOLIPRANE", "Paracétamol"), specId: "61234567", specName: "DOLIPRANE 1000 mg" },
@@ -100,8 +101,8 @@ describe("Autocomplete suggestions", () => {
 
   it("keeps an exact medicine name ahead of a substance with the same label", async () => {
     mockExecute.mockResolvedValueOnce([
-      { match_type: "name", group_name: "PARACETAMOL", match_label: "PARACETAMOL", token: "paracetamol", spec_id: "70000001", sml: 1, direct_sml: 1 },
-      { match_type: "substance", group_name: "DOLIPRANE", match_label: "Paracétamol", token: "paracetamol", spec_id: null, sml: 1, direct_sml: 1 },
+      { match_type: "name", group_name: "PARACETAMOL", match_label: "PARACETAMOL", token: "paracetamol", spec_id: "70000001", sml: 1 },
+      { match_type: "substance", group_name: "DOLIPRANE", match_label: "Paracétamol", token: "paracetamol", spec_id: null, sml: 1 },
     ]);
     mockExecute.mockResolvedValueOnce([
       { ...makeGroup("PARACETAMOL", "Paracétamol"), specId: "70000001", specName: "PARACETAMOL" },
@@ -120,7 +121,7 @@ describe("Autocomplete suggestions", () => {
 
   it("uses cautious wording for indication-linked medicines", async () => {
     mockExecute.mockResolvedValueOnce([
-      { match_type: "indication", group_name: "DOLIPRANE", match_label: "Migraine", token: "migraine", spec_id: null, sml: 0.95, direct_sml: 0.95 },
+      { match_type: "indication", group_name: "DOLIPRANE", match_label: "Migraine", token: "migraine", spec_id: null, sml: 0.95 },
     ]);
     mockExecute.mockResolvedValueOnce([
       { ...makeGroup("DOLIPRANE"), specId: "61234567", specName: "DOLIPRANE 1000 mg" },
@@ -142,7 +143,7 @@ describe("Autocomplete suggestions", () => {
 
   it("does not expose ATC as an autocomplete category", async () => {
     mockExecute.mockResolvedValueOnce([
-      { match_type: "atc", group_name: "DOLIPRANE", match_label: "Antalgiques", token: "antalgiques", spec_id: null, sml: 0.9, direct_sml: 0.9 },
+      { match_type: "atc", group_name: "DOLIPRANE", match_label: "Antalgiques", token: "antalgiques", spec_id: null, sml: 0.9 },
     ]);
     mockExecute.mockResolvedValueOnce([
       { ...makeGroup("DOLIPRANE"), specId: "61234567", specName: "DOLIPRANE 1000 mg" },
