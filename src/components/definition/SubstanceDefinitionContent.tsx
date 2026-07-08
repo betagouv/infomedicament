@@ -1,3 +1,5 @@
+"use client";
+
 import React, { HTMLAttributes } from "react";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";

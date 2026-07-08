@@ -14,7 +14,38 @@ Deux bases de données sont utilisées :
 - MySQL pour héberger une copie de la base de données publique des médicaments originale de l'ANSM.
   Ces données sont utilisés à l'identique et la base MySQL n'est pas modifiée.
 
-Pour démarrer facilement un environnement de développement avec un service MySQL et un service PostgreSQL,vous pouvez utiliser la configuration Dev Containers fournie.
+Un fichier `.env.local` est attendu par la configuration Dev Containers, et
+permet aussi de configurer explicitement l'environnement local. Vous pouvez
+partir du modèle fourni :
+
+```bash
+cp .env.local.model .env.local
+```
+
+Les variables principales sont :
+
+- `DATABASE_URL` : l'URL PostgreSQL utilisée par l'application;
+- `PDBM_URL` : l'URL MySQL de la copie locale de la BDPM.
+
+`DATABASE_URL` doit être définie si vous lancez l'application hors Dev Container.
+Dans le Dev Container, l'application sait aussi utiliser les identifiants
+PostgreSQL par défaut du service `db-postgres`.
+
+`PDBM_URL` est optionnelle avec la configuration Dev Containers fournie : si elle
+n'est pas définie, l'application utilise les identifiants MySQL par défaut du
+conteneur (`root` / `mysql`) sur la base `pdbm_bdd`. Vous pouvez tout de même la
+définir explicitement si vous utilisez votre propre service MySQL.
+
+### Dev Containers
+
+Le projet inclut une configuration Dev Containers dans `.devcontainer/`. Elle
+démarre un environnement de développement avec l'application Next.js, PostgreSQL,
+MySQL et OpenSearch, puis lance `npm install` à la création du conteneur.
+
+Cette configuration est pratique pour avoir les mêmes services locaux que le
+reste de l'équipe, mais elle n'est pas obligatoire : vous pouvez aussi utiliser
+votre installation habituelle de Node.js et pointer `DATABASE_URL` et `PDBM_URL`
+vers vos propres bases locales.
 
 ## Installation
 
