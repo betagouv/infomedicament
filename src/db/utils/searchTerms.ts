@@ -1,4 +1,10 @@
-import { Expression, ExpressionBuilder, SqlBool, sql } from "kysely";
+import {
+  AliasableExpression,
+  Expression,
+  ExpressionBuilder,
+  SqlBool,
+  sql,
+} from "kysely";
 import type { Database } from "@/db/types";
 
 const CONNECTOR_WORDS = new Set([
@@ -17,7 +23,7 @@ const CONNECTOR_WORDS = new Set([
   "les",
 ]);
 
-export function buildRequiredTermGroups(terms: string[]): string[][] {
+function buildRequiredTermGroups(terms: string[]): string[][] {
   const requiredTermGroupsByKey = new Map<string, string[]>();
 
   for (const term of terms) {
@@ -32,6 +38,19 @@ export function buildRequiredTermGroups(terms: string[]): string[][] {
   }
 
   return [...requiredTermGroupsByKey.values()];
+}
+
+export function termsSimilarityExpression(
+  eb: ExpressionBuilder<Database, "search_index">,
+  terms: string[],
+): AliasableExpression<number> {
+  const termSimilarities = terms.map((term) =>
+    eb.fn<number>("word_similarity", [eb.val(term), "token"]),
+  );
+
+  return termSimilarities.length === 1
+    ? termSimilarities[0]
+    : eb.fn<number>("greatest", termSimilarities);
 }
 
 function wordMatchPredicate(
@@ -58,9 +77,13 @@ function wordMatchPredicate(
 
 export function rowMatchesRequiredTermsPredicate(
   eb: ExpressionBuilder<Database, "search_index">,
-  requiredTermGroups: string[][],
+  terms: string[],
 ): Expression<SqlBool> {
-  if (requiredTermGroups.length === 0) return eb.val(true);
+  // Gives us [["mal", "tête"], ["céphalées"]]
+  // Eg: when searching for "acide folique" we dont want to match on "acide" alone
+  const requiredTermGroups = buildRequiredTermGroups(terms);
+
+  if (requiredTermGroups.length === 0) return eb.val(false);
 
   const requiredTermGroupPredicates = requiredTermGroups.map((requiredTerms) =>
     eb.and(requiredTerms.map((word) => wordMatchPredicate(eb, word))),
