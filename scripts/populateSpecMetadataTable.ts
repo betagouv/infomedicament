@@ -25,12 +25,6 @@ export async function populateSpecMetadataTable(): Promise<void> {
     allNotices.map((notice) => [notice.codeCIS.toString(), notice]),
   );
 
-  // Only the specialites that have a matching notice get a metadata row.
-  const specsWithNotice = allSpecialites.flatMap((spec) => {
-    const noticeDB = noticeByCIS.get(spec.SpecId.trim());
-    return noticeDB ? [{ spec, noticeDB }] : [];
-  });
-
   let buffer: SpecialiteMetadata[] = [];
   let totalInserted = 0;
 
@@ -44,17 +38,19 @@ export async function populateSpecMetadataTable(): Promise<void> {
     buffer = [];
   };
 
-  for (let i = 0; i < specsWithNotice.length; i += NOTICE_BATCH_SIZE) {
-    const batch = specsWithNotice.slice(i, i + NOTICE_BATCH_SIZE);
+  // Add metadata informations for all notices even if no indications text
+  for (let i = 0; i < allSpecialites.length; i += NOTICE_BATCH_SIZE) {
+    const batch = allSpecialites.slice(i, i + NOTICE_BATCH_SIZE);
 
     const metadatas = await Promise.all(
-      batch.map(async ({ spec, noticeDB }) => {
+      batch.map(async (spec) => {
+        const noticeDB = noticeByCIS.get(spec.SpecId.trim());
         const description =
-          noticeDB.children && noticeDB.children.length > 0
+          noticeDB && noticeDB.children && noticeDB.children.length > 0
             ? await getIndicationsText(noticeDB.children)
             : "";
         return {
-          CIS: noticeDB.codeCIS,
+          CIS: Number(spec.SpecId.trim()),
           title: spec.SpecDenom01,
           description,
         };

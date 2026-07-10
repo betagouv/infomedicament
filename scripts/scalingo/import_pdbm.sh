@@ -58,6 +58,6 @@ mysql -h 127.0.0.1 -P "$TUNNEL_PORT" -u "$DB_USER" -p"$DB_PASS" pdbm_bdd < "$INP
 
 # Run one-off container: rebuild resume tables and search index
 echo "Rebuilding resume_* tables and search index on $APP..."
-scalingo -a "$APP" --region "$REGION" run "for x in pathos substances specialites atc1 atc2 generiques medicaments; do node .next/standalone/scripts/updateResumeData.js \$x; done && node .next/standalone/scripts/seedSearchIndex.js"
+scalingo -a "$APP" --region "$REGION" run "for x in indications substances specialites atc1 atc2 generiques medicaments; do node .next/standalone/scripts/updateResumeData.js \$x; done && node .next/standalone/scripts/seedSearchIndex.js"
 
 echo "All done!"

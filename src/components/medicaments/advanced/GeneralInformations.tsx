@@ -19,14 +19,16 @@ import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
-import { getProcedureLibLong, getTypeInfoTxt, isAIP } from "@/utils/specialites";
+import { getProcedureLibLong, getTypeInfoTxt, isAIP, isHospitalDelivrance } from "@/utils/specialites";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { getPresentationName, getPresentationFullPriceText, isAbrogee, isAgree, isArret, isIVG, isListeRetrocession, isListeSus, isNotAuthorized } from "@/utils/presentations";
+import { getPresentationName, getPresentationFullPriceText, isAbrogee, isAgree, isArret, isIVG, isListeRetrocession, isListeSus, isNotAuthorized, isReimbursable } from "@/utils/presentations";
 import { FicheInfos, InfosImportantes } from "@/types/FicheInfoTypes";
 import WithDefinition from "@/components/glossary/WithDefinition";
 import { Definition } from "@/types/GlossaireTypes";
 import { getDefinition } from "@/utils/glossary";
 import IndicationsBlock from "../blocks/IndicationsBlock";
+import HospitalTag from "@/components/tags/HospitalTag";
+import ReimbursableTag from "@/components/tags/ReimbursableTag";
 
 const SummaryLineContainer = styled.div<{ $hideBorder?: boolean; }>`
   display: flex;
@@ -257,6 +259,12 @@ function GeneralInformations({
           {(delivrance && delivrance.length > 0) ? (
             <ContentContainer>
               <PrescriptionTag hideIcon/>
+              {isReimbursable(presentations) && (
+                <ReimbursableTag hideIcon className={fr.cx("fr-ml-1-5v")}/>
+              )}
+              {isHospitalDelivrance(delivrance) && (
+                <HospitalTag hideIcon className={fr.cx("fr-ml-1-5v")}/>
+              )}
               <ul>
                 {delivrance.map((line: SpecDelivrance, index) => {
                   return (

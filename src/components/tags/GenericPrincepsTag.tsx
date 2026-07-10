@@ -1,3 +1,5 @@
+"use client";
+
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { HTMLAttributes } from "react";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
