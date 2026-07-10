@@ -9,7 +9,6 @@ import { SearchFilter } from "@/types/SearchTypes";
 
 const SearchFilterContainer = styled.div`
   border-bottom: 2px solid var(--border-open-blue-france);
-  padding-bottom: 2rem;
 `;
 const FilterListContainer = styled.div`
   margin-top: 1rem;
@@ -17,9 +16,11 @@ const FilterListContainer = styled.div`
     .fr-fieldset.search-filter-cb-child:last-child {
       margin-bottom: 0px;
     }
+    margin-bottom: 1rem;
   } 
 `;
-const ShowMoreLink = styled.span`
+const ShowMoreLink = styled.div`
+  margin-bottom: 1rem;
   .fr-link {
     cursor: pointer;
     background-image: var(--underline-img), var(--underline-img);

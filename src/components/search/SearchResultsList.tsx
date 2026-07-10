@@ -5,22 +5,21 @@ import { fr } from "@codegouvfr/react-dsfr";
 import styled from 'styled-components';
 import Link from "next/link";
 import Button from "@codegouvfr/react-dsfr/Button";
-import SearchFilterBlock from "./blocks/SearchFilterBlock";
 import { SearchFilter, SearchResultItem, SortType } from "@/types/SearchTypes";
-import DataBlockSpecResult from "../data/DataBlockSpecResult";
-import DataListPagination from "../data/DataListPagination";
 import SearchResultsPagination from "./blocks/SearchResultsPagination";
+import SearchFiltersContainer from "./blocks/SearchFiltersContainer";
+import Accordion from "@codegouvfr/react-dsfr/Accordion";
+import SearchFiltersTitle from "./blocks/SearchFiltersTitle";
 
 const Container = styled.div `
   .display-inline {
     display: inline;
   }
 `;
-const FiltersContainer = styled.div`
-  padding: 1rem 2rem;
-  .fr-fieldset__content .fr-checkbox-group label {
-    font-size: 0.875rem !important;
-    padding-bottom: 0px;
+const ResultsContainer = styled.div`
+  @media (min-width: 48em) {
+    flex: 1 1 auto !important;
+    width: calc(100% - 260px - 2rem) !important;
   }
 `;
 const SortContainer = styled.div`
@@ -28,17 +27,6 @@ const SortContainer = styled.div`
 `;
 const FiltersTitle = styled.h1`
   font-weight: normal;
-`;
-const FiltersContainerTitleBlock = styled.div`
-  display: inline-flex;
-  justify-content: space-between;
-  width: 100%;
-  align-items: flex-start;
-  border-bottom: 2px solid var(--border-open-blue-france);
-  margin-bottom: 1rem;
-`;
-const FiltersContainerTitle = styled.h2`
-  font-weight: normal !important;
 `;
 
 interface SearchResultsListProps extends HTMLAttributes<HTMLDivElement> {
@@ -59,6 +47,8 @@ function SearchResultsList({
 
   const [currentSortType, setCurrentSortType] = useState<SortType>("score");
   const [isSortAsc, setIsSortAsc] = useState<boolean>(true);
+
+  const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false);
 
   //Loading
   useEffect(() => {
@@ -191,84 +181,6 @@ function SearchResultsList({
     setFilteredResultsList(newResultsList);
   }, [resultsList, currentSortType, isSortAsc, allSubsFilters, allAtcFilters, allIndicationsFilters, setFilteredResultsList]);
 
-
-  const onChangeSubsFilter = (filter: SearchFilter, checked: boolean) => {
-    const subsIndex = allSubsFilters.findIndex((subsFilter) => filter.id === subsFilter.id);
-    if(subsIndex !== -1) {
-      const updatedSubsFilters = [...allSubsFilters];
-      updatedSubsFilters[subsIndex].selected = checked;
-      setAllSubsFilters(updatedSubsFilters);
-    }
-  };
-  
-  const onChangeATCFilter = (filter: SearchFilter, checked: boolean) => {
-    const atcIndex = allAtcFilters.findIndex((atcFilter) => filter.id === atcFilter.id);
-    if(atcIndex !== -1) {
-      const updatedAtcFilters = allAtcFilters.map((filter) => ({
-        ...filter,
-        children: filter.children && filter.children.map((childFilter) => ({...childFilter}))
-      }));
-      updatedAtcFilters[atcIndex].selected = checked;
-      updatedAtcFilters[atcIndex].children && updatedAtcFilters[atcIndex].children.forEach((childFilter) => {
-        childFilter.selected = checked;
-      });
-      setAllAtcFilters(updatedAtcFilters);
-    }
-  };
-
-  const onChangeATC2Filter = (atcFilter: SearchFilter, atc2Filter: SearchFilter, checked: boolean) => {
-    //Update atc list
-    const atcIndex = allAtcFilters.findIndex((filter) => atcFilter.id === filter.id);
-    if(atcIndex !== -1) {
-      const updatedAtcFilters = allAtcFilters.map((filter) => ({
-        ...filter,
-        children: filter.children && filter.children.map((childFilter) => ({...childFilter}))
-      }));
-      const atc2Index = updatedAtcFilters[atcIndex].children 
-        ? updatedAtcFilters[atcIndex].children.findIndex((childrenFilter) => atc2Filter.id === childrenFilter.id) 
-        : -1;
-      if(atc2Index !== -1 && updatedAtcFilters[atcIndex].children) {
-        updatedAtcFilters[atcIndex].children[atc2Index].selected = checked;
-        if(checked) {
-          //At least one ATC2 is selected - select the parent
-          updatedAtcFilters[atcIndex].selected = true;
-        } else {
-          const selectedChildren = updatedAtcFilters[atcIndex].children.filter((childrenFilter) => childrenFilter.selected);
-          //No ATC2 is selected - unselect the parent
-          if(selectedChildren.length === 0) updatedAtcFilters[atcIndex].selected = false;
-        }
-        setAllAtcFilters(updatedAtcFilters);
-      }
-    }
-  };
-
-  const onChangeIndicationsFilter = (filter: SearchFilter, checked: boolean) => {
-    const indicationIndex = allIndicationsFilters.findIndex(
-      (indicationFilter) => filter.id === indicationFilter.id && filter.name === indicationFilter.name
-    );
-    if(indicationIndex !== -1) {
-      const updatedIndicationsFilters = [...allIndicationsFilters];
-      updatedIndicationsFilters[indicationIndex].selected = checked;
-      setAllIndicationsFilters(updatedIndicationsFilters);
-    }
-  };
-
-  const onUnselectAll = () => {
-    //Substances
-    const updatedSubsFilters = allSubsFilters.map((filter) => ({...filter, selected: false}));
-    setAllSubsFilters(updatedSubsFilters);
-    //ATC 1 & 2
-    const updatedAtcFilters: SearchFilter[] = allAtcFilters.map((filter) => ({
-      ...filter,
-      selected: false,
-      children: filter.children && filter.children.map((childFilter) => ({...childFilter, selected: false}))
-    }));
-    setAllAtcFilters(updatedAtcFilters);
-    //Indications
-    const updatedIndicationsFilters = allIndicationsFilters.map((filter) => ({...filter, selected: false}));
-    setAllIndicationsFilters(updatedIndicationsFilters);
-  };
-
   return (
     <Container className={fr.cx("fr-grid-row")}>
       <div className={fr.cx("fr-col-12")}>
@@ -278,45 +190,32 @@ function SearchResultsList({
           <strong>“{search}“</strong>
         </FiltersTitle>
       </div>
-      <FiltersContainer className={fr.cx("fr-col-12", "fr-col-md-4")}>
-        <FiltersContainerTitleBlock>
-          <FiltersContainerTitle className={fr.cx("fr-h6")}>
-            <span 
-              className={fr.cx("fr-icon-filter-fill", "fr-mr-1w")}
-              style={{color: "var(--text-default-info)"}}
-            />
-            Filtres
-          </FiltersContainerTitle>
-          {(allSubsFilters.filter((filter) => filter.selected).length > 0 
-            || allAtcFilters.filter((filter) => filter.selected).length > 0 
-            || allIndicationsFilters.filter((filter) => filter.selected).length > 0) && (
-            <Link 
-              className={fr.cx("fr-link", "fr-text--sm")}
-              href=""
-              onClick={onUnselectAll}
-            >
-              Effacer tous les filtres
-            </Link>
-          )}
-        </FiltersContainerTitleBlock>
-        <SearchFilterBlock
-          filtersList={allSubsFilters}
-          title="Substance active"
-          onClickFilter={onChangeSubsFilter}
-        />
-        <SearchFilterBlock
-          filtersList={allAtcFilters}
-          title="Classe de médicament"
-          onClickFilter={onChangeATCFilter}
-          onClickChildFilter={onChangeATC2Filter}
-        />
-        <SearchFilterBlock
-          filtersList={allIndicationsFilters}
-          title="Indication"
-          onClickFilter={onChangeIndicationsFilter}
-        />
-      </FiltersContainer>
-      <div className={fr.cx("fr-col-12", "fr-col-md-8", "fr-pl-3w")}>
+      <Accordion 
+        label={(<SearchFiltersTitle />)}
+        onExpandedChange={() => setIsFiltersOpen(!isFiltersOpen)} 
+        expanded={isFiltersOpen}
+        className={fr.cx("fr-col-12", "fr-mb-2w", "fr-hidden-md")}
+      >
+        <SearchFiltersContainer
+          allSubsFilters={allSubsFilters}
+          allAtcFilters={allAtcFilters}
+          allIndicationsFilters={allIndicationsFilters}
+          setAllSubsFilters={setAllSubsFilters}
+          setAllAtcFilters={setAllAtcFilters}
+          setAllIndicationsFilters={setAllIndicationsFilters}
+        />   
+      </Accordion>
+      <div className={fr.cx("fr-hidden", "fr-unhidden-md")}>
+        <SearchFiltersContainer
+          allSubsFilters={allSubsFilters}
+          allAtcFilters={allAtcFilters}
+          allIndicationsFilters={allIndicationsFilters}
+          setAllSubsFilters={setAllSubsFilters}
+          setAllAtcFilters={setAllAtcFilters}
+          setAllIndicationsFilters={setAllIndicationsFilters}
+        />   
+      </div>     
+      <ResultsContainer className={fr.cx("fr-col-12")}>
         <SortContainer className={fr.cx("fr-mb-3w")}>
           Trier par{" "}
           {currentSortType !== "alphabetic" 
@@ -359,7 +258,7 @@ function SearchResultsList({
             allIndicationsFilters={allIndicationsFilters}
           />
         )}
-      </div>
+      </ResultsContainer>
     </Container>
   );
 };
