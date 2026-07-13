@@ -213,9 +213,9 @@ export const getSubstanceSpecialites = unstable_cache(async function (
 );
 
 export const getSubstanceSpecialitesCIS = unstable_cache(async function (
-  subsNomsIDs: (string | string[])
+  subsIds: (string | string[])
 ): Promise<string[]> {
-  const ids: string[] = !Array.isArray(subsNomsIDs) ? [subsNomsIDs] : subsNomsIDs;
+  const ids: string[] = !Array.isArray(subsIds) ? [subsIds] : subsIds;
   const rawCISList = await pdbmMySQL
     .selectFrom("Specialite")
     .select("Specialite.SpecId")

@@ -54,7 +54,7 @@ function DataBlockGeneric({
       data: ResumeSubstance | ResumeIndication | AdvancedATCClass | ResumeGeneric
     ){
       if(dataType === DataTypeEnum.SUBSTANCE){
-        setCurrentLink(`/substances/${(data as ResumeSubstance).NomId}`);
+        setCurrentLink(`/substances/${(data as ResumeSubstance).SubsId}`);
       } else if(dataType === DataTypeEnum.INDICATION){
         setCurrentLink(`/indications/${(data as ResumeIndication).idIndication}`);
       } else if(dataType === DataTypeEnum.ATCCLASS){

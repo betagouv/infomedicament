@@ -43,7 +43,7 @@ export function withSubstances(
 
 export function withOneSubstance(
   specId: Expression<string>,
-  nomId: Expression<string>,
+  subsId: Expression<string>,
 ): Expression<SqlBool> {
   const eb = expressionBuilder<PdbmMySQL, never>();
 
@@ -51,7 +51,7 @@ export function withOneSubstance(
     eb
       .selectFrom("Composant as Comp1")
       .select("Comp1.SpecId")
-      .where("Comp1.NomId", "=", nomId)
+      .where("Comp1.SubsId", "=", subsId)
       .where("Comp1.SpecId", "=", specId)
       .where(({ eb, selectFrom }) =>
         eb(
@@ -59,14 +59,14 @@ export function withOneSubstance(
           "not in",
           selectFrom("Composant as Comp2")
             .select("SpecId")
-            .where("Comp2.NomId", "<>", nomId)
+            .where("Comp2.SubsId", "<>", subsId)
             .whereRef(
               "Comp2.CompNum",
               "not in",
               selectFrom("Composant as Comp3")
                 .select("CompNum")
                 .where("Comp3.SpecId", "=", specId)
-                .where("Comp3.NomId", "=", nomId),
+                .where("Comp3.SubsId", "=", subsId),
             ),
         ),
       )

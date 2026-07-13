@@ -12,11 +12,11 @@ import db from "..";
 import { sql } from "kysely";
 
 export const getSubstances = cache(async function (
-  ids: string[]
+  subsIds: string[]
 ): Promise<SubstanceNom[] | undefined> {
   return await pdbmMySQL
     .selectFrom("Subs_Nom")
-    .where("NomId", "in", ids)
+    .where("SubsId", "in", subsIds)
     .selectAll()
     .execute();
 });
@@ -24,9 +24,9 @@ export const getSubstances = cache(async function (
 export const getAllSubsWithSpecialites = cache(async function () {
   return await pdbmMySQL
     .selectFrom("Subs_Nom")
-    .innerJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
+    .innerJoin("Composant", "Subs_Nom.SubsId", "Composant.SubsId")
     .innerJoin("Specialite", "Composant.SpecId", "Specialite.SpecId")
-    .where((eb) => withOneSubstance(eb.ref("Specialite.SpecId"), eb.ref("Subs_Nom.NomId")))
+    .where((eb) => withOneSubstance(eb.ref("Specialite.SpecId"), eb.ref("Subs_Nom.SubsId")))
     .where("Specialite.IsBdm", "=", 1)
     .selectAll("Subs_Nom")
     .select("Specialite.SpecDenom01")
@@ -82,7 +82,6 @@ export const getSubstancesResume = cache(async function (substanceIDs: string[])
 });
 
 export async function getSubstanceDefinition(
-  ids: string[],
   subsIds: string[],
 ) {
   const rows = await db.selectFrom("ref_substance_active_definitions")
@@ -91,20 +90,13 @@ export async function getSubstanceDefinition(
 
   // First try to match by NomId
   let definitions = rows.filter((row) =>
-    row.nom_id && ids.includes(row.nom_id.trim())
+    row.subs_id && subsIds.includes(row.subs_id.trim())
   );
-
-  // If no match, try matching by SubsId
-  if (definitions.length === 0) {
-    definitions = rows.filter((row) =>
-      row.subs_id && subsIds.includes(row.subs_id.trim())
-    );
-  }
 
   // Map to the expected format (matching Grist structure)
   return definitions.map((row) => (
     {
-      NomId: row.nom_id?.trim() || "",
+      SubsId: row.subs_id?.trim() || "",
       SA: row.sa?.trim() || "",
       Definition: row.definition?.trim() || "",
     }
