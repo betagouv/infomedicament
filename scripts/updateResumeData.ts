@@ -89,7 +89,7 @@ async function createResumeSubstances(): Promise<string[]> {
   const rawResumeData: RawResumeSubstance[] = [];
   const letters: string[] = [];
   allSubs.forEach((sub) => {
-    const index = rawResumeData.findIndex((resumeData) => resumeData.NomId.trim() === sub.NomId.trim());
+    const index = rawResumeData.findIndex((resumeData) => resumeData.NomLib.trim() === sub.NomLib.trim());
     const specGroupName = getSpecialiteGroupName(sub.SpecDenom01);
     if (index !== -1) {
       if (!rawResumeData[index].specialites.includes(specGroupName)) {
@@ -125,6 +125,7 @@ async function createResumeSubstances(): Promise<string[]> {
   return letters;
 }
 
+//TODO changer les substances
 async function createResumeMedicaments(): Promise<string[]> {
   await db
     .deleteFrom('resume_medicaments')
@@ -229,6 +230,7 @@ async function createResumeGeneriques(): Promise<string[]> {
   return letters;
 }
 
+//TODO changer les substances
 async function createResumeSpecialites(): Promise<void> {
   await db
     .deleteFrom('resume_specialites')

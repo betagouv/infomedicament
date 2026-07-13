@@ -10,6 +10,7 @@ import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinit
 import { getArticlesFromSubstances } from "@/db/utils/articles";
 import { getResumeSpecsGroupsWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
+import { getSubstanceMainName } from "@/utils/susbtances";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -20,16 +21,16 @@ export async function generateMetadata(
 ): Promise<Metadata> {
 
   const { id } = await props.params;
-  const ids = decodeURIComponent(id).split(",");//NomId
-  const substances: SubstanceNom[] = await getSubstances(ids) ?? [];
-  if (substances.length < ids.length) {
+  const subsIds = decodeURIComponent(id).split(",");
+  const substances: SubstanceNom[] = await getSubstances(subsIds) ?? [];
+  if (substances.length < subsIds.length) {
     return {
       title: `Substance ${id}`,
     };
   }
 
-  const definitionsRaw = await getSubstanceDefinition(ids, substances.map((subs) => subs.SubsId.trim()));
-  const definitionString = definitionsRaw.map(d => `${d.SA} : ${d.Definition}`).join(" - ")
+  const definitionsRaw = await getSubstanceDefinition(subsIds);
+  const definitionString = definitionsRaw.map(d => `${d.SA} : ${d.Definition}`).join(" - ");
 
   return {
     title: `${substances.map((s) => s.NomLib).join(", ")} - ${(await parent).title?.absolute}`,
@@ -39,17 +40,15 @@ export async function generateMetadata(
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
-  const ids = decodeURIComponent(id).split(",");//NomId
+  const subsIds = decodeURIComponent(id).split(",");
 
-  const substances: SubstanceNom[] = await getSubstances(ids) ?? [];
-  if (substances.length < ids.length) return notFound();
-
-  const subsIds = substances.map((s) => s.SubsId.trim());
+  const substances: SubstanceNom[] = await getSubstances(subsIds) ?? [];
+  if (substances.length < subsIds.length) return notFound();
 
   const [articles, definitions, CISList] = await Promise.all([
-    getArticlesFromSubstances(ids),
-    getSubstanceDefinition(ids, subsIds),
-    getSubstanceSpecialitesCIS(ids),
+    getArticlesFromSubstances(subsIds),
+    getSubstanceDefinition(subsIds),
+    getSubstanceSpecialitesCIS(subsIds),
   ]);
 
   const definition = definitions.map((d) => ({ title: d.SA, desc: d.Definition }));
@@ -59,6 +58,18 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
     : [];
 
+  const titles: string[] = subsIds.map((subsId) => getSubstanceMainName(substances.filter((subs) => subs.SubsId.trim() === subsId)));
+  const title: string = titles.join(", ");
+  console.log(substances);
+  const subtitle = subsIds.map(
+    (subsId) => substances
+      .filter((subs) => 
+        subs.SubsId.trim() === subsId && titles.findIndex((name) => subs.NomLib.trim() === name) === -1
+      )
+      .map((subs) => subs.NomLib.trim())
+      .join(", ")
+  ).join(", ");
+  
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
@@ -69,23 +80,24 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
               {
                 label: "Listes des substances",
                 linkProps: {
-                  href: `/substances/${substances[0].NomLib.slice(0, 1)}`,
+                  href: `/substances/${title[0].slice(0, 1)}`,
                 },
               },
             ]}
-            currentPageLabel={substances.map((s) => s.NomLib).join(", ")}
+            currentPageLabel={title}
           />
         </div>
       </div>
       <SubstanceDefinitionContent
-        ids={ids}
-        substances={substances}
+        subsIds={subsIds}
         articles={articles}
         definition={definition}
         dataList={dataList}
+        title={title}
+        subtitle={subtitle}
       />
       <RatingToaster
-        pageId={substances.map((s) => s.NomLib).join(", ")}
+        pageId={title}
       />
     </ContentContainer>
   );
