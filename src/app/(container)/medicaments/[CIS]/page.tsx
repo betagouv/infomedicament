@@ -165,7 +165,7 @@ export default async function Page(props: {
     breadcrumb.push({
       label: formatSpecName(getSpecialiteGroupName(specialite)),
       linkProps: {
-        href: `/rechercher?s=${formatSpecName(getSpecialiteGroupName(specialite))}`,
+        href: `/rechercher?s=${encodeURIComponent(formatSpecName(getSpecialiteGroupName(specialite)))}`,
       },
     });
   }

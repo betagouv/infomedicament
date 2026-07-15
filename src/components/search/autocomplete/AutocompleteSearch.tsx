@@ -224,7 +224,7 @@ export default function AutocompleteSearch({
 
   const onButtonClick = (search: string) => {
     search && trackSearchEvent(search);
-    router.push(`/rechercher?s=${search}`);
+    router.push(`/rechercher?s=${encodeURIComponent(search)}`);
   };
 
   return (
