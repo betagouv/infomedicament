@@ -1,0 +1,241 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("server-only", () => ({}));
+vi.mock("server-cli-only", () => ({}));
+vi.mock("@/app/(container)/medicaments/[CIS]/notice-search/answerNoticeQuestion", () => ({
+  answerNoticeQuestion: vi.fn(),
+  getCachedNoticeQuestionAnswer: vi.fn(),
+}));
+vi.mock("@/db/utils", () => ({ getSearchResults: vi.fn() }));
+vi.mock("@/db/utils/notice", () => ({ getNotice: vi.fn() }));
+vi.mock("./queryAnalysis", () => ({ analyzeQuery: vi.fn() }));
+
+import { buildSmartSearchQuery, hasClearWinner } from "./smartSearch";
+import { answerNoticeQuestion } from "@/app/(container)/medicaments/[CIS]/notice-search/answerNoticeQuestion";
+import { getCachedNoticeQuestionAnswer } from "@/app/(container)/medicaments/[CIS]/notice-search/answerNoticeQuestion";
+import { getSearchResults } from "@/db/utils";
+import { getNotice } from "@/db/utils/notice";
+import { analyzeQuery } from "./queryAnalysis";
+import { getSmartSearchResponse } from "./smartSearch";
+
+const answerNoticeQuestionMock = vi.mocked(answerNoticeQuestion);
+const getCachedNoticeQuestionAnswerMock = vi.mocked(getCachedNoticeQuestionAnswer);
+const getSearchResultsMock = vi.mocked(getSearchResults);
+const getNoticeMock = vi.mocked(getNotice);
+const analyzeQueryMock = vi.mocked(analyzeQuery);
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+describe("buildSmartSearchQuery", () => {
+  it("combines extracted medicine search terms", () => {
+    expect(buildSmartSearchQuery({
+      intent: "specific_medicine_question",
+      specialites: ["Doliprane"],
+      substances: ["paracétamol"],
+      indications: ["fièvre"],
+      searchTerms: ["douleur"],
+      question: "Quelle dose prendre ?",
+    })).toBe("Doliprane");
+  });
+
+  it("uses substances when no specialite is present", () => {
+    expect(buildSmartSearchQuery({
+      intent: "generic_medicine_search",
+      specialites: [],
+      substances: ["paracétamol"],
+      indications: ["fièvre"],
+      searchTerms: ["douleur"],
+      question: "Quel médicament prendre pour une douleur ?",
+    })).toBe("paracétamol");
+  });
+
+  it("uses indications when no specialite or substance is present", () => {
+    expect(buildSmartSearchQuery({
+      intent: "generic_medicine_search",
+      specialites: [],
+      substances: [],
+      indications: ["fièvre"],
+      searchTerms: ["douleur"],
+      question: "Quel médicament prendre pour la fièvre ?",
+    })).toBe("fièvre");
+  });
+
+  it("returns an empty query when no medicine clue is present", () => {
+    expect(buildSmartSearchQuery({
+      intent: "generic_medicine_search",
+      specialites: [],
+      substances: [],
+      indications: [],
+      searchTerms: [],
+      question: "Bonjour",
+    })).toBe("");
+  });
+});
+
+describe("hasClearWinner", () => {
+  it("accepts a single candidate", () => {
+    expect(hasClearWinner([{
+      specId: "1",
+      specName: "A",
+      groupName: "A",
+      score: 4,
+      matchReasons: [],
+    }])).toBe(true);
+  });
+
+  it("accepts a candidate when the score gap is clear", () => {
+    expect(hasClearWinner([
+      { specId: "1", specName: "A", groupName: "A", score: 4, matchReasons: [] },
+      { specId: "2", specName: "B", groupName: "B", score: 3.1, matchReasons: [] },
+    ])).toBe(true);
+  });
+
+  it("asks for confirmation when scores are close", () => {
+    expect(hasClearWinner([
+      { specId: "1", specName: "A", groupName: "A", score: 4, matchReasons: [] },
+      { specId: "2", specName: "B", groupName: "B", score: 3.5, matchReasons: [] },
+    ])).toBe(false);
+  });
+});
+
+describe("question smart search", () => {
+  it("displays the complete notice answer instead of the short quote", async () => {
+    analyzeQueryMock.mockResolvedValueOnce({
+      intent: "specific_medicine_question",
+      specialites: ["doliprane"],
+      substances: [],
+      indications: [],
+      searchTerms: [],
+      question: "Quelle dose prendre ?",
+    });
+    getSearchResultsMock.mockResolvedValueOnce([{
+      specId: "1",
+      specName: "DOLIPRANE 500 mg",
+      groupName: "DOLIPRANE",
+      score: 4,
+      matchReasons: [],
+    } as never]);
+    getNoticeMock.mockResolvedValueOnce({
+      children: [{
+        id: 123,
+        type: "AmmCorpsTexte",
+        content: "Le paragraphe complet de la notice avec toutes les informations utiles.",
+      }],
+    } as never);
+    getCachedNoticeQuestionAnswerMock.mockResolvedValueOnce({
+      answer: "Le paragraphe complet de la notice avec toutes les informations utiles.",
+      quote: "Le paragraphe complet",
+      section_anchor: "Ann3bCommentPrendre",
+      sub_header: "Posologie",
+      block_id: "block-123",
+    });
+
+    await expect(getSmartSearchResponse("Quelle dose de Doliprane prendre ?")).resolves.toMatchObject({
+      status: "answered",
+      hits: [{
+        answer: "Le paragraphe complet de la notice avec toutes les informations utiles.",
+        quote: "Le paragraphe complet",
+      }],
+    });
+    expect(getCachedNoticeQuestionAnswerMock).toHaveBeenCalledWith(
+      "1",
+      "Quelle dose prendre ?",
+      expect.stringContaining("Le paragraphe complet"),
+    );
+    expect(answerNoticeQuestionMock).not.toHaveBeenCalled();
+  });
+
+  it("keeps emergency guidance visible when query analysis fails", async () => {
+    vi.spyOn(console, "error").mockImplementationOnce(() => undefined);
+    analyzeQueryMock.mockRejectedValueOnce(new Error("Albert unavailable"));
+
+    await expect(getSmartSearchResponse("J'ai pris trop de Doliprane")).resolves.toMatchObject({
+      status: "unavailable",
+      topBlock: {
+        kind: "unavailable",
+        message: expect.stringMatching(/15|112/),
+      },
+    });
+    expect(getSearchResultsMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["blocked", "Nous ne pouvons pas aider à se faire du mal"],
+    ["urgent_medical_attention", "Cette situation peut nécessiter une prise en charge immédiate"],
+  ] as const)("uses the fixed safety message for %s", async (intent, expectedMessage) => {
+    analyzeQueryMock.mockResolvedValueOnce({
+      intent,
+      specialites: [],
+      substances: [],
+      indications: [],
+      searchTerms: [],
+      question: "",
+      safetyMessage: "Untrusted model-generated message",
+    });
+
+    await expect(getSmartSearchResponse("danger")).resolves.toMatchObject({
+      status: intent,
+      topBlock: {
+        message: expect.stringContaining(expectedMessage),
+      },
+    });
+  });
+
+  it("does not search a notice when the extraction has no question", async () => {
+    analyzeQueryMock.mockResolvedValueOnce({
+      intent: "specific_medicine_question",
+      specialites: [],
+      substances: ["xanax"],
+      indications: [],
+      searchTerms: [],
+      question: "",
+    });
+    getSearchResultsMock.mockResolvedValueOnce([{
+      specId: "1",
+      specName: "XANAX 0,25 mg",
+      groupName: "XANAX",
+      score: 4,
+      matchReasons: [],
+    } as never]);
+
+    await expect(getSmartSearchResponse("xanax")).resolves.toMatchObject({
+      status: "results",
+      searchQuery: "xanax",
+      hits: [],
+    });
+    expect(answerNoticeQuestionMock).not.toHaveBeenCalled();
+  });
+
+  it("reports notice lookup failures as unavailable, not as no answer", async () => {
+    vi.spyOn(console, "error").mockImplementationOnce(() => undefined);
+    analyzeQueryMock.mockResolvedValueOnce({
+      intent: "specific_medicine_question",
+      specialites: ["doliprane"],
+      substances: [],
+      indications: [],
+      searchTerms: [],
+      question: "Quelle dose prendre ?",
+    });
+    getSearchResultsMock.mockResolvedValueOnce([{
+      specId: "1",
+      specName: "DOLIPRANE 500 mg",
+      groupName: "DOLIPRANE",
+      score: 4,
+      matchReasons: [],
+    } as never]);
+    getNoticeMock.mockResolvedValueOnce({
+      children: [{ id: 123, type: "AmmCorpsTexte", content: "Notice" }],
+    } as never);
+    getCachedNoticeQuestionAnswerMock.mockRejectedValueOnce(new Error("Albert unavailable"));
+
+    await expect(getSmartSearchResponse("Quelle dose de Doliprane prendre ?")).resolves.toMatchObject({
+      status: "unavailable",
+      topBlock: {
+        kind: "unavailable",
+        message: expect.stringContaining("momentanément indisponible"),
+      },
+    });
+  });
+});

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { unstable_cache } from "next/cache";
-import { answerNoticeQuestion } from "@/lib/albert";
 import { getNotice } from "@/db/utils/notice";
 import { noticeToText } from "@/utils/notices";
+import { getCachedNoticeQuestionAnswer, NoticeQuestionAnswer } from "./answerNoticeQuestion";
 
 export interface NoticeChunkHit {
   section_anchor: string;
@@ -13,16 +12,7 @@ export interface NoticeChunkHit {
   quote?: string;
 }
 
-type LLMResult = { answer: string; section_anchor: string; sub_header: string; block_id: string; quote: string };
-
 export const extractBlockId = (raw: string): string | undefined => raw.match(/\d+/)?.[0];
-
-const getCachedAnswer = (CIS: string, q: string, noticeText: string) =>
-  unstable_cache(
-    (): Promise<LLMResult> => answerNoticeQuestion(noticeText, q),
-    ["notice-search", CIS, q],
-    { revalidate: 60 * 60 * 24 },
-  )();
 
 export async function GET(
   req: NextRequest,
@@ -37,9 +27,9 @@ export async function GET(
 
   const noticeText = noticeToText(notice.children);
 
-  let result: LLMResult;
+  let result: NoticeQuestionAnswer;
   try {
-    result = await getCachedAnswer(CIS, q, noticeText);
+    result = await getCachedNoticeQuestionAnswer(CIS, q, noticeText);
   } catch (err) {
     console.error("[notice-search] LLM error", err);
     return NextResponse.json({ hits: [] });

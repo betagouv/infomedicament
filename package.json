@@ -53,7 +53,8 @@
     "styled-components": "^6.1.15",
     "swr": "^2.2.5",
     "usehooks-ts": "^3.1.1",
-    "windows-1252": "^3.0.4"
+    "windows-1252": "^3.0.4",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "16.2.6",

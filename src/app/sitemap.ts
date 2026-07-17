@@ -20,6 +20,7 @@ const STATIC_ROUTES = [
   "/interactions",
   "/mentions-legales",
   "/politique-de-confidentialite",
+  "/question",
   "/rechercher",
   "/statistiques",
   "/medicaments",

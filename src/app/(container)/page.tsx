@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { fr } from "@codegouvfr/react-dsfr";
-import AutocompleteSearch from "@/components/search/autocomplete/AutocompleteSearch";
+import HomepageSearchTabs from "@/components/search/HomepageSearchTabs";
 import { getArticles } from "@/db/utils/articles";
 import { getMarketedMedicamentCount } from "@/db/utils/specialities";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
@@ -23,15 +23,17 @@ export default async function Page() {
                 maxWidth: "47rem",
               }}
             >
-              Trouvez instantanément les informations claires, précises et officielles sur vos médicaments, en toute simplicité !
+              Trouvez instantanément les informations claires, précises et
+              officielles sur vos médicaments, en toute simplicité !
             </h1>
             <p className="fr-text--sm">
-              Infomédicament comprend tous les médicaments dont les {marketedCount.toLocaleString("fr-FR")} actuellement commercialisés.
+              Infomédicament comprend tous les médicaments dont les{" "}
+              {marketedCount.toLocaleString("fr-FR")} actuellement
+              commercialisés.
             </p>
-            <AutocompleteSearch inputName="s" />
-            <p className="fr-text--sm">
-              Cherchez un <b>médicament</b>, une <b>substance active</b> (ex : paracétamol), une <b>indication</b> (ex : diabète), ou une <b>classe de médicaments</b> (ex : antibiotiques).
-            </p>
+            <div className={fr.cx("fr-mt-3w")}>
+              <HomepageSearchTabs />
+            </div>
           </div>
           <div
             className={fr.cx(
@@ -41,9 +43,7 @@ export default async function Page() {
               "fr-mt-4w",
             )}
           >
-            <h2 className={fr.cx("fr-h4")}>
-              Articles
-            </h2>
+            <h2 className={fr.cx("fr-h4")}>Articles</h2>
             <Image
               src="/img/homepage_illu.svg"
               alt="Un dessin d'une personne regardant une boîte de médicaments."

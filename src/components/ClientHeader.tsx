@@ -130,7 +130,8 @@ export default function ClientHeader({
       }
       onSearchButtonClick={
         hasSearch
-          ? (search: string) => router.push(`/rechercher?s=${search}`)
+          ? (search: string) =>
+              router.push(`/rechercher?s=${encodeURIComponent(search)}`)
           : undefined
       }
     />
