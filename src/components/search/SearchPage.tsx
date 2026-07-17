@@ -1,32 +1,55 @@
 "use client";
 
 import { fr } from "@codegouvfr/react-dsfr";
+import styled from "styled-components";
 import AutocompleteSearch from "@/components/search/autocomplete/AutocompleteSearch";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SearchResultsList from "@/components/search/SearchResultsList";
-import type { SearchResultItem } from "@/types/SearchTypes";
+import { HTMLAttributes } from "react";
+import { ArticleCardResume } from "@/types/ArticlesTypes";
+import { SearchResultItem } from "@/types/SearchTypes";
 
-type SearchPageProps = {
+const SynonymSuggestion = styled.p`
+  color: var(--text-mention-grey);
+`;
+
+interface SearchPageProps extends HTMLAttributes<HTMLDivElement> {
   search?: string;
-  searchResults: SearchResultItem[];
-  synonymTerms: string[];
-};
+  searchResults?: SearchResultItem[];
+  synonymTerms?: string[];
+  articlesList?: ArticleCardResume[];
+  //For now we are not displaying articles but we keep it in the process
+}
 
-export default function SearchPage({ search, searchResults, synonymTerms }: SearchPageProps) {
+function SearchPage({
+  search,
+  searchResults,
+  synonymTerms,
+  articlesList
+}: SearchPageProps) {
+
   return (
     <ContentContainer frContainer>
-      <div className={fr.cx("fr-mt-4w", "fr-mb-3w")}>
-        <AutocompleteSearch inputName="s" initialValue={search} />
+      <div className={fr.cx("fr-grid-row")}>
+        <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10", "fr-mt-4w", "fr-mb-2w")}>
+          <AutocompleteSearch
+            inputName="s"
+            initialValue={search || undefined}
+          />
+        </div>
       </div>
-
-      {synonymTerms.length > 0 && (
-        <p className={fr.cx("fr-text--sm", "fr-mb-2w")}>
-          Vouliez-vous dire : <strong>{synonymTerms.join(", ")}</strong> ?
-        </p>
+      {synonymTerms && synonymTerms.length > 0 && (
+        <div className={fr.cx("fr-grid-row")}>
+          <SynonymSuggestion className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10", "fr-text--sm", "fr-mb-2w")}>
+            Vouliez-vous dire : <strong>{synonymTerms.join(", ")}</strong> ?
+          </SynonymSuggestion>
+        </div>
       )}
-
-      {searchResults.length > 0 ? (
-        <SearchResultsList resultsList={searchResults} search={search} />
+      {searchResults && searchResults.length > 0 ? (
+        <SearchResultsList
+          resultsList={searchResults}
+          search={search}
+        />
       ) : (
         <div className={fr.cx("fr-grid-row", "fr-mt-3w")}>
           <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
@@ -37,3 +60,5 @@ export default function SearchPage({ search, searchResults, synonymTerms }: Sear
     </ContentContainer>
   );
 }
+
+export default SearchPage;
