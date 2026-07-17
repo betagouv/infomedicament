@@ -5,7 +5,7 @@ import styled from "styled-components";
 import AutocompleteSearch from "@/components/search/autocomplete/AutocompleteSearch";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SearchResultsList from "@/components/search/SearchResultsList";
-import { HTMLAttributes, useState } from "react";
+import { HTMLAttributes, useEffect, useState } from "react";
 import Link from "next/link";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { SearchResultItem } from "@/types/SearchTypes";
@@ -28,12 +28,29 @@ const CandidateLink = styled(Link)<{ $selected: boolean; $pending: boolean }>`
 `;
 
 const CandidateTitle = styled.span`
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
-const CandidateState = styled.span`
-  display: block;
-  color: var(--text-action-high-blue-france);
+const CandidateLoader = styled.span`
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 1rem;
+  border: 2px solid var(--border-action-low-blue-france);
+  border-top-color: var(--border-action-high-blue-france);
+  border-radius: 50%;
+  animation: candidate-loading 0.75s linear infinite;
+
+  @keyframes candidate-loading {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation-duration: 1.5s;
+  }
 `;
 
 const Quote = styled.blockquote`
@@ -111,6 +128,10 @@ function SearchPage({
   const showCandidates = smartSearch?.candidates && smartSearch.candidates.length > 0 && smartSearch.status !== "results";
   const message = statusMessage(smartSearch);
 
+  useEffect(() => {
+    setPendingCandidateId(null);
+  }, [search, smartSearch?.status, smartSearch?.selectedCandidate?.specId]);
+
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-mt-4w", "fr-mb-3w")}>
@@ -138,13 +159,18 @@ function SearchPage({
             {selected && <Badge severity="success">Notice retenue</Badge>}
           </TopPanelHeader>
 
+          {smartSearch.extraction.question && (
+            <TopPanelMeta className={fr.cx("fr-text--sm", selected ? "fr-mb-1w" : "fr-mb-2w")}>
+              <strong>Question comprise :</strong> {smartSearch.extraction.question}
+            </TopPanelMeta>
+          )}
+
           {selected && (
             <TopPanelMeta className={fr.cx("fr-text--sm", "fr-mb-2w")}>
               Recherche dans{" "}
               <Link href={`/medicaments/${selected.specId}`}>
                 <strong>{candidateLabel(selected)}</strong>
               </Link>
-              {" "}· Question comprise : {smartSearch.extraction.question}
             </TopPanelMeta>
           )}
 
@@ -155,7 +181,6 @@ function SearchPage({
               </Quote>
               <p className={fr.cx("fr-text--sm", "fr-mb-0")}>
                 {hit.sub_header && <>Sous-partie : <strong>{hit.sub_header}</strong>. </>}
-                {hit.block_id && <>Bloc : <strong>{hit.block_id}</strong>. </>}
                 {selected && (
                   <Link href={`/medicaments/${selected.specId}`}>
                     Ouvrir la notice
@@ -170,15 +195,10 @@ function SearchPage({
               <h3 className={fr.cx("fr-h6", "fr-mb-2w")}>
                 {smartSearch.status === "needs_confirmation" ? "Choisir la notice" : "Autres notices possibles"}
               </h3>
-              {pendingCandidateId && (
-                <p className={fr.cx("fr-text--sm", "fr-mb-2w")}>
-                  Notice sélectionnée. Recherche de l’extrait en cours…
-                </p>
-              )}
               <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>
                 {smartSearch.candidates.map((candidate) => {
-                  const isPending = candidate.specId === pendingCandidateId;
                   const isSelected = candidate.specId === selected?.specId;
+                  const isPending = candidate.specId === pendingCandidateId && !isSelected;
                   return (
                     <div className={fr.cx("fr-col-12", "fr-col-md-6")} key={candidate.specId}>
                       <CandidateLink
@@ -187,16 +207,19 @@ function SearchPage({
                         $pending={isPending}
                         className={fr.cx("fr-p-1w")}
                         aria-current={isSelected ? "true" : undefined}
-                        onClick={() => setPendingCandidateId(candidate.specId)}
+                        aria-busy={isPending || undefined}
+                        onClick={() => {
+                          if (!isSelected) setPendingCandidateId(candidate.specId);
+                        }}
                       >
                         <CandidateTitle>
                           <strong>{candidateLabel(candidate)}</strong>
+                          {isPending && (
+                            <CandidateLoader role="status">
+                              <span className={fr.cx("fr-sr-only")}>Recherche de l’extrait en cours</span>
+                            </CandidateLoader>
+                          )}
                         </CandidateTitle>
-                        {(isPending || isSelected) && (
-                          <CandidateState className={fr.cx("fr-text--sm")}>
-                            {isPending ? "Sélectionnée, recherche en cours…" : "Notice sélectionnée"}
-                          </CandidateState>
-                        )}
                       </CandidateLink>
                     </div>
                   );

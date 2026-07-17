@@ -56,7 +56,7 @@ async function answerFromNotice(
 
   const noticeText = noticeToText(notice.children);
   const result = await answerNoticeQuestion(noticeText, question);
-  const answer = stripBold(result.quote || result.answer);
+  const answer = stripBold(result.answer);
 
   if (!answer) return [];
 

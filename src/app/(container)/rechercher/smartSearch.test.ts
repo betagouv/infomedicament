@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 vi.mock("server-cli-only", () => ({}));
@@ -10,12 +10,18 @@ vi.mock("./queryAnalysis", () => ({ analyzeQuery: vi.fn() }));
 import { buildSmartSearchQuery, hasClearWinner } from "./smartSearch";
 import { answerNoticeQuestion } from "@/app/(container)/medicaments/[CIS]/notice-search/answerNoticeQuestion";
 import { getSearchResults } from "@/db/utils";
+import { getNotice } from "@/db/utils/notice";
 import { analyzeQuery } from "./queryAnalysis";
 import { getSmartSearchResponse } from "./smartSearch";
 
 const answerNoticeQuestionMock = vi.mocked(answerNoticeQuestion);
 const getSearchResultsMock = vi.mocked(getSearchResults);
+const getNoticeMock = vi.mocked(getNotice);
 const analyzeQueryMock = vi.mocked(analyzeQuery);
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe("buildSmartSearchQuery", () => {
   it("combines extracted medicine search terms", () => {
@@ -90,6 +96,46 @@ describe("hasClearWinner", () => {
 });
 
 describe("getSmartSearchResponse", () => {
+  it("displays the complete notice answer instead of the short quote", async () => {
+    analyzeQueryMock.mockResolvedValueOnce({
+      intent: "specific_medicine_question",
+      specialites: ["doliprane"],
+      substances: [],
+      indications: [],
+      searchTerms: [],
+      question: "Quelle dose prendre ?",
+    });
+    getSearchResultsMock.mockResolvedValueOnce([{
+      specId: "1",
+      specName: "DOLIPRANE 500 mg",
+      groupName: "DOLIPRANE",
+      score: 4,
+      matchReasons: [],
+    } as never]);
+    getNoticeMock.mockResolvedValueOnce({
+      children: [{
+        id: 123,
+        type: "AmmCorpsTexte",
+        content: "Le paragraphe complet de la notice avec toutes les informations utiles.",
+      }],
+    } as never);
+    answerNoticeQuestionMock.mockResolvedValueOnce({
+      answer: "Le paragraphe complet de la notice avec toutes les informations utiles.",
+      quote: "Le paragraphe complet",
+      section_anchor: "Ann3bCommentPrendre",
+      sub_header: "Posologie",
+      block_id: "block-123",
+    });
+
+    await expect(getSmartSearchResponse("Quelle dose de Doliprane prendre ?")).resolves.toMatchObject({
+      status: "answered",
+      hits: [{
+        answer: "Le paragraphe complet de la notice avec toutes les informations utiles.",
+        quote: "Le paragraphe complet",
+      }],
+    });
+  });
+
   it("falls back to deterministic search when query analysis fails", async () => {
     vi.spyOn(console, "error").mockImplementationOnce(() => undefined);
     analyzeQueryMock.mockRejectedValueOnce(new Error("Albert unavailable"));
