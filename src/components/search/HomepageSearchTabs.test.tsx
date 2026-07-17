@@ -11,6 +11,14 @@ vi.mock("@/components/search/QuestionSearchForm", () => ({
 }));
 
 describe("HomepageSearchTabs", () => {
+  it("keeps the DSFR tabs overflow behavior", () => {
+    const { container } = render(<HomepageSearchTabs />);
+
+    const tabs = container.querySelector<HTMLElement>(".fr-tabs");
+
+    expect(tabs?.style.overflow).toBe("");
+  });
+
   it("starts with deterministic search and switches to the question form", () => {
     render(<HomepageSearchTabs />);
 
@@ -22,6 +30,9 @@ describe("HomepageSearchTabs", () => {
 
     expect(questionTab.getAttribute("aria-selected")).toBe("true");
     expect(searchTab.getAttribute("aria-selected")).toBe("false");
-    expect(screen.getByText("Formulaire de question").closest("[role=tabpanel]")?.className).toContain("fr-tabs__panel--selected");
+    expect(
+      screen.getByText("Formulaire de question").closest("[role=tabpanel]")
+        ?.className,
+    ).toContain("fr-tabs__panel--selected");
   });
 });

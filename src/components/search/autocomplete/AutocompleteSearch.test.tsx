@@ -98,8 +98,29 @@ describe("AutocompleteSearchInput", () => {
 
   it("should show dropdown options when user types", () => {
     renderAutocomplete();
-    fireEvent.change(screen.getByRole("combobox"), { target: { value: "doli" } });
-    expect(screen.getByRole("listbox")).toBeDefined();
+    const input = screen.getByRole("combobox");
+    vi.spyOn(input, "getBoundingClientRect").mockReturnValue({
+      top: 100,
+      bottom: 140,
+      left: 30,
+      right: 430,
+      width: 400,
+      height: 40,
+      x: 30,
+      y: 100,
+      toJSON: () => ({}),
+    });
+
+    fireEvent.change(input, {
+      target: { value: "doli" },
+    });
+    const listbox = screen.getByRole("listbox");
+    expect(listbox).toBeDefined();
+    expect(listbox.parentElement).toBe(document.body);
+    expect(listbox.style.position).toBe("fixed");
+    expect(listbox.style.top).toBe("140px");
+    expect(listbox.style.left).toBe("30px");
+    expect(listbox.style.width).toBe("400px");
     expect(screen.getAllByRole("option").length).toBeGreaterThan(0);
   });
 
@@ -108,7 +129,9 @@ describe("AutocompleteSearchInput", () => {
     const input = screen.getByRole("combobox");
     fireEvent.change(input, { target: { value: "doli" } });
     fireEvent.keyDown(input, { key: "ArrowDown" });
-    expect(screen.getAllByRole("option")[0].getAttribute("aria-selected")).toBe("true");
+    expect(screen.getAllByRole("option")[0].getAttribute("aria-selected")).toBe(
+      "true",
+    );
   });
 
   it("should select highlighted option on Enter", () => {
@@ -159,7 +182,9 @@ describe("AutocompleteSearchInput", () => {
 
   it("should display sections and match reasons", () => {
     renderAutocomplete();
-    fireEvent.change(screen.getByRole("combobox"), { target: { value: "para" } });
+    fireEvent.change(screen.getByRole("combobox"), {
+      target: { value: "para" },
+    });
 
     expect(screen.getByText("Substances actives")).toBeDefined();
     expect(screen.getByText("Médicaments")).toBeDefined();
