@@ -1,9 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
-vi.mock("next/cache", () => ({ unstable_cache: vi.fn() }));
 vi.mock("next/server", () => ({ NextResponse: { json: vi.fn() } }));
-vi.mock("./answerNoticeQuestion", () => ({ answerNoticeQuestion: vi.fn() }));
+vi.mock("./answerNoticeQuestion", () => ({ getCachedNoticeQuestionAnswer: vi.fn() }));
 vi.mock("@/db/utils/notice", () => ({ getNotice: vi.fn() }));
 
 import { extractBlockId } from "./route";

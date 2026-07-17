@@ -2,19 +2,24 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 vi.mock("server-cli-only", () => ({}));
-vi.mock("@/app/(container)/medicaments/[CIS]/notice-search/answerNoticeQuestion", () => ({ answerNoticeQuestion: vi.fn() }));
+vi.mock("@/app/(container)/medicaments/[CIS]/notice-search/answerNoticeQuestion", () => ({
+  answerNoticeQuestion: vi.fn(),
+  getCachedNoticeQuestionAnswer: vi.fn(),
+}));
 vi.mock("@/db/utils", () => ({ getSearchResults: vi.fn() }));
 vi.mock("@/db/utils/notice", () => ({ getNotice: vi.fn() }));
 vi.mock("./queryAnalysis", () => ({ analyzeQuery: vi.fn() }));
 
 import { buildSmartSearchQuery, hasClearWinner } from "./smartSearch";
 import { answerNoticeQuestion } from "@/app/(container)/medicaments/[CIS]/notice-search/answerNoticeQuestion";
+import { getCachedNoticeQuestionAnswer } from "@/app/(container)/medicaments/[CIS]/notice-search/answerNoticeQuestion";
 import { getSearchResults } from "@/db/utils";
 import { getNotice } from "@/db/utils/notice";
 import { analyzeQuery } from "./queryAnalysis";
 import { getSmartSearchResponse } from "./smartSearch";
 
 const answerNoticeQuestionMock = vi.mocked(answerNoticeQuestion);
+const getCachedNoticeQuestionAnswerMock = vi.mocked(getCachedNoticeQuestionAnswer);
 const getSearchResultsMock = vi.mocked(getSearchResults);
 const getNoticeMock = vi.mocked(getNotice);
 const analyzeQueryMock = vi.mocked(analyzeQuery);
@@ -119,7 +124,7 @@ describe("question smart search", () => {
         content: "Le paragraphe complet de la notice avec toutes les informations utiles.",
       }],
     } as never);
-    answerNoticeQuestionMock.mockResolvedValueOnce({
+    getCachedNoticeQuestionAnswerMock.mockResolvedValueOnce({
       answer: "Le paragraphe complet de la notice avec toutes les informations utiles.",
       quote: "Le paragraphe complet",
       section_anchor: "Ann3bCommentPrendre",
@@ -134,30 +139,26 @@ describe("question smart search", () => {
         quote: "Le paragraphe complet",
       }],
     });
+    expect(getCachedNoticeQuestionAnswerMock).toHaveBeenCalledWith(
+      "1",
+      "Quelle dose prendre ?",
+      expect.stringContaining("Le paragraphe complet"),
+    );
+    expect(answerNoticeQuestionMock).not.toHaveBeenCalled();
   });
 
-  it("falls back to deterministic search when query analysis fails", async () => {
+  it("keeps emergency guidance visible when query analysis fails", async () => {
     vi.spyOn(console, "error").mockImplementationOnce(() => undefined);
     analyzeQueryMock.mockRejectedValueOnce(new Error("Albert unavailable"));
-    getSearchResultsMock.mockResolvedValueOnce([{
-      specId: "1",
-      specName: "DOLIPRANE 500 mg",
-      groupName: "DOLIPRANE",
-      score: 4,
-      matchReasons: [],
-    } as never]);
 
-    await expect(getSmartSearchResponse("Doliprane")).resolves.toMatchObject({
-      status: "results",
-      searchQuery: "Doliprane",
-      extraction: {
-        intent: "generic_medicine_search",
-        question: "",
+    await expect(getSmartSearchResponse("J'ai pris trop de Doliprane")).resolves.toMatchObject({
+      status: "unavailable",
+      topBlock: {
+        kind: "unavailable",
+        message: expect.stringMatching(/15|112/),
       },
-      searchResults: [{ specId: "1" }],
-      hits: [],
     });
-    expect(getSearchResultsMock).toHaveBeenCalledWith("Doliprane");
+    expect(getSearchResultsMock).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -205,5 +206,36 @@ describe("question smart search", () => {
       hits: [],
     });
     expect(answerNoticeQuestionMock).not.toHaveBeenCalled();
+  });
+
+  it("reports notice lookup failures as unavailable, not as no answer", async () => {
+    vi.spyOn(console, "error").mockImplementationOnce(() => undefined);
+    analyzeQueryMock.mockResolvedValueOnce({
+      intent: "specific_medicine_question",
+      specialites: ["doliprane"],
+      substances: [],
+      indications: [],
+      searchTerms: [],
+      question: "Quelle dose prendre ?",
+    });
+    getSearchResultsMock.mockResolvedValueOnce([{
+      specId: "1",
+      specName: "DOLIPRANE 500 mg",
+      groupName: "DOLIPRANE",
+      score: 4,
+      matchReasons: [],
+    } as never]);
+    getNoticeMock.mockResolvedValueOnce({
+      children: [{ id: 123, type: "AmmCorpsTexte", content: "Notice" }],
+    } as never);
+    getCachedNoticeQuestionAnswerMock.mockRejectedValueOnce(new Error("Albert unavailable"));
+
+    await expect(getSmartSearchResponse("Quelle dose de Doliprane prendre ?")).resolves.toMatchObject({
+      status: "unavailable",
+      topBlock: {
+        kind: "unavailable",
+        message: expect.stringContaining("momentanément indisponible"),
+      },
+    });
   });
 });

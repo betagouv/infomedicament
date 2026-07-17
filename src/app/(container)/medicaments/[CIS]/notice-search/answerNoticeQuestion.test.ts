@@ -1,13 +1,18 @@
 import { describe, expect, it, vi } from "vitest";
 
+const { unstableCacheMock } = vi.hoisted(() => ({
+  unstableCacheMock: vi.fn((callback: () => unknown) => callback),
+}));
+
 vi.mock("server-only", () => ({}));
+vi.mock("next/cache", () => ({ unstable_cache: unstableCacheMock }));
 vi.mock("@/lib/albert", () => ({
   CHAT_MODEL: "test-model",
   createAlbertChatCompletion: vi.fn(),
 }));
 
 import { createAlbertChatCompletion } from "@/lib/albert";
-import { answerNoticeQuestion } from "./answerNoticeQuestion";
+import { answerNoticeQuestion, getCachedNoticeQuestionAnswer } from "./answerNoticeQuestion";
 
 const createAlbertChatCompletionMock = vi.mocked(createAlbertChatCompletion);
 
@@ -60,5 +65,33 @@ describe("answerNoticeQuestion", () => {
     });
 
     await expect(answerNoticeQuestion("Notice", "Question")).rejects.toThrow("tool arguments");
+  });
+
+  it("caches notice answers by medicine and question for 24 hours", async () => {
+    createAlbertChatCompletionMock.mockResolvedValueOnce({
+      choices: [{
+        message: {
+          tool_calls: [{
+            function: {
+              arguments: JSON.stringify({
+                answer: "Réponse",
+                section_anchor: "section",
+                sub_header: "",
+                block_id: "block-1",
+                quote: "Réponse",
+              }),
+            },
+          }],
+        },
+      }],
+    });
+
+    await getCachedNoticeQuestionAnswer("123", "Question", "Notice");
+
+    expect(unstableCacheMock).toHaveBeenCalledWith(
+      expect.any(Function),
+      ["notice-search", "123", "Question"],
+      { revalidate: 60 * 60 * 24 },
+    );
   });
 });

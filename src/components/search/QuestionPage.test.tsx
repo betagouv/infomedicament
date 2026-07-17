@@ -33,6 +33,31 @@ const extraction = {
 };
 
 describe("QuestionPage", () => {
+  it("renders emergency guidance when question analysis is unavailable", () => {
+    const response: SmartSearchResponse = {
+      status: "unavailable",
+      extraction: {
+        ...extraction,
+        intent: "generic_medicine_search",
+        question: "",
+      },
+      searchQuery: "J’ai pris trop de Doliprane",
+      candidates: [],
+      searchResults: [],
+      hits: [],
+      topBlock: {
+        kind: "unavailable",
+        title: "Service momentanément indisponible",
+        message: "Si votre situation est urgente, appelez le 15 ou le 112.",
+      },
+    };
+
+    render(<QuestionPage query="J’ai pris trop de Doliprane" smartSearch={response} />);
+
+    expect(screen.getByRole("heading", { name: "Service momentanément indisponible" })).not.toBeNull();
+    expect(screen.getByText(/appelez le 15 ou le 112/)).not.toBeNull();
+  });
+
   it("asks the user to choose a notice when the medicine is ambiguous", () => {
     const response: SmartSearchResponse = {
       status: "needs_confirmation",

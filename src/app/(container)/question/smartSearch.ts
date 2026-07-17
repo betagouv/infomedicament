@@ -8,12 +8,14 @@ import type {
   SmartSearchResponse,
 } from "@/types/SmartSearchTypes";
 import { extractBlockId } from "@/app/(container)/medicaments/[CIS]/notice-search/route";
-import { answerNoticeQuestion } from "@/app/(container)/medicaments/[CIS]/notice-search/answerNoticeQuestion";
+import { getCachedNoticeQuestionAnswer } from "@/app/(container)/medicaments/[CIS]/notice-search/answerNoticeQuestion";
 import { analyzeQuery } from "./queryAnalysis";
 
 const CLEAR_WINNER_SCORE_GAP = 0.75;
 const DEFAULT_URGENT_MESSAGE = "Cette situation peut nécessiter une prise en charge immédiate. Appelez le 15 ou le 112. En cas de risque suicidaire, appelez aussi le 3114.";
 const DEFAULT_BLOCKED_MESSAGE = "Nous ne pouvons pas aider à se faire du mal ou à provoquer une situation dangereuse. Si vous êtes en danger immédiat, appelez le 15 ou le 112. Si vous pensez au suicide, appelez le 3114.";
+const DEFAULT_ANALYSIS_UNAVAILABLE_MESSAGE = "Nous ne pouvons pas analyser votre question pour le moment. Si votre situation est urgente, appelez le 15 ou le 112. En cas de risque suicidaire, appelez le 3114.";
+const DEFAULT_NOTICE_UNAVAILABLE_MESSAGE = "La recherche dans la notice est momentanément indisponible. Réessayez dans quelques instants.";
 
 function stripBold(value: string): string {
   return value.replace(/\*\*/g, "").trim();
@@ -55,7 +57,11 @@ async function answerFromNotice(
   if (!notice?.children?.length) return undefined;
 
   const noticeText = noticeToText(notice.children);
-  const result = await answerNoticeQuestion(noticeText, question);
+  const result = await getCachedNoticeQuestionAnswer(
+    candidate.specId,
+    question,
+    noticeText,
+  );
   const answer = stripBold(result.answer);
 
   if (!answer) return [];
@@ -80,10 +86,9 @@ export async function getSmartSearchResponse(
   } catch (err) {
     console.error("[question] query analysis error", err);
     const searchQuery = query.trim();
-    const searchResults = searchQuery ? await getSearchResults(searchQuery) : [];
 
     return {
-      status: searchResults.length > 0 ? "results" : "no_results",
+      status: "unavailable",
       extraction: {
         intent: "generic_medicine_search",
         specialites: [],
@@ -93,9 +98,14 @@ export async function getSmartSearchResponse(
         question: "",
       },
       searchQuery,
-      candidates: searchResults.slice(0, 5).map(toCandidate),
-      searchResults,
+      candidates: [],
+      searchResults: [],
       hits: [],
+      topBlock: {
+        kind: "unavailable",
+        title: "Service momentanément indisponible",
+        message: DEFAULT_ANALYSIS_UNAVAILABLE_MESSAGE,
+      },
     };
   }
   const searchQuery = buildSmartSearchQuery(extraction);
@@ -186,7 +196,20 @@ export async function getSmartSearchResponse(
     hits = await answerFromNotice(selectedCandidate, extraction.question);
   } catch (err) {
     console.error("[question] notice answer error", err);
-    hits = [];
+    return {
+      status: "unavailable",
+      extraction,
+      searchQuery,
+      selectedCandidate,
+      candidates,
+      searchResults: results,
+      hits: [],
+      topBlock: {
+        kind: "unavailable",
+        title: "Recherche momentanément indisponible",
+        message: DEFAULT_NOTICE_UNAVAILABLE_MESSAGE,
+      },
+    };
   }
 
   if (!hits) {

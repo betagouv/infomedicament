@@ -98,6 +98,13 @@ export default function QuestionPage({
             </section>
           )}
 
+          {!isSafetyState && smartSearch.status === "unavailable" && smartSearch.topBlock && (
+            <section className={`${styles.card} ${styles.stateCard} ${styles.stateError}`}>
+              <h2 className={fr.cx("fr-h4", "fr-mb-1w")}>{smartSearch.topBlock.title}</h2>
+              <p className={fr.cx("fr-mb-0")}>{smartSearch.topBlock.message}</p>
+            </section>
+          )}
+
           {!isSafetyState && smartSearch.status === "needs_confirmation" && (
             <section className={styles.card}>
               <p className={`${styles.medicineLabel} ${fr.cx("fr-mb-1w")}`}>Étape 1 · Choix de la notice</p>

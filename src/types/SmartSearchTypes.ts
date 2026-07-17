@@ -31,6 +31,7 @@ export type SmartSearchStatus =
   | "results"
   | "blocked"
   | "urgent_medical_attention"
+  | "unavailable"
   | "no_results"
   | "no_notice"
   | "no_answer";
@@ -44,7 +45,7 @@ export type SmartSearchResponse = {
   searchResults: SearchResultItem[];
   hits: NoticeChunkHit[];
   topBlock?: {
-    kind: "notice_answer" | "confirmation" | "blocked" | "urgent_medical_attention" | "no_answer" | "no_notice";
+    kind: "notice_answer" | "confirmation" | "blocked" | "urgent_medical_attention" | "unavailable" | "no_answer" | "no_notice";
     title: string;
     message: string;
   };

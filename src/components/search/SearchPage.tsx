@@ -9,14 +9,21 @@ import type { SearchResultItem } from "@/types/SearchTypes";
 type SearchPageProps = {
   search?: string;
   searchResults: SearchResultItem[];
+  synonymTerms: string[];
 };
 
-export default function SearchPage({ search, searchResults }: SearchPageProps) {
+export default function SearchPage({ search, searchResults, synonymTerms }: SearchPageProps) {
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-mt-4w", "fr-mb-3w")}>
         <AutocompleteSearch inputName="s" initialValue={search} />
       </div>
+
+      {synonymTerms.length > 0 && (
+        <p className={fr.cx("fr-text--sm", "fr-mb-2w")}>
+          Vouliez-vous dire : <strong>{synonymTerms.join(", ")}</strong> ?
+        </p>
+      )}
 
       {searchResults.length > 0 ? (
         <SearchResultsList resultsList={searchResults} search={search} />

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { unstable_cache } from "next/cache";
 import { CHAT_MODEL, createAlbertChatCompletion } from "@/lib/albert";
 
 export const noticeQuestionAnswerSchema = z.object({
@@ -80,4 +81,16 @@ Question : ${question}`,
   }
 
   return noticeQuestionAnswerSchema.parse(JSON.parse(toolArguments));
+}
+
+export function getCachedNoticeQuestionAnswer(
+  CIS: string,
+  question: string,
+  noticeText: string,
+): Promise<NoticeQuestionAnswer> {
+  return unstable_cache(
+    () => answerNoticeQuestion(noticeText, question),
+    ["notice-search", CIS, question],
+    { revalidate: 60 * 60 * 24 },
+  )();
 }
