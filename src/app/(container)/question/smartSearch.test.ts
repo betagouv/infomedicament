@@ -95,7 +95,7 @@ describe("hasClearWinner", () => {
   });
 });
 
-describe("getSmartSearchResponse", () => {
+describe("question smart search", () => {
   it("displays the complete notice answer instead of the short quote", async () => {
     analyzeQueryMock.mockResolvedValueOnce({
       intent: "specific_medicine_question",

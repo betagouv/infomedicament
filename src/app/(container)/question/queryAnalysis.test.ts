@@ -10,7 +10,7 @@ import { analyzeQuery } from "./queryAnalysis";
 
 const createAlbertChatCompletionMock = vi.mocked(createAlbertChatCompletion);
 
-describe("analyzeQuery", () => {
+describe("question query analysis", () => {
   it("parses strict tool-call arguments with zod", async () => {
     createAlbertChatCompletionMock.mockResolvedValueOnce({
       choices: [{

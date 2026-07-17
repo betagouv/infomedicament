@@ -1,25 +1,19 @@
 import SearchPage from "@/components/search/SearchPage";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { getSmartSearchResponse } from "./smartSearch";
+import { getSearchResults } from "@/db/utils";
 
 export default async function Page(props: {
   searchParams?: Promise<Record<string, string>>;
 }) {
   const searchParams = await props.searchParams;
   const search = searchParams && "s" in searchParams && searchParams["s"];
-  const selectedSpecId = searchParams && "selectedSpecId" in searchParams
-    ? searchParams["selectedSpecId"]
-    : undefined;
-  const smartSearch = search
-    ? await getSmartSearchResponse(search, selectedSpecId)
-    : undefined;
+  const searchResults = search ? await getSearchResults(search) : [];
 
   return (
     <>
       <SearchPage
         search={search || undefined}
-        searchResults={smartSearch?.searchResults ?? []}
-        smartSearch={smartSearch}
+        searchResults={searchResults}
       />
       <RatingToaster
         pageId={`Recherche ${search || ""}`}

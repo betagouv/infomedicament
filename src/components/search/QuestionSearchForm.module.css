@@ -1,0 +1,54 @@
+.field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+}
+
+.input {
+  height: 2.5rem;
+  min-height: 2.5rem;
+  resize: vertical;
+  border: 0;
+  border-bottom: 2px solid var(--border-plain-grey);
+  border-radius: 0.25rem 0 0 0;
+  padding: 0.5rem 1rem;
+  background: var(--background-contrast-grey);
+  color: var(--text-default-grey);
+  font: inherit;
+}
+
+.input:focus {
+  outline: 2px solid var(--border-active-blue-france);
+  outline-offset: 2px;
+}
+
+.submit {
+  width: 3rem;
+  min-width: 3rem;
+  justify-content: center;
+  border-radius: 0 0.25rem 0 0;
+  padding: 0.5rem;
+}
+
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.exampleLink {
+  display: inline-block;
+  border: 1px solid var(--border-default-grey);
+  border-radius: 1rem;
+  padding: 0.25rem 0.75rem;
+  background-image: none;
+  color: var(--text-action-high-blue-france);
+  font-size: 0.875rem;
+}
+
+.exampleLink:hover {
+  background: var(--background-alt-blue-france-hover);
+}

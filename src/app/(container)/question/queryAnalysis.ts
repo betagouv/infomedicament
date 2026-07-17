@@ -32,7 +32,7 @@ export async function analyzeQuery(
     type: "function",
     function: {
       name: "extract_recherche_intelligente",
-      description: "Extrait les éléments utiles à une recherche de notice de médicament en français.",
+      description: "Extrait les éléments utiles à une question sur une notice de médicament en français.",
       parameters: {
         type: "object",
         additionalProperties: false,

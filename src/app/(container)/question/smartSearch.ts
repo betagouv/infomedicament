@@ -78,7 +78,7 @@ export async function getSmartSearchResponse(
   try {
     extraction = await analyzeQuery(query);
   } catch (err) {
-    console.error("[rechercher] query analysis error", err);
+    console.error("[question] query analysis error", err);
     const searchQuery = query.trim();
     const searchResults = searchQuery ? await getSearchResults(searchQuery) : [];
 
@@ -185,7 +185,7 @@ export async function getSmartSearchResponse(
   try {
     hits = await answerFromNotice(selectedCandidate, extraction.question);
   } catch (err) {
-    console.error("[rechercher] notice answer error", err);
+    console.error("[question] notice answer error", err);
     hits = [];
   }
 

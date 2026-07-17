@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { fr } from "@codegouvfr/react-dsfr";
-import AutocompleteSearch from "@/components/search/autocomplete/AutocompleteSearch";
+import HomepageSearchTabs from "@/components/search/HomepageSearchTabs";
 import { getArticles } from "@/db/utils/articles";
 import { getMarketedMedicamentCount } from "@/db/utils/specialities";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
@@ -32,12 +32,7 @@ export default async function Page() {
               commercialisés.
             </p>
             <div className={fr.cx("fr-mt-3w")}>
-              <AutocompleteSearch inputName="s" />
-              <p className="fr-text--sm">
-                Recherchez un <b>médicament</b>, une{" "}
-                <b>substance active</b>, une <b>indication</b>, ou posez votre
-                question.
-              </p>
+              <HomepageSearchTabs />
             </div>
           </div>
           <div
