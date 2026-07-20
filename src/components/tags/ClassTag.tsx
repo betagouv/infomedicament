@@ -12,14 +12,9 @@ interface ClassTagProps extends HTMLAttributes<HTMLDivElement> {
   fromMedicament?: boolean;
 }
 
-function ClassTag({
-  atc2,
-  fromMedicament,
-}: ClassTagProps) {
-
+function ClassTag({ atc2, fromMedicament }: ClassTagProps) {
   const onTrackEvent = () => {
-    if(fromMedicament)
-      trackEvent("Page médicament", "Tag Classe ATC2");
+    if (fromMedicament) trackEvent("Page médicament", "Tag Classe ATC2");
   };
 
   return (
@@ -34,6 +29,6 @@ function ClassTag({
       {atc2.label}
     </Tag>
   );
-};
+}
 
 export default ClassTag;
