@@ -33,6 +33,10 @@ const embedCspHeader = cspHeader.replace("frame-ancestors 'none'", "frame-ancest
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  // Default (60s) is too short for the ~500-page warmup prerender: with only
+  // 3 Postgres connections (see src/db/index.ts), pages queue for a free
+  // connection slot longer than that under build concurrency.
+  staticPageGenerationTimeout: 180,
   compiler: {
     styledComponents: true,
   },
