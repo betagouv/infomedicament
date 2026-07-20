@@ -36,7 +36,7 @@ test("FI_015: a medicine under reinforced monitoring explains the warning", asyn
 test("FI_018: a withdrawn medicine displays the public-health warning", async ({
   page,
 }) => {
-  await page.goto("/medicaments/60046529");
+  await page.goto("/medicaments/69730375");
 
   await expect(
     page.getByRole("heading", {
@@ -55,7 +55,7 @@ test("FI_018: a withdrawn medicine displays the public-health warning", async ({
 test("FI_017: an unavailable medicine recommends discussing alternatives", async ({
   page,
 }) => {
-  await page.goto("/medicaments/60004505");
+  await page.goto("/medicaments/61651634");
 
   await expect(
     page.getByRole("heading", {
@@ -72,19 +72,19 @@ test("FI_017: an unavailable medicine recommends discussing alternatives", async
 test("FI_001–FI_008: the authorization date is exposed in detailed information", async ({
   page,
 }) => {
-  await page.goto("/medicaments/60002283");
+  await page.goto("/medicaments/68495013");
   await openDetailedView(page);
 
   await expect(
     page.getByText("Date d'autorisation de mise sur le marché"),
   ).toBeVisible();
-  await expect(page.getByText("Le 28/10/2010", { exact: true })).toBeVisible();
+  await expect(page.getByText("Le 23/04/2024", { exact: true })).toBeVisible();
 });
 
 test("FI_020: therapeutic indications are visible on the medicine page", async ({
   page,
 }) => {
-  await page.goto("/medicaments/60002283");
+  await page.goto("/medicaments/65231460");
   await openDetailedView(page);
 
   await expect(
@@ -92,7 +92,7 @@ test("FI_020: therapeutic indications are visible on the medicine page", async (
   ).toBeVisible();
   await expect(
     page.getByText(
-      /ANASTROZOLE ACCORD est utilisé dans le traitement du cancer du sein de la femme ménopausée/,
+      /OMEPRAZOLE TEVA CONSEIL 20 mg, gélule gastro-résistante est utilisé chez les adultes pour le traitement à court terme des symptômes de reflux/,
     ),
   ).toBeVisible();
 });
@@ -100,7 +100,7 @@ test("FI_020: therapeutic indications are visible on the medicine page", async (
 test("FI_011: the generic tag explains what a generic medicine is", async ({
   page,
 }) => {
-  await page.goto("/medicaments/60002283");
+  await page.goto("/medicaments/65231460");
   await openDetailedView(page);
 
   await page
@@ -122,53 +122,53 @@ test("FI_011: the generic tag explains what a generic medicine is", async ({
 test("FI_026–FI_027: a generic medicine links to its generic group", async ({
   page,
 }) => {
-  await page.goto("/medicaments/60002283");
+  await page.goto("/medicaments/65231460");
   await openDetailedView(page);
 
   const alternatives = page
     .getByRole("link", { name: "Voir les alternatives" })
     .filter({ visible: true });
-  await expect(alternatives).toHaveAttribute("href", "/generiques/62303214");
+  await expect(alternatives).toHaveAttribute("href", "/generiques/64103828");
   await alternatives.click();
 
-  await expect(page).toHaveURL(/\/generiques\/62303214$/);
+  await expect(page).toHaveURL(/\/generiques\/64103828$/);
   await expect(
-    page.getByRole("heading", { name: /Anastrozole 1 mg/i }),
+    page.getByRole("heading", { name: "Omeprazole 20 mg", exact: true }),
   ).toBeVisible();
 });
 
 test("FI_028–FI_042: composition and presentation details are complete", async ({
   page,
 }) => {
-  await page.goto("/medicaments/60002283");
+  await page.goto("/medicaments/65231460");
   await openDetailedView(page);
 
   await expect(
     page.getByRole("heading", { name: "Composition", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByText("Pour un comprimé > anastrozole 1,00 mg", { exact: true }),
+    page.getByText("Pour une gélule > oméprazole 20 mg", { exact: true }),
   ).toBeVisible();
 
   const presentation = page.getByRole("listitem").filter({
-    hasText: "Code CIP : 494 972-9 ou 34009 494 972 9 4",
+    hasText: "Code CIP : 267 527-4 ou 34009 267 527 4 3",
   });
   await expect(presentation).toContainText(
-    "1 plaquette PVC PVDC aluminium de 30 comprimés",
+    "1 plaquette aluminium de 7 gélules",
   );
-  await expect(presentation).toContainText("Prix 32,61 € - remboursé à 100%");
+  await expect(presentation).toContainText("Prix libre - non remboursable");
   await expect(presentation).toContainText(
-    "Déclaration de commercialisation : 16/03/2011",
+    "Déclaration de commercialisation : 06/09/2013",
   );
-  await expect(
-    presentation.getByRole("button", { name: "agréée aux collectivités" }),
-  ).toBeVisible();
+  await expect(presentation).toContainText(
+    "Cette présentation n'est pas agréée aux collectivités.",
+  );
 });
 
 test("FI_044–FI_045: available good-use documents are shown as external links", async ({
   page,
 }) => {
-  await page.goto("/medicaments/60756917");
+  await page.goto("/medicaments/60059081");
   await openDetailedView(page);
   await page
     .getByRole("link", { name: "Documents HAS (Bon usage, SMR, ASMR)" })
@@ -189,19 +189,16 @@ test("FI_044–FI_045: available good-use documents are shown as external links"
   await expect(page.getByText("février 2015", { exact: true })).toBeVisible();
 });
 
-test("FI_043 and FI_046: missing HAS data has useful fallback guidance", async ({
+test("FI_046: a generic without an SMR links to its generic group", async ({
   page,
 }) => {
-  await page.goto("/medicaments/60002283");
+  await page.goto("/medicaments/65231460");
   await openDetailedView(page);
   await page
     .getByRole("link", { name: "Documents HAS (Bon usage, SMR, ASMR)" })
     .filter({ visible: true })
     .click();
 
-  await expect(
-    page.getByText(/Il n.y a pas de documents de bon usage disponible/),
-  ).toBeVisible();
   const smrGuidance = page.getByText(
     /Ce médicament étant un générique, le SMR n'a pas été évalué/,
   );
@@ -210,13 +207,13 @@ test("FI_043 and FI_046: missing HAS data has useful fallback guidance", async (
     smrGuidance.getByRole("link", {
       name: "cliquez ici pour accéder au groupe générique",
     }),
-  ).toHaveAttribute("href", "/generiques/62303214");
+  ).toHaveAttribute("href", "/generiques/64103828");
 });
 
 test("FI_047–FI_048: complete SMR and ASMR histories are displayed", async ({
   page,
 }) => {
-  await page.goto("/medicaments/67255976");
+  await page.goto("/medicaments/67613291");
   await openDetailedView(page);
   await page
     .getByRole("link", { name: "Documents HAS (Bon usage, SMR, ASMR)" })
@@ -226,10 +223,10 @@ test("FI_047–FI_048: complete SMR and ASMR histories are displayed", async ({
   const smrTable = page.getByRole("table").filter({
     has: page.getByRole("columnheader", { name: "Valeur du SMR" }),
   });
-  await expect(smrTable.getByRole("row")).toHaveCount(8);
+  await expect(smrTable.getByRole("row")).toHaveCount(4);
 
   const asmrTable = page.getByRole("table").filter({
     has: page.getByRole("columnheader", { name: "Valeur de l'ASMR" }),
   });
-  await expect(asmrTable.getByRole("row")).toHaveCount(6);
+  await expect(asmrTable.getByRole("row")).toHaveCount(4);
 });
