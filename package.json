@@ -13,6 +13,10 @@
     "test:unit": "vitest --exclude '**/*.integration.test.ts' --exclude '**/*.ui.test.tsx'",
     "test:integration": "vitest run 'integration.test.ts'",
     "test:ui": "vitest run 'ui.test.tsx'",
+    "test:e2e": "playwright test",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:install": "playwright install",
     "test:all": "vitest run",
     "test:watch": "vitest --watch",
     "db:sync-grist": "npx tsx scripts/syncWithGrist.ts",
@@ -57,6 +61,7 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "16.2.6",
+    "@playwright/test": "^1.61.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.0.1",
     "@types/node": "^22",
