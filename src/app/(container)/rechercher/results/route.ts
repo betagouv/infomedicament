@@ -1,4 +1,4 @@
-import { getSearchResults } from "@/db/utils";
+import { getSearchResults } from "@/db/utils/search";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {

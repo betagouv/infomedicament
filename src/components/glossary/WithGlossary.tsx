@@ -38,7 +38,7 @@ function withKeyword(
 ): (React.JSX.Element | string)[] {
   const match = text.match(
     new RegExp(
-      `(?<before>.*\\b)(?<word>${escapeRegExp(keyword.toLowerCase())}s?)(?<after>\\b.*)`, //8 - KO les accents
+      `(?<before>.*\\b)(?<word>${escapeRegExp(keyword.toLowerCase())}s?)(?<after>\\b.*)`,
       "i",
     ),
   );
@@ -118,12 +118,16 @@ function WithGlossary({
   }
 
   return (
-    <>
+    <span>
       {elements.map((element, i) => (
-        <Fragment key={i}>{element}</Fragment>
-      ))}
-    </>
+        <Fragment key={i}>
+          {typeof element === 'string' 
+            ? (<span dangerouslySetInnerHTML={{__html: element}}></span>)
+            : (element)
+          }
+        </Fragment>
+      ))}       
+    </span>
   );
 }
-
 export default WithGlossary;

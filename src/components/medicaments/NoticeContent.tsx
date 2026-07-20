@@ -217,7 +217,7 @@ function NoticeContent({
             small
             indications={indications}
           />
-          {(notice && notice.children) && (
+          {(notice && notice.children && notice.children.length > 0) && (
             <ContentContainer 
               whiteContainer 
               className={fr.cx("fr-mb-2w", "fr-pt-1w", "fr-px-1w", "fr-hidden-md")}
