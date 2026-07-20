@@ -58,6 +58,7 @@ export type RcpData = {
   codeCIS: number;
   title?: string;
   dateNotif?: string;
+  contentHtml?: string | null;
   children?: NoticeRCPContentBlock[];
 }
 
@@ -65,6 +66,7 @@ export type NoticeData = {
   codeCIS: number;
   title?: string;
   dateNotif?: string;
+  contentHtml?: string | null;
   children?: NoticeRCPContentBlock[];
 }
 export type GroupeGenerique = {

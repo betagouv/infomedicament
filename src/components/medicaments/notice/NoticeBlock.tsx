@@ -4,7 +4,7 @@ import { HTMLAttributes } from "react";
 import styled from 'styled-components';
 import { fr } from "@codegouvfr/react-dsfr";
 import ContentContainer from "@/components/generic/ContentContainer";
-import { RcpNoticeContainer } from "../blocks/GenericBlocks";
+import { RcpNoticeContainer, RcpNoticeHtmlContainer } from "../blocks/GenericBlocks";
 import { NoticeData } from "@/types/SpecialiteTypes";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { getContent } from "@/utils/notices";
@@ -44,7 +44,9 @@ function NoticeBlock({
       className={[props.className, fr.cx("fr-mt-3w")].join(" ")}
     >
       <ContentContainer className={noticeContainerClassName} id="noticeContainer">
-        {(notice && notice.children) ? (
+        {notice?.contentHtml ? (
+          <RcpNoticeHtmlContainer dangerouslySetInnerHTML={{ __html: notice.contentHtml }} />
+        ) : (notice && notice.children) ? (
           <RcpNoticeContainer>{getContent(notice.children, definitions)}</RcpNoticeContainer>
         ) : (specialite && isCentralisee(specialite)) ? (
           <CentraliseBlock

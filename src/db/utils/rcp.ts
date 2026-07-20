@@ -44,10 +44,11 @@ export async function getRCP(CIS: string): Promise<RcpData | undefined> {
     codeCIS: rcpRaw.codeCIS,
     title: rcpRaw.title,
     dateNotif: rcpRaw.dateNotif?.replace("ANSM - Mis à jour le : ", "RCP mis à jour le "),
+    contentHtml: rcpRaw.content_html,
     children: [],
   }
   
-  if(rcpRaw.children && rcpRaw.children.length > 0) 
+  if(!rcpRaw.content_html && rcpRaw.children && rcpRaw.children.length > 0)
     rcp.children = await getContent(rcpRaw.children);
 
   return rcp;

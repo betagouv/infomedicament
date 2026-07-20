@@ -51,8 +51,9 @@ export async function getNotice(CIS: string): Promise<NoticeData | undefined> {
 
   notice.title = noticeRaw.title;
   notice.dateNotif = formatNoticeDateNotif(noticeRaw.dateNotif);
+  notice.contentHtml = noticeRaw.content_html;
   
-  if(noticeRaw.children && noticeRaw.children.length > 0) 
+  if(!noticeRaw.content_html && noticeRaw.children && noticeRaw.children.length > 0)
     notice.children = await getContent(noticeRaw.children);
 
   return notice;

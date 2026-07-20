@@ -6,7 +6,7 @@ import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { RcpData } from "@/types/SpecialiteTypes";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { getContent } from "@/utils/notices";
-import { RcpNoticeContainer } from "../blocks/GenericBlocks";
+import { RcpNoticeContainer, RcpNoticeHtmlContainer } from "../blocks/GenericBlocks";
 import { getRCP } from "@/db/utils/rcp";
 import { isCentralisee } from "@/utils/specialites";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
@@ -55,7 +55,9 @@ function RcpBlock({
             {currentRcp.dateNotif && (
               <Badge severity={"info"} className={fr.cx("fr-mb-4w")}>{currentRcp.dateNotif}</Badge>
             )}
-            {currentRcp.children && (
+            {currentRcp.contentHtml ? (
+              <RcpNoticeHtmlContainer dangerouslySetInnerHTML={{ __html: currentRcp.contentHtml }} />
+            ) : currentRcp.children && (
               <RcpNoticeContainer>{getContent(currentRcp.children)}</RcpNoticeContainer>
             )}
           </>
