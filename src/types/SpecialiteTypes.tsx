@@ -42,32 +42,18 @@ export type DetailedSpecialite = Specialite & {
 
 export type NoticeBlockType = "generalites" | "usage" | "warnings" | "howTo" | "sideEffects" | "storage" | "composition";
 
-export type NoticeRCPContentBlock = {
-  id?: number;
-  type?: string;
-  styles?: string[],
-  anchor?: string,
-  content?: string[];
-  children?: NoticeRCPContentBlock[];
-  tag?: string,
-  rowspan?: number,
-  colspan?: number,
-}
-
 export type RcpData = {
   codeCIS: number;
   title?: string;
   dateNotif?: string;
-  contentHtml?: string | null;
-  children?: NoticeRCPContentBlock[];
+  contentHtml: string;
 }
 
 export type NoticeData = {
   codeCIS: number;
   title?: string;
   dateNotif?: string;
-  contentHtml?: string | null;
-  children?: NoticeRCPContentBlock[];
+  contentHtml: string;
 }
 export type GroupeGenerique = {
   id: number;

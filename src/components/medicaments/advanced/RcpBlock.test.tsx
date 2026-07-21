@@ -1,15 +1,13 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import RcpBlock from "./RcpBlock";
 
-const { getContent, getRCP } = vi.hoisted(() => ({
-  getContent: vi.fn(() => <div>Legacy RCP</div>),
+const { getRCP } = vi.hoisted(() => ({
   getRCP: vi.fn(),
 }));
 
 vi.mock("@/db/utils/rcp", () => ({ getRCP }));
-vi.mock("@/utils/notices", () => ({ getContent }));
 vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
 vi.mock("@codegouvfr/react-dsfr", () => ({
   fr: { cx: (...classNames: string[]) => classNames.join(" ") },
@@ -25,34 +23,35 @@ const specialite = { SpecId: "123" } as DetailedSpecialite;
 
 describe("RcpBlock", () => {
   beforeEach(() => {
-    getContent.mockClear();
     getRCP.mockReset();
   });
 
-  it("renders contentHtml instead of the legacy RCP tree", async () => {
+  it("renders the RCP HTML with document styles", async () => {
     getRCP.mockResolvedValue({
       codeCIS: 123,
-      contentHtml: "<h2>Raw RCP section</h2><p>Rendered from HTML</p>",
-      children: [{ type: "AmmCorpsTexte", content: ["Legacy RCP"] }],
+      contentHtml: `<h2>Raw RCP section</h2><p>Rendered from HTML</p>
+        <span data-definition="Pharmacovigilance">RCP term</span>`,
     });
 
     render(<RcpBlock specialite={specialite} />);
 
     expect(await screen.findByRole("heading", { name: "Raw RCP section" })).not.toBeNull();
     expect(document.querySelector(".rcp-notice-html-content")).not.toBeNull();
-    expect(getContent).not.toHaveBeenCalled();
+    expect(document.querySelector(".document-html--definitions")).toBeNull();
+    expect(screen.getByText("RCP term").getAttribute("role")).toBeNull();
   });
 
-  it("keeps rendering legacy RCP children when contentHtml is empty", async () => {
+  it("does not display an invalid notification date", async () => {
     getRCP.mockResolvedValue({
       codeCIS: 123,
-      contentHtml: "",
-      children: [{ type: "AmmCorpsTexte", content: ["Legacy RCP"] }],
+      contentHtml: "<p>RCP content</p>",
+      dateNotif: "not-a-date",
     });
 
     render(<RcpBlock specialite={specialite} />);
 
-    expect(await screen.findByText("Legacy RCP")).not.toBeNull();
-    await waitFor(() => expect(getContent).toHaveBeenCalledOnce());
+    expect(await screen.findByText("RCP content")).not.toBeNull();
+    expect(screen.queryByText(/Invalid Date/)).toBeNull();
+    expect(screen.queryByText(/RCP mis à jour le/)).toBeNull();
   });
 });

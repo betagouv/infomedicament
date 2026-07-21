@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { unstable_cache } from "next/cache";
 import { answerNoticeQuestion } from "@/lib/albert";
 import { getNotice } from "@/db/utils/notice";
-import { noticeToText } from "@/utils/notices";
 
 export interface NoticeChunkHit {
   section_anchor: string;
@@ -33,13 +32,11 @@ export async function GET(
   if (!q) return NextResponse.json({ error: "Missing q" }, { status: 400 });
 
   const notice = await getNotice(CIS);
-  if (!notice?.children?.length) return NextResponse.json({ hits: [] });
-
-  const noticeText = noticeToText(notice.children);
+  if (!notice?.contentHtml) return NextResponse.json({ hits: [] });
 
   let result: LLMResult;
   try {
-    result = await getCachedAnswer(CIS, q, noticeText);
+    result = await getCachedAnswer(CIS, q, notice.contentHtml);
   } catch (err) {
     console.error("[notice-search] LLM error", err);
     return NextResponse.json({ hits: [] });

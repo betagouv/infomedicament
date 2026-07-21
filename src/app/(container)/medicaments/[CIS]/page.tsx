@@ -27,7 +27,7 @@ import { getFicheInfos } from "@/db/utils/ficheInfos";
 import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
-import { getIndicationsBlock } from "@/utils/notices";
+import { getIndicationsBlock } from "@/utils/noticeHtml";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -70,7 +70,9 @@ async function fetchMedicamentData(
   const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
     composants.some((c) => Number(c.SubsId.trim()) === Number(s.id))
   );
-  const indicationsBlock = notice && getIndicationsBlock(notice);
+  const indicationsBlock = notice
+    ? getIndicationsBlock(notice.contentHtml)
+    : undefined;
   const articles = await getArticlesFromFilters({
     ATCList: atcList,
     substancesList: composants.map((c) => c.SubsId.trim()),
@@ -220,8 +222,8 @@ export default async function Page(props: {
             isPrinceps={isPrinceps}
             title={pageLabel}
             indications={indications}
-            notice={medData.notice}
             indicationsBlock={medData.indicationsBlock}
+            notice={medData.notice}
             ficheInfos={medData.ficheInfos}
             definitions={medData.definitions}
             pregnancyPlanAlert={medData.pregnancyPlanAlert}

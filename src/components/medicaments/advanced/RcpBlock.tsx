@@ -5,31 +5,25 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import { RcpData } from "@/types/SpecialiteTypes";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { getContent } from "@/utils/notices";
-import { RcpNoticeContainer, RcpNoticeHtmlContainer } from "../blocks/GenericBlocks";
+import { RcpNoticeHtmlContainer } from "../blocks/GenericBlocks";
 import { getRCP } from "@/db/utils/rcp";
 import { isCentralisee } from "@/utils/specialites";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import CentraliseBlock from "../blocks/CentraliseBlock";
 import GoTopButton from "@/components/generic/GoTopButton";
+import { formatDateNotif } from "@/utils/notices";
 
 interface RCPProps extends HTMLAttributes<HTMLDivElement> {
   specialite?: DetailedSpecialite;
 }
 
-function RcpBlock({
-  specialite,
-  ...props 
-}: RCPProps) {
-
+function RcpBlock({ specialite, ...props }: RCPProps) {
   const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite>();
   const [currentRcp, setCurrentRcp] = useState<RcpData>();
   const [loaded, setLoaded] = useState<boolean>(false);
 
   const loadRCP = useCallback(
-    async (
-      spec: DetailedSpecialite,
-    ) => {
+    async (spec: DetailedSpecialite) => {
       try {
         const newNotice = await getRCP(spec.SpecId);
         setCurrentRcp(newNotice);
@@ -37,40 +31,50 @@ function RcpBlock({
       } catch (e) {
         Sentry.captureException(e);
       }
-    }, [setCurrentRcp]
+    },
+    [setCurrentRcp],
   );
 
   useEffect(() => {
-    if(specialite) {
-      setCurrentSpec(specialite)
+    if (specialite) {
+      setCurrentSpec(specialite);
       loadRCP(specialite);
     }
   }, [specialite, setCurrentSpec, loadRCP]);
+
+  const formattedDateNotif = formatDateNotif(currentRcp?.dateNotif);
 
   return (
     <>
       <h2>Résumé des caractéristiques du produit</h2>
       {currentRcp ? (
-          <>
-            {currentRcp.dateNotif && (
-              <Badge severity={"info"} className={fr.cx("fr-mb-4w")}>{currentRcp.dateNotif}</Badge>
-            )}
-            {currentRcp.contentHtml ? (
-              <RcpNoticeHtmlContainer dangerouslySetInnerHTML={{ __html: currentRcp.contentHtml }} />
-            ) : currentRcp.children && (
-              <RcpNoticeContainer>{getContent(currentRcp.children)}</RcpNoticeContainer>
-            )}
-          </>
-        ) : (currentSpec && isCentralisee(currentSpec)) ? (
-          <CentraliseBlock
-            pdfURL={currentSpec.urlCentralise ? currentSpec.urlCentralise : undefined}
+        <>
+          {formattedDateNotif && (
+            <Badge severity={"info"} className={fr.cx("fr-mb-4w")}>
+              RCP mis à jour le {formattedDateNotif}
+            </Badge>
+          )}
+          <RcpNoticeHtmlContainer
+            dangerouslySetInnerHTML={{ __html: currentRcp.contentHtml }}
           />
-        ) : (
-          loaded && (<span>Le résumé des caractéristiques du produit n&rsquo;est pas disponible pour ce médicament.</span>)
-        )}
-        <GoTopButton />
+        </>
+      ) : currentSpec && isCentralisee(currentSpec) ? (
+        <CentraliseBlock
+          pdfURL={
+            currentSpec.urlCentralise ? currentSpec.urlCentralise : undefined
+          }
+        />
+      ) : (
+        loaded && (
+          <span>
+            Le résumé des caractéristiques du produit n&rsquo;est pas disponible
+            pour ce médicament.
+          </span>
+        )
+      )}
+      <GoTopButton />
     </>
   );
-};
+}
 
 export default RcpBlock;

@@ -2,15 +2,16 @@
 
 import ContentContainer from "../../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
-import { HTMLAttributes, useState } from "react";
+import { HTMLAttributes } from "react";
 import styled, { css } from 'styled-components';
 import Link from "next/link";
-import { DetailedSpecialite, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { isAIP, isCentralisee } from "@/utils/specialites";
 import { ShortIndication } from "@/types/IndicationsTypes";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
-import { getContent } from "@/utils/notices";
+import { Definition } from "@/types/GlossaireTypes";
+import DocumentHtml from "../DocumentHtml";
 
 const IndicationBlock = styled.div<{
   $small?: boolean;
@@ -28,19 +29,6 @@ const IndicationBlock = styled.div<{
       }
     }
   }
-`;
-const IndicationBlockContent = styled.div<{
-  $isFullHeight?: boolean;
-}>`
-  ${props => props.$isFullHeight ? css`
-    height: 100%;
-  ` : css`
-    height: 200px;
-    overflow: hidden;
-    @media (max-width: 48em) {
-      height: 120px;
-    }
-  `}
 `;
 const IndicationTitle = styled.h2<{
   $small?: boolean;
@@ -66,9 +54,9 @@ const IndicationsContainer = styled.div`
 interface IndicationsBlockProps extends HTMLAttributes<HTMLDivElement> {
   specialite?: DetailedSpecialite;
   indications?: ShortIndication[];
-  indicationsBlock?: NoticeRCPContentBlock;
+  indicationsBlock?: string;
+  definitions?: Definition[];
   title?: string;
-  resizable?: boolean;
   small?: boolean;
 }
 
@@ -76,13 +64,11 @@ function IndicationsBlock({
   specialite,
   indications,
   indicationsBlock,
+  definitions,
   title,
-  resizable,
   small,
   ...props 
 }: IndicationsBlockProps) {
-
-  const [isFullHeight, setIsFullHeight] = useState<boolean>(false);
 
   return (
     specialite && (
@@ -135,25 +121,14 @@ function IndicationsBlock({
                 )}
               </span>
             ) : (
-              (indicationsBlock && indicationsBlock.children && indicationsBlock.children.length > 0) ? (
-                <div>
-                  <IndicationBlockContent $isFullHeight={resizable ? isFullHeight : true}>
-                    {getContent(indicationsBlock.children)}
-                  </IndicationBlockContent>
-                  {(resizable && !isFullHeight) && (<span>{"..."}<br/></span>)}
-                  {resizable && (
-                    <Link 
-                      href=""
-                      onClick={() => setIsFullHeight(!isFullHeight)}
-                      className={fr.cx("fr-link", "fr-text--bold", "fr-text--sm")}
-                    >
-                        {isFullHeight ? 'Lire moins' : 'Lire plus'}
-                    </Link>
-                  )}
-                </div>
-              ) : (
+              indicationsBlock ? (
+                <DocumentHtml
+                  contentHtml={indicationsBlock}
+                  definitions={definitions}
+                />
+              ) : !indications?.length ? (
                 <span>Les indications thérapeutiques ne sont pas disponibles.</span>
-              )
+              ) : null
             )
           )}
         </IndicationBlock>
