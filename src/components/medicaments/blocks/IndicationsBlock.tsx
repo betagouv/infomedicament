@@ -2,7 +2,7 @@
 
 import ContentContainer from "../../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
-import { HTMLAttributes } from "react";
+import { HTMLAttributes, useState } from "react";
 import styled, { css } from 'styled-components';
 import Link from "next/link";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
@@ -36,6 +36,20 @@ const IndicationBlock = styled.div<{
     }
   }
 `;
+
+const IndicationBlockContent = styled.div<{
+  $isExpanded: boolean;
+}>`
+  ${({ $isExpanded }) => !$isExpanded && css`
+    height: 200px;
+    overflow: hidden;
+
+    @media (max-width: 48em) {
+      height: 120px;
+    }
+  `}
+`;
+
 const IndicationTitle = styled.h2<{
   $small?: boolean;
 }>`
@@ -63,6 +77,7 @@ interface IndicationsBlockProps extends HTMLAttributes<HTMLDivElement> {
   indicationsBlock?: string;
   definitions?: Definition[];
   title?: string;
+  resizable?: boolean;
   small?: boolean;
 }
 
@@ -72,9 +87,12 @@ function IndicationsBlock({
   indicationsBlock,
   definitions,
   title,
+  resizable = false,
   small,
   ...props 
 }: IndicationsBlockProps) {
+
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     specialite && (
@@ -128,10 +146,27 @@ function IndicationsBlock({
               </span>
             ) : (
               indicationsBlock ? (
-                <DocumentHtml
-                  contentHtml={indicationsBlock}
-                  definitions={definitions}
-                />
+                <div>
+                  <IndicationBlockContent $isExpanded={!resizable || isExpanded}>
+                    <DocumentHtml
+                      contentHtml={indicationsBlock}
+                      definitions={definitions}
+                    />
+                  </IndicationBlockContent>
+                  {resizable && !isExpanded && (
+                    <span aria-hidden="true">...<br /></span>
+                  )}
+                  {resizable && (
+                    <button
+                      type="button"
+                      aria-expanded={isExpanded}
+                      onClick={() => setIsExpanded((expanded) => !expanded)}
+                      className={fr.cx("fr-link", "fr-text--bold", "fr-text--sm")}
+                    >
+                      {isExpanded ? "Lire moins" : "Lire plus"}
+                    </button>
+                  )}
+                </div>
               ) : !indications?.length ? (
                 <span>Les indications thérapeutiques ne sont pas disponibles.</span>
               ) : null

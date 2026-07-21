@@ -246,6 +246,7 @@ function NoticeContent({
             specialite={specialite}
             title="À quoi sert-il ?"
             small
+            resizable
             indications={indications}
             indicationsBlock={indicationsBlock}
             definitions={definitions}

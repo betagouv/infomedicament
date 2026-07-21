@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import IndicationsBlock from "./IndicationsBlock";
@@ -39,5 +39,25 @@ describe("IndicationsBlock", () => {
     expect(
       screen.queryByText("Les indications thérapeutiques ne sont pas disponibles."),
     ).toBeNull();
+  });
+
+  it("lets users expand and collapse long notice indications", () => {
+    render(
+      <IndicationsBlock
+        specialite={specialite}
+        indicationsBlock="<p>Une indication longue</p>"
+        resizable
+      />,
+    );
+
+    const expandButton = screen.getByRole("button", { name: "Lire plus" });
+    expect(expandButton.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.getByText("...")).not.toBeNull();
+
+    fireEvent.click(expandButton);
+
+    const collapseButton = screen.getByRole("button", { name: "Lire moins" });
+    expect(collapseButton.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.queryByText("...")).toBeNull();
   });
 });
