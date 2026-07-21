@@ -16,6 +16,12 @@ import DocumentHtml from "../DocumentHtml";
 const IndicationBlock = styled.div<{
   $small?: boolean;
 }>`
+  ${props => props.$small && css`
+    p {
+      font-size: 0.875rem;
+    }
+  `}
+
   div, span {
     margin-bottom: 1rem;
     ${props => props.$small && css`
