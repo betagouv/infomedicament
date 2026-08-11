@@ -16,7 +16,6 @@ const FiltersContainer = styled.div`
     padding-bottom: 0px;
   }
   @media (min-width: 48em) {
-    padding: 1rem 2rem 1rem 0rem;
     flex: 0 0 260px !important;
     width: 260px !important;
     max-width: 260px !important;

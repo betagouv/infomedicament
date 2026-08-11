@@ -23,8 +23,7 @@ function SearchFiltersTitle({
     <TitleContainer {...props}>
       <Title className={fr.cx("fr-h6")}>
         <span 
-          className={fr.cx("fr-icon-filter-fill", "fr-mr-1w")}
-          style={{color: "var(--text-default-info)"}}
+          className={["fr-icon--custom-filters", fr.cx("fr-mr-1w")].join(" ")}
         />
         Filtres
       </Title>

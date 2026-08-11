@@ -205,7 +205,7 @@ function SearchResultsList({
           setAllIndicationsFilters={setAllIndicationsFilters}
         />   
       </Accordion>
-      <div className={fr.cx("fr-hidden", "fr-unhidden-md")}>
+      <div className={fr.cx("fr-hidden", "fr-unhidden-md", "fr-py-2w", "fr-pr-4w")}>
         <SearchFiltersContainer
           allSubsFilters={allSubsFilters}
           allAtcFilters={allAtcFilters}
@@ -223,24 +223,22 @@ function SearchResultsList({
               <Link
                 href=""
                 onClick={() => setCurrentSortType("alphabetic")}
-                className={fr.cx("fr-text--sm")} 
               >
                 ordre alphabétique
               </Link>
             )
-            : (<span className={fr.cx("fr-text--sm", "fr-text--bold")}>ordre alphabétique</span>)
+            : (<span className={fr.cx("fr-text--bold")}>ordre alphabétique</span>)
           }{" / "}
           {currentSortType !== "score" 
             ? (
               <Link
                 href=""
                 onClick={() => setCurrentSortType("score")}
-                className={fr.cx("fr-text--sm")} 
               >
                 pertinence
               </Link>
             )
-            : (<span className={fr.cx("fr-text--sm", "fr-text--bold")}>pertinence</span>)
+            : (<span className={fr.cx("fr-text--bold")}>pertinence</span>)
           }
           <Button
             iconId={isSortAsc ? "fr-icon-arrow-down-line" : "fr-icon-arrow-up-line"}
