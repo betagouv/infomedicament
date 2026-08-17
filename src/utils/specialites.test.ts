@@ -1,29 +1,19 @@
 import { describe, it, expect } from "vitest";
 import { formatIndicationsDetails, formatSpecialitesResume, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isHospitalDelivrance, isSurveillanceRenforcee } from "./specialites";
-import { DetailedSpecialite } from "@/types/SpecialiteTypes";
-import { SpecDelivrance, SpecialiteComm, SpecialiteStat, VUEvnts } from "@/db/pdbmMySQL/types";
+import { DetailedSpecialite, SpecialiteStat } from "@/types/SpecialiteTypes";
+import { SpecDelivrance, VUEvnts } from "@/db/pdbmMySQL/types";
 import { ShortIndication } from "@/types/IndicationsTypes";
 import { ResumeSpecialiteDB } from "@/db/types";
 
 const detailedSpec: DetailedSpecialite = {
   SpecId: "60035714",
   StatId: SpecialiteStat.Valide,
-  CommId: SpecialiteComm.Commercialisée,
   ProcId: "20",
   SpecGeneId: "",
   SpecDenom01: "SIMPONI 50 mg, solution injectable en seringue préremplie",
-  SpecDenom02: "",
-  SpecAbrev: "",
   SpecDateAMM: new Date("2009-10-01"),
-  SpecRem: "",
   SpecStatDate: new Date("2009-10-01"),
-  SpecDC01: "",
-  SpecDC02: "",
-  SpecFormPh: "",
-  SpecVoie: "",
   StatutBdm: 1,
-  IsBdm: 1,
-  NumAuthEurope: "EU/1/09/546",
   Een: "Latex caoutchouc naturel, Sorbitol",
   urlCentralise: "https://www.ema.europa.eu/fr/documents/product-information/simponi-epar-product-information_fr.pdf",
   statutAutorisation: "Valide",

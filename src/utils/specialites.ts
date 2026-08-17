@@ -1,8 +1,8 @@
-import { SpecDelivrance, Specialite, VUEvnts } from "@/db/pdbmMySQL/types";
+import { SpecDelivrance, VUEvnts } from "@/db/pdbmMySQL/types";
 import { ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
 import { MedicamentGroup } from "@/displayUtils";
 import { ShortIndication } from "@/types/IndicationsTypes";
-import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite, ShortSpecialite } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite, ShortSpecialite, Specialite } from "@/types/SpecialiteTypes";
 
 export function getSpecialiteGroupName(
   specialite: Specialite | string,
