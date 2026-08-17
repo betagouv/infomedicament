@@ -13,8 +13,8 @@ import { SpecialiteStat } from "@/types/SpecialiteTypes";
 const postgresRow: AnsmSpecialite = {
   cis: "60035714",
   denomination: "SIMPONI 50 mg",
-  generique: "61234567",
-  procedure: 20,
+  generique: 61234567,
+  procedure: "CENTRALISEE",
   date_amm: new Date("2009-10-01"),
   statut_amm: "ABROGEE",
   date_modification: new Date("2026-06-01"),
@@ -34,8 +34,10 @@ describe("specialite catalog mappings", () => {
   it("maps authorization status and procedure representations", () => {
     expect(statutAmmToDisplayStatus("ABROGEE")).toBe("Abrogée");
     expect(statutAmmToCompatibilityId("ABROGEE")).toBe(SpecialiteStat.Abrogée);
-    expect(procedureToCompatibilityCode(20)).toBe("20");
+    expect(procedureToCompatibilityCode("CENTRALISEE")).toBe("CENTRALISEE");
     expect(procedureToCompatibilityCode(null)).toBe("");
+    expect(statutAmmToDisplayStatus("ARCHIVEE")).toBe("Archivée");
+    expect(statutAmmToCompatibilityId("ARCHIVEE")).toBe(SpecialiteStat.Archivée);
   });
 
   it("maps PostgreSQL rows without leaking their snake_case shape", () => {
@@ -44,7 +46,7 @@ describe("specialite catalog mappings", () => {
         SpecId: "60035714",
         SpecDenom01: "SIMPONI 50 mg",
         SpecGeneId: "61234567",
-        ProcId: "20",
+        ProcId: "CENTRALISEE",
         StatutBdm: 3,
         Een: null,
         StatId: SpecialiteStat.Abrogée,

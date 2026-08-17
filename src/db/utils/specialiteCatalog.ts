@@ -18,7 +18,8 @@ export function statutAmmToDisplayStatus(
     case "ABROGEE": return "Abrogée";
     case "SUSPENDUE": return "Suspendue";
     case "RETIREE": return "Retirée";
-    case "INACTIVE": return "Archivée";
+    case "INACTIVE":
+    case "ARCHIVEE": return "Archivée";
     default: return null;
   }
 }
@@ -31,7 +32,8 @@ export function statutAmmToCompatibilityId(
     case "ABROGEE": return SpecialiteStat.Abrogée;
     case "SUSPENDUE": return SpecialiteStat.Suspendue;
     case "RETIREE": return SpecialiteStat.Retirée;
-    case "INACTIVE": return SpecialiteStat.Archivée;
+    case "INACTIVE":
+    case "ARCHIVEE": return SpecialiteStat.Archivée;
     default: return null;
   }
 }
@@ -51,15 +53,15 @@ export function disponibiliteToStatutBdm(
   return 1;
 }
 
-export function procedureToCompatibilityCode(procedure: number | null): string {
-  return procedure?.toString() ?? "";
+export function procedureToCompatibilityCode(procedure: AnsmSpecialite["procedure"]): string {
+  return procedure ?? "";
 }
 
 export function mapCatalogSpecialite(row: AnsmSpecialite): Specialite {
   return {
     SpecId: row.cis,
     SpecDenom01: row.denomination ?? "",
-    SpecGeneId: row.generique ?? "",
+    SpecGeneId: row.generique?.toString() ?? "",
     ProcId: procedureToCompatibilityCode(row.procedure),
     StatutBdm: disponibiliteToStatutBdm(row.disponibilite),
     // The ANSM PostgreSQL catalog has no equivalent excipient field in this batch.
