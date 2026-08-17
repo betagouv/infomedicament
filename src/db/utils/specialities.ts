@@ -76,7 +76,7 @@ export const getDetailedSpecialite = cache(
     row.generique
       ? db
         .selectFrom("ansm_specialite")
-        .where("cis", "=", row.generique)
+        .where("cis", "=", row.generique.toString())
         .select("denomination")
         .executeTakeFirst()
       : Promise.resolve(undefined),
@@ -142,9 +142,12 @@ export const getAllSpecialites = cache(async function (): Promise<Specialite[]> 
 })
 
 export async function isPrincepsSpecialite(CIS: string): Promise<boolean> {
+  const numericCis = Number(CIS);
+  if (!Number.isInteger(numericCis)) return false;
+
   return Boolean(await db
     .selectFrom("ansm_specialite")
-    .where("generique", "=", CIS)
+    .where("generique", "=", numericCis)
     .select("cis")
     .executeTakeFirst());
 }
@@ -157,7 +160,7 @@ export async function getAllGenericGroupCis(): Promise<string[]> {
     .distinct()
     .execute();
 
-  return rows.flatMap(({ generique }) => generique ? [generique] : []);
+  return rows.flatMap(({ generique }) => generique ? [generique.toString()] : []);
 }
 
 export const getResumeSpecsGroupsWithLetter = cache(async function (letter: string): Promise<ResumeSpecGroup[]> {
