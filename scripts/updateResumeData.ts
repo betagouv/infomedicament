@@ -14,6 +14,7 @@ import { getSpecialiteGroupName, groupSpecialites, isSurveillanceRenforcee } fro
 import { ShortIndication } from "@/types/IndicationsTypes";
 import { getPregnancyMentionAlert } from "@/db/utils/pregnancy";
 import { getPediatrics } from "@/db/utils/pediatrics";
+import { Specialite } from "@/types/SpecialiteTypes";
 
 type DataToResumeType = "indications" | "substances" | "medicaments" | "atc1" | "atc2" | "generiques" | "specialites";
 
@@ -131,7 +132,7 @@ async function createResumeMedicaments(): Promise<string[]> {
     .execute();
 
   const allSpecialites = await getAllSpecialites();
-  const medicaments: MedicamentGroup[] = groupSpecialites(allSpecialites);
+  const medicaments: MedicamentGroup<Specialite>[] = groupSpecialites(allSpecialites);
   const letters: string[] = [];
   const results = await Promise.all(
     medicaments.map(async (medGroup) => {

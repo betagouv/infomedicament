@@ -9,12 +9,11 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getAtc1, getAtc2 } from "@/db/utils/atc";
 import { getSpecialite } from "@/db/utils";
 import { getWarmupCISCodes } from "@/db/utils/warmup";
-import { pdbmMySQL } from "@/db/pdbmMySQL";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
-import { getSpecialiteMetadata, getSpecialiteName } from "@/db/utils/specialities";
+import { getSpecialiteMetadata, getSpecialiteName, isPrincepsSpecialite } from "@/db/utils/specialities";
 import MedicamentContent from "@/components/medicaments/MedicamentContent";
 import ShareButtons from "@/components/generic/ShareButtons";
 import { getSpecialitesIndications, getSpecialitePathologies } from "@/db/utils/indications";
@@ -125,17 +124,7 @@ export default async function Page(props: {
   const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
   const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
-  const isPrinceps =
-    !!(await pdbmMySQL
-      .selectFrom("Specialite")
-      .select("Specialite.SpecId")
-      .where("Specialite.SpecGeneId", "=", CIS)
-      .executeTakeFirst()) &&
-    !!(await pdbmMySQL
-      .selectFrom("GroupeGene")
-      .select("GroupeGene.SpecId")
-      .where("GroupeGene.SpecId", "=", CIS)
-      .executeTakeFirst());
+  const isPrinceps = await isPrincepsSpecialite(CIS);
 
   const atcList: string[] = [];
   const breadcrumb = [

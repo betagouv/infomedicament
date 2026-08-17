@@ -16,7 +16,7 @@ import { getSpecialiteGroupName } from "@/utils/specialites";
 import { ATCError, getAtcCode } from "@/utils/atc";
 import MedicamentGeneriqueContainer from "@/components/medicamentsGeneriques/MedicamentGeneriqueContainer";
 import { getGeneriques, getGroupeGene } from "@/db/utils/generics";
-import { Specialite } from "@/db/pdbmMySQL/types";
+import { Specialite } from "@/types/SpecialiteTypes";
 import { getEvents } from "@/db/utils/ficheInfos";
 
 export const dynamic = "error";

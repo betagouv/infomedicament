@@ -1,8 +1,8 @@
 import db from "@/db";
-import { Specialite } from "@/db/pdbmMySQL/types";
 import { NoticeDB, SpecialiteMetadata } from "@/db/types";
 import { getAllNoticesWithoutChildren, getIndicationsText } from "@/db/utils/notice";
 import { getAllSpecialites } from "@/db/utils/specialities";
+import { Specialite } from "@/types/SpecialiteTypes";
 
 //npx tsx scripts/populateSpecMetadataTable.ts
 
