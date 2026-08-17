@@ -6,10 +6,10 @@ import { fr } from "@codegouvfr/react-dsfr";
 import ClassTag from "../tags/ClassTag";
 import { ATC } from "@/types/ATCTypes";
 import SubstanceTag from "../tags/SubstanceTag";
-import { SpecComposant, Specialite, SubstanceNom, VUEvnts } from "@/db/pdbmMySQL/types";
+import { SpecComposant, SubstanceNom, VUEvnts } from "@/db/pdbmMySQL/types";
 import { displayCompleteComposants } from "@/displayUtils";
 import GenericAccordion from "../GenericAccordion";
-import { DetailedSpecialite } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, Specialite } from "@/types/SpecialiteTypes";
 import DataBlockSpecGenerique from "../data/DataBlockSpecGenerique";
 import { isSurveillanceRenforcee } from "@/utils/specialites";
 

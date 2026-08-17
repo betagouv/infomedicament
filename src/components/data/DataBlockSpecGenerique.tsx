@@ -4,7 +4,7 @@ import { HTMLAttributes } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import { formatSpecName } from "@/displayUtils";
 import styled from 'styled-components';
-import { Specialite } from "@/db/pdbmMySQL/types";
+import { Specialite } from "@/types/SpecialiteTypes";
 import DataBlockGenericIcons from "./DataBlockGenericIcons";
 
 const Container = styled.div`
