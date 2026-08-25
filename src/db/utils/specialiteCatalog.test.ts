@@ -24,7 +24,7 @@ const postgresRow: AnsmSpecialite = {
 describe("specialite catalog mappings", () => {
   it("centralizes ANSM status compatibility", () => {
     expect(disponibiliteToStatutBdm("DISPONIBLE")).toBe(1);
-    expect(disponibiliteToStatutBdm("PARTIELLE")).toBe(1);
+    expect(disponibiliteToStatutBdm("PARTIELLE")).toBe(2);
     expect(disponibiliteToStatutBdm("ALERTE")).toBe(3);
     expect(disponibiliteToStatutBdm("INDISPONIBLE")).toBe(2);
     expect(disponibiliteToDisplayStatus("DISPONIBLE")).toBe("Commercialisée");
