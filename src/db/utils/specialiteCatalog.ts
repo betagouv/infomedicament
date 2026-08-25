@@ -49,7 +49,9 @@ export function disponibiliteToStatutBdm(
   disponibilite: AnsmSpecialite["disponibilite"],
 ): number {
   if (disponibilite === "ALERTE") return 3;
-  if (disponibilite === "INDISPONIBLE") return 2;
+  // PARTIELLE medicines remain addressable but must display the public
+  // unavailable/soon-unavailable warning. INDISPONIBLE rows are not routed.
+  if (disponibilite === "PARTIELLE" || disponibilite === "INDISPONIBLE") return 2;
   return 1;
 }
 

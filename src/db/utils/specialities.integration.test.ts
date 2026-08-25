@@ -70,4 +70,10 @@ describe("db utils specialities", () => {
     expect(isInactiveSpec).toBe(-1);
     expect(isActiveSpec).not.toBe(-1);
   })
+
+  it("maps a partially available medicine to the public unavailable warning", async () => {
+    const specialite = await getDetailedSpecialite("61651634");
+
+    expect(specialite?.StatutBdm).toBe(2);
+  });
 });
