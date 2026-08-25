@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AutocompleteSearchInput } from "./AutocompleteSearch";
 
@@ -50,6 +51,21 @@ describe("AutocompleteSearchInput", () => {
       />,
     );
   }
+
+  it("is disabled in server markup and enabled after hydration", () => {
+    const serverMarkup = renderToString(
+      <AutocompleteSearchInput
+        id="server-search"
+        name="s"
+        placeholder="Rechercher"
+        type="search"
+      />,
+    );
+    expect(serverMarkup).toMatch(/<input[^>]+disabled=""/);
+
+    renderAutocomplete();
+    expect((screen.getByRole("combobox") as HTMLInputElement).disabled).toBe(false);
+  });
 
   it("should navigate to search page when selecting a group name", () => {
     renderAutocomplete();
