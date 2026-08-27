@@ -62,6 +62,8 @@ const BIGINT_CIS_TABLES = ["notices", "rcp"];
 
 // Tables with a text CIS column named "cis"
 const CIS_TEXT_TABLES: Array<[string, string]> = [
+  ["ansm_specialite", "cis"],
+  ["ansm_specialite_titulaire", "cis"],
   ["cis_atc", "code_cis"],
   ["ref_pediatrie", "cis"],
   ["ref_marr_url_cis", "cis"],
@@ -79,23 +81,52 @@ const CONTENT_TREE_TABLE_PAIRS: Array<[string, string]> = [
   ["rcp", "rcp_content"],
 ];
 
-async function insertRows(
-  review: Kysely<any>,
-  tablename: string,
-  rows: any[]
-) {
-  if (rows.length === 0) {
-    console.log(`  Skipping ${tablename} (no matching rows)`);
-    return;
-  }
-  console.log(`  Copying ${tablename}: ${rows.length} rows...`);
-  await sql`TRUNCATE TABLE ${sql.table(tablename)} CASCADE`.execute(review);
+async function insertRows(review: Kysely<any>, tablename: string, rows: any[]) {
   const CHUNK_SIZE = 500;
-  for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
-    await review
-      .insertInto(tablename)
-      .values(rows.slice(i, i + CHUNK_SIZE))
-      .execute();
+  const totalBatches = Math.ceil(rows.length / CHUNK_SIZE);
+  let progressLineWidth = 0;
+
+  const updateProgress = (message: string, done = false) => {
+    const line = `  Copying ${tablename}: ${message}`;
+    progressLineWidth = Math.max(progressLineWidth, line.length);
+    process.stdout.write(
+      `\r${line.padEnd(progressLineWidth)}${done ? "\n" : ""}`,
+    );
+  };
+
+  try {
+    updateProgress(`${rows.length.toLocaleString()} rows - truncating...`);
+    await sql`TRUNCATE TABLE ${sql.table(tablename)} CASCADE`.execute(review);
+
+    if (rows.length === 0) {
+      updateProgress("truncated - no matching rows", true);
+      return;
+    }
+
+    for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+      const completedBatch = i / CHUNK_SIZE + 1;
+      updateProgress(
+        `truncated - inserting batch ${completedBatch}/${totalBatches} - ${i.toLocaleString()}/${rows.length.toLocaleString()} rows`,
+      );
+
+      await review
+        .insertInto(tablename)
+        .values(rows.slice(i, i + CHUNK_SIZE))
+        .execute();
+
+      const insertedRows = Math.min(i + CHUNK_SIZE, rows.length);
+      updateProgress(
+        `truncated - batch ${completedBatch}/${totalBatches} - ${insertedRows.toLocaleString()}/${rows.length.toLocaleString()} rows`,
+      );
+    }
+
+    updateProgress(
+      `done - ${totalBatches}/${totalBatches} batches - ${rows.length.toLocaleString()} rows`,
+      true,
+    );
+  } catch (error) {
+    updateProgress("failed", true);
+    throw error;
   }
 }
 
