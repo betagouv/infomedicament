@@ -9,7 +9,6 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getAtc1, getAtc2 } from "@/db/utils/atc";
 import { getSpecialite } from "@/db/utils";
 import { getWarmupCISCodes } from "@/db/utils/warmup";
-import { pdbmMySQL } from "@/db/pdbmMySQL";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
@@ -28,6 +27,7 @@ import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { getIndicationsBlock } from "@/utils/notices";
+import { getIsPrinceps } from "@/db/utils/generics";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -125,17 +125,7 @@ export default async function Page(props: {
   const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
   const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
-  const isPrinceps =
-    !!(await pdbmMySQL
-      .selectFrom("Specialite")
-      .select("Specialite.SpecId")
-      .where("Specialite.SpecGeneId", "=", CIS)
-      .executeTakeFirst()) &&
-    !!(await pdbmMySQL
-      .selectFrom("GroupeGene")
-      .select("GroupeGene.SpecId")
-      .where("GroupeGene.SpecId", "=", CIS)
-      .executeTakeFirst());
+  const isPrinceps = await getIsPrinceps(CIS);
 
   const atcList: string[] = [];
   const breadcrumb = [

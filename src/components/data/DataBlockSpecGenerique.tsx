@@ -20,7 +20,18 @@ const Container = styled.div`
     border-radius: 8px;
   }
 `;
-const Details = styled.div`
+const GenericMain = styled.div`
+  display: flex;
+`;
+//from DSFR
+const GenericName = styled.span`
+  background-image: var(--underline-img), var(--underline-img);
+  background-position: var(--underline-x) 100%, var(--underline-x) calc(100% - var(--underline-thickness));
+  background-repeat: no-repeat, no-repeat;
+  background-size: var(--underline-hover-width) calc(var(--underline-thickness) * 2), var(--underline-idle-width) var(--underline-thickness);
+  transition: background-size;
+`;
+const GenericDetails = styled.div`
   color: var(--text-mention-grey);
   font-style: italic;
 `;
@@ -39,22 +50,23 @@ function DataBlockSpecGenerique({
     <Container className={fr.cx("fr-mb-1w")}>
       <Link
         href={`/medicaments/${specialite.SpecId}`}
-        className={["result-link", fr.cx("fr-p-1w")].join(" ")}
+        className={["result-link", "fr-link", fr.cx("fr-p-1w")].join(" ")}
       >
-        <Link
-          href={`/medicaments/${specialite.SpecId}`}
-          className={fr.cx("fr-link")}
-        >
-          {formatSpecName(specialite.SpecDenom01)}
-        </Link>
-        <DataBlockGenericIcons
-          specialite={specialite}
-          isSurveillanceRenforcee={isSurveillanceRenforcee}
-        />
+        <GenericMain>
+          <GenericName
+            className={fr.cx("fr-link")}
+          >
+            {formatSpecName(specialite.SpecDenom01)}
+          </GenericName>
+          <DataBlockGenericIcons
+            specialite={specialite}
+            isSurveillanceRenforcee={isSurveillanceRenforcee}
+          />
+        </GenericMain>
         {specialite.Een && (
-          <Details className={fr.cx("fr-text--sm", "fr-mb-0", "fr-mt-1-5v")}>
+          <GenericDetails className={fr.cx("fr-text--sm", "fr-mb-0", "fr-mt-1-5v")}>
             Excipient(s) à effet notoire : {specialite.Een}
-          </Details>
+          </GenericDetails>
         )}
       </Link>
     </Container>

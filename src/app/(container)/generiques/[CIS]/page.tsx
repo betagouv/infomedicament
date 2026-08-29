@@ -1,11 +1,9 @@
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import {
-  getSpecialite,
   groupGeneNameToDCI,
 } from "@/db/utils";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import React from "react";
 
 import { formatSpecName } from "@/displayUtils";
 import { getAtc2 } from "@/db/utils/atc";
@@ -16,8 +14,10 @@ import { getSpecialiteGroupName } from "@/utils/specialites";
 import { ATCError, getAtcCode } from "@/utils/atc";
 import MedicamentGeneriqueContainer from "@/components/medicamentsGeneriques/MedicamentGeneriqueContainer";
 import { getGeneriques, getGroupeGene } from "@/db/utils/generics";
-import { Specialite } from "@/db/pdbmMySQL/types";
+import { SpecComposant, Specialite, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { getEvents } from "@/db/utils/ficheInfos";
+import { getDetailedSpecialites } from "@/db/utils/specialities";
+import { getComposants } from "@/db/utils/composants";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -28,14 +28,16 @@ export default async function Page(props: {
   const { CIS } = await props.params;
 
   const group = await getGroupeGene(CIS);
-  if (!group) notFound();
+  if (!group || group.length === 0) notFound();
 
-  const { specialite, composants } = await getSpecialite(group.SpecId);
-  if (!specialite) notFound();
+  const princepsCIS: string[] = group.map((princeps) => princeps.SpecId);
+  const princeps = await getDetailedSpecialites(princepsCIS);
+  if (!princeps || princeps.length === 0) notFound();
 
+  const composants: Array<SpecComposant & SubstanceNom> = await getComposants(princepsCIS[0])
   const generiques: Specialite[] = await getGeneriques(CIS);
 
-  const CISList = generiques.map((g) => g.SpecId).concat(specialite.SpecId);
+  const CISList = generiques.map((g) => g.SpecId).concat(princepsCIS);
   const events = await getEvents(CISList);
 
   let atcCode;
@@ -52,11 +54,11 @@ export default async function Page(props: {
       }
     }
   }
-  //if (!atcCode) throw new ATCError(CIS);
   const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
-  const pageLabel = formatSpecName(groupGeneNameToDCI(group.LibLong));
-  const groupName = getSpecialiteGroupName(groupGeneNameToDCI(group.LibLong));
+  //LibLong is the same for all elements of the group
+  const pageLabel = formatSpecName(groupGeneNameToDCI(group[0].LibLong));
+  const groupName = getSpecialiteGroupName(groupGeneNameToDCI(group[0].LibLong));
 
   return (
     <>
@@ -80,7 +82,7 @@ export default async function Page(props: {
         atc2={atc2}
         composants={composants}
         groupName={groupName}
-        princeps={specialite}
+        princeps={princeps}
         generiques={generiques}
         events={events}
       />
