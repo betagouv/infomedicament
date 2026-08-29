@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
 import {
@@ -7,14 +6,13 @@ import {
 } from "@/displayUtils";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getAtc1, getAtc2 } from "@/db/utils/atc";
-import { getSpecialite } from "@/db/utils";
 import { getWarmupCISCodes } from "@/db/utils/warmup";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
-import { getSpecialiteMetadata, getSpecialiteName } from "@/db/utils/specialities";
+import { getSpecialite, getSpecialiteMetadata, getSpecialiteName } from "@/db/utils/specialities";
 import MedicamentContent from "@/components/medicaments/MedicamentContent";
 import ShareButtons from "@/components/generic/ShareButtons";
 import { getSpecialitesIndications, getSpecialitePathologies } from "@/db/utils/indications";

@@ -1,13 +1,8 @@
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import {
-  getSpecialite,
-  groupGeneNameToDCI,
-} from "@/db/utils";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import React from "react";
 
-import { formatSpecName } from "@/displayUtils";
+import { formatSpecName, groupGeneNameToDCI } from "@/displayUtils";
 import { getAtc2 } from "@/db/utils/atc";
 import { notFound } from "next/navigation";
 import ContentContainer from "@/components/generic/ContentContainer";
@@ -18,6 +13,7 @@ import MedicamentGeneriqueContainer from "@/components/medicamentsGeneriques/Med
 import { getGeneriques, getGroupeGene } from "@/db/utils/generics";
 import { Specialite } from "@/db/pdbmMySQL/types";
 import { getEvents } from "@/db/utils/ficheInfos";
+import { getSpecialite } from "@/db/utils/specialities";
 
 export const dynamic = "error";
 export const dynamicParams = true;

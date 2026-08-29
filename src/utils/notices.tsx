@@ -1,5 +1,5 @@
 import WithGlossary from "@/components/glossary/WithGlossary";
-import { TitulaireAddressContainer, TitulaireNomContainer } from "@/components/medicaments/blocks/GenericBlocks";
+import { RcpNoticeTextBlock, TitulaireAddressContainer, TitulaireNomContainer } from "@/components/medicaments/blocks/GenericBlocks";
 import { FicheInfos } from "@/types/FicheInfoTypes";
 import { Definition } from "@/types/GlossaireTypes";
 import { NoticeData, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
@@ -29,6 +29,25 @@ export function displayInfosImportantes(ficheInfos?:FicheInfos): boolean{
     return true;
   }
   return false;
+}
+
+export function cleanStringContent(content: string): string {
+  return content
+    .replaceAll('<a ', (tag) => {
+      if(tag.includes('target=')) return tag;
+      return tag.replace('<a ', '<a target="_blank" rel="noopener noreferrer" ');
+    })
+    .replaceAll("<p", "<span")
+    .replaceAll("</p>", "</span>")
+    .replaceAll("<div", "<span")
+    .replaceAll("</div>", "</span>");
+}
+
+function cleanArrayContent(content: string[]): string[] {
+  return content
+    .map((text: string) => {
+      return cleanStringContent(text);
+    });
 }
 
 function getStyles(styles: string[] | undefined): CSSProperties{
@@ -80,14 +99,28 @@ function getTitleElement(content:NoticeRCPContentBlock, definitions?:Definition[
 }
 
 function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definition[]): (React.JSX.Element | undefined){
+
+  if(content.html) { 
+    const cleanHtmlContent = cleanStringContent(content.html);
+    if(definitions) {
+      return (
+        <RcpNoticeTextBlock>
+          <WithGlossary definitions={definitions} key={content.id} text={[cleanHtmlContent]} />
+        </RcpNoticeTextBlock>
+      );
+    }
+    return (<RcpNoticeTextBlock dangerouslySetInnerHTML={{__html: cleanHtmlContent}} key={content.id}></RcpNoticeTextBlock>)
+  };
+
   if(content.content){
     const styles = getStyles(content.styles);
-    const elementContent = <WithGlossary definitions={definitions} key={content.id} text={content.content}/>;
+    const cleanContent = cleanArrayContent(content.content);
+    const elementContent = <WithGlossary definitions={definitions} key={content.id} text={cleanContent}/>;
     if(content.type && content.type === "AmmCorpsTexte") {
       return (
-        <div key={content.id} className={fr.cx("fr-mb-2w")} style={styles} data-block-id={content.id}>
+        <RcpNoticeTextBlock key={content.id} className={fr.cx("fr-mb-2w")} style={styles} data-block-id={content.id}>
           {elementContent}
-        </div>
+        </RcpNoticeTextBlock>
       )
     }
     if(content.type && content.type === "AmmComposition") {
@@ -106,7 +139,7 @@ function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definitio
       return (
         //Only in RCP
         <TitulaireNomContainer key={content.id} style={styles}>
-          {elementContent}
+          {cleanContent}
         </TitulaireNomContainer>
       );
     }
@@ -114,14 +147,14 @@ function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definitio
       //Only in RCP
       return (
         <TitulaireAddressContainer key={content.id} style={styles}>
-          {elementContent}
+          {cleanContent}
         </TitulaireAddressContainer>
       );
     }
     if(content.type && content.type === "listePuce") {
       return (
         <ul key={content.id} className={fr.cx("fr-ml-2w")} style={styles}>
-          {content.content.map((li, index) => {
+          {cleanContent.map((li, index) => {
             const text = li.charAt(0) === '·' ? li.substring(1) : li;
             if(text.trim().length > 0){
               return (
@@ -135,7 +168,6 @@ function getGenericElement(content:NoticeRCPContentBlock, definitions?:Definitio
       );
     }
     //No style to apply
-    //AmmComposition
     return (<span className={fr.cx("fr-text--md")} key={content.id} style={styles}>{elementContent}{" "}</span>);
   }
   return undefined;
@@ -181,10 +213,10 @@ function getTableElement(children:NoticeRCPContentBlock[], definitions?:Definiti
         });
         if(childElements && childElements.length > 0)
           elementContent = (
-            <>{...childElements}</>
+            <span key={child.id+'-'+index}>{...childElements}</span>
           );
       } else if(child.content && child.content.length > 0) {
-        elementContent = <WithGlossary definitions={definitions} key={child.id} text={child.content} />;
+        elementContent = <WithGlossary definitions={definitions} key={child.id} text={cleanArrayContent(child.content)} />;
       }
       if(elementContent){
         content.push((
@@ -194,7 +226,7 @@ function getTableElement(children:NoticeRCPContentBlock[], definitions?:Definiti
             rowSpan={child.rowspan ? child.rowspan : 1}
             {...(styles && {style: styles})}
           >
-            <span className={fr.cx("fr-text--sm")} key={child.id} style={styles}>
+            <span className={fr.cx("fr-text--sm")} style={styles}>
               {elementContent}
             </span>
           </td>
@@ -208,15 +240,15 @@ function getTableElement(children:NoticeRCPContentBlock[], definitions?:Definiti
 export function getContent(children:NoticeRCPContentBlock[], definitions?:Definition[]): (React.JSX.Element | undefined)[] {
   let content:(React.JSX.Element | undefined)[] = [];
   children.forEach((child, index) => {
-    if(child.type && child.type === "AmmCorpsTexteTable"){
+    if(child.type && child.type === "AmmCorpsTexteTable" && !child.html){
       if(child.children){
         const tableContent:(React.JSX.Element | undefined)[] = getTableElement(child.children, definitions);
-        if(tableContent) content.push((
-          <div className="rcp-notice-block">
-            <table key={child.id+'-'+index}>
+        if(tableContent.length > 0) content.push((
+          <RcpNoticeTextBlock className="rcp-notice-block" key={child.id+'-'+index}>
+            <table>
               {...tableContent}
             </table>
-          </div>
+          </RcpNoticeTextBlock>
         ));
       }
     } else {
@@ -230,8 +262,8 @@ export function getContent(children:NoticeRCPContentBlock[], definitions?:Defini
 
       if(child.children){
         const childContent:(React.JSX.Element | undefined)[] = getContent(child.children, definitions);
-        if(childContent){
-          if(titleContent) content = content.concat((<div key={child.id+'-'+index}>{...childContent}</div>));
+        if(childContent.length > 0){
+          if(titleContent) content = content.concat((<RcpNoticeTextBlock key={child.id+'-'+index}>{...childContent}</RcpNoticeTextBlock>));
           else content = content.concat(childContent);
         }
       }

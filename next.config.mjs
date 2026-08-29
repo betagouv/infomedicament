@@ -16,7 +16,7 @@ const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-inline' ${process.env.NEXT_PUBLIC_MATOMO_URL}${isDev ? " 'unsafe-eval'" : ''};
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: ${process.env.NEXT_PUBLIC_MATOMO_URL};
+    img-src 'self' blob: data: ${process.env.NEXT_PUBLIC_MATOMO_URL} ${process.env.NEXT_PUBLIC_S3_URL};
     font-src 'self';
     object-src 'none';
     base-uri 'self';
@@ -33,6 +33,10 @@ const embedCspHeader = cspHeader.replace("frame-ancestors 'none'", "frame-ancest
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  // Default (60s) is too short for the ~500-page warmup prerender: with only
+  // 3 Postgres connections (see src/db/index.ts), pages queue for a free
+  // connection slot longer than that under build concurrency.
+  staticPageGenerationTimeout: 180,
   compiler: {
     styledComponents: true,
   },

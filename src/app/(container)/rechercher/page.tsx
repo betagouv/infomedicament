@@ -1,8 +1,9 @@
-import { getSearchResults, getSynonymSuggestion } from "@/db/utils";
 import { getArticlesFromSearchResults } from "@/db/utils/articles";
 import SearchPage from "@/components/search/SearchPage";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
+import { getSearchResults } from "@/db/utils/search";
+import { getSynonymSuggestion } from "@/db/utils/searchSynonyms";
 
 export default async function Page(props: {
   searchParams?: Promise<Record<string, string>>;

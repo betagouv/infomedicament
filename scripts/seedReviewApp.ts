@@ -168,7 +168,6 @@ async function main() {
   // 6. Skipped tables
   console.log("\n--- Skipped ---");
   console.log("  search_index  (run npm run db:seed-search-index if needed)");
-  console.log("  leaflet_images  (too large, not needed in review apps)");
 
   await staging.destroy();
   await review.destroy();

@@ -4,7 +4,6 @@ import { Selectable } from "kysely";
 export interface Database {
   search_index: SearchIndexTable;
   search_synonyms: SearchSynonymsTable;
-  leaflet_images: LeafletImagesTable;
   presentations: PresentationTable;
   rcp: RcpTable;
   rcp_content: RcpContentTable;
@@ -115,6 +114,7 @@ interface RcpContentTable {
   tag?: string,
   rowspan?: number,
   colspan?: number,
+  html?: string,
 }
 
 interface NoticeTable {
@@ -133,6 +133,7 @@ interface NoticeContentTable {
   tag?: string,
   rowspan?: number,
   colspan?: number,
+  html?: string,
 }
 
 interface RatingTable {

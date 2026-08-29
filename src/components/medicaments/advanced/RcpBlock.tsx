@@ -55,7 +55,7 @@ function RcpBlock({
             {currentRcp.dateNotif && (
               <Badge severity={"info"} className={fr.cx("fr-mb-4w")}>{currentRcp.dateNotif}</Badge>
             )}
-            {currentRcp.children && (
+            {currentRcp.children && currentRcp.children.length > 0 && (
               <RcpNoticeContainer>{getContent(currentRcp.children)}</RcpNoticeContainer>
             )}
           </>
