@@ -3,22 +3,10 @@
 import { HTMLAttributes, useEffect, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from 'styled-components';
-import Checkbox from "@codegouvfr/react-dsfr/Checkbox";
-import SearchFilterLabel from "./SearchFilterLabel";
 import { SearchFilter } from "@/types/SearchTypes";
+import SearchFilterBlockContent from "./SearchFilterBlockContent";
+import Accordion from "@codegouvfr/react-dsfr/Accordion";
 
-const SearchFilterContainer = styled.div`
-  border-bottom: 2px solid var(--border-open-blue-france);
-`;
-const FilterListContainer = styled.div`
-  margin-top: 1rem;
-  .search-filter-cb-container:last-child {
-    .fr-fieldset.search-filter-cb-child:last-child {
-      margin-bottom: 0px;
-    }
-    margin-bottom: 1rem;
-  } 
-`;
 const ShowMoreLink = styled.div`
   margin-bottom: 1rem;
   .fr-link {
@@ -38,6 +26,10 @@ const ShowMoreLink = styled.div`
   }
 `;
 
+const SearchFilterDesktopContainer = styled.div`
+  border-bottom: 2px solid var(--border-open-blue-france);
+`;
+
 interface SearchFilterBlockProps extends HTMLAttributes<HTMLDivElement> {
   filtersList: SearchFilter[];
   title: string;
@@ -52,8 +44,19 @@ function SearchFilterBlock({
   onClickChildFilter,
 }: SearchFilterBlockProps) {
 
-  const [fullList, setFullList] = useState<boolean>(false);
+  const isFiltersOpenStorageKey = `searchFilterBlock:${title}:isOpen`;
+
+  const [isFullList, setIsFullList] = useState<boolean>(false);
   const [filteredFiltersList, setFilteredFiltersList] = useState<SearchFilter[]>([]);
+  const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.sessionStorage.getItem(isFiltersOpenStorageKey) === "true";
+  });
+
+  const onFiltersOpenChange = (expanded: boolean) => {
+    setIsFiltersOpen(expanded);
+    window.sessionStorage.setItem(isFiltersOpenStorageKey, String(expanded));
+  };
 
   useEffect(() => {
     const newList = filtersList
@@ -78,67 +81,51 @@ function SearchFilterBlock({
     setFilteredFiltersList(newList);
   }, [filtersList, setFilteredFiltersList]);
 
+  const getSelectedFiltersCount = (): number => {
+    return filteredFiltersList.filter((filter) => filter.selected).length;
+  }
+
   return filteredFiltersList.length > 0 && (
-    <SearchFilterContainer className={fr.cx("fr-mb-2w")}>
-      <h3 className={fr.cx("fr-text--md")}>{title}</h3>
-      <FilterListContainer>
-        {filteredFiltersList.map((filter: SearchFilter, index: number) => {
-          if(filter.selected || (!fullList && index < 5) || fullList) {
-            return (
-              <div key={index} className="search-filter-cb-container">
-                <Checkbox
-                  key={index}
-                  options={[{
-                    label: (
-                      <SearchFilterLabel
-                        name={filter.name}
-                        count={filter.count}
-                      />
-                    ),
-                    nativeInputProps: {
-                      checked: filter.selected,
-                      onChange: (e) => onClickFilter(filter, (e.target as any).checked),
-                    },
-                  }]}
-                  small
-                />
-                {(filter.children && filter.children.length > 0) && (
-                  <Checkbox
-                    className={["search-filter-cb-child", fr.cx("fr-ml-2w")].join(" ")}
-                    options={filter.children.map((childrenFilter: SearchFilter, i: number) => 
-                      ({
-                        key: `${index}-${i}`,
-                        label: (
-                          <SearchFilterLabel
-                            name={childrenFilter.name}
-                            count={childrenFilter.count}
-                          />
-                        ),
-                        nativeInputProps: {
-                          checked: childrenFilter.selected,
-                          onChange: (e) => onClickChildFilter && onClickChildFilter(filter, childrenFilter, (e.target as any).checked),
-                        },
-                      })
-                    )}
-                    small
-                  />
-                )}
-              </div>
-            )
-          }
-        })}
+    <div>
+      <Accordion 
+        label={
+          <>
+            {title}
+            {getSelectedFiltersCount() > 0 && (<span>&nbsp;{`(${getSelectedFiltersCount()})`}</span>)}
+          </>
+        }
+        onExpandedChange={onFiltersOpenChange}
+        expanded={isFiltersOpen}
+        className={fr.cx("fr-hidden-md")}
+      >
+        <SearchFilterBlockContent
+          filtersList={filtersList}
+          isFullList={true}
+          onClickFilter={onClickFilter}
+          onClickChildFilter={onClickChildFilter}
+        />
+      </Accordion>
+      <SearchFilterDesktopContainer className={fr.cx("fr-hidden", "fr-unhidden-md", "fr-mb-2w")}>
+        <h3 className={fr.cx("fr-text--md")}>{title}</h3>
+        <SearchFilterBlockContent
+          filtersList={filtersList}
+          isFullList={isFullList}
+          onClickFilter={onClickFilter}
+          onClickChildFilter={onClickChildFilter}
+          small
+        />
         {filtersList.length > 5 && (
           <ShowMoreLink>
             <span
               className={fr.cx("fr-link", "fr-text--sm")}
-              onClick={() => setFullList(!fullList)}
+              onClick={() => setIsFullList(!isFullList)}
             >
-              {fullList ? "Voir moins" : "Voir plus"}
+              {isFullList ? "Voir moins" : "Voir plus"}
             </span>
           </ShowMoreLink>
         )}
-      </FilterListContainer>
-    </SearchFilterContainer>
+      </SearchFilterDesktopContainer>
+    </div>
   )
 };
 export default SearchFilterBlock;

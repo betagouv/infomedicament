@@ -4,9 +4,10 @@ import { HTMLAttributes } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from 'styled-components';
 import Link from "next/link";
-import { SearchFilter } from "@/types/SearchTypes";
+import { SearchFilter, SortType } from "@/types/SearchTypes";
 import SearchFilterBlock from "./SearchFilterBlock";
 import SearchFiltersTitle from "./SearchFiltersTitle";
+import SearchSortBlock from "./SearchSortBlock";
 
 const FiltersContainer = styled.div`
   display: flex;
@@ -21,13 +22,18 @@ const FiltersContainer = styled.div`
     max-width: 260px !important;
   }
   @media (max-width: 48em) {
-    padding: 1rem 0rem 1rem 0rem;
+    padding: 0rem 0rem 1rem 0rem;
   }
 `;
-const UnselectFiltersContainer = styled.div`
-  border-bottom: 2px solid var(--border-open-blue-france);
-  margin-bottom: 1rem;
+const FiltersTitleContainer = styled.div`
+  display: inline-flex;
+  justify-content: space-between;
+  @media (min-width: 48em) {
+    border-bottom: 2px solid var(--border-open-blue-france);
+    margin-bottom: 1rem;
+  }
 `;
+
 interface SearchFiltersContainerProps extends HTMLAttributes<HTMLDivElement> {
   allSubsFilters: SearchFilter[];
   allAtcFilters: SearchFilter[];
@@ -35,6 +41,8 @@ interface SearchFiltersContainerProps extends HTMLAttributes<HTMLDivElement> {
   setAllAtcFilters: (filters: SearchFilter[]) => void;
   setAllSubsFilters: (filters: SearchFilter[]) => void;
   setAllIndicationsFilters: (filters: SearchFilter[]) => void;
+  setSortType: (sortType: SortType) => void;
+  setIsSortAsc: (isSortAsc: boolean) => void;
 }
 
 function SearchFiltersContainer({
@@ -44,6 +52,8 @@ function SearchFiltersContainer({
   setAllSubsFilters,
   setAllAtcFilters,
   setAllIndicationsFilters,
+  setSortType,
+  setIsSortAsc,
   ...props
 }: SearchFiltersContainerProps) {
 
@@ -124,18 +134,24 @@ function SearchFiltersContainer({
     setAllIndicationsFilters(updatedIndicationsFilters);
   };
 
+  const isUnselectAllVisible = (): boolean => {
+    if(allSubsFilters.filter((filter) => filter.selected).length > 0 
+      || allAtcFilters.filter((filter) => filter.selected).length > 0 
+      || allIndicationsFilters.filter((filter) => filter.selected).length > 0)
+      return true;
+    return false;
+  }
+
   return (
     <FiltersContainer {...props} className={[fr.cx("fr-col-12"), props.className].join(" ")}>
-      <SearchFiltersTitle  
-        className={fr.cx("fr-hidden", "fr-unhidden-md")}
-      />
-      <UnselectFiltersContainer>
-        {(allSubsFilters.filter((filter) => filter.selected).length > 0 
-          || allAtcFilters.filter((filter) => filter.selected).length > 0 
-          || allIndicationsFilters.filter((filter) => filter.selected).length > 0) && (
-          <div className={fr.cx("fr-mb-2w")}>
+      <FiltersTitleContainer className={fr.cx("fr-hidden", "fr-unhidden-md")}>
+        <div>
+          <SearchFiltersTitle />
+        </div>
+        {isUnselectAllVisible() && (
+          <div>
             <Link 
-              className={fr.cx("fr-link", "fr-text--sm", "fr-mb-2w")}
+              className={fr.cx("fr-link", "fr-text--sm")}
               href=""
               onClick={onUnselectAll}
             >
@@ -143,7 +159,12 @@ function SearchFiltersContainer({
             </Link>
           </div>
         )}
-      </UnselectFiltersContainer>
+      </FiltersTitleContainer>
+      <SearchSortBlock 
+        className={fr.cx("fr-hidden-md")}
+        onUpdateSortType={setSortType}
+        onUpdateIsSortAsc={setIsSortAsc}
+      />
       <SearchFilterBlock
         filtersList={allSubsFilters}
         title="Substance active"
@@ -160,6 +181,17 @@ function SearchFiltersContainer({
         title="Indication"
         onClickFilter={onChangeIndicationsFilter}
       />
+      {isUnselectAllVisible() && (
+        <div className={fr.cx("fr-hidden-md", "fr-p-2w")}>
+          <Link 
+            className={fr.cx("fr-link")}
+            href=""
+            onClick={onUnselectAll}
+          >
+            Effacer tous les filtres
+          </Link>
+        </div>
+      )}
     </FiltersContainer>
   );
 };

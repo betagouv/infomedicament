@@ -3,17 +3,18 @@
 import { HTMLAttributes, useEffect, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from 'styled-components';
-import Link from "next/link";
-import Button from "@codegouvfr/react-dsfr/Button";
 import { SearchFilter, SearchResultItem, SortType } from "@/types/SearchTypes";
 import SearchResultsPagination from "./blocks/SearchResultsPagination";
 import SearchFiltersContainer from "./blocks/SearchFiltersContainer";
-import Accordion from "@codegouvfr/react-dsfr/Accordion";
-import SearchFiltersTitle from "./blocks/SearchFiltersTitle";
+import SearchSortBlock from "./blocks/SearchSortBlock";
+import SearchFiltersSubMenu from "./blocks/SearchFiltersSubMenu";
 
-const Container = styled.div `
+const SearchResultsListContainer = styled.div `
   .display-inline {
     display: inline;
+  }
+  .search-results-list-accordion > .fr-collapse--expanded {
+    padding-top: 0px;
   }
 `;
 const ResultsContainer = styled.div`
@@ -21,9 +22,6 @@ const ResultsContainer = styled.div`
     flex: 1 1 auto !important;
     width: calc(100% - 260px - 2rem) !important;
   }
-`;
-const SortContainer = styled.div`
-  text-align: right;
 `;
 const FiltersTitle = styled.h1`
   font-weight: normal;
@@ -45,10 +43,8 @@ function SearchResultsList({
   const [allAtcFilters, setAllAtcFilters] = useState<SearchFilter[]>([]);
   const [allIndicationsFilters, setAllIndicationsFilters] = useState<SearchFilter[]>([]);
 
-  const [currentSortType, setCurrentSortType] = useState<SortType>("score");
+  const [sortType, setSortType] = useState<SortType>("score");
   const [isSortAsc, setIsSortAsc] = useState<boolean>(true);
-
-  const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false);
 
   //Loading
   useEffect(() => {
@@ -164,7 +160,7 @@ function SearchResultsList({
         return true;
       })
       .sort((a, b) => { 
-        if(currentSortType === "alphabetic") {
+        if(sortType === "alphabetic") {
           if(isSortAsc) return a.groupName.localeCompare(b.groupName, "fr")
           else return b.groupName.localeCompare(a.groupName, "fr")
         }
@@ -179,32 +175,36 @@ function SearchResultsList({
         }
       });
     setFilteredResultsList(newResultsList);
-  }, [resultsList, currentSortType, isSortAsc, allSubsFilters, allAtcFilters, allIndicationsFilters, setFilteredResultsList]);
+  }, [resultsList, sortType, isSortAsc, allSubsFilters, allAtcFilters, allIndicationsFilters, setFilteredResultsList]);
+
+  const getSelectedFiltersCount = (): number => {
+    return allSubsFilters.filter((filter) => filter.selected).length 
+      + allAtcFilters.filter((filter) => filter.selected).length 
+      + allIndicationsFilters.filter((filter) => filter.selected).length;
+  }
 
   return (
-    <Container className={fr.cx("fr-grid-row")}>
+    <SearchResultsListContainer className={fr.cx("fr-grid-row")}>
       <div className={fr.cx("fr-col-12")}>
         <FiltersTitle className={fr.cx("fr-mb-3w", "fr-text--md")}>
           {filteredResultsList.length} résultat{filteredResultsList.length > 1 && 's'}
-          {" "}pour{" "}
+          {" "}pour{" "}:{" "}
           <strong>“{search}“</strong>
         </FiltersTitle>
       </div>
-      <Accordion 
-        label={(<SearchFiltersTitle />)}
-        onExpandedChange={() => setIsFiltersOpen(!isFiltersOpen)} 
-        expanded={isFiltersOpen}
-        className={fr.cx("fr-col-12", "fr-mb-2w", "fr-hidden-md")}
-      >
-        <SearchFiltersContainer
+      <div className={fr.cx("fr-hidden-md", "fr-mb-2w")} style={{width: "100%"}}>
+        <SearchFiltersSubMenu
           allSubsFilters={allSubsFilters}
           allAtcFilters={allAtcFilters}
           allIndicationsFilters={allIndicationsFilters}
           setAllSubsFilters={setAllSubsFilters}
           setAllAtcFilters={setAllAtcFilters}
           setAllIndicationsFilters={setAllIndicationsFilters}
-        />   
-      </Accordion>
+          setSortType={setSortType}
+          setIsSortAsc={setIsSortAsc}
+          selectedFiltersCount={getSelectedFiltersCount()}
+        />
+      </div> 
       <div className={fr.cx("fr-hidden", "fr-unhidden-md", "fr-py-2w", "fr-pr-4w")}>
         <SearchFiltersContainer
           allSubsFilters={allSubsFilters}
@@ -213,41 +213,16 @@ function SearchResultsList({
           setAllSubsFilters={setAllSubsFilters}
           setAllAtcFilters={setAllAtcFilters}
           setAllIndicationsFilters={setAllIndicationsFilters}
+          setSortType={setSortType}
+          setIsSortAsc={setIsSortAsc}
         />   
       </div>     
       <ResultsContainer className={fr.cx("fr-col-12")}>
-        <SortContainer className={fr.cx("fr-mb-3w")}>
-          Trier par{" "}
-          {currentSortType !== "alphabetic" 
-            ? (
-              <Link
-                href=""
-                onClick={() => setCurrentSortType("alphabetic")}
-              >
-                ordre alphabétique
-              </Link>
-            )
-            : (<span className={fr.cx("fr-text--bold")}>ordre alphabétique</span>)
-          }{" / "}
-          {currentSortType !== "score" 
-            ? (
-              <Link
-                href=""
-                onClick={() => setCurrentSortType("score")}
-              >
-                pertinence
-              </Link>
-            )
-            : (<span className={fr.cx("fr-text--bold")}>pertinence</span>)
-          }
-          <Button
-            iconId={isSortAsc ? "fr-icon-arrow-down-line" : "fr-icon-arrow-up-line"}
-            onClick={() => setIsSortAsc(!isSortAsc)}
-            priority="tertiary no outline"
-            title={`Trier par ordre ${isSortAsc ? "décroissant" : "croissant"}`}
-            size="small"
-          />
-        </SortContainer>
+        <SearchSortBlock 
+          onUpdateSortType={setSortType}
+          onUpdateIsSortAsc={setIsSortAsc}
+          className={fr.cx("fr-hidden", "fr-unhidden-md")}
+        />
         {filteredResultsList && (
           <SearchResultsPagination
             resultsList={filteredResultsList}
@@ -257,7 +232,7 @@ function SearchResultsList({
           />
         )}
       </ResultsContainer>
-    </Container>
+    </SearchResultsListContainer>
   );
 };
 
