@@ -28,6 +28,7 @@ import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { getIndicationsBlock } from "@/utils/notices";
+import { getStockFromCIS } from "@/db/utils/stocks";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -56,6 +57,7 @@ async function fetchMedicamentData(
     marr,
     allPregnancyPlanAlerts,
     specialitePathologies,
+    stocks
   ] = await Promise.all([
     getNotice(CIS),
     getFicheInfos(CIS),
@@ -65,6 +67,7 @@ async function fetchMedicamentData(
     getMarr(CIS),
     getAllPregnancyPlanAlerts(),
     getSpecialitePathologies(CIS),
+    getStockFromCIS(CIS)
   ]);
 
   const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
@@ -88,6 +91,7 @@ async function fetchMedicamentData(
     pregnancyPlanAlert,
     indicationsBlock,
     articles,
+    stocks,
   };
 }
 
@@ -229,6 +233,7 @@ export default async function Page(props: {
             pediatrics={medData.pediatrics}
             marr={medData.marr}
             articles={medData.articles}
+            stocks={medData.stocks}
           />
         )}
       </ContentContainer>

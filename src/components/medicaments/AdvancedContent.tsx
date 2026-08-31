@@ -22,6 +22,7 @@ import { PregnancyAlert } from "@/types/PregancyTypes";
 import DesktopTitleBlock from "./blocks/DesktopTitleBlock";
 import SwitchNoticeAdvancedBlock from "./blocks/SwitchNoticeAdvancedBlock";
 import { displayInfosImportantes } from "@/utils/notices";
+import { AnsmStock } from "@/types/StockTypes";
 
 const AdvancedContentContainer = styled.div`
   @media (max-width: 48em) {
@@ -59,6 +60,7 @@ interface AdvancedContentProps extends HTMLAttributes<HTMLDivElement> {
   indicationsBlock?: NoticeRCPContentBlock;
   advancedAnchor?: AnchorMenu;
   title: string;
+  stocks?: AnsmStock[];
   onGoToAdvanced: (advanced: boolean) => void;
 }
 
@@ -78,6 +80,7 @@ function AdvancedContent({
   indicationsBlock,
   advancedAnchor,
   title,
+  stocks,
   onGoToAdvanced,
   ...props
 }: AdvancedContentProps) {
@@ -101,6 +104,7 @@ function AdvancedContent({
           updateVisiblePart={setCurrentPart}
           isMarr={(marr && marr.pdf.length > 0)}
           isInfosImportantes={displayInfosImportantes(ficheInfos)}
+          isStock={(stocks && stocks.length > 0)}
           anchor={advancedAnchor}
         />
       </ContentContainer>
@@ -129,6 +133,7 @@ function AdvancedContent({
             indicationsBlock={indicationsBlock}
             delivrance={delivrance}
             definitions={definitions}
+            stocks={stocks}
           />
         </DetailedNoticeContainer>
         <DetailedNoticeContainer id="rcp-denomiation" $visible={currentPart === DetailsNoticePartsEnum.RCP}>
