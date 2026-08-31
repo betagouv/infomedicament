@@ -62,6 +62,8 @@ export interface Database {
   ansm_document: AnsmDocumentTable;
   ansm_caracteristique: AnsmCaracteristiqueTable;
   ansm_specialite_titulaire: AnsmSpecialiteTitulaireTable;
+  ansm_videos: AnsmVideosTable;
+  ansm_videos_cis: AnsmVideosCISTable;
 }
 
 interface SearchIndexTable {
@@ -462,6 +464,17 @@ interface AnsmSpecialiteTable {
   disponibilite: "INDISPONIBLE" | "DISPONIBLE" | "PARTIELLE" | "ALERTE" | null;
 }
 
+interface AnsmVideosTable {
+  id: number;
+  url: string;
+  title: string;
+}
+
+interface AnsmVideosCISTable {
+  CIS: string;
+  id_video: number;
+}
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type SearchSynonym = Selectable<SearchSynonymsTable>;
@@ -500,6 +513,7 @@ export type SpecialiteMetadata = Selectable<SpecialiteMetadataTable>;
 export type NoticeDB = Selectable<NoticeTable>;
 export type NoticeContentDB = Selectable<NoticeContentTable>;
 export type AnsmSpecialite = Selectable<AnsmSpecialiteTable>;
+export type AnsmVideos = Selectable<AnsmVideosTable>;
 
 interface AnsmAtcTable {
   code: number;
