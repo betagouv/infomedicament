@@ -28,6 +28,7 @@ import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { getIndicationsBlock } from "@/utils/notices";
+import { getVideosFromCIS } from "@/db/utils/videos";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -43,7 +44,6 @@ export async function generateStaticParams() {
 
 async function fetchMedicamentData(
   CIS: string,
-  specialite: DetailedSpecialite,
   composants: Array<SpecComposant & SubstanceNom>,
   atcList: string[],
 ) {
@@ -56,6 +56,7 @@ async function fetchMedicamentData(
     marr,
     allPregnancyPlanAlerts,
     specialitePathologies,
+    videos,
   ] = await Promise.all([
     getNotice(CIS),
     getFicheInfos(CIS),
@@ -65,6 +66,7 @@ async function fetchMedicamentData(
     getMarr(CIS),
     getAllPregnancyPlanAlerts(),
     getSpecialitePathologies(CIS),
+    getVideosFromCIS(CIS),
   ]);
 
   const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
@@ -88,6 +90,7 @@ async function fetchMedicamentData(
     pregnancyPlanAlert,
     indicationsBlock,
     articles,
+    videos
   };
 }
 
@@ -151,7 +154,7 @@ export default async function Page(props: {
   }
 
   const medData = specialite
-    ? await fetchMedicamentData(CIS, specialite, composants, atcList)
+    ? await fetchMedicamentData(CIS, composants, atcList)
     : undefined;
 
   if (composants.length > 0) {
@@ -229,6 +232,7 @@ export default async function Page(props: {
             pediatrics={medData.pediatrics}
             marr={medData.marr}
             articles={medData.articles}
+            videos={medData.videos}
           />
         )}
       </ContentContainer>

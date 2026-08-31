@@ -25,6 +25,7 @@ const cspHeader = `
     upgrade-insecure-requests;
     media-src 'self';
     connect-src 'self' ${process.env.NEXT_PUBLIC_MATOMO_URL} https://sentry.incubateur.net;
+    frame-src https://www.youtube.com/;
 `
 
 // Same as cspHeader but allows any domain to embed via iframe (for /interactions/embed)
