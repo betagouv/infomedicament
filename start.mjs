@@ -1,5 +1,8 @@
+import { createRequire } from "node:module";
 import { pathToFileURL } from "node:url";
 import { createClient } from "redis";
+
+const require = createRequire(import.meta.url);
 
 export function getRedisCacheUrl(environment = process.env) {
   return environment.SCALINGO_REDIS_URL ?? environment.REDIS_URL;
@@ -46,7 +49,7 @@ export async function assertRedisCacheAvailable(environment = process.env) {
 
 export async function start() {
   await assertRedisCacheAvailable();
-  await import("./.next/standalone/server.js");
+  require("./.next/standalone/server.js");
 }
 
 const isMainModule =
