@@ -11,7 +11,7 @@ const LabelContainer = styled.div`
 
 interface SearchFilterLabelProps extends HTMLAttributes<HTMLDivElement> {
   name: string;
-  count: number;
+  count?: number;
 }
  
 function SearchFilterLabel({
@@ -22,7 +22,7 @@ function SearchFilterLabel({
   return (
   <LabelContainer>
     <span>{name}</span>
-    <span>({count})</span>
+    {count && (<span>({count})</span>)}
   </LabelContainer>
   )
 };
