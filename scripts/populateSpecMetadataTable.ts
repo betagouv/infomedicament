@@ -1,15 +1,26 @@
 import db from "@/db";
 import { Specialite } from "@/db/pdbmMySQL/types";
-import { NoticeDB, SpecialiteMetadata } from "@/db/types";
-import { getAllNoticesWithoutChildren, getIndicationsText } from "@/db/utils/notice";
+import { SpecialiteMetadata } from "@/db/types";
+import { getNoticesByCIS } from "@/db/utils/notice";
 import { getAllSpecialites } from "@/db/utils/specialities";
+import { getIndicationsBlock } from "@/utils/noticeHtml";
+import { parse } from "node-html-parser";
 
 //npx tsx scripts/populateSpecMetadataTable.ts
 
-// Process notices in batches so we never hold the whole notices_content table
-// in memory (that load was the source of the OOM on Scalingo).
 const NOTICE_BATCH_SIZE = 50;
 const INSERT_CHUNK_SIZE = 500;
+
+function getIndicationsText(contentHtml: string): string {
+  const indicationsBlock = getIndicationsBlock(contentHtml);
+  if (!indicationsBlock) return "";
+
+  return parse(indicationsBlock)
+    .childNodes
+    .map((node) => node.textContent.trim())
+    .filter(Boolean)
+    .join(" ");
+}
 
 export async function populateSpecMetadataTable(): Promise<void> {
   await db
@@ -17,13 +28,6 @@ export async function populateSpecMetadataTable(): Promise<void> {
     .execute();
 
   const allSpecialites: Specialite[] = await getAllSpecialites();
-  const allNotices: NoticeDB[] = await getAllNoticesWithoutChildren();
-
-  // Notices carry their top-level children ids but no content text, so this map
-  // is cheap to keep around.
-  const noticeByCIS = new Map<string, NoticeDB>(
-    allNotices.map((notice) => [notice.codeCIS.toString(), notice]),
-  );
 
   let buffer: SpecialiteMetadata[] = [];
   let totalInserted = 0;
@@ -41,14 +45,18 @@ export async function populateSpecMetadataTable(): Promise<void> {
   // Add metadata informations for all notices even if no indications text
   for (let i = 0; i < allSpecialites.length; i += NOTICE_BATCH_SIZE) {
     const batch = allSpecialites.slice(i, i + NOTICE_BATCH_SIZE);
+    const batchCIS = batch.map((spec) => Number(spec.SpecId.trim()));
+    const notices = await getNoticesByCIS(batchCIS);
+    const noticeByCIS = new Map(
+      notices.map((notice) => [notice.codeCIS, notice]),
+    );
 
     const metadatas = await Promise.all(
       batch.map(async (spec) => {
-        const noticeDB = noticeByCIS.get(spec.SpecId.trim());
-        const description =
-          noticeDB && noticeDB.children && noticeDB.children.length > 0
-            ? await getIndicationsText(noticeDB.children)
-            : "";
+        const noticeDB = noticeByCIS.get(Number(spec.SpecId.trim()));
+        const description = noticeDB?.content_html
+          ? getIndicationsText(noticeDB.content_html)
+          : "";
         return {
           CIS: Number(spec.SpecId.trim()),
           title: spec.SpecDenom01,

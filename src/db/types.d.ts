@@ -106,6 +106,7 @@ interface RcpTable {
   title?: string,
   dateNotif?: string,
   children?: number[],
+  content_html?: string | null,
 }
 interface RcpContentTable {
   id?: number,
@@ -124,6 +125,7 @@ interface NoticeTable {
   title?: string,
   dateNotif?: string,
   children?: number[],
+  content_html?: string | null,
 }
 interface NoticeContentTable {
   id?: number,
