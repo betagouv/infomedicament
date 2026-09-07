@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 const require = createRequire(import.meta.url);
 const { decode, encode, getTtlSeconds, shouldUseRedis } =
-  require("./cache-handler.cjs").__testing as {
+  require("./cache-handler.js").__testing as {
     decode(value: string): unknown;
     encode(value: unknown): string;
     getTtlSeconds(
