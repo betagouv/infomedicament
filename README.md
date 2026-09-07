@@ -81,7 +81,6 @@ de la base de données publique des médicaments.
 Info Médicament utilise une base de données PostgreSQL
 pour stocker les données spécifiques à l'application :
 
-- les images des notices (pour éviter d'avoir à les stocker dans un système de fichiers)
 - les index de recherche plein texte
 
 Vous devez d'abord jouer les migrations pour créer les tables,
@@ -91,10 +90,8 @@ puis charger les données. La base MySQL doit être accessible préalablement.
 # Créer les tables
 kysele migrate:latest
 
-# Charger les images et les index de recherche
-# Le chemin vers le dossier contenant les images des notices doit être spécifié
-# avec la variable d'environnement LEAFLET_IMAGES
-LEAFLET_IMAGES=/path/to/folder kysely seed run
+# Charger les index de recherche
+kysely seed run
 ```
 
 ## Déploiement

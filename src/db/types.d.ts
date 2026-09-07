@@ -4,7 +4,6 @@ import { Selectable } from "kysely";
 export interface Database {
   search_index: SearchIndexTable;
   search_synonyms: SearchSynonymsTable;
-  leaflet_images: LeafletImagesTable;
   presentations: PresentationTable;
   rcp: RcpTable;
   notices: NoticeTable;
@@ -74,11 +73,6 @@ interface SearchSynonymsTable {
   id: Generated<number>;
   alias: string; // lay term, stored normalized (lowercase, unaccented)
   canonical: string; // medical term, accented form; normalized at query time
-}
-
-interface LeafletImagesTable {
-  path: string;
-  image: Buffer;
 }
 
 interface PresentationTable {
@@ -438,7 +432,6 @@ interface AnsmSpecialiteTable {
   disponibilite: "INDISPONIBLE" | "DISPONIBLE" | "PARTIELLE" | "ALERTE" | null;
 }
 
-export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type SearchSynonym = Selectable<SearchSynonymsTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
