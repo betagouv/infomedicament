@@ -73,12 +73,6 @@ const CIS_TEXT_TABLES: Array<[string, string]> = [
   ["resume_specialites", "specId"],
 ];
 
-// Pairs of [parent table, content table] for recursive tree copies
-const CONTENT_TREE_TABLE_PAIRS: Array<[string, string]> = [
-  ["notices", "notices_content"],
-  ["rcp", "rcp_content"],
-];
-
 async function insertRows(
   review: Kysely<any>,
   tablename: string,
@@ -144,28 +138,7 @@ async function main() {
     await insertRows(review, "resume_medicaments", rows);
   }
 
-  // 5. Tree tables — collect all content nodes reachable from the filtered notices/rcps
-  console.log("\n--- Tree tables (recursive content nodes) ---");
-  for (const [parent, content] of CONTENT_TREE_TABLE_PAIRS) {
-    const { rows } = await sql<any>`
-      WITH RECURSIVE tree(id) AS (
-        SELECT unnest(children) AS id
-        FROM ${sql.table(parent)}
-        WHERE "codeCIS" = ANY(${sql.val(cisBigints)}::bigint[])
-        UNION
-        SELECT unnest(c.children)
-        FROM ${sql.table(content)} c
-        INNER JOIN tree ON c.id = tree.id
-        WHERE c.children IS NOT NULL
-      )
-      SELECT DISTINCT c.*
-      FROM ${sql.table(content)} c
-      WHERE c.id IN (SELECT id FROM tree WHERE id IS NOT NULL)
-    `.execute(staging);
-    await insertRows(review, content, rows);
-  }
-
-  // 6. Skipped tables
+  // 5. Skipped tables
   console.log("\n--- Skipped ---");
   console.log("  search_index  (run npm run db:seed-search-index if needed)");
   console.log("  leaflet_images  (too large, not needed in review apps)");

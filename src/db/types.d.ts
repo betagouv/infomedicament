@@ -7,9 +7,7 @@ export interface Database {
   leaflet_images: LeafletImagesTable;
   presentations: PresentationTable;
   rcp: RcpTable;
-  rcp_content: RcpContentTable;
   notices: NoticeTable;
-  notices_content: NoticeContentTable;
   rating: RatingTable;
   resume_indications: ResumeIndicationsTable;
   resume_substances: ResumeSubstancesTable;
@@ -106,18 +104,6 @@ interface RcpTable {
   children?: number[],
   content_html?: string | null,
 }
-interface RcpContentTable {
-  id?: number,
-  type?: string,
-  styles?: string[],
-  anchor?: string,
-  content?: string[],
-  children?: number[],
-  tag?: string,
-  rowspan?: number,
-  colspan?: number,
-}
-
 interface NoticeTable {
   codeCIS: number,
   title?: string,
@@ -125,18 +111,6 @@ interface NoticeTable {
   children?: number[],
   content_html?: string | null,
 }
-interface NoticeContentTable {
-  id?: number,
-  type?: string,
-  styles?: string[],
-  anchor?: string,
-  content?: string[],
-  children?: number[],
-  tag?: string,
-  rowspan?: number,
-  colspan?: number,
-}
-
 interface RatingTable {
   id?: number,
   pageId: string,
