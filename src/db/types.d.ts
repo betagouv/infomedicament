@@ -91,6 +91,7 @@ interface LeafletImagesTable {
 }
 
 interface PresentationTable {
+  numpresentation: number;
   codecip13: string;
   nom_presentation: string;
   numelement: number; //Display order for nomelement - first element to display
@@ -472,7 +473,9 @@ interface AnsmSpecialiteTable {
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type SearchSynonym = Selectable<SearchSynonymsTable>;
-export type PresentationDetail = Selectable<PresentationTable>;
+export type PresentationDetail = Omit<Selectable<PresentationTable>, "numpresentation"> & {
+  numpresentation?: number;
+};
 export type RCPContent = Selectable<RcpContentTable>;
 export type Rating = Selectable<RatingTable>;
 export type ResumeIndication = Selectable<ResumeIndicationsTable>;

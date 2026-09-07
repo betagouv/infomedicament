@@ -37,6 +37,7 @@ const cisBigints = cisCodes.map(Number);
 
 // Reference tables: copied in full (small, no CIS key)
 const FULL_COPY_TABLES = [
+  "ansm_delivrance",
   "atc",
   "classes_cliniques",
   "letters",
@@ -63,6 +64,8 @@ const BIGINT_CIS_TABLES = ["notices", "rcp"];
 // Tables with a text CIS column named "cis"
 const CIS_TEXT_TABLES: Array<[string, string]> = [
   ["ansm_specialite", "cis"],
+  ["ansm_presentation", "cis"],
+  ["ansm_specialite_delivrance", "cis"],
   ["ansm_specialite_titulaire", "cis"],
   ["cis_atc", "code_cis"],
   ["ref_pediatrie", "cis"],
@@ -163,6 +166,25 @@ async function main() {
       .where(column, "in", cisCodes)
       .execute();
     await insertRows(review, tablename, rows);
+  }
+
+  // Presentation events are keyed by CIP rather than CIS. Copy the events for
+  // every presentation included in the review-app subset.
+  {
+    const presentations = await staging
+      .selectFrom("ansm_presentation")
+      .select("cip")
+      .where("cis", "in", cisCodes)
+      .execute();
+    const cips = presentations.map(({ cip }) => cip);
+    const rows = cips.length
+      ? await staging
+          .selectFrom("ansm_presentation_evenement")
+          .selectAll()
+          .where("cip", "in", cips)
+          .execute()
+      : [];
+    await insertRows(review, "ansm_presentation_evenement", rows);
   }
 
   // 4. resume_medicaments — filter groups that contain at least one of our CIS codes

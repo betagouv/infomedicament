@@ -1,7 +1,7 @@
 "use client";
 
 import ContentContainer from "../generic/ContentContainer";
-import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { HTMLAttributes, lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Marr } from "@/types/MarrTypes";
 import { ATC } from "@/types/ATCTypes";
@@ -9,6 +9,7 @@ import { DetailedSpecialite, NoticeData, NoticeRCPContentBlock } from "@/types/S
 import { PregnancyAlert } from "@/types/PregancyTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
+import { DeliveryCondition } from "@/types/DeliveryTypes";
 import { trackEvent } from "@/services/tracking";
 import { FicheInfos } from "@/types/FicheInfoTypes";
 const AdvancedContent = lazy(() => import("./AdvancedContent"));
@@ -27,7 +28,7 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   specialite?: DetailedSpecialite;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
-  delivrance: SpecDelivrance[];
+  delivrance: DeliveryCondition[];
   presentations: Presentation[];
   title: string;
   indications: ShortIndication[];

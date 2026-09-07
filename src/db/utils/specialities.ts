@@ -4,7 +4,6 @@ import "server-cli-only";
 import { cache } from "react";
 import {
   SpecComposant,
-  SpecDelivrance,
   SubstanceNom,
 } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
@@ -16,6 +15,7 @@ import { withSubstances } from "./query";
 import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite, Specialite } from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
+import { getDeliveryConditions } from "./delivery";
 import { formatSpecialitesResume, formatSpecialitesResumeFromGroups } from "@/utils/specialites";
 import { SpecialiteMetadata } from "../types";
 import {
@@ -23,6 +23,7 @@ import {
   mapDetailedSpecialite,
   VISIBLE_SPECIALITE_AVAILABILITIES,
 } from "./specialiteCatalog";
+import { DeliveryCondition } from "@/types/DeliveryTypes";
 
 export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
   const result = await db
@@ -107,19 +108,9 @@ export const getSpecialite = cache(async (CIS: string) => {
       ? await getFullPresentations(CIS)
       : [];  
 
-  const delivrance: SpecDelivrance[] = 
+  const delivrance: DeliveryCondition[] =
     specialite
-      ? await pdbmMySQL
-        .selectFrom("Spec_Delivrance")
-        .where("SpecId", "=", CIS)
-        .innerJoin(
-          "DicoDelivrance",
-          "Spec_Delivrance.DelivId",
-          "DicoDelivrance.DelivId",
-        )
-        .selectAll()
-        .orderBy("DicoDelivrance.DelivLong")
-        .execute()
+      ? await getDeliveryConditions(CIS)
       : [];
 
   return {

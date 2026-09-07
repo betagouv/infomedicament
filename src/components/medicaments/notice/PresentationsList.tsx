@@ -1,16 +1,25 @@
 "use client";
 
-import {
-  PresentationComm,
-  PresentationStat,
-} from "@/db/pdbmMySQL/types";
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
 import { HTMLAttributes, useEffect, useState } from "react";
 import { AggregatePresentationDetails, Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
-import { cleanPresentationsDetails, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isAbrogee, isArret, getAggregatePresentationRecipientsTexts } from "@/utils/presentations";
+import { cleanPresentationsDetails, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isAbrogee, getAggregatePresentationRecipientsTexts } from "@/utils/presentations";
 import styled from "styled-components";
+
+function commercializationStatusLabel(presentation: Presentation): string | null {
+  switch (presentation.commercializationStatus) {
+    case "stopped":
+      return "Arrêt de commercialisation";
+    case "suspended":
+      return "Suspension de commercialisation";
+    case "withdrawn":
+      return "Autorisation retirée";
+    default:
+      return null;
+  }
+}
 
 type PresentationToDisplay = {
   presentation: Presentation;
@@ -88,7 +97,7 @@ const [presentationsDetails, setPresentationsDetails] = useState<PresentationToD
         <ul className={fr.cx("fr-raw-list")}>
           {presentationsDetails.map((presDetails, index) => (
             <li 
-              key={`${presDetails.presentation.Cip13}-${index}`} 
+              key={`${presDetails.presentation.cip13}-${index}`}
               className={fr.cx("fr-mb-1w", "fr-col-md-12", "fr-text--sm")}
             >
               <div>
@@ -119,16 +128,19 @@ const [presentationsDetails, setPresentationsDetails] = useState<PresentationToD
                   })}
                 </div>
               </div>
-              {isArret(presDetails.presentation) && (
-                <Badge severity="warning" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
-                  {PresentationComm[presDetails.presentation.CommId]}
-                  {presDetails.presentation.PresCommDate && ` (${dateShortFormat(presDetails.presentation.PresCommDate)})`}
+              {commercializationStatusLabel(presDetails.presentation) && (
+                <Badge
+                  severity={presDetails.presentation.commercializationStatus === "withdrawn" ? "error" : "warning"}
+                  className={fr.cx("fr-ml-1v", "fr-mt-1v")}
+                >
+                  {commercializationStatusLabel(presDetails.presentation)}
+                  {presDetails.presentation.commercializationEndDate && ` (${dateShortFormat(presDetails.presentation.commercializationEndDate)})`}
                 </Badge>
               )}
-              {presDetails.presentation.StatId && isAbrogee(presDetails.presentation) && (
+              {isAbrogee(presDetails.presentation) && (
                 <Badge severity="error" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
-                  {PresentationStat[presDetails.presentation.StatId]}
-                  {presDetails.presentation.PresStatDAte && ` (${dateShortFormat(presDetails.presentation.PresStatDAte)})`}
+                  Abrogée
+                  {presDetails.presentation.abrogationDate && ` (${dateShortFormat(presDetails.presentation.abrogationDate)})`}
                 </Badge>
               )}
             </li>

@@ -1,4 +1,3 @@
-import { PresentationComm, PresentationStat } from "@/db/pdbmMySQL/types";
 import { PresentationDetail } from "@/db/types";
 import { AggregateCaraccomplrecipsDetails, AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
 import { capitalize } from "tsafe";
@@ -244,18 +243,18 @@ export function getPresentationName(
       return allPresNames;
   }
 
-  const index = presentation.PresNom01.indexOf("stylo prérempli");
+  const index = presentation.name.indexOf("stylo prérempli");
   if(index !== -1){
     if(index === 0){
-      return capitalize(presentation.PresNom01);
+      return capitalize(presentation.name);
     }
-    const qt = presentation.PresNom01.substring(0, index).trim();
-    if(!isNaN(Number(qt)) && Number(qt) > 1 && Number(presentation.PresNum) <= 1){
-      return presentation.PresNom01.replaceAll("stylo prérempli", "stylos préremplis");
+    const qt = presentation.name.substring(0, index).trim();
+    if(!isNaN(Number(qt)) && Number(qt) > 1){
+      return presentation.name.replaceAll("stylo prérempli", "stylos préremplis");
     }
   }
 
-  return presentation.PresNom01;
+  return presentation.name;
 }
 
 export function getAggregatePresentationRecipientsTexts(
@@ -285,85 +284,63 @@ export function getAggregatePresentationRecipientsTexts(
 export function getPresentationFullPriceText(
   presentation: Presentation
 ): string {
-  if(presentation.PPF && presentation.TauxPriseEnCharge) {
-    const price: string = Intl.NumberFormat(
-      "fr-FR", {
-        style: "currency",
-        currency: "EUR",
-      }).format(presentation.PPF);
-    return `Prix ${price} - remboursé à ${presentation.TauxPriseEnCharge}`;               
-  } else {
-    return "Prix libre - non remboursable";
-  }                 
+  const price = getPresentationPriceText(presentation);
+  return `${presentation.price !== null ? `Prix ${price}` : price} - ${getPresentationTauxPriseEnChargeText(presentation)}`;
 }
 
 export function getPresentationTauxPriseEnChargeText(
   presentation: Presentation
 ): string {
-  if(presentation.TauxPriseEnCharge) {
-    return `remboursé à ${presentation.TauxPriseEnCharge}`;
-  } else {
-    return "non remboursable";
-  }                 
+  if (presentation.reimbursementRate) {
+    return `remboursé à ${presentation.reimbursementRate}`;
+  }
+  if (presentation.reimbursementStatus === "yes") return "remboursable";
+  if (presentation.reimbursementStatus === "no") return "non remboursable";
+  return "remboursement non disponible";
 }
 
 export function getPresentationPriceText(
   presentation: Presentation
 ): string {
-  if(presentation.PPF) {
+  if(presentation.price !== null) {
     const price: string = Intl.NumberFormat(
       "fr-FR", {
         style: "currency",
         currency: "EUR",
-      }).format(presentation.PPF);
+      }).format(presentation.price);
     return price;
-  } else {
-    return "Prix libre";
   }                 
+  return "Prix non disponible";
 }
 
 export function isAbrogee(presentation: Presentation): boolean {
-  if(presentation.StatId && Number(presentation.StatId) === PresentationStat.Abrogation)
-    return true;
-  return false;
+  return presentation.authorizationStatus === "abrogated";
 }
 
 export function isArret(presentation: Presentation): boolean {
-  if(presentation.CommId && Number(presentation.CommId) === PresentationComm.Arrêt)
-    return true;
-  return false;
+  return presentation.commercializationStatus === "stopped";
 }
 
 export function isNotAuthorized(presentation: Presentation): boolean {
-  if(presentation.CommId && Number(presentation.CommId) === PresentationComm["Plus d'autorisation"])
-    return true;
-  return false;
+  return presentation.commercializationStatus === "withdrawn";
 }
 
 export function isAgree(presentation: Presentation): boolean {
-  if(presentation.AgreColl && presentation.AgreColl === 1)
-    return true;
-  return false;
+  return presentation.agreementStatus === "yes";
 }
 
 export function isListeSus(presentation: Presentation): boolean {
-  if(presentation.retro && presentation.retro.ListSus === "oui")
-    return true;
-  return false;
+  return presentation.listeSusStatus === "yes";
 }
 
 export function isListeRetrocession(presentation: Presentation): boolean {
-  if(presentation.retro && presentation.retro.Retro === "oui")
-    return true;
-  return false;
+  return presentation.retrocessionStatus === "yes";
 }
 
 export function isIVG(presentation: Presentation): boolean {
-  if(presentation.retro && presentation.retro.IVG === "oui")
-    return true;
-  return false;
+  return presentation.ivgStatus === "yes";
 }
 
 export function isReimbursable(presentations: Presentation[]): boolean {
-  return presentations.some((pres) => pres.TauxPriseEnCharge);
+  return presentations.some((pres) => pres.reimbursementStatus === "yes");
 }

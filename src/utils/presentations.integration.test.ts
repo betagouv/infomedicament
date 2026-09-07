@@ -1,7 +1,7 @@
 import { getFullPresentations } from "@/db/utils/presentation";
 import { Presentation } from "@/types/PresentationTypes";
 import { describe, it, expect } from "vitest";
-import { getPresentationName, isAbrogee, isAgree, isArret, isIVG, isListeRetrocession, isListeSus, isNotAuthorized } from "./presentations";
+import { getPresentationFullPriceText, getPresentationName, isAbrogee, isAgree, isIVG, isListeRetrocession, isListeSus, isNotAuthorized } from "./presentations";
 
 describe("utils presentations", () => {
 
@@ -83,44 +83,54 @@ describe("utils presentations", () => {
   });
 
   it("getFullPresentations - arrêtée status", async () => {
-    const presentationsA: Presentation[] = await getFullPresentations("65089833");
-    expect(isArret(presentationsA[0])).toBe(true);
-    const presentationsB: Presentation[] = await getFullPresentations("62772966");
-    expect(isArret(presentationsB[0])).toBe(false);
+    const recent: Presentation[] = await getFullPresentations("64460075");
+    expect(isNotAuthorized(recent[0])).toBe(true);
+    expect(recent[0].commercializationEndDate?.toLocaleDateString("fr-FR")).toBe("27/02/2025");
+
+    const old: Presentation[] = await getFullPresentations("65701038");
+    expect(old).toHaveLength(0);
   });
 
-  it("getFullPresentations - not authorized status", async () => {
-    const presentationsA: Presentation[] = await getFullPresentations("64460075");
-    expect(isNotAuthorized(presentationsA[0])).toBe(true);
-    const presentationsB: Presentation[] = await getFullPresentations("62772966");
-    expect(isNotAuthorized(presentationsB[0])).toBe(false);
+  it("getFullPresentations - suspended status", async () => {
+    const presentations = await getFullPresentations("65198334");
+    expect(presentations[0].commercializationStatus).toBe("suspended");
   });
 
-  it("getFullPresentations - agréée status", async () => {
-    const presentationsA: Presentation[] = await getFullPresentations("66296030");
-    expect(isArret(presentationsA[0])).toBe(false);
-    const presentationsB: Presentation[] = await getFullPresentations("62772966");
-    expect(isAgree(presentationsB[0])).toBe(true);
+  it("getFullPresentations - collectivités status is tri-state", async () => {
+    const agreed = await getFullPresentations("62772966");
+    const notAgreed = await getFullPresentations("66296030");
+    const unknown = await getFullPresentations("69981979");
+
+    expect(isAgree(agreed[0])).toBe(true);
+    expect(notAgreed[0].agreementStatus).toBe("no");
+    expect(unknown[0].agreementStatus).toBe("unknown");
   });
 
-  it("getFullPresentations - liste sus status", async () => {
-    const presentationsA: Presentation[] = await getFullPresentations("60199966");
-    expect(isListeSus(presentationsA[0])).toBe(true);
-    const presentationsB: Presentation[] = await getFullPresentations("62772966");
-    expect(isListeSus(presentationsB[0])).toBe(false);
+  it("getFullPresentations - reimbursement event status is tri-state", async () => {
+    const reimbursable = await getFullPresentations("62772966");
+    const notReimbursable = await getFullPresentations("66296030");
+    const unknown = await getFullPresentations("69981979");
+
+    expect(reimbursable[0].reimbursementStatus).toBe("yes");
+    expect(notReimbursable[0].reimbursementStatus).toBe("no");
+    expect(unknown[0].reimbursementStatus).toBe("unknown");
   });
 
   it("getFullPresentations - liste retrocession status", async () => {
-    const presentationsA: Presentation[] = await getFullPresentations("60018444");
-    expect(isListeRetrocession(presentationsA[0])).toBe(true);
-    const presentationsB: Presentation[] = await getFullPresentations("62772966");
-    expect(isListeRetrocession(presentationsB[0])).toBe(false);
+    const presentations = await getFullPresentations("64520985");
+    expect(isListeRetrocession(presentations[0])).toBe(true);
   });
 
-  it("getFullPresentations - IVG status", async () => {
-    const presentationsA: Presentation[] = await getFullPresentations("69981979");
-    expect(isIVG(presentationsA[0])).toBe(true);
-    const presentationsB: Presentation[] = await getFullPresentations("62772966");
-    expect(isIVG(presentationsB[0])).toBe(false);
+  it("does not turn unavailable CEPS/CNAM fields into false claims", async () => {
+    const presentations = await getFullPresentations("69981979");
+    const presentation = presentations[0];
+
+    expect(getPresentationFullPriceText(presentation)).toBe(
+      "Prix non disponible - remboursement non disponible",
+    );
+    expect(presentation.listeSusStatus).toBe("unknown");
+    expect(presentation.ivgStatus).toBe("unknown");
+    expect(isListeSus(presentation)).toBe(false);
+    expect(isIVG(presentation)).toBe(false);
   });
 });

@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { formatIndicationsDetails, formatSpecialitesResume, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isHospitalDelivrance, isSurveillanceRenforcee } from "./specialites";
 import { DetailedSpecialite, SpecialiteStat } from "@/types/SpecialiteTypes";
-import { SpecDelivrance, VUEvnts } from "@/db/pdbmMySQL/types";
+import { VUEvnts } from "@/db/pdbmMySQL/types";
+import { DeliveryCondition } from "@/types/DeliveryTypes";
 import { ShortIndication } from "@/types/IndicationsTypes";
 import { ResumeSpecialiteDB } from "@/db/types";
 
@@ -202,50 +203,43 @@ describe("utils specialities - delivrance", () => {
 
   it("isHospitalDelivrance", async () => {
     //Usage hospitalier
-    const delivrances_1: SpecDelivrance[] = [{
-      DelivCourt: "liste I",
-      DelivId: "120",
-      DelivLong: "liste I",
-      SpecId: "60199966",
+    const delivrances_1: DeliveryCondition[] = [{
+      shortLabel: "liste I",
+      code: 120,
+      longLabel: "liste I",
     },
     {
-      DelivCourt:"nécessitant surveillance particulière pendant traitement",
-      DelivId: "13",
-      DelivLong: "médicament nécessitant une surveillance particulière pendant le traitement",
-      SpecId: "60199966",
+      shortLabel:"nécessitant surveillance particulière pendant traitement",
+      code: 13,
+      longLabel: "médicament nécessitant une surveillance particulière pendant le traitement",
     },
     {
-      DelivCourt: "médecins compétents en CANCEROLOGIE",
-      DelivId: "211",
-      DelivLong: "prescription réservée aux médecins compétents en CANCEROLOGIE",
-      SpecId: "60199966",
+      shortLabel: "médecins compétents en CANCEROLOGIE",
+      code: 211,
+      longLabel: "prescription réservée aux médecins compétents en CANCEROLOGIE",
     },
     {
-      DelivCourt: "spécialistes et services ONCOLOGIE MEDICALE",
-      DelivId: "15",
-      DelivLong: "prescription réservée aux spécialistes et services ONCOLOGIE MEDICALE",
-      SpecId: "60199966",
+      shortLabel: "spécialistes et services ONCOLOGIE MEDICALE",
+      code: 15,
+      longLabel: "prescription réservée aux spécialistes et services ONCOLOGIE MEDICALE",
     },
     {
-      DelivCourt: "réservé à l'usage HOSPITALIER",
-      DelivId: "3",
-      DelivLong: "réservé à l'usage HOSPITALIER",
-      SpecId: "60199966",
+      shortLabel: "réservé à l'usage HOSPITALIER",
+      code: 3,
+      longLabel: "réservé à l'usage HOSPITALIER",
     }];
     expect(isHospitalDelivrance(delivrances_1)).toBe(true);
 
     //Not "Usage hospitalier"
-    const delivrances_2: SpecDelivrance[] = [{
-      DelivCourt: "hors ETS : prescr. par médecins, sages-femmes et centres habilités art L.2212-2",
-      DelivId: "199",
-      DelivLong: "hors établissement de santé : prescription réservée aux médecins, sages-femmes et centres habilités conformément à l'article L.2212-2 du code de la santé publique",
-      SpecId: "69981979",
+    const delivrances_2: DeliveryCondition[] = [{
+      shortLabel: "hors ETS : prescr. par médecins, sages-femmes et centres habilités art L.2212-2",
+      code: 199,
+      longLabel: "hors établissement de santé : prescription réservée aux médecins, sages-femmes et centres habilités conformément à l'article L.2212-2 du code de la santé publique",
     },
     {
-      DelivCourt: "liste I",
-      DelivId: "120",
-      DelivLong: "liste I",
-      SpecId: "69981979",
+      shortLabel: "liste I",
+      code: 120,
+      longLabel: "liste I",
     }];
     
     expect(isHospitalDelivrance(delivrances_2)).toBe(false);

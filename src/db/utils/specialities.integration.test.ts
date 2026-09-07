@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { getAllSpecialites, getDetailedSpecialite, getSpecialite, getSubstanceSpecialites, getSubstanceSpecialitesCIS } from "./specialities";
+import { getDeliveryConditions } from "./delivery";
+import { isHospitalDelivrance } from "@/utils/specialites";
 
 // disable cache for testing
 vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
@@ -44,6 +46,17 @@ describe("db utils specialities", () => {
     expect(presentations).not.toHaveLength(0);
     expect(delivrance).not.toHaveLength(0);
   })
+
+  it("maps PostgreSQL delivery conditions and hospital use", async () => {
+    const deliveryConditions = await getDeliveryConditions("60199966");
+
+    expect(isHospitalDelivrance(deliveryConditions)).toBe(true);
+    expect(deliveryConditions).toContainEqual({
+      code: 3,
+      shortLabel: "réservé à l'usage HOSPITALIER",
+      longLabel: "réservé à l'usage HOSPITALIER",
+    });
+  });
 
   it("getSubstanceSpecialitesCIS - should return CIS only with actives specialities", async () => {
     //Paracétamol
