@@ -516,6 +516,7 @@ export type SpecialiteMetadata = Selectable<SpecialiteMetadataTable>;
 export type NoticeDB = Selectable<NoticeTable>;
 export type NoticeContentDB = Selectable<NoticeContentTable>;
 export type AnsmSpecialite = Selectable<AnsmSpecialiteTable>;
+export type AnsmStockDB = Selectable<AnsmStockTable>;
 
 interface AnsmAtcTable {
   code: number;

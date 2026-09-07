@@ -495,7 +495,7 @@ function GeneralInformations({
               <SummaryLine categoryName="Code CIS concerné">
                 {formatCIS(specialite.SpecId)}
               </SummaryLine>
-              {stock.CIP && (
+              {stock.CIP && stock.CIP.length > 0 && (
                 <SummaryLine categoryName={stock.CIP.length > 1 ? 'Codes CIP concernés' : 'Code CIP concerné'}>
                   {stock.CIP.join(", ")}
                 </SummaryLine>
@@ -516,7 +516,10 @@ function GeneralInformations({
                   {(stock.date_end).toLocaleDateString('fr-FR')}
                 </SummaryLine>
               )}
-              <SummaryLine categoryName="Lien vers la page du site de l'ANSM">
+              <SummaryLine 
+                categoryName="Lien vers la page du site de l'ANSM"
+                hideBorder={index === stocks.length - 1}
+              >
                 <a href={stock.link} target="_blank">{stock.link}</a>
               </SummaryLine>
             </div>
