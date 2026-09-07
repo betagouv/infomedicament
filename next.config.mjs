@@ -34,7 +34,7 @@ const embedCspHeader = cspHeader.replace("frame-ancestors 'none'", "frame-ancest
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
-  cacheHandler: fileURLToPath(new URL("./cache-handler.cjs", import.meta.url)),
+  cacheHandler: fileURLToPath(new URL("./cache-handler.js", import.meta.url)),
   // The handler uses Next's local cache when Redis is absent. When Redis is
   // present, a second per-process cache would make invalidation inconsistent.
   cacheMaxMemorySize: 0,
