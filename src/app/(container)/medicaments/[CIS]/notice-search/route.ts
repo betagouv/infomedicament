@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { unstable_cache } from "next/cache";
 import { answerNoticeQuestion } from "@/lib/albert";
 import { getNotice } from "@/db/utils/notice";
-import { noticeToText } from "@/utils/notices";
 
 export interface NoticeChunkHit {
   section_anchor: string;
@@ -14,8 +13,6 @@ export interface NoticeChunkHit {
 }
 
 type LLMResult = { answer: string; section_anchor: string; sub_header: string; block_id: string; quote: string };
-
-export const extractBlockId = (raw: string): string | undefined => raw.match(/\d+/)?.[0];
 
 const getCachedAnswer = (CIS: string, q: string, noticeText: string) =>
   unstable_cache(
@@ -33,13 +30,11 @@ export async function GET(
   if (!q) return NextResponse.json({ error: "Missing q" }, { status: 400 });
 
   const notice = await getNotice(CIS);
-  if (!notice?.children?.length) return NextResponse.json({ hits: [] });
-
-  const noticeText = noticeToText(notice.children);
+  if (!notice?.contentHtml) return NextResponse.json({ hits: [] });
 
   let result: LLMResult;
   try {
-    result = await getCachedAnswer(CIS, q, noticeText);
+    result = await getCachedAnswer(CIS, q, notice.contentHtml);
   } catch (err) {
     console.error("[notice-search] LLM error", err);
     return NextResponse.json({ hits: [] });
@@ -55,7 +50,7 @@ export async function GET(
       section_title: "",
       sub_header: result.sub_header ? stripBold(result.sub_header) : null,
       answer: stripBold(result.answer),
-      block_id: result.block_id ? extractBlockId(result.block_id) : undefined,
+      block_id: result.block_id || undefined,
       quote: result.quote || undefined,
     }],
   });

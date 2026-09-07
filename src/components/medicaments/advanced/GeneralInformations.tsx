@@ -13,7 +13,7 @@ import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } from "@/displayUtils";
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
-import { DetailedSpecialite, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { displayInfosImportantes } from "@/utils/notices";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
@@ -25,6 +25,7 @@ import { getPresentationName, getPresentationFullPriceText, isAbrogee, isAgree, 
 import { FicheInfos, InfosImportantes } from "@/types/FicheInfoTypes";
 import WithDefinition from "@/components/glossary/WithDefinition";
 import { Definition } from "@/types/GlossaireTypes";
+import { ShortIndication } from "@/types/IndicationsTypes";
 import { getDefinition } from "@/utils/glossary";
 import IndicationsBlock from "../blocks/IndicationsBlock";
 import HospitalTag from "@/components/tags/HospitalTag";
@@ -93,9 +94,10 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   presentations: Presentation[];
   marr?: Marr;
   ficheInfos?: FicheInfos;
-  indicationsBlock?: NoticeRCPContentBlock;
   delivrance: SpecDelivrance[];
   definitions?: Definition[];
+  indications: ShortIndication[];
+  indicationsBlock?: string;
 }
 
 function GeneralInformations({ 
@@ -110,9 +112,10 @@ function GeneralInformations({
   presentations,
   marr,
   ficheInfos,
-  indicationsBlock,
   delivrance,
   definitions,
+  indications,
+  indicationsBlock,
   ...props 
 }: GeneralInformationsProps) {
   
@@ -290,7 +293,9 @@ function GeneralInformations({
 
       <IndicationsBlock
         specialite={specialite}
+        indications={indications}
         indicationsBlock={indicationsBlock}
+        definitions={definitions}
       />
       
       <ContentContainer id="informations-composition" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>

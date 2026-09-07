@@ -8,7 +8,6 @@ import styled, { css } from 'styled-components';
 import DetailedSubMenu, { AnchorMenu } from "./advanced/DetailedSubMenu";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { Marr } from "@/types/MarrTypes";
-import { NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
@@ -22,6 +21,7 @@ import { PregnancyAlert } from "@/types/PregancyTypes";
 import DesktopTitleBlock from "./blocks/DesktopTitleBlock";
 import SwitchNoticeAdvancedBlock from "./blocks/SwitchNoticeAdvancedBlock";
 import { displayInfosImportantes } from "@/utils/notices";
+import { ShortIndication } from "@/types/IndicationsTypes";
 
 const AdvancedContentContainer = styled.div`
   @media (max-width: 48em) {
@@ -56,7 +56,8 @@ interface AdvancedContentProps extends HTMLAttributes<HTMLDivElement> {
   marr?: Marr;
   ficheInfos?: FicheInfos;
   definitions?: Definition[];
-  indicationsBlock?: NoticeRCPContentBlock;
+  indications: ShortIndication[];
+  indicationsBlock?: string;
   advancedAnchor?: AnchorMenu;
   title: string;
   onGoToAdvanced: (advanced: boolean) => void;
@@ -75,6 +76,7 @@ function AdvancedContent({
   marr,
   ficheInfos,
   definitions,
+  indications,
   indicationsBlock,
   advancedAnchor,
   title,
@@ -126,9 +128,10 @@ function AdvancedContent({
             updateVisiblePart={setCurrentPart}
             marr={marr}
             ficheInfos={ficheInfos}
-            indicationsBlock={indicationsBlock}
             delivrance={delivrance}
             definitions={definitions}
+            indications={indications}
+            indicationsBlock={indicationsBlock}
           />
         </DetailedNoticeContainer>
         <DetailedNoticeContainer id="rcp-denomiation" $visible={currentPart === DetailsNoticePartsEnum.RCP}>
