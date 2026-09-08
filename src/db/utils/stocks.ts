@@ -21,6 +21,7 @@ export async function getStockFromCIS(CIS: string): Promise<AnsmStock[]> {
           && s.date_begin?.getTime() === stock.date_begin?.getTime()
           && s.date_end?.getTime() === stock.date_end?.getTime()
           && s.date_update?.getTime() === stock.date_update?.getTime()
+          && s.link?.trim() === stock.link?.trim()
       );
       if (index === -1) {
         stocks.push({
