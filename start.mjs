@@ -7,6 +7,12 @@ export function getRedisCacheUrl(environment = process.env) {
   return environment.SCALINGO_REDIS_URL ?? environment.REDIS_URL;
 }
 
+export function configureServerBinding(environment = process.env) {
+  // Scalingo requires web processes to listen on every network interface.
+  // Its container hostname must not be used as Next's bind address.
+  environment.HOSTNAME = "0.0.0.0";
+}
+
 export async function assertRedisCacheAvailable(environment = process.env) {
   const url = getRedisCacheUrl(environment);
 
@@ -15,44 +21,16 @@ export async function assertRedisCacheAvailable(environment = process.env) {
     return;
   }
 
-  // Scalingo excludes the root node_modules from the slug. Redis remains in
-  // Next's self-contained standalone bundle, so resolve it explicitly there.
-  const { createClient } = requireFromLauncher(
-    "./.next/standalone/node_modules/redis",
-  );
-  const client = createClient({
-    url,
-    disableOfflineQueue: true,
-    socket: {
-      connectTimeout: 5_000,
-      reconnectStrategy: false,
-    },
-  });
-
-  client.on("error", (error) => {
-    console.error("Redis cache startup check failed", error);
-  });
-
-  try {
-    await client.connect();
-    await client.ping();
-    console.info("Redis cache is configured and reachable");
-  } catch (error) {
-    throw new Error(
-      "Redis cache is configured but unavailable; refusing to start with an inconsistent local cache",
-      { cause: error },
-    );
-  } finally {
-    if (client.isReady) {
-      await client.quit();
-    } else if (client.isOpen) {
-      client.destroy();
-    }
-  }
+  // Load the handler from Next's standalone bundle, where its normal
+  // `require("redis")` resolves after Scalingo removes root node_modules.
+  const { assertRedisCacheAvailable: assertFromCacheHandler } =
+    requireFromLauncher("./.next/standalone/cache-handler.js");
+  await assertFromCacheHandler(environment);
 }
 
 export async function start() {
   await assertRedisCacheAvailable();
+  configureServerBinding();
   requireFromLauncher("./.next/standalone/server.js");
 }
 
