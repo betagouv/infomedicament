@@ -2,8 +2,18 @@ import { createRequire } from "node:module";
 import { describe, expect, it } from "vitest";
 
 const require = createRequire(import.meta.url);
-const { decode, encode, getTtlSeconds, shouldUseRedis } =
-  require("./cache-handler.js").__testing as {
+const cacheHandler = require("./cache-handler.js") as {
+  assertRedisCacheAvailable(
+    environment: Record<string, string | undefined>,
+    createRedisClient: () => {
+      on(): void;
+      connect(): Promise<void>;
+      ping(): Promise<void>;
+      readonly isReady: boolean;
+      quit(): Promise<void>;
+    },
+  ): Promise<void>;
+  __testing: {
     decode(value: string): unknown;
     encode(value: unknown): string;
     getTtlSeconds(
@@ -12,6 +22,10 @@ const { decode, encode, getTtlSeconds, shouldUseRedis } =
     ): number;
     shouldUseRedis(environment: Record<string, string | undefined>): boolean;
   };
+};
+const { assertRedisCacheAvailable } = cacheHandler;
+const { decode, encode, getTtlSeconds, shouldUseRedis } =
+  cacheHandler.__testing;
 
 describe("Redis cache handler selection", () => {
   it("uses Redis at runtime when a URL is configured", () => {
@@ -29,6 +43,28 @@ describe("Redis cache handler selection", () => {
         SCALINGO_REDIS_URL: "redis://cache",
       }),
     ).toBe(false);
+  });
+
+  it("checks Redis connectivity before startup", async () => {
+    let pinged = false;
+    let disconnected = false;
+
+    await assertRedisCacheAvailable({ REDIS_URL: "redis://cache" }, () => ({
+      on() {},
+      async connect() {},
+      async ping() {
+        pinged = true;
+      },
+      get isReady() {
+        return true;
+      },
+      async quit() {
+        disconnected = true;
+      },
+    }));
+
+    expect(pinged).toBe(true);
+    expect(disconnected).toBe(true);
   });
 });
 

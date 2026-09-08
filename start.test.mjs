@@ -4,7 +4,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
-import { assertRedisCacheAvailable, getRedisCacheUrl } from "./start.mjs";
+import {
+  assertRedisCacheAvailable,
+  configureServerBinding,
+  getRedisCacheUrl,
+} from "./start.mjs";
 
 const execFileAsync = promisify(execFile);
 
@@ -28,30 +32,28 @@ describe("Redis cache startup selection", () => {
     await expect(assertRedisCacheAvailable({})).resolves.toBeUndefined();
   });
 
+  it("binds Next to every interface for Scalingo port detection", () => {
+    const environment = { HOSTNAME: "container-hostname" };
+
+    configureServerBinding(environment);
+
+    expect(environment.HOSTNAME).toBe("0.0.0.0");
+  });
+
   it("loads when root node_modules is excluded from the deployment", async () => {
     const deploymentDirectory = await mkdtemp(join(tmpdir(), "next-start-"));
     const deployedLauncher = join(deploymentDirectory, "start.mjs");
-    const packagedRedisDirectory = join(
+    const packagedHandlerDirectory = join(
       deploymentDirectory,
-      ".next/standalone/node_modules/redis",
+      ".next/standalone",
     );
 
     try {
       await copyFile(join(process.cwd(), "start.mjs"), deployedLauncher);
-      await mkdir(packagedRedisDirectory, { recursive: true });
+      await mkdir(packagedHandlerDirectory, { recursive: true });
       await writeFile(
-        join(packagedRedisDirectory, "index.js"),
-        `module.exports = {
-          createClient() {
-            return {
-              on() {},
-              async connect() {},
-              async ping() {},
-              isReady: true,
-              async quit() {},
-            };
-          },
-        };`,
+        join(packagedHandlerDirectory, "cache-handler.js"),
+        "module.exports.assertRedisCacheAvailable = async () => {};",
       );
       await execFileAsync(process.execPath, [
         "--input-type=module",

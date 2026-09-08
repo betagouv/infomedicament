@@ -53,6 +53,48 @@ function shouldUseRedis(environment = process.env) {
   );
 }
 
+async function assertRedisCacheAvailable(
+  environment = process.env,
+  createRedisClient = createClient,
+) {
+  const url = environment.SCALINGO_REDIS_URL ?? environment.REDIS_URL;
+
+  if (!url) {
+    console.info("Redis cache is not configured; using Next.js local cache");
+    return;
+  }
+
+  const client = createRedisClient({
+    url,
+    disableOfflineQueue: true,
+    socket: {
+      connectTimeout: 5_000,
+      reconnectStrategy: false,
+    },
+  });
+
+  client.on("error", (error) => {
+    console.error("Redis cache startup check failed", error);
+  });
+
+  try {
+    await client.connect();
+    await client.ping();
+    console.info("Redis cache is configured and reachable");
+  } catch (error) {
+    throw new Error(
+      "Redis cache is configured but unavailable; refusing to start with an inconsistent local cache",
+      { cause: error },
+    );
+  } finally {
+    if (client.isReady) {
+      await client.quit();
+    } else if (client.isOpen) {
+      client.destroy();
+    }
+  }
+}
+
 class RedisCacheHandler {
   constructor(context) {
     if (!shouldUseRedis()) {
@@ -142,6 +184,7 @@ class RedisCacheHandler {
 }
 
 module.exports = RedisCacheHandler;
+module.exports.assertRedisCacheAvailable = assertRedisCacheAvailable;
 module.exports.__testing = {
   decode,
   encode,
