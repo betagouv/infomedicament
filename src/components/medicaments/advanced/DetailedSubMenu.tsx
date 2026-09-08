@@ -202,6 +202,7 @@ interface DetailedSubMenuProps extends HTMLAttributes<HTMLDivElement> {
   updateVisiblePart: (visiblePart: DetailsNoticePartsEnum) => void;
   isMarr?: boolean;
   isInfosImportantes?: boolean;
+  isStock?: boolean;
   anchor?: AnchorMenu;
 }
 
@@ -209,6 +210,7 @@ function DetailedSubMenu({
   updateVisiblePart,
   isMarr,
   isInfosImportantes,
+  isStock,
   anchor,
   ...props
 }: DetailedSubMenuProps
@@ -253,6 +255,19 @@ function DetailedSubMenu({
       setCurrentInfosGeneralesMenu(menu);
     }
   }, [isMarr, setCurrentInfosGeneralesMenu]);
+
+  useEffect(() => {
+    if(isStock){
+      const menu = Array.from(infosGeneralesMenu);
+      menu.push(
+        {
+          href: 'informations-stock',
+          text: 'Ruptures de stock ou risques de rupture de stock',
+        }
+      );
+      setCurrentInfosGeneralesMenu(menu);
+    }
+  }, [isStock, setCurrentInfosGeneralesMenu]);
 
   useEffect(() => {
     if(!isInfosImportantes){

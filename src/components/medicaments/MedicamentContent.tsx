@@ -18,6 +18,7 @@ import { Definition } from "@/types/GlossaireTypes";
 import GoTopButton from "../generic/GoTopButton";
 import { ShortIndication } from "@/types/IndicationsTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
+import { AnsmStock } from "@/types/StockTypes";
 
 
 interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
@@ -40,6 +41,7 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   pediatrics?: PediatricsInfo;
   marr?: Marr;
   articles: ArticleCardResume[];
+  stocks?: AnsmStock[];
 }
 
 function MedicamentContent({
@@ -62,6 +64,7 @@ function MedicamentContent({
   pediatrics,
   marr,
   articles,
+  stocks,
   ...props
 }: MedicamentContentProps) {
 
@@ -119,6 +122,7 @@ function MedicamentContent({
               indicationsBlock={indicationsBlock}
               advancedAnchor={advancedAnchor}
               title={title}
+              stocks={stocks}
               onGoToAdvanced={onGoToAdvanced}
             />
           </Suspense>

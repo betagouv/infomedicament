@@ -1,4 +1,5 @@
 import { NoticeBlockType } from "@/types/SpecialiteTypes";
+import { StockStatusID } from "@/types/StockTypes";
 import { Selectable } from "kysely";
 
 export interface Database {
@@ -62,6 +63,7 @@ export interface Database {
   ansm_document: AnsmDocumentTable;
   ansm_caracteristique: AnsmCaracteristiqueTable;
   ansm_specialite_titulaire: AnsmSpecialiteTitulaireTable;
+  ansm_stock: AnsmStockTable;
 }
 
 interface SearchIndexTable {
@@ -464,6 +466,18 @@ interface AnsmSpecialiteTable {
   disponibilite: "INDISPONIBLE" | "DISPONIBLE" | "PARTIELLE" | "ALERTE" | null;
 }
 
+interface AnsmStockTable {
+  CIS: string;
+  CIP?: string;
+  status_id: StockStatusID;
+  status: string;
+  date_begin: date;
+  date_update: date;
+  date_end?: date;
+  link?: string;
+}
+
+
 export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type SearchSynonym = Selectable<SearchSynonymsTable>;
@@ -502,6 +516,7 @@ export type SpecialiteMetadata = Selectable<SpecialiteMetadataTable>;
 export type NoticeDB = Selectable<NoticeTable>;
 export type NoticeContentDB = Selectable<NoticeContentTable>;
 export type AnsmSpecialite = Selectable<AnsmSpecialiteTable>;
+export type AnsmStockDB = Selectable<AnsmStockTable>;
 
 interface AnsmAtcTable {
   code: number;
