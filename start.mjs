@@ -1,8 +1,7 @@
 import { createRequire } from "node:module";
 import { pathToFileURL } from "node:url";
-import { createClient } from "redis";
 
-const require = createRequire(import.meta.url);
+const requireFromLauncher = createRequire(import.meta.url);
 
 export function getRedisCacheUrl(environment = process.env) {
   return environment.SCALINGO_REDIS_URL ?? environment.REDIS_URL;
@@ -16,6 +15,11 @@ export async function assertRedisCacheAvailable(environment = process.env) {
     return;
   }
 
+  // Scalingo excludes the root node_modules from the slug. Redis remains in
+  // Next's self-contained standalone bundle, so resolve it explicitly there.
+  const { createClient } = requireFromLauncher(
+    "./.next/standalone/node_modules/redis",
+  );
   const client = createClient({
     url,
     disableOfflineQueue: true,
@@ -49,7 +53,7 @@ export async function assertRedisCacheAvailable(environment = process.env) {
 
 export async function start() {
   await assertRedisCacheAvailable();
-  require("./.next/standalone/server.js");
+  requireFromLauncher("./.next/standalone/server.js");
 }
 
 const isMainModule =
