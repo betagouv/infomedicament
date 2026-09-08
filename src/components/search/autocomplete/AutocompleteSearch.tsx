@@ -2,20 +2,12 @@
 
 import { fr } from "@codegouvfr/react-dsfr";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
-import { useState } from "react";
-import { formatSpecName } from "@/displayUtils";
+import { useMemo, useState } from "react";
 import { SearchBar } from "@codegouvfr/react-dsfr/SearchBar";
 import useSWR from "swr";
 import { useRouter } from "next/navigation";
 import { trackSearchEvent } from "@/services/tracking";
-import { SearchResultItem } from "@/types/SearchTypes";
-
-type AutocompleteOption = {
-  label: string;
-  type: "group" | "specialite";
-  specId?: string;
-  score: number;
-};
+import { AutocompleteSection, AutocompleteSuggestion, MatchReason } from "@/types/SearchTypes";
 
 type SearchInputProps = {
   name: string;
@@ -27,6 +19,16 @@ type SearchInputProps = {
   onSearch?: (search: string) => void;
 };
 
+function formatMatchReason(matchReasons?: MatchReason[]): string | undefined {
+  const substanceReason = matchReasons?.find((reason) => reason.type === "substance");
+  if (substanceReason) return `contient ${substanceReason.label}`;
+
+  const indicationReason = matchReasons?.find((reason) => reason.type === "indication");
+  if (indicationReason) return `lié à ${indicationReason.label}`;
+
+  return undefined;
+}
+
 export function AutocompleteSearchInput({
   name,
   initialValue,
@@ -34,7 +36,6 @@ export function AutocompleteSearchInput({
   id,
   placeholder,
   type,
-  onSearch,
 }: SearchInputProps) {
 
   const router = useRouter();
@@ -42,10 +43,10 @@ export function AutocompleteSearchInput({
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
 
-  const { data: searchResults } = useSWR(
+  const { data: autocompleteSections } = useSWR(
     inputValue ?? null,
     async (search) =>
-      fetch(`/rechercher/results?s=${encodeURIComponent(search)}`, {
+      fetch(`/rechercher/autocomplete?s=${encodeURIComponent(search)}`, {
         cache: "force-cache",
       }).then((res) => res.json()),
     {
@@ -54,57 +55,27 @@ export function AutocompleteSearchInput({
       revalidateOnReconnect: false,
       fallbackData: [],
     },
-  ) as { data: SearchResultItem[] };
+  ) as { data: AutocompleteSection[] };
 
-  // Build a mixed list: each spécialité (→ medicament page) plus its generic group
-  // (→ full search page). The group entry is kept so users can still browse all variants.
-  const options: AutocompleteOption[] = (() => {
-    if (!searchResults) return [];
-    const specOptions: AutocompleteOption[] = [];
-    const groupScores = new Map<string, number>();
-    for (const result of searchResults) {
-      if (result.specName && result.specId) {
-        specOptions.push({
-          label: formatSpecName(result.specName),
-          type: "specialite",
-          specId: result.specId,
-          score: result.score,
-        });
-      }
-      if (result.groupName) {
-        const groupLabel = formatSpecName(result.groupName);
-        groupScores.set(groupLabel, Math.max(groupScores.get(groupLabel) ?? 0, result.score));
-      }
-    }
-    const groupOptions: AutocompleteOption[] = [...groupScores.entries()].map(
-      ([label, score]) => ({ label, type: "group", score }),
-    );
-    return [...groupOptions, ...specOptions]
-      .sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score;
-        // on a tie, surface the group entry above its variants
-        if (a.type !== b.type) return a.type === "group" ? -1 : 1;
-        return a.label.localeCompare(b.label, "fr");
-      })
-      .filter((opt, i, arr) => arr.findIndex((o) => o.type === opt.type && o.label === opt.label) === i)
-      .slice(0, 10);
-  })();
+  const options = useMemo(
+    () => (autocompleteSections ?? []).flatMap((section) => (
+      section.items
+    )),
+    [autocompleteSections],
+  );
 
-  function selectOption(option: AutocompleteOption) {
+  function optionIndex(sectionIndex: number, itemIndex: number) {
+    return (autocompleteSections ?? [])
+      .slice(0, sectionIndex)
+      .reduce((count, section) => count + section.items.length, 0) + itemIndex;
+  }
+
+  function selectOption(option: AutocompleteSuggestion) {
     setInputValue(option.label);
     setIsOpen(false);
     setActiveIndex(-1);
-    if (option.type === "specialite") {
-      trackSearchEvent(option.label);
-      router.push(`/medicaments/${option.specId}`);
-      return;
-    }
-    if (onSearch) {
-      onSearch(option.label);
-    } else {
-      trackSearchEvent(option.label);
-      router.push(`/rechercher?s=${option.label}`);
-    }
+    trackSearchEvent(option.label);
+    router.push(option.href);
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -178,27 +149,59 @@ export function AutocompleteSearchInput({
             boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
           }}
         >
-          {options.map((option, index) => (
-            <li
-              key={`${option.type}-${option.label}-${index}`}
-              id={`${id}-option-${index}`}
-              role="option"
-              aria-selected={index === activeIndex}
-              onMouseEnter={() => setActiveIndex(index)}
-              onMouseLeave={() => setActiveIndex(-1)}
-              onMouseDown={(e) => {
-                e.preventDefault(); // prevent input blur before selection
-                selectOption(option);
-              }}
-              style={{
-                padding: "8px 16px",
-                cursor: "pointer",
-                backgroundColor: index === activeIndex
-                  ? "var(--background-alt-blue-france, #f0f0fb)"
-                  : undefined,
-              }}
-            >
-              {option.label}
+          {(autocompleteSections ?? []).map((section, sectionIndex) => (
+            <li key={section.type} role="presentation">
+              <div
+                style={{
+                  padding: "8px 16px 4px",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  color: "var(--text-mention-grey, #666)",
+                  textTransform: "uppercase",
+                }}
+              >
+                {section.title}
+              </div>
+              <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
+                {section.items.map((option, itemIndex) => {
+                  const index = optionIndex(sectionIndex, itemIndex);
+                  const matchReason = formatMatchReason(option.matchReasons);
+                  return (
+                    <li
+                      key={`${option.type}-${option.label}-${index}`}
+                      id={`${id}-option-${index}`}
+                      role="option"
+                      aria-selected={index === activeIndex}
+                      onMouseEnter={() => setActiveIndex(index)}
+                      onMouseLeave={() => setActiveIndex(-1)}
+                      onMouseDown={(e) => {
+                        e.preventDefault(); // prevent input blur before selection
+                        selectOption(option);
+                      }}
+                      style={{
+                        padding: "8px 16px",
+                        cursor: "pointer",
+                        backgroundColor: index === activeIndex
+                          ? "var(--background-alt-blue-france, #f0f0fb)"
+                          : undefined,
+                      }}
+                    >
+                      <span>{option.label}</span>
+                      {matchReason && (
+                        <span
+                          style={{
+                            display: "block",
+                            color: "var(--text-mention-grey, #666)",
+                            fontSize: "0.875rem",
+                          }}
+                        >
+                          {matchReason}
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
             </li>
           ))}
         </ul>

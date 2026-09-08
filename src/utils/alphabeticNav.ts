@@ -1,4 +1,7 @@
+export function normalizeString(value: string): string {
+  return value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 export function getNormalizeLetter(letter: string): string {
-  const newLetter = letter.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  return newLetter.toUpperCase();
+  return normalizeString(letter).toUpperCase();
 }

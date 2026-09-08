@@ -22,6 +22,7 @@ const { dbMock, mockExecute } = vi.hoisted(() => {
     select: vi.fn().mockReturnThis(),
     where: vi.fn().mockReturnThis(),
     orderBy: vi.fn().mockReturnThis(),
+    as: vi.fn().mockReturnThis(),
     execute: execute,
   };
 
