@@ -2,7 +2,7 @@ import { createRequire } from "node:module";
 import { describe, expect, it } from "vitest";
 
 const require = createRequire(import.meta.url);
-const cacheHandler = require("./cache-handler.js") as {
+const cacheHandler = require("./incremental-cache-handler.js") as {
   assertRedisCacheAvailable(
     environment: Record<string, string | undefined>,
     createRedisClient: () => {

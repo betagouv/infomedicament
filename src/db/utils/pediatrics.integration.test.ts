@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 
 // disable cache for testing
-vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
+vi.mock("next/cache", () => ({ cacheLife: vi.fn() }));
 
 import { getAllPediatrics, getPediatrics } from "./pediatrics";
 

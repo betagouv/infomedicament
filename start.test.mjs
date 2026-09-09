@@ -45,14 +45,14 @@ describe("Redis cache startup selection", () => {
     const deployedLauncher = join(deploymentDirectory, "start.mjs");
     const packagedHandlerDirectory = join(
       deploymentDirectory,
-      ".next/standalone",
+      ".next/standalone/cache-handlers",
     );
 
     try {
       await copyFile(join(process.cwd(), "start.mjs"), deployedLauncher);
       await mkdir(packagedHandlerDirectory, { recursive: true });
       await writeFile(
-        join(packagedHandlerDirectory, "cache-handler.js"),
+        join(packagedHandlerDirectory, "incremental-cache-handler.js"),
         "module.exports.assertRedisCacheAvailable = async () => {};",
       );
       await execFileAsync(process.execPath, [

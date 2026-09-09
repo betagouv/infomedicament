@@ -5,11 +5,14 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
+import { cacheLife } from "next/cache";
 
-export const dynamic = "error";
 const PAGE_LABEL: string = "Liste des articles";
 
 export default async function Page() {
+  "use cache: remote";
+  cacheLife("hourly");
+
   const articles = await getArticles();
 
   const categories = Array.from(

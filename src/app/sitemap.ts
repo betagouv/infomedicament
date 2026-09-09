@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache";
 import { MetadataRoute } from "next";
 import { getAllSpecialites } from "@/db/utils/specialities";
 import { getAllSubsWithSpecialites } from "@/db/utils/substances";
@@ -8,8 +9,6 @@ import { getGlossaryLetters } from "@/db/utils/glossary";
 import { getAllIndications } from "@/db/utils/indications";
 import { getAllGenericGroupCodes } from "@/db/utils/generics";
 
-export const dynamic = "force-static";
-export const revalidate = 86400;
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 
@@ -30,6 +29,8 @@ const STATIC_ROUTES = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  "use cache: remote";
+  cacheLife("daily");
   const [
     specialites,
     substances,

@@ -3,7 +3,7 @@ import { getIndications, getSpecialiteIndications, getSpecialitePathologies, get
 import { ShortIndication } from "@/types/IndicationsTypes";
 
 // disable cache for testing
-vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
+vi.mock("next/cache", () => ({ cacheLife: vi.fn() }));
 
 describe("db utils indications", () => {
 

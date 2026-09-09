@@ -6,7 +6,7 @@ import { getResumeSpecsATCLabels } from "./atc";
 import { formatSpecialitesResume } from "@/utils/specialites";
 
 vi.mock("next/cache", () => ({
-  unstable_cache: (fn: any) => fn,
+  cacheLife: vi.fn(),
 }));
 
 const { dbMock, mockExecute } = vi.hoisted(() => {

@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { cacheLife } from "next/cache";
+import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
 import {
@@ -33,13 +36,10 @@ import { getIndicationsBlock } from "@/utils/noticeHtml";
 import { getVideosFromCIS } from "@/db/utils/videos";
 import { getStockFromCIS } from "@/db/utils/stocks";
 
-export const dynamic = "error";
-export const dynamicParams = true;
-export const revalidate = 86400; // 24h ISR: refresh top-500 between deploys
 
 // Prerender the top ~500 medicaments at build time so they are served as static
 // HTML before the first request. Other CIS are still rendered on-demand
-// (dynamicParams = true). Returns [] on unseeded DBs (e.g. review-app builds).
+// Returns [] on unseeded DBs (e.g. review-app builds).
 export async function generateStaticParams() {
   const cisCodes = await getWarmupCISCodes();
   return cisCodes.map((CIS) => ({ CIS }));
@@ -124,11 +124,18 @@ export async function generateMetadata(
   };
 }
 
-export default async function Page(props: {
-  params: Promise<{ CIS: string }>;
-}) {
+export default function Page(props: { params: Promise<{ CIS: string }> }) {
+  return <Suspense fallback={<PageLoadingFallback />}><ResolvedMedicamentPage params={props.params} /></Suspense>;
+}
 
-  const { CIS } = await props.params;
+async function ResolvedMedicamentPage({ params }: { params: Promise<{ CIS: string }> }) {
+  const { CIS } = await params;
+  return <CachedMedicamentPage CIS={CIS} />;
+}
+
+async function CachedMedicamentPage({ CIS }: { CIS: string }) {
+  "use cache: remote";
+  cacheLife("daily");
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);
   const indications = await getSpecialitesIndications([CIS]);

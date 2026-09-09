@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { cacheLife } from "next/cache";
+import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import {
   groupGeneNameToDCI,
@@ -18,13 +21,19 @@ import { getGenericGroup } from "@/db/utils/generics";
 import { getComposants } from "@/db/utils/composants";
 import { getReinforcedSurveillanceEvents } from "@/db/utils/safety";
 
-export const dynamic = "error";
-export const dynamicParams = true;
 
-export default async function Page(props: {
-  params: Promise<{ codeGroupe: string }>;
-}) {
-  const { codeGroupe } = await props.params;
+export default function Page(props: { params: Promise<{ codeGroupe: string }> }) {
+  return <Suspense fallback={<PageLoadingFallback />}><ResolvedGenericPage params={props.params} /></Suspense>;
+}
+
+async function ResolvedGenericPage({ params }: { params: Promise<{ codeGroupe: string }> }) {
+  const { codeGroupe } = await params;
+  return <CachedGenericPage codeGroupe={codeGroupe} />;
+}
+
+async function CachedGenericPage({ codeGroupe }: { codeGroupe: string }) {
+  "use cache: remote";
+  cacheLife("daily");
   const genericGroupCode = Number(codeGroupe);
   if (!Number.isSafeInteger(genericGroupCode) || genericGroupCode <= 0) notFound();
 

@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { cacheLife } from "next/cache";
+import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { fr } from "@codegouvfr/react-dsfr";
 import type { Substance } from "@/types/SubstanceTypes";
 import { notFound } from "next/navigation";
@@ -11,8 +14,6 @@ import { getArticlesFromSubstances } from "@/db/utils/articles";
 import { getResumeSpecsGroupsWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 
-export const dynamic = "error";
-export const dynamicParams = true;
 
 export async function generateMetadata(
   props: { params: Promise<{ id: string }> },
@@ -37,8 +38,18 @@ export async function generateMetadata(
   };
 }
 
-export default async function Page(props: { params: Promise<{ id: string }> }) {
-  const { id } = await props.params;
+export default function Page(props: { params: Promise<{ id: string }> }) {
+  return <Suspense fallback={<PageLoadingFallback />}><ResolvedSubstancePage params={props.params} /></Suspense>;
+}
+
+async function ResolvedSubstancePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <CachedSubstancePage id={id} />;
+}
+
+async function CachedSubstancePage({ id }: { id: string }) {
+  "use cache: remote";
+  cacheLife("daily");
   const ids = decodeURIComponent(id).split(",");//NomId
 
   const substances: Substance[] = await getSubstances(ids);

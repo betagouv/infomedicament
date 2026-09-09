@@ -1,6 +1,7 @@
 "use server";
+import { cacheLife } from "next/cache";
 
-import { cache } from "react";
+
 import { ResumeGeneric } from "../types";
 import db from "..";
 import { sql } from "kysely";
@@ -36,9 +37,9 @@ export type GenericGroup = {
   generiques: Specialite[];
 };
 
-export const getGenericsResumeWithLetter = cache(async function (
-  letter: string,
-): Promise<ResumeGeneric[]> {
+export async function getGenericsResumeWithLetter(letter: string): Promise<ResumeGeneric[]> {
+  "use cache: remote";
+  cacheLife("daily");
   const result: ResumeGeneric[] = await db
     .selectFrom("resume_generiques")
     .selectAll()
@@ -53,7 +54,7 @@ export const getGenericsResumeWithLetter = cache(async function (
     .orderBy("SpecName")
     .execute();
   return result;
-});
+}
 
 export async function getGenericGroup(
   codeGroupe: number,

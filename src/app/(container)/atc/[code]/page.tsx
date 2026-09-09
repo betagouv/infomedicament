@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { cacheLife } from "next/cache";
+import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { fr } from "@codegouvfr/react-dsfr";
 import { getAtc1, getAtc2, getAtc1DefinitionData, getSubstancesByAtc } from "@/db/utils/atc";
 import { ATC, ATC1 } from "@/types/ATCTypes";
@@ -14,8 +17,6 @@ import { getSubstancesResume } from "@/db/utils/substances";
 import { ResumeSubstance } from "@/db/types";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 
-export const dynamic = "error";
-export const dynamicParams = true;
 
 export async function generateMetadata(
   props: { params: Promise<{ code: string }> },
@@ -70,10 +71,18 @@ async function fetchATC2Data(atc2: ATC): Promise<{ articles: ArticleCardResume[]
   return { articles, dataList };
 }
 
-export default async function Page(props: {
-  params: Promise<{ code: string }>;
-}) {
-  const { code } = await props.params;
+export default function Page(props: { params: Promise<{ code: string }> }) {
+  return <Suspense fallback={<PageLoadingFallback />}><ResolvedATCPage params={props.params} /></Suspense>;
+}
+
+async function ResolvedATCPage({ params }: { params: Promise<{ code: string }> }) {
+  const { code } = await params;
+  return <CachedATCPage code={code} />;
+}
+
+async function CachedATCPage({ code }: { code: string }) {
+  "use cache: remote";
+  cacheLife("daily");
 
   const atc1 = await getAtc1(code);
   const atc2 = code.length === 3 ? await getAtc2(code) : undefined;

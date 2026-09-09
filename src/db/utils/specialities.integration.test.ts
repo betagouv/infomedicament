@@ -4,7 +4,7 @@ import { isPrincepsSpecialite } from "./generics";
 import { isHospitalDelivrance } from "@/utils/specialites";
 
 // disable cache for testing
-vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
+vi.mock("next/cache", () => ({ cacheLife: vi.fn() }));
 
 describe("db utils specialities", () => {
 

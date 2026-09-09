@@ -9,7 +9,7 @@ import { MatchReason } from "@/types/SearchTypes";
 
 // Mocking the cache so it doesn't apply
 vi.mock("next/cache", () => ({
-  unstable_cache: (fn: any) => fn,
+  cacheLife: vi.fn(),
 }));
 
 // Mocking Kysely

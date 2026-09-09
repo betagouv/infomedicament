@@ -3,7 +3,7 @@
 import "server-cli-only";
 import db from "@/db";
 import { SearchResult } from "@/db/types";
-import { unstable_cache } from "next/cache";
+
 import { getResumeSpecsATCLabels } from "@/db/utils/atc";
 import { formatSpecialitesResume } from "@/utils/specialites";
 import { computeSortScore } from "./searchScoring";
@@ -160,11 +160,7 @@ export async function getSearchResultsFromMatches(
     });
 }
 
-export const getSearchResults = unstable_cache(
-  async function (query: string): Promise<SearchResultItem[]> {
+export async function getSearchResults(query: string): Promise<SearchResultItem[]> {
     const matches = await getSearchMatches(query);
     return getSearchResultsFromMatches(query, matches);
-  },
-  ["search-results"],
-  { revalidate: 3600 }, // 1 hour caching max
-);
+  }

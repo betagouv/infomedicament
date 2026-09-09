@@ -24,7 +24,9 @@ export async function assertRedisCacheAvailable(environment = process.env) {
   // Load the handler from Next's standalone bundle, where its normal
   // `require("redis")` resolves after Scalingo removes root node_modules.
   const { assertRedisCacheAvailable: assertFromCacheHandler } =
-    requireFromLauncher("./.next/standalone/cache-handler.js");
+    requireFromLauncher(
+      "./.next/standalone/cache-handlers/incremental-cache-handler.js",
+    );
   await assertFromCacheHandler(environment);
 }
 

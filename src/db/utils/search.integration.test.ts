@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { getSearchResults } from "@/db/utils/search";
 
 // disable cache for testing
-vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
+vi.mock("next/cache", () => ({ cacheLife: vi.fn() }));
 
 // Disable server-only for tests
 vi.mock("server-only", () => ({}));

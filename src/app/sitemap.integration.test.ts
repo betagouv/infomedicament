@@ -3,7 +3,7 @@ import sitemap from "./sitemap";
 
 vi.mock("server-only", () => ({}));
 vi.mock("server-cli-only", () => ({}));
-vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
+vi.mock("next/cache", () => ({ cacheLife: vi.fn() }));
 
 describe("sitemap (Integration)", () => {
   it("returns a non-empty list with expected route prefixes", async () => {
