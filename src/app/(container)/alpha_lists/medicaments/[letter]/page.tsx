@@ -7,10 +7,14 @@ import { getResumeSpecsGroupsWithLetter } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { cacheLife } from "next/cache";
+import { withStaticParamFallback } from "@/utils/staticParams";
 
 export async function generateStaticParams() {
   const letters = await getLetters("medicaments");
-  return letters.map((letter) => ({ letter }));
+  return withStaticParamFallback(
+    letters.map((letter) => ({ letter })),
+    { letter: "A" },
+  );
 }
 const PAGE_LABEL: string = "Liste des médicaments";
 
@@ -29,8 +33,8 @@ async function CachedMedicamentsList({ letter }: { letter: string }) {
     getLetters("medicaments"),
     getResumeSpecsGroupsWithLetter(letter),
   ]);
-  const dataList = (await getResumeSpecsGroupsATCLabels(specsGroups)).sort((a, b) =>
-    a.groupName.localeCompare(b.groupName)
+  const dataList = (await getResumeSpecsGroupsATCLabels(specsGroups)).sort(
+    (a, b) => a.groupName.localeCompare(b.groupName),
   );
 
   return (
