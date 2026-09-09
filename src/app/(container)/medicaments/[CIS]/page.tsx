@@ -28,10 +28,7 @@ import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
 import { getIndicationsBlock } from "@/utils/noticeHtml";
-
-export const dynamic = "error";
-export const dynamicParams = true;
-export const revalidate = 86400; // 24h ISR: refresh top-500 between deploys
+import { cacheLife } from "next/cache";
 
 // Prerender the top ~500 medicaments at build time so they are served as static
 // HTML before the first request. Other CIS are still rendered on-demand
@@ -117,8 +114,14 @@ export async function generateMetadata(
 export default async function Page(props: {
   params: Promise<{ CIS: string }>;
 }) {
-
   const { CIS } = await props.params;
+  return <CachedMedicamentPage CIS={CIS} />;
+}
+
+async function CachedMedicamentPage({ CIS }: { CIS: string }) {
+  "use cache: remote";
+  cacheLife("daily");
+
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);
   const indications = await getSpecialitesIndications([CIS]);

@@ -7,9 +7,7 @@ import { getArticles } from "@/db/utils/articles";
 import { getGlossaryLetters } from "@/db/utils/glossary";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { getAllIndications } from "@/db/utils/indications";
-
-export const dynamic = "force-static";
-export const revalidate = 86400;
+import { cacheLife } from "next/cache";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 
@@ -29,6 +27,9 @@ const STATIC_ROUTES = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  "use cache: remote";
+  cacheLife("daily");
+
   const [
     specialites,
     substances,

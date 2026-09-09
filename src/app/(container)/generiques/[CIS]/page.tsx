@@ -1,11 +1,9 @@
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import {
-  getSpecialite,
-  groupGeneNameToDCI,
-} from "@/db/utils";
+import { getSpecialite, groupGeneNameToDCI } from "@/db/utils";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import React from "react";
+import React, { Suspense } from "react";
+import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 
 import { formatSpecName } from "@/displayUtils";
 import { getAtc2 } from "@/db/utils/atc";
@@ -18,14 +16,28 @@ import MedicamentGeneriqueContainer from "@/components/medicamentsGeneriques/Med
 import { getGeneriques, getGroupeGene } from "@/db/utils/generics";
 import { Specialite } from "@/db/pdbmMySQL/types";
 import { getEvents } from "@/db/utils/ficheInfos";
+import { cacheLife } from "next/cache";
 
-export const dynamic = "error";
-export const dynamicParams = true;
+export default function Page(props: { params: Promise<{ CIS: string }> }) {
+  return (
+    <Suspense fallback={<PageLoadingFallback />}>
+      <ResolvedGenericPage params={props.params} />
+    </Suspense>
+  );
+}
 
-export default async function Page(props: {
+async function ResolvedGenericPage({
+  params,
+}: {
   params: Promise<{ CIS: string }>;
 }) {
-  const { CIS } = await props.params;
+  const { CIS } = await params;
+  return <CachedGenericPage CIS={CIS} />;
+}
+
+async function CachedGenericPage({ CIS }: { CIS: string }) {
+  "use cache: remote";
+  cacheLife("daily");
 
   const group = await getGroupeGene(CIS);
   if (!group) notFound();
@@ -72,9 +84,7 @@ export default async function Page(props: {
           currentPageLabel={pageLabel}
         />
         <Badge className="fr-badge--purple-glycine">Groupe générique</Badge>
-        <h1 className={fr.cx("fr-h1", "fr-mt-1w", "fr-mb-6w")}>
-          {pageLabel}
-        </h1>
+        <h1 className={fr.cx("fr-h1", "fr-mt-1w", "fr-mb-6w")}>{pageLabel}</h1>
       </ContentContainer>
       <MedicamentGeneriqueContainer
         atc2={atc2}
@@ -84,9 +94,7 @@ export default async function Page(props: {
         generiques={generiques}
         events={events}
       />
-      <RatingToaster
-        pageId={pageLabel}
-      />
+      <RatingToaster pageId={pageLabel} />
     </>
   );
 }

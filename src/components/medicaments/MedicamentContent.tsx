@@ -1,8 +1,19 @@
 "use client";
 
 import ContentContainer from "../generic/ContentContainer";
-import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
-import { HTMLAttributes, lazy, Suspense, useCallback, useEffect, useState } from "react";
+import {
+  SpecComposant,
+  SpecDelivrance,
+  SubstanceNom,
+} from "@/db/pdbmMySQL/types";
+import {
+  HTMLAttributes,
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { Marr } from "@/types/MarrTypes";
 import { ATC } from "@/types/ATCTypes";
 import { DetailedSpecialite, NoticeData } from "@/types/SpecialiteTypes";
@@ -18,7 +29,7 @@ import { Definition } from "@/types/GlossaireTypes";
 import GoTopButton from "../generic/GoTopButton";
 import { ShortIndication } from "@/types/IndicationsTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
-
+import PageLoadingFallback from "../generic/PageLoadingFallback";
 
 interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   atcList: string[];
@@ -64,17 +75,15 @@ function MedicamentContent({
   articles,
   ...props
 }: MedicamentContentProps) {
-
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
   const [advancedAnchor, setAdvancedAnchor] = useState<AnchorMenu>();
 
   const onGoToAdvanced = useCallback(
     (enabled: boolean) => {
       setIsAdvanced(enabled);
-      if(!enabled)
-        setAdvancedAnchor(undefined);
+      if (!enabled) setAdvancedAnchor(undefined);
     },
-    [setIsAdvanced]
+    [setIsAdvanced],
   );
   const onGoToAdvancedAnchor = useCallback(
     (anchor?: AnchorMenu) => {
@@ -83,7 +92,7 @@ function MedicamentContent({
       }
       setIsAdvanced(true);
     },
-    [setIsAdvanced, setAdvancedAnchor]
+    [setIsAdvanced, setAdvancedAnchor],
   );
 
   useEffect(() => {
@@ -99,33 +108,10 @@ function MedicamentContent({
 
   return (
     <ContentContainer frContainer {...props}>
-      {isAdvanced
-        ? (
-          <Suspense fallback={null}>
-            <AdvancedContent
-              atcCode={atcCode}
-              specialite={specialite}
-              composants={composants}
-              isPrinceps={isPrinceps}
-              delivrance={delivrance}
-              pregnancyPlanAlert={pregnancyPlanAlert}
-              isPregnancyMentionAlert={isPregnancyMentionAlert}
-              pediatrics={pediatrics}
-              presentations={presentations}
-              marr={marr}
-              ficheInfos={ficheInfos}
-              definitions={definitions}
-              indications={indications}
-              indicationsBlock={indicationsBlock}
-              advancedAnchor={advancedAnchor}
-              title={title}
-              onGoToAdvanced={onGoToAdvanced}
-            />
-          </Suspense>
-        ) : (
-          <NoticeContent
-            atcList={atcList}
-            atc2={atc2}
+      {isAdvanced ? (
+        <Suspense fallback={<PageLoadingFallback />}>
+          <AdvancedContent
+            atcCode={atcCode}
             specialite={specialite}
             composants={composants}
             isPrinceps={isPrinceps}
@@ -135,20 +121,42 @@ function MedicamentContent({
             pediatrics={pediatrics}
             presentations={presentations}
             marr={marr}
-            notice={notice}
             ficheInfos={ficheInfos}
             definitions={definitions}
-            title={title}
             indications={indications}
             indicationsBlock={indicationsBlock}
-            articles={articles}
+            advancedAnchor={advancedAnchor}
+            title={title}
             onGoToAdvanced={onGoToAdvanced}
-            onGoToAdvancedAnchor={onGoToAdvancedAnchor}
           />
-        )}
-        <GoTopButton />
+        </Suspense>
+      ) : (
+        <NoticeContent
+          atcList={atcList}
+          atc2={atc2}
+          specialite={specialite}
+          composants={composants}
+          isPrinceps={isPrinceps}
+          delivrance={delivrance}
+          pregnancyPlanAlert={pregnancyPlanAlert}
+          isPregnancyMentionAlert={isPregnancyMentionAlert}
+          pediatrics={pediatrics}
+          presentations={presentations}
+          marr={marr}
+          notice={notice}
+          ficheInfos={ficheInfos}
+          definitions={definitions}
+          title={title}
+          indications={indications}
+          indicationsBlock={indicationsBlock}
+          articles={articles}
+          onGoToAdvanced={onGoToAdvanced}
+          onGoToAdvancedAnchor={onGoToAdvancedAnchor}
+        />
+      )}
+      <GoTopButton />
     </ContentContainer>
   );
-};
+}
 
 export default MedicamentContent;

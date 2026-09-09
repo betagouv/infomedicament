@@ -5,9 +5,7 @@ import PageListContent from "@/components/list/PageListContent";
 import { getLetters } from "@/db/utils/letters";
 import { getSubstancesResumeWithLetter } from "@/db/utils/substances";
 import { DataTypeEnum } from "@/types/DataTypes";
-
-export const dynamic = "error";
-export const dynamicParams = true;
+import { cacheLife } from "next/cache";
 
 export async function generateStaticParams() {
   const letters = await getLetters("substances");
@@ -19,6 +17,12 @@ export default async function Page(props: {
   params: Promise<{ letter: string }>;
 }) {
   const { letter } = await props.params;
+  return <CachedSubstancesList letter={letter} />;
+}
+
+async function CachedSubstancesList({ letter }: { letter: string }) {
+  "use cache: remote";
+  cacheLife("daily");
 
   const [letters, rawData] = await Promise.all([
     getLetters("substances"),

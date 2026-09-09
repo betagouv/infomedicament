@@ -5,12 +5,14 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import Statistics from "@/components/statistics/Statistics";
 import ShareButtons from "@/components/generic/ShareButtons";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { cacheLife } from "next/cache";
 
-export const dynamic = "error";
-export const dynamicParams = true;
 const PAGE_LABEL:string = "Nos statistiques";
 
 export default async function Page() {
+  "use cache: remote";
+  cacheLife("hourly");
+
   return (
     <ContentContainer frContainer>
       {" "}
