@@ -3,13 +3,11 @@ import { cacheLife } from "next/cache";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
-import {
-  displaySimpleComposants,
-  formatSpecName,
-} from "@/displayUtils";
+import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getAtc1, getAtc2 } from "@/db/utils/atc";
 import { getSpecialite } from "@/db/utils";
+import { withStaticParamFallback } from "@/utils/staticParams";
 import { getWarmupCISCodes } from "@/db/utils/warmup";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
@@ -19,7 +17,10 @@ import { getSpecialiteMetadata, getSpecialiteName } from "@/db/utils/specialitie
 import { isGenericSpecialite, isPrincepsSpecialite } from "@/db/utils/generics";
 import MedicamentContent from "@/components/medicaments/MedicamentContent";
 import ShareButtons from "@/components/generic/ShareButtons";
-import { getSpecialitesIndications, getSpecialitePathologies } from "@/db/utils/indications";
+import {
+  getSpecialitesIndications,
+  getSpecialitePathologies,
+} from "@/db/utils/indications";
 import { getNotice } from "@/db/utils/notice";
 import {
   getAllPregnancyPlanAlerts,
@@ -39,10 +40,13 @@ import { getStockFromCIS } from "@/db/utils/stocks";
 
 // Prerender the top ~500 medicaments at build time so they are served as static
 // HTML before the first request. Other CIS are still rendered on-demand
-// Returns [] on unseeded DBs (e.g. review-app builds).
+// Cache Components also validates one fallback path on unseeded review-app builds.
 export async function generateStaticParams() {
   const cisCodes = await getWarmupCISCodes();
-  return cisCodes.map((CIS) => ({ CIS }));
+  return withStaticParamFallback(
+    cisCodes.map((CIS) => ({ CIS })),
+    { CIS: "60234100" },
+  );
 }
 
 async function fetchMedicamentData(
@@ -150,16 +154,20 @@ async function CachedMedicamentPage({ CIS }: { CIS: string }) {
   ]);
 
   const atcList: string[] = [];
-  const breadcrumb = [
-    { label: "Accueil", linkProps: { href: "/" } },
-  ];
+  const breadcrumb = [{ label: "Accueil", linkProps: { href: "/" } }];
   if (atc1) {
     atcList.push(atc1.code.trim());
-    breadcrumb.push({ label: atc1.label, linkProps: { href: `/atc/${atc1.code}` } });
+    breadcrumb.push({
+      label: atc1.label,
+      linkProps: { href: `/atc/${atc1.code}` },
+    });
   }
   if (atc2) {
     atcList.push(atc2.code.trim());
-    breadcrumb.push({ label: atc2.label, linkProps: { href: `/atc/${atc2.code}` } });
+    breadcrumb.push({
+      label: atc2.label,
+      linkProps: { href: `/atc/${atc2.code}` },
+    });
   }
 
   const medData = specialite
@@ -187,7 +195,9 @@ async function CachedMedicamentPage({ CIS }: { CIS: string }) {
     });
   }
 
-  const pageLabel = specialite ? formatSpecName(specialite.SpecDenom01) : await getSpecialiteName(CIS);
+  const pageLabel = specialite
+    ? formatSpecName(specialite.SpecDenom01)
+    : await getSpecialiteName(CIS);
 
   return (
     <>
@@ -195,30 +205,32 @@ async function CachedMedicamentPage({ CIS }: { CIS: string }) {
         <Breadcrumb
           segments={breadcrumb}
           currentPageLabel={
-            specialite ? formatSpecName(specialite.SpecDenom01).replace(
-              formatSpecName(getSpecialiteGroupName(specialite)),
-              "",
-            ) : ""}
+            specialite
+              ? formatSpecName(specialite.SpecDenom01).replace(
+                  formatSpecName(getSpecialiteGroupName(specialite)),
+                  "",
+                )
+              : ""
+          }
           className={fr.cx("fr-mb-2w")}
         />
-        <h1 
-          className={fr.cx("fr-h2", "fr-hidden-md")}
-        >
-          {pageLabel}
-        </h1>
+        <h1 className={fr.cx("fr-h2", "fr-hidden-md")}>{pageLabel}</h1>
         <ShareButtons
           pageName={pageLabel}
           alignRight
           className={fr.cx("fr-hidden-md")}
         />
       </ContentContainer>
-      <ContentContainer className={fr.cx("fr-pt-1w", "fr-pb-2w")} style={{
-        backgroundColor:
-          fr.colors.decisions.background.alt.grey.default,
-      }}>
-        {(!specialite || !medData) ? (
+      <ContentContainer
+        className={fr.cx("fr-pt-1w", "fr-pb-2w")}
+        style={{
+          backgroundColor: fr.colors.decisions.background.alt.grey.default,
+        }}
+      >
+        {!specialite || !medData ? (
           <ContentContainer frContainer>
-            Le médicament demandé n'existe pas ou il n'entre pas dans le périmètre d'Info Médicament.
+            Le médicament demandé n'existe pas ou il n'entre pas dans le
+            périmètre d'Info Médicament.
           </ContentContainer>
         ) : (
           <MedicamentContent
@@ -247,9 +259,7 @@ async function CachedMedicamentPage({ CIS }: { CIS: string }) {
           />
         )}
       </ContentContainer>
-      <RatingToaster
-        pageId={pageLabel}
-      />
+      <RatingToaster pageId={pageLabel} />
     </>
   );
 }

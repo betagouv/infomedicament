@@ -6,10 +6,14 @@ import { getLetters } from "@/db/utils/letters";
 import { getSubstancesResumeWithLetter } from "@/db/utils/substances";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { cacheLife } from "next/cache";
+import { withStaticParamFallback } from "@/utils/staticParams";
 
 export async function generateStaticParams() {
   const letters = await getLetters("substances");
-  return letters.map((letter) => ({ letter }));
+  return withStaticParamFallback(
+    letters.map((letter) => ({ letter })),
+    { letter: "A" },
+  );
 }
 const PAGE_LABEL: string = "Liste des substances";
 

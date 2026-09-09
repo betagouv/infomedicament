@@ -10,10 +10,14 @@ import ShareButtons from "@/components/generic/ShareButtons";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { Suspense } from "react";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
+import { withStaticParamFallback } from "@/utils/staticParams";
 
 export async function generateStaticParams() {
   const articles = await getArticles();
-  return articles.map(({ slug }) => ({ slug }));
+  return withStaticParamFallback(
+    articles.map(({ slug }) => ({ slug })),
+    { slug: "__cache-validation__" },
+  );
 }
 
 async function getArticle(slug: string) {

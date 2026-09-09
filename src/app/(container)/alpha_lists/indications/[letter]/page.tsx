@@ -6,10 +6,14 @@ import { getLetters } from "@/db/utils/letters";
 import { getIndicationsResumeWithLetter } from "@/db/utils/indications";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { cacheLife } from "next/cache";
+import { withStaticParamFallback } from "@/utils/staticParams";
 
 export async function generateStaticParams() {
   const letters = await getLetters("indications");
-  return letters.map((letter) => ({ letter }));
+  return withStaticParamFallback(
+    letters.map((letter) => ({ letter })),
+    { letter: "A" },
+  );
 }
 const PAGE_LABEL: string = "Liste des indications";
 
@@ -28,7 +32,9 @@ async function CachedIndicationsList({ letter }: { letter: string }) {
     getLetters("indications"),
     getIndicationsResumeWithLetter(letter),
   ]);
-  const dataList = rawData.sort((a, b) => a.nomIndication.localeCompare(b.nomIndication));
+  const dataList = rawData.sort((a, b) =>
+    a.nomIndication.localeCompare(b.nomIndication),
+  );
 
   return (
     <ContentContainer frContainer>
