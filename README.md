@@ -96,6 +96,39 @@ kysely migrate:latest
 kysely seed run
 ```
 
+### Restaurer une sauvegarde PostgreSQL de Scalingo en local
+
+Le script de restauration remplace le contenu de la base PostgreSQL du Dev
+Container par la dernière sauvegarde Scalingo disponible. La staging est utilisée
+par défaut :
+
+```bash
+./scripts/scalingo/restore_db.sh
+```
+
+Pour uniquement télécharger la dernière sauvegarde sans la restaurer :
+
+```bash
+./scripts/scalingo/download_db_backup.sh
+./scripts/scalingo/download_db_backup.sh --env prod
+```
+
+Les sauvegardes sont conservées dans `data/backups/` par défaut. Un chemin de
+sortie peut être choisi avec `--output /path/to/backup.tar.gz`.
+
+Il faut au préalable avoir démarré les services du Dev Container, être connecté
+avec la CLI Scalingo et avoir accès à l'application concernée. Pour restaurer la
+production ou utiliser une sauvegarde déjà téléchargée :
+
+```bash
+./scripts/scalingo/restore_db.sh --env prod
+./scripts/scalingo/restore_db.sh --input /path/to/backup.tar.gz
+```
+
+La restauration détruit les données PostgreSQL locales existantes, demande une
+confirmation et joue ensuite les migrations Kysely. Consultez
+`./scripts/scalingo/restore_db.sh --help` pour toutes les options.
+
 ## Déploiement
 
 L'application est déployée sur Scalingo.
