@@ -2,9 +2,29 @@ import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { isRateLimited } from "@/utils/rate-limit";
 
-// Rate limit: 200 req/min per IP and per container
-const RATE_LIMIT = 200;
+const DEFAULT_RATE_LIMIT = 200;
 const RATE_WINDOW_MS = 60_000;
+const STATIC_FETCH_DESTINATIONS = new Set([
+    "audio",
+    "font",
+    "image",
+    "manifest",
+    "script",
+    "style",
+    "track",
+    "video",
+]);
+
+function rateLimitConfig() {
+    const configuredLimit = Number(process.env.RATE_LIMIT);
+
+    return {
+        enabled: process.env.RATE_LIMIT_ENABLED?.toLowerCase() !== "false",
+        limit: Number.isInteger(configuredLimit) && configuredLimit > 0
+            ? configuredLimit
+            : DEFAULT_RATE_LIMIT,
+    };
+}
 
 function requestId(req: NextRequest) {
     const incomingRequestId = req.headers.get("x-request-id");
@@ -30,41 +50,42 @@ function nextResponse(req: NextRequest, id: string) {
 function logRequest(
     req: NextRequest,
     id: string,
-    outcome: "forwarded" | "bypassed" | "rate_limited",
+    outcome: "forwarded" | "rate_limited",
     statusCode?: number,
 ) {
+    const endpoint = req.nextUrl.pathname;
     const fields = {
         event: "http.request",
         request_id: id,
         method: req.method,
-        path: req.nextUrl.pathname,
+        path: endpoint,
         outcome,
         ...(statusCode ? { status_code: statusCode } : {}),
     };
 
     if (outcome === "rate_limited") {
-        logger.warn(fields, "Request rate limited");
+        logger.warn(fields, `Request rate limited: ${endpoint}`);
     } else {
-        logger.info(fields, "Request received");
+        logger.info(fields, `Request received: ${endpoint}`);
     }
+}
+
+function isStaticRequest(req: NextRequest) {
+    const pathname = req.nextUrl.pathname;
+    const destination = req.headers.get("sec-fetch-dest");
+
+    return pathname.startsWith("/_next/")
+        || /\.[^/]+$/.test(pathname)
+        || (destination !== null && STATIC_FETCH_DESTINATIONS.has(destination));
 }
 
 export function proxy(req: NextRequest) {
     const url = req.nextUrl;
     const id = requestId(req);
 
-    // Skip static assets and all fetch() requests (Sec-Fetch-Dest: empty).
-    // Next.js intentionally strips RSC headers (rsc, next-router-prefetch) from
-    // middleware, and rewrites strip ?_rsc= query params — so those signals are
-    // unreliable. Sec-Fetch-Dest is browser-set and survives both. RSC navigation
-    // and prefetch requests are fetch() calls (empty), while actual HTML page loads
-    // are navigations (document). See: github.com/vercel/next.js/issues/65787
-    if (
-        url.pathname.startsWith("/_next") ||
-        url.pathname.includes(".") ||
-        req.headers.get("sec-fetch-dest") === "empty"
-    ) {
-        logRequest(req, id, "bypassed");
+    // Static assets should be protected and cached at the edge, not counted
+    // against the application request quota.
+    if (isStaticRequest(req)) {
         return nextResponse(req, id);
     }
 
@@ -83,7 +104,14 @@ export function proxy(req: NextRequest) {
         }
     }
 
-    const { limited, remaining } = isRateLimited(ip, RATE_LIMIT, RATE_WINDOW_MS);
+    const rateLimit = rateLimitConfig();
+    if (!rateLimit.enabled) {
+        const response = nextResponse(req, id);
+        logRequest(req, id, "forwarded");
+        return response;
+    }
+
+    const { limited, remaining } = isRateLimited(ip, rateLimit.limit, RATE_WINDOW_MS);
 
     if (limited) {
         const response = new NextResponse("Too Many Requests", {
