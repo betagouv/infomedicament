@@ -1,5 +1,5 @@
 import db from "@/db";
-import { unstable_cache } from "next/cache";
+import { cacheLife } from "next/cache";
 import { SearchSynonym } from "@/db/types";
 
 // Same normalization as search.ts: lowercase + strip accents. Trim for safety.
@@ -25,21 +25,35 @@ function wordCovered(aliasWord: string, queryWords: string[]): boolean {
   return queryWords.some((qw) => stemMatches(qw, aliasWord));
 }
 
-function queryContainsAlias(queryWords: string[], aliasNormalized: string): boolean {
+function queryContainsAlias(
+  queryWords: string[],
+  aliasNormalized: string,
+): boolean {
   const aliasWords = aliasNormalized.split(/\s+/).filter(Boolean);
-  return aliasWords.length > 0 && aliasWords.every((aw) => wordCovered(aw, queryWords));
+  return (
+    aliasWords.length > 0 &&
+    aliasWords.every((aw) => wordCovered(aw, queryWords))
+  );
 }
 
 // Synonyms whose alias phrase is present in the query.
-function matchingSynonyms(query: string, synonyms: SearchSynonym[]): SearchSynonym[] {
+function matchingSynonyms(
+  query: string,
+  synonyms: SearchSynonym[],
+): SearchSynonym[] {
   const queryWords = normalize(query).split(/\s+/).filter(Boolean);
-  return synonyms.filter((syn) => queryContainsAlias(queryWords, normalize(syn.alias)));
+  return synonyms.filter((syn) =>
+    queryContainsAlias(queryWords, normalize(syn.alias)),
+  );
 }
 
 // Expand a (normalized) query with the canonical terms of any matching synonym alias.
 // Returns the original query plus deduped canonical terms (normalized for the index),
 // original query first. Additive: a query that matches no alias is returned unchanged.
-export function expandQuery(normalizedQuery: string, synonyms: SearchSynonym[]): string[] {
+export function expandQuery(
+  normalizedQuery: string,
+  synonyms: SearchSynonym[],
+): string[] {
   const terms = [normalizedQuery];
   const seen = new Set([normalizedQuery]);
   for (const syn of matchingSynonyms(normalizedQuery, synonyms)) {
@@ -54,7 +68,10 @@ export function expandQuery(normalizedQuery: string, synonyms: SearchSynonym[]):
 
 // Canonical terms of the synonyms a query triggered, in their original accented form
 // (deduped) — for displaying a "Vouliez-vous dire : …" mention. Empty when no alias matched.
-export function matchedCanonicals(query: string, synonyms: SearchSynonym[]): string[] {
+export function matchedCanonicals(
+  query: string,
+  synonyms: SearchSynonym[],
+): string[] {
   const out: string[] = [];
   const seen = new Set<string>();
   for (const syn of matchingSynonyms(query, synonyms)) {
@@ -68,14 +85,13 @@ export function matchedCanonicals(query: string, synonyms: SearchSynonym[]): str
   return out;
 }
 
-// Small curated table — load all rows once and cache, like getSearchResults.
-export const getSynonymMap = unstable_cache(
-  async function (): Promise<SearchSynonym[]> {
-    return db.selectFrom("search_synonyms").selectAll().execute();
-  },
-  ["search-synonyms"],
-  { revalidate: 3600 },
-);
+// Small curated table with high reuse across otherwise uncached searches.
+export async function getSynonymMap(): Promise<SearchSynonym[]> {
+  "use cache: remote";
+  cacheLife("hourly");
+
+  return db.selectFrom("search_synonyms").selectAll().execute();
+}
 
 // Canonical medical terms a (raw) query triggered via synonyms, for the
 // "Vouliez-vous dire : …" mention. Empty unless an alias actually matched.

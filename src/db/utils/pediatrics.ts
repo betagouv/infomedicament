@@ -1,13 +1,15 @@
 "use server"
 
-import { unstable_cache } from "next/cache";
+import { cacheLife } from "next/cache";
 import db from '@/db/'
 import { AllPediatricsInfo, PediatricsInfo } from "@/types/PediatricTypes";
 import { isOuiOrNon } from "@/utils/pediatrics";
 
 // Cache for 1 hour - this data rarely changes
-export const getAllPediatrics = unstable_cache(
-    async function (): Promise<AllPediatricsInfo[]> {
+export async function getAllPediatrics(): Promise<AllPediatricsInfo[]> {
+  "use cache: remote";
+        cacheLife("hourly");
+
         const rows = await db.selectFrom("ref_pediatrie")
             .select(["cis", "indication", "contre_indication", "avis", "mention"])
             .execute();
@@ -20,10 +22,7 @@ export const getAllPediatrics = unstable_cache(
                 doctorAdvice: row.avis ? row.avis.toString().trim() === "oui" : false,
                 mention: row.mention ? row.mention.toString().trim() === "oui" : false,
             }));
-    },
-    ["all-pediatrics"],
-    { revalidate: 3600 }
-);
+}
 
 export async function getPediatrics(
     CIS: string,

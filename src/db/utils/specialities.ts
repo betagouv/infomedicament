@@ -1,7 +1,6 @@
 "use server";
 import "server-cli-only";
 
-import { cache } from "react";
 import {
   SpecComposant,
   SpecDelivrance,
@@ -12,15 +11,25 @@ import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { sql } from "kysely";
 import db from "@/db";
 import { getFullPresentations } from "@/db/utils/presentation";
-import { unstable_cache } from "next/cache";
+import { cacheLife } from "next/cache";
 import { withSubstances } from "./query";
-import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
+import {
+  DetailedSpecialite,
+  ResumeSpecGroup,
+  ResumeSpecialite,
+} from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
-import { formatSpecialitesResume, formatSpecialitesResumeFromGroups } from "@/utils/specialites";
+import {
+  formatSpecialitesResume,
+  formatSpecialitesResumeFromGroups,
+} from "@/utils/specialites";
 import { SpecialiteMetadata } from "../types";
 
 export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
+  "use cache: remote";
+  cacheLife("hourly");
+
   const result = await pdbmMySQL
     .selectFrom("Document")
     .select((eb) => eb.fn.max("DocDateMaj").as("lastUpdated"))
@@ -29,7 +38,10 @@ export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
   return result?.lastUpdated ?? null;
 }
 
-export const getMarketedMedicamentCount = unstable_cache(async function(): Promise<number> {
+export async function getMarketedMedicamentCount(): Promise<number> {
+  "use cache: remote";
+  cacheLife("hourly");
+
   const result = await pdbmMySQL
     .selectFrom("Specialite")
     .where("Specialite.IsBdm", "=", 1)
@@ -37,7 +49,7 @@ export const getMarketedMedicamentCount = unstable_cache(async function(): Promi
     .executeTakeFirstOrThrow();
 
   return result.count;
-}, ["marketed-medicament-count"], { revalidate: 3600 });
+}
 
 export async function getSpecialiteName(CIS: string): Promise<string> {
   const result = await pdbmMySQL
@@ -49,17 +61,23 @@ export async function getSpecialiteName(CIS: string): Promise<string> {
   return result ? result.SpecDenom01 : "";
 }
 
-export const getDetailedSpecialite = cache(
-  async (
-    CIS: string
-  ) : Promise<DetailedSpecialite | undefined> => {
+export async function getDetailedSpecialite(
+  CIS: string,
+): Promise<DetailedSpecialite | undefined> {
+  "use cache: remote";
+  cacheLife("hourly");
+
   const specialite: DetailedSpecialite | undefined = await pdbmMySQL
     .selectFrom("Specialite")
     .leftJoin("StatutAdm", "StatutAdm.StatId", "Specialite.StatId")
     .leftJoin("StatutComm", "StatutComm.CommId", "Specialite.CommId")
     .leftJoin("Spec_Titu", "Spec_Titu.SpecId", "Specialite.SpecId")
     .leftJoin("Titulaire", "Titulaire.TituId", "Spec_Titu.TituId")
-    .leftJoin ("Specialite as GenSpecialite", "GenSpecialite.SpecId", "Specialite.SpecGeneId")
+    .leftJoin(
+      "Specialite as GenSpecialite",
+      "GenSpecialite.SpecId",
+      "Specialite.SpecGeneId",
+    )
     .where("Specialite.SpecId", "=", CIS)
     .where("Specialite.IsBdm", "=", 1)
     .selectAll("Specialite")
@@ -71,7 +89,7 @@ export const getDetailedSpecialite = cache(
         .whereRef("Specialite.SpecId", "=", "VUEmaEpar.SpecId")
         .select("VUEmaEpar.UrlEpar")
         .limit(1)
-        .as("urlCentralise")
+        .as("urlCentralise"),
     ]) // Il n'y en a qu'un
     .select(({ fn }) => [
       fn<string>("GROUP_CONCAT", ["Titulaire.TituRSLong"]).as("titulairesList"),
@@ -81,25 +99,25 @@ export const getDetailedSpecialite = cache(
     .executeTakeFirst();
 
   return specialite;
-});
+}
 
-export const getSpecialite = cache(async (CIS: string) => {
+export async function getSpecialite(CIS: string) {
+  "use cache: remote";
+  cacheLife("hourly");
 
-  const specialite: DetailedSpecialite | undefined = await getDetailedSpecialite(CIS);
+  const specialite: DetailedSpecialite | undefined =
+    await getDetailedSpecialite(CIS);
 
-  const composants: Array<SpecComposant & SubstanceNom> = 
-    specialite 
-      ? await getComposants(CIS)
-      : [];
+  const composants: Array<SpecComposant & SubstanceNom> = specialite
+    ? await getComposants(CIS)
+    : [];
 
-  const presentations: Presentation[] = 
-    specialite 
-      ? await getFullPresentations(CIS)
-      : [];  
+  const presentations: Presentation[] = specialite
+    ? await getFullPresentations(CIS)
+    : [];
 
-  const delivrance: SpecDelivrance[] = 
-    specialite
-      ? await pdbmMySQL
+  const delivrance: SpecDelivrance[] = specialite
+    ? await pdbmMySQL
         .selectFrom("Spec_Delivrance")
         .where("SpecId", "=", CIS)
         .innerJoin(
@@ -110,7 +128,7 @@ export const getSpecialite = cache(async (CIS: string) => {
         .selectAll()
         .orderBy("DicoDelivrance.DelivLong")
         .execute()
-      : [];
+    : [];
 
   return {
     specialite,
@@ -118,9 +136,12 @@ export const getSpecialite = cache(async (CIS: string) => {
     presentations,
     delivrance,
   };
-});
+}
 
-export const getAllSpecialites = cache(async function () {
+export async function getAllSpecialites() {
+  "use cache: remote";
+  cacheLife("daily");
+
   return await pdbmMySQL
     .selectFrom("Specialite")
     .where("Specialite.IsBdm", "=", 1)
@@ -128,21 +149,35 @@ export const getAllSpecialites = cache(async function () {
     .distinct()
     .orderBy("SpecDenom01")
     .execute();
-})
+}
 
-export const getResumeSpecsGroupsWithLetter = cache(async function (letter: string): Promise<ResumeSpecGroup[]> {
+export async function getResumeSpecsGroupsWithLetter(
+  letter: string,
+): Promise<ResumeSpecGroup[]> {
+  "use cache: remote";
+  cacheLife("daily");
+
   const result = await db
     .selectFrom("resume_medicaments")
-    .where(({ eb, ref }) => eb(
-      sql<string>`upper(${ref("groupName")})`, "like", `${letter.toUpperCase()}%`
-    ))
+    .where(({ eb, ref }) =>
+      eb(
+        sql<string>`upper(${ref("groupName")})`,
+        "like",
+        `${letter.toUpperCase()}%`,
+      ),
+    )
     .selectAll()
     .orderBy("groupName")
     .execute();
   return formatSpecialitesResumeFromGroups(result);
-});
+}
 
-export const getResumeSpecsGroupsWithIndication = cache(async function (indicationsIds: number): Promise<ResumeSpecGroup[]> {
+export async function getResumeSpecsGroupsWithIndication(
+  indicationsIds: number,
+): Promise<ResumeSpecGroup[]> {
+  "use cache: remote";
+  cacheLife("daily");
+
   const result = await db
     .selectFrom("resume_medicaments")
     .where("indicationsIds", "&&", Array([indicationsIds]))
@@ -150,9 +185,14 @@ export const getResumeSpecsGroupsWithIndication = cache(async function (indicati
     .orderBy("groupName")
     .execute();
   return formatSpecialitesResumeFromGroups(result);
-});
+}
 
-export const getResumeSpecsGroupsWithCIS = cache(async function (CISList: string[]): Promise<ResumeSpecGroup[]> {
+export async function getResumeSpecsGroupsWithCIS(
+  CISList: string[],
+): Promise<ResumeSpecGroup[]> {
+  "use cache: remote";
+  cacheLife("daily");
+
   if (CISList.length === 0) return [];
   const result = await db
     .selectFrom("resume_medicaments")
@@ -161,9 +201,14 @@ export const getResumeSpecsGroupsWithCIS = cache(async function (CISList: string
     .orderBy("groupName")
     .execute();
   return formatSpecialitesResumeFromGroups(result);
-});
+}
 
-export const getResumeSpecialitesWithCIS = cache(async function (CISList: string[]): Promise<ResumeSpecialite[]> {
+export async function getResumeSpecialitesWithCIS(
+  CISList: string[],
+): Promise<ResumeSpecialite[]> {
+  "use cache: remote";
+  cacheLife("daily");
+
   if (CISList.length === 0) return [];
   const result = await db
     .selectFrom("resume_specialites")
@@ -172,34 +217,41 @@ export const getResumeSpecialitesWithCIS = cache(async function (CISList: string
     .orderBy("groupName")
     .execute();
   return formatSpecialitesResume(result);
-});
+}
 
-export const getResumeSpecsGroupsWithCISSubsIds = cache(
-  async function (
-    CISList: string[],
-    SubsIds: string[]
-  ): Promise<ResumeSpecGroup[]> {
-    if (CISList.length === 0) return [];
-    const result = await db
-      .selectFrom("resume_medicaments")
-      .where(({ eb }) =>
-        SubsIds.length
-          ? eb.or([
+export async function getResumeSpecsGroupsWithCISSubsIds(
+  CISList: string[],
+  SubsIds: string[],
+): Promise<ResumeSpecGroup[]> {
+  "use cache: remote";
+  cacheLife("daily");
+
+  if (CISList.length === 0) return [];
+  const result = await db
+    .selectFrom("resume_medicaments")
+    .where(({ eb }) =>
+      SubsIds.length
+        ? eb.or([
             eb("CISList", "&&", Array(CISList)),
             eb("subsIds", "&&", Array(SubsIds)),
           ])
-          : eb("CISList", "&&", Array(CISList)),
-      )
-      .selectAll()
-      .orderBy("groupName")
-      .execute();
-    return formatSpecialitesResumeFromGroups(result);
-  });
+        : eb("CISList", "&&", Array(CISList)),
+    )
+    .selectAll()
+    .orderBy("groupName")
+    .execute();
+  return formatSpecialitesResumeFromGroups(result);
+}
 
-export const getSubstanceSpecialites = unstable_cache(async function (
-  subsNomsIDs: (string | string[])
+export async function getSubstanceSpecialites(
+  subsNomsIDs: string | string[],
 ): Promise<Specialite[]> {
-  const ids: string[] = !Array.isArray(subsNomsIDs) ? [subsNomsIDs] : subsNomsIDs;
+  "use cache: remote";
+  cacheLife("hourly");
+
+  const ids: string[] = !Array.isArray(subsNomsIDs)
+    ? [subsNomsIDs]
+    : subsNomsIDs;
   return pdbmMySQL
     .selectFrom("Specialite")
     .selectAll("Specialite")
@@ -207,15 +259,17 @@ export const getSubstanceSpecialites = unstable_cache(async function (
     .where("Specialite.IsBdm", "=", 1)
     .groupBy("Specialite.SpecId")
     .execute();
-},
-  ["substance-specialites"],
-  { revalidate: 3600 } // cache for one hour
-);
+}
 
-export const getSubstanceSpecialitesCIS = unstable_cache(async function (
-  subsNomsIDs: (string | string[])
+export async function getSubstanceSpecialitesCIS(
+  subsNomsIDs: string | string[],
 ): Promise<string[]> {
-  const ids: string[] = !Array.isArray(subsNomsIDs) ? [subsNomsIDs] : subsNomsIDs;
+  "use cache: remote";
+  cacheLife("hourly");
+
+  const ids: string[] = !Array.isArray(subsNomsIDs)
+    ? [subsNomsIDs]
+    : subsNomsIDs;
   const rawCISList = await pdbmMySQL
     .selectFrom("Specialite")
     .select("Specialite.SpecId")
@@ -224,15 +278,17 @@ export const getSubstanceSpecialitesCIS = unstable_cache(async function (
     .groupBy("Specialite.SpecId")
     .execute();
   return rawCISList.map((CIS) => CIS.SpecId);
-},
-  ["substance-specialites-cis"],
-  { revalidate: 3600 } // cache for one hour
-);
+}
 
-export async function getSpecialiteMetadata(CIS: number): Promise<SpecialiteMetadata | undefined> {
+export async function getSpecialiteMetadata(
+  CIS: number,
+): Promise<SpecialiteMetadata | undefined> {
+  "use cache: remote";
+  cacheLife("daily");
+
   return await db
     .selectFrom("specialites_metadata")
     .where("CIS", "=", CIS)
     .selectAll()
     .executeTakeFirst();
-};
+}

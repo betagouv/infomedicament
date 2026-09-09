@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/ && node esbuild.scripts.mjs",
-    "start": "node .next/standalone/server.js",
+    "start": "node start.mjs",
     "lint": "eslint .",
     "predev": "only-include-used-icons",
     "prebuild": "only-include-used-icons && kysely migrate:latest",
@@ -49,6 +49,7 @@
     "react-dom": "19.2.4",
     "react-spinners": "^0.17.0",
     "react-toastify": "^11.0.5",
+    "redis": "^5.12.1",
     "sanitize-html": "^2.13.1",
     "sass": "^1.77.6",
     "server-cli-only": "^0.3.2",

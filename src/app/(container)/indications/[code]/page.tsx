@@ -10,18 +10,17 @@ import { Indication } from "@/db/types";
 import { Metadata, ResolvingMetadata } from "next";
 import { getArticlesFromPatho } from "@/db/utils/articles";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
-
-export const dynamic = "error";
-export const dynamicParams = true;
+import { cacheLife } from "next/cache";
+import { Suspense } from "react";
+import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 
 export async function generateMetadata(
   props: { params: Promise<{ code: `${number}` }> },
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-
   const { code } = await props.params;
   const indication: Indication | undefined = await getIndications(Number(code));
-  if (!indication){
+  if (!indication) {
     return {
       title: `Indication ${code}- ${(await parent).title?.absolute}`,
     };
@@ -33,21 +32,43 @@ export async function generateMetadata(
   };
 }
 
-export default async function Page(props: {
+export default function Page(props: {
   params: Promise<{ code: `${number}` }>;
 }) {
-  const { code } = await props.params;
+  return (
+    <Suspense fallback={<PageLoadingFallback />}>
+      <ResolvedIndicationPage params={props.params} />
+    </Suspense>
+  );
+}
+
+async function ResolvedIndicationPage({
+  params,
+}: {
+  params: Promise<{ code: `${number}` }>;
+}) {
+  const { code } = await params;
+  return <CachedIndicationPage code={code} />;
+}
+
+async function CachedIndicationPage({ code }: { code: `${number}` }) {
+  "use cache: remote";
+  cacheLife("daily");
+
   const indication: Indication | undefined = await getIndications(Number(code));
   if (!indication) return notFound();
 
   const [articles, allSpecsGroups] = await Promise.all([
-    indication.codePatho ? getArticlesFromPatho(indication.codePatho) : Promise.resolve([]),
+    indication.codePatho
+      ? getArticlesFromPatho(indication.codePatho)
+      : Promise.resolve([]),
     getResumeSpecsGroupsWithIndication(indication.id),
   ]);
 
-  const dataList = allSpecsGroups.length > 0
-    ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
-    : [];
+  const dataList =
+    allSpecsGroups.length > 0
+      ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
+      : [];
 
   return (
     <ContentContainer frContainer>
@@ -72,9 +93,7 @@ export default async function Page(props: {
         articles={articles}
         dataList={dataList}
       />
-      <RatingToaster
-        pageId={indication.nom}
-      />
+      <RatingToaster pageId={indication.nom} />
     </ContentContainer>
   );
 }

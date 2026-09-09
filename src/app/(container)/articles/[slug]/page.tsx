@@ -8,10 +8,16 @@ import { Metadata, ResolvingMetadata } from "next";
 import ContentContainer from "@/components/generic/ContentContainer";
 import ShareButtons from "@/components/generic/ShareButtons";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { Suspense } from "react";
+import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
+import { withStaticParamFallback } from "@/utils/staticParams";
 
 export async function generateStaticParams() {
   const articles = await getArticles();
-  return articles.map(({ slug }) => ({ params: { slug } }));
+  return withStaticParamFallback(
+    articles.map(({ slug }) => ({ slug })),
+    { slug: "__cache-validation__" },
+  );
 }
 
 async function getArticle(slug: string) {
@@ -39,11 +45,24 @@ export async function generateMetadata(
   };
 }
 
-export default async function Page(props0: {
+export default function Page(props0: { params: Promise<{ slug: string }> }) {
+  return (
+    <Suspense fallback={<PageLoadingFallback />}>
+      <ResolvedArticlePage params={props0.params} />
+    </Suspense>
+  );
+}
+
+async function ResolvedArticlePage({
+  params,
+}: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await props0.params;
+  const { slug } = await params;
+  return <ArticlePageContent slug={slug} />;
+}
 
+async function ArticlePageContent({ slug }: { slug: string }) {
   const { title, source, content, image } = await getArticle(slug);
   return (
     <ContentContainer frContainer>
@@ -67,10 +86,7 @@ export default async function Page(props0: {
       </div>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12")}>
-          <ShareButtons
-            pageName={title}
-            className={fr.cx("fr-mb-4w")}
-          />
+          <ShareButtons pageName={title} className={fr.cx("fr-mb-4w")} />
         </div>
       </div>
       {image && (
@@ -84,7 +100,13 @@ export default async function Page(props0: {
               "fr-mb-6w",
             )}
           >
-            <div style={{ position: "relative", aspectRatio: "16/9", width: "100%" }}>
+            <div
+              style={{
+                position: "relative",
+                aspectRatio: "16/9",
+                width: "100%",
+              }}
+            >
               <Image
                 alt="Image décorative"
                 fill
@@ -102,9 +124,7 @@ export default async function Page(props0: {
             components={{
               blockquote: (props) => (
                 <div className={fr.cx("fr-callout")}>
-                  <p>
-                    {props.children}
-                  </p>
+                  <p>{props.children}</p>
                 </div>
               ),
               h1: (props) => (
@@ -123,9 +143,7 @@ export default async function Page(props0: {
           />
         </div>
       </div>
-      <RatingToaster
-        pageId={`Article ${title}`}
-      />
+      <RatingToaster pageId={`Article ${title}`} />
     </ContentContainer>
   );
 }
