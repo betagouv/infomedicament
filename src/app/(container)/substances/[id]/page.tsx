@@ -60,7 +60,6 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 
   const titles: string[] = subsIds.map((subsId) => getSubstanceMainName(substances.filter((subs) => subs.SubsId.trim() === subsId)));
   const title: string = titles.join(", ");
-  console.log(substances);
   const subtitle = subsIds.map(
     (subsId) => substances
       .filter((subs) => 

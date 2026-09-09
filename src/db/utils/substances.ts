@@ -45,7 +45,7 @@ export const getSubstanceAllSpecialites = unstable_cache(async function (
     .innerJoin("Composant", "Specialite.SpecId", "Composant.SpecId")
     .innerJoin("Subs_Nom", "Composant.NomId", "Subs_Nom.NomId")
     .where("Composant.NomId", "in", substanceIDs)
-    .where((eb) => withOneSubstance(eb.ref("Specialite.SpecId"), eb.ref("Subs_Nom.NomId")))
+    .where((eb) => withOneSubstance(eb.ref("Specialite.SpecId"), eb.ref("Subs_Nom.SubsId")))
     .where("Specialite.IsBdm", "=", 1)
     .selectAll("Specialite")
     .select("Subs_Nom.NomId")
@@ -70,13 +70,13 @@ export const getSubstancesResumeWithLetter = cache(async function (letter: strin
   return result;
 });
 
-export const getSubstancesResume = cache(async function (substanceIDs: string[]): Promise<ResumeSubstance[]> {
-  if (substanceIDs.length === 0) return [];
+export const getSubstancesResume = cache(async function (subsIds: string[]): Promise<ResumeSubstance[]> {
+  if (subsIds.length === 0) return [];
   const result: ResumeSubstance[] = await db
     .selectFrom("resume_substances")
     .selectAll()
-    .where("NomId", "in", substanceIDs)
-    .orderBy("NomLib")
+    .where("SubsId", "in", subsIds)
+    .orderBy("SubsId")
     .execute();
   return result;
 });

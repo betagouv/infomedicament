@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
 import {
@@ -43,7 +42,6 @@ export async function generateStaticParams() {
 
 async function fetchMedicamentData(
   CIS: string,
-  specialite: DetailedSpecialite,
   composants: Array<SpecComposant & SubstanceNom>,
   atcList: string[],
 ) {
@@ -151,7 +149,7 @@ export default async function Page(props: {
   }
 
   const medData = specialite
-    ? await fetchMedicamentData(CIS, specialite, composants, atcList)
+    ? await fetchMedicamentData(CIS, composants, atcList)
     : undefined;
 
   if (composants.length > 0) {
@@ -161,7 +159,7 @@ export default async function Page(props: {
         .join(", "),
       linkProps: {
         href: `/substances/${displaySimpleComposants(composants)
-          .map((s) => s.NomId.trim())
+          .map((s) => s.SubsId.trim())
           .join(",")}`,
       },
     });

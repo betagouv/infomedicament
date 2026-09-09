@@ -3,7 +3,7 @@ import { PdbmMySQL } from "../pdbmMySQL/types";
 
 export function withSubstances(
   specId: Expression<string>,
-  nomIds: string[],
+  subsIds: string[],
 ): Expression<SqlBool> {
   const eb = expressionBuilder<PdbmMySQL, never>();
 
@@ -11,7 +11,7 @@ export function withSubstances(
     eb
       .selectFrom("Composant")
       .select("Composant.SpecId")
-      .where("Composant.NomId", "in", nomIds)
+      .where("Composant.SubsId", "in", subsIds)
       .where("Composant.SpecId", "=", specId)
       .where(({ eb, selectFrom }) =>
         eb(
@@ -19,14 +19,14 @@ export function withSubstances(
           "not in",
           selectFrom("Composant as subquery")
             .select("SpecId")
-            .where("subquery.NomId", "not in", nomIds)
+            .where("subquery.SubsId", "not in", subsIds)
             .whereRef(
               "subquery.CompNum",
               "not in",
               selectFrom("Composant as subquery2")
                 .select("CompNum")
                 .where("subquery2.SpecId", "=", specId)
-                .where("subquery2.NomId", "in", nomIds),
+                .where("subquery2.SubsId", "in", subsIds),
             ),
         ),
       )
@@ -35,7 +35,7 @@ export function withSubstances(
         eb(
           eb.fn.count("Composant.CompNum").distinct(),
           "=",
-          eb.val(nomIds.length),
+          eb.val(subsIds.length),
         ),
       ),
   );

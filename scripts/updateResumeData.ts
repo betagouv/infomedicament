@@ -14,6 +14,7 @@ import { getSpecialiteGroupName, groupSpecialites, isSurveillanceRenforcee } fro
 import { ShortIndication } from "@/types/IndicationsTypes";
 import { getPregnancyMentionAlert } from "@/db/utils/pregnancy";
 import { getPediatrics } from "@/db/utils/pediatrics";
+import { SubstanceNom } from "@/db/pdbmMySQL/types";
 
 type DataToResumeType = "indications" | "substances" | "medicaments" | "atc1" | "atc2" | "generiques" | "specialites";
 
@@ -138,10 +139,8 @@ async function createResumeMedicaments(): Promise<string[]> {
     medicaments.map(async (medGroup) => {
       const [groupName, rawSpecialites] = medGroup;
       const rawComposants = await getComposants(rawSpecialites[0].SpecId);
-      const composants: string = displaySimpleComposants(rawComposants)
-        .map((s) => s.NomLib.trim())
-        .join(", ");
-      const subsIds: string[] = rawComposants.map((subs) => subs.SubsId.trim());
+      const composants: SubstanceNom[] = displaySimpleComposants(rawComposants);
+      const subsIds: string[] = composants.map((s) => s.SubsId.trim());
       const specialites: string[][] = await Promise.all(
         rawSpecialites.map(async (spec) => {
           const events = await getEvents(spec.SpecId);
@@ -176,7 +175,7 @@ async function createResumeMedicaments(): Promise<string[]> {
         .insertInto('resume_medicaments')
         .values({
           groupName: groupName,
-          composants: composants,
+          composants: composants.map((s) => s.NomLib.trim()).join(", "),
           indicationsIds: indicationsIds,
           specialites: specialites,
           atc1Code: atc1,
@@ -245,10 +244,8 @@ async function createResumeSpecialites(): Promise<void> {
   const results = await Promise.all(
     allSpecialites.map(async (spec) => {
       const rawComposants = await getComposants(spec.SpecId);
-      const composants: string = displaySimpleComposants(rawComposants)
-        .map((s) => s.NomLib.trim())
-        .join(", ");
-      const subsIds: string[] = rawComposants.map((subs) => subs.SubsId.trim());
+      const composants: SubstanceNom[] = displaySimpleComposants(rawComposants);
+      const subsIds: string[] = composants.map((s) => s.SubsId.trim());
       const rawIndicationsCodes: ShortIndication[] = await getSpecialitesIndications([spec.SpecId]);
       const indicationsIds: number[] = rawIndicationsCodes
         .map((indication) => indication.idIndication)
@@ -273,7 +270,7 @@ async function createResumeSpecialites(): Promise<void> {
           specId: spec.SpecId.trim(),
           specName: spec.SpecDenom01.trim(),
           groupName: getSpecialiteGroupName(spec),
-          composants: composants,
+          composants: composants.map((s) => s.NomLib.trim()).join(", "),
           subsIds: subsIds,
           indicationsIds: indicationsIds,
           indicationsIdsNames: indicationsIdsNames,
