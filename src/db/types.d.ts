@@ -4,12 +4,9 @@ import { Selectable } from "kysely";
 export interface Database {
   search_index: SearchIndexTable;
   search_synonyms: SearchSynonymsTable;
-  leaflet_images: LeafletImagesTable;
   presentations: PresentationTable;
   rcp: RcpTable;
-  rcp_content: RcpContentTable;
   notices: NoticeTable;
-  notices_content: NoticeContentTable;
   rating: RatingTable;
   resume_indications: ResumeIndicationsTable;
   resume_substances: ResumeSubstancesTable;
@@ -78,11 +75,6 @@ interface SearchSynonymsTable {
   canonical: string; // medical term, accented form; normalized at query time
 }
 
-interface LeafletImagesTable {
-  path: string;
-  image: Buffer;
-}
-
 interface PresentationTable {
   codecip13: string;
   nom_presentation: string;
@@ -106,18 +98,6 @@ interface RcpTable {
   children?: number[],
   content_html?: string | null,
 }
-interface RcpContentTable {
-  id?: number,
-  type?: string,
-  styles?: string[],
-  anchor?: string,
-  content?: string[],
-  children?: number[],
-  tag?: string,
-  rowspan?: number,
-  colspan?: number,
-}
-
 interface NoticeTable {
   codeCIS: number,
   title?: string,
@@ -125,18 +105,6 @@ interface NoticeTable {
   children?: number[],
   content_html?: string | null,
 }
-interface NoticeContentTable {
-  id?: number,
-  type?: string,
-  styles?: string[],
-  anchor?: string,
-  content?: string[],
-  children?: number[],
-  tag?: string,
-  rowspan?: number,
-  colspan?: number,
-}
-
 interface RatingTable {
   id?: number,
   pageId: string,
@@ -464,7 +432,6 @@ interface AnsmSpecialiteTable {
   disponibilite: "INDISPONIBLE" | "DISPONIBLE" | "PARTIELLE" | "ALERTE" | null;
 }
 
-export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type SearchSynonym = Selectable<SearchSynonymsTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
