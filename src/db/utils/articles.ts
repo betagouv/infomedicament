@@ -135,10 +135,10 @@ export async function getArticlesFromPatho(codePatho: number): Promise<ArticleCa
     return getArticlesFromFilters(articlesFilters);
 }
 
-export async function getArticlesFromSubstances(ids: string[]): Promise<ArticleCardResume[]> {
+export async function getArticlesFromSubstances(subsIds: string[]): Promise<ArticleCardResume[]> {
     const articlesFilters: SearchArticlesFilters = {
         ATCList: [],
-        substancesList: ids,
+        substancesList: subsIds,
         specialitesList: [],
         pathologiesList: [],
     };

@@ -17,10 +17,10 @@ function ATC1DefinitionContent({ atc, articles, dataList }: ATC1DefinitionConten
 
   return (
     <PageDefinitionContent
-      title={title}
+      title={atc.label}
       definition={atc.description}
       definitionType="Classe de médicament"
-      definitionTitle={atc.label}
+      listTitle={title}
       dataList={dataList}
       dataType={DataTypeEnum.ATCCLASS}
       articles={articles}

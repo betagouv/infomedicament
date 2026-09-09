@@ -68,7 +68,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const substanceEntries: MetadataRoute.Sitemap = substances.map((s) => ({
-    url: `${BASE_URL}/substances/${s.NomId.trim()}`,
+    url: `${BASE_URL}/substances/${s.SubsId.trim()}`,
   }));
 
   const indicationsEntries: MetadataRoute.Sitemap = indications.map((i) => ({

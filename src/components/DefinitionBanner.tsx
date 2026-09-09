@@ -20,11 +20,13 @@ const Container = styled.div`
 export default function DefinitionBanner({
   type,
   title,
+  subtitle,
   definition,
   disclaimer,
 }: {
   type: string;
   title: string;
+  subtitle?: string;
   definition: string | { title: string; desc: string }[];
   disclaimer?: string;
 }) {
@@ -34,6 +36,9 @@ export default function DefinitionBanner({
         <div className={fr.cx("fr-col-12")}>
           <Badge className={fr.cx("fr-badge--purple-glycine")}>{type}</Badge>
           <h1 className={fr.cx("fr-h1", "fr-mt-1w", "fr-mb-0")}>{title}</h1>
+          {subtitle && (
+            <span>Aussi connu sous le nom de {subtitle}.</span>
+          )}
           <ShareButtons 
             pageName={title}
             className={fr.cx("fr-mb-6w", "fr-mt-2w")} 
