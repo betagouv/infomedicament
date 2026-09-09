@@ -11,6 +11,7 @@
 /playwright-report
 /test-results
 /medicine-comparison-report
+/load-tests/dist/
 
 # next.js
 /.next/
