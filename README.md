@@ -88,7 +88,7 @@ puis charger les données. La base MySQL doit être accessible préalablement.
 
 ```bash
 # Créer les tables
-kysele migrate:latest
+kysely migrate:latest
 
 # Charger les index de recherche
 kysely seed run
