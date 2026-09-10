@@ -62,6 +62,12 @@ const InfosImportantesBlock = styled.div`
   }
 `;
 
+const StockBlock = styled.div<{ $hideBorder?: boolean; }>`
+  ${props => !props.$hideBorder && css`
+    border-bottom: var(--border-open-blue-france) 4px solid;
+  `}
+`;
+
 interface SummaryLineProps extends HTMLAttributes<HTMLDivElement> {
   categoryName: string;
   hideBorder?: boolean;
@@ -491,7 +497,7 @@ function GeneralInformations({
         <ContentContainer id="informations-stock" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
           <h2 className={fr.cx("fr-h6")}>Ruptures de stock ou risques de rupture de stock</h2>
           {stocks.map((stock, index) => (
-            <div key={index}>
+            <StockBlock key={index} $hideBorder={index === stocks.length - 1}>
               <SummaryLine categoryName="Code CIS concerné">
                 {formatCIS(specialite.SpecId)}
               </SummaryLine>
@@ -518,11 +524,11 @@ function GeneralInformations({
               )}
               <SummaryLine 
                 categoryName="Lien vers la page du site de l'ANSM"
-                hideBorder={index === stocks.length - 1}
+                hideBorder
               >
                 <a href={stock.link} target="_blank">{stock.link}</a>
               </SummaryLine>
-            </div>
+            </StockBlock>
           ))}
         </ContentContainer>
       )}
