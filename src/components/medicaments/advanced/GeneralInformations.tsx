@@ -100,7 +100,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   definitions?: Definition[];
   indications: ShortIndication[];
   indicationsBlock?: string;
-  stocks?: AnsmStock[];
+  stocks: AnsmStock[];
 }
 
 function GeneralInformations({ 
@@ -487,7 +487,7 @@ function GeneralInformations({
         </ContentContainer>
       )}
 
-      {(stocks && stocks.length > 0) && (
+      {stocks.length > 0 && (
         <ContentContainer id="informations-stock" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
           <h2 className={fr.cx("fr-h6")}>Ruptures de stock ou risques de rupture de stock</h2>
           {stocks.map((stock, index) => (

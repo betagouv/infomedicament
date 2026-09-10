@@ -41,7 +41,7 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   pediatrics?: PediatricsInfo;
   marr?: Marr;
   articles: ArticleCardResume[];
-  stocks?: AnsmStock[];
+  stocks: AnsmStock[];
 }
 
 function MedicamentContent({

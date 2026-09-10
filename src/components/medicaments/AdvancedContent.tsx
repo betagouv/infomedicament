@@ -61,7 +61,7 @@ interface AdvancedContentProps extends HTMLAttributes<HTMLDivElement> {
   indicationsBlock?: string;
   advancedAnchor?: AnchorMenu;
   title: string;
-  stocks?: AnsmStock[];
+  stocks: AnsmStock[];
   onGoToAdvanced: (advanced: boolean) => void;
 }
 
@@ -106,7 +106,7 @@ function AdvancedContent({
           updateVisiblePart={setCurrentPart}
           isMarr={(marr && marr.pdf.length > 0)}
           isInfosImportantes={displayInfosImportantes(ficheInfos)}
-          isStock={(stocks && stocks.length > 0)}
+          isStock={stocks.length > 0}
           anchor={advancedAnchor}
         />
       </ContentContainer>

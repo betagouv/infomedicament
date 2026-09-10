@@ -202,7 +202,7 @@ interface DetailedSubMenuProps extends HTMLAttributes<HTMLDivElement> {
   updateVisiblePart: (visiblePart: DetailsNoticePartsEnum) => void;
   isMarr?: boolean;
   isInfosImportantes?: boolean;
-  isStock?: boolean;
+  isStock: boolean;
   anchor?: AnchorMenu;
 }
 
