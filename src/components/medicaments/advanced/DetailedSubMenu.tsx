@@ -218,9 +218,22 @@ function DetailedSubMenu({
   const [loaded, setLoaded] = useState<boolean>(false);
 
   const [currentSubMenu, setCurrentSubMenu] = useState<string>(infosGeneralesMenu[0].href);
-  const [currentInfosGeneralesMenu, setCurrentInfosGeneralesMenu] = useState<SubMenuType[]>(infosGeneralesMenu);
   const [currentMenuPart, setCurrentMenuPart] = useState<AnchorMenu | undefined>();
   const [focusAnchor, setFocusAnchor] = useState<string | undefined>();
+
+  const currentInfosGeneralesMenu: SubMenuType[] = isInfosImportantes ? Array.from(infosGeneralesMenu) : infosGeneralesMenu.slice(1);
+  if(isMarr){
+    currentInfosGeneralesMenu.push({
+      href: 'informations-marr',
+      text: 'Mesures additionnelles de réduction du risque (MARR)',
+    });
+  }
+  if(isStock){
+    currentInfosGeneralesMenu.push({
+      href: 'informations-stock',
+      text: 'Ruptures de stock ou risques de rupture de stock',
+    });
+  }
 
   function getSubMenu(subMenuList: SubMenuType[]): SideMenuProps.Item[] {
     return subMenuList.map((subMenu: SubMenuType) => {
@@ -242,40 +255,6 @@ function DetailedSubMenu({
       return subMenuItem;
     });
   }
-
-  useEffect(() => {
-    if(isMarr){
-      const menu = Array.from(infosGeneralesMenu);
-      menu.push(
-        {
-          href: 'informations-marr',
-          text: 'Mesures additionnelles de réduction du risque (MARR)',
-        }
-      );
-      setCurrentInfosGeneralesMenu(menu);
-    }
-  }, [isMarr, setCurrentInfosGeneralesMenu]);
-
-  useEffect(() => {
-    if(isStock){
-      const menu = Array.from(infosGeneralesMenu);
-      menu.push(
-        {
-          href: 'informations-stock',
-          text: 'Ruptures de stock ou risques de rupture de stock',
-        }
-      );
-      setCurrentInfosGeneralesMenu(menu);
-    }
-  }, [isStock, setCurrentInfosGeneralesMenu]);
-
-  useEffect(() => {
-    if(!isInfosImportantes){
-      const menu = Array.from(infosGeneralesMenu);
-      menu.shift();
-      setCurrentInfosGeneralesMenu(menu);
-    }
-  }, [isInfosImportantes, setCurrentInfosGeneralesMenu]);
 
   function goToFocus(anchor: string) {
     const element = document.getElementById(anchor);
