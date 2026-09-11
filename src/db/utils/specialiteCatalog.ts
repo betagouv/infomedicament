@@ -2,7 +2,6 @@ import type { AnsmSpecialite } from "@/db/types";
 import {
   DetailedSpecialite,
   Specialite,
-  SpecialiteProcedure,
   SpecialiteStat,
 } from "@/types/SpecialiteTypes";
 
@@ -56,24 +55,6 @@ export function disponibiliteToStatutBdm(
   return 1;
 }
 
-export function legacyProcedureToSpecialiteProcedure(
-  procedure: string,
-): SpecialiteProcedure {
-  switch (procedure) {
-    case "10":
-    case "100": return "NATIONALE";
-    case "20": return "CENTRALISEE";
-    case "30": return "RECONNAISSANCE_MUTUELLE";
-    case "40": return "DECENTRALISEE";
-    case "50": return "IMPORTATION_PARALLELE";
-    case "60": return "HOMEOPATHIQUE_NATIONALE";
-    case "70": return "PHYTOTHERAPIE_NATIONALE";
-    case "80": return "PHYTOTHERAPIE_DECENTRALISEE";
-    case "90": return "IMPORTATION";
-    default: return "NON_COMMUNIQUEE";
-  }
-}
-
 export function mapCatalogSpecialite(row: AnsmSpecialite): Specialite {
   return {
     SpecId: row.cis,
@@ -83,20 +64,6 @@ export function mapCatalogSpecialite(row: AnsmSpecialite): Specialite {
     StatutBdm: disponibiliteToStatutBdm(row.disponibilite),
     // The ANSM PostgreSQL catalog has no equivalent excipient field in this batch.
     Een: null,
-  };
-}
-
-export function mapLegacyCatalogSpecialite(row: {
-  SpecId: string;
-  SpecDenom01: string;
-  SpecGeneId: string;
-  ProcId: string;
-  StatutBdm: number;
-  Een: string | null;
-}): Specialite {
-  return {
-    ...row,
-    ProcId: legacyProcedureToSpecialiteProcedure(row.ProcId),
   };
 }
 

@@ -3,7 +3,6 @@ import type { AnsmSpecialite } from "@/db/types";
 import {
   disponibiliteToDisplayStatus,
   disponibiliteToStatutBdm,
-  legacyProcedureToSpecialiteProcedure,
   mapDetailedSpecialite,
   statutAmmToCompatibilityId,
   statutAmmToDisplayStatus,
@@ -31,13 +30,9 @@ describe("specialite catalog mappings", () => {
     expect(disponibiliteToDisplayStatus("PARTIELLE")).toBe("Non communiquée");
   });
 
-  it("maps authorization status and procedure representations", () => {
+  it("maps authorization status representations", () => {
     expect(statutAmmToDisplayStatus("ABROGEE")).toBe("Abrogée");
     expect(statutAmmToCompatibilityId("ABROGEE")).toBe(SpecialiteStat.Abrogée);
-    expect(legacyProcedureToSpecialiteProcedure("20")).toBe("CENTRALISEE");
-    expect(legacyProcedureToSpecialiteProcedure("50")).toBe("IMPORTATION_PARALLELE");
-    expect(legacyProcedureToSpecialiteProcedure("60")).toBe("HOMEOPATHIQUE_NATIONALE");
-    expect(legacyProcedureToSpecialiteProcedure("")).toBe("NON_COMMUNIQUEE");
     expect(statutAmmToDisplayStatus("ARCHIVEE")).toBe("Archivée");
     expect(statutAmmToCompatibilityId("ARCHIVEE")).toBe(SpecialiteStat.Archivée);
   });

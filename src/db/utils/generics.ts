@@ -7,7 +7,6 @@ import { sql } from "kysely";
 import { Specialite } from "@/types/SpecialiteTypes";
 import type { AnsmSpecialiteGroupeGeneriqueRole } from "../types";
 import { mapCatalogSpecialite, VISIBLE_SPECIALITE_AVAILABILITIES } from "./specialiteCatalog";
-import { pdbmMySQL } from "../pdbmMySQL";
 
 const PRINCEPS_ROLES: AnsmSpecialiteGroupeGeneriqueRole[] = [
   "REFERENCE",
@@ -18,6 +17,10 @@ const GENERIC_ROLES: AnsmSpecialiteGroupeGeneriqueRole[] = [
   "GENERIQUE",
   "GENERIQUE_AVEC_COMPLEMENTARITE_POSOLOGIQUE",
   "SUBSTITUTION",
+];
+const PUBLIC_MEMBER_ROLES: AnsmSpecialiteGroupeGeneriqueRole[] = [
+  ...PRINCEPS_ROLES,
+  ...GENERIC_ROLES,
 ];
 
 export type GenericGroup = {
@@ -44,6 +47,7 @@ async function resolveGroupCode(identifier: string): Promise<number | undefined>
   const membership = await db
     .selectFrom("ansm_specialite_groupe_generique")
     .where("cis", "=", identifier)
+    .where("role", "in", PUBLIC_MEMBER_ROLES)
     .select("code_groupe")
     .orderBy("code_groupe")
     .executeTakeFirst();
@@ -87,23 +91,11 @@ export async function getGenericGroup(identifier: string): Promise<GenericGroup 
 
   if (!group) return undefined;
 
-  const excipients = members.length > 0
-    ? await pdbmMySQL
-      .selectFrom("Specialite")
-      .where("SpecId", "in", members.map(({ cis }) => cis))
-      .select(["SpecId", "Een"])
-      .execute()
-    : [];
-  const excipientsByCis = new Map(excipients.map(({ SpecId, Een }) => [SpecId, Een]));
-
   const princeps: Specialite[] = [];
   const generiques: Specialite[] = [];
 
   for (const member of members) {
-    const specialite = {
-      ...mapCatalogSpecialite(member),
-      Een: excipientsByCis.get(member.cis) ?? null,
-    };
+    const specialite = mapCatalogSpecialite(member);
     if (member.role && PRINCEPS_ROLES.includes(member.role)) princeps.push(specialite);
     if (member.role && GENERIC_ROLES.includes(member.role)) generiques.push(specialite);
   }
@@ -120,7 +112,7 @@ export async function getGenericGroupMembership(CIS: string) {
   const membership = await db
     .selectFrom("ansm_specialite_groupe_generique")
     .where("cis", "=", CIS)
-    .where("role", "in", [...PRINCEPS_ROLES, ...GENERIC_ROLES])
+    .where("role", "in", PUBLIC_MEMBER_ROLES)
     .select("code_groupe")
     .orderBy("code_groupe")
     .executeTakeFirst();
@@ -150,9 +142,16 @@ export async function getGenericGroupMembership(CIS: string) {
 export async function getAllGenericGroupIds(): Promise<string[]> {
   const groups = await db
     .selectFrom("ansm_specialite_groupe_generique")
-    .select("code_groupe")
+    .innerJoin(
+      "ansm_specialite",
+      "ansm_specialite.cis",
+      "ansm_specialite_groupe_generique.cis",
+    )
+    .where("ansm_specialite_groupe_generique.role", "in", PUBLIC_MEMBER_ROLES)
+    .where("ansm_specialite.disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
+    .select("ansm_specialite_groupe_generique.code_groupe")
     .distinct()
-    .orderBy("code_groupe")
+    .orderBy("ansm_specialite_groupe_generique.code_groupe")
     .execute();
 
   return groups.map(({ code_groupe }) => code_groupe.toString());

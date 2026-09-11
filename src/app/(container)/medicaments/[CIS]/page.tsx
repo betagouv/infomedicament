@@ -19,14 +19,18 @@ import MedicamentContent from "@/components/medicaments/MedicamentContent";
 import ShareButtons from "@/components/generic/ShareButtons";
 import { getSpecialitesIndications, getSpecialitePathologies } from "@/db/utils/indications";
 import { getNotice } from "@/db/utils/notice";
-import { getPregnancyMentionAlert, getAllPregnancyPlanAlerts } from "@/db/utils/pregnancy";
+import {
+  getAllPregnancyPlanAlerts,
+  getPregnancyMentionAlert,
+} from "@/db/utils/pregnancy";
+import { findPregnancyPlanAlert } from "@/db/utils/pregnancyCatalog";
 import { getPediatrics } from "@/db/utils/pediatrics";
 import { getMarr } from "@/db/utils/marr";
 import { getArticlesFromFilters } from "@/db/utils/articles";
 import { getFicheInfos } from "@/db/utils/ficheInfos";
 import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
-import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
+import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { getIndicationsBlock } from "@/utils/noticeHtml";
 
 export const dynamic = "error";
@@ -44,7 +48,7 @@ export async function generateStaticParams() {
 async function fetchMedicamentData(
   CIS: string,
   specialite: DetailedSpecialite,
-  composants: Array<SpecComposant & SubstanceNom>,
+  composants: CompositionComponent[],
   atcList: string[],
 ) {
   const [
@@ -67,8 +71,9 @@ async function fetchMedicamentData(
     getSpecialitePathologies(CIS),
   ]);
 
-  const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
-    composants.some((c) => Number(c.SubsId.trim()) === Number(s.id))
+  const pregnancyPlanAlert = findPregnancyPlanAlert(
+    composants.map((component) => component.SubsId),
+    allPregnancyPlanAlerts,
   );
   const indicationsBlock = notice
     ? getIndicationsBlock(notice.contentHtml)

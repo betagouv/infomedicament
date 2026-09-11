@@ -1,5 +1,9 @@
 import { ResumeSpecGroup, ShortSpecialite } from "@/types/SpecialiteTypes";
-import { getAllPregnancyMentionAlerts, getAllPregnancyPlanAlerts } from "@/db/utils/pregnancy";
+import {
+  getAllPregnancyMentionAlerts,
+  getAllPregnancyPlanAlerts,
+} from "@/db/utils/pregnancy";
+import { findPregnancyPlanAlert } from "@/db/utils/pregnancyCatalog";
 import { getAllPediatrics } from "@/db/utils/pediatrics";
 
 export const getResumeSpecsGroupsAlerts = async function (specsGroups: ResumeSpecGroup[]): Promise<ResumeSpecGroup[]> {
@@ -8,8 +12,9 @@ export const getResumeSpecsGroupsAlerts = async function (specsGroups: ResumeSpe
   const allPediatricsInfo = await getAllPediatrics();
 
   return specsGroups.map((group) => {
-    const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
-      group.subsIds.find((id) => Number(id.trim()) === Number(s.id)),
+    const pregnancyPlanAlert = findPregnancyPlanAlert(
+      group.subsIds,
+      allPregnancyPlanAlerts,
     );
 
     const pediatricsInfo = {

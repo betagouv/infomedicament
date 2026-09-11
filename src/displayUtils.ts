@@ -1,8 +1,8 @@
 import {
-  ComposantNatureId,
-  SpecComposant,
-  SubstanceNom,
-} from "@/db/pdbmMySQL/types";
+  CompositionNature,
+  type CompositionComponent,
+  type Substance,
+} from "@/types/SubstanceTypes";
 import { Specialite } from "@/types/SpecialiteTypes";
 
 export type MedicamentGroup<T extends Specialite = Specialite> = [string, T[]];
@@ -16,9 +16,9 @@ export const formatSpecName = (name: string): string =>
     .join(" ");
 
 export function displaySimpleComposants(
-  composants: (SpecComposant & SubstanceNom)[],
-): SubstanceNom[] {
-  const groups = new Map<number, (SpecComposant & SubstanceNom)[]>();
+  composants: CompositionComponent[],
+): Substance[] {
+  const groups = new Map<number, CompositionComponent[]>();
   for (const composant of composants) {
     if (groups.has(composant.CompNum)) {
       groups.get(composant.CompNum)?.push(composant);
@@ -28,12 +28,12 @@ export function displaySimpleComposants(
   }
 
   return Array.from(groups.values())
-    .map((composants: (SpecComposant & SubstanceNom)[]) =>
+    .map((composants: CompositionComponent[]) =>
       composants.filter(
-        (composant) => composant.NatuId === ComposantNatureId.Fraction,
+        (composant) => composant.NatuId === CompositionNature.Fraction,
       ).length
         ? composants.filter(
-            (composant) => composant.NatuId === ComposantNatureId.Fraction,
+            (composant) => composant.NatuId === CompositionNature.Fraction,
           )
         : composants,
     )
@@ -41,9 +41,9 @@ export function displaySimpleComposants(
 }
 
 export function displayCompleteComposants(
-  composants: (SpecComposant & SubstanceNom)[],
+  composants: CompositionComponent[],
 ): string {
-  const groups = new Map<number, (SpecComposant & SubstanceNom)[]>();
+  const groups = new Map<number, CompositionComponent[]>();
   for (const composant of composants) {
     if (groups.has(composant.CompNum)) {
       groups.get(composant.CompNum)?.push(composant);
@@ -53,12 +53,12 @@ export function displayCompleteComposants(
   }
 
   const displayGroups = Array.from(groups.values()).map(
-    (composants: (SpecComposant & SubstanceNom)[]) => {
+    (composants: CompositionComponent[]) => {
       const substances = composants.filter(
-        (composant) => composant.NatuId === ComposantNatureId.Substance,
+        (composant) => composant.NatuId === CompositionNature.Substance,
       );
       const fractions = composants.filter(
-        (composant) => composant.NatuId === ComposantNatureId.Fraction,
+        (composant) => composant.NatuId === CompositionNature.Fraction,
       );
 
       let displayListAs;
@@ -69,7 +69,7 @@ export function displayCompleteComposants(
         substances.length - fractions.length >= 1 &&
         fractions.length <= 1
       ) {
-        displayListAs = ComposantNatureId.Substance;
+        displayListAs = CompositionNature.Substance;
       } else if (
         // If there is many fractions in a substance or just a fraction without the substance
         // we will display a list of fractions
@@ -77,13 +77,13 @@ export function displayCompleteComposants(
         fractions.length - substances.length >= 1 &&
         substances.length <= 1
       ) {
-        displayListAs = ComposantNatureId.Fraction;
+        displayListAs = CompositionNature.Fraction;
       } else if (fractions.length === substances.length) {
         // Same
-        displayListAs = ComposantNatureId.Fraction;
+        displayListAs = CompositionNature.Fraction;
       } else {
         // If there is many substances and fractions, we will display a list of substances
-        displayListAs = ComposantNatureId.Substance;
+        displayListAs = CompositionNature.Substance;
       }
 
       return { displayListAs, substances, fractions };
@@ -92,18 +92,18 @@ export function displayCompleteComposants(
 
   return displayGroups
     .map(({ displayListAs, substances, fractions }) =>
-      (displayListAs === ComposantNatureId.Fraction
+      (displayListAs === CompositionNature.Fraction
         ? fractions
         : substances
       ).map(
         (c) =>
           `${c.NomLib} (${c.CompDosage.trim()})${
-            (displayListAs === ComposantNatureId.Fraction
+            (displayListAs === CompositionNature.Fraction
               ? substances
               : fractions
             ).length > 0
-              ? `${displayListAs === ComposantNatureId.Fraction ? " sous forme de" : "correspondant à"} ${(displayListAs ===
-                ComposantNatureId.Fraction
+              ? `${displayListAs === CompositionNature.Fraction ? " sous forme de" : "correspondant à"} ${(displayListAs ===
+                CompositionNature.Fraction
                   ? substances
                   : fractions
                 )

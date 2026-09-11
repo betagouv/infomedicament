@@ -1,6 +1,5 @@
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import {
-  getSpecialite,
   groupGeneNameToDCI,
 } from "@/db/utils";
 import { fr } from "@codegouvfr/react-dsfr";
@@ -17,6 +16,7 @@ import { getAtcCode } from "@/utils/atc";
 import MedicamentGeneriqueContainer from "@/components/medicamentsGeneriques/MedicamentGeneriqueContainer";
 import { getGenericGroup } from "@/db/utils/generics";
 import { getEvents } from "@/db/utils/ficheInfos";
+import { getComposants } from "@/db/utils/composants";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -31,7 +31,7 @@ export default async function Page(props: {
 
   const displaySpecialite = group.princeps[0] ?? group.generiques[0];
   if (!displaySpecialite) notFound();
-  const { composants } = await getSpecialite(displaySpecialite.SpecId);
+  const composants = await getComposants(displaySpecialite.SpecId);
 
   const CISList = [...group.princeps, ...group.generiques].map((specialite) => specialite.SpecId);
   const events = await getEvents(CISList);
