@@ -1,9 +1,13 @@
 "use server";
 
-import { Asmr, ComposantComposition, ComposantSubsNom, DocBonUsage, ElementComposition, FicheInfos, InfosImportantes, Smr } from '@/types/FicheInfoTypes';
+import { Asmr, ComposantComposition, DocBonUsage, ElementComposition, FicheInfos, InfosImportantes, Smr } from '@/types/FicheInfoTypes';
 import { pdbmMySQL } from '../pdbmMySQL';
-import { ComposantNatureId, SpecElement, VUEvnts } from '../pdbmMySQL/types';
+import { VUEvnts } from '../pdbmMySQL/types';
 import { isSurveillanceRenforcee } from '@/utils/specialites';
+import db from '@/db';
+import { getComposants } from './composants';
+import { CompositionNature } from '@/types/SubstanceTypes';
+import { splitDosageReference } from './substanceCatalog';
 
 export async function getEvents(CISList: string | string[]): Promise<VUEvnts[]> {
   const allCIS: string[] = !Array.isArray(CISList) ? [CISList] : CISList;
@@ -58,44 +62,45 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
     .distinct()
     .execute();
 
-  const elementsRaw: SpecElement[] = await pdbmMySQL
-    .selectFrom("Element")
-    .where("Element.SpecId", "=", CIS)
+  const elementsRaw = await db
+    .selectFrom("ansm_element")
+    .where("cis", "=", CIS)
     .selectAll()
-    .distinct()
-    .orderBy("Element.ElmtNum")
     .execute();
+  elementsRaw.sort((left, right) =>
+    (left.ordre ?? left.numero_element) - (right.ordre ?? right.numero_element)
+    || left.numero_element - right.numero_element,
+  );
 
-  const composantsRaw: ComposantSubsNom[] = await pdbmMySQL
-    .selectFrom("Composant")
-    .innerJoin(
-      "Subs_Nom", 
-      (join) => join
-        .onRef('Subs_Nom.NomId', '=', 'Composant.NomId')
-        .onRef('Subs_Nom.SubsId', '=', 'Composant.SubsId')
-    )
-    .where("Composant.SpecId", "=", CIS)
-    .selectAll()
-    .distinct()
-    .execute();
+  const composantsRaw = await getComposants(CIS);
 
   const elementsComposition: ElementComposition[] = [];
-  elementsRaw.forEach((element: SpecElement) => {
-    const composantsList = composantsRaw.filter((composantRaw: ComposantSubsNom) => composantRaw.ElmtNum === element.ElmtNum && composantRaw.NatuId === ComposantNatureId.Substance);
-    const fractionsList = composantsRaw.filter((composantRaw: ComposantSubsNom) => composantRaw.ElmtNum === element.ElmtNum && composantRaw.NatuId === ComposantNatureId.Fraction);
+  elementsRaw.forEach((element) => {
+    const composantsList = composantsRaw.filter((component) =>
+      component.ElmtNum === element.numero_element
+      && component.NatuId === CompositionNature.Substance,
+    );
+    const fractionsList = composantsRaw.filter((component) =>
+      component.ElmtNum === element.numero_element
+      && component.NatuId === CompositionNature.Fraction,
+    );
+    const referenceDosage = composantsList
+      .concat(fractionsList)
+      .map((component) => splitDosageReference(component.CompDosage).referenceDosage)
+      .find((reference): reference is string => Boolean(reference));
     const composantsComposition: ComposantComposition[] = [];
     if(fractionsList && fractionsList.length > 0){
       fractionsList.forEach((fraction) => {
-        const composantsFractionList = composantsList.filter((composantRaw: ComposantSubsNom) => composantRaw.CompNum === fraction.CompNum);
+        const composantsFractionList = composantsList.filter((component) => component.CompNum === fraction.CompNum);
         composantsComposition.push({
           NomLib: fraction.NomLib,
-          dosage: fraction.CompDosage,
+          dosage: splitDosageReference(fraction.CompDosage).dosage,
           CompNum: fraction.CompNum,
           composants: composantsFractionList
             .map((composant) => { 
               return {
                 NomLib: composant.NomLib,
-                dosage: composant.CompDosage,
+                dosage: splitDosageReference(composant.CompDosage).dosage,
                 CompNum: composant.CompNum,
               }
             })
@@ -105,18 +110,18 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
     }
     if(composantsList && composantsList.length > 0){
       composantsList.forEach((composant) => {
-        const isFraction = fractionsList.findIndex((fractionRaw: ComposantSubsNom) => fractionRaw.CompNum === composant.CompNum);
+        const isFraction = fractionsList.findIndex((fraction) => fraction.CompNum === composant.CompNum);
         if(isFraction === -1){
           composantsComposition.push({
             NomLib: composant.NomLib,
-            dosage: composant.CompDosage,
+            dosage: splitDosageReference(composant.CompDosage).dosage,
             CompNum: composant.CompNum,
           });
         }
       });
     }
     elementsComposition.push({
-      referenceDosage: formatElementName(element.ElmtRefDosage ? element.ElmtRefDosage : element.ElmtNom),
+      referenceDosage: formatElementName(referenceDosage ?? element.denomination ?? ""),
       composants: composantsComposition.sort((a,b) => a.CompNum - b.CompNum),
     })
   })

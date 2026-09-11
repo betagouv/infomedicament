@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getGenericGroup, getGeneriques } from "./generics";
+import { getAllGenericGroupIds, getGenericGroup, getGeneriques } from "./generics";
 
 describe("db utils generics", () => {
 
@@ -23,10 +23,19 @@ describe("db utils generics", () => {
     expect(group?.generiques.map(({ SpecId }) => SpecId)).toContain("61876780");
   });
 
-  it("keeps notable excipients on generic-group members", async () => {
-    const group = await getGenericGroup("64976070");
-    const princeps = group?.princeps.find(({ SpecId }) => SpecId === "64976070");
+  it("supports groups with multiple reference specialites", async () => {
+    const group = await getGenericGroup("14");
+    expect(group?.princeps.length).toBeGreaterThan(1);
+  });
 
-    expect(princeps?.Een).toBeTruthy();
+  it("does not invent a group for a medicine without membership", async () => {
+    await expect(getGenericGroup("60009573")).resolves.toBeUndefined();
+  });
+
+  it("only emits sitemap IDs for groups with visible public members", async () => {
+    const ids = await getAllGenericGroupIds();
+    expect(ids).toContain("14");
+    await expect(Promise.all(ids.slice(0, 25).map(getGenericGroup))).resolves
+      .not.toContain(undefined);
   });
 });

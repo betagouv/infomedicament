@@ -1,6 +1,6 @@
 "use client";
 
-import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
+import type { CompositionComponent } from "@/types/SubstanceTypes";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { displaySimpleComposants } from "@/displayUtils";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
@@ -9,7 +9,7 @@ import "./dsfr-custom-tags.css";
 import { trackEvent } from "@/services/tracking";
 
 interface SubstanceTagProps extends HTMLAttributes<HTMLDivElement> {
-  composants: Array<SpecComposant & SubstanceNom>;
+  composants: CompositionComponent[];
   fromMedicament?: boolean;
 }
 

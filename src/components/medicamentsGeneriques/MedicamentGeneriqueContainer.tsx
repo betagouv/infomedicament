@@ -6,7 +6,8 @@ import { fr } from "@codegouvfr/react-dsfr";
 import ClassTag from "../tags/ClassTag";
 import { ATC } from "@/types/ATCTypes";
 import SubstanceTag from "../tags/SubstanceTag";
-import { SpecComposant, SubstanceNom, VUEvnts } from "@/db/pdbmMySQL/types";
+import { VUEvnts } from "@/db/pdbmMySQL/types";
+import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { displayCompleteComposants } from "@/displayUtils";
 import GenericAccordion from "../GenericAccordion";
 import { Specialite } from "@/types/SpecialiteTypes";
@@ -15,7 +16,7 @@ import { isSurveillanceRenforcee } from "@/utils/specialites";
 
 interface MedicamentGeneriqueContainerProps extends HTMLAttributes<HTMLDivElement> {
   atc2?: ATC;
-  composants : Array<SpecComposant & SubstanceNom>;
+  composants: CompositionComponent[];
   groupName: string;
   princeps: Specialite[];
   generiques: Specialite[];

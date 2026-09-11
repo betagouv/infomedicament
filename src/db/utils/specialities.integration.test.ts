@@ -72,6 +72,14 @@ describe("db utils specialities", () => {
     expect(isActiveSpec).not.toBe(-1);
   })
 
+  it("requires the complete requested substance set", async () => {
+    const paracetamolOnly = await getSubstanceSpecialitesCIS("02202");
+    const paracetamolAndCodeine = await getSubstanceSpecialitesCIS(["02202", "90530"]);
+
+    expect(paracetamolOnly).not.toContain("60009573");
+    expect(paracetamolAndCodeine).toContain("60009573");
+  });
+
   it("maps a partially available medicine to the public unavailable warning", async () => {
     const specialite = await getDetailedSpecialite("61651634");
 

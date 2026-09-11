@@ -26,7 +26,7 @@ import { getArticlesFromFilters } from "@/db/utils/articles";
 import { getFicheInfos } from "@/db/utils/ficheInfos";
 import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
-import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
+import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { getIndicationsBlock } from "@/utils/noticeHtml";
 
 export const dynamic = "error";
@@ -44,7 +44,7 @@ export async function generateStaticParams() {
 async function fetchMedicamentData(
   CIS: string,
   specialite: DetailedSpecialite,
-  composants: Array<SpecComposant & SubstanceNom>,
+  composants: CompositionComponent[],
   atcList: string[],
 ) {
   const [
