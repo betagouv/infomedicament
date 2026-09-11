@@ -1,9 +1,9 @@
 import {
   ComposantNatureId,
   SpecComposant,
-  Specialite,
   SubstanceNom,
 } from "@/db/pdbmMySQL/types";
+import { Specialite } from "@/types/SpecialiteTypes";
 
 export type MedicamentGroup<T extends Specialite = Specialite> = [string, T[]];
 

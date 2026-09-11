@@ -5,7 +5,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, PropsWithChildren } from "react";
 import styled, {css} from 'styled-components';
 import GenericPrincepsTag from "@/components/tags/GenericPrincepsTag";
-import { SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import PediatricsTags from "@/components/tags/PediatricsTags";
 import Link from "next/link";
@@ -13,7 +13,7 @@ import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } from "@/displayUtils";
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
-import { DetailedSpecialite } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, SpecialiteStat } from "@/types/SpecialiteTypes";
 import { displayInfosImportantes } from "@/utils/notices";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
@@ -181,7 +181,7 @@ function GeneralInformations({
           <>
             {(isPrinceps && !isAIP(specialite)) ? (
               <GenericPrincepsTag 
-                id={specialite.SpecId} 
+                id={specialite.SpecGeneId || specialite.SpecId}
                 type="princeps"
                 hideIcon
               />
@@ -194,9 +194,11 @@ function GeneralInformations({
                     type="generic"
                     hideIcon
                   />
-                  <div>
-                    <strong>Princeps:&nbsp;</strong>{specialite.generiqueName}
-                  </div>
+                  {specialite.generiqueName && (
+                    <div>
+                      <strong>Princeps:&nbsp;</strong>{specialite.generiqueName}
+                    </div>
+                  )}
                 </>
               ) : (
                 <span>Pas de générique</span>
@@ -254,7 +256,7 @@ function GeneralInformations({
         </SummaryLine>
         <SummaryLine categoryName="Type de procédure">
           {specialite.ProcId 
-            ? (<span>{getProcedureLibLong(Number(specialite.ProcId))}</span>)
+            ? (<span>{getProcedureLibLong(specialite.ProcId)}</span>)
             : (<span>Non communiqué</span>)
           }
         </SummaryLine>

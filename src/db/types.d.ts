@@ -1,4 +1,4 @@
-import { NoticeBlockType } from "@/types/SpecialiteTypes";
+import type { NoticeBlockType, SpecialiteProcedure } from "@/types/SpecialiteTypes";
 import { Selectable } from "kysely";
 
 export interface Database {
@@ -59,6 +59,15 @@ export interface Database {
   ansm_document: AnsmDocumentTable;
   ansm_caracteristique: AnsmCaracteristiqueTable;
   ansm_specialite_titulaire: AnsmSpecialiteTitulaireTable;
+  ansm_presentation_evenement: AnsmPresentationEvenementTable;
+  ansm_pathologie: AnsmPathologieTable;
+  ansm_classe_clinique_pathologie: AnsmClasseCliniquePathologieTable;
+  ansm_delivrance: AnsmDelivranceTable;
+  ansm_specialite_delivrance: AnsmSpecialiteDelivranceTable;
+  ansm_specialite_evenement: AnsmSpecialiteEvenementTable;
+  ansm_substance_nom: AnsmSubstanceNomTable;
+  ansm_groupe_generique: AnsmGroupeGeneriqueTable;
+  ansm_specialite_groupe_generique: AnsmSpecialiteGroupeGeneriqueTable;
 }
 
 interface SearchIndexTable {
@@ -424,10 +433,10 @@ interface SpecialiteMetadataTable {
 interface AnsmSpecialiteTable {
   cis: string;
   denomination: string | null;
-  generique: string | null;
-  procedure: number | null;
+  generique: number | null;
+  procedure: Exclude<SpecialiteProcedure, "IMPORTATION" | "NON_COMMUNIQUEE"> | null;
   date_amm: Date | null;
-  statut_amm: "INACTIVE" | "ACTIVE" | "ABROGEE" | "SUSPENDUE" | "RETIREE" | null;
+  statut_amm: "INACTIVE" | "ACTIVE" | "ABROGEE" | "SUSPENDUE" | "RETIREE" | "ARCHIVEE" | null;
   date_modification: Date | null;
   disponibilite: "INDISPONIBLE" | "DISPONIBLE" | "PARTIELLE" | "ALERTE" | null;
 }
@@ -515,6 +524,8 @@ interface AnsmPresentationTable {
   date_modification: Date | null;
   statut_commercialisation: "INCONNUE" | "COMMERCIALISEE" | "ARRETEE" | "SUSPENDUE" | "NON_COMMUNIQUEE" | "RETIREE" | null;
   date_commercialisation: Date | null;
+  date_arret_commercialisation: Date | null;
+  statut: "ACTIVE" | "ABROGEE" | null;
 }
 
 export type AnsmPresentation = Selectable<AnsmPresentationTable>;
@@ -640,3 +651,96 @@ interface AnsmSpecialiteTitulaireTable {
 }
 
 export type AnsmSpecialiteTitulaire = Selectable<AnsmSpecialiteTitulaireTable>;
+
+interface AnsmPresentationEvenementTable {
+  cip: string;
+  code_evenement: number;
+  num_evenement: number;
+  evenement: string | null;
+  date_evenement: Date | null;
+  date_echeance: Date | null;
+  commentaire: string | null;
+  date_modification: Date | null;
+}
+
+export type AnsmPresentationEvenement = Selectable<AnsmPresentationEvenementTable>;
+
+interface AnsmPathologieTable {
+  code: number;
+  nom: string;
+  code_parent: number | null;
+  information: string | null;
+}
+
+export type AnsmPathologie = Selectable<AnsmPathologieTable>;
+
+interface AnsmClasseCliniquePathologieTable {
+  code_classe_clinique: number;
+  code_pathologie: number;
+}
+
+export type AnsmClasseCliniquePathologie = Selectable<AnsmClasseCliniquePathologieTable>;
+
+interface AnsmDelivranceTable {
+  code: number;
+  libelle_court: string | null;
+  libelle_long: string | null;
+}
+
+export type AnsmDelivrance = Selectable<AnsmDelivranceTable>;
+
+interface AnsmSpecialiteDelivranceTable {
+  cis: string;
+  code_delivrance: number;
+}
+
+export type AnsmSpecialiteDelivrance = Selectable<AnsmSpecialiteDelivranceTable>;
+
+interface AnsmSpecialiteEvenementTable {
+  cis: string;
+  code_evenement: number;
+  num_evenement: number;
+  evenement: string | null;
+  date_evenement: Date | null;
+  date_echeance: Date | null;
+  commentaire: string | null;
+  date_modification: Date | null;
+}
+
+export type AnsmSpecialiteEvenement = Selectable<AnsmSpecialiteEvenementTable>;
+
+interface AnsmSubstanceNomTable {
+  code_substance: string;
+  code_nom: string;
+  nom: string | null;
+  type: "CANONIQUE" | "SYNONYME" | null;
+}
+
+export type AnsmSubstanceNom = Selectable<AnsmSubstanceNomTable>;
+
+interface AnsmGroupeGeneriqueTable {
+  code_groupe: number;
+  libelle: string | null;
+  code_atc: number | null;
+  date_modification: Date | null;
+  commentaire: string | null;
+}
+
+export type AnsmGroupeGenerique = Selectable<AnsmGroupeGeneriqueTable>;
+
+export type AnsmSpecialiteGroupeGeneriqueRole =
+  | "REFERENCE"
+  | "GENERIQUE"
+  | "GENERIQUE_AVEC_COMPLEMENTARITE_POSOLOGIQUE"
+  | "COMPLEMENTARITE_POSOLOGIQUE"
+  | "SUBSTITUTION";
+
+interface AnsmSpecialiteGroupeGeneriqueTable {
+  code_groupe: number;
+  cis: string;
+  role: AnsmSpecialiteGroupeGeneriqueRole | null;
+  rang: number | null;
+}
+
+export type AnsmSpecialiteGroupeGenerique =
+  Selectable<AnsmSpecialiteGroupeGeneriqueTable>;

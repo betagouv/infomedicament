@@ -5,12 +5,7 @@ import TagContainer from "../tags/TagContainer";
 import ClassTag from "../tags/ClassTag";
 import { fr } from "@codegouvfr/react-dsfr";
 import SubstanceTag from "../tags/SubstanceTag";
-import {
-  SpecComposant,
-  SpecDelivrance,
-  SpecialiteStat,
-  SubstanceNom,
-} from "@/db/pdbmMySQL/types";
+import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
 import PrescriptionTag from "../tags/PrescriptionTag";
 import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "./notice/PresentationsList";
@@ -19,7 +14,7 @@ import styled from "styled-components";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import ArticlesResumeList from "../articles/ArticlesResumeList";
 import { Marr } from "@/types/MarrTypes";
-import { NoticeData } from "@/types/SpecialiteTypes";
+import { NoticeData, SpecialiteStat } from "@/types/SpecialiteTypes";
 import QuestionsBox from "./notice/QuestionsBox";
 import NoticeChunkResultsBox from "./notice/NoticeChunkResultsBox";
 import Badge from "@codegouvfr/react-dsfr/Badge";
@@ -297,7 +292,7 @@ function NoticeContent({
                   {isHospitalDelivrance(delivrance) && <HospitalTag hideIcon />}
                   {specialite && isPrinceps && !isAIP(specialite) && (
                     <GenericPrincepsTag
-                      id={specialite.SpecId}
+                      id={specialite.SpecGeneId || specialite.SpecId}
                       type="princeps"
                       fromMedicament
                       hideIcon
@@ -306,6 +301,7 @@ function NoticeContent({
                   )}
                   {specialite &&
                     !!specialite.SpecGeneId &&
+                    !isPrinceps &&
                     !isAIP(specialite) && (
                       <GenericPrincepsTag
                         id={specialite.SpecGeneId}

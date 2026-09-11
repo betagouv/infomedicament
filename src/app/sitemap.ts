@@ -5,8 +5,8 @@ import { getAtc } from "@/db/utils/atc";
 import { getLetters } from "@/db/utils/letters";
 import { getArticles } from "@/db/utils/articles";
 import { getGlossaryLetters } from "@/db/utils/glossary";
-import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { getAllIndications } from "@/db/utils/indications";
+import { getAllGenericGroupIds } from "@/db/utils/generics";
 
 export const dynamic = "force-static";
 export const revalidate = 86400;
@@ -52,7 +52,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getLetters("substances"),
     getLetters("indications"),
     getLetters("generiques"),
-    pdbmMySQL.selectFrom("GroupeGene").select("SpecId").distinct().execute(),
+    getAllGenericGroupIds(),
   ]);
 
   const staticEntries: MetadataRoute.Sitemap = STATIC_ROUTES.map((path) => ({
@@ -82,8 +82,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ),
   ];
 
-  const genericEntries: MetadataRoute.Sitemap = genericGroups.map((g) => ({
-    url: `${BASE_URL}/generiques/${g.SpecId.trim()}`,
+  const genericEntries: MetadataRoute.Sitemap = genericGroups.map((groupId) => ({
+    url: `${BASE_URL}/generiques/${groupId}`,
   }));
 
   const glossaireEntries: MetadataRoute.Sitemap = glossaryLetters.map((l) => ({

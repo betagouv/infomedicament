@@ -5,7 +5,6 @@ import { cache } from "react";
 import {
   SpecComposant,
   SpecDelivrance,
-  Specialite,
   SubstanceNom,
 } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
@@ -14,73 +13,113 @@ import db from "@/db";
 import { getFullPresentations } from "@/db/utils/presentation";
 import { unstable_cache } from "next/cache";
 import { withSubstances } from "./query";
-import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite, Specialite } from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
 import { formatSpecialitesResume, formatSpecialitesResumeFromGroups } from "@/utils/specialites";
 import { SpecialiteMetadata } from "../types";
+import {
+  mapCatalogSpecialite,
+  mapDetailedSpecialite,
+  mapLegacyCatalogSpecialite,
+  VISIBLE_SPECIALITE_AVAILABILITIES,
+} from "./specialiteCatalog";
+import { getGenericGroupMembership } from "./generics";
 
 export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
-  const result = await pdbmMySQL
-    .selectFrom("Document")
-    .select((eb) => eb.fn.max("DocDateMaj").as("lastUpdated"))
+  const result = await db
+    .selectFrom("ansm_document")
+    .select((eb) => eb.fn.max("date_modification").as("lastUpdated"))
     .executeTakeFirst();
 
   return result?.lastUpdated ?? null;
 }
 
 export const getMarketedMedicamentCount = unstable_cache(async function(): Promise<number> {
-  const result = await pdbmMySQL
-    .selectFrom("Specialite")
-    .where("Specialite.IsBdm", "=", 1)
+  const result = await db
+    .selectFrom("ansm_specialite")
+    .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
     .select((eb) => eb.fn.countAll<number>().as("count"))
     .executeTakeFirstOrThrow();
 
-  return result.count;
+  return Number(result.count);
 }, ["marketed-medicament-count"], { revalidate: 3600 });
 
 export async function getSpecialiteName(CIS: string): Promise<string> {
-  const result = await pdbmMySQL
-    .selectFrom("Specialite")
-    .where("SpecId", "=", CIS)
-    .select("SpecDenom01")
+  const result = await db
+    .selectFrom("ansm_specialite")
+    .where("cis", "=", CIS)
+    .select("denomination")
     .executeTakeFirst();
 
-  return result ? result.SpecDenom01 : "";
+  return result?.denomination ?? "";
 }
 
 export const getDetailedSpecialite = cache(
   async (
     CIS: string
   ) : Promise<DetailedSpecialite | undefined> => {
-  const specialite: DetailedSpecialite | undefined = await pdbmMySQL
-    .selectFrom("Specialite")
-    .leftJoin("StatutAdm", "StatutAdm.StatId", "Specialite.StatId")
-    .leftJoin("StatutComm", "StatutComm.CommId", "Specialite.CommId")
-    .leftJoin("Spec_Titu", "Spec_Titu.SpecId", "Specialite.SpecId")
-    .leftJoin("Titulaire", "Titulaire.TituId", "Spec_Titu.TituId")
-    .leftJoin ("Specialite as GenSpecialite", "GenSpecialite.SpecId", "Specialite.SpecGeneId")
-    .where("Specialite.SpecId", "=", CIS)
-    .where("Specialite.IsBdm", "=", 1)
-    .selectAll("Specialite")
-    .select("StatutAdm.StatLibCourt as statutAutorisation")
-    .select("StatutComm.CommLibCourt as statutComm")
-    .select("GenSpecialite.SpecDenom01 as generiqueName")
-    .select(({ selectFrom }) => [
-      selectFrom("VUEmaEpar")
-        .whereRef("Specialite.SpecId", "=", "VUEmaEpar.SpecId")
-        .select("VUEmaEpar.UrlEpar")
-        .limit(1)
-        .as("urlCentralise")
-    ]) // Il n'y en a qu'un
-    .select(({ fn }) => [
-      fn<string>("GROUP_CONCAT", ["Titulaire.TituRSLong"]).as("titulairesList"),
-    ])
-    .groupBy(["Specialite.SpecId"]) //Nécessaire pour le JSON_ARRAYAGG
-    .distinct()
+  const row = await db
+    .selectFrom("ansm_specialite")
+    .where("cis", "=", CIS)
+    .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
+    .selectAll()
     .executeTakeFirst();
 
-  return specialite;
+  if (!row) return undefined;
+
+  const genericGroupMembershipPromise = getGenericGroupMembership(CIS);
+  const [
+    titulaires,
+    genericGroupMembership,
+    importedReference,
+    statusEvent,
+    legacySpecialite,
+  ] = await Promise.all([
+    db
+      .selectFrom("ansm_specialite_titulaire")
+      .where("cis", "=", CIS)
+      .select(["raison_sociale", "raison_sociale_longue"])
+      .orderBy("date_debut", "desc")
+      .execute(),
+    genericGroupMembershipPromise,
+    row.procedure === "IMPORTATION_PARALLELE" && row.generique
+      ? db
+        .selectFrom("ansm_specialite")
+        .where("cis", "=", row.generique.toString())
+        .select("denomination")
+        .executeTakeFirst()
+      : Promise.resolve(undefined),
+    row.statut_amm === "ABROGEE"
+      ? db
+        .selectFrom("ansm_specialite_evenement")
+        .where("cis", "=", CIS)
+        .where("code_evenement", "=", 33)
+        .where("date_evenement", "is not", null)
+        .select("date_evenement")
+        .orderBy("date_evenement", "desc")
+        .executeTakeFirst()
+      : Promise.resolve(undefined),
+    pdbmMySQL
+      .selectFrom("Specialite")
+      .where("SpecId", "=", CIS)
+      .select("Een")
+      .executeTakeFirst(),
+  ]);
+
+  const titulaireNames = titulaires
+    .map((titulaire) => titulaire.raison_sociale_longue ?? titulaire.raison_sociale)
+    .filter((name): name is string => Boolean(name));
+
+  return mapDetailedSpecialite(
+    row,
+    titulaireNames.length > 0 ? [...new Set(titulaireNames)].join(", ") : null,
+    genericGroupMembership?.referenceName ?? importedReference?.denomination ?? null,
+    genericGroupMembership?.codeGroupe.toString()
+      ?? (row.procedure === "IMPORTATION_PARALLELE" ? row.generique?.toString() ?? null : null),
+    statusEvent?.date_evenement ?? null,
+    legacySpecialite?.Een ?? null,
+  );
 });
 
 export const getSpecialite = cache(async (CIS: string) => {
@@ -120,14 +159,15 @@ export const getSpecialite = cache(async (CIS: string) => {
   };
 });
 
-export const getAllSpecialites = cache(async function () {
-  return await pdbmMySQL
-    .selectFrom("Specialite")
-    .where("Specialite.IsBdm", "=", 1)
+export const getAllSpecialites = cache(async function (): Promise<Specialite[]> {
+  const rows = await db
+    .selectFrom("ansm_specialite")
+    .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
     .selectAll()
-    .distinct()
-    .orderBy("SpecDenom01")
+    .orderBy("denomination")
     .execute();
+
+  return rows.map(mapCatalogSpecialite);
 })
 
 export const getResumeSpecsGroupsWithLetter = cache(async function (letter: string): Promise<ResumeSpecGroup[]> {
@@ -200,13 +240,15 @@ export const getSubstanceSpecialites = unstable_cache(async function (
   subsNomsIDs: (string | string[])
 ): Promise<Specialite[]> {
   const ids: string[] = !Array.isArray(subsNomsIDs) ? [subsNomsIDs] : subsNomsIDs;
-  return pdbmMySQL
+  const rows = await pdbmMySQL
     .selectFrom("Specialite")
     .selectAll("Specialite")
     .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
     .where("Specialite.IsBdm", "=", 1)
     .groupBy("Specialite.SpecId")
     .execute();
+
+  return rows.map(mapLegacyCatalogSpecialite);
 },
   ["substance-specialites"],
   { revalidate: 3600 } // cache for one hour
