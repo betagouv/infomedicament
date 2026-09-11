@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { getAllSubsWithSpecialites, getSubstanceAllSpecialites } from "./substances";
+import { getAllSubsWithSpecialites, getSubstanceAllSpecialites, getSubstances } from "./substances";
 
 // disable cache for testing
 vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
@@ -30,4 +30,9 @@ describe("db utils substances", () => {
     expect(isInactiveSpec).toBe(-1);
     expect(isActiveSpec).not.toBe(-1);
   })
+  it("keeps canonical and synonym public IDs addressable", async () => {
+    const substances = await getSubstances(["00005", "34911"]);
+    expect(substances.map((substance) => substance.NomId)).toEqual(["00005", "34911"]);
+    expect(substances[1].NomLib).toBe("acide acétylsalicylique");
+  });
 });

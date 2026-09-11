@@ -24,7 +24,8 @@ import { getMarr } from "@/db/utils/marr";
 import { getArticlesFromFilters } from "@/db/utils/articles";
 import { getFicheInfos } from "@/db/utils/ficheInfos";
 import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
-import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { DetailedSpecialite } from "@/types/SpecialiteTypes";
+import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { getIndicationsBlock } from "@/utils/noticeHtml";
 import { getVideosFromCIS } from "@/db/utils/videos";
 import { getStockFromCIS } from "@/db/utils/stocks";
@@ -43,7 +44,7 @@ export async function generateStaticParams() {
 
 async function fetchMedicamentData(
   CIS: string,
-  composants: Array<SpecComposant & SubstanceNom>,
+  composants: CompositionComponent[],
   atcList: string[],
 ) {
   const [
