@@ -13,10 +13,9 @@ import { notFound } from "next/navigation";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
-import { ATCError, getAtcCode } from "@/utils/atc";
+import { getAtcCode } from "@/utils/atc";
 import MedicamentGeneriqueContainer from "@/components/medicamentsGeneriques/MedicamentGeneriqueContainer";
-import { getGeneriques, getGroupeGene } from "@/db/utils/generics";
-import { Specialite } from "@/types/SpecialiteTypes";
+import { getGenericGroup } from "@/db/utils/generics";
 import { getEvents } from "@/db/utils/ficheInfos";
 
 export const dynamic = "error";
@@ -27,36 +26,27 @@ export default async function Page(props: {
 }) {
   const { CIS } = await props.params;
 
-  const group = await getGroupeGene(CIS);
+  const group = await getGenericGroup(CIS);
   if (!group) notFound();
 
-  const { specialite, composants } = await getSpecialite(group.SpecId);
-  if (!specialite) notFound();
+  const displaySpecialite = group.princeps[0] ?? group.generiques[0];
+  if (!displaySpecialite) notFound();
+  const { composants } = await getSpecialite(displaySpecialite.SpecId);
 
-  const generiques: Specialite[] = await getGeneriques(CIS);
-
-  const CISList = generiques.map((g) => g.SpecId).concat(specialite.SpecId);
+  const CISList = [...group.princeps, ...group.generiques].map((specialite) => specialite.SpecId);
   const events = await getEvents(CISList);
 
-  let atcCode;
-  try {
-    atcCode = await getAtcCode(CIS);
-  } catch (e) {
-    if (!(e instanceof ATCError)) throw e;
-    for (const specialite of generiques) {
-      try {
-        atcCode = await getAtcCode(specialite.SpecId);
-        break;
-      } catch (e) {
-        if (!(e instanceof ATCError)) throw e;
-      }
+  let atcCode = await getAtcCode(CIS);
+  if (!atcCode) {
+    for (const specialite of [...group.princeps, ...group.generiques]) {
+      atcCode = await getAtcCode(specialite.SpecId);
+      if (atcCode) break;
     }
   }
-  //if (!atcCode) throw new ATCError(CIS);
   const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
-  const pageLabel = formatSpecName(groupGeneNameToDCI(group.LibLong));
-  const groupName = getSpecialiteGroupName(groupGeneNameToDCI(group.LibLong));
+  const pageLabel = formatSpecName(groupGeneNameToDCI(group.libelle));
+  const groupName = getSpecialiteGroupName(groupGeneNameToDCI(group.libelle));
 
   return (
     <>
@@ -80,8 +70,8 @@ export default async function Page(props: {
         atc2={atc2}
         composants={composants}
         groupName={groupName}
-        princeps={specialite}
-        generiques={generiques}
+        princeps={group.princeps}
+        generiques={group.generiques}
         events={events}
       />
       <RatingToaster

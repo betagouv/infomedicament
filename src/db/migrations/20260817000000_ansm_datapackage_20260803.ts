@@ -17,6 +17,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   await db.schema
     .createTable("ansm_presentation_evenement")
+    .ifNotExists()
     .addColumn("cip", "varchar", (col) => col.notNull())
     .addColumn("code_evenement", "integer", (col) => col.notNull())
     .addColumn("num_evenement", "integer", (col) => col.notNull())
@@ -34,6 +35,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   await db.schema
     .createTable("ansm_pathologie")
+    .ifNotExists()
     .addColumn("code", "integer", (col) => col.notNull())
     .addColumn("nom", "varchar", (col) => col.notNull())
     .addColumn("code_parent", "integer")
@@ -43,6 +45,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   await db.schema
     .createTable("ansm_classe_clinique_pathologie")
+    .ifNotExists()
     .addColumn("code_classe_clinique", "integer", (col) => col.notNull())
     .addColumn("code_pathologie", "integer", (col) => col.notNull())
     .addPrimaryKeyConstraint("ansm_classe_clinique_pathologie_pkey", [
@@ -53,6 +56,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   await db.schema
     .createTable("ansm_delivrance")
+    .ifNotExists()
     .addColumn("code", "integer", (col) => col.notNull().primaryKey())
     .addColumn("libelle_court", "varchar")
     .addColumn("libelle_long", "varchar")
@@ -60,6 +64,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   await db.schema
     .createTable("ansm_specialite_delivrance")
+    .ifNotExists()
     .addColumn("cis", "varchar", (col) => col.notNull())
     .addColumn("code_delivrance", "integer", (col) => col.notNull())
     .addPrimaryKeyConstraint("ansm_specialite_delivrance_pkey", [
@@ -70,6 +75,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   await db.schema
     .createTable("ansm_specialite_evenement")
+    .ifNotExists()
     .addColumn("cis", "varchar", (col) => col.notNull())
     .addColumn("code_evenement", "integer", (col) => col.notNull())
     .addColumn("num_evenement", "integer", (col) => col.notNull())
@@ -87,6 +93,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   await db.schema
     .createTable("ansm_substance_nom")
+    .ifNotExists()
     .addColumn("code_substance", "varchar", (col) => col.notNull())
     .addColumn("code_nom", "varchar", (col) => col.notNull())
     .addColumn("nom", "varchar")

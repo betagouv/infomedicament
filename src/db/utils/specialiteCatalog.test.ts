@@ -3,8 +3,8 @@ import type { AnsmSpecialite } from "@/db/types";
 import {
   disponibiliteToDisplayStatus,
   disponibiliteToStatutBdm,
+  legacyProcedureToSpecialiteProcedure,
   mapDetailedSpecialite,
-  procedureToCompatibilityCode,
   statutAmmToCompatibilityId,
   statutAmmToDisplayStatus,
 } from "./specialiteCatalog";
@@ -34,24 +34,33 @@ describe("specialite catalog mappings", () => {
   it("maps authorization status and procedure representations", () => {
     expect(statutAmmToDisplayStatus("ABROGEE")).toBe("Abrogée");
     expect(statutAmmToCompatibilityId("ABROGEE")).toBe(SpecialiteStat.Abrogée);
-    expect(procedureToCompatibilityCode("CENTRALISEE")).toBe("CENTRALISEE");
-    expect(procedureToCompatibilityCode(null)).toBe("");
+    expect(legacyProcedureToSpecialiteProcedure("20")).toBe("CENTRALISEE");
+    expect(legacyProcedureToSpecialiteProcedure("50")).toBe("IMPORTATION_PARALLELE");
+    expect(legacyProcedureToSpecialiteProcedure("60")).toBe("HOMEOPATHIQUE_NATIONALE");
+    expect(legacyProcedureToSpecialiteProcedure("")).toBe("NON_COMMUNIQUEE");
     expect(statutAmmToDisplayStatus("ARCHIVEE")).toBe("Archivée");
     expect(statutAmmToCompatibilityId("ARCHIVEE")).toBe(SpecialiteStat.Archivée);
   });
 
   it("maps PostgreSQL rows without leaking their snake_case shape", () => {
-    expect(mapDetailedSpecialite(postgresRow, "JANSSEN BIOLOGICS BV", "PRINCEPS"))
+    expect(mapDetailedSpecialite(
+      postgresRow,
+      "JANSSEN BIOLOGICS BV",
+      "PRINCEPS",
+      "61234567",
+      new Date("2021-10-22"),
+      "Latex",
+    ))
       .toEqual({
         SpecId: "60035714",
         SpecDenom01: "SIMPONI 50 mg",
         SpecGeneId: "61234567",
         ProcId: "CENTRALISEE",
         StatutBdm: 3,
-        Een: null,
+        Een: "Latex",
         StatId: SpecialiteStat.Abrogée,
         SpecDateAMM: new Date("2009-10-01"),
-        SpecStatDate: new Date("2026-06-01"),
+        SpecStatDate: new Date("2021-10-22"),
         statutAutorisation: "Abrogée",
         statutComm: "Non communiquée",
         titulairesList: "JANSSEN BIOLOGICS BV",
