@@ -292,7 +292,7 @@ function NoticeContent({
                   {isHospitalDelivrance(delivrance) && <HospitalTag hideIcon />}
                   {specialite && isPrinceps && !isAIP(specialite) && (
                     <GenericPrincepsTag
-                      id={specialite.SpecId}
+                      id={specialite.SpecGeneId || specialite.SpecId}
                       type="princeps"
                       fromMedicament
                       hideIcon
@@ -301,6 +301,7 @@ function NoticeContent({
                   )}
                   {specialite &&
                     !!specialite.SpecGeneId &&
+                    !isPrinceps &&
                     !isAIP(specialite) && (
                       <GenericPrincepsTag
                         id={specialite.SpecGeneId}

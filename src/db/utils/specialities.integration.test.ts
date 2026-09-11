@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { getAllSpecialites, getDetailedSpecialite, getSpecialite, getSubstanceSpecialites, getSubstanceSpecialitesCIS } from "./specialities";
+import { isPrincepsSpecialite } from "./generics";
 
 // disable cache for testing
 vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
@@ -75,5 +76,31 @@ describe("db utils specialities", () => {
     const specialite = await getDetailedSpecialite("61651634");
 
     expect(specialite?.StatutBdm).toBe(2);
+  });
+
+  it("does not treat non-reference generic-group members as princeps", async () => {
+    expect(await isPrincepsSpecialite("66663761")).toBe(false);
+    expect(await isPrincepsSpecialite("64783769")).toBe(false);
+  });
+
+  it("identifies a princeps through its generic-group role", async () => {
+    expect(await isPrincepsSpecialite("67541600")).toBe(true);
+  });
+
+  it("uses textual procedure values", async () => {
+    expect((await getDetailedSpecialite("60928110"))?.ProcId).toBe("IMPORTATION_PARALLELE");
+    expect((await getDetailedSpecialite("60123598"))?.ProcId).toBe("HOMEOPATHIQUE_NATIONALE");
+  });
+
+  it("uses the authorization abrogation event date", async () => {
+    const firstDate = (await getDetailedSpecialite("65701038"))?.SpecStatDate;
+    const secondDate = (await getDetailedSpecialite("69174918"))?.SpecStatDate;
+
+    expect(firstDate?.getFullYear()).toBe(2021);
+    expect(firstDate?.getMonth()).toBe(9);
+    expect(firstDate?.getDate()).toBe(22);
+    expect(secondDate?.getFullYear()).toBe(2025);
+    expect(secondDate?.getMonth()).toBe(6);
+    expect(secondDate?.getDate()).toBe(25);
   });
 });

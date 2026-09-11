@@ -2,6 +2,18 @@ import { ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
 import { PediatricsInfo } from "./PediatricTypes";
 import { ShortIndication } from "./IndicationsTypes";
 
+export type SpecialiteProcedure =
+  | "NATIONALE"
+  | "CENTRALISEE"
+  | "RECONNAISSANCE_MUTUELLE"
+  | "DECENTRALISEE"
+  | "IMPORTATION_PARALLELE"
+  | "HOMEOPATHIQUE_NATIONALE"
+  | "PHYTOTHERAPIE_NATIONALE"
+  | "PHYTOTHERAPIE_DECENTRALISEE"
+  | "IMPORTATION"
+  | "NON_COMMUNIQUEE";
+
 // Application-facing medicine catalog model. The legacy property names are kept
 // while MySQL consumers are migrated incrementally, but this is deliberately not
 // a database row type: adapters only populate fields used by application code.
@@ -9,7 +21,7 @@ export type Specialite = {
   SpecId: string;
   SpecDenom01: string;
   SpecGeneId: string;
-  ProcId: string;
+  ProcId: SpecialiteProcedure;
   StatutBdm: number;
   Een: string | null;
 };

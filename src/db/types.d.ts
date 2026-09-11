@@ -1,4 +1,4 @@
-import { NoticeBlockType } from "@/types/SpecialiteTypes";
+import type { NoticeBlockType, SpecialiteProcedure } from "@/types/SpecialiteTypes";
 import { Selectable } from "kysely";
 
 export interface Database {
@@ -66,6 +66,8 @@ export interface Database {
   ansm_specialite_delivrance: AnsmSpecialiteDelivranceTable;
   ansm_specialite_evenement: AnsmSpecialiteEvenementTable;
   ansm_substance_nom: AnsmSubstanceNomTable;
+  ansm_groupe_generique: AnsmGroupeGeneriqueTable;
+  ansm_specialite_groupe_generique: AnsmSpecialiteGroupeGeneriqueTable;
 }
 
 interface SearchIndexTable {
@@ -432,7 +434,7 @@ interface AnsmSpecialiteTable {
   cis: string;
   denomination: string | null;
   generique: number | null;
-  procedure: "NATIONALE" | "CENTRALISEE" | "RECONNAISSANCE_MUTUELLE" | "DECENTRALISEE" | "IMPORTATION_PARALLELE" | "HOMEOPATHIQUE_NATIONALE" | "PHYTOTHERAPIE_NATIONALE" | "PHYTOTHERAPIE_DECENTRALISEE" | null;
+  procedure: Exclude<SpecialiteProcedure, "IMPORTATION" | "NON_COMMUNIQUEE"> | null;
   date_amm: Date | null;
   statut_amm: "INACTIVE" | "ACTIVE" | "ABROGEE" | "SUSPENDUE" | "RETIREE" | "ARCHIVEE" | null;
   date_modification: Date | null;
@@ -715,3 +717,30 @@ interface AnsmSubstanceNomTable {
 }
 
 export type AnsmSubstanceNom = Selectable<AnsmSubstanceNomTable>;
+
+interface AnsmGroupeGeneriqueTable {
+  code_groupe: number;
+  libelle: string | null;
+  code_atc: number | null;
+  date_modification: Date | null;
+  commentaire: string | null;
+}
+
+export type AnsmGroupeGenerique = Selectable<AnsmGroupeGeneriqueTable>;
+
+export type AnsmSpecialiteGroupeGeneriqueRole =
+  | "REFERENCE"
+  | "GENERIQUE"
+  | "GENERIQUE_AVEC_COMPLEMENTARITE_POSOLOGIQUE"
+  | "COMPLEMENTARITE_POSOLOGIQUE"
+  | "SUBSTITUTION";
+
+interface AnsmSpecialiteGroupeGeneriqueTable {
+  code_groupe: number;
+  cis: string;
+  role: AnsmSpecialiteGroupeGeneriqueRole | null;
+  rang: number | null;
+}
+
+export type AnsmSpecialiteGroupeGenerique =
+  Selectable<AnsmSpecialiteGroupeGeneriqueTable>;

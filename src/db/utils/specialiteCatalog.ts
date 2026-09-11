@@ -2,6 +2,7 @@ import type { AnsmSpecialite } from "@/db/types";
 import {
   DetailedSpecialite,
   Specialite,
+  SpecialiteProcedure,
   SpecialiteStat,
 } from "@/types/SpecialiteTypes";
 
@@ -55,8 +56,22 @@ export function disponibiliteToStatutBdm(
   return 1;
 }
 
-export function procedureToCompatibilityCode(procedure: AnsmSpecialite["procedure"]): string {
-  return procedure ?? "";
+export function legacyProcedureToSpecialiteProcedure(
+  procedure: string,
+): SpecialiteProcedure {
+  switch (procedure) {
+    case "10":
+    case "100": return "NATIONALE";
+    case "20": return "CENTRALISEE";
+    case "30": return "RECONNAISSANCE_MUTUELLE";
+    case "40": return "DECENTRALISEE";
+    case "50": return "IMPORTATION_PARALLELE";
+    case "60": return "HOMEOPATHIQUE_NATIONALE";
+    case "70": return "PHYTOTHERAPIE_NATIONALE";
+    case "80": return "PHYTOTHERAPIE_DECENTRALISEE";
+    case "90": return "IMPORTATION";
+    default: return "NON_COMMUNIQUEE";
+  }
 }
 
 export function mapCatalogSpecialite(row: AnsmSpecialite): Specialite {
@@ -64,10 +79,24 @@ export function mapCatalogSpecialite(row: AnsmSpecialite): Specialite {
     SpecId: row.cis,
     SpecDenom01: row.denomination ?? "",
     SpecGeneId: row.generique?.toString() ?? "",
-    ProcId: procedureToCompatibilityCode(row.procedure),
+    ProcId: row.procedure ?? "NON_COMMUNIQUEE",
     StatutBdm: disponibiliteToStatutBdm(row.disponibilite),
     // The ANSM PostgreSQL catalog has no equivalent excipient field in this batch.
     Een: null,
+  };
+}
+
+export function mapLegacyCatalogSpecialite(row: {
+  SpecId: string;
+  SpecDenom01: string;
+  SpecGeneId: string;
+  ProcId: string;
+  StatutBdm: number;
+  Een: string | null;
+}): Specialite {
+  return {
+    ...row,
+    ProcId: legacyProcedureToSpecialiteProcedure(row.ProcId),
   };
 }
 
@@ -75,16 +104,21 @@ export function mapDetailedSpecialite(
   row: AnsmSpecialite,
   titulairesList: string | null,
   generiqueName: string | null,
+  genericGroupReferenceCis: string | null,
+  statusDate: Date | null,
+  een: string | null,
 ): DetailedSpecialite {
   return {
     ...mapCatalogSpecialite(row),
+    SpecGeneId: genericGroupReferenceCis ?? "",
     StatId: statutAmmToCompatibilityId(row.statut_amm),
     SpecDateAMM: row.date_amm,
-    SpecStatDate: row.date_modification,
+    SpecStatDate: statusDate,
     statutAutorisation: statutAmmToDisplayStatus(row.statut_amm),
     statutComm: disponibiliteToDisplayStatus(row.disponibilite),
     titulairesList,
     generiqueName,
+    Een: een,
     // No equivalent of the MySQL VUEmaEpar URL exists in the ANSM tables.
     // Preserve the absence explicitly so callers never mistake it for migrated data.
     urlCentralise: null,

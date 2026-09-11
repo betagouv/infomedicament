@@ -38,6 +38,7 @@ const cisBigints = cisCodes.map(Number);
 // Reference tables: copied in full (small, no CIS key)
 const FULL_COPY_TABLES = [
   "atc",
+  "ansm_groupe_generique",
   "classes_cliniques",
   "letters",
   'indications',
@@ -63,6 +64,8 @@ const BIGINT_CIS_TABLES = ["notices", "rcp"];
 // Tables with a text CIS column named "cis"
 const CIS_TEXT_TABLES: Array<[string, string]> = [
   ["ansm_specialite", "cis"],
+  ["ansm_specialite_evenement", "cis"],
+  ["ansm_specialite_groupe_generique", "cis"],
   ["ansm_specialite_titulaire", "cis"],
   ["cis_atc", "code_cis"],
   ["ref_pediatrie", "cis"],

@@ -10,6 +10,7 @@ import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { withOneSubstance } from "./query";
 import db from "@/db/";
 import { RefAtcFriendlyNiveau1, RefAtcFriendlyNiveau2 } from "../types";
+import { mapLegacyCatalogSpecialite } from "./specialiteCatalog";
 
 /**
  * Returns all CIS codes for an ATC class.
@@ -333,7 +334,7 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubsSpecs[]>
   // Fetch all specialites for all substances at once
   const allSubstanceIDs = [...new Set(substancesWithCIS.map((s) => s.NomId.trim()))];
 
-  const allSpecialites = allSubstanceIDs.length > 0
+  const legacySpecialites = allSubstanceIDs.length > 0
     ? await pdbmMySQL
       .selectFrom("Specialite")
       .innerJoin("Composant", "Specialite.SpecId", "Composant.SpecId")
@@ -347,6 +348,11 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubsSpecs[]>
       .distinct()
       .execute()
     : [];
+
+  const allSpecialites = legacySpecialites.map((specialite) => ({
+    ...mapLegacyCatalogSpecialite(specialite),
+    NomId: specialite.NomId,
+  }));
 
   // Build result
   const allATC: ATCSubsSpecs[] = atc1.children.map((atc2) => {

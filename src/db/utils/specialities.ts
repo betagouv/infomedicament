@@ -21,8 +21,10 @@ import { SpecialiteMetadata } from "../types";
 import {
   mapCatalogSpecialite,
   mapDetailedSpecialite,
+  mapLegacyCatalogSpecialite,
   VISIBLE_SPECIALITE_AVAILABILITIES,
 } from "./specialiteCatalog";
+import { getGenericGroupMembership } from "./generics";
 
 export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
   const result = await db
@@ -66,20 +68,43 @@ export const getDetailedSpecialite = cache(
 
   if (!row) return undefined;
 
-  const [titulaires, generique] = await Promise.all([
+  const genericGroupMembershipPromise = getGenericGroupMembership(CIS);
+  const [
+    titulaires,
+    genericGroupMembership,
+    importedReference,
+    statusEvent,
+    legacySpecialite,
+  ] = await Promise.all([
     db
       .selectFrom("ansm_specialite_titulaire")
       .where("cis", "=", CIS)
       .select(["raison_sociale", "raison_sociale_longue"])
       .orderBy("date_debut", "desc")
       .execute(),
-    row.generique
+    genericGroupMembershipPromise,
+    row.procedure === "IMPORTATION_PARALLELE" && row.generique
       ? db
         .selectFrom("ansm_specialite")
         .where("cis", "=", row.generique.toString())
         .select("denomination")
         .executeTakeFirst()
       : Promise.resolve(undefined),
+    row.statut_amm === "ABROGEE"
+      ? db
+        .selectFrom("ansm_specialite_evenement")
+        .where("cis", "=", CIS)
+        .where("code_evenement", "=", 33)
+        .where("date_evenement", "is not", null)
+        .select("date_evenement")
+        .orderBy("date_evenement", "desc")
+        .executeTakeFirst()
+      : Promise.resolve(undefined),
+    pdbmMySQL
+      .selectFrom("Specialite")
+      .where("SpecId", "=", CIS)
+      .select("Een")
+      .executeTakeFirst(),
   ]);
 
   const titulaireNames = titulaires
@@ -89,7 +114,11 @@ export const getDetailedSpecialite = cache(
   return mapDetailedSpecialite(
     row,
     titulaireNames.length > 0 ? [...new Set(titulaireNames)].join(", ") : null,
-    generique?.denomination ?? null,
+    genericGroupMembership?.referenceName ?? importedReference?.denomination ?? null,
+    genericGroupMembership?.codeGroupe.toString()
+      ?? (row.procedure === "IMPORTATION_PARALLELE" ? row.generique?.toString() ?? null : null),
+    statusEvent?.date_evenement ?? null,
+    legacySpecialite?.Een ?? null,
   );
 });
 
@@ -140,28 +169,6 @@ export const getAllSpecialites = cache(async function (): Promise<Specialite[]> 
 
   return rows.map(mapCatalogSpecialite);
 })
-
-export async function isPrincepsSpecialite(CIS: string): Promise<boolean> {
-  const numericCis = Number(CIS);
-  if (!Number.isInteger(numericCis)) return false;
-
-  return Boolean(await db
-    .selectFrom("ansm_specialite")
-    .where("generique", "=", numericCis)
-    .select("cis")
-    .executeTakeFirst());
-}
-
-export async function getAllGenericGroupCis(): Promise<string[]> {
-  const rows = await db
-    .selectFrom("ansm_specialite")
-    .where("generique", "is not", null)
-    .select("generique")
-    .distinct()
-    .execute();
-
-  return rows.flatMap(({ generique }) => generique ? [generique.toString()] : []);
-}
 
 export const getResumeSpecsGroupsWithLetter = cache(async function (letter: string): Promise<ResumeSpecGroup[]> {
   const result = await db
@@ -233,13 +240,15 @@ export const getSubstanceSpecialites = unstable_cache(async function (
   subsNomsIDs: (string | string[])
 ): Promise<Specialite[]> {
   const ids: string[] = !Array.isArray(subsNomsIDs) ? [subsNomsIDs] : subsNomsIDs;
-  return pdbmMySQL
+  const rows = await pdbmMySQL
     .selectFrom("Specialite")
     .selectAll("Specialite")
     .where((eb) => withSubstances(eb.ref("Specialite.SpecId"), ids))
     .where("Specialite.IsBdm", "=", 1)
     .groupBy("Specialite.SpecId")
     .execute();
+
+  return rows.map(mapLegacyCatalogSpecialite);
 },
   ["substance-specialites"],
   { revalidate: 3600 } // cache for one hour
