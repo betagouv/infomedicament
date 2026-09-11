@@ -19,7 +19,11 @@ import MedicamentContent from "@/components/medicaments/MedicamentContent";
 import ShareButtons from "@/components/generic/ShareButtons";
 import { getSpecialitesIndications, getSpecialitePathologies } from "@/db/utils/indications";
 import { getNotice } from "@/db/utils/notice";
-import { getPregnancyMentionAlert, getAllPregnancyPlanAlerts } from "@/db/utils/pregnancy";
+import {
+  getAllPregnancyPlanAlerts,
+  getPregnancyMentionAlert,
+} from "@/db/utils/pregnancy";
+import { findPregnancyPlanAlert } from "@/db/utils/pregnancyCatalog";
 import { getPediatrics } from "@/db/utils/pediatrics";
 import { getMarr } from "@/db/utils/marr";
 import { getArticlesFromFilters } from "@/db/utils/articles";
@@ -67,8 +71,9 @@ async function fetchMedicamentData(
     getSpecialitePathologies(CIS),
   ]);
 
-  const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
-    composants.some((c) => Number(c.SubsId.trim()) === Number(s.id))
+  const pregnancyPlanAlert = findPregnancyPlanAlert(
+    composants.map((component) => component.SubsId),
+    allPregnancyPlanAlerts,
   );
   const indicationsBlock = notice
     ? getIndicationsBlock(notice.contentHtml)
