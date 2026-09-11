@@ -1,3 +1,5 @@
+// Run with: npx tsx scripts/compareMedicinePages.ts
+// Optional env vars: PRODUCTION_URL=... LOCAL_URL=... REPORT_DIR=...
 import { chromium, type BrowserContext, type Page } from "@playwright/test";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";

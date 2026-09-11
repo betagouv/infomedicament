@@ -15,6 +15,7 @@ import { ShortIndication } from "@/types/IndicationsTypes";
 import { getPregnancyMentionAlert } from "@/db/utils/pregnancy";
 import { getPediatrics } from "@/db/utils/pediatrics";
 import { Specialite } from "@/types/SpecialiteTypes";
+import { findPregnancyPlanAlert } from "@/db/utils/pregnancyCatalog";
 
 type DataToResumeType = "indications" | "substances" | "medicaments" | "atc1" | "atc2" | "generiques" | "specialites";
 
@@ -280,8 +281,9 @@ async function createResumeSpecialites(): Promise<void> {
       const atc2: string | undefined = atc ? getAtc2Code(atc) : undefined;
 
       const events = await getEvents(spec.SpecId);
-      const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
-        rawComposants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
+      const pregnancyPlanAlert = findPregnancyPlanAlert(
+        rawComposants.map((component) => component.SubsId),
+        allPregnancyPlanAlerts,
       );
       const pediatrics = await getPediatrics(spec.SpecId);
 
