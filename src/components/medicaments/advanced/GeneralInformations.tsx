@@ -191,7 +191,7 @@ function GeneralInformations({
           <>
             {(isPrinceps && !isAIP(specialite)) ? (
               <GenericPrincepsTag 
-                id={specialite.SpecId} 
+                id={specialite.SpecGeneId || specialite.SpecId}
                 type="princeps"
                 hideIcon
               />
@@ -204,9 +204,11 @@ function GeneralInformations({
                     type="generic"
                     hideIcon
                   />
-                  <div>
-                    <strong>Princeps:&nbsp;</strong>{specialite.generiqueName}
-                  </div>
+                  {specialite.generiqueName && (
+                    <div>
+                      <strong>Princeps:&nbsp;</strong>{specialite.generiqueName}
+                    </div>
+                  )}
                 </>
               ) : (
                 <span>Pas de générique</span>
@@ -264,7 +266,7 @@ function GeneralInformations({
         </SummaryLine>
         <SummaryLine categoryName="Type de procédure">
           {specialite.ProcId 
-            ? (<span>{getProcedureLibLong(Number(specialite.ProcId))}</span>)
+            ? (<span>{getProcedureLibLong(specialite.ProcId)}</span>)
             : (<span>Non communiqué</span>)
           }
         </SummaryLine>

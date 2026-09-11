@@ -9,7 +9,7 @@ import SubstanceTag from "../tags/SubstanceTag";
 import { SpecComposant, SubstanceNom, VUEvnts } from "@/db/pdbmMySQL/types";
 import { displayCompleteComposants } from "@/displayUtils";
 import GenericAccordion from "../GenericAccordion";
-import { DetailedSpecialite, Specialite } from "@/types/SpecialiteTypes";
+import { Specialite } from "@/types/SpecialiteTypes";
 import DataBlockSpecGenerique from "../data/DataBlockSpecGenerique";
 import { isSurveillanceRenforcee } from "@/utils/specialites";
 
@@ -17,7 +17,7 @@ interface MedicamentGeneriqueContainerProps extends HTMLAttributes<HTMLDivElemen
   atc2?: ATC;
   composants : Array<SpecComposant & SubstanceNom>;
   groupName: string;
-  princeps: DetailedSpecialite;
+  princeps: Specialite[];
   generiques: Specialite[];
   events: VUEvnts[];
 }
@@ -55,14 +55,20 @@ function MedicamentGeneriqueContainer({
       </div>
       <GenericAccordion />
 
-      <h2 className={fr.cx("fr-h6", "fr-mt-2w", "fr-mb-1w")}>
-        Médicament princeps
-      </h2>
-      <DataBlockSpecGenerique 
-          key={princeps.SpecId}
-          specialite={princeps}
-          isSurveillanceRenforcee={false}
-        />
+      {princeps.length > 0 && (
+        <>
+          <h2 className={fr.cx("fr-h6", "fr-mt-2w", "fr-mb-1w")}>
+            {princeps.length} médicament{princeps.length > 1 && "s"} princeps
+          </h2>
+          {princeps.map((specialite) => (
+            <DataBlockSpecGenerique
+              key={specialite.SpecId}
+              specialite={specialite}
+              isSurveillanceRenforcee={false}
+            />
+          ))}
+        </>
+      )}
       <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
         {generiques.length} médicament{generiques.length > 1 && "s"} générique
         {generiques.length > 1 && "s"}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatIndicationsDetails, formatSpecialitesResume, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isHospitalDelivrance, isSurveillanceRenforcee } from "./specialites";
+import { formatIndicationsDetails, formatSpecialitesResume, getProcedureLibLong, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isHospitalDelivrance, isSurveillanceRenforcee } from "./specialites";
 import { DetailedSpecialite, SpecialiteStat } from "@/types/SpecialiteTypes";
 import { SpecDelivrance, VUEvnts } from "@/db/pdbmMySQL/types";
 import { ShortIndication } from "@/types/IndicationsTypes";
@@ -8,7 +8,7 @@ import { ResumeSpecialiteDB } from "@/db/types";
 const detailedSpec: DetailedSpecialite = {
   SpecId: "60035714",
   StatId: SpecialiteStat.Valide,
-  ProcId: "20",
+  ProcId: "CENTRALISEE",
   SpecGeneId: "",
   SpecDenom01: "SIMPONI 50 mg, solution injectable en seringue préremplie",
   SpecDateAMM: new Date("2009-10-01"),
@@ -26,9 +26,10 @@ describe("utils specialities", () => {
 
   it("isCentralisee", async () => {
     //Centralisée
+    detailedSpec.ProcId = "CENTRALISEE";
     expect(isCentralisee(detailedSpec)).toBe(true);
     //Not centralisée
-    detailedSpec.ProcId = "50";
+    detailedSpec.ProcId = "IMPORTATION_PARALLELE";
     expect(isCentralisee(detailedSpec)).toBe(false);
   })
 
@@ -42,9 +43,10 @@ describe("utils specialities", () => {
 
   it("isAIP", async () => {
     //AIP
+    detailedSpec.ProcId = "IMPORTATION_PARALLELE";
     expect(isAIP(detailedSpec)).toBe(true);
     //Not AIP
-    detailedSpec.ProcId = "20";
+    detailedSpec.ProcId = "CENTRALISEE";
     expect(isAIP(detailedSpec)).toBe(false);
   })
 
@@ -58,11 +60,19 @@ describe("utils specialities", () => {
 
   it("isHomeopathie", async () => {
     //Not Homéopathie
+    detailedSpec.ProcId = "CENTRALISEE";
     expect(isHomeopathie(detailedSpec)).toBe(false);
     //Homéopathie
-    detailedSpec.ProcId = "60";
+    detailedSpec.ProcId = "HOMEOPATHIQUE_NATIONALE";
     expect(isHomeopathie(detailedSpec)).toBe(true);
   })
+
+  it("formats textual procedures", () => {
+    expect(getProcedureLibLong("NATIONALE")).toBe("Procédure nationale");
+    expect(getProcedureLibLong("CENTRALISEE")).toBe("Procédure centralisée");
+    expect(getProcedureLibLong("IMPORTATION_PARALLELE")).toBe("Autorisation d'Importation Parallèle");
+    expect(getProcedureLibLong("HOMEOPATHIQUE_NATIONALE")).toBe("Enregistrement homéopathique en procédure nationale");
+  });
 
   it("isSurveillanceRenforcee", async () => {
     const eventsSurveillance: VUEvnts[] = [

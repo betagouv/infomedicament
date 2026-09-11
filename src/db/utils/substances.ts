@@ -10,6 +10,7 @@ import { SpecialiteWithSubstance } from "@/types/SpecialiteTypes";
 import { ResumeSubstance } from "../types";
 import db from "..";
 import { sql } from "kysely";
+import { mapLegacyCatalogSpecialite } from "./specialiteCatalog";
 
 export const getSubstances = cache(async function (
   ids: string[]
@@ -40,7 +41,7 @@ export const getSubstanceAllSpecialites = unstable_cache(async function (
   substanceIDs: string[]
 ): Promise<SpecialiteWithSubstance[]> {
   if (substanceIDs.length === 0) return [];
-  return pdbmMySQL
+  const rows = await pdbmMySQL
     .selectFrom("Specialite")
     .innerJoin("Composant", "Specialite.SpecId", "Composant.SpecId")
     .innerJoin("Subs_Nom", "Composant.NomId", "Subs_Nom.NomId")
@@ -53,6 +54,11 @@ export const getSubstanceAllSpecialites = unstable_cache(async function (
     .orderBy("Subs_Nom.NomId")
     .distinct()
     .execute();
+
+  return rows.map((row) => ({
+    ...mapLegacyCatalogSpecialite(row),
+    NomId: row.NomId,
+  }));
 },
   ["substance-all-specialites"],
   { revalidate: 3600 } // cache for one hour

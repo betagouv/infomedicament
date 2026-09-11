@@ -14,7 +14,6 @@ export interface PdbmMySQL {
   StatutAdm: StatutAdmTable;
   Patho: PathoTable;
   Spec_Patho: Spec_PathoTable;
-  GroupeGene: GroupeGeneTable;
   VUEmaEpar: VUEmaEparTable; //Documents Centralisés
   VUEvnts: VUEvntsTable; //Informations Importantes
   Spec_Titu: Spec_TituTable; //Titulaire date + id table Titulaire
@@ -144,13 +143,6 @@ interface Spec_PathoTable {
   codePatho: string;
 }
 
-interface GroupeGeneTable {
-  idGrp: number;
-  LibLong: string;
-  SpecId: string;
-  codeStat: number;
-  rangSpec: number;
-}
 
 interface VUEmaEparTable {
   SpecId: string;
@@ -230,7 +222,6 @@ export type PresAgreColl = Selectable<CNAMAgreCollTable>;
 export type SpecDelivrance = Selectable<SpecDelivranceTable> &
   Selectable<DicoDelivranceTable>;
 export type Patho = Selectable<PathoTable>;
-export type GroupeGene = Selectable<GroupeGeneTable>;
 export type VUEvnts = Selectable<VUEvntsTable>;
 export type PresentationRetro = Selectable<CNAMRetroTable>;
 
