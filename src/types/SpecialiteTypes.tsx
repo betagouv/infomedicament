@@ -74,6 +74,12 @@ export type DetailedSpecialite = Specialite & {
   generiqueName: string | null,
 }
 
+export type DeliveryCondition = {
+  code: number;
+  shortLabel: string | null;
+  longLabel: string | null;
+};
+
 export type NoticeBlockType = "generalites" | "usage" | "warnings" | "howTo" | "sideEffects" | "storage" | "composition";
 
 export type RcpData = {

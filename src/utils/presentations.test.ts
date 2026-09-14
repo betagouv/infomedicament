@@ -1,8 +1,46 @@
 import { AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation } from "@/types/PresentationTypes";
 import { describe, it, expect } from "vitest";
-import { caracCompDisplay, cleanPresentationsDetails, contenanceDisplay, dispositifDisplay, getAggregatePresentationRecipientsTexts, getPresentationFullPriceText, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isReimbursable, replacePluralSingular, totalDisplay } from "./presentations";
+import { caracCompDisplay, cleanPresentationsDetails, contenanceDisplay, dispositifDisplay, getAggregatePresentationRecipientsTexts, getPresentationFullPriceText, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isPresentationVisible, isReimbursable, replacePluralSingular, totalDisplay } from "./presentations";
 import { PresentationDetail } from "@/db/types";
-import { PresentationComm } from "@/db/pdbmMySQL/types";
+
+describe("utils presentations - commercial visibility", () => {
+  const cutoff = new Date("2024-09-14T00:00:00.000Z");
+
+  it.each([
+    ["commercialised", null, true],
+    ["stopped", new Date("2024-09-14T00:00:00.000Z"), true],
+    ["stopped", new Date("2024-09-13T00:00:00.000Z"), false],
+    ["suspended", new Date("2025-01-01T00:00:00.000Z"), true],
+    ["withdrawn", new Date("2025-01-01T00:00:00.000Z"), true],
+  ] as const)(
+    "keeps %s with end date %s: %s",
+    (commercialStatus, commercialisationEndDate, expected) => {
+      expect(isPresentationVisible({ commercialStatus, commercialisationEndDate }, cutoff)).toBe(expected);
+    },
+  );
+
+  it("does not use the commercialisation start date as the stop date", () => {
+    expect(isPresentationVisible({
+      commercialStatus: "stopped",
+      commercialisationEndDate: null,
+    }, cutoff)).toBe(false);
+  });
+
+  it("keeps only recent abrogations", () => {
+    expect(isPresentationVisible({
+      commercialStatus: "commercialised",
+      commercialisationEndDate: null,
+      administrativeStatus: "abrogated",
+      administrativeStatusDate: new Date("2025-01-01T00:00:00.000Z"),
+    }, cutoff)).toBe(true);
+    expect(isPresentationVisible({
+      commercialStatus: "commercialised",
+      commercialisationEndDate: null,
+      administrativeStatus: "abrogated",
+      administrativeStatusDate: new Date("2024-09-13T00:00:00.000Z"),
+    }, cutoff)).toBe(false);
+  });
+});
  
   //CIS : 69174918
   const recipientDetails: AggregateRecipientDetails = {
@@ -96,22 +134,25 @@ import { PresentationComm } from "@/db/pdbmMySQL/types";
 
   const presentations: Presentation[] = [
   {
-    AgreColl: 1,
-    Cip13: "3400935955838",
-    CommId: PresentationComm.Commercialisation,
-    DateJO: new Date(2002, 12, 19),
-    HonoDisp: 1.02,
-    PPF: 2.18,
-    Ppttc: 1.16,
-    PresCodeCip: "359 558-3 ou 34009 359 558 3 8",
-    PresCommDate: new Date(2003, 1, 2),
-    PresNom01: "plaquette(s) thermoformée(s) PVC-aluminium de 8  comprimé(s)",
-    PresNum: "1",
-    PresStatDAte: null,
-    SpecId: "60234100",
-    StatId: null,
-    TauxPriseEnCharge: "65%",
-    codeCIP13: "3400935955838",
+    cis: "60234100",
+    cip13: "3400935955838",
+    cip7: "3595583",
+    name: "plaquette(s) thermoformée(s) PVC-aluminium de 8  comprimé(s)",
+    commercialStatus: "commercialised",
+    commercialisationDate: new Date(2003, 1, 2),
+    commercialisationEndDate: null,
+    administrativeStatus: "active",
+    administrativeStatusDate: null,
+    pricingKnown: true,
+    retailPrice: 2.18,
+    priceExcludingDispensingFee: 1.16,
+    dispensingFee: 1.02,
+    reimbursementRate: "65%",
+    communityApproval: true,
+    communityApprovalDate: new Date(2002, 12, 19),
+    additionalList: false,
+    retrocessionList: false,
+    ivgPricing: false,
     details: [
       {
         caraccomplrecip: "PVC-Aluminium",
@@ -129,32 +170,27 @@ import { PresentationComm } from "@/db/pdbmMySQL/types";
         unitecontenance: "comprimé(s)"
       }
     ],
-    retro: {
-      Cip13: "3400935955838",
-      IVG: "non",
-      ListSus: "non",
-      RbtNico: "non ;",
-      Retro: "non",
-      SpecId: "60234100",
-    }
   },
   {
-    AgreColl: 1,
-    Cip13: "3400956369553",
-    CommId: PresentationComm.Commercialisation,
-    DateJO: new Date(2002, 12, 19),
-    HonoDisp: null,
-    PPF: null,
-    Ppttc: null,
-    PresCodeCip: "563 695-5 ou 34009 563 695 5 3",
-    PresCommDate: new Date(2003, 3, 17),
-    PresNom01: "plaquette(s) thermoformée(s) PVC-aluminium de 100  comprimé(s)",
-    PresNum: "2",
-    PresStatDAte: null,
-    SpecId: "60234100",
-    StatId: null,
-    TauxPriseEnCharge: null,
-    codeCIP13: "3400956369553",
+    cis: "60234100",
+    cip13: "3400956369553",
+    cip7: "5636955",
+    name: "plaquette(s) thermoformée(s) PVC-aluminium de 100  comprimé(s)",
+    commercialStatus: "commercialised",
+    commercialisationDate: new Date(2003, 3, 17),
+    commercialisationEndDate: null,
+    administrativeStatus: "active",
+    administrativeStatusDate: null,
+    pricingKnown: false,
+    retailPrice: null,
+    priceExcludingDispensingFee: null,
+    dispensingFee: null,
+    reimbursementRate: null,
+    communityApproval: true,
+    communityApprovalDate: new Date(2002, 12, 19),
+    additionalList: false,
+    retrocessionList: false,
+    ivgPricing: false,
     details: [
       {
         caraccomplrecip: "PVC-Aluminium",
@@ -172,14 +208,6 @@ import { PresentationComm } from "@/db/pdbmMySQL/types";
         unitecontenance: "comprimé(s)"
       }
     ],
-    retro: {
-      Cip13: "3400956369553",
-      IVG: "non",
-      ListSus: "non",
-      RbtNico: "non ;",
-      Retro: "non",
-      SpecId: "60234100",
-    }
   }];
 
 describe("utils presentations - cleanPresentationsDetails", () => {
@@ -536,17 +564,17 @@ describe("utils presentations - text utilities", () => {
 
   it("getPresentationFullPriceText", async () => {
     expect(getPresentationFullPriceText(presentations[0])).toBe("Prix 2,18 € - remboursé à 65%");
-    expect(getPresentationFullPriceText(presentations[1])).toBe("Prix libre - non remboursable");
+    expect(getPresentationFullPriceText(presentations[1])).toBe("");
   });
 
   it("getPresentationTauxPriseEnChargeText", async () => {
     expect(getPresentationTauxPriseEnChargeText(presentations[0])).toBe("remboursé à 65%");
-    expect(getPresentationTauxPriseEnChargeText(presentations[1])).toBe("non remboursable");
+    expect(getPresentationTauxPriseEnChargeText(presentations[1])).toBe("");
   });
 
   it("getPresentationPriceText", async () => {
     expect(getPresentationPriceText(presentations[0])).toBe("2,18 €");
-    expect(getPresentationPriceText(presentations[1])).toBe("Prix libre");
+    expect(getPresentationPriceText(presentations[1])).toBe("");
   });
 
 });
