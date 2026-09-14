@@ -13,19 +13,13 @@ export const getResumeSpecsGroupsAlerts = async function (specsGroups: ResumeSpe
     );
 
     const pediatricsInfo = {
-      indication: false,
       contraindication: false,
-      doctorAdvice: false,
-      mention: false,
     }
     let pregnancyMentionAlert = false;
     const specialites: ShortSpecialite[] = group.shortSpecialites.map((spec: ShortSpecialite) => {
       const pediatrics = allPediatricsInfo.find((info) => info.CIS === spec.SpecId);
       if (pediatrics) {
-        if (pediatrics.indication) pediatricsInfo.indication = true;
-        if (pediatrics.contraindication) pediatricsInfo.contraindication = true;
-        if (pediatrics.doctorAdvice) pediatricsInfo.doctorAdvice = true;
-        if (pediatrics.mention) pediatricsInfo.mention = true;
+        pediatricsInfo.contraindication = pediatrics.contraindication;
       }
       const pregnancyAlert = allPregnancyMentionAlerts.find((mentionCIS) => mentionCIS === spec.SpecId);
       if (pregnancyAlert) pregnancyMentionAlert = true;
@@ -44,7 +38,7 @@ export const getResumeSpecsGroupsAlerts = async function (specsGroups: ResumeSpe
       alerts: {
         pregnancyPlanAlert: !!pregnancyPlanAlert,
         pregnancyMentionAlert: pregnancyMentionAlert,
-        pediatrics: (pediatricsInfo.indication || pediatricsInfo.contraindication || pediatricsInfo.doctorAdvice || pediatricsInfo.mention) ? pediatricsInfo : undefined
+        pediatrics: pediatricsInfo ?? undefined,
       },
       shortSpecialites: specialites,
     }

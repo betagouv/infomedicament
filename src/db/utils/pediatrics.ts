@@ -9,16 +9,13 @@ import { isOuiOrNon } from "@/utils/pediatrics";
 export const getAllPediatrics = unstable_cache(
     async function (): Promise<AllPediatricsInfo[]> {
         const rows = await db.selectFrom("ref_pediatrie")
-            .select(["cis", "indication", "contre_indication", "avis", "mention"])
+            .select(["cis", "contre_indication"])
             .execute();
 
         return rows.map((row) => (
             {
                 CIS: row.cis ? row.cis.toString().trim() : "",
-                indication: row.indication ? row.indication.toString().trim() === "oui" : false,
-                contraindication: row.contre_indication ? row.contre_indication.toString().trim() === "oui" : false,
-                doctorAdvice: row.avis ? row.avis.toString().trim() === "oui" : false,
-                mention: row.mention ? row.mention.toString().trim() === "oui" : false,
+                contraindication: row.contre_indication ? row.contre_indication : false,
             }));
     },
     ["all-pediatrics"],
@@ -29,7 +26,7 @@ export async function getPediatrics(
     CIS: string,
 ): Promise<PediatricsInfo | undefined> {
     const rows = await db.selectFrom("ref_pediatrie")
-        .select(["cis", "indication", "contre_indication", "avis", "mention"])
+        .select(["cis", "contre_indication"])
         .where("cis", "=", CIS)
         .execute();
 
@@ -42,24 +39,8 @@ export async function getPediatrics(
     }
     const record = rows[0];
 
-    if (
-        !isOuiOrNon(record.indication) ||
-        !isOuiOrNon(record.contre_indication) ||
-        !isOuiOrNon(record.avis) ||
-        !isOuiOrNon(record.mention)
-    ) {
-        throw new Error(
-            `Unexpected value in pediatrics data for CIS ${CIS}: ${JSON.stringify(
-                record,
-            )}`,
-        );
-    }
-
     if (record)
         return {
-            indication: record.indication.trim() === "oui",
-            contraindication: record.contre_indication.trim() === "oui",
-            doctorAdvice: record.avis.trim() === "oui",
-            mention: record.mention.trim() === "oui",
+            contraindication: record.contre_indication ? record.contre_indication : false,
         };
 };
