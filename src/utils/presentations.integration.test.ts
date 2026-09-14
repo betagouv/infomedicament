@@ -54,6 +54,26 @@ describe("utils presentations", () => {
     expect(shortPresentationName).toBe("Seringue préremplie de 0,5 ml");
   });
 
+  it("getPresentationName - uses normalized ANSM packaging when no legacy detail exists", async () => {
+    const presentations: Presentation[] = await getFullPresentations("61183406");
+    const presentation = presentations.find(({ cip13 }) => cip13 === "3400927721786");
+
+    expect(presentation).toBeDefined();
+    expect(getPresentationName(presentation!)).toBe("1 flacon aluminium de 100 g");
+    expect(getPresentationName(presentation!, true)).toBe("Flacon de 100 g");
+  });
+
+  it("getPresentationName - preserves a device count carried by the ANSM presentation name", async () => {
+    const presentations: Presentation[] = await getFullPresentations("60007565");
+    const presentation = presentations.find(({ cip13 }) => cip13 === "3400930323731");
+
+    expect(presentation).toBeDefined();
+    expect(getPresentationName(presentation!)).toBe(
+      "1 seringue préremplie en verre de 0,25 ml avec 2 aiguilles",
+    );
+    expect(getPresentationName(presentation!, true)).toBe("Seringue préremplie de 0,25 ml");
+  });
+
   it("getPresentationName - plural", async () => {
     const presentations: Presentation[] = await getFullPresentations("64783769");
     const fullPresentationName: string = getPresentationName(presentations[0]);
@@ -104,7 +124,7 @@ describe("utils presentations", () => {
     const presentations: Presentation[] = await getFullPresentations("60206332");
     const fullPresentationName: string = getPresentationName(presentations[0]);
     const shortPresentationName: string = getPresentationName(presentations[0], true);
-    expect(fullPresentationName).toBe("1 plaquette PVC-Aluminium PVDC de 12 comprimés - 1 plaquette PVC-Aluminium PVDC de 4 comprimés");
+    expect(fullPresentationName).toBe("1 plaquette PVC-Aluminium PVDC de 12 comprimés - 1 plaquette PVC-Aluminium de 4 comprimés");
     expect(shortPresentationName).toBe("Plaquette de 12 comprimés - Plaquette de 4 comprimés");
   });
 

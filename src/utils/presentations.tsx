@@ -1,5 +1,4 @@
-import { PresentationDetail } from "@/db/types";
-import { AggregateCaraccomplrecipsDetails, AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation, PresentationCommercialStatus, PresentationRecipientsDetails } from "@/types/PresentationTypes";
+import { AggregateCaraccomplrecipsDetails, AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation, PresentationCommercialStatus, PresentationPackagingDetail, PresentationRecipientsDetails } from "@/types/PresentationTypes";
 import { capitalize } from "tsafe";
 
 const unitesMesures = [
@@ -92,7 +91,7 @@ export function dispositifDisplay(dispositifDetails: AggregateDispositifDetails[
   return detailsText;
 }
 
-function isCaraccomplrecipDetails(details: PresentationDetail): boolean {
+function isCaraccomplrecipDetails(details: PresentationPackagingDetail): boolean {
   if(details.caraccomplrecip) {
     const find = details.nom_presentation.toLowerCase().trim().indexOf(details.caraccomplrecip.toLowerCase().trim());
     if(find !== -1){
@@ -102,7 +101,7 @@ function isCaraccomplrecipDetails(details: PresentationDetail): boolean {
   return false;
 }
 
-function cleanRecipientDetails(details: PresentationDetail): AggregateRecipientDetails {
+function cleanRecipientDetails(details: PresentationPackagingDetail): AggregateRecipientDetails {
   return {
       recipient: details.recipient,
       numrecipient: details.numrecipient,
@@ -167,9 +166,9 @@ function sortCleanPresentationsDetails(cleanPresDetails: AggregatePresentationDe
     });
 }
 
-export function cleanPresentationsDetails(presDetails: PresentationDetail[]): AggregatePresentationDetails[]{
+export function cleanPresentationsDetails(presDetails: PresentationPackagingDetail[]): AggregatePresentationDetails[]{
   const cleanPresDetails:AggregatePresentationDetails[] = [];
-  presDetails.forEach((details: PresentationDetail) => {
+  presDetails.forEach((details: PresentationPackagingDetail) => {
     const index = cleanPresDetails.findIndex((cleanDetails) => cleanDetails.codecip13 === details.codecip13);
     if(index === -1){
       //New element in the presentations
