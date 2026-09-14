@@ -1,7 +1,6 @@
-import { AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation } from "@/types/PresentationTypes";
+import { AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation, PresentationPackagingDetail } from "@/types/PresentationTypes";
 import { describe, it, expect } from "vitest";
 import { caracCompDisplay, cleanPresentationsDetails, contenanceDisplay, dispositifDisplay, getAggregatePresentationRecipientsTexts, getPresentationFullPriceText, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isPresentationVisible, isReimbursable, replacePluralSingular, totalDisplay } from "./presentations";
-import { PresentationDetail } from "@/db/types";
 
 describe("utils presentations - commercial visibility", () => {
   const cutoff = new Date("2024-09-14T00:00:00.000Z");
@@ -213,7 +212,7 @@ describe("utils presentations - commercial visibility", () => {
 describe("utils presentations - cleanPresentationsDetails", () => {
   it("cleanPresentationsDetails - PVC-Alumium and PVC - multiple caraccomplrecip with the same value ", async () => {
     //CIS : 60018444
-    const presDetails: PresentationDetail[] = [
+    const presDetails: PresentationPackagingDetail[] = [
       {
         caraccomplrecip: "PVDC",
         codecip13: "3400930101001",
@@ -340,7 +339,7 @@ describe("utils presentations - cleanPresentationsDetails", () => {
 
   it("cleanPresentationsDetails - with dispositif, recipient and caraccomplrecip", async () => {
     //CIS : 60052222
-    const presDetails: PresentationDetail[] = [
+    const presDetails: PresentationPackagingDetail[] = [
       {
         caraccomplrecip: "en verre",
         codecip13: "3400930276419",
@@ -408,7 +407,7 @@ describe("utils presentations - cleanPresentationsDetails", () => {
 
   it("cleanPresentationsDetails - two recipients", async () => {
     //CIS : 60206332
-    const presDetails: PresentationDetail[] = [
+    const presDetails: PresentationPackagingDetail[] = [
       {
         caraccomplrecip: "PVDC",
         codecip13: "3400935753274",

@@ -1,5 +1,3 @@
-import { PresentationDetail } from "@/db/types";
-
 export type PresentationCommercialStatus =
   | "commercialised"
   | "stopped"
@@ -32,7 +30,23 @@ export type Presentation = PresentationCommercialData & {
   commercialisationEndDate: Date | null;
   administrativeStatus: PresentationAdministrativeStatus;
   administrativeStatusDate: Date | null;
-  details?: PresentationDetail[];
+  details?: PresentationPackagingDetail[];
+};
+
+export type PresentationPackagingDetail = {
+  codecip13: string;
+  nom_presentation: string;
+  numelement: number;
+  nomelement: string;
+  recipient: string;
+  numrecipient: number;
+  nbrrecipient: number;
+  qtecontenance: number;
+  unitecontenance: string;
+  caraccomplrecip: string;
+  numordreedit: number;
+  numdispositif: number;
+  dispositif: string;
 };
 
 export type AggregateDispositifDetails = {

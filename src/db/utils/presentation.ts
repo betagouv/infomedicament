@@ -5,8 +5,8 @@ import {
   Presentation,
   PresentationAdministrativeStatus,
   PresentationCommercialStatus,
+  PresentationPackagingDetail,
 } from "@/types/PresentationTypes";
-import { PresentationDetail } from "../types";
 import { isPresentationVisible } from "@/utils/presentations";
 import db from "..";
 
@@ -35,6 +35,24 @@ function mapYesNo(value: string | undefined): boolean | null {
   if (normalized === "oui") return true;
   if (normalized === "non") return false;
   return null;
+}
+
+function numericValue(value: number | null): number {
+  return value === null ? 0 : Number(value);
+}
+
+function preserveDeviceCount(device: string | null, denomination: string | null): string {
+  if (!device || !denomination || !device.toLowerCase().startsWith("avec ")) return device ?? "";
+
+  const pluralDevice = device
+    .replaceAll("(s)", "s")
+    .replaceAll("al(aux)", "aux")
+    .replaceAll("(x)", "x");
+  const deviceWithoutAvec = pluralDevice.slice("avec ".length);
+  const escapedDevice = deviceWithoutAvec.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const countedDevice = denomination.match(new RegExp(`avec\\s+\\d+\\s+${escapedDevice}`, "i"));
+
+  return countedDevice?.[0] ?? device;
 }
 
 export const getPresentations = cache(async (CIS: string): Promise<Presentation[]> => {
@@ -130,14 +148,89 @@ export const getPresentations = cache(async (CIS: string): Promise<Presentation[
 
 export const getPresentationsDetails = cache(async (
   codeCIP13List: string[],
-): Promise<PresentationDetail[]> => codeCIP13List.length > 0
-  ? db
-    .selectFrom("presentations")
-    .selectAll()
-    .where("presentations.codecip13", "in", codeCIP13List)
-    .distinct()
-    .execute()
-  : []);
+): Promise<PresentationPackagingDetail[]> => {
+  if (codeCIP13List.length === 0) return [];
+
+  const presentationRows = await db
+    .selectFrom("ansm_presentation")
+    .where("cip", "in", codeCIP13List)
+    .select(["cip", "cis", "denomination"])
+    .execute();
+  if (presentationRows.length === 0) return [];
+  const cips = presentationRows.map(({ cip }) => cip);
+  const cisList = [...new Set(presentationRows.map(({ cis }) => cis))];
+
+  const [recipients, characteristics, devices, elements] = await Promise.all([
+    db
+      .selectFrom("ansm_recipient")
+      .where("cip", "in", cips)
+      .selectAll()
+      .execute(),
+    db
+      .selectFrom("ansm_caracteristique")
+      .where("cip", "in", cips)
+      .selectAll()
+      .execute(),
+    db
+      .selectFrom("ansm_dispositif")
+      .where("cip", "in", cips)
+      .selectAll()
+      .execute(),
+    db
+      .selectFrom("ansm_element")
+      .where("cis", "in", cisList)
+      .selectAll()
+      .execute(),
+  ]);
+
+  const characteristicsByRecipient = new Map<string, typeof characteristics>();
+  for (const characteristic of characteristics) {
+    const key = `${characteristic.cip}:${characteristic.numero_recipient}`;
+    characteristicsByRecipient.set(key, [
+      ...(characteristicsByRecipient.get(key) ?? []),
+      characteristic,
+    ]);
+  }
+  const devicesByCip = new Map<string, typeof devices>();
+  for (const device of devices) {
+    devicesByCip.set(device.cip, [...(devicesByCip.get(device.cip) ?? []), device]);
+  }
+  const elementByPresentationAndNumber = new Map(
+    elements.map((element) => [`${element.cis}:${element.numero_element}`, element]),
+  );
+  const presentationByCip = new Map(presentationRows.map((presentation) => [presentation.cip, presentation]));
+
+  return recipients.flatMap((recipient): PresentationPackagingDetail[] => {
+    const presentation = presentationByCip.get(recipient.cip);
+    if (!presentation) return [];
+
+    const recipientCharacteristics = characteristicsByRecipient.get(
+      `${recipient.cip}:${recipient.numero_recipient}`,
+    ) ?? [null];
+    const presentationDevices = devicesByCip.get(recipient.cip) ?? [null];
+    const element = recipient.numero_element === null
+      ? undefined
+      : elementByPresentationAndNumber.get(`${presentation.cis}:${recipient.numero_element}`);
+
+    return recipientCharacteristics.flatMap((characteristic) =>
+      presentationDevices.map((device): PresentationPackagingDetail => ({
+        codecip13: recipient.cip,
+        nom_presentation: presentation.denomination ?? "",
+        numelement: element?.ordre ?? recipient.numero_element ?? 0,
+        nomelement: element?.denomination ?? "",
+        recipient: recipient.nature_recipient ?? "",
+        numrecipient: recipient.numero_recipient,
+        nbrrecipient: numericValue(recipient.nombre),
+        qtecontenance: numericValue(recipient.quantite_contenance),
+        unitecontenance: recipient.unite_contenance ?? "",
+        caraccomplrecip: characteristic?.libelle ?? "",
+        numordreedit: characteristic?.ordre ?? 0,
+        numdispositif: device?.numero_dispositif ?? 0,
+        dispositif: preserveDeviceCount(device?.nature_dispositif ?? null, presentation.denomination),
+      })),
+    );
+  });
+});
 
 export const getFullPresentations = cache(async (CIS: string): Promise<Presentation[]> => {
   const presentations = await getPresentations(CIS);
