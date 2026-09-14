@@ -1,6 +1,6 @@
 import { fr } from "@codegouvfr/react-dsfr";
 import { getAtc1, getAtc2, getAtc1DefinitionData, getSubstancesByAtc } from "@/db/utils/atc";
-import { ATC, ATC1, ATCSubsSpecs } from "@/types/ATCTypes";
+import { ATC, ATC1, ATCSubs } from "@/types/ATCTypes";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
 import ContentContainer from "@/components/generic/ContentContainer";
@@ -9,9 +9,7 @@ import ATC1DefinitionContent from "@/components/definition/ATC1DefinitionContent
 import ATC2DefinitionContent from "@/components/definition/ATC2DefinitionContent";
 import { Metadata, ResolvingMetadata } from "next";
 import { getArticlesFromATC } from "@/db/utils/articles";
-import { groupSpecialites } from "@/utils/specialites";
 import { AdvancedATCClass } from "@/types/DataTypes";
-import { SpecialiteWithSubstance } from "@/types/SpecialiteTypes";
 import { getSubstancesResume } from "@/db/utils/substances";
 import { ResumeSubstance } from "@/db/types";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
@@ -53,18 +51,14 @@ async function fetchATC1Data(atc1: ATC1): Promise<{ articles: ArticleCardResume[
     getArticlesFromATC(atc1.code),
     getAtc1DefinitionData(atc1),
   ]);
-  const dataList = (allATC as ATCSubsSpecs[]).map((atcSubsSpecs) => {
-    let nbSubs = 0;
-    atcSubsSpecs.substances.forEach((sub) => {
-      const subSpecs = atcSubsSpecs.specialites
-        .filter((spec: SpecialiteWithSubstance) => spec.NomId.trim() === sub.NomId.trim());
-      if (groupSpecialites(subSpecs).length > 0) nbSubs++;
-    });
-    return {
-      class: { nbSubstances: nbSubs, ...atcSubsSpecs.atc, children: atcSubsSpecs.atc.children ?? [] },
-      subclasses: [],
-    };
-  }).filter((data) => data.class.nbSubstances > 0);
+  const dataList = (allATC as ATCSubs[]).map((atcSubsSpecs) => ({
+    class: { 
+      nbSubstances: atcSubsSpecs.nbSubstances, 
+      ...atcSubsSpecs.atc, 
+      children: atcSubsSpecs.atc.children ?? [] 
+    },
+    subclasses: [],
+  })).filter((data) => data.class.nbSubstances > 0);
   return { articles, dataList };
 }
 
@@ -73,8 +67,8 @@ async function fetchATC2Data(atc2: ATC): Promise<{ articles: ArticleCardResume[]
     getArticlesFromATC(atc2.code),
     getSubstancesByAtc(atc2),
   ]);
-  const subsNomIDs = [...new Set(substances.map((s) => s.NomId.trim()))];
-  const dataList = await getSubstancesResume(subsNomIDs);
+  const subsIDs = [...new Set(substances.map((s) => s.SubsId.trim()))];
+  const dataList = await getSubstancesResume(subsIDs);
   return { articles, dataList };
 }
 

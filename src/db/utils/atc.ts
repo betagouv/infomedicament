@@ -4,10 +4,10 @@ import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { pdbmMySQL } from "../pdbmMySQL";
 import { ATCError } from "@/utils/atc";
-import { ATC, ATC1, ATCLabels, ATCSubsSpecs } from "@/types/ATCTypes";
+import { ATC, ATC1, ATCLabels, ATCSubs } from "@/types/ATCTypes";
 import { SubstanceNom } from "../pdbmMySQL/types";
 import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
-import { withOneSubstance } from "./query";
+import { getSubstancesResume } from "./substances";
 import db from "@/db/";
 import { RefAtcFriendlyNiveau1, RefAtcFriendlyNiveau2 } from "../types";
 
@@ -274,7 +274,7 @@ export const getResumeSpecsATCLabels = async function (
  * Loads substances and specialites for all ATC2 children in a single server call.
  * Before, we were making 2 queries per ATC2 child !
  */
-export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubsSpecs[]> {
+export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubs[]> {
   // Build map of ATC2 code -> CIS codes from the database
   const atc2ToCIS = new Map<string, string[]>();
   const allCIS: string[] = [];
@@ -289,76 +289,37 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubsSpecs[]>
 
   // Early return if no medications found
   if (uniqueCIS.length === 0) {
-    return atc1.children.map((atc2) => ({
-      atc: atc2,
-      substances: [],
-      specialites: [],
-    }));
+    return atc1.children.map((atc2) => ({ atc: atc2, nbSubstances: 0 }));
   }
 
-  // Fetch all substances with their CIS for grouping
+  // Fetch all active substances for all CIS at once, mirroring getSubstancesByAtc
   const substancesWithCIS = await pdbmMySQL
     .selectFrom("Subs_Nom")
     .leftJoin("Composant", "Composant.NomId", "Subs_Nom.NomId")
+    .innerJoin("Specialite", "Specialite.SpecId", "Composant.SpecId")
     .where("Composant.SpecId", "in", uniqueCIS)
+    .where("Specialite.IsBdm", "=", 1)
     .selectAll("Subs_Nom")
     .select("Composant.SpecId as SpecId")
     .execute();
 
   if (substancesWithCIS.length === 0) {
-    return atc1.children.map((atc2) => ({
-      atc: atc2,
-      substances: [],
-      specialites: [],
-    }));
+    return atc1.children.map((atc2) => ({ atc: atc2, nbSubstances: 0 }));
   }
 
-  // Group substances by ATC2
-  const atc2ToSubstances = new Map<string, SubstanceNom[]>();
-  for (const [atc2Code, cisList] of atc2ToCIS) {
-    const cisSet = new Set(cisList);
-    const substances = substancesWithCIS
-      .filter((s) => s.SpecId && cisSet.has(s.SpecId))
-      .map(({ SpecId, ...sub }) => sub as SubstanceNom);
+  // Fetch the resume_substances rows for all substances at once (same source the ATC2 page counts from)
+  const allSubsIds = [...new Set(substancesWithCIS.map((s) => s.SubsId.trim()))];
+  const allResumeSubstances = await getSubstancesResume(allSubsIds);
 
-    // Deduplicate by NomId and sort
-    // TODO: check if deduplicating is needed !
-    const unique = substances.filter(
-      (sub, i, self) => self.findIndex((s) => s.NomId === sub.NomId) === i
+  return atc1.children.map((atc2) => {
+    const cisSet = new Set(atc2ToCIS.get(atc2.code) ?? []);
+    const subsIds = new Set(
+      substancesWithCIS
+        .filter((s) => s.SpecId && cisSet.has(s.SpecId))
+        .map((s) => s.SubsId.trim())
     );
-    unique.sort((a, b) => a.NomLib.localeCompare(b.NomLib));
-    atc2ToSubstances.set(atc2Code, unique);
-  }
+    const nbSubstances = allResumeSubstances.filter((r) => subsIds.has(r.SubsId.trim())).length;
 
-  // Fetch all specialites for all substances at once
-  const allSubstanceIDs = [...new Set(substancesWithCIS.map((s) => s.NomId.trim()))];
-
-  const allSpecialites = allSubstanceIDs.length > 0
-    ? await pdbmMySQL
-      .selectFrom("Specialite")
-      .innerJoin("Composant", "Specialite.SpecId", "Composant.SpecId")
-      .innerJoin("Subs_Nom", "Composant.NomId", "Subs_Nom.NomId")
-      .where("Composant.NomId", "in", allSubstanceIDs)
-      .where((eb) => withOneSubstance(eb.ref("Specialite.SpecId"), eb.ref("Subs_Nom.NomId")))
-      .selectAll("Specialite")
-      .select("Subs_Nom.NomId")
-      .groupBy(["Specialite.SpecId", "Subs_Nom.NomId"])
-      .orderBy("Subs_Nom.NomId")
-      .distinct()
-      .execute()
-    : [];
-
-  // Build result
-  const allATC: ATCSubsSpecs[] = atc1.children.map((atc2) => {
-    const substances = atc2ToSubstances.get(atc2.code) ?? [];
-    const substanceIDs = new Set(substances.map((s) => s.NomId.trim()));
-
-    return {
-      atc: atc2,
-      substances,
-      specialites: allSpecialites.filter((sp) => substanceIDs.has(sp.NomId.trim())),
-    };
+    return { atc: atc2, nbSubstances };
   });
-
-  return allATC;
 }
