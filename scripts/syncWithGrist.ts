@@ -106,13 +106,10 @@ async function main() {
 
         // 5. PEDIATRIE
         await syncTable('ref_pediatrie', 'Pediatrie',
-            ['CIS', 'indication', 'contre_indication', 'avis', 'mention'],
+            ['CIS', 'contre_indication'],
             (r) => ({
                 cis: safeString(r.fields.CIS),
-                indication: r.fields.indication,
                 contre_indication: r.fields.contre_indication,
-                avis: r.fields.avis,
-                mention: r.fields.mention,
             })
         );
 

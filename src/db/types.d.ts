@@ -240,12 +240,9 @@ export interface RefPathologies {
 }
 
 export interface RefPediatrie {
-  avis: string | null;
   cis: string | null;
-  contre_indication: string | null;
+  contre_indication: boolean | null;
   id: Generated<number>;
-  indication: string | null;
-  mention: string | null;
 }
 
 export interface RefSubstanceActive {
