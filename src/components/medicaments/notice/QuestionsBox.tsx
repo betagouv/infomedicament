@@ -66,21 +66,18 @@ const SearchRow = styled.div`
 interface QuestionsBoxProps extends HTMLAttributes<HTMLDivElement> {
   currentQuestion: string | undefined;
   updateCurrentQuestion: (question: string) => void;
-  updateNoticeContainerClassName: (className: string) => void;
   onSearch: (query: string) => void;
 }
 
 function QuestionsBox({
   currentQuestion,
   updateCurrentQuestion,
-  updateNoticeContainerClassName,
   onSearch,
   ...props
 }: QuestionsBoxProps) {
   const [searchValue, setSearchValue] = useState("");
 
   const onClick = (anchorData: QuestionAnchors) => {
-    updateNoticeContainerClassName("highlight-" + anchorData.id);
     updateCurrentQuestion(anchorData.id);
     trackEvent("Boîte questions", anchorData.tracking);
   };

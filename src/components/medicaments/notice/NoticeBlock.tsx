@@ -4,10 +4,9 @@ import { HTMLAttributes } from "react";
 import styled from 'styled-components';
 import { fr } from "@codegouvfr/react-dsfr";
 import ContentContainer from "@/components/generic/ContentContainer";
-import { RcpNoticeContainer } from "../blocks/GenericBlocks";
+import DocumentHtml from "../DocumentHtml";
 import { NoticeData } from "@/types/SpecialiteTypes";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
-import { getContent } from "@/utils/notices";
 import { Definition } from "@/types/GlossaireTypes";
 import { isCentralisee } from "@/utils/specialites";
 import CentraliseBlock from "../blocks/CentraliseBlock";
@@ -27,14 +26,12 @@ interface NoticeBlockProps extends HTMLAttributes<HTMLDivElement> {
   notice?: NoticeData,
   specialite?: DetailedSpecialite,
   definitions?: Definition[],
-  noticeContainerClassName?: string,
 }
 
 function NoticeBlock({
   notice,
   specialite,
   definitions,
-  noticeContainerClassName,
   ...props
 }: NoticeBlockProps) {
 
@@ -43,9 +40,9 @@ function NoticeBlock({
       {...props}
       className={[props.className, fr.cx("fr-mt-3w")].join(" ")}
     >
-      <ContentContainer className={noticeContainerClassName} id="noticeContainer">
-        {(notice && notice.children) ? (
-          <RcpNoticeContainer>{getContent(notice.children, definitions)}</RcpNoticeContainer>
+      <ContentContainer id="noticeContainer">
+        {notice ? (
+          <DocumentHtml contentHtml={notice.contentHtml} definitions={definitions} />
         ) : (specialite && isCentralisee(specialite)) ? (
           <CentraliseBlock
             pdfURL={specialite.urlCentralise ? specialite.urlCentralise : undefined}
