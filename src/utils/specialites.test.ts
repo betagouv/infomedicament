@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { formatIndicationsDetails, formatSpecialitesResume, getProcedureLibLong, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isHospitalDelivrance, isSurveillanceRenforcee } from "./specialites";
-import { DeliveryCondition, DetailedSpecialite, SpecialiteStat } from "@/types/SpecialiteTypes";
+import { DelivranceCondition, DetailedSpecialite, SpecialiteStat } from "@/types/SpecialiteTypes";
 import { VUEvnts } from "@/db/pdbmMySQL/types";
 import { ShortIndication } from "@/types/IndicationsTypes";
 import { ResumeSpecialiteDB } from "@/db/types";
@@ -212,7 +212,7 @@ describe("utils specialities - delivrance", () => {
 
   it("isHospitalDelivrance", async () => {
     //Usage hospitalier
-    const delivrances_1: DeliveryCondition[] = [{
+    const delivrances_1: DelivranceCondition[] = [{
       shortLabel: "liste I",
       code: 120,
       longLabel: "liste I",
@@ -240,7 +240,7 @@ describe("utils specialities - delivrance", () => {
     expect(isHospitalDelivrance(delivrances_1)).toBe(true);
 
     //Not "Usage hospitalier"
-    const delivrances_2: DeliveryCondition[] = [{
+    const delivrances_2: DelivranceCondition[] = [{
       shortLabel: "hors ETS : prescr. par médecins, sages-femmes et centres habilités art L.2212-2",
       code: 199,
       longLabel: "hors établissement de santé : prescription réservée aux médecins, sages-femmes et centres habilités conformément à l'article L.2212-2 du code de la santé publique",

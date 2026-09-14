@@ -74,7 +74,7 @@ export type DetailedSpecialite = Specialite & {
   generiqueName: string | null,
 }
 
-export type DeliveryCondition = {
+export type DelivranceCondition = {
   code: number;
   shortLabel: string | null;
   longLabel: string | null;

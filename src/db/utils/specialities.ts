@@ -12,7 +12,7 @@ import db from "@/db";
 import { getFullPresentations } from "@/db/utils/presentation";
 import { unstable_cache } from "next/cache";
 import { withSubstances } from "./query";
-import { DeliveryCondition, DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite, Specialite } from "@/types/SpecialiteTypes";
+import { DelivranceCondition, DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite, Specialite } from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
 import { formatSpecialitesResume, formatSpecialitesResumeFromGroups } from "@/utils/specialites";
@@ -135,7 +135,7 @@ export const getSpecialite = cache(async (CIS: string) => {
       ? await getFullPresentations(CIS)
       : [];  
 
-  const delivrance: DeliveryCondition[] =
+  const delivrance: DelivranceCondition[] =
     specialite
       ? await db
         .selectFrom("ansm_specialite_delivrance")

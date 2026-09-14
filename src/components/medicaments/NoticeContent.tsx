@@ -14,7 +14,7 @@ import styled from "styled-components";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import ArticlesResumeList from "../articles/ArticlesResumeList";
 import { Marr } from "@/types/MarrTypes";
-import { DeliveryCondition, NoticeData, SpecialiteStat } from "@/types/SpecialiteTypes";
+import { DelivranceCondition, NoticeData, SpecialiteStat } from "@/types/SpecialiteTypes";
 import QuestionsBox from "./notice/QuestionsBox";
 import NoticeChunkResultsBox from "./notice/NoticeChunkResultsBox";
 import Badge from "@codegouvfr/react-dsfr/Badge";
@@ -89,7 +89,7 @@ interface NoticeContentProps extends HTMLAttributes<HTMLDivElement> {
   specialite?: DetailedSpecialite;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
-  delivrance: DeliveryCondition[];
+  delivrance: DelivranceCondition[];
   pregnancyPlanAlert: PregnancyAlert | undefined;
   isPregnancyMentionAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
