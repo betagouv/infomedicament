@@ -2,6 +2,20 @@ import { describe, expect, it } from "vitest";
 import { getIndicationsBlock } from "./noticeHtml";
 
 describe("getIndicationsBlock", () => {
+  it("preserves an indication section marked on its heading", () => {
+    const contentHtml = `
+      <h2 data-document-role="indication">1. Qu'est-ce que ce médicament ?</h2>
+      <p>Classe pharmacothérapeutique : antalgique.</p>
+      <p>Ce médicament est utilisé pour traiter la douleur.</p>
+      <h2>2. Informations nécessaires</h2>
+      <p>Ne prenez jamais ce médicament.</p>
+    `;
+
+    expect(getIndicationsBlock(contentHtml)).toBe(
+      '<h2 data-document-role="indication">1. Qu\'est-ce que ce médicament ?</h2><p>Classe pharmacothérapeutique : antalgique.</p><p>Ce médicament est utilisé pour traiter la douleur.</p>',
+    );
+  });
+
   it("preserves every element marked as an indication", () => {
     const contentHtml = `
       <h2>1. Qu'est-ce que ce médicament ?</h2>

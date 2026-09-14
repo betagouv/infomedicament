@@ -5,12 +5,9 @@ import { Selectable } from "kysely";
 export interface Database {
   search_index: SearchIndexTable;
   search_synonyms: SearchSynonymsTable;
-  leaflet_images: LeafletImagesTable;
   presentations: PresentationTable;
   rcp: RcpTable;
-  rcp_content: RcpContentTable;
   notices: NoticeTable;
-  notices_content: NoticeContentTable;
   rating: RatingTable;
   resume_indications: ResumeIndicationsTable;
   resume_substances: ResumeSubstancesTable;
@@ -63,6 +60,8 @@ export interface Database {
   ansm_document: AnsmDocumentTable;
   ansm_caracteristique: AnsmCaracteristiqueTable;
   ansm_specialite_titulaire: AnsmSpecialiteTitulaireTable;
+  ansm_videos: AnsmVideosTable;
+  ansm_videos_cis: AnsmVideosCISTable;
   ansm_stock: AnsmStockTable;
 }
 
@@ -78,11 +77,6 @@ interface SearchSynonymsTable {
   id: Generated<number>;
   alias: string; // lay term, stored normalized (lowercase, unaccented)
   canonical: string; // medical term, accented form; normalized at query time
-}
-
-interface LeafletImagesTable {
-  path: string;
-  image: Buffer;
 }
 
 interface PresentationTable {
@@ -108,18 +102,6 @@ interface RcpTable {
   children?: number[],
   content_html?: string | null,
 }
-interface RcpContentTable {
-  id?: number,
-  type?: string,
-  styles?: string[],
-  anchor?: string,
-  content?: string[],
-  children?: number[],
-  tag?: string,
-  rowspan?: number,
-  colspan?: number,
-}
-
 interface NoticeTable {
   codeCIS: number,
   title?: string,
@@ -127,18 +109,6 @@ interface NoticeTable {
   children?: number[],
   content_html?: string | null,
 }
-interface NoticeContentTable {
-  id?: number,
-  type?: string,
-  styles?: string[],
-  anchor?: string,
-  content?: string[],
-  children?: number[],
-  tag?: string,
-  rowspan?: number,
-  colspan?: number,
-}
-
 interface RatingTable {
   id?: number,
   pageId: string,
@@ -274,12 +244,9 @@ export interface RefPathologies {
 }
 
 export interface RefPediatrie {
-  avis: string | null;
   cis: string | null;
-  contre_indication: string | null;
+  contre_indication: boolean | null;
   id: Generated<number>;
-  indication: string | null;
-  mention: string | null;
 }
 
 export interface RefSubstanceActive {
@@ -466,6 +433,16 @@ interface AnsmSpecialiteTable {
   disponibilite: "INDISPONIBLE" | "DISPONIBLE" | "PARTIELLE" | "ALERTE" | null;
 }
 
+interface AnsmVideosTable {
+  id: number;
+  url: string;
+  title: string;
+}
+interface AnsmVideosCISTable {
+  CIS: string;
+  id_video: number;
+}
+
 interface AnsmStockTable {
   CIS: string;
   CIP?: string;
@@ -477,8 +454,6 @@ interface AnsmStockTable {
   link?: string;
 }
 
-
-export type LeafletImage = Selectable<LeafletImagesTable>;
 export type SearchResult = Selectable<SearchIndexTable>;
 export type SearchSynonym = Selectable<SearchSynonymsTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
@@ -516,6 +491,7 @@ export type SpecialiteMetadata = Selectable<SpecialiteMetadataTable>;
 export type NoticeDB = Selectable<NoticeTable>;
 export type NoticeContentDB = Selectable<NoticeContentTable>;
 export type AnsmSpecialite = Selectable<AnsmSpecialiteTable>;
+export type AnsmVideos = Selectable<AnsmVideosTable>;
 export type AnsmStockDB = Selectable<AnsmStockTable>;
 
 interface AnsmAtcTable {

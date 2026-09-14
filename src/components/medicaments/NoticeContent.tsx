@@ -52,6 +52,8 @@ import { ShortIndication } from "@/types/IndicationsTypes";
 import HospitalTag from "../tags/HospitalTag";
 import { isReimbursable } from "@/utils/presentations";
 import ReimbursableTag from "../tags/ReimbursableTag";
+import { AnsmVideos } from "@/db/types";
+import { VideosBlock } from "./notice/VideosBlock";
 
 const NoticeContentContainer = styled.div`
   @media (max-width: 48em) {
@@ -107,6 +109,7 @@ interface NoticeContentProps extends HTMLAttributes<HTMLDivElement> {
   indications: ShortIndication[];
   indicationsBlock?: string;
   articles: ArticleCardResume[];
+  videos?: AnsmVideos[];
   onGoToAdvanced: (advanced: boolean) => void;
   onGoToAdvancedAnchor: (anchor?: AnchorMenu) => void;
 }
@@ -130,6 +133,7 @@ function NoticeContent({
   indications,
   indicationsBlock,
   articles,
+  videos,
   onGoToAdvanced,
   onGoToAdvancedAnchor,
   ...props
@@ -392,11 +396,16 @@ function NoticeContent({
               />
             </ContentContainer>
           )}
-          {currentMarr && currentMarr.pdf.length > 0 && (
-            <ContentContainer
-              whiteContainer
+          {(videos && videos.length > 0) && (
+            <ContentContainer 
+              whiteContainer 
               className={fr.cx("fr-mb-2w", "fr-p-2w")}
             >
+              <VideosBlock videos={videos} />
+            </ContentContainer>
+          )}
+          {(currentMarr && currentMarr.pdf.length > 0) && (
+            <ContentContainer whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
               <MarrNotice
                 marr={currentMarr}
                 onGoToAdvanced={onGoToAdvancedAnchor}
