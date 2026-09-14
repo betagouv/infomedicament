@@ -151,6 +151,8 @@ interface ResumeSpecialitesTable {
   groupName: string;
   composants: string;
   subsIds: string[];
+  // Filled only when composants uses a secondary substance name
+  subsMainNames: string | null;
   indicationsIds: number[];
   indicationsIdsNames: string[][]; //idIndication, nomIndication
   atc1Code?: string;

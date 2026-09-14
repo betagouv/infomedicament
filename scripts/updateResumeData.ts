@@ -241,11 +241,25 @@ async function createResumeSpecialites(): Promise<void> {
     .select(["subs_id", "lien_site_ansm"])
     .execute()
     .then((rows) => rows.map((row) => ({ id: row.subs_id?.trim() || "", link: row.lien_site_ansm?.trim() || "" })));
+
+  //Get all main subsName 
+  const allMainSubsNames = await pdbmMySQL
+    .selectFrom("Subs_Nom")
+    .select(["SubsId", "NomLib"])
+    .whereRef("NomId", "=", "SubsId")
+    .execute();
+  const mainSubsNamesBySubsId = new Map(allMainSubsNames.map((row) => [row.SubsId.trim(), row.NomLib.trim()]));
+
   const results = await Promise.all(
     allSpecialites.map(async (spec) => {
       const rawComposants = await getComposants(spec.SpecId);
       const composants: SubstanceNom[] = displaySimpleComposants(rawComposants);
       const subsIds: string[] = composants.map((s) => s.SubsId.trim());
+
+      // Fill subsMainNames only if one name is not the substance's main name.
+      const subsMainNames = composants.map((s) => mainSubsNamesBySubsId.get(s.SubsId.trim()) ?? s.NomLib.trim());
+      const isSecondarySubsName = composants.some((s, i) => s.NomLib.trim() !== subsMainNames[i]);
+
       const rawIndicationsCodes: ShortIndication[] = await getSpecialitesIndications([spec.SpecId]);
       const indicationsIds: number[] = rawIndicationsCodes
         .map((indication) => indication.idIndication)
@@ -272,6 +286,7 @@ async function createResumeSpecialites(): Promise<void> {
           groupName: getSpecialiteGroupName(spec),
           composants: composants.map((s) => s.NomLib.trim()).join(", "),
           subsIds: subsIds,
+          subsMainNames: isSecondarySubsName ? subsMainNames.join(", ") : null,
           indicationsIds: indicationsIds,
           indicationsIdsNames: indicationsIdsNames,
           atc1Code: atc1,

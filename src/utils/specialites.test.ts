@@ -192,6 +192,7 @@ describe("utils specialities", () => {
       specId: "67623734",
       specName: "DEPAKINE 200 mg, comprimé gastro-résistant",
       subsIds: ['05562'],
+      subsMainNames: null,
     }]
     const formattedSpecs = formatSpecialitesResume(specs);
     const expectedIndicationsDetails = [{

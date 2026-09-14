@@ -61,9 +61,9 @@ function DataBlockSpecResult({
   }, [specialite, setPrefixName, setSuffixName]);
 
   useEffect(() => {
-    const findSubs = subsFilters.find((filter) => filter.id === specialite.composants.trim());
+    const findSubs = subsFilters.find((filter) => filter.id === specialite.subsIds.join());
     if(findSubs)
-      setSubsNames(findSubs.name);
+      setSubsNames(specialite.composants);
     else
       setSubsNames("");
   }, [specialite, subsFilters, setSubsNames]);
