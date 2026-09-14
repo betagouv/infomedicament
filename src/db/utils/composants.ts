@@ -1,17 +1,20 @@
 "use server";
 import "server-cli-only";
 
-import { cache } from "react";
+import { cacheLife } from "next/cache";
 import { SpecComposant, SubstanceNom } from "../pdbmMySQL/types";
 import { pdbmMySQL } from "../pdbmMySQL";
 
-export const getComposants = cache(async function (CIS: string) {
-  return await getComposantsList([CIS]);
-});
+export async function getComposants(CIS: string) {
+  return getComposantsList([CIS]);
+}
 
-export const getComposantsList = cache(async (CISList: string[]) => {
-  if(CISList.length > 0) {
-    const composants: Array<SpecComposant & SubstanceNom> = ( 
+export async function getComposantsList(CISList: string[]) {
+  "use cache: remote";
+  cacheLife("hourly");
+
+  if (CISList.length > 0) {
+    const composants: Array<SpecComposant & SubstanceNom> = (
       await pdbmMySQL
         .selectFrom("Composant")
         .innerJoin("Element", "Composant.ElmtNum", "Element.ElmtNum")
@@ -27,4 +30,4 @@ export const getComposantsList = cache(async (CISList: string[]) => {
     return composants;
   }
   return [];
-});
+}

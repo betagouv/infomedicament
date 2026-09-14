@@ -8,28 +8,35 @@ import { Metadata, ResolvingMetadata } from "next";
 import { getSubstances, getSubstanceDefinition } from "@/db/utils/substances";
 import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinitionContent";
 import { getArticlesFromSubstances } from "@/db/utils/articles";
-import { getResumeSpecsGroupsWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
+import {
+  getResumeSpecsGroupsWithCIS,
+  getSubstanceSpecialitesCIS,
+} from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
-
-export const dynamic = "error";
-export const dynamicParams = true;
+import { cacheLife } from "next/cache";
+import { Suspense } from "react";
+import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 
 export async function generateMetadata(
   props: { params: Promise<{ id: string }> },
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-
   const { id } = await props.params;
-  const ids = decodeURIComponent(id).split(",");//NomId
-  const substances: SubstanceNom[] = await getSubstances(ids) ?? [];
+  const ids = decodeURIComponent(id).split(","); //NomId
+  const substances: SubstanceNom[] = (await getSubstances(ids)) ?? [];
   if (substances.length < ids.length) {
     return {
       title: `Substance ${id}`,
     };
   }
 
-  const definitionsRaw = await getSubstanceDefinition(ids, substances.map((subs) => subs.SubsId.trim()));
-  const definitionString = definitionsRaw.map(d => `${d.SA} : ${d.Definition}`).join(" - ")
+  const definitionsRaw = await getSubstanceDefinition(
+    ids,
+    substances.map((subs) => subs.SubsId.trim()),
+  );
+  const definitionString = definitionsRaw
+    .map((d) => `${d.SA} : ${d.Definition}`)
+    .join(" - ");
 
   return {
     title: `${substances.map((s) => s.NomLib).join(", ")} - ${(await parent).title?.absolute}`,
@@ -37,11 +44,30 @@ export async function generateMetadata(
   };
 }
 
-export default async function Page(props: { params: Promise<{ id: string }> }) {
-  const { id } = await props.params;
-  const ids = decodeURIComponent(id).split(",");//NomId
+export default function Page(props: { params: Promise<{ id: string }> }) {
+  return (
+    <Suspense fallback={<PageLoadingFallback />}>
+      <ResolvedSubstancePage params={props.params} />
+    </Suspense>
+  );
+}
 
-  const substances: SubstanceNom[] = await getSubstances(ids) ?? [];
+async function ResolvedSubstancePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  return <CachedSubstancePage id={id} />;
+}
+
+async function CachedSubstancePage({ id }: { id: string }) {
+  "use cache: remote";
+  cacheLife("daily");
+
+  const ids = decodeURIComponent(id).split(","); //NomId
+
+  const substances: SubstanceNom[] = (await getSubstances(ids)) ?? [];
   if (substances.length < ids.length) return notFound();
 
   const subsIds = substances.map((s) => s.SubsId.trim());
@@ -52,12 +78,16 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     getSubstanceSpecialitesCIS(ids),
   ]);
 
-  const definition = definitions.map((d) => ({ title: d.SA, desc: d.Definition }));
+  const definition = definitions.map((d) => ({
+    title: d.SA,
+    desc: d.Definition,
+  }));
 
   const allSpecsGroups = await getResumeSpecsGroupsWithCIS(CISList);
-  const dataList = allSpecsGroups.length > 0
-    ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
-    : [];
+  const dataList =
+    allSpecsGroups.length > 0
+      ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
+      : [];
 
   return (
     <ContentContainer frContainer>
@@ -84,9 +114,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         definition={definition}
         dataList={dataList}
       />
-      <RatingToaster
-        pageId={substances.map((s) => s.NomLib).join(", ")}
-      />
+      <RatingToaster pageId={substances.map((s) => s.NomLib).join(", ")} />
     </ContentContainer>
   );
 }

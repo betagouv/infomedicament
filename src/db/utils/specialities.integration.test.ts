@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { getAllSpecialites, getDetailedSpecialite, getSpecialite, getSubstanceSpecialites, getSubstanceSpecialitesCIS } from "./specialities";
 
 // disable cache for testing
-vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
+vi.mock("next/cache", () => ({ cacheLife: vi.fn() }));
 
 describe("db utils specialities", () => {
 

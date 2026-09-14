@@ -133,6 +133,14 @@ confirmation et joue ensuite les migrations Kysely. Consultez
 
 L'application est déployée sur Scalingo.
 
+### Cache ISR
+
+Au démarrage, l'application utilise Redis pour partager le cache Next.js entre
+les conteneurs lorsque `SCALINGO_REDIS_URL` ou `REDIS_URL` est définie. Si Redis
+est configuré mais inaccessible, le démarrage échoue afin d'éviter que les
+instances utilisent des caches locaux incohérents. Sans URL Redis, le cache
+local standard de Next.js est conservé.
+
 ### Review Apps
 
 Chaque pull request déploie automatiquement une review app sur Scalingo.

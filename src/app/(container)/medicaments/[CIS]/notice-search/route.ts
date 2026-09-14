@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { unstable_cache } from "next/cache";
+import { cacheLife } from "next/cache";
 import { answerNoticeQuestion } from "@/lib/albert";
 import { getNotice } from "@/db/utils/notice";
 
@@ -12,14 +12,26 @@ export interface NoticeChunkHit {
   quote?: string;
 }
 
-type LLMResult = { answer: string; section_anchor: string; sub_header: string; block_id: string; quote: string };
+type LLMResult = {
+  answer: string;
+  section_anchor: string;
+  sub_header: string;
+  block_id: string;
+  quote: string;
+};
 
-const getCachedAnswer = (CIS: string, q: string, noticeText: string) =>
-  unstable_cache(
-    (): Promise<LLMResult> => answerNoticeQuestion(noticeText, q),
-    ["notice-search", CIS, q],
-    { revalidate: 60 * 60 * 24 },
-  )();
+async function getCachedAnswer(
+  CIS: string,
+  q: string,
+): Promise<LLMResult | undefined> {
+  "use cache: remote";
+  cacheLife("daily");
+
+  const notice = await getNotice(CIS);
+  if (!notice?.contentHtml) return undefined;
+
+  return answerNoticeQuestion(notice.contentHtml, q);
+}
 
 export async function GET(
   req: NextRequest,
@@ -29,29 +41,28 @@ export async function GET(
   const q = req.nextUrl.searchParams.get("q");
   if (!q) return NextResponse.json({ error: "Missing q" }, { status: 400 });
 
-  const notice = await getNotice(CIS);
-  if (!notice?.contentHtml) return NextResponse.json({ hits: [] });
-
-  let result: LLMResult;
+  let result: LLMResult | undefined;
   try {
-    result = await getCachedAnswer(CIS, q, notice.contentHtml);
+    result = await getCachedAnswer(CIS, q.trim());
   } catch (err) {
     console.error("[notice-search] LLM error", err);
     return NextResponse.json({ hits: [] });
   }
 
-  if (!result.answer) return NextResponse.json({ hits: [] });
+  if (!result?.answer) return NextResponse.json({ hits: [] });
 
-  const stripBold = (s: string) => s.replace(/\*\*/g, '').trim();
+  const stripBold = (s: string) => s.replace(/\*\*/g, "").trim();
 
   return NextResponse.json({
-    hits: [{
-      section_anchor: result.section_anchor,
-      section_title: "",
-      sub_header: result.sub_header ? stripBold(result.sub_header) : null,
-      answer: stripBold(result.answer),
-      block_id: result.block_id || undefined,
-      quote: result.quote || undefined,
-    }],
+    hits: [
+      {
+        section_anchor: result.section_anchor,
+        section_title: "",
+        sub_header: result.sub_header ? stripBold(result.sub_header) : null,
+        answer: stripBold(result.answer),
+        block_id: result.block_id || undefined,
+        quote: result.quote || undefined,
+      },
+    ],
   });
 }

@@ -1,4 +1,7 @@
-import { getGlossaryLetters, getGlossaryDefinitionsByFirstLetter } from "@/db/utils/glossary";
+import {
+  getGlossaryLetters,
+  getGlossaryDefinitionsByFirstLetter,
+} from "@/db/utils/glossary";
 import { fr } from "@codegouvfr/react-dsfr";
 import { notFound } from "next/navigation";
 import AlphabeticNav from "@/components/AlphabeticNav";
@@ -6,13 +9,15 @@ import slugify from "slugify";
 import { Fragment } from "react";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-
-export const dynamic = "error";
-export const dynamicParams = true;
+import { cacheLife } from "next/cache";
+import { withStaticParamFallback } from "@/utils/staticParams";
 
 export async function generateStaticParams() {
   const letters = await getGlossaryLetters();
-  return letters.map((letter) => ({ letter }));
+  return withStaticParamFallback(
+    letters.map((letter) => ({ letter })),
+    { letter: "A" },
+  );
 }
 const PAGE_LABEL: string = "Glossaire";
 
@@ -20,6 +25,12 @@ export default async function Page(props: {
   params: Promise<{ letter: string }>;
 }) {
   const { letter } = await props.params;
+  return <CachedGlossaryPage letter={letter} />;
+}
+
+async function CachedGlossaryPage({ letter }: { letter: string }) {
+  "use cache: remote";
+  cacheLife("daily");
 
   const letters = await getGlossaryLetters();
   if (!letters.includes(letter)) return notFound();
@@ -61,9 +72,7 @@ export default async function Page(props: {
           ))}
         </div>
       </div>
-      <RatingToaster
-        pageId={`${PAGE_LABEL} ${letter}`}
-      />
+      <RatingToaster pageId={`${PAGE_LABEL} ${letter}`} />
     </ContentContainer>
   );
 }

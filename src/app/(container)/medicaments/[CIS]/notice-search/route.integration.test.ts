@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import nock from "nock";
 
 vi.mock("server-only", () => ({}));
-vi.mock("next/cache", () => ({ unstable_cache: (fn: unknown) => fn }));
+vi.mock("next/cache", () => ({ cacheLife: vi.fn() }));
 
 import { NextRequest } from "next/server";
 import { GET } from "./route";

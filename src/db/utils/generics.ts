@@ -1,24 +1,33 @@
 "use server";
 
-import { cache } from "react";
+import { cacheLife } from "next/cache";
 import { ResumeGeneric } from "../types";
 import db from "..";
 import { sql } from "kysely";
 import { pdbmMySQL } from "../pdbmMySQL";
 import { Specialite } from "../pdbmMySQL/types";
 
-export const getGenericsResumeWithLetter = cache(async function(letter: string): Promise<ResumeGeneric[]> {
-  const result:ResumeGeneric[] = await db
+export async function getGenericsResumeWithLetter(
+  letter: string,
+): Promise<ResumeGeneric[]> {
+  "use cache: remote";
+  cacheLife("daily");
+
+  const result: ResumeGeneric[] = await db
     .selectFrom("resume_generiques")
     .selectAll()
-    .where(({eb, ref}) => eb(
-      sql<string>`upper(${ref("SpecName")})`, "like", `${letter.toUpperCase()}%`
-    ))
+    .where(({ eb, ref }) =>
+      eb(
+        sql<string>`upper(${ref("SpecName")})`,
+        "like",
+        `${letter.toUpperCase()}%`,
+      ),
+    )
     .distinct()
     .orderBy("SpecName")
     .execute();
   return result;
-});
+}
 
 export async function getGroupeGene(CIS: string) {
   return pdbmMySQL
@@ -29,13 +38,11 @@ export async function getGroupeGene(CIS: string) {
 }
 
 export async function getGeneriques(CIS: string): Promise<Specialite[]> {
-  return (
-    pdbmMySQL
-      .selectFrom("Specialite")
-      .where("SpecGeneId", "=", CIS)
-      .where("SpecId", "!=", CIS)
-      .where("IsBdm", "=", 1)
-      .selectAll()
-      .execute()
-  );
+  return pdbmMySQL
+    .selectFrom("Specialite")
+    .where("SpecGeneId", "=", CIS)
+    .where("SpecId", "!=", CIS)
+    .where("IsBdm", "=", 1)
+    .selectAll()
+    .execute();
 }

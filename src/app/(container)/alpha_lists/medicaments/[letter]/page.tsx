@@ -6,13 +6,15 @@ import { getLetters } from "@/db/utils/letters";
 import { getResumeSpecsGroupsWithLetter } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { DataTypeEnum } from "@/types/DataTypes";
-
-export const dynamic = "error";
-export const dynamicParams = true;
+import { cacheLife } from "next/cache";
+import { withStaticParamFallback } from "@/utils/staticParams";
 
 export async function generateStaticParams() {
   const letters = await getLetters("medicaments");
-  return letters.map((letter) => ({ letter }));
+  return withStaticParamFallback(
+    letters.map((letter) => ({ letter })),
+    { letter: "A" },
+  );
 }
 const PAGE_LABEL: string = "Liste des médicaments";
 
@@ -20,13 +22,19 @@ export default async function Page(props: {
   params: Promise<{ letter: string }>;
 }) {
   const { letter } = await props.params;
+  return <CachedMedicamentsList letter={letter} />;
+}
+
+async function CachedMedicamentsList({ letter }: { letter: string }) {
+  "use cache: remote";
+  cacheLife("daily");
 
   const [letters, specsGroups] = await Promise.all([
     getLetters("medicaments"),
     getResumeSpecsGroupsWithLetter(letter),
   ]);
-  const dataList = (await getResumeSpecsGroupsATCLabels(specsGroups)).sort((a, b) =>
-    a.groupName.localeCompare(b.groupName)
+  const dataList = (await getResumeSpecsGroupsATCLabels(specsGroups)).sort(
+    (a, b) => a.groupName.localeCompare(b.groupName),
   );
 
   return (

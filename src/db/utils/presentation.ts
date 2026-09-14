@@ -1,5 +1,5 @@
 import "server-cli-only";
-import { cache } from "react";
+import { cacheLife } from "next/cache";
 import {
   PdbmMySQL,
   PresentationComm,
@@ -42,95 +42,89 @@ export const presentationIsComm = () => {
   ]);
 };
 
-export const getPresentations = cache(
-  async (
-    CIS: string,
-  ): Promise<Presentation[]> => {
-    const result = (
-      await pdbmMySQL
-        .selectFrom("Presentation")
-        .where("SpecId", "=", CIS)
-        .where(presentationIsComm())
-        .leftJoin("CEPS_Prix", "Presentation.codeCIP13", "CEPS_Prix.Cip13")
-        .leftJoin("CNAM_AgreColl", "Presentation.codeCIP13", "CNAM_AgreColl.Cip13")
-        .selectAll()
+export async function getPresentations(CIS: string): Promise<Presentation[]> {
+  "use cache: remote";
+  cacheLife("hourly");
+
+  const result = (
+    await pdbmMySQL
+      .selectFrom("Presentation")
+      .where("SpecId", "=", CIS)
+      .where(presentationIsComm())
+      .leftJoin("CEPS_Prix", "Presentation.codeCIP13", "CEPS_Prix.Cip13")
+      .leftJoin(
+        "CNAM_AgreColl",
+        "Presentation.codeCIP13",
+        "CNAM_AgreColl.Cip13",
+      )
+      .selectAll()
       //  .select(({ fn, val }) => [
       //     fn<boolean>("", [val(presentationIsComm())]).as("isCommercialisee"),
       //   ])
-        .execute()
-    )
-    .sort((a, b) =>
-      a.PPF && b.PPF ? a.PPF - b.PPF : a.PPF ? -1 : b.PPF ? 1 : 0,
-    );
-    return result;
-  },
-);
+      .execute()
+  ).sort((a, b) =>
+    a.PPF && b.PPF ? a.PPF - b.PPF : a.PPF ? -1 : b.PPF ? 1 : 0,
+  );
+  return result;
+}
 
-export const getPresentationsDetails = cache(
-  async (
-    codeCIP13List: string[]
-  ): Promise<PresentationDetail[]> => {
-    const presentationsDetails = 
-      codeCIP13List.length
-      ? await db
+export async function getPresentationsDetails(
+  codeCIP13List: string[],
+): Promise<PresentationDetail[]> {
+  "use cache: remote";
+  cacheLife("hourly");
+
+  const presentationsDetails = codeCIP13List.length
+    ? await db
         .selectFrom("presentations")
         .selectAll()
-        .where(
-          "presentations.codecip13",
-          "in",
-          codeCIP13List,
-        )
+        .where("presentations.codecip13", "in", codeCIP13List)
         .distinct()
         .execute()
-      : [];
-    return presentationsDetails;
-  }
-);
+    : [];
+  return presentationsDetails;
+}
 
-export const getPresentationsRetro = cache(
-  async (
-    codeCIP13List: string[]
-  ): Promise<PresentationRetro[]> => {
-    const presentationsRetro = 
-      codeCIP13List.length
-      ? await pdbmMySQL
+export async function getPresentationsRetro(
+  codeCIP13List: string[],
+): Promise<PresentationRetro[]> {
+  "use cache: remote";
+  cacheLife("hourly");
+
+  const presentationsRetro = codeCIP13List.length
+    ? await pdbmMySQL
         .selectFrom("CNAM_Retro")
         .selectAll()
-        .where(
-          "CNAM_Retro.Cip13",
-          "in",
-          codeCIP13List,
-        )
+        .where("CNAM_Retro.Cip13", "in", codeCIP13List)
         .distinct()
         .execute()
-      : [];
-    return presentationsRetro;
-  }
-);
+    : [];
+  return presentationsRetro;
+}
 
-export const getFullPresentations = cache(
-  async (
-    CIS: string,
-  ): Promise<Presentation[]> => {
-    const presentations: Presentation[] = await getPresentations(CIS);
-    const codesCIP13: string[] = presentations.map((p) => p.codeCIP13);
-    const presentationsDetails: PresentationDetail[] = await getPresentationsDetails(codesCIP13);
-    const presentationsRetro: PresentationRetro[] = await getPresentationsRetro(codesCIP13);
+export async function getFullPresentations(
+  CIS: string,
+): Promise<Presentation[]> {
+  const presentations: Presentation[] = await getPresentations(CIS);
+  const codesCIP13: string[] = presentations.map((p) => p.codeCIP13);
+  const [presentationsDetails, presentationsRetro] = await Promise.all([
+    getPresentationsDetails(codesCIP13),
+    getPresentationsRetro(codesCIP13),
+  ]);
 
-    presentations.forEach((p) => {
-      const details = presentationsDetails.filter(
-        (d) => d.codecip13.trim() === p.codeCIP13.trim(),
-      );
-      p.details = details;
-      const retro = presentationsRetro.filter(
-        (r) => r.Cip13.trim() === p.codeCIP13.trim(),
-      );
-      if (retro.length > 0) {
-        //Only one per presentation
-        p.retro = retro[0];
-      }
-    });
+  presentations.forEach((p) => {
+    const details = presentationsDetails.filter(
+      (d) => d.codecip13.trim() === p.codeCIP13.trim(),
+    );
+    p.details = details;
+    const retro = presentationsRetro.filter(
+      (r) => r.Cip13.trim() === p.codeCIP13.trim(),
+    );
+    if (retro.length > 0) {
+      //Only one per presentation
+      p.retro = retro[0];
+    }
+  });
 
-    return presentations;
-  }
-);
+  return presentations;
+}

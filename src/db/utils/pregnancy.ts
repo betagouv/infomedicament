@@ -1,13 +1,15 @@
 "use server";
 import "server-cli-only";
 
-import { unstable_cache } from "next/cache";
+import { cacheLife } from "next/cache";
 import db from '@/db';
 import { PregnancyAlert } from "@/types/PregancyTypes";
 
 // Cache for 1 hour - this data rarely changes
-export const getAllPregnancyPlanAlerts = unstable_cache(
-    async function (): Promise<PregnancyAlert[]> {
+export async function getAllPregnancyPlanAlerts(): Promise<PregnancyAlert[]> {
+  "use cache: remote";
+        cacheLife("hourly");
+
         const rows = await db.selectFrom("ref_grossesse_substances_contre_indiquees")
             .select(["subs_id", "lien_site_ansm"])
             .execute();
@@ -16,22 +18,18 @@ export const getAllPregnancyPlanAlerts = unstable_cache(
             id: row.subs_id?.trim() || "",
             link: row.lien_site_ansm?.trim() || "",
         }));
-    },
-    ["all-pregnancy-plan-alerts"],
-    { revalidate: 3600 }
-);
+}
 
-export const getAllPregnancyMentionAlerts = unstable_cache(
-    async function (): Promise<string[]> {
+export async function getAllPregnancyMentionAlerts(): Promise<string[]> {
+        "use cache: remote";
+        cacheLife("hourly");
+
         const rows = await db.selectFrom("ref_grossesse_mention")
             .select(["cis"])
             .execute();
 
         return rows.map((row) => row.cis?.trim() || "");
-    },
-    ["all-pregnancy-mention-alerts"],
-    { revalidate: 3600 }
-);
+}
 
 export async function getPregnancyMentionAlert(CIS: string): Promise<boolean> {
     const rows = await db.selectFrom("ref_grossesse_mention")

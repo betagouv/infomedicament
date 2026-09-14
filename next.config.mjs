@@ -1,11 +1,12 @@
 import { withSentryConfig } from "@sentry/nextjs";
 import bundleAnalyzer from "@next/bundle-analyzer";
+import { fileURLToPath } from "node:url";
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
-const isDev = process.env.NODE_ENV === 'development'
+const isDev = process.env.NODE_ENV === "development";
 
 // Notes on CSP Headers :
 // - script-src, we could use nonce to be extra safe, but probably overkill here
@@ -14,7 +15,7 @@ const isDev = process.env.NODE_ENV === 'development'
 //
 const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' ${process.env.NEXT_PUBLIC_MATOMO_URL}${isDev ? " 'unsafe-eval'" : ''};
+    script-src 'self' 'unsafe-inline' ${process.env.NEXT_PUBLIC_MATOMO_URL}${isDev ? " 'unsafe-eval'" : ""};
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data: ${process.env.NEXT_PUBLIC_MATOMO_URL} ${process.env.NEXT_PUBLIC_S3_URL};
     font-src 'self';
@@ -25,14 +26,38 @@ const cspHeader = `
     upgrade-insecure-requests;
     media-src 'self';
     connect-src 'self' ${process.env.NEXT_PUBLIC_MATOMO_URL} https://sentry.incubateur.net;
-`
+`;
 
 // Same as cspHeader but allows any domain to embed via iframe (for /interactions/embed)
-const embedCspHeader = cspHeader.replace("frame-ancestors 'none'", "frame-ancestors *")
+const embedCspHeader = cspHeader.replace(
+  "frame-ancestors 'none'",
+  "frame-ancestors *",
+);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  cacheComponents: true,
+  cacheLife: {
+    hourly: {
+      stale: 5 * 60,
+      revalidate: 60 * 60,
+      expire: 24 * 60 * 60,
+    },
+    daily: {
+      stale: 60 * 60,
+      revalidate: 24 * 60 * 60,
+      expire: 7 * 24 * 60 * 60,
+    },
+  },
+  cacheHandlers: {
+    remote: fileURLToPath(
+      new URL("./cache-handlers/remote-cache-handler.js", import.meta.url),
+    ),
+  },
+  cacheHandler: fileURLToPath(
+    new URL("./cache-handlers/incremental-cache-handler.js", import.meta.url),
+  ),
   compiler: {
     styledComponents: true,
   },
@@ -80,7 +105,7 @@ const nextConfig = {
       {
         source: "/generiques",
         destination: "/alpha_lists/generiques/A",
-      },      
+      },
       {
         source: "/atc",
         destination: "/atc/A",
@@ -90,26 +115,26 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: "/(.*)",
         headers: [
           {
-            key: 'Content-Security-Policy',
-            value: cspHeader.replace(/\n/g, ''),
+            key: "Content-Security-Policy",
+            value: cspHeader.replace(/\n/g, ""),
           },
         ],
       },
       {
         // Embed route: allow framing from any domain (overrides catch-all above)
-        source: '/interactions/embed',
+        source: "/interactions/embed",
         headers: [
           {
-            key: 'Content-Security-Policy',
-            value: embedCspHeader.replace(/\n/g, ''),
+            key: "Content-Security-Policy",
+            value: embedCspHeader.replace(/\n/g, ""),
           },
         ],
       },
-    ]
-  }
+    ];
+  },
 };
 
 /**
@@ -121,17 +146,19 @@ const nextConfig = {
  * - SENTRY_PROJECT
  * - SENTRY_AUTH_TOKEN
  */
-export default withBundleAnalyzer(withSentryConfig(nextConfig, {
-  // Only print logs for uploading source maps in CI
-  silent: !process.env.CI,
-  widenClientFileUpload: true,
-  hideSourceMaps: true,
-  webpack: {
-    reactComponentAnnotation: {
-      enabled: true,
+export default withBundleAnalyzer(
+  withSentryConfig(nextConfig, {
+    // Only print logs for uploading source maps in CI
+    silent: !process.env.CI,
+    widenClientFileUpload: true,
+    hideSourceMaps: true,
+    webpack: {
+      reactComponentAnnotation: {
+        enabled: true,
+      },
+      treeshake: {
+        removeDebugLogging: true,
+      },
     },
-    treeshake: {
-      removeDebugLogging: true,
-    },
-  },
-}));
+  }),
+);
