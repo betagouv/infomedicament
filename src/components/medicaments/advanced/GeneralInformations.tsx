@@ -13,7 +13,7 @@ import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } from "@/displayUtils";
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
-import { DeliveryCondition, DetailedSpecialite, SpecialiteStat } from "@/types/SpecialiteTypes";
+import { DelivranceCondition, DetailedSpecialite, SpecialiteStat } from "@/types/SpecialiteTypes";
 import { displayInfosImportantes } from "@/utils/notices";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
@@ -102,7 +102,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   presentations: Presentation[];
   marr?: Marr;
   ficheInfos?: FicheInfos;
-  delivrance: DeliveryCondition[];
+  delivrance: DelivranceCondition[];
   definitions?: Definition[];
   indications: ShortIndication[];
   indicationsBlock?: string;
@@ -281,7 +281,7 @@ function GeneralInformations({
                 <HospitalTag hideIcon className={fr.cx("fr-ml-1-5v")}/>
               )}
               <ul>
-                {delivrance.map((line: DeliveryCondition, index) => {
+                {delivrance.map((line: DelivranceCondition, index) => {
                   const label = line.longLabel?.trim();
                   if (!label) return null;
                   return (
