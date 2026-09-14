@@ -1,9 +1,42 @@
-import { getFullPresentations } from "@/db/utils/presentation";
+import { getFullPresentations, getPresentations } from "@/db/utils/presentation";
 import { Presentation } from "@/types/PresentationTypes";
 import { describe, it, expect } from "vitest";
 import { getPresentationName, isAbrogee, isAgree, isArret, isIVG, isListeRetrocession, isListeSus, isNotAuthorized } from "./presentations";
 
 describe("utils presentations", () => {
+
+  it("selects commercialised and recently stopped presentations", async () => {
+    expect(await getPresentations("66338465")).toEqual(
+      expect.arrayContaining([expect.objectContaining({ cip13: "3400955097891", commercialStatus: "commercialised" })]),
+    );
+    expect(await getPresentations("60528073")).toEqual(
+      expect.arrayContaining([expect.objectContaining({ cip13: "3400930254028", commercialStatus: "stopped" })]),
+    );
+  });
+
+  it("excludes presentations stopped outside the 730-day window", async () => {
+    expect((await getPresentations("67066018")).some(({ cip13 }) => cip13 === "3400926978730")).toBe(false);
+  });
+
+  it("keeps recently suspended and withdrawn presentations", async () => {
+    expect(await getPresentations("65198334")).toEqual(
+      expect.arrayContaining([expect.objectContaining({ cip13: "3400930117583", commercialStatus: "suspended" })]),
+    );
+    expect(await getPresentations("66321989")).toEqual(
+      expect.arrayContaining([expect.objectContaining({ cip13: "3400949004935", commercialStatus: "withdrawn" })]),
+    );
+  });
+
+  it("uses PostgreSQL presentation events for the abrogation window", async () => {
+    expect(await getPresentations("65133315")).toEqual(
+      expect.arrayContaining([expect.objectContaining({
+        cip13: "3400956286775",
+        administrativeStatus: "abrogated",
+        administrativeStatusDate: expect.any(Date),
+      })]),
+    );
+    expect((await getPresentations("60011072")).some(({ cip13 }) => cip13 === "3400955746744")).toBe(false);
+  });
 
   it("getPresentationName - when PVC-Alumunium + PVC in the details only display PVC-Aluminium", async () => {
     const presentations: Presentation[] = await getFullPresentations("66150367");

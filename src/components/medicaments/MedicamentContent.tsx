@@ -1,12 +1,11 @@
 "use client";
 
 import ContentContainer from "../generic/ContentContainer";
-import { SpecDelivrance } from "@/db/pdbmMySQL/types";
 import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { HTMLAttributes, lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Marr } from "@/types/MarrTypes";
 import { ATC } from "@/types/ATCTypes";
-import { DetailedSpecialite, NoticeData } from "@/types/SpecialiteTypes";
+import { DeliveryCondition, DetailedSpecialite, NoticeData } from "@/types/SpecialiteTypes";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
@@ -31,7 +30,7 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   composants: CompositionComponent[];
   isPrinceps: boolean;
   isGeneric: boolean;
-  delivrance: SpecDelivrance[];
+  delivrance: DeliveryCondition[];
   presentations: Presentation[];
   title: string;
   indications: ShortIndication[];

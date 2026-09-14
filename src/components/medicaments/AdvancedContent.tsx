@@ -2,7 +2,6 @@
 
 import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
-import { SpecDelivrance } from "@/db/pdbmMySQL/types";
 import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { HTMLAttributes, useState } from "react";
 import styled, { css } from 'styled-components';
@@ -10,7 +9,7 @@ import DetailedSubMenu, { AnchorMenu } from "./advanced/DetailedSubMenu";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { Marr } from "@/types/MarrTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
-import { DetailedSpecialite } from "@/types/SpecialiteTypes";
+import { DeliveryCondition, DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import MedicamentContentHeaderBlock from "./blocks/MedicamentContentHeaderBlock";
 import { FicheInfos } from "@/types/FicheInfoTypes";
@@ -51,7 +50,7 @@ interface AdvancedContentProps extends HTMLAttributes<HTMLDivElement> {
   composants: CompositionComponent[];
   isPrinceps: boolean;
   isGeneric: boolean;
-  delivrance: SpecDelivrance[];
+  delivrance: DeliveryCondition[];
   pregnancyPlanAlert: PregnancyAlert | undefined;
   isPregnancyMentionAlert: boolean;
   pediatrics: PediatricsInfo | undefined;

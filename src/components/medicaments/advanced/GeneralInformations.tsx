@@ -5,7 +5,6 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, PropsWithChildren } from "react";
 import styled, {css} from 'styled-components';
 import GenericPrincepsTag from "@/components/tags/GenericPrincepsTag";
-import { SpecDelivrance } from "@/db/pdbmMySQL/types";
 import type { CompositionComponent } from "@/types/SubstanceTypes";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import PediatricsTags from "@/components/tags/PediatricsTags";
@@ -14,7 +13,7 @@ import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } from "@/displayUtils";
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
-import { DetailedSpecialite, SpecialiteStat } from "@/types/SpecialiteTypes";
+import { DeliveryCondition, DetailedSpecialite, SpecialiteStat } from "@/types/SpecialiteTypes";
 import { displayInfosImportantes } from "@/utils/notices";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
@@ -22,7 +21,7 @@ import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getProcedureLibLong, getTypeInfoTxt, isAIP, isHospitalDelivrance } from "@/utils/specialites";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { getPresentationName, getPresentationFullPriceText, isAbrogee, isAgree, isArret, isIVG, isListeRetrocession, isListeSus, isNotAuthorized, isReimbursable } from "@/utils/presentations";
+import { getPresentationName, getPresentationFullPriceText, getPresentationCommercialStatusLabel, isAbrogee, isAgree, isIVG, isListeRetrocession, isListeSus, isReimbursable } from "@/utils/presentations";
 import { FicheInfos, InfosImportantes } from "@/types/FicheInfoTypes";
 import WithDefinition from "@/components/glossary/WithDefinition";
 import { Definition } from "@/types/GlossaireTypes";
@@ -103,7 +102,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   presentations: Presentation[];
   marr?: Marr;
   ficheInfos?: FicheInfos;
-  delivrance: SpecDelivrance[];
+  delivrance: DeliveryCondition[];
   definitions?: Definition[];
   indications: ShortIndication[];
   indicationsBlock?: string;
@@ -282,17 +281,19 @@ function GeneralInformations({
                 <HospitalTag hideIcon className={fr.cx("fr-ml-1-5v")}/>
               )}
               <ul>
-                {delivrance.map((line: SpecDelivrance, index) => {
+                {delivrance.map((line: DeliveryCondition, index) => {
+                  const label = line.longLabel?.trim();
+                  if (!label) return null;
                   return (
-                    <li key={index}>
-                      {(line.DelivLong.trim() === "liste I" || line.DelivLong.trim() === "liste II")
+                    <li key={line.code || index}>
+                      {(label === "liste I" || label === "liste II")
                         ? (
                           <WithDefinition
                             definition={definitions && getDefinition(definitions, "Liste I et II")}
-                            word={line.DelivLong}
+                            word={label}
                           />
                         )
-                        : line.DelivLong}
+                        : label}
                     </li>
                   );
                 })}
@@ -369,7 +370,7 @@ function GeneralInformations({
           <div>
             <ul className={fr.cx("fr-raw-list")}>
               {presentations.map((pres, index) => (
-                <li key={`${pres.Cip13}-${index}`} className={fr.cx("fr-mb-1w")}>
+                <li key={`${pres.cip13}-${index}`} className={fr.cx("fr-mb-1w")}>
                   <div className={fr.cx("fr-mb-0")}>
                     <span
                       className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
@@ -377,23 +378,21 @@ function GeneralInformations({
                     <span className={fr.cx("fr-mr-2w")}>
                       <b>{getPresentationName(pres)}</b>
                     </span>
-                    <span>
-                      {getPresentationFullPriceText(pres)}
-                    </span>
+                    {pres.pricingKnown && <span>{getPresentationFullPriceText(pres)}</span>}
                   </div>
-                  {(pres.Ppttc || pres.HonoDisp) && (
+                  {(pres.priceExcludingDispensingFee || pres.dispensingFee) && (
                     <div className={fr.cx("fr-mb-0")}>
-                      {pres.Ppttc && (
+                      {pres.priceExcludingDispensingFee && (
                         <span className={fr.cx("fr-mr-2w")}>
                           Prix hors honoraire de dispensation :{" "}
                           {Intl.NumberFormat("fr-FR", {
                             style: "currency",
                             currency: "EUR",
-                          }).format(pres.Ppttc)}
+                          }).format(pres.priceExcludingDispensingFee)}
                           {" "}
                         </span>
                       )}
-                      {pres.HonoDisp && (
+                      {pres.dispensingFee && (
                         <span>
                           <WithDefinition
                             definition={definitions && getDefinition(definitions, "Honoraire de dispensation")}
@@ -402,38 +401,31 @@ function GeneralInformations({
                           {Intl.NumberFormat("fr-FR", {
                             style: "currency",
                             currency: "EUR",
-                          }).format(pres.HonoDisp)}
+                          }).format(pres.dispensingFee)}
                           {" "}
                         </span>
                       )}
                     </div>
                   )}
-                  {(pres.PresCommDate && pres.PresCodeCip) && (
+                  {(pres.commercialisationDate || pres.cip7) && (
                     <div className={fr.cx("fr-mb-0")}>
-                      {pres.PresCodeCip && (
-                        <span className={fr.cx("fr-mr-2w")}>Code CIP : {pres.PresCodeCip}</span>
+                      {pres.cip7 && (
+                        <span className={fr.cx("fr-mr-2w")}>Code CIP : {pres.cip7}</span>
                       )}
-                      {pres.PresCommDate && (
-                        <span>Déclaration de commercialisation : {dateShortFormat(pres.PresCommDate)}</span>
+                      {pres.commercialisationDate && (
+                        <span>Déclaration de commercialisation : {dateShortFormat(pres.commercialisationDate)}</span>
                       )}
                     </div>
                   )}
                   {isAbrogee(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
                       Abrogée
-                      {pres.PresStatDAte && ` le ${dateShortFormat(pres.PresStatDAte)}`}
                     </div>
                   )}
-                  {isArret(pres) && (
+                  {getPresentationCommercialStatusLabel(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
-                      Déclaration d'arrêt de commercialisation
-                      {pres.PresCommDate && ` : ${dateShortFormat(pres.PresCommDate)}`}
-                    </div>
-                  )}
-                  {isNotAuthorized(pres) && (
-                    <div className={fr.cx("fr-mb-0")}>
-                      Arrêt de commercialisation (le médicament n'a plus d'autorisation)
-                      {pres.PresCommDate && ` : ${dateShortFormat(pres.PresCommDate)}`}
+                      {getPresentationCommercialStatusLabel(pres)}
+                      {pres.commercialisationEndDate && ` : ${dateShortFormat(pres.commercialisationEndDate)}`}
                     </div>
                   )}
                   {isAgree(pres) ? (
@@ -444,11 +436,11 @@ function GeneralInformations({
                         word="agréée aux collectivités"
                       />.
                     </div>
-                  ) : (
+                  ) : pres.communityApproval === false ? (
                     <div className={fr.cx("fr-mb-0")}>
                       Cette présentation n'est pas agréée aux collectivités.
                     </div>
-                  )}
+                  ) : null}
                   {isListeSus(pres) && (
                     <div>
                       Inscription sur la{" "}
