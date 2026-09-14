@@ -1,8 +1,8 @@
-import { SpecDelivrance, VUEvnts } from "@/db/pdbmMySQL/types";
+import { VUEvnts } from "@/db/pdbmMySQL/types";
 import { ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
 import { MedicamentGroup } from "@/displayUtils";
 import { ShortIndication } from "@/types/IndicationsTypes";
-import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite, ShortSpecialite, Specialite, SpecialiteProcedure } from "@/types/SpecialiteTypes";
+import { DeliveryCondition, DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite, ShortSpecialite, Specialite, SpecialiteProcedure } from "@/types/SpecialiteTypes";
 
 export function getSpecialiteGroupName(
   specialite: Specialite | string,
@@ -162,6 +162,6 @@ export function getTypeInfoTxt(codeTypeInfo: number): string{
   return "Non catégorisée";
 }
 
-export function isHospitalDelivrance(delivrances: SpecDelivrance[]): boolean {
-  return delivrances.some((delivrance: SpecDelivrance) => delivrance.DelivId === "3");
+export function isHospitalDelivrance(delivrances: DeliveryCondition[]): boolean {
+  return delivrances.some((delivrance) => delivrance.code === 3);
 }
