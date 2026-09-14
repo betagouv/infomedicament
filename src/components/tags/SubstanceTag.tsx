@@ -13,14 +13,9 @@ interface SubstanceTagProps extends HTMLAttributes<HTMLDivElement> {
   fromMedicament?: boolean;
 }
 
-function SubstanceTag({
-  composants,
-  fromMedicament
-}: SubstanceTagProps) {
-
+function SubstanceTag({ composants, fromMedicament }: SubstanceTagProps) {
   const onTrackEvent = () => {
-    if(fromMedicament)
-      trackEvent("Page médicament", "Tag Substance");
+    if (fromMedicament) trackEvent("Page médicament", "Tag Substance");
   };
 
   return (

@@ -5,7 +5,7 @@ import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/type
 import { HTMLAttributes, lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Marr } from "@/types/MarrTypes";
 import { ATC } from "@/types/ATCTypes";
-import { DetailedSpecialite, NoticeData, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, NoticeData } from "@/types/SpecialiteTypes";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
@@ -31,8 +31,8 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   presentations: Presentation[];
   title: string;
   indications: ShortIndication[];
+  indicationsBlock?: string;
   notice?: NoticeData;
-  indicationsBlock?: NoticeRCPContentBlock;
   ficheInfos?: FicheInfos;
   definitions: Definition[];
   pregnancyPlanAlert?: PregnancyAlert;
@@ -53,8 +53,8 @@ function MedicamentContent({
   presentations,
   title,
   indications,
-  notice,
   indicationsBlock,
+  notice,
   ficheInfos,
   definitions,
   pregnancyPlanAlert,
@@ -115,6 +115,7 @@ function MedicamentContent({
               marr={marr}
               ficheInfos={ficheInfos}
               definitions={definitions}
+              indications={indications}
               indicationsBlock={indicationsBlock}
               advancedAnchor={advancedAnchor}
               title={title}
@@ -137,9 +138,9 @@ function MedicamentContent({
             notice={notice}
             ficheInfos={ficheInfos}
             definitions={definitions}
-            indicationsBlock={indicationsBlock}
             title={title}
             indications={indications}
+            indicationsBlock={indicationsBlock}
             articles={articles}
             onGoToAdvanced={onGoToAdvanced}
             onGoToAdvancedAnchor={onGoToAdvancedAnchor}

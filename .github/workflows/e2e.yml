@@ -1,0 +1,41 @@
+name: End-to-end tests
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      FALLBACK_BASE_URL: https://infomedicament.beta.gouv.fr
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.sha }}
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Resolve target URL
+        run: |
+          REVIEW_URL="https://infomedicament-staging-pr${{ github.event.pull_request.number }}.osc-fr1.scalingo.io"
+
+          if curl --fail --silent --max-time 20 --output /dev/null "$REVIEW_URL"; then
+            echo "PLAYWRIGHT_BASE_URL=${REVIEW_URL%/}" >> "$GITHUB_ENV"
+            echo "Using review app: ${REVIEW_URL%/}"
+          else
+            echo "PLAYWRIGHT_BASE_URL=$FALLBACK_BASE_URL" >> "$GITHUB_ENV"
+            echo "Review app unavailable, using fallback: $FALLBACK_BASE_URL"
+          fi
+      - name: End-to-end tests
+        run: npm run test:e2e
