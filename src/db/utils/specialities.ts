@@ -8,7 +8,7 @@ import db from "@/db";
 import { getFullPresentations } from "@/db/utils/presentation";
 import { unstable_cache } from "next/cache";
 import {
-  DeliveryCondition,
+  DelivranceCondition,
   DetailedSpecialite,
   ResumeSpecGroup,
   ResumeSpecialite,
@@ -175,12 +175,7 @@ export const getSpecialite = cache(async (CIS: string) => {
     ? await getFullPresentations(CIS)
     : [];
 
-  const presentations: Presentation[] = 
-    specialite 
-      ? await getFullPresentations(CIS)
-      : [];  
-
-  const delivrance: DeliveryCondition[] =
+  const delivrance: DelivranceCondition[] =
     specialite
       ? await db
         .selectFrom("ansm_specialite_delivrance")

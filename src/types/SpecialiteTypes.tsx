@@ -77,7 +77,7 @@ export type DetailedSpecialite = Specialite & {
   } | null,
 }
 
-export type DeliveryCondition = {
+export type DelivranceCondition = {
   code: number;
   shortLabel: string | null;
   longLabel: string | null;

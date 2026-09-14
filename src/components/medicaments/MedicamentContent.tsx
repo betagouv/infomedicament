@@ -5,7 +5,7 @@ import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { HTMLAttributes, lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Marr } from "@/types/MarrTypes";
 import { ATC } from "@/types/ATCTypes";
-import { DeliveryCondition, DetailedSpecialite, NoticeData } from "@/types/SpecialiteTypes";
+import { DelivranceCondition, DetailedSpecialite, NoticeData } from "@/types/SpecialiteTypes";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
@@ -30,7 +30,7 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   composants: CompositionComponent[];
   isPrinceps: boolean;
   isGeneric: boolean;
-  delivrance: DeliveryCondition[];
+  delivrance: DelivranceCondition[];
   presentations: Presentation[];
   title: string;
   indications: ShortIndication[];

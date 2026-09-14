@@ -9,7 +9,7 @@ import DetailedSubMenu, { AnchorMenu } from "./advanced/DetailedSubMenu";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { Marr } from "@/types/MarrTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
-import { DeliveryCondition, DetailedSpecialite } from "@/types/SpecialiteTypes";
+import { DelivranceCondition, DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import MedicamentContentHeaderBlock from "./blocks/MedicamentContentHeaderBlock";
 import { FicheInfos } from "@/types/FicheInfoTypes";
@@ -50,7 +50,7 @@ interface AdvancedContentProps extends HTMLAttributes<HTMLDivElement> {
   composants: CompositionComponent[];
   isPrinceps: boolean;
   isGeneric: boolean;
-  delivrance: DeliveryCondition[];
+  delivrance: DelivranceCondition[];
   pregnancyPlanAlert: PregnancyAlert | undefined;
   isPregnancyMentionAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
