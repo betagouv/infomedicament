@@ -2,7 +2,7 @@
 
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from "styled-components";
-import AutocompleteSearch from "@/components/AutocompleteSearch";
+import AutocompleteSearch from "@/components/search/autocomplete/AutocompleteSearch";
 import ContentContainer from "@/components/generic/ContentContainer";
 import SearchResultsList from "@/components/search/SearchResultsList";
 import { HTMLAttributes } from "react";
