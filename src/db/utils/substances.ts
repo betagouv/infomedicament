@@ -1,12 +1,10 @@
 "use server";
 import "server-cli-only";
 
-import { unstable_cache } from "next/cache";
 import { pdbmMySQL } from "../pdbmMySQL";
 import { SubstanceNom } from "../pdbmMySQL/types";
 import { cache } from "react";
 import { withOneSubstance } from "./query";
-import { SpecialiteWithSubstance } from "@/types/SpecialiteTypes";
 import { ResumeSubstance } from "../types";
 import db from "..";
 import { sql } from "kysely";
@@ -34,29 +32,6 @@ export const getAllSubsWithSpecialites = cache(async function () {
     .orderBy("Subs_Nom.NomLib")
     .execute();
 });
-
-//Get all the specialites who contains at least one substance
-export const getSubstanceAllSpecialites = unstable_cache(async function (
-  substanceIDs: string[]
-): Promise<SpecialiteWithSubstance[]> {
-  if (substanceIDs.length === 0) return [];
-  return pdbmMySQL
-    .selectFrom("Specialite")
-    .innerJoin("Composant", "Specialite.SpecId", "Composant.SpecId")
-    .innerJoin("Subs_Nom", "Composant.NomId", "Subs_Nom.NomId")
-    .where("Composant.NomId", "in", substanceIDs)
-    .where((eb) => withOneSubstance(eb.ref("Specialite.SpecId"), eb.ref("Subs_Nom.SubsId")))
-    .where("Specialite.IsBdm", "=", 1)
-    .selectAll("Specialite")
-    .select("Subs_Nom.NomId")
-    .groupBy(["Specialite.SpecId", "Subs_Nom.NomId"])
-    .orderBy("Subs_Nom.NomId")
-    .distinct()
-    .execute();
-},
-  ["substance-all-specialites"],
-  { revalidate: 3600 } // cache for one hour
-);
 
 export const getSubstancesResumeWithLetter = cache(async function (letter: string): Promise<ResumeSubstance[]> {
   const result: ResumeSubstance[] = await db
