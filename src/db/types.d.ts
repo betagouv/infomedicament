@@ -1,4 +1,5 @@
 import { NoticeBlockType } from "@/types/SpecialiteTypes";
+import { StockStatusID } from "@/types/StockTypes";
 import { Selectable } from "kysely";
 
 export interface Database {
@@ -59,6 +60,9 @@ export interface Database {
   ansm_document: AnsmDocumentTable;
   ansm_caracteristique: AnsmCaracteristiqueTable;
   ansm_specialite_titulaire: AnsmSpecialiteTitulaireTable;
+  ansm_videos: AnsmVideosTable;
+  ansm_videos_cis: AnsmVideosCISTable;
+  ansm_stock: AnsmStockTable;
 }
 
 interface SearchIndexTable {
@@ -242,12 +246,9 @@ export interface RefPathologies {
 }
 
 export interface RefPediatrie {
-  avis: string | null;
   cis: string | null;
-  contre_indication: string | null;
+  contre_indication: boolean | null;
   id: Generated<number>;
-  indication: string | null;
-  mention: string | null;
 }
 
 export interface RefSubstanceActive {
@@ -434,6 +435,27 @@ interface AnsmSpecialiteTable {
   disponibilite: "INDISPONIBLE" | "DISPONIBLE" | "PARTIELLE" | "ALERTE" | null;
 }
 
+interface AnsmVideosTable {
+  id: number;
+  url: string;
+  title: string;
+}
+interface AnsmVideosCISTable {
+  CIS: string;
+  id_video: number;
+}
+
+interface AnsmStockTable {
+  CIS: string;
+  CIP?: string;
+  status_id: StockStatusID;
+  status: string;
+  date_begin: date;
+  date_update: date;
+  date_end?: date;
+  link?: string;
+}
+
 export type SearchResult = Selectable<SearchIndexTable>;
 export type SearchSynonym = Selectable<SearchSynonymsTable>;
 export type PresentationDetail = Selectable<PresentationTable>;
@@ -471,6 +493,8 @@ export type SpecialiteMetadata = Selectable<SpecialiteMetadataTable>;
 export type NoticeDB = Selectable<NoticeTable>;
 export type NoticeContentDB = Selectable<NoticeContentTable>;
 export type AnsmSpecialite = Selectable<AnsmSpecialiteTable>;
+export type AnsmVideos = Selectable<AnsmVideosTable>;
+export type AnsmStockDB = Selectable<AnsmStockTable>;
 
 interface AnsmAtcTable {
   code: number;

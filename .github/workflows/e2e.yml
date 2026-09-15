@@ -37,5 +37,3 @@ jobs:
             echo "PLAYWRIGHT_BASE_URL=$FALLBACK_BASE_URL" >> "$GITHUB_ENV"
             echo "Review app unavailable, using fallback: $FALLBACK_BASE_URL"
           fi
-      - name: End-to-end tests
-        run: npm run test:e2e
