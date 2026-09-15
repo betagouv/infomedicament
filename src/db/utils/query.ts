@@ -3,7 +3,7 @@ import { PdbmMySQL } from "../pdbmMySQL/types";
 
 export function withSubstances(
   specId: Expression<string>,
-  nomIds: string[],
+  subsIds: string[],
 ): Expression<SqlBool> {
   const eb = expressionBuilder<PdbmMySQL, never>();
 
@@ -11,7 +11,7 @@ export function withSubstances(
     eb
       .selectFrom("Composant")
       .select("Composant.SpecId")
-      .where("Composant.NomId", "in", nomIds)
+      .where("Composant.SubsId", "in", subsIds)
       .where("Composant.SpecId", "=", specId)
       .where(({ eb, selectFrom }) =>
         eb(
@@ -19,14 +19,14 @@ export function withSubstances(
           "not in",
           selectFrom("Composant as subquery")
             .select("SpecId")
-            .where("subquery.NomId", "not in", nomIds)
+            .where("subquery.SubsId", "not in", subsIds)
             .whereRef(
               "subquery.CompNum",
               "not in",
               selectFrom("Composant as subquery2")
                 .select("CompNum")
                 .where("subquery2.SpecId", "=", specId)
-                .where("subquery2.NomId", "in", nomIds),
+                .where("subquery2.SubsId", "in", subsIds),
             ),
         ),
       )
@@ -35,7 +35,7 @@ export function withSubstances(
         eb(
           eb.fn.count("Composant.CompNum").distinct(),
           "=",
-          eb.val(nomIds.length),
+          eb.val(subsIds.length),
         ),
       ),
   );
@@ -43,7 +43,7 @@ export function withSubstances(
 
 export function withOneSubstance(
   specId: Expression<string>,
-  nomId: Expression<string>,
+  subsId: Expression<string>,
 ): Expression<SqlBool> {
   const eb = expressionBuilder<PdbmMySQL, never>();
 
@@ -51,7 +51,7 @@ export function withOneSubstance(
     eb
       .selectFrom("Composant as Comp1")
       .select("Comp1.SpecId")
-      .where("Comp1.NomId", "=", nomId)
+      .where("Comp1.SubsId", "=", subsId)
       .where("Comp1.SpecId", "=", specId)
       .where(({ eb, selectFrom }) =>
         eb(
@@ -59,14 +59,14 @@ export function withOneSubstance(
           "not in",
           selectFrom("Composant as Comp2")
             .select("SpecId")
-            .where("Comp2.NomId", "<>", nomId)
+            .where("Comp2.SubsId", "<>", subsId)
             .whereRef(
               "Comp2.CompNum",
               "not in",
               selectFrom("Composant as Comp3")
                 .select("CompNum")
                 .where("Comp3.SpecId", "=", specId)
-                .where("Comp3.NomId", "=", nomId),
+                .where("Comp3.SubsId", "=", subsId),
             ),
         ),
       )

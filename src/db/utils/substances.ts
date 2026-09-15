@@ -1,22 +1,20 @@
 "use server";
 import "server-cli-only";
 
-import { unstable_cache } from "next/cache";
 import { pdbmMySQL } from "../pdbmMySQL";
 import { SubstanceNom } from "../pdbmMySQL/types";
 import { cache } from "react";
 import { withOneSubstance } from "./query";
-import { SpecialiteWithSubstance } from "@/types/SpecialiteTypes";
 import { ResumeSubstance } from "../types";
 import db from "..";
 import { sql } from "kysely";
 
 export const getSubstances = cache(async function (
-  ids: string[]
+  subsIds: string[]
 ): Promise<SubstanceNom[] | undefined> {
   return await pdbmMySQL
     .selectFrom("Subs_Nom")
-    .where("NomId", "in", ids)
+    .where("SubsId", "in", subsIds)
     .selectAll()
     .execute();
 });
@@ -24,9 +22,9 @@ export const getSubstances = cache(async function (
 export const getAllSubsWithSpecialites = cache(async function () {
   return await pdbmMySQL
     .selectFrom("Subs_Nom")
-    .innerJoin("Composant", "Subs_Nom.NomId", "Composant.NomId")
+    .innerJoin("Composant", "Subs_Nom.SubsId", "Composant.SubsId")
     .innerJoin("Specialite", "Composant.SpecId", "Specialite.SpecId")
-    .where((eb) => withOneSubstance(eb.ref("Specialite.SpecId"), eb.ref("Subs_Nom.NomId")))
+    .where((eb) => withOneSubstance(eb.ref("Specialite.SpecId"), eb.ref("Subs_Nom.SubsId")))
     .where("Specialite.IsBdm", "=", 1)
     .selectAll("Subs_Nom")
     .select("Specialite.SpecDenom01")
@@ -34,29 +32,6 @@ export const getAllSubsWithSpecialites = cache(async function () {
     .orderBy("Subs_Nom.NomLib")
     .execute();
 });
-
-//Get all the specialites who contains at least one substance
-export const getSubstanceAllSpecialites = unstable_cache(async function (
-  substanceIDs: string[]
-): Promise<SpecialiteWithSubstance[]> {
-  if (substanceIDs.length === 0) return [];
-  return pdbmMySQL
-    .selectFrom("Specialite")
-    .innerJoin("Composant", "Specialite.SpecId", "Composant.SpecId")
-    .innerJoin("Subs_Nom", "Composant.NomId", "Subs_Nom.NomId")
-    .where("Composant.NomId", "in", substanceIDs)
-    .where((eb) => withOneSubstance(eb.ref("Specialite.SpecId"), eb.ref("Subs_Nom.NomId")))
-    .where("Specialite.IsBdm", "=", 1)
-    .selectAll("Specialite")
-    .select("Subs_Nom.NomId")
-    .groupBy(["Specialite.SpecId", "Subs_Nom.NomId"])
-    .orderBy("Subs_Nom.NomId")
-    .distinct()
-    .execute();
-},
-  ["substance-all-specialites"],
-  { revalidate: 3600 } // cache for one hour
-);
 
 export const getSubstancesResumeWithLetter = cache(async function (letter: string): Promise<ResumeSubstance[]> {
   const result: ResumeSubstance[] = await db
@@ -70,19 +45,18 @@ export const getSubstancesResumeWithLetter = cache(async function (letter: strin
   return result;
 });
 
-export const getSubstancesResume = cache(async function (substanceIDs: string[]): Promise<ResumeSubstance[]> {
-  if (substanceIDs.length === 0) return [];
+export const getSubstancesResume = cache(async function (subsIds: string[]): Promise<ResumeSubstance[]> {
+  if (subsIds.length === 0) return [];
   const result: ResumeSubstance[] = await db
     .selectFrom("resume_substances")
     .selectAll()
-    .where("NomId", "in", substanceIDs)
+    .where("SubsId", "in", subsIds)
     .orderBy("NomLib")
     .execute();
   return result;
 });
 
 export async function getSubstanceDefinition(
-  ids: string[],
   subsIds: string[],
 ) {
   const rows = await db.selectFrom("ref_substance_active_definitions")
@@ -91,20 +65,13 @@ export async function getSubstanceDefinition(
 
   // First try to match by NomId
   let definitions = rows.filter((row) =>
-    row.nom_id && ids.includes(row.nom_id.trim())
+    row.subs_id && subsIds.includes(row.subs_id.trim())
   );
-
-  // If no match, try matching by SubsId
-  if (definitions.length === 0) {
-    definitions = rows.filter((row) =>
-      row.subs_id && subsIds.includes(row.subs_id.trim())
-    );
-  }
 
   // Map to the expected format (matching Grist structure)
   return definitions.map((row) => (
     {
-      NomId: row.nom_id?.trim() || "",
+      SubsId: row.subs_id?.trim() || "",
       SA: row.sa?.trim() || "",
       Definition: row.definition?.trim() || "",
     }

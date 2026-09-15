@@ -168,7 +168,7 @@ export default async function Page(props: {
         .join(", "),
       linkProps: {
         href: `/substances/${displaySimpleComposants(composants)
-          .map((s) => s.NomId.trim())
+          .map((s) => s.SubsId.trim())
           .join(",")}`,
       },
     });
