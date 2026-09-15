@@ -126,7 +126,6 @@ async function createResumeSubstances(): Promise<string[]> {
   return letters;
 }
 
-//TODO changer les substances
 async function createResumeMedicaments(): Promise<string[]> {
   await db
     .deleteFrom('resume_medicaments')
@@ -229,7 +228,6 @@ async function createResumeGeneriques(): Promise<string[]> {
   return letters;
 }
 
-//TODO changer les substances
 async function createResumeSpecialites(): Promise<void> {
   await db
     .deleteFrom('resume_specialites')

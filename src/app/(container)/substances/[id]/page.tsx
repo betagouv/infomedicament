@@ -10,7 +10,7 @@ import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinit
 import { getArticlesFromSubstances } from "@/db/utils/articles";
 import { getResumeSpecsGroupsWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
-import { getSubstanceMainName } from "@/utils/susbtances";
+import { getSubstanceMainName } from "@/utils/substances";
 
 export const dynamic = "error";
 export const dynamicParams = true;
