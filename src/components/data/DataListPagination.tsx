@@ -38,22 +38,18 @@ function DataListPagination({
     updateCurrentPage(newPage);
   }
   
-  return (
-    <>
-      {currentPageCount > 1 && (
-        <div className={fr.cx("fr-col-12")}>
-          <Pagination
-            className={fr.cx("fr-mt-1w")}
-            count={currentPageCount}
-            defaultPage={currentPage}
-            getPageLinkProps={(page: number) => ({
-              onClick: () => onPaginationChange(page),
-              href: '#',
-            })}
-          />
-        </div>
-      )}
-    </>
+  return currentPageCount > 1 && (
+    <div className={fr.cx("fr-col-12")}>
+      <Pagination
+        className={fr.cx("fr-mt-1w")}
+        count={currentPageCount}
+        defaultPage={currentPage}
+        getPageLinkProps={(page: number) => ({
+          onClick: () => onPaginationChange(page),
+          href: '#',
+        })}
+      />
+    </div>
   );
 };
 
