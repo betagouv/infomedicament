@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getGeneriques } from "./generics";
+import { getGenericGroup, getGeneriques } from "./generics";
 
 describe("db utils generics", () => {
 
@@ -15,4 +15,18 @@ describe("db utils generics", () => {
     expect(isInactiveSpec).toBe(-1);
     expect(isActiveSpec).not.toBe(-1);
   })
+
+  it("identifies the reference specialite from its group role", async () => {
+    const group = await getGenericGroup("68556562");
+
+    expect(group?.princeps.map(({ SpecId }) => SpecId)).toContain("68556562");
+    expect(group?.generiques.map(({ SpecId }) => SpecId)).toContain("61876780");
+  });
+
+  it("keeps notable excipients on generic-group members", async () => {
+    const group = await getGenericGroup("64976070");
+    const princeps = group?.princeps.find(({ SpecId }) => SpecId === "64976070");
+
+    expect(princeps?.Een).toBeTruthy();
+  });
 });

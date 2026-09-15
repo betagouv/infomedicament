@@ -1,7 +1,38 @@
-import { Specialite } from "@/db/pdbmMySQL/types";
 import { ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
 import { PediatricsInfo } from "./PediatricTypes";
 import { ShortIndication } from "./IndicationsTypes";
+
+export type SpecialiteProcedure =
+  | "NATIONALE"
+  | "CENTRALISEE"
+  | "RECONNAISSANCE_MUTUELLE"
+  | "DECENTRALISEE"
+  | "IMPORTATION_PARALLELE"
+  | "HOMEOPATHIQUE_NATIONALE"
+  | "PHYTOTHERAPIE_NATIONALE"
+  | "PHYTOTHERAPIE_DECENTRALISEE"
+  | "IMPORTATION"
+  | "NON_COMMUNIQUEE";
+
+// Application-facing medicine catalog model. The legacy property names are kept
+// while MySQL consumers are migrated incrementally, but this is deliberately not
+// a database row type: adapters only populate fields used by application code.
+export type Specialite = {
+  SpecId: string;
+  SpecDenom01: string;
+  SpecGeneId: string;
+  ProcId: SpecialiteProcedure;
+  StatutBdm: number;
+  Een: string | null;
+};
+
+export enum SpecialiteStat {
+  "Valide" = 10,
+  "Abrogée" = 20,
+  "Suspendue" = 30,
+  "Retirée" = 40,
+  "Archivée" = 60,
+}
 
 export type SpecialiteAlerts = {
   pediatrics?: PediatricsInfo,
@@ -33,10 +64,13 @@ export type ResumeSpecialite = ResumeSpecialiteDB & {
 }
 
 export type DetailedSpecialite = Specialite & {
+  StatId: SpecialiteStat | null,
+  SpecDateAMM: Date | null,
+  SpecStatDate: Date | null,
   urlCentralise: string | null,
   statutAutorisation: string | null,
   statutComm: string | null,
-  titulairesList?: string,
+  titulairesList: string | null,
   generiqueName: string | null,
 }
 

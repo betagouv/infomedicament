@@ -1,8 +1,8 @@
-import { SpecDelivrance, Specialite, VUEvnts } from "@/db/pdbmMySQL/types";
+import { SpecDelivrance, VUEvnts } from "@/db/pdbmMySQL/types";
 import { ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
 import { MedicamentGroup } from "@/displayUtils";
 import { ShortIndication } from "@/types/IndicationsTypes";
-import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite, ShortSpecialite } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, ResumeSpecGroup, ResumeSpecialite, ShortSpecialite, Specialite, SpecialiteProcedure } from "@/types/SpecialiteTypes";
 
 export function getSpecialiteGroupName(
   specialite: Specialite | string,
@@ -36,9 +36,7 @@ export function groupSpecialites<T extends Specialite>(
 export function isCentralisee(
   specialite: DetailedSpecialite | Specialite
 ): boolean {
-  if(specialite.ProcId && specialite.ProcId === "20") return true;
-  if(specialite.ProcId && specialite.ProcId === "100") return true;
-  return false;
+  return specialite.ProcId === "CENTRALISEE";
 };
 
 export function isCommercialisee(
@@ -51,8 +49,8 @@ export function isCommercialisee(
 export function isAIP(
   specialite: DetailedSpecialite | Specialite | ShortSpecialite | ResumeSpecialite
 ): boolean {
-  if(specialite.ProcId && specialite.ProcId === "50") return true;
-  return false;
+  // Summary rows keep legacy codes until they are rebuilt by a later migration step.
+  return specialite.ProcId === "IMPORTATION_PARALLELE" || specialite.ProcId === "50";
 };
 
 export function isAlerteSecurite(
@@ -76,10 +74,9 @@ export function isSurveillanceRenforcee(
 }
 
 export function isHomeopathie(
-  specialite: DetailedSpecialite | Specialite | ShortSpecialite
+  specialite: DetailedSpecialite | Specialite
 ): boolean {
-  if(specialite.ProcId && specialite.ProcId === "60") return true;
-  return false;
+  return specialite.ProcId === "HOMEOPATHIQUE_NATIONALE";
 };
 
 //Format indications details from resume table
@@ -129,27 +126,19 @@ export function formatSpecialitesResume(specialites: ResumeSpecialiteDB[]): Resu
   });
 }
 
-export function getProcedureLibLong(codeProcedure: number): string{
-  if (codeProcedure === 10 || codeProcedure === 100)
-    return "Procédure nationale";
-  if (codeProcedure === 20)
-    return "Procédure centralisée";
-  if (codeProcedure === 30)
-    return "Procédure de reconnaissance mutuelle";
-  if (codeProcedure === 40)
-    return "Procédure décentralisée";
-  if (codeProcedure === 50)
-    return "Autorisation d'Importation Parallèle";
-  if (codeProcedure === 60)
-    return "Enregistrement homéopathique en procédure nationale";
-  if (codeProcedure === 70)
-    return "Enregistrement phytothérapie en procédure nationale";
-  if (codeProcedure === 80)
-    return "Enregistrement phytothérapie en procédure décentralisée";
-  if (codeProcedure === 90)
-    return "Autorisation d'Importation";
-
-  return "Procédure non communiquée";
+export function getProcedureLibLong(procedure: SpecialiteProcedure): string {
+  switch (procedure) {
+    case "NATIONALE": return "Procédure nationale";
+    case "CENTRALISEE": return "Procédure centralisée";
+    case "RECONNAISSANCE_MUTUELLE": return "Procédure de reconnaissance mutuelle";
+    case "DECENTRALISEE": return "Procédure décentralisée";
+    case "IMPORTATION_PARALLELE": return "Autorisation d'Importation Parallèle";
+    case "HOMEOPATHIQUE_NATIONALE": return "Enregistrement homéopathique en procédure nationale";
+    case "PHYTOTHERAPIE_NATIONALE": return "Enregistrement phytothérapie en procédure nationale";
+    case "PHYTOTHERAPIE_DECENTRALISEE": return "Enregistrement phytothérapie en procédure décentralisée";
+    case "IMPORTATION": return "Autorisation d'Importation";
+    case "NON_COMMUNIQUEE": return "Procédure non communiquée";
+  }
 }
 
 export function getTypeInfoTxt(codeTypeInfo: number): string{
