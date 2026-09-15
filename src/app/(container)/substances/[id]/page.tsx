@@ -60,14 +60,18 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 
   const titles: string[] = subsIds.map((subsId) => getSubstanceMainName(substances.filter((subs) => subs.SubsId.trim() === subsId)));
   const title: string = titles.join(", ");
-  const subtitle = subsIds.map(
-    (subsId) => substances
-      .filter((subs) => 
-        subs.SubsId.trim() === subsId && titles.findIndex((name) => subs.NomLib.trim() === name) === -1
-      )
-      .map((subs) => subs.NomLib.trim())
-      .join(", ")
-  ).join(", ");
+  const secondaryNamesBySubs: string[] = subsIds.map((subsId) => substances
+    .filter((subs) =>
+      subs.SubsId.trim() === subsId && titles.findIndex((name) => subs.NomLib.trim() === name) === -1
+    )
+    .map((subs) => subs.NomLib.trim())
+    .join(", ")
+  );
+  // Only show the line when at least one substance actually has a secondary name
+  // For page with multiples substances, if one substance has no secondary name display the main name instead
+  const subtitle = secondaryNamesBySubs.some((names) => names.length > 0)
+    ? secondaryNamesBySubs.map((names, index) => names || titles[index]).join(", ")
+    : "";
   
   return (
     <ContentContainer frContainer>
