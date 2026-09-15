@@ -51,7 +51,7 @@ export const getSubstancesResume = cache(async function (subsIds: string[]): Pro
     .selectFrom("resume_substances")
     .selectAll()
     .where("SubsId", "in", subsIds)
-    .orderBy("SubsId")
+    .orderBy("NomLib")
     .execute();
   return result;
 });
