@@ -7,10 +7,9 @@ export type DocBonUsage = {
 
 export type ImportantInformation = {
   html: string;
-  eventDate: Date;
+  eventDate: Date | null;
   expiryDate: Date | null;
-  typeCode: number;
-  typeLabel: string;
+  typeLabel: string | null;
 }
 
 export type SafetyEvent = {
