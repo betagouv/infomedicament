@@ -20,7 +20,6 @@ async function upgradePdbm() {
     "Spec_DtePubli",
     "Spec_Patho",
     "VUEmaEpar",
-    "VUEvnts",
   ];
 
   await pdbmMySQL.transaction().execute(async (transaction) => {

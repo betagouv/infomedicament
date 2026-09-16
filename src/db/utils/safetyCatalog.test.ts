@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { mapAnsmSafetyEvent } from "./safetyCatalog";
+import {
+  mapAnsmSafetyEvent,
+  mapImportantInformation,
+} from "./safetyCatalog";
 
 describe("mapAnsmSafetyEvent", () => {
   it("preserves event identity, dates, expiry, label, and comment", () => {
@@ -24,5 +27,41 @@ describe("mapAnsmSafetyEvent", () => {
       comment: "Information ANSM",
       modifiedAt: new Date("2024-02-01"),
     });
+  });
+});
+
+describe("mapImportantInformation", () => {
+  it("maps ANSM code 84 comments to the information displayed by the fiche", () => {
+    expect(mapImportantInformation({
+      specialiteId: "60035714",
+      code: 84,
+      sequence: 1,
+      typeLabel: "Point d'information",
+      eventDate: new Date("2026-01-01"),
+      expiryDate: null,
+      comment: "<p>Information importante</p>",
+      modifiedAt: new Date("2026-01-02"),
+    })).toEqual({
+      html: "<p>Information importante</p>",
+      eventDate: new Date("2026-01-01"),
+      expiryDate: null,
+      typeLabel: "Point d'information",
+    });
+  });
+
+  it("ignores non-84 events and empty comments", () => {
+    const event = {
+      specialiteId: "60035714",
+      code: 83,
+      sequence: 1,
+      typeLabel: "Surveillance renforcée",
+      eventDate: null,
+      expiryDate: null,
+      comment: " ",
+      modifiedAt: null,
+    };
+
+    expect(mapImportantInformation(event)).toBeNull();
+    expect(mapImportantInformation({ ...event, code: 84 })).toBeNull();
   });
 });
