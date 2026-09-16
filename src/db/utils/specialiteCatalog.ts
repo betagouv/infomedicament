@@ -55,15 +55,22 @@ export function disponibiliteToStatutBdm(
   return 1;
 }
 
-export function mapCatalogSpecialite(
-  row: AnsmSpecialite,
-  een: string | null = null,
-): Specialite {
+export function mapCatalogSpecialite(row: AnsmSpecialite): Specialite {
   return {
     SpecId: row.cis,
     SpecDenom01: row.denomination ?? "",
     ProcId: row.procedure ?? "NON_COMMUNIQUEE",
     StatutBdm: disponibiliteToStatutBdm(row.disponibilite),
+    Een: null,
+  };
+}
+
+export function mapCatalogSpecialiteWithEen(
+  row: AnsmSpecialite,
+  een: string | null,
+): Specialite {
+  return {
+    ...mapCatalogSpecialite(row),
     Een: een,
   };
 }
@@ -75,9 +82,10 @@ export function mapDetailedSpecialite(
   referenceSpecialite: DetailedSpecialite["referenceSpecialite"],
   statusDate: Date | null,
   een: string | null,
+  centralisedUrl: string | null,
 ): DetailedSpecialite {
   return {
-    ...mapCatalogSpecialite(row),
+    ...mapCatalogSpecialiteWithEen(row, een),
     StatId: statutAmmToCompatibilityId(row.statut_amm),
     SpecDateAMM: row.date_amm,
     SpecStatDate: statusDate,
@@ -86,9 +94,6 @@ export function mapDetailedSpecialite(
     titulairesList,
     genericGroupCode,
     referenceSpecialite,
-    Een: een,
-    // No equivalent of the MySQL VUEmaEpar URL exists in the ANSM tables.
-    // Preserve the absence explicitly so callers never mistake it for migrated data.
-    urlCentralise: null,
+    urlCentralise: centralisedUrl,
   };
 }

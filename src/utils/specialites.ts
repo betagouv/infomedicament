@@ -1,4 +1,5 @@
-import { VUEvnts } from "@/db/pdbmMySQL/types";
+import type { SafetyEvent } from "@/types/FicheInfoTypes";
+import { REINFORCED_SURVEILLANCE_EVENT_CODE } from "@/db/utils/safetyCatalog";
 import { ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
 import { MedicamentGroup } from "@/displayUtils";
 import { ShortIndication } from "@/types/IndicationsTypes";
@@ -61,16 +62,16 @@ export function isAlerteSecurite(
 }
 
 export function isSurveillanceRenforcee(
-  events: VUEvnts[]
+  events: SafetyEvent[],
+  now = new Date(),
 ): boolean {
-  const today = new Date();
-  let isSurveillanceRenforcee = false;
-  events.forEach((event: VUEvnts) => {
-    if(event.codeEvnt === '83' && today > event.dateEvnt && today < event.dateEcheance){
-      isSurveillanceRenforcee = true;
-    }
-  });
-  return isSurveillanceRenforcee;
+  return events.some((event) =>
+    event.code === REINFORCED_SURVEILLANCE_EVENT_CODE
+    && event.eventDate !== null
+    && event.expiryDate !== null
+    && now > event.eventDate
+    && now < event.expiryDate,
+  );
 }
 
 export function isHomeopathie(

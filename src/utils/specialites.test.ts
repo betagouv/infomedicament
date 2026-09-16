@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { formatIndicationsDetails, formatSpecialitesResume, getProcedureLibLong, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isHospitalDelivrance, isSurveillanceRenforcee } from "./specialites";
 import { DelivranceCondition, DetailedSpecialite, SpecialiteStat } from "@/types/SpecialiteTypes";
-import { VUEvnts } from "@/db/pdbmMySQL/types";
+import type { SafetyEvent } from "@/types/FicheInfoTypes";
 import { ShortIndication } from "@/types/IndicationsTypes";
 import { ResumeSpecialiteDB } from "@/db/types";
 
@@ -75,66 +75,26 @@ describe("utils specialities", () => {
   });
 
   it("isSurveillanceRenforcee", async () => {
-    const eventsSurveillance: VUEvnts[] = [
-      {
-        SpecId: "60035714",
-        codeEvnt: "84",
-        dateEvnt: new Date("2021-10-01"),
-        dateEcheance: new Date("2025-10-01"),
-        remCommentaire: "Commentaire 1",
-        codeTypeInfo: 1,
-      },
-      {
-        SpecId: "60035714",
-        codeEvnt: "83",
-        dateEvnt: new Date("2021-10-01"),
-        dateEcheance: new Date("2029-10-01"),
-        remCommentaire: "Commentaire 1",
-        codeTypeInfo: 1,
-      }
-    ];
-    const eventsNotSurveillance: VUEvnts[] = [
-      {
-        SpecId: "60035714",
-        codeEvnt: "84",
-        dateEvnt: new Date("2021-10-01"),
-        dateEcheance: new Date("2025-10-01"),
-        remCommentaire: "Commentaire 1",
-        codeTypeInfo: 1,
-      },
-      {
-        SpecId: "60035714",
-        codeEvnt: "84",
-        dateEvnt: new Date("2021-10-01"),
-        dateEcheance: new Date("2025-10-01"),
-        remCommentaire: "Commentaire 1",
-        codeTypeInfo: 1,
-      }
-    ];
-    const eventsNotSurveillanceBis: VUEvnts[] = [
-      {
-        SpecId: "60035714",
-        codeEvnt: "84",
-        dateEvnt: new Date("2021-10-01"),
-        dateEcheance: new Date("2025-10-01"),
-        remCommentaire: "Commentaire 1",
-        codeTypeInfo: 1,
-      },
-      {
-        SpecId: "60035714",
-        codeEvnt: "83",
-        dateEvnt: new Date("2021-10-01"),
-        dateEcheance: new Date("2025-10-01"),
-        remCommentaire: "Commentaire 1",
-        codeTypeInfo: 1,
-      }
-    ];
+    const event = (code: number, expiryDate: string): SafetyEvent => ({
+      specialiteId: "60035714",
+      code,
+      sequence: 1,
+      typeLabel: code === 83 ? "Médicament soumis à une surveillance renforcée" : "Autre",
+      eventDate: new Date("2021-10-01"),
+      expiryDate: new Date(expiryDate),
+      comment: "Commentaire 1",
+      modifiedAt: null,
+    });
+    const now = new Date("2026-01-01");
+    const eventsSurveillance = [event(84, "2029-10-01"), event(83, "2029-10-01")];
+    const eventsNotSurveillance = [event(84, "2029-10-01")];
+    const eventsNotSurveillanceBis = [event(84, "2029-10-01"), event(83, "2025-10-01")];
     //Surveillance Renforcée
-    expect(isSurveillanceRenforcee(eventsSurveillance)).toBe(true);
+    expect(isSurveillanceRenforcee(eventsSurveillance, now)).toBe(true);
     //Not Surveillance Renforcé : zéro event
-    expect(isSurveillanceRenforcee(eventsNotSurveillance)).toBe(false);
+    expect(isSurveillanceRenforcee(eventsNotSurveillance, now)).toBe(false);
     //Not Surveillance Renforcé : not between the two dates
-    expect(isSurveillanceRenforcee(eventsNotSurveillanceBis)).toBe(false);
+    expect(isSurveillanceRenforcee(eventsNotSurveillanceBis, now)).toBe(false);
   });
 
   it("formatIndicationsDetails", async () => {
