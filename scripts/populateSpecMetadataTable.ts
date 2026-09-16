@@ -1,7 +1,8 @@
 import db from "@/db";
 import { SpecialiteMetadata } from "@/db/types";
 import { getNoticesByCIS } from "@/db/utils/notice";
-import { getAllSpecialites } from "@/db/utils/specialities";
+import { mapCatalogSpecialite, VISIBLE_SPECIALITE_AVAILABILITIES } from "@/db/utils/specialiteCatalog";
+import { requireNonEmpty } from "@/db/utils/refreshGuard";
 import { getIndicationsBlock } from "@/utils/noticeHtml";
 import { Specialite } from "@/types/SpecialiteTypes";
 import { parse } from "node-html-parser";
@@ -23,24 +24,16 @@ function getIndicationsText(contentHtml: string): string {
 }
 
 export async function populateSpecMetadataTable(): Promise<void> {
-  await db
-    .deleteFrom('specialites_metadata')
-    .execute();
+  const allSpecialites: Specialite[] = await db
+    .selectFrom("ansm_specialite")
+    .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
+    .selectAll()
+    .orderBy("denomination")
+    .execute()
+    .then((rows) => rows.map(mapCatalogSpecialite));
+  requireNonEmpty("visible specialities", allSpecialites);
 
-  const allSpecialites: Specialite[] = await getAllSpecialites();
-
-  let buffer: SpecialiteMetadata[] = [];
-  let totalInserted = 0;
-
-  const flush = async () => {
-    if (buffer.length === 0) return;
-    await db
-      .insertInto('specialites_metadata')
-      .values(buffer)
-      .execute();
-    totalInserted += buffer.length;
-    buffer = [];
-  };
+  const metadatas: SpecialiteMetadata[] = [];
 
   // Add metadata informations for all notices even if no indications text
   for (let i = 0; i < allSpecialites.length; i += NOTICE_BATCH_SIZE) {
@@ -51,7 +44,7 @@ export async function populateSpecMetadataTable(): Promise<void> {
       notices.map((notice) => [notice.codeCIS, notice]),
     );
 
-    const metadatas = await Promise.all(
+    const batchMetadatas = await Promise.all(
       batch.map(async (spec) => {
         const noticeDB = noticeByCIS.get(Number(spec.SpecId.trim()));
         const description = noticeDB?.content_html
@@ -65,13 +58,22 @@ export async function populateSpecMetadataTable(): Promise<void> {
       }),
     );
 
-    buffer.push(...metadatas);
-    if (buffer.length >= INSERT_CHUNK_SIZE) await flush();
+    metadatas.push(...batchMetadatas);
   }
 
-  await flush();
+  requireNonEmpty("speciality metadata", metadatas);
 
-  console.log(`Nombre de specialites ajoutées: ${totalInserted}`);
+  await db.transaction().execute(async (trx) => {
+    await trx.deleteFrom("specialites_metadata").execute();
+    for (let i = 0; i < metadatas.length; i += INSERT_CHUNK_SIZE) {
+      await trx
+        .insertInto("specialites_metadata")
+        .values(metadatas.slice(i, i + INSERT_CHUNK_SIZE))
+        .execute();
+    }
+  });
+
+  console.log(`Speciality metadata: ${metadatas.length} rows inserted`);
 }
 
 populateSpecMetadataTable()

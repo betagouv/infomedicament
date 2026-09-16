@@ -15,8 +15,8 @@ import { getSpecialiteGroupName } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
 import MedicamentGeneriqueContainer from "@/components/medicamentsGeneriques/MedicamentGeneriqueContainer";
 import { getGenericGroup } from "@/db/utils/generics";
-import { getEvents } from "@/db/utils/ficheInfos";
 import { getComposants } from "@/db/utils/composants";
+import { getReinforcedSurveillanceEvents } from "@/db/utils/safety";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -36,7 +36,7 @@ export default async function Page(props: {
   const composants = await getComposants(displaySpecialite.SpecId);
 
   const CISList = [...group.princeps, ...group.generiques].map((specialite) => specialite.SpecId);
-  const events = await getEvents(CISList);
+  const events = await getReinforcedSurveillanceEvents(CISList);
 
   let atcCode = await getAtcCode(displaySpecialite.SpecId);
   if (!atcCode) {

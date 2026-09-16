@@ -4,6 +4,7 @@ import {
   disponibiliteToDisplayStatus,
   disponibiliteToStatutBdm,
   mapCatalogSpecialite,
+  mapCatalogSpecialiteWithEen,
   mapDetailedSpecialite,
   statutAmmToCompatibilityId,
   statutAmmToDisplayStatus,
@@ -44,6 +45,10 @@ describe("specialite catalog mappings", () => {
     expect(mapCatalogSpecialite(postgresRow).Een).toBeNull();
   });
 
+  it("maps separately loaded EEN labels", () => {
+    expect(mapCatalogSpecialiteWithEen(postgresRow, "Latex").Een).toBe("Latex");
+  });
+
   it("maps PostgreSQL rows without leaking their snake_case shape", () => {
     expect(mapDetailedSpecialite(
       postgresRow,
@@ -52,6 +57,7 @@ describe("specialite catalog mappings", () => {
       { cis: "61234567", name: "PRINCEPS" },
       new Date("2021-10-22"),
       "Latex",
+      "https://www.ema.europa.eu/example-epar.pdf",
     ))
       .toEqual({
         SpecId: "60035714",
@@ -67,7 +73,7 @@ describe("specialite catalog mappings", () => {
         titulairesList: "JANSSEN BIOLOGICS BV",
         genericGroupCode: 123,
         referenceSpecialite: { cis: "61234567", name: "PRINCEPS" },
-        urlCentralise: null,
+        urlCentralise: "https://www.ema.europa.eu/example-epar.pdf",
       });
   });
 });
