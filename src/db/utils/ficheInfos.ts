@@ -1,8 +1,5 @@
 "use server";
 
-import { getComposants } from "./composants";
-import { CompositionNature } from "@/types/SubstanceTypes";
-import { splitDosageReference } from "./substanceCatalog";
 import {
   Asmr,
   ComposantComposition,
@@ -13,35 +10,28 @@ import {
   Smr,
 } from "@/types/FicheInfoTypes";
 import { pdbmMySQL } from "../pdbmMySQL";
-import { getTypeInfoTxt, isSurveillanceRenforcee } from "@/utils/specialites";
+import { ComposantNatureId, SpecElement } from "../pdbmMySQL/types";
+import { isSurveillanceRenforcee } from "@/utils/specialites";
 import db from "@/db";
-import { getReinforcedSurveillanceEvents } from "./safety";
+import { splitDosageReference } from "./substanceCatalog";
+import {
+  getImportantInformationEvents,
+  getReinforcedSurveillanceEvents,
+} from "./safety";
+import { mapImportantInformation } from "./safetyCatalog";
 import { mapAsmr, mapSmr } from "./hasCatalog";
+import { CompositionNature } from "@/types/SubstanceTypes";
+import { getComposants } from "./composants";
 
 export { getEvents } from "./safety";
 
-// The ANSM datapackage has no event equivalent for legacy VUEvnts code 84.
-// Keep this isolated read until an authoritative replacement source is chosen.
 async function getImportantInformation(
   CIS: string,
 ): Promise<ImportantInformation[]> {
-  return pdbmMySQL
-    .selectFrom("VUEvnts")
-    .where("SpecId", "=", CIS)
-    .where("codeEvnt", "=", "84")
-    .where("remCommentaire", "is not", null)
-    .where("remCommentaire", "!=", "")
-    .select(["remCommentaire", "dateEvnt", "dateEcheance", "codeTypeInfo"])
-    .execute()
-    .then((rows) =>
-      rows.map((row) => ({
-        html: row.remCommentaire,
-        eventDate: row.dateEvnt,
-        expiryDate: row.dateEcheance ?? null,
-        typeCode: row.codeTypeInfo,
-        typeLabel: getTypeInfoTxt(row.codeTypeInfo),
-      })),
-    );
+  const events = await getImportantInformationEvents([CIS]);
+  return events
+    .map(mapImportantInformation)
+    .filter((info): info is ImportantInformation => info !== null);
 }
 
 function formatElementName(name: string): string {

@@ -3,7 +3,11 @@ import "server-cli-only";
 
 import db from "@/db";
 import type { SafetyEvent } from "@/types/FicheInfoTypes";
-import { mapAnsmSafetyEvent, REINFORCED_SURVEILLANCE_EVENT_CODE } from "./safetyCatalog";
+import {
+  IMPORTANT_INFORMATION_EVENT_CODE,
+  mapAnsmSafetyEvent,
+  REINFORCED_SURVEILLANCE_EVENT_CODE,
+} from "./safetyCatalog";
 
 async function queryEvents(CISList: string[], code?: number): Promise<SafetyEvent[]> {
   if (CISList.length === 0) return [];
@@ -25,4 +29,10 @@ export async function getReinforcedSurveillanceEvents(
   CISList: string[],
 ): Promise<SafetyEvent[]> {
   return queryEvents(CISList, REINFORCED_SURVEILLANCE_EVENT_CODE);
+}
+
+export async function getImportantInformationEvents(
+  CISList: string[],
+): Promise<SafetyEvent[]> {
+  return queryEvents(CISList, IMPORTANT_INFORMATION_EVENT_CODE);
 }
