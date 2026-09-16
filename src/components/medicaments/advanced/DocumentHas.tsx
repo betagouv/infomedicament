@@ -29,7 +29,7 @@ function getSmrAsmrFormattedValeur(value: string) {
   return value;
 }
 
-function getSmrAsmrFormattedAvis(date?: Date, link?: string | null) {
+function getSmrAsmrFormattedAvis(date?: string | null, link?: string | null) {
   const formattedDate = date ? new Date(date) : "";
   if(formattedDate){
     if(link)
@@ -71,22 +71,22 @@ function DocumentHas({
           ? (
             <>
               {ficheInfos && ficheInfos.listeDocumentsBonUsage.map((document, index) => {
-                const date = document.DateMAJ ? new Date(document.DateMAJ) : "";
+                const date = document.updatedAt ? new Date(document.updatedAt) : "";
                 return (
                   <DocBonUsage key={index} className={fr.cx("fr-text--sm", "fr-mb-1w")}>
-                    {document.Url && (
+                    {document.url && (
                       <Link 
-                        href={document.Url}
+                        href={document.url}
                         target="_blank"
                         className={fr.cx("fr-mb-2w")}
                         rel="noopener noreferrer"
                       >
-                        {document.TitreDoc}
+                        {document.title}
                       </Link>
                     )}
                     <div className={fr.cx("fr-mt-1w")}>
                       {date && (<i className={fr.cx("fr-text--xs", "fr-mb-0")} style={{textTransform:"capitalize"}}>{date.toLocaleDateString('fr-FR', {month: 'long', year: 'numeric'})}</i>)}
-                      {document.TypeDoc && (<Badge className={fr.cx("fr-badge--purple-glycine")} small>{document.TypeDoc}</Badge>)}
+                      {document.type && (<Badge className={fr.cx("fr-badge--purple-glycine")} small>{document.type}</Badge>)}
                     </div>
                   </DocBonUsage>
                 );
@@ -123,10 +123,10 @@ function DocumentHas({
                 data={
                   ficheInfos.listeSMR.map((smr: Smr, index) => {
                     return [
-                      getSmrAsmrFormattedValeur(smr.ValeurSmr),
-                      getSmrAsmrFormattedAvis(smr.DateAvis, smr.HASLiensPageCT),
-                      smr.MotifEval,
-                      (<div key={index} dangerouslySetInnerHTML={{__html: smr.LibelleSmr}} className={fr.cx("fr-text--sm", "fr-mb-0")}></div>)
+                      getSmrAsmrFormattedValeur(smr.value),
+                      getSmrAsmrFormattedAvis(smr.opinionDate, smr.hasUrl),
+                      smr.evaluationReason,
+                      (<div key={index} dangerouslySetInnerHTML={{__html: smr.opinionSummary}} className={fr.cx("fr-text--sm", "fr-mb-0")}></div>)
                     ];
                   })
                 }
@@ -181,10 +181,10 @@ function DocumentHas({
                 data={
                   ficheInfos.listeASMR.map((asmr: Asmr, index) => {
                     return [
-                      getSmrAsmrFormattedValeur(asmr.ValeurAsmr),
-                      getSmrAsmrFormattedAvis(asmr.DateAvis, asmr.HASLiensPageCT),
-                      asmr.MotifEval,
-                      (<div key={index} dangerouslySetInnerHTML={{__html: asmr.LibelleAsmr}} className={fr.cx("fr-text--sm", "fr-mb-0")}></div>)
+                      getSmrAsmrFormattedValeur(asmr.value),
+                      getSmrAsmrFormattedAvis(asmr.opinionDate, asmr.hasUrl),
+                      asmr.evaluationReason,
+                      (<div key={index} dangerouslySetInnerHTML={{__html: asmr.opinionSummary}} className={fr.cx("fr-text--sm", "fr-mb-0")}></div>)
                     ];
                   })
                 }
