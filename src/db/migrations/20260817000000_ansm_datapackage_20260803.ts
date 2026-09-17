@@ -107,12 +107,15 @@ export async function up(db: Kysely<any>): Promise<void> {
 
 export async function down(db: Kysely<any>): Promise<void> {
   await db.schema.dropTable("ansm_presentation_evenement").ifExists().execute();
-  await db.schema.dropTable("ansm_classe_clinique_pathologie").execute();
-  await db.schema.dropTable("ansm_specialite_delivrance").execute();
-  await db.schema.dropTable("ansm_specialite_evenement").execute();
+  await db.schema
+    .dropTable("ansm_classe_clinique_pathologie")
+    .ifExists()
+    .execute();
+  await db.schema.dropTable("ansm_specialite_delivrance").ifExists().execute();
+  await db.schema.dropTable("ansm_specialite_evenement").ifExists().execute();
   await db.schema.dropTable("ansm_substance_nom").execute();
-  await db.schema.dropTable("ansm_delivrance").execute();
-  await db.schema.dropTable("ansm_pathologie").execute();
+  await db.schema.dropTable("ansm_delivrance").ifExists().execute();
+  await db.schema.dropTable("ansm_pathologie").ifExists().execute();
 
   await db.schema
     .alterTable("ansm_presentation")
