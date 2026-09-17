@@ -349,6 +349,11 @@ function GeneralInformations({
                       </div>
                     )
                   })}
+                  {element.composants.length === 0 && (
+                    <div className={fr.cx("fr-ml-1w", "fr-mb-1w")}>
+                      {" > "}Pas de substance active
+                    </div>
+                  )}
                 </div>
               )
             })}

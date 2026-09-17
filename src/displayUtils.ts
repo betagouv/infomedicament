@@ -3,6 +3,7 @@ import {
   type CompositionComponent,
   type Substance,
 } from "@/types/SubstanceTypes";
+import { splitDosageReference } from "@/db/utils/substanceCatalog";
 import { Specialite } from "@/types/SpecialiteTypes";
 
 export type MedicamentGroup<T extends Specialite = Specialite> = [string, T[]];
@@ -97,7 +98,7 @@ export function displayCompleteComposants(
         : substances
       ).map(
         (c) =>
-          `${c.NomLib} (${c.CompDosage.trim()})${
+          `${c.NomLib} (${splitDosageReference(c.CompDosage).dosage})${
             (displayListAs === CompositionNature.Fraction
               ? substances
               : fractions
@@ -109,7 +110,7 @@ export function displayCompleteComposants(
                 )
                   .map(
                     (c) =>
-                      `${c.NomLib}${c.CompDosage ? `(${c.CompDosage})` : ""}`,
+                      `${c.NomLib}${c.CompDosage ? `(${splitDosageReference(c.CompDosage).dosage})` : ""}`,
                   )
                   .join(" et ")}.`
               : ""
