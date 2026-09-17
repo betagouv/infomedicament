@@ -19,7 +19,7 @@ export function getIndicationsBlock(contentHtml: string): string | undefined {
     const headingLevel = getHeadingLevel(element.tagName);
     if (!headingLevel) return [element];
 
-    const elements = [element];
+    const elements = [];
     let sibling = element.nextElementSibling;
 
     while (sibling) {
