@@ -40,30 +40,7 @@ export const getGenericsResumeWithLetter = cache(async function(letter: string):
   return result;
 });
 
-async function resolveGroupCode(identifier: string): Promise<number | undefined> {
-  const membership = await db
-    .selectFrom("ansm_specialite_groupe_generique")
-    .where("cis", "=", identifier)
-    .select("code_groupe")
-    .orderBy("code_groupe")
-    .executeTakeFirst();
-
-  if (membership) return membership.code_groupe;
-
-  const codeGroupe = Number(identifier);
-  if (!Number.isInteger(codeGroupe)) return undefined;
-
-  return (await db
-    .selectFrom("ansm_groupe_generique")
-    .where("code_groupe", "=", codeGroupe)
-    .select("code_groupe")
-    .executeTakeFirst())?.code_groupe;
-}
-
-export async function getGenericGroup(identifier: string): Promise<GenericGroup | undefined> {
-  const codeGroupe = await resolveGroupCode(identifier);
-  if (codeGroupe === undefined) return undefined;
-
+export async function getGenericGroup(codeGroupe: number): Promise<GenericGroup | undefined> {
   const [group, members] = await Promise.all([
     db
       .selectFrom("ansm_groupe_generique")
@@ -147,15 +124,17 @@ export async function getGenericGroupMembership(CIS: string) {
   };
 }
 
-export async function getAllGenericGroupIds(): Promise<string[]> {
+export async function getAllGenericGroupCodes(): Promise<number[]> {
   const groups = await db
     .selectFrom("ansm_specialite_groupe_generique")
-    .select("code_groupe")
+    .innerJoin("ansm_specialite", "ansm_specialite.cis", "ansm_specialite_groupe_generique.cis")
+    .where("ansm_specialite.disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
+    .select("ansm_specialite_groupe_generique.code_groupe")
     .distinct()
-    .orderBy("code_groupe")
+    .orderBy("ansm_specialite_groupe_generique.code_groupe")
     .execute();
 
-  return groups.map(({ code_groupe }) => code_groupe.toString());
+  return groups.map(({ code_groupe }) => code_groupe);
 }
 
 export async function isPrincepsSpecialite(CIS: string): Promise<boolean> {
@@ -167,6 +146,15 @@ export async function isPrincepsSpecialite(CIS: string): Promise<boolean> {
     .executeTakeFirst());
 }
 
-export async function getGeneriques(identifier: string): Promise<Specialite[]> {
-  return (await getGenericGroup(identifier))?.generiques ?? [];
+export async function isGenericSpecialite(CIS: string): Promise<boolean> {
+  return Boolean(await db
+    .selectFrom("ansm_specialite_groupe_generique")
+    .where("cis", "=", CIS)
+    .where("role", "in", GENERIC_ROLES)
+    .select("cis")
+    .executeTakeFirst());
+}
+
+export async function getGeneriques(codeGroupe: number): Promise<Specialite[]> {
+  return (await getGenericGroup(codeGroupe))?.generiques ?? [];
 }

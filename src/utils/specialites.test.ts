@@ -9,7 +9,6 @@ const detailedSpec: DetailedSpecialite = {
   SpecId: "60035714",
   StatId: SpecialiteStat.Valide,
   ProcId: "CENTRALISEE",
-  SpecGeneId: "",
   SpecDenom01: "SIMPONI 50 mg, solution injectable en seringue préremplie",
   SpecDateAMM: new Date("2009-10-01"),
   SpecStatDate: new Date("2009-10-01"),
@@ -19,7 +18,8 @@ const detailedSpec: DetailedSpecialite = {
   statutAutorisation: "Valide",
   statutComm: "Commercialisée",
   titulairesList: 'JANSSEN BIOLOGICS BV',
-  generiqueName: null,
+  genericGroupCode: null,
+  referenceSpecialite: null,
 }
 
 describe("utils specialities", () => {

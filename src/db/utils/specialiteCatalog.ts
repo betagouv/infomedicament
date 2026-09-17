@@ -78,7 +78,6 @@ export function mapCatalogSpecialite(row: AnsmSpecialite): Specialite {
   return {
     SpecId: row.cis,
     SpecDenom01: row.denomination ?? "",
-    SpecGeneId: row.generique?.toString() ?? "",
     ProcId: row.procedure ?? "NON_COMMUNIQUEE",
     StatutBdm: disponibiliteToStatutBdm(row.disponibilite),
     // The ANSM PostgreSQL catalog has no equivalent excipient field in this batch.
@@ -95,29 +94,32 @@ export function mapLegacyCatalogSpecialite(row: {
   Een: string | null;
 }): Specialite {
   return {
-    ...row,
+    SpecId: row.SpecId,
+    SpecDenom01: row.SpecDenom01,
     ProcId: legacyProcedureToSpecialiteProcedure(row.ProcId),
+    StatutBdm: row.StatutBdm,
+    Een: row.Een,
   };
 }
 
 export function mapDetailedSpecialite(
   row: AnsmSpecialite,
   titulairesList: string | null,
-  generiqueName: string | null,
-  genericGroupReferenceCis: string | null,
+  genericGroupCode: number | null,
+  referenceSpecialite: DetailedSpecialite["referenceSpecialite"],
   statusDate: Date | null,
   een: string | null,
 ): DetailedSpecialite {
   return {
     ...mapCatalogSpecialite(row),
-    SpecGeneId: genericGroupReferenceCis ?? "",
     StatId: statutAmmToCompatibilityId(row.statut_amm),
     SpecDateAMM: row.date_amm,
     SpecStatDate: statusDate,
     statutAutorisation: statutAmmToDisplayStatus(row.statut_amm),
     statutComm: disponibiliteToDisplayStatus(row.disponibilite),
     titulairesList,
-    generiqueName,
+    genericGroupCode,
+    referenceSpecialite,
     Een: een,
     // No equivalent of the MySQL VUEmaEpar URL exists in the ANSM tables.
     // Preserve the absence explicitly so callers never mistake it for migrated data.

@@ -189,24 +189,24 @@ function GeneralInformations({
         </SummaryLine>
         <SummaryLine categoryName="Statut générique">
           <>
-            {(isPrinceps && !isAIP(specialite)) ? (
+            {(isPrinceps && specialite.genericGroupCode !== null && !isAIP(specialite)) ? (
               <GenericPrincepsTag 
-                id={specialite.SpecGeneId || specialite.SpecId}
+                genericGroupCode={specialite.genericGroupCode}
                 type="princeps"
                 hideIcon
               />
             ) : (
-              (specialite.SpecGeneId && !isAIP(specialite))
+              (specialite.genericGroupCode !== null && !isAIP(specialite))
               ? (
                 <>
                   <GenericPrincepsTag 
-                    id={specialite.SpecGeneId}
+                    genericGroupCode={specialite.genericGroupCode}
                     type="generic"
                     hideIcon
                   />
-                  {specialite.generiqueName && (
+                  {specialite.referenceSpecialite && (
                     <div>
-                      <strong>Princeps:&nbsp;</strong>{specialite.generiqueName}
+                      <strong>Princeps:&nbsp;</strong>{specialite.referenceSpecialite.name}
                     </div>
                   )}
                 </>

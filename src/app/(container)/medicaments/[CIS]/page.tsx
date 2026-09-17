@@ -13,7 +13,7 @@ import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
 import { getSpecialiteMetadata, getSpecialiteName } from "@/db/utils/specialities";
-import { isPrincepsSpecialite } from "@/db/utils/generics";
+import { isGenericSpecialite, isPrincepsSpecialite } from "@/db/utils/generics";
 import MedicamentContent from "@/components/medicaments/MedicamentContent";
 import ShareButtons from "@/components/generic/ShareButtons";
 import { getSpecialitesIndications, getSpecialitePathologies } from "@/db/utils/indications";
@@ -132,7 +132,10 @@ export default async function Page(props: {
   const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
   const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
 
-  const isPrinceps = await isPrincepsSpecialite(CIS);
+  const [isPrinceps, isGeneric] = await Promise.all([
+    isPrincepsSpecialite(CIS),
+    isGenericSpecialite(CIS),
+  ]);
 
   const atcList: string[] = [];
   const breadcrumb = [
@@ -215,6 +218,7 @@ export default async function Page(props: {
             delivrance={delivrance}
             presentations={presentations}
             isPrinceps={isPrinceps}
+            isGeneric={isGeneric}
             title={pageLabel}
             indications={indications}
             indicationsBlock={medData.indicationsBlock}

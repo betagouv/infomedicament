@@ -106,7 +106,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable("ansm_presentation_evenement").execute();
+  await db.schema.dropTable("ansm_presentation_evenement").ifExists().execute();
   await db.schema.dropTable("ansm_classe_clinique_pathologie").execute();
   await db.schema.dropTable("ansm_specialite_delivrance").execute();
   await db.schema.dropTable("ansm_specialite_evenement").execute();

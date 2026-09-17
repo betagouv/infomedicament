@@ -41,12 +41,9 @@ function DataBlockSpecGenerique({
         href={`/medicaments/${specialite.SpecId}`}
         className={["result-link", fr.cx("fr-p-1w")].join(" ")}
       >
-        <Link
-          href={`/medicaments/${specialite.SpecId}`}
-          className={fr.cx("fr-link")}
-        >
+        <span className={fr.cx("fr-link")}>
           {formatSpecName(specialite.SpecDenom01)}
-        </Link>
+        </span>
         <DataBlockGenericIcons
           specialite={specialite}
           isSurveillanceRenforcee={isSurveillanceRenforcee}

@@ -22,11 +22,13 @@ export const dynamic = "error";
 export const dynamicParams = true;
 
 export default async function Page(props: {
-  params: Promise<{ CIS: string }>;
+  params: Promise<{ codeGroupe: string }>;
 }) {
-  const { CIS } = await props.params;
+  const { codeGroupe } = await props.params;
+  const genericGroupCode = Number(codeGroupe);
+  if (!Number.isSafeInteger(genericGroupCode) || genericGroupCode <= 0) notFound();
 
-  const group = await getGenericGroup(CIS);
+  const group = await getGenericGroup(genericGroupCode);
   if (!group) notFound();
 
   const displaySpecialite = group.princeps[0] ?? group.generiques[0];
@@ -36,7 +38,7 @@ export default async function Page(props: {
   const CISList = [...group.princeps, ...group.generiques].map((specialite) => specialite.SpecId);
   const events = await getEvents(CISList);
 
-  let atcCode = await getAtcCode(CIS);
+  let atcCode = await getAtcCode(displaySpecialite.SpecId);
   if (!atcCode) {
     for (const specialite of [...group.princeps, ...group.generiques]) {
       atcCode = await getAtcCode(specialite.SpecId);

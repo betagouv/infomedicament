@@ -20,7 +20,6 @@ export type SpecialiteProcedure =
 export type Specialite = {
   SpecId: string;
   SpecDenom01: string;
-  SpecGeneId: string;
   ProcId: SpecialiteProcedure;
   StatutBdm: number;
   Een: string | null;
@@ -71,7 +70,11 @@ export type DetailedSpecialite = Specialite & {
   statutAutorisation: string | null,
   statutComm: string | null,
   titulairesList: string | null,
-  generiqueName: string | null,
+  genericGroupCode: number | null,
+  referenceSpecialite: {
+    cis: string;
+    name: string;
+  } | null,
 }
 
 export type NoticeBlockType = "generalites" | "usage" | "warnings" | "howTo" | "sideEffects" | "storage" | "composition";

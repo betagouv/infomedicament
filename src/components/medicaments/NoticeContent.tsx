@@ -284,7 +284,7 @@ function NoticeContent({
             {(atc2 ||
               (specialite &&
                 !isAIP(specialite) &&
-                (isPrinceps || !!specialite.SpecGeneId)) ||
+                (isPrinceps || specialite.genericGroupCode !== null)) ||
               !!delivrance.length) && (
               <TagContainer>
                 <DetailsContainer>
@@ -294,9 +294,9 @@ function NoticeContent({
                     <ReimbursableTag hideIcon />
                   )}
                   {isHospitalDelivrance(delivrance) && <HospitalTag hideIcon />}
-                  {specialite && isPrinceps && !isAIP(specialite) && (
+                  {specialite && isPrinceps && specialite.genericGroupCode !== null && !isAIP(specialite) && (
                     <GenericPrincepsTag
-                      id={specialite.SpecGeneId || specialite.SpecId}
+                      genericGroupCode={specialite.genericGroupCode}
                       type="princeps"
                       fromMedicament
                       hideIcon
@@ -304,11 +304,11 @@ function NoticeContent({
                     />
                   )}
                   {specialite &&
-                    !!specialite.SpecGeneId &&
+                    specialite.genericGroupCode !== null &&
                     !isPrinceps &&
                     !isAIP(specialite) && (
                       <GenericPrincepsTag
-                        id={specialite.SpecGeneId}
+                        genericGroupCode={specialite.genericGroupCode}
                         type="generic"
                         fromMedicament
                         hideIcon

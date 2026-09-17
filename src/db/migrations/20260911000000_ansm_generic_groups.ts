@@ -13,6 +13,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   await db.schema
     .createIndex("ansm_groupe_generique_code_atc_idx")
+    .ifNotExists()
     .on("ansm_groupe_generique")
     .column("code_atc")
     .execute();

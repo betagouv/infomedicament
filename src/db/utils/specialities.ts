@@ -111,12 +111,23 @@ export const getDetailedSpecialite = cache(
     .map((titulaire) => titulaire.raison_sociale_longue ?? titulaire.raison_sociale)
     .filter((name): name is string => Boolean(name));
 
+  const referenceSpecialite = genericGroupMembership?.referenceCis && genericGroupMembership.referenceName
+    ? {
+      cis: genericGroupMembership.referenceCis,
+      name: genericGroupMembership.referenceName,
+    }
+    : row.procedure === "IMPORTATION_PARALLELE" && row.generique && importedReference?.denomination
+      ? {
+        cis: row.generique.toString(),
+        name: importedReference.denomination,
+      }
+      : null;
+
   return mapDetailedSpecialite(
     row,
     titulaireNames.length > 0 ? [...new Set(titulaireNames)].join(", ") : null,
-    genericGroupMembership?.referenceName ?? importedReference?.denomination ?? null,
-    genericGroupMembership?.codeGroupe.toString()
-      ?? (row.procedure === "IMPORTATION_PARALLELE" ? row.generique?.toString() ?? null : null),
+    genericGroupMembership?.codeGroupe ?? null,
+    referenceSpecialite,
     statusEvent?.date_evenement ?? null,
     legacySpecialite?.Een ?? null,
   );

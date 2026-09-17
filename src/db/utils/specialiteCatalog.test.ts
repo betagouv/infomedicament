@@ -46,15 +46,14 @@ describe("specialite catalog mappings", () => {
     expect(mapDetailedSpecialite(
       postgresRow,
       "JANSSEN BIOLOGICS BV",
-      "PRINCEPS",
-      "61234567",
+      123,
+      { cis: "61234567", name: "PRINCEPS" },
       new Date("2021-10-22"),
       "Latex",
     ))
       .toEqual({
         SpecId: "60035714",
         SpecDenom01: "SIMPONI 50 mg",
-        SpecGeneId: "61234567",
         ProcId: "CENTRALISEE",
         StatutBdm: 3,
         Een: "Latex",
@@ -64,7 +63,8 @@ describe("specialite catalog mappings", () => {
         statutAutorisation: "Abrogée",
         statutComm: "Non communiquée",
         titulairesList: "JANSSEN BIOLOGICS BV",
-        generiqueName: "PRINCEPS",
+        genericGroupCode: 123,
+        referenceSpecialite: { cis: "61234567", name: "PRINCEPS" },
         urlCentralise: null,
       });
   });
