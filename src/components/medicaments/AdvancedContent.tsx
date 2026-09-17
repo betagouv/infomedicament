@@ -49,6 +49,7 @@ interface AdvancedContentProps extends HTMLAttributes<HTMLDivElement> {
   specialite?: DetailedSpecialite;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
+  isGeneric: boolean;
   delivrance: SpecDelivrance[];
   pregnancyPlanAlert: PregnancyAlert | undefined;
   isPregnancyMentionAlert: boolean;
@@ -70,6 +71,7 @@ function AdvancedContent({
   specialite,
   composants,
   isPrinceps,
+  isGeneric,
   delivrance,
   pregnancyPlanAlert,
   isPregnancyMentionAlert,
@@ -147,7 +149,8 @@ function AdvancedContent({
         <DetailedNoticeContainer id="document-has" $visible={currentPart === DetailsNoticePartsEnum.HAS}>
           <DocumentHas 
             ficheInfos={ficheInfos}
-            SpecGenId={specialite && specialite.SpecGeneId}
+            genericGroupCode={specialite?.genericGroupCode}
+            isGeneric={isGeneric}
             definitions={definitions}
           />
         </DetailedNoticeContainer>

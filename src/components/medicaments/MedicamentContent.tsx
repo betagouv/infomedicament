@@ -29,6 +29,7 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   specialite?: DetailedSpecialite;
   composants: Array<SpecComposant & SubstanceNom>;
   isPrinceps: boolean;
+  isGeneric: boolean;
   delivrance: SpecDelivrance[];
   presentations: Presentation[];
   title: string;
@@ -53,6 +54,7 @@ function MedicamentContent({
   specialite,
   composants,
   isPrinceps,
+  isGeneric,
   delivrance,
   presentations,
   title,
@@ -113,6 +115,7 @@ function MedicamentContent({
               specialite={specialite}
               composants={composants}
               isPrinceps={isPrinceps}
+              isGeneric={isGeneric}
               delivrance={delivrance}
               pregnancyPlanAlert={pregnancyPlanAlert}
               isPregnancyMentionAlert={isPregnancyMentionAlert}

@@ -51,13 +51,15 @@ function getSmrAsmrFormattedAvis(date?: Date, link?: string | null) {
 
 interface DocumentHasProps extends HTMLAttributes<HTMLDivElement> {
   ficheInfos?: FicheInfos;
-  SpecGenId?: string;
+  genericGroupCode?: number | null;
+  isGeneric: boolean;
   definitions?: Definition[];
 }
 
 function DocumentHas({ 
   ficheInfos,
-  SpecGenId,
+  genericGroupCode,
+  isGeneric,
   definitions,
   ...props 
 }: DocumentHasProps) {
@@ -133,12 +135,12 @@ function DocumentHas({
             </div>
           ) : (
             <>
-              {SpecGenId 
+              {isGeneric && genericGroupCode !== null && genericGroupCode !== undefined
                 ? <span>
                     Ce médicament étant un générique, le SMR n'a pas été évalué par la commission de la transparence (CT), 
                     il est possible de se référer à la /aux spécialité(s) de référence du groupe générique auquel appartient ce médicament (
                     <Link
-                      href={`/generiques/${SpecGenId}`}
+                      href={`/generiques/${genericGroupCode}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={fr.cx("fr-link")}
@@ -191,12 +193,12 @@ function DocumentHas({
             </div>
           ) : (
             <>
-              {SpecGenId 
+              {isGeneric && genericGroupCode !== null && genericGroupCode !== undefined
                 ? <span>
                     Ce médicament étant un générique, l&rsquo;ASMR n'a pas été évalué par la commission de la transparence (CT), 
                     il est possible de se référer à la /aux spécialité(s) de référence du groupe générique auquel appartient ce médicament (
                     <Link
-                      href={`/generiques/${SpecGenId}`}
+                      href={`/generiques/${genericGroupCode}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={fr.cx("fr-link")}
