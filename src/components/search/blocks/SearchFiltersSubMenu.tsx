@@ -137,7 +137,7 @@ function SearchFiltersSubMenu({
           )}
         </Button>
       </SubMenuOpenButton>
-      {isFiltersOpen && (
+      <div hidden={!isFiltersOpen}>
         <SearchFiltersContainer
           allSubsFilters={allSubsFilters}
           allAtcFilters={allAtcFilters}
@@ -148,7 +148,7 @@ function SearchFiltersSubMenu({
           setSortType={setSortType}
           setIsSortAsc={setIsSortAsc}
         />
-      )}
+      </div>
     </SubMenuContainer>
   );
 };
