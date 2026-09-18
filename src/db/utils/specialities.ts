@@ -207,7 +207,7 @@ export const getAllSpecialites = cache(async function (): Promise<
     .orderBy("denomination")
     .execute();
 
-  return rows.map(mapCatalogSpecialite);
+  return rows.map((row) => mapCatalogSpecialite(row));
 });
 
 export const getResumeSpecsGroupsWithLetter = cache(async function (
@@ -301,7 +301,7 @@ export const getSubstanceSpecialites = unstable_cache(
       .selectAll()
       .execute();
 
-    return rows.map(mapCatalogSpecialite);
+    return rows.map((row) => mapCatalogSpecialite(row));
   },
   ["substance-specialites"],
   { revalidate: 3600 }, // cache for one hour
