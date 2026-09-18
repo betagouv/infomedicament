@@ -3,6 +3,7 @@ import type { AnsmSpecialite } from "@/db/types";
 import {
   disponibiliteToDisplayStatus,
   disponibiliteToStatutBdm,
+  mapCatalogSpecialite,
   mapDetailedSpecialite,
   statutAmmToCompatibilityId,
   statutAmmToDisplayStatus,
@@ -11,7 +12,9 @@ import { SpecialiteStat } from "@/types/SpecialiteTypes";
 
 const postgresRow: AnsmSpecialite = {
   cis: "60035714",
+  code_ema: "EMEA/H/C/000992",
   denomination: "SIMPONI 50 mg",
+  een: "PRESENTS",
   generique: 61234567,
   procedure: "CENTRALISEE",
   date_amm: new Date("2009-10-01"),
@@ -35,6 +38,10 @@ describe("specialite catalog mappings", () => {
     expect(statutAmmToCompatibilityId("ABROGEE")).toBe(SpecialiteStat.Abrogée);
     expect(statutAmmToDisplayStatus("ARCHIVEE")).toBe("Archivée");
     expect(statutAmmToCompatibilityId("ARCHIVEE")).toBe(SpecialiteStat.Archivée);
+  });
+
+  it("does not expose the EEN status as an excipient label", () => {
+    expect(mapCatalogSpecialite(postgresRow).Een).toBeNull();
   });
 
   it("maps PostgreSQL rows without leaking their snake_case shape", () => {

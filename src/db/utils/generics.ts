@@ -87,11 +87,45 @@ export async function getGenericGroup(
 
   if (!group) return undefined;
 
+  const membersWithEen = members.filter((member) => member.een === "PRESENTS");
+  const excipientRows = membersWithEen.length > 0
+    ? await db
+        .selectFrom("ansm_specialite_excipient_effet_notoire")
+        .innerJoin(
+          "ansm_excipient_effet_notoire",
+          "ansm_excipient_effet_notoire.code",
+          "ansm_specialite_excipient_effet_notoire.code_excipient",
+        )
+        .where(
+          "ansm_specialite_excipient_effet_notoire.cis",
+          "in",
+          membersWithEen.map((member) => member.cis),
+        )
+        .where("ansm_excipient_effet_notoire.libelle", "is not", null)
+        .select([
+          "ansm_specialite_excipient_effet_notoire.cis",
+          "ansm_specialite_excipient_effet_notoire.code_excipient",
+          "ansm_excipient_effet_notoire.libelle",
+        ])
+        .orderBy("ansm_specialite_excipient_effet_notoire.code_excipient")
+        .execute()
+    : [];
+  const excipientsByCis = new Map<string, string[]>();
+  for (const excipient of excipientRows) {
+    if (!excipient.libelle) continue;
+    const labels = excipientsByCis.get(excipient.cis) ?? [];
+    labels.push(excipient.libelle);
+    excipientsByCis.set(excipient.cis, labels);
+  }
+
   const princeps: Specialite[] = [];
   const generiques: Specialite[] = [];
 
   for (const member of members) {
-    const specialite = mapCatalogSpecialite(member);
+    const specialite = mapCatalogSpecialite(
+      member,
+      excipientsByCis.get(member.cis)?.join(", ") ?? null,
+    );
     if (member.role && PRINCEPS_ROLES.includes(member.role))
       princeps.push(specialite);
     if (member.role && GENERIC_ROLES.includes(member.role))

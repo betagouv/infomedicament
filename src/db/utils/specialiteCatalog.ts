@@ -55,14 +55,16 @@ export function disponibiliteToStatutBdm(
   return 1;
 }
 
-export function mapCatalogSpecialite(row: AnsmSpecialite): Specialite {
+export function mapCatalogSpecialite(
+  row: AnsmSpecialite,
+  een: string | null = null,
+): Specialite {
   return {
     SpecId: row.cis,
     SpecDenom01: row.denomination ?? "",
     ProcId: row.procedure ?? "NON_COMMUNIQUEE",
     StatutBdm: disponibiliteToStatutBdm(row.disponibilite),
-    // The ANSM PostgreSQL catalog has no equivalent excipient field in this batch.
-    Een: null,
+    Een: een,
   };
 }
 

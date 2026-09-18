@@ -80,7 +80,7 @@ export const getDetailedSpecialite = cache(
       genericGroupMembership,
       importedReference,
       statusEvent,
-      legacySpecialite,
+      excipientsEffetNotoire,
     ] = await Promise.all([
       db
         .selectFrom("ansm_specialite_titulaire")
@@ -106,11 +106,22 @@ export const getDetailedSpecialite = cache(
             .orderBy("date_evenement", "desc")
             .executeTakeFirst()
         : Promise.resolve(undefined),
-      pdbmMySQL
-        .selectFrom("Specialite")
-        .where("SpecId", "=", CIS)
-        .select("Een")
-        .executeTakeFirst(),
+      row.een === "PRESENTS"
+        ? db
+            .selectFrom("ansm_specialite_excipient_effet_notoire")
+            .innerJoin(
+              "ansm_excipient_effet_notoire",
+              "ansm_excipient_effet_notoire.code",
+              "ansm_specialite_excipient_effet_notoire.code_excipient",
+            )
+            .where("ansm_specialite_excipient_effet_notoire.cis", "=", CIS)
+            .where("ansm_excipient_effet_notoire.libelle", "is not", null)
+            .select("ansm_excipient_effet_notoire.libelle")
+            .orderBy(
+              "ansm_specialite_excipient_effet_notoire.code_excipient",
+            )
+            .execute()
+        : Promise.resolve([]),
     ]);
 
     const titulaireNames = titulaires
@@ -144,7 +155,10 @@ export const getDetailedSpecialite = cache(
       genericGroupMembership?.codeGroupe ?? null,
       referenceSpecialite,
       statusEvent?.date_evenement ?? null,
-      legacySpecialite?.Een ?? null,
+      excipientsEffetNotoire
+        .map((excipient) => excipient.libelle)
+        .filter((libelle): libelle is string => libelle !== null)
+        .join(", ") || null,
     );
   },
 );
