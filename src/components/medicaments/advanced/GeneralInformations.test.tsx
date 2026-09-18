@@ -35,11 +35,13 @@ const ficheInfos: FicheInfos = {
   listeElements: [
     {
       referenceDosage: "Pour un flacon de poudre",
-      composants: [{
-        NomLib: "étanercept ((MAMMIFERE/HAMSTER/CELLULES CHO))",
-        dosage: "10 mg",
-        CompNum: 1,
-      }],
+      composants: [
+        {
+          NomLib: "étanercept ((MAMMIFERE/HAMSTER/CELLULES CHO))",
+          dosage: "10 mg",
+          CompNum: 1,
+        },
+      ],
     },
     { referenceDosage: "Solvant", composants: [] },
   ],
@@ -68,10 +70,14 @@ describe("GeneralInformations composition", () => {
 
     const composition = document.querySelector("#informations-composition");
     expect(composition).not.toBeNull();
-    expect(within(composition as HTMLElement).getByText("Solvant")).not.toBeNull();
     expect(
-      within(composition as HTMLElement).getByText("Pas de substance active"),
+      within(composition as HTMLElement).getByText("Solvant"),
     ).not.toBeNull();
-    expect(screen.queryByText("La composition n'est pas communiquée")).toBeNull();
+    expect(
+      within(composition as HTMLElement).getByText(/Pas de substance active$/),
+    ).not.toBeNull();
+    expect(
+      screen.queryByText("La composition n'est pas communiquée"),
+    ).toBeNull();
   });
 });

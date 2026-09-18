@@ -2,16 +2,31 @@ import { describe, expect, it } from "vitest";
 import type { AnsmComposant, AnsmElement, AnsmSubstanceNom } from "@/db/types";
 import { CompositionNature } from "@/types/SubstanceTypes";
 import {
-  hasCompleteSubstanceSet,
+  compositionMatchesSubstanceSet,
   hasExactlyOneComponent,
-  mapAnsmComposition,
+  toCompositionComponents,
   splitDosageReference,
 } from "./substanceCatalog";
 
 const names: AnsmSubstanceNom[] = [
-  { code_substance: "00005", code_nom: "00005", nom: "acétylsalicylique (acide)", type: "CANONIQUE" },
-  { code_substance: "00005", code_nom: "34911", nom: "acide acétylsalicylique", type: "SYNONYME" },
-  { code_substance: "63787", code_nom: "63787", nom: "estradiol", type: "CANONIQUE" },
+  {
+    code_substance: "00005",
+    code_nom: "00005",
+    nom: "acétylsalicylique (acide)",
+    type: "CANONIQUE",
+  },
+  {
+    code_substance: "00005",
+    code_nom: "34911",
+    nom: "acide acétylsalicylique",
+    type: "SYNONYME",
+  },
+  {
+    code_substance: "63787",
+    code_nom: "63787",
+    nom: "estradiol",
+    type: "CANONIQUE",
+  },
 ];
 
 const elements: AnsmElement[] = [
@@ -43,10 +58,14 @@ describe("substance catalog mapping", () => {
   });
 
   it("preserves a synonym public id and explicit ordering", () => {
-    const result = mapAnsmComposition([
-      component({ numero_element: 2, numero_composant: 2, ordre: 2 }),
-      component(),
-    ], names, elements);
+    const result = toCompositionComponents(
+      [
+        component({ numero_element: 2, numero_composant: 2, ordre: 2 }),
+        component(),
+      ],
+      names,
+      elements,
+    );
     expect(result.map((row) => row.CompNum)).toEqual([1, 2]);
     expect(result[0]).toMatchObject({
       SubsId: "00005",
@@ -58,13 +77,17 @@ describe("substance catalog mapping", () => {
   });
 
   it("maps an active fraction with canonical fallback", () => {
-    const [result] = mapAnsmComposition([
-      component({
-        code_substance: "63787",
-        substance: "estradiol anhydre",
-        nature: "Fraction active",
-      }),
-    ], names, elements);
+    const [result] = toCompositionComponents(
+      [
+        component({
+          code_substance: "63787",
+          substance: "estradiol anhydre",
+          nature: "Fraction active",
+        }),
+      ],
+      names,
+      elements,
+    );
     expect(result).toMatchObject({
       SubsId: "63787",
       NomId: "63787",
@@ -74,12 +97,29 @@ describe("substance catalog mapping", () => {
   });
 
   it("prefers canonical identity when a synonym duplicates its exact label", () => {
-    const [result] = mapAnsmComposition([
-      component({ code_substance: "23185", substance: "tréprostinil sodique" }),
-    ], [
-      { code_substance: "23185", code_nom: "70587", nom: "tréprostinil sodique", type: "SYNONYME" },
-      { code_substance: "23185", code_nom: "23185", nom: "tréprostinil sodique", type: "CANONIQUE" },
-    ], elements);
+    const [result] = toCompositionComponents(
+      [
+        component({
+          code_substance: "23185",
+          substance: "tréprostinil sodique",
+        }),
+      ],
+      [
+        {
+          code_substance: "23185",
+          code_nom: "70587",
+          nom: "tréprostinil sodique",
+          type: "SYNONYME",
+        },
+        {
+          code_substance: "23185",
+          code_nom: "23185",
+          nom: "tréprostinil sodique",
+          type: "CANONIQUE",
+        },
+      ],
+      elements,
+    );
     expect(result.NomId).toBe("23185");
   });
 });
@@ -90,7 +130,7 @@ describe("legacy substance-set semantics", () => {
       component({ numero_composant: 1, ordre: 1, code_substance: "parent" }),
       component({ numero_composant: 10, ordre: 1, code_substance: "fraction" }),
     ];
-    expect(hasCompleteSubstanceSet(rows, ["fraction"])).toBe(true);
+    expect(compositionMatchesSubstanceSet(rows, ["fraction"])).toBe(true);
     expect(hasExactlyOneComponent(rows)).toBe(true);
   });
 
@@ -99,9 +139,9 @@ describe("legacy substance-set semantics", () => {
       component({ numero_composant: 1, code_substance: "a" }),
       component({ numero_composant: 2, ordre: 2, code_substance: "b" }),
     ];
-    expect(hasCompleteSubstanceSet(rows, ["a"])).toBe(false);
-    expect(hasCompleteSubstanceSet(rows, ["a", "b"])).toBe(true);
-    expect(hasCompleteSubstanceSet(rows, ["a", "a"])).toBe(false);
+    expect(compositionMatchesSubstanceSet(rows, ["a"])).toBe(false);
+    expect(compositionMatchesSubstanceSet(rows, ["a", "b"])).toBe(true);
+    expect(compositionMatchesSubstanceSet(rows, ["a", "a"])).toBe(false);
     expect(hasExactlyOneComponent(rows)).toBe(false);
   });
 
@@ -111,7 +151,7 @@ describe("legacy substance-set semantics", () => {
       component({ numero_element: 2, code_substance: "b" }),
     ];
     expect(hasExactlyOneComponent(rows)).toBe(false);
-    expect(hasCompleteSubstanceSet(rows, ["a", "b"])).toBe(true);
+    expect(compositionMatchesSubstanceSet(rows, ["a", "b"])).toBe(true);
   });
 
   it("matches one substance repeated across distinct elements", () => {
@@ -120,6 +160,6 @@ describe("legacy substance-set semantics", () => {
       component({ numero_element: 2, code_substance: "a" }),
     ];
     expect(hasExactlyOneComponent(rows)).toBe(false);
-    expect(hasCompleteSubstanceSet(rows, ["a"])).toBe(true);
+    expect(compositionMatchesSubstanceSet(rows, ["a"])).toBe(true);
   });
 });

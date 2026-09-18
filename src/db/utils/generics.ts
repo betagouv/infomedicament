@@ -21,7 +21,8 @@ const GENERIC_ROLES: AnsmSpecialiteGroupeGeneriqueRole[] = [
   "GENERIQUE_AVEC_COMPLEMENTARITE_POSOLOGIQUE",
   "SUBSTITUTION",
 ];
-const PUBLIC_MEMBER_ROLES: AnsmSpecialiteGroupeGeneriqueRole[] = [
+// Roles that are eligible to appear in public-facing generic-group listings.
+const VISIBLE_GENERIC_GROUP_ROLES: AnsmSpecialiteGroupeGeneriqueRole[] = [
   ...PRINCEPS_ROLES,
   ...GENERIC_ROLES,
 ];
@@ -109,7 +110,7 @@ export async function getGenericGroupMembership(CIS: string) {
   const membership = await db
     .selectFrom("ansm_specialite_groupe_generique")
     .where("cis", "=", CIS)
-    .where("role", "in", PUBLIC_MEMBER_ROLES)
+    .where("role", "in", VISIBLE_GENERIC_GROUP_ROLES)
     .select("code_groupe")
     .orderBy("code_groupe")
     .executeTakeFirst();
@@ -149,7 +150,11 @@ export async function getAllGenericGroupCodes(): Promise<number[]> {
       "ansm_specialite.cis",
       "ansm_specialite_groupe_generique.cis",
     )
-    .where("ansm_specialite_groupe_generique.role", "in", PUBLIC_MEMBER_ROLES)
+    .where(
+      "ansm_specialite_groupe_generique.role",
+      "in",
+      VISIBLE_GENERIC_GROUP_ROLES,
+    )
     .where(
       "ansm_specialite.disponibilite",
       "in",
