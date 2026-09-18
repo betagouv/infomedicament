@@ -3,7 +3,6 @@ import { build } from "esbuild";
 await build({
   entryPoints: [
     "scripts/aggregatePathoClasseClinique.ts",
-    "scripts/importNoticeRCP.ts",
     "scripts/populateSpecMetadataTable.ts",
     "scripts/seedInteractionsSearch.ts",
     "scripts/seedReviewApp.ts",

@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
 import {
@@ -25,9 +24,10 @@ import { getMarr } from "@/db/utils/marr";
 import { getArticlesFromFilters } from "@/db/utils/articles";
 import { getFicheInfos } from "@/db/utils/ficheInfos";
 import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
-import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { SpecComposant, SubstanceNom } from "@/db/pdbmMySQL/types";
-import { getIndicationsBlock } from "@/utils/notices";
+import { getIndicationsBlock } from "@/utils/noticeHtml";
+import { getVideosFromCIS } from "@/db/utils/videos";
+import { getStockFromCIS } from "@/db/utils/stocks";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -43,7 +43,6 @@ export async function generateStaticParams() {
 
 async function fetchMedicamentData(
   CIS: string,
-  specialite: DetailedSpecialite,
   composants: Array<SpecComposant & SubstanceNom>,
   atcList: string[],
 ) {
@@ -56,6 +55,8 @@ async function fetchMedicamentData(
     marr,
     allPregnancyPlanAlerts,
     specialitePathologies,
+    videos,
+    stocks
   ] = await Promise.all([
     getNotice(CIS),
     getFicheInfos(CIS),
@@ -65,12 +66,16 @@ async function fetchMedicamentData(
     getMarr(CIS),
     getAllPregnancyPlanAlerts(),
     getSpecialitePathologies(CIS),
+    getVideosFromCIS(CIS),
+    getStockFromCIS(CIS)
   ]);
 
   const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
     composants.some((c) => Number(c.SubsId.trim()) === Number(s.id))
   );
-  const indicationsBlock = notice && getIndicationsBlock(notice);
+  const indicationsBlock = notice
+    ? getIndicationsBlock(notice.contentHtml)
+    : undefined;
   const articles = await getArticlesFromFilters({
     ATCList: atcList,
     substancesList: composants.map((c) => c.SubsId.trim()),
@@ -88,6 +93,8 @@ async function fetchMedicamentData(
     pregnancyPlanAlert,
     indicationsBlock,
     articles,
+    videos,
+    stocks
   };
 }
 
@@ -151,7 +158,7 @@ export default async function Page(props: {
   }
 
   const medData = specialite
-    ? await fetchMedicamentData(CIS, specialite, composants, atcList)
+    ? await fetchMedicamentData(CIS, composants, atcList)
     : undefined;
 
   if (composants.length > 0) {
@@ -220,8 +227,8 @@ export default async function Page(props: {
             isPrinceps={isPrinceps}
             title={pageLabel}
             indications={indications}
-            notice={medData.notice}
             indicationsBlock={medData.indicationsBlock}
+            notice={medData.notice}
             ficheInfos={medData.ficheInfos}
             definitions={medData.definitions}
             pregnancyPlanAlert={medData.pregnancyPlanAlert}
@@ -229,6 +236,8 @@ export default async function Page(props: {
             pediatrics={medData.pediatrics}
             marr={medData.marr}
             articles={medData.articles}
+            videos={medData.videos}
+            stocks={medData.stocks}
           />
         )}
       </ContentContainer>

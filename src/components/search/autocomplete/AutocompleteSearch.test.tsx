@@ -13,25 +13,37 @@ vi.mock("@/services/tracking", () => ({
   trackSearchEvent: vi.fn(),
 }));
 
-const mockSearchResults = [
+const mockAutocompleteSections = [
   {
-    groupName: "DOLIPRANE",
-    specName: "DOLIPRANE 1000 mg",
-    specId: "61234567",
-    composants: "paracetamol",
-    specialites: [],
-    indicationsIds: [],
-    CISList: [],
-    subsIds: [],
-    matchReasons: [],
-    shortSpecialites: [],
-    score: 5,
+    type: "substance",
+    title: "Substances actives",
+    items: [
+      {
+        type: "substance",
+        label: "Paracétamol",
+        href: "/substances/123",
+        score: 300,
+      },
+    ],
+  },
+  {
+    type: "specialite",
+    title: "Médicaments",
+    items: [
+      {
+        type: "specialite",
+        label: "Doliprane 1000 mg",
+        href: "/medicaments/61234567",
+        matchReasons: [{ type: "substance", label: "Paracétamol" }],
+        score: 5,
+      },
+    ],
   },
 ];
 
-// Mock SWR to return our mock search results
+// Mock SWR to return our mock autocomplete sections
 vi.mock("swr", () => ({
-  default: () => ({ data: mockSearchResults }),
+  default: () => ({ data: mockAutocompleteSections }),
 }));
 
 describe("AutocompleteSearchInput", () => {
@@ -51,32 +63,32 @@ describe("AutocompleteSearchInput", () => {
     );
   }
 
-  it("should navigate to search page when selecting a group name", () => {
+  it("should navigate to the suggestion href", () => {
     renderAutocomplete();
     const input = screen.getByRole("combobox");
-    fireEvent.change(input, { target: { value: "dolip" } });
+    fireEvent.change(input, { target: { value: "para" } });
 
     const option = screen
       .getAllByRole("option")
-      .find((o) => o.textContent === "Doliprane")!;
+      .find((o) => o.textContent === "Paracétamol")!;
     fireEvent.mouseDown(option);
 
-    expect(mockPush).toHaveBeenCalledWith("/rechercher?s=Doliprane");
+    expect(mockPush).toHaveBeenCalledWith("/substances/123");
   });
 
-  it("should call onSearch for group name when onSearch is provided", () => {
+  it("should navigate to the suggestion href even when onSearch is provided", () => {
     const onSearch = vi.fn();
     renderAutocomplete(onSearch);
     const input = screen.getByRole("combobox");
-    fireEvent.change(input, { target: { value: "dolip" } });
+    fireEvent.change(input, { target: { value: "para" } });
 
     const option = screen
       .getAllByRole("option")
-      .find((o) => o.textContent === "Doliprane")!;
+      .find((o) => o.textContent === "Paracétamol")!;
     fireEvent.mouseDown(option);
 
-    expect(onSearch).toHaveBeenCalledWith("Doliprane");
-    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockPush).toHaveBeenCalledWith("/substances/123");
+    expect(onSearch).not.toHaveBeenCalled();
   });
 
   it("should not show dropdown before user types", () => {
@@ -102,10 +114,10 @@ describe("AutocompleteSearchInput", () => {
   it("should select highlighted option on Enter", () => {
     renderAutocomplete();
     const input = screen.getByRole("combobox");
-    fireEvent.change(input, { target: { value: "doli" } });
+    fireEvent.change(input, { target: { value: "para" } });
     fireEvent.keyDown(input, { key: "ArrowDown" });
     fireEvent.keyDown(input, { key: "Enter" });
-    expect(mockPush).toHaveBeenCalledWith("/rechercher?s=Doliprane");
+    expect(mockPush).toHaveBeenCalledWith("/substances/123");
   });
 
   it("should close dropdown on Escape", () => {
@@ -124,7 +136,7 @@ describe("AutocompleteSearchInput", () => {
 
     const option = screen
       .getAllByRole("option")
-      .find((o) => o.textContent === "Doliprane 1000 mg")!;
+      .find((o) => o.textContent?.includes("Doliprane 1000 mg"))!;
     fireEvent.mouseDown(option);
 
     expect(mockPush).toHaveBeenCalledWith("/medicaments/61234567");
@@ -138,10 +150,19 @@ describe("AutocompleteSearchInput", () => {
 
     const option = screen
       .getAllByRole("option")
-      .find((o) => o.textContent === "Doliprane 1000 mg")!;
+      .find((o) => o.textContent?.includes("Doliprane 1000 mg"))!;
     fireEvent.mouseDown(option);
 
     expect(mockPush).toHaveBeenCalledWith("/medicaments/61234567");
     expect(onSearch).not.toHaveBeenCalled();
+  });
+
+  it("should display sections and match reasons", () => {
+    renderAutocomplete();
+    fireEvent.change(screen.getByRole("combobox"), { target: { value: "para" } });
+
+    expect(screen.getByText("Substances actives")).toBeDefined();
+    expect(screen.getByText("Médicaments")).toBeDefined();
+    expect(screen.getByText("contient Paracétamol")).toBeDefined();
   });
 });

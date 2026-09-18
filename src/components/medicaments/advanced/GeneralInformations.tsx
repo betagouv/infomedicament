@@ -13,7 +13,7 @@ import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } from "@/displayUtils";
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
-import { DetailedSpecialite, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { displayInfosImportantes } from "@/utils/notices";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
@@ -25,10 +25,13 @@ import { getPresentationName, getPresentationFullPriceText, isAbrogee, isAgree, 
 import { FicheInfos, InfosImportantes } from "@/types/FicheInfoTypes";
 import WithDefinition from "@/components/glossary/WithDefinition";
 import { Definition } from "@/types/GlossaireTypes";
+import { ShortIndication } from "@/types/IndicationsTypes";
 import { getDefinition } from "@/utils/glossary";
 import IndicationsBlock from "../blocks/IndicationsBlock";
 import HospitalTag from "@/components/tags/HospitalTag";
 import ReimbursableTag from "@/components/tags/ReimbursableTag";
+import StockTag from "@/components/tags/StockTag";
+import { AnsmStock } from "@/types/StockTypes";
 
 const SummaryLineContainer = styled.div<{ $hideBorder?: boolean; }>`
   display: flex;
@@ -57,6 +60,12 @@ const InfosImportantesBlock = styled.div`
     background: none;
     text-decoration: underline;
   }
+`;
+
+const StockBlock = styled.div<{ $hideBorder?: boolean; }>`
+  ${props => !props.$hideBorder && css`
+    border-bottom: var(--border-open-blue-france) 4px solid;
+  `}
 `;
 
 interface SummaryLineProps extends HTMLAttributes<HTMLDivElement> {
@@ -93,9 +102,11 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   presentations: Presentation[];
   marr?: Marr;
   ficheInfos?: FicheInfos;
-  indicationsBlock?: NoticeRCPContentBlock;
   delivrance: SpecDelivrance[];
   definitions?: Definition[];
+  indications: ShortIndication[];
+  indicationsBlock?: string;
+  stocks: AnsmStock[];
 }
 
 function GeneralInformations({ 
@@ -110,9 +121,11 @@ function GeneralInformations({
   presentations,
   marr,
   ficheInfos,
-  indicationsBlock,
   delivrance,
   definitions,
+  indications,
+  indicationsBlock,
+  stocks,
   ...props 
 }: GeneralInformationsProps) {
   
@@ -290,7 +303,9 @@ function GeneralInformations({
 
       <IndicationsBlock
         specialite={specialite}
+        indications={indications}
         indicationsBlock={indicationsBlock}
+        definitions={definitions}
       />
       
       <ContentContainer id="informations-composition" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
@@ -472,10 +487,49 @@ function GeneralInformations({
         )}
       </ContentContainer>
 
-
       {(marr && marr.pdf.length > 0) && (
         <ContentContainer id="informations-marr" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
           <MarrNoticeAdvanced marr={marr} />
+        </ContentContainer>
+      )}
+
+      {stocks.length > 0 && (
+        <ContentContainer id="informations-stock" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
+          <h2 className={fr.cx("fr-h6")}>Ruptures de stock ou risques de rupture de stock</h2>
+          {stocks.map((stock, index) => (
+            <StockBlock key={index} $hideBorder={index === stocks.length - 1}>
+              <SummaryLine categoryName="Code CIS concerné">
+                {formatCIS(specialite.SpecId)}
+              </SummaryLine>
+              {stock.CIP && stock.CIP.length > 0 && (
+                <SummaryLine categoryName={stock.CIP.length > 1 ? 'Codes CIP concernés' : 'Code CIP concerné'}>
+                  {stock.CIP.join(", ")}
+                </SummaryLine>
+              )}
+              <SummaryLine categoryName="Statut">
+                <StockTag
+                  statusId={stock.status_id}
+                />
+              </SummaryLine>
+              <SummaryLine categoryName="Date de début">
+                {(stock.date_begin).toLocaleDateString('fr-FR')}
+              </SummaryLine>
+              <SummaryLine categoryName="Date de mise à jour">
+                {(stock.date_update).toLocaleDateString('fr-FR')}
+              </SummaryLine>
+              {stock.date_end && (
+                <SummaryLine categoryName="Date de remise à disposition">
+                  {(stock.date_end).toLocaleDateString('fr-FR')}
+                </SummaryLine>
+              )}
+              <SummaryLine 
+                categoryName="Lien vers la page du site de l'ANSM"
+                hideBorder
+              >
+                <a href={stock.link} target="_blank">{stock.link}</a>
+              </SummaryLine>
+            </StockBlock>
+          ))}
         </ContentContainer>
       )}
     </div>
