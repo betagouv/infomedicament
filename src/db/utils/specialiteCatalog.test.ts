@@ -3,7 +3,7 @@ import type { AnsmSpecialite } from "@/db/types";
 import {
   disponibiliteToDisplayStatus,
   disponibiliteToStatutBdm,
-  legacyProcedureToSpecialiteProcedure,
+  mapCatalogSpecialite,
   mapDetailedSpecialite,
   statutAmmToCompatibilityId,
   statutAmmToDisplayStatus,
@@ -12,7 +12,9 @@ import { SpecialiteStat } from "@/types/SpecialiteTypes";
 
 const postgresRow: AnsmSpecialite = {
   cis: "60035714",
+  code_ema: "EMEA/H/C/000992",
   denomination: "SIMPONI 50 mg",
+  een: "PRESENTS",
   generique: 61234567,
   procedure: "CENTRALISEE",
   date_amm: new Date("2009-10-01"),
@@ -31,15 +33,15 @@ describe("specialite catalog mappings", () => {
     expect(disponibiliteToDisplayStatus("PARTIELLE")).toBe("Non communiquée");
   });
 
-  it("maps authorization status and procedure representations", () => {
+  it("maps authorization status representations", () => {
     expect(statutAmmToDisplayStatus("ABROGEE")).toBe("Abrogée");
     expect(statutAmmToCompatibilityId("ABROGEE")).toBe(SpecialiteStat.Abrogée);
-    expect(legacyProcedureToSpecialiteProcedure("20")).toBe("CENTRALISEE");
-    expect(legacyProcedureToSpecialiteProcedure("50")).toBe("IMPORTATION_PARALLELE");
-    expect(legacyProcedureToSpecialiteProcedure("60")).toBe("HOMEOPATHIQUE_NATIONALE");
-    expect(legacyProcedureToSpecialiteProcedure("")).toBe("NON_COMMUNIQUEE");
     expect(statutAmmToDisplayStatus("ARCHIVEE")).toBe("Archivée");
     expect(statutAmmToCompatibilityId("ARCHIVEE")).toBe(SpecialiteStat.Archivée);
+  });
+
+  it("does not expose the EEN status as an excipient label", () => {
+    expect(mapCatalogSpecialite(postgresRow).Een).toBeNull();
   });
 
   it("maps PostgreSQL rows without leaking their snake_case shape", () => {

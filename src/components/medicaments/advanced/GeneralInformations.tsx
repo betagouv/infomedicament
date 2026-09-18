@@ -5,7 +5,8 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, PropsWithChildren } from "react";
 import styled, {css} from 'styled-components';
 import GenericPrincepsTag from "@/components/tags/GenericPrincepsTag";
-import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecDelivrance } from "@/db/pdbmMySQL/types";
+import type { CompositionComponent } from "@/types/SubstanceTypes";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import PediatricsTags from "@/components/tags/PediatricsTags";
 import Link from "next/link";
@@ -94,7 +95,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   updateVisiblePart: (visiblePart: DetailsNoticePartsEnum) => void;
   specialite?: DetailedSpecialite;
   atcCode?: string;
-  composants: Array<SpecComposant & SubstanceNom>;
+  composants: CompositionComponent[];
   isPrinceps: boolean;
   isPregnancyPlanAlert: boolean;
   isPregnancyMentionAlert: boolean;
@@ -348,6 +349,11 @@ function GeneralInformations({
                       </div>
                     )
                   })}
+                  {element.composants.length === 0 && (
+                    <div className={fr.cx("fr-ml-1w", "fr-mb-1w")}>
+                      {" > "}Pas de substance active
+                    </div>
+                  )}
                 </div>
               )
             })}

@@ -72,6 +72,8 @@ export interface Database {
   ansm_substance_nom: AnsmSubstanceNomTable;
   ansm_groupe_generique: AnsmGroupeGeneriqueTable;
   ansm_specialite_groupe_generique: AnsmSpecialiteGroupeGeneriqueTable;
+  ansm_excipient_effet_notoire: AnsmExcipientEffetNotoireTable;
+  ansm_specialite_excipient_effet_notoire: AnsmSpecialiteExcipientEffetNotoireTable;
 }
 
 interface SearchIndexTable {
@@ -433,7 +435,9 @@ interface SpecialiteMetadataTable {
 
 interface AnsmSpecialiteTable {
   cis: string;
+  code_ema: string | null;
   denomination: string | null;
+  een: "AUCUN_NOTIFIE" | "NON_RENSEIGNE" | "PRESENTS" | null;
   generique: number | null;
   procedure: Exclude<SpecialiteProcedure, "IMPORTATION" | "NON_COMMUNIQUEE"> | null;
   date_amm: Date | null;
@@ -768,3 +772,19 @@ interface AnsmSpecialiteGroupeGeneriqueTable {
 
 export type AnsmSpecialiteGroupeGenerique =
   Selectable<AnsmSpecialiteGroupeGeneriqueTable>;
+
+interface AnsmExcipientEffetNotoireTable {
+  code: number;
+  libelle: string | null;
+}
+
+export type AnsmExcipientEffetNotoire =
+  Selectable<AnsmExcipientEffetNotoireTable>;
+
+interface AnsmSpecialiteExcipientEffetNotoireTable {
+  cis: string;
+  code_excipient: number;
+}
+
+export type AnsmSpecialiteExcipientEffetNotoire =
+  Selectable<AnsmSpecialiteExcipientEffetNotoireTable>;
