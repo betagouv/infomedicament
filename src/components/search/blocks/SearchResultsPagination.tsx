@@ -38,6 +38,10 @@ function SearchResultsPagination({
   }
 
   useEffect(() => {
+    setCurrentPage(1);
+  }, [resultsList, setCurrentPage]);
+
+  useEffect(() => {
     const list = getCurrentResultList(resultsList, currentPage);
     setCurrentResultsList(list);
   }, [resultsList, currentPage, setCurrentResultsList]);
