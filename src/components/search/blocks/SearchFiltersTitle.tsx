@@ -1,7 +1,7 @@
 "use client";
 
 import { fr } from "@codegouvfr/react-dsfr";
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes } from "react";
 import styled from 'styled-components';
 
 const TitleContainer = styled.div`
@@ -22,12 +22,7 @@ function SearchFiltersTitle({
   ...props
 }: SearchFiltersTitleProps) {
 
-  const [filtersCount, setFiltersCount] = useState<number>(0);
-  useEffect(() => {
-    if(selectedFiltersCount)
-      setFiltersCount(selectedFiltersCount);
-    else setFiltersCount(0);
-  }, [selectedFiltersCount, setFiltersCount])
+  const filtersCount = selectedFiltersCount ?? 0;
 
   return (
     <TitleContainer {...props}>

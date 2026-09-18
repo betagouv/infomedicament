@@ -75,8 +75,8 @@ function SearchSortBlock({
       </SortContainerDesktop>
       <Accordion
         label="Trier par"
-        onExpandedChange={() => setIsFiltersOpen(!isFiltersOpen)} 
-        expanded={false}
+        onExpandedChange={setIsFiltersOpen}
+        expanded={isFiltersOpen}
         className={fr.cx("fr-hidden-md")}
       >
         <RadioButtons

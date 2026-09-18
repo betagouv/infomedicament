@@ -58,26 +58,22 @@ function SearchFilterBlock({
     window.sessionStorage.setItem(isFiltersOpenStorageKey, String(expanded));
   };
 
+  function sortFilters(a: SearchFilter, b: SearchFilter): number {
+    const selectedDiff = Number(b.selected) - Number(a.selected);
+    if (selectedDiff !== 0) return selectedDiff;
+    if (a.count === b.count) return a.name.localeCompare(b.name);
+    return b.count - a.count;
+  }
+
   useEffect(() => {
     const newList = filtersList
       .map((filter: SearchFilter) => {
         if(filter.children) {
-          if(filter.children) {
-            filter.children
-              .sort((a: SearchFilter, b: SearchFilter) => { 
-                if(a.count === b.count) return a.name.localeCompare(b.name);
-                return b.count - a.count;
-              })
-              .sort((a: SearchFilter, b: SearchFilter) => Number(b.selected) - Number(a.selected));
-          }
+          filter.children.sort(sortFilters);
         }
         return filter;
       })
-      .sort((a: SearchFilter, b: SearchFilter) => { 
-        if(a.count === b.count) return a.name.localeCompare(b.name);
-        return b.count - a.count;
-      })
-      .sort((a: SearchFilter, b: SearchFilter) => Number(b.selected) - Number(a.selected));
+      .sort(sortFilters);
     setFilteredFiltersList(newList);
   }, [filtersList, setFilteredFiltersList]);
 
@@ -99,7 +95,7 @@ function SearchFilterBlock({
         className={fr.cx("fr-hidden-md")}
       >
         <SearchFilterBlockContent
-          filtersList={filtersList}
+          filtersList={filteredFiltersList}
           isFullList={true}
           onClickFilter={onClickFilter}
           onClickChildFilter={onClickChildFilter}
@@ -108,7 +104,7 @@ function SearchFilterBlock({
       <SearchFilterDesktopContainer className={fr.cx("fr-hidden", "fr-unhidden-md", "fr-mb-2w")}>
         <h3 className={fr.cx("fr-text--md")}>{title}</h3>
         <SearchFilterBlockContent
-          filtersList={filtersList}
+          filtersList={filteredFiltersList}
           isFullList={isFullList}
           onClickFilter={onClickFilter}
           onClickChildFilter={onClickChildFilter}
