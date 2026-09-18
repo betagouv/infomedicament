@@ -1,117 +1,162 @@
 "use server";
 
-import { Asmr, ComposantComposition, DocBonUsage, ElementComposition, FicheInfos, InfosImportantes, Smr } from '@/types/FicheInfoTypes';
-import { pdbmMySQL } from '../pdbmMySQL';
-import { VUEvnts } from '../pdbmMySQL/types';
-import { isSurveillanceRenforcee } from '@/utils/specialites';
-import db from '@/db';
-import { getComposants } from './composants';
-import { CompositionNature } from '@/types/SubstanceTypes';
-import { splitDosageReference } from './substanceCatalog';
+import {
+  Asmr,
+  ComposantComposition,
+  DocBonUsage,
+  ElementComposition,
+  FicheInfos,
+  ImportantInformation,
+  Smr,
+} from "@/types/FicheInfoTypes";
+import { pdbmMySQL } from "../pdbmMySQL";
+import { ComposantNatureId, SpecElement } from "../pdbmMySQL/types";
+import { isSurveillanceRenforcee } from "@/utils/specialites";
+import db from "@/db";
+import { splitDosageReference } from "./substanceCatalog";
+import {
+  getImportantInformationEvents,
+  getReinforcedSurveillanceEvents,
+} from "./safety";
+import { mapImportantInformation } from "./safetyCatalog";
+import { mapAsmr, mapSmr } from "./hasCatalog";
+import { CompositionNature } from "@/types/SubstanceTypes";
+import { getComposants } from "./composants";
 
-export async function getEvents(CISList: string | string[]): Promise<VUEvnts[]> {
-  const allCIS: string[] = !Array.isArray(CISList) ? [CISList] : CISList;
-  const events: VUEvnts[] = await pdbmMySQL
-    .selectFrom("VUEvnts")
-    .where("VUEvnts.SpecId", "in", allCIS)
-    .selectAll()
-    .execute();
-  return events;
+export { getEvents } from "./safety";
+
+async function getImportantInformation(
+  CIS: string,
+): Promise<ImportantInformation[]> {
+  const events = await getImportantInformationEvents([CIS]);
+  return events
+    .map(mapImportantInformation)
+    .filter((info): info is ImportantInformation => info !== null);
 }
 
 function formatElementName(name: string): string {
   return name.replaceAll("un seringue préremplie", "une seringue préremplie");
 }
 
-export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined> {
-  const events = await getEvents(CIS);
-  const infosImportantes: InfosImportantes[] = [];
-  events.forEach((event: VUEvnts) => {
-    //84 is the code for events - infos importantes - on the specialite
-    if(event.codeEvnt === '84' && event.remCommentaire){
-      infosImportantes.push({
-        remCommentaire: event.remCommentaire,
-        dateEvnt: event.dateEvnt,
-        codeTypeInfo: event.codeTypeInfo,
-      })
-    }
-  })
+export async function getFicheInfos(
+  CIS: string,
+): Promise<FicheInfos | undefined> {
+  const eventsPromise = getReinforcedSurveillanceEvents([CIS]);
+  const infosImportantesPromise = getImportantInformation(CIS);
 
-  const hasSMR: Smr[] = await pdbmMySQL
-    .selectFrom("HAS_SMR")
-    .leftJoin("HAS_LiensPageCT", "HAS_LiensPageCT.CodeEvamed", "HAS_SMR.CodeEvamed")
-    .where("HAS_SMR.SpecId", "=", CIS)
-    .select(["HAS_SMR.DateAvis", "HAS_SMR.ValeurSmr", "HAS_SMR.MotifEval", "HAS_SMR.LibelleSmr"])
-    .select(["HAS_LiensPageCT.HASLiensPageCT"])
+  const hasSMRPromise: Promise<Smr[]> = db
+    .selectFrom("has_smr")
+    .leftJoin("url_has", "url_has.code_ct", "has_smr.code_evamed")
+    .where("has_smr.code_cis", "=", CIS)
+    .select([
+      "has_smr.date_avis_definitif",
+      "has_smr.valeur_smr",
+      "has_smr.motif_demande",
+      "has_smr.libelle_smr",
+      "url_has.url",
+    ])
     .distinct()
-    .execute();
+    .orderBy("has_smr.date_avis_definitif", "desc")
+    .execute()
+    .then((rows) => rows.map(mapSmr));
 
-  const hasASMR: Asmr[] = await pdbmMySQL
-    .selectFrom("HAS_ASMR")
-    .leftJoin("HAS_LiensPageCT", "HAS_LiensPageCT.CodeEvamed", "HAS_ASMR.CodeEvamed")
-    .where("HAS_ASMR.SpecId", "=", CIS)
-    .select(["HAS_ASMR.DateAvis", "HAS_ASMR.ValeurAsmr", "HAS_ASMR.MotifEval", "HAS_ASMR.LibelleAsmr"])
-    .select(["HAS_LiensPageCT.HASLiensPageCT"])
+  const hasASMRPromise: Promise<Asmr[]> = db
+    .selectFrom("has_asmr")
+    .leftJoin("url_has", "url_has.code_ct", "has_asmr.code_evamed")
+    .where("has_asmr.code_cis", "=", CIS)
+    .select([
+      "has_asmr.date_avis_definitif",
+      "has_asmr.valeur_asmr",
+      "has_asmr.motif_demande",
+      "has_asmr.libelle_asmr",
+      "url_has.url",
+    ])
     .distinct()
-    .execute();
+    .orderBy("has_asmr.date_avis_definitif", "desc")
+    .execute()
+    .then((rows) => rows.map(mapAsmr));
 
-  const hasDocsBU: DocBonUsage[] = await pdbmMySQL
+  const hasDocsBUPromise: Promise<DocBonUsage[]> = pdbmMySQL
     .selectFrom("HAS_DocsBonUsage")
     .where("HAS_DocsBonUsage.SpecId", "=", CIS)
-    .select(["HAS_DocsBonUsage.TypeDoc", "HAS_DocsBonUsage.DateMAJ", "HAS_DocsBonUsage.TitreDoc", "HAS_DocsBonUsage.Url"])
+    .select([
+      "HAS_DocsBonUsage.TypeDoc",
+      "HAS_DocsBonUsage.DateMAJ",
+      "HAS_DocsBonUsage.TitreDoc",
+      "HAS_DocsBonUsage.Url",
+    ])
     .distinct()
-    .execute();
+    .execute()
+    .then((rows) =>
+      rows.map((row) => ({
+        url: row.Url ?? null,
+        updatedAt: row.DateMAJ,
+        type: row.TypeDoc ?? null,
+        title: row.TitreDoc ?? null,
+      })),
+    );
 
   const elementsRaw = await db
     .selectFrom("ansm_element")
     .where("cis", "=", CIS)
     .selectAll()
     .execute();
-  elementsRaw.sort((left, right) =>
-    (left.ordre ?? left.numero_element) - (right.ordre ?? right.numero_element)
-    || left.numero_element - right.numero_element,
+  elementsRaw.sort(
+    (left, right) =>
+      (left.ordre ?? left.numero_element) -
+        (right.ordre ?? right.numero_element) ||
+      left.numero_element - right.numero_element,
   );
 
   const composantsRaw = await getComposants(CIS);
 
   const elementsComposition: ElementComposition[] = [];
   elementsRaw.forEach((element) => {
-    const composantsList = composantsRaw.filter((component) =>
-      component.ElmtNum === element.numero_element
-      && component.NatuId === CompositionNature.Substance,
+    const composantsList = composantsRaw.filter(
+      (component) =>
+        component.ElmtNum === element.numero_element &&
+        component.NatuId === CompositionNature.Substance,
     );
-    const fractionsList = composantsRaw.filter((component) =>
-      component.ElmtNum === element.numero_element
-      && component.NatuId === CompositionNature.Fraction,
+    const fractionsList = composantsRaw.filter(
+      (component) =>
+        component.ElmtNum === element.numero_element &&
+        component.NatuId === CompositionNature.Fraction,
     );
     const referenceDosage = composantsList
       .concat(fractionsList)
-      .map((component) => splitDosageReference(component.CompDosage).referenceDosage)
+      .map(
+        (component) =>
+          splitDosageReference(component.CompDosage).referenceDosage,
+      )
       .find((reference): reference is string => Boolean(reference));
     const composantsComposition: ComposantComposition[] = [];
-    if(fractionsList && fractionsList.length > 0){
+    if (fractionsList && fractionsList.length > 0) {
       fractionsList.forEach((fraction) => {
-        const composantsFractionList = composantsList.filter((component) => component.CompNum === fraction.CompNum);
+        const composantsFractionList = composantsList.filter(
+          (component) => component.CompNum === fraction.CompNum,
+        );
         composantsComposition.push({
           NomLib: fraction.NomLib,
           dosage: splitDosageReference(fraction.CompDosage).dosage,
           CompNum: fraction.CompNum,
           composants: composantsFractionList
-            .map((composant) => { 
+            .map((composant) => {
               return {
                 NomLib: composant.NomLib,
                 dosage: splitDosageReference(composant.CompDosage).dosage,
                 CompNum: composant.CompNum,
-              }
+              };
             })
-            .sort((a,b) => a.CompNum - b.CompNum)
-        })
+            .sort((a, b) => a.CompNum - b.CompNum),
+        });
       });
     }
-    if(composantsList && composantsList.length > 0){
+    if (composantsList && composantsList.length > 0) {
       composantsList.forEach((composant) => {
-        const isFraction = fractionsList.findIndex((fraction) => fraction.CompNum === composant.CompNum);
-        if(isFraction === -1){
+        const isFraction = fractionsList.findIndex(
+          (fraction) => fraction.CompNum === composant.CompNum,
+        );
+        if (isFraction === -1) {
           composantsComposition.push({
             NomLib: composant.NomLib,
             dosage: splitDosageReference(composant.CompDosage).dosage,
@@ -121,19 +166,30 @@ export async function getFicheInfos(CIS: string): Promise<FicheInfos | undefined
       });
     }
     elementsComposition.push({
-      referenceDosage: formatElementName(referenceDosage ?? element.denomination ?? ""),
-      composants: composantsComposition.sort((a,b) => a.CompNum - b.CompNum),
-    })
-  })
-  
-  const ficheInfos:FicheInfos = {
+      referenceDosage: formatElementName(
+        referenceDosage ?? element.denomination ?? "",
+      ),
+      composants: composantsComposition.sort((a, b) => a.CompNum - b.CompNum),
+    });
+  });
+
+  const [events, infosImportantes, hasSMR, hasASMR, hasDocsBU] =
+    await Promise.all([
+      eventsPromise,
+      infosImportantesPromise,
+      hasSMRPromise,
+      hasASMRPromise,
+      hasDocsBUPromise,
+    ]);
+
+  const ficheInfos: FicheInfos = {
     listeInformationsImportantes: infosImportantes,
     listeDocumentsBonUsage: hasDocsBU,
     listeASMR: hasASMR,
     listeSMR: hasSMR,
     listeElements: elementsComposition,
     isSurveillanceRenforcee: isSurveillanceRenforcee(events),
-  }
+  };
 
   return ficheInfos;
-};
+}

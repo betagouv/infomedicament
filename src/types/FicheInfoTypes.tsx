@@ -1,14 +1,26 @@
 export type DocBonUsage = {
-  Url?: string;
-  DateMAJ: Date;
-  TypeDoc?: string;
-  TitreDoc?: string;
+  url: string | null;
+  updatedAt: Date;
+  type: string | null;
+  title: string | null;
 }
 
-export type InfosImportantes = {
-  remCommentaire: string;
-  dateEvnt: Date;
-  codeTypeInfo: number;
+export type ImportantInformation = {
+  html: string;
+  eventDate: Date | null;
+  expiryDate: Date | null;
+  typeLabel: string | null;
+}
+
+export type SafetyEvent = {
+  specialiteId: string;
+  code: number;
+  sequence: number;
+  typeLabel: string | null;
+  eventDate: Date | null;
+  expiryDate: Date | null;
+  comment: string | null;
+  modifiedAt: Date | null;
 }
 
 export type SubstanceComposition = {
@@ -27,22 +39,22 @@ export type ElementComposition = {
 }
 
 export type Smr = {
-  DateAvis: Date;
-  ValeurSmr: string;
-  MotifEval: string;
-  LibelleSmr: string;
-  HASLiensPageCT: string | null;
+  opinionDate: string | null;
+  value: string;
+  evaluationReason: string;
+  opinionSummary: string;
+  hasUrl: string | null;
 }
 export type Asmr = {
-  DateAvis: Date;
-  ValeurAsmr: string;
-  MotifEval: string;
-  LibelleAsmr: string;
-  HASLiensPageCT: string | null;
+  opinionDate: string | null;
+  value: string;
+  evaluationReason: string;
+  opinionSummary: string;
+  hasUrl: string | null;
 }
 
 export type FicheInfos = {
-  listeInformationsImportantes?: InfosImportantes[];
+  listeInformationsImportantes?: ImportantInformation[];
   listeDocumentsBonUsage?: DocBonUsage[],
   listeASMR?: Asmr[];
   listeSMR?: Smr[];
