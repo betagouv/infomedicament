@@ -2,13 +2,13 @@
 import "server-cli-only";
 
 import { cache } from "react";
-import { SpecDelivrance } from "@/db/pdbmMySQL/types";
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { sql } from "kysely";
 import db from "@/db";
 import { getFullPresentations } from "@/db/utils/presentation";
 import { unstable_cache } from "next/cache";
 import {
+  DelivranceCondition,
   DetailedSpecialite,
   ResumeSpecGroup,
   ResumeSpecialite,
@@ -175,17 +175,22 @@ export const getSpecialite = cache(async (CIS: string) => {
     ? await getFullPresentations(CIS)
     : [];
 
-  const delivrance: SpecDelivrance[] = specialite
-    ? await pdbmMySQL
-        .selectFrom("Spec_Delivrance")
-        .where("SpecId", "=", CIS)
+  const delivrance: DelivranceCondition[] =
+    specialite
+      ? await db
+        .selectFrom("ansm_specialite_delivrance")
+        .where("ansm_specialite_delivrance.cis", "=", CIS)
         .innerJoin(
-          "DicoDelivrance",
-          "Spec_Delivrance.DelivId",
-          "DicoDelivrance.DelivId",
+          "ansm_delivrance",
+          "ansm_specialite_delivrance.code_delivrance",
+          "ansm_delivrance.code",
         )
-        .selectAll()
-        .orderBy("DicoDelivrance.DelivLong")
+        .select([
+          "ansm_delivrance.code as code",
+          "ansm_delivrance.libelle_court as shortLabel",
+          "ansm_delivrance.libelle_long as longLabel",
+        ])
+        .orderBy("ansm_delivrance.libelle_long")
         .execute()
     : [];
 
