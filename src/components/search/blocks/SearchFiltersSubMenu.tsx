@@ -6,13 +6,17 @@ import styled, {css} from 'styled-components';
 import Button from "@codegouvfr/react-dsfr/Button";
 import { SearchFilter, SortType } from "@/types/SearchTypes";
 import SearchFiltersContainer from "./SearchFiltersContainer";
+import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 
 const SubMenuContainer = styled.div<{ 
   $isOpen: boolean;
+  $isDark: boolean;
 }>`
   .fr-accordion__btn {
-    color: var(--text-title-grey);
-    background: none;
+    ${props => !props.$isDark && css`
+      color: var(--text-title-grey);
+      background: none;
+    `}
     font-weight: 700;
     padding: 1rem;
   }
@@ -36,7 +40,10 @@ const SubMenuContainer = styled.div<{
   ${props => props.$isOpen && css`
     overflow: auto;
     position: fixed;
-    background-color: white;
+    ${!props.$isDark 
+      ? css `background-color: white;`
+      : css `background-color: var(--background-default-grey);`
+    }
     width: 100%;
     height: 100%;
     margin-left: -1rem;
@@ -59,6 +66,7 @@ const SubMenuOpenButton = styled.div<{
     ? css`
       button {
         border: none;
+        border-radius: 0px;
         padding-top: 1rem;
         padding-bottom: 1rem;
         border-bottom: 2px solid var(--border-open-blue-france);
@@ -106,9 +114,10 @@ function SearchFiltersSubMenu({
 }: SearchFiltersSubMenuProps) {
 
   const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false);
+  const { isDark } = useIsDark();
 
   return (
-    <SubMenuContainer $isOpen={isFiltersOpen}>
+    <SubMenuContainer $isOpen={isFiltersOpen} $isDark={isDark}>
       <SubMenuOpenButton $isOpen={isFiltersOpen}>
         <Button
           onClick={() => setIsFiltersOpen(!isFiltersOpen)}
