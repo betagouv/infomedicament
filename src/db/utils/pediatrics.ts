@@ -3,7 +3,6 @@
 import { unstable_cache } from "next/cache";
 import db from '@/db/'
 import { AllPediatricsInfo, PediatricsInfo } from "@/types/PediatricTypes";
-import { isOuiOrNon } from "@/utils/pediatrics";
 
 // Cache for 1 hour - this data rarely changes
 export const getAllPediatrics = unstable_cache(
