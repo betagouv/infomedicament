@@ -57,7 +57,6 @@ describe("specialite catalog mappings", () => {
       { cis: "61234567", name: "PRINCEPS" },
       new Date("2021-10-22"),
       "Latex",
-      "https://www.ema.europa.eu/example-epar.pdf",
     ))
       .toEqual({
         SpecId: "60035714",
@@ -73,7 +72,6 @@ describe("specialite catalog mappings", () => {
         titulairesList: "JANSSEN BIOLOGICS BV",
         genericGroupCode: 123,
         referenceSpecialite: { cis: "61234567", name: "PRINCEPS" },
-        urlCentralise: "https://www.ema.europa.eu/example-epar.pdf",
       });
   });
 });

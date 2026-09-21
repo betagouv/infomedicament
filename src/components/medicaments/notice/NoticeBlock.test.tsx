@@ -1,6 +1,11 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import NoticeBlock from "./NoticeBlock";
+
+const { isCentralisee } = vi.hoisted(() => ({
+  isCentralisee: vi.fn(),
+}));
 
 vi.mock("@codegouvfr/react-dsfr", () => ({
   fr: { cx: (...classNames: string[]) => classNames.join(" ") },
@@ -10,9 +15,13 @@ vi.mock("@/components/generic/ContentContainer", () => ({
     <div {...props}>{children}</div>
   ),
 }));
-vi.mock("@/utils/specialites", () => ({ isCentralisee: () => false }));
+vi.mock("@/utils/specialites", () => ({ isCentralisee }));
 
 describe("NoticeBlock", () => {
+  beforeEach(() => {
+    isCentralisee.mockReturnValue(false);
+  });
+
   it("renders the notice HTML with document styles", () => {
     render(
       <NoticeBlock
@@ -43,5 +52,17 @@ describe("NoticeBlock", () => {
       fontSize: "1rem",
       lineHeight: "1.5rem",
     });
+  });
+
+  it("links to EMA only when a centralized medicine has no local notice", () => {
+    isCentralisee.mockReturnValue(true);
+
+    render(
+      <NoticeBlock specialite={{ SpecId: "123" } as DetailedSpecialite} />,
+    );
+
+    expect(screen.getByRole("link", { name: /EMA/ }).getAttribute("href")).toBe(
+      "https://www.ema.europa.eu/en/search",
+    );
   });
 });
