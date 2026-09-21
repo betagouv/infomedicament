@@ -88,7 +88,7 @@ const [presentationsDetails, setPresentationsDetails] = useState<PresentationToD
               className={fr.cx("fr-mb-1w", "fr-col-md-12", "fr-text--sm")}
             >
               <div>
-                {presDetails.presentation.pricingKnown && <div>
+                <div>
                   <PriceContainer 
                     className={fr.cx("fr-text--bold", "fr-mr-1w")}
                   >
@@ -96,7 +96,7 @@ const [presentationsDetails, setPresentationsDetails] = useState<PresentationToD
                     <br className={fr.cx("fr-hidden-md")} />
                   </PriceContainer>
                   <span>{getPresentationTauxPriseEnChargeText(presDetails.presentation)}</span>
-                </div>}
+                </div>
                 <div>
                   {presDetails.detailsLines.map((details, i) => {
                     return details.map((line, j) => (

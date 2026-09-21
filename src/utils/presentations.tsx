@@ -305,7 +305,6 @@ export function getAggregatePresentationRecipientsTexts(
 export function getPresentationFullPriceText(
   presentation: Presentation
 ): string {
-  if (!presentation.pricingKnown) return "";
   if(presentation.retailPrice && presentation.reimbursementRate) {
     const price: string = Intl.NumberFormat(
       "fr-FR", {
@@ -321,7 +320,6 @@ export function getPresentationFullPriceText(
 export function getPresentationTauxPriseEnChargeText(
   presentation: Presentation
 ): string {
-  if (!presentation.pricingKnown) return "";
   if(presentation.reimbursementRate) {
     return `remboursé à ${presentation.reimbursementRate}`;
   } else {
@@ -332,7 +330,6 @@ export function getPresentationTauxPriseEnChargeText(
 export function getPresentationPriceText(
   presentation: Presentation
 ): string {
-  if (!presentation.pricingKnown) return "";
   if(presentation.retailPrice) {
     const price: string = Intl.NumberFormat(
       "fr-FR", {

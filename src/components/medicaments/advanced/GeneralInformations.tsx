@@ -378,7 +378,7 @@ function GeneralInformations({
                     <span className={fr.cx("fr-mr-2w")}>
                       <b>{getPresentationName(pres)}</b>
                     </span>
-                    {pres.pricingKnown && <span>{getPresentationFullPriceText(pres)}</span>}
+                    <span>{getPresentationFullPriceText(pres)}</span>
                   </div>
                   {(pres.priceExcludingDispensingFee || pres.dispensingFee) && (
                     <div className={fr.cx("fr-mb-0")}>
@@ -407,10 +407,10 @@ function GeneralInformations({
                       )}
                     </div>
                   )}
-                  {(pres.commercialisationDate || pres.cip7) && (
+                  {(pres.commercialisationDate || pres.cip13) && (
                     <div className={fr.cx("fr-mb-0")}>
-                      {pres.cip7 && (
-                        <span className={fr.cx("fr-mr-2w")}>Code CIP : {pres.cip7}</span>
+                      {pres.cip13 && (
+                        <span className={fr.cx("fr-mr-2w")}>Code CIP : {pres.cip13}</span>
                       )}
                       {pres.commercialisationDate && (
                         <span>Déclaration de commercialisation : {dateShortFormat(pres.commercialisationDate)}</span>

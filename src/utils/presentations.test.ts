@@ -40,6 +40,7 @@ describe("utils presentations - commercial visibility", () => {
     }, cutoff)).toBe(false);
   });
 });
+
  
   //CIS : 69174918
   const recipientDetails: AggregateRecipientDetails = {
@@ -563,17 +564,17 @@ describe("utils presentations - text utilities", () => {
 
   it("getPresentationFullPriceText", async () => {
     expect(getPresentationFullPriceText(presentations[0])).toBe("Prix 2,18 € - remboursé à 65%");
-    expect(getPresentationFullPriceText(presentations[1])).toBe("");
+    expect(getPresentationFullPriceText(presentations[1])).toBe("Prix libre - non remboursable");
   });
 
   it("getPresentationTauxPriseEnChargeText", async () => {
     expect(getPresentationTauxPriseEnChargeText(presentations[0])).toBe("remboursé à 65%");
-    expect(getPresentationTauxPriseEnChargeText(presentations[1])).toBe("");
+    expect(getPresentationTauxPriseEnChargeText(presentations[1])).toBe("non remboursable");
   });
 
   it("getPresentationPriceText", async () => {
     expect(getPresentationPriceText(presentations[0])).toBe("2,18 €");
-    expect(getPresentationPriceText(presentations[1])).toBe("");
+    expect(getPresentationPriceText(presentations[1])).toBe("Prix libre");
   });
 
 });

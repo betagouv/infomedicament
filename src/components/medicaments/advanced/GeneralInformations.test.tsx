@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { FicheInfos } from "@/types/FicheInfoTypes";
+import type { Presentation } from "@/types/PresentationTypes";
 import type { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import GeneralInformations from "./GeneralInformations";
 
@@ -79,5 +80,52 @@ describe("GeneralInformations composition", () => {
     expect(
       screen.queryByText("La composition n'est pas communiquée"),
     ).toBeNull();
+  });
+});
+
+describe("GeneralInformations presentations", () => {
+  it("shows the raw CIP13 and the free-price fallback without a CEPS row", () => {
+    const presentation: Presentation = {
+      cis: "60928110",
+      cip13: "3400949004751",
+      cip7: "",
+      name: "1 flacon pressurisé de 200 doses",
+      commercialStatus: "commercialised",
+      commercialisationDate: new Date("2022-03-30"),
+      commercialisationEndDate: null,
+      administrativeStatus: "active",
+      administrativeStatusDate: null,
+      pricingKnown: false,
+      retailPrice: null,
+      priceExcludingDispensingFee: null,
+      dispensingFee: null,
+      reimbursementRate: null,
+      communityApproval: null,
+      communityApprovalDate: null,
+      additionalList: null,
+      retrocessionList: null,
+      ivgPricing: null,
+    };
+
+    render(
+      <GeneralInformations
+        updateVisiblePart={vi.fn()}
+        specialite={specialite}
+        composants={[]}
+        isPrinceps={false}
+        isPregnancyPlanAlert={false}
+        isPregnancyMentionAlert={false}
+        pediatrics={undefined}
+        presentations={[presentation]}
+        ficheInfos={ficheInfos}
+        delivrance={[]}
+        definitions={[]}
+        indications={[]}
+        stocks={[]}
+      />,
+    );
+
+    expect(screen.getByText("Code CIP : 3400949004751")).not.toBeNull();
+    expect(screen.getByText("Prix libre - non remboursable")).not.toBeNull();
   });
 });
