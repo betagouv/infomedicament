@@ -11,6 +11,7 @@ import { isPresentationVisible } from "@/utils/presentations";
 import db from "..";
 
 const PRESENTATION_VISIBILITY_DAYS = 730;
+const ABROGATION_EVENT_CODES = [18, 90];
 
 function mapCommercialStatus(status: string | null): PresentationCommercialStatus {
   switch (status) {
@@ -41,18 +42,22 @@ function numericValue(value: number | null): number {
   return value === null ? 0 : Number(value);
 }
 
-function preserveDeviceCount(device: string | null, denomination: string | null): string {
-  if (!device || !denomination || !device.toLowerCase().startsWith("avec ")) return device ?? "";
+// Keep the dispositif wording when ANSM writes a count in the full presentation name.
+// Example 1: "avec aiguille(s)" becomes "avec 2 aiguilles" if the denomination says so.
+// Example 2: "avec tampon(s) alcoolisé(s)" stays unchanged if the denomination does not
+// contain a matching counted form.
+function preserveDispositifCount(dispositif: string | null, denomination: string | null): string {
+  if (!dispositif || !denomination || !dispositif.toLowerCase().startsWith("avec ")) return dispositif ?? "";
 
-  const pluralDevice = device
+  const pluralDispositif = dispositif
     .replaceAll("(s)", "s")
     .replaceAll("al(aux)", "aux")
     .replaceAll("(x)", "x");
-  const deviceWithoutAvec = pluralDevice.slice("avec ".length);
-  const escapedDevice = deviceWithoutAvec.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const countedDevice = denomination.match(new RegExp(`avec\\s+\\d+\\s+${escapedDevice}`, "i"));
+  const dispositifWithoutAvec = pluralDispositif.slice("avec ".length);
+  const escapedDispositif = dispositifWithoutAvec.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const countedDevice = denomination.match(new RegExp(`avec\\s+\\d+\\s+${escapedDispositif}`, "i"));
 
-  return countedDevice?.[0] ?? device;
+  return countedDevice?.[0] ?? dispositif;
 }
 
 export const getPresentations = cache(async (CIS: string): Promise<Presentation[]> => {
@@ -72,7 +77,7 @@ export const getPresentations = cache(async (CIS: string): Promise<Presentation[
     ? await db
       .selectFrom("ansm_presentation_evenement")
       .where("cip", "in", abrogatedCips)
-      .where("code_evenement", "in", [18, 90])
+      .where("code_evenement", "in", ABROGATION_EVENT_CODES)
       .where("date_evenement", "is not", null)
       .select(["cip", "date_evenement"])
       .orderBy("date_evenement", "desc")
@@ -226,7 +231,7 @@ export const getPresentationsDetails = cache(async (
         caraccomplrecip: characteristic?.libelle ?? "",
         numordreedit: characteristic?.ordre ?? 0,
         numdispositif: device?.numero_dispositif ?? 0,
-        dispositif: preserveDeviceCount(device?.nature_dispositif ?? null, presentation.denomination),
+        dispositif: preserveDispositifCount(device?.nature_dispositif ?? null, presentation.denomination),
       })),
     );
   });
