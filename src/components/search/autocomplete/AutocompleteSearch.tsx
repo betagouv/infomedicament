@@ -8,6 +8,7 @@ import useSWR from "swr";
 import { useRouter } from "next/navigation";
 import { trackSearchEvent } from "@/services/tracking";
 import { AutocompleteSection, AutocompleteSuggestion, MatchReason } from "@/types/SearchTypes";
+import { useIsHydrated } from "@/hooks/useIsHydrated";
 
 type SearchInputProps = {
   name: string;
@@ -42,6 +43,7 @@ export function AutocompleteSearchInput({
   const [inputValue, setInputValue] = useState(initialValue ?? "");
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const isHydrated = useIsHydrated();
 
   const { data: autocompleteSections } = useSWR(
     inputValue ?? null,
@@ -116,6 +118,7 @@ export function AutocompleteSearchInput({
         className={className}
         placeholder={placeholder}
         type={type}
+        disabled={!isHydrated}
         value={inputValue}
         autoComplete="off"
         style={{ textAlign: "left" }}

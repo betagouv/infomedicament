@@ -14,6 +14,13 @@ const STATIC_FETCH_DESTINATIONS = new Set([
     "track",
     "video",
 ]);
+const APPLICATION_ENDPOINT_PATTERNS = [
+    /^\/api(?:\/|$)/,
+    /^\/interactions\/(?:lookup|search)\/?$/,
+    /^\/medicaments\/[^/]+\/notice-search\/?$/,
+    /^\/rechercher\/(?:autocomplete|results)\/?$/,
+    /^\/statistiques\/matomo\/(?:actions|visits)\/?$/,
+];
 
 function rateLimitConfig() {
     const configuredLimit = Number(process.env.RATE_LIMIT);
@@ -79,39 +86,21 @@ function isStaticRequest(req: NextRequest) {
         || (destination !== null && STATIC_FETCH_DESTINATIONS.has(destination));
 }
 
-export function proxy(req: NextRequest) {
-    const url = req.nextUrl;
-    const id = requestId(req);
+function isApplicationEndpoint(pathname: string) {
+    return APPLICATION_ENDPOINT_PATTERNS.some((pattern) => pattern.test(pathname));
+}
 
-    // Static assets should be protected and cached at the edge, not counted
-    // against the application request quota.
-    if (isStaticRequest(req)) {
-        return nextResponse(req, id);
-    }
+function isBrowserFetch(req: NextRequest) {
+    return req.headers.get("sec-fetch-dest") === "empty";
+}
 
-    // Rate limiting
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown-ip";
-
-    if (url.pathname === "/rating") {
-        const { limited } = isRateLimited(`${ip}:rating`, 4, RATE_WINDOW_MS);
-        if (limited) {
-            const response = new NextResponse("Too Many Requests", {
-                status: 429,
-                headers: { "Retry-After": "60", "x-request-id": id },
-            });
-            logRequest(req, id, "rate_limited", response.status);
-            return response;
-        }
-    }
-
-    const rateLimit = rateLimitConfig();
-    if (!rateLimit.enabled) {
-        const response = nextResponse(req, id);
-        logRequest(req, id, "forwarded");
-        return response;
-    }
-
-    const { limited, remaining } = isRateLimited(ip, rateLimit.limit, RATE_WINDOW_MS);
+function applyRateLimit(
+    req: NextRequest,
+    id: string,
+    identifier: string,
+    limit: number,
+) {
+    const { limited, remaining } = isRateLimited(identifier, limit, RATE_WINDOW_MS);
 
     if (limited) {
         const response = new NextResponse("Too Many Requests", {
@@ -126,4 +115,43 @@ export function proxy(req: NextRequest) {
     response.headers.set("X-RateLimit-Remaining", remaining.toString());
     logRequest(req, id, "forwarded");
     return response;
+}
+
+export function proxy(req: NextRequest) {
+    const url = req.nextUrl;
+    const id = requestId(req);
+
+    // Static assets should be protected and cached at the edge, not counted
+    // against the application request quota.
+    if (isStaticRequest(req)) {
+        return nextResponse(req, id);
+    }
+
+    // Rate limiting
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown-ip";
+
+    if (url.pathname === "/rating") {
+        return applyRateLimit(req, id, `${ip}:rating`, 4);
+    }
+
+    const rateLimit = rateLimitConfig();
+    if (!rateLimit.enabled) {
+        const response = nextResponse(req, id);
+        logRequest(req, id, "forwarded");
+        return response;
+    }
+
+    // Route handlers have their own quota so API activity cannot exhaust the
+    // page-navigation quota (or vice versa).
+    if (isApplicationEndpoint(url.pathname)) {
+        return applyRateLimit(req, id, `${ip}:api`, rateLimit.limit);
+    }
+
+    // Next.js App Router navigation and prefetching use fetch() requests for
+    // RSC payloads. They are framework transport, not user page visits.
+    if (isBrowserFetch(req)) {
+        return nextResponse(req, id);
+    }
+
+    return applyRateLimit(req, id, `${ip}:page`, rateLimit.limit);
 }
