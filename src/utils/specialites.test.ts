@@ -14,7 +14,6 @@ const detailedSpec: DetailedSpecialite = {
   SpecStatDate: new Date("2009-10-01"),
   StatutBdm: 1,
   Een: "Latex caoutchouc naturel, Sorbitol",
-  urlCentralise: "https://www.ema.europa.eu/fr/documents/product-information/simponi-epar-product-information_fr.pdf",
   statutAutorisation: "Valide",
   statutComm: "Commercialisée",
   titulairesList: 'JANSSEN BIOLOGICS BV',

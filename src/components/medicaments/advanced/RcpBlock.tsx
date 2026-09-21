@@ -27,9 +27,10 @@ function RcpBlock({ specialite, ...props }: RCPProps) {
       try {
         const newNotice = await getRCP(spec.SpecId);
         setCurrentRcp(newNotice);
-        setLoaded(true);
       } catch (e) {
         Sentry.captureException(e);
+      } finally {
+        setLoaded(true);
       }
     },
     [setCurrentRcp],
@@ -58,12 +59,8 @@ function RcpBlock({ specialite, ...props }: RCPProps) {
             dangerouslySetInnerHTML={{ __html: currentRcp.contentHtml }}
           />
         </>
-      ) : currentSpec && isCentralisee(currentSpec) ? (
-        <CentraliseBlock
-          pdfURL={
-            currentSpec.urlCentralise ? currentSpec.urlCentralise : undefined
-          }
-        />
+      ) : loaded && currentSpec && isCentralisee(currentSpec) ? (
+        <CentraliseBlock />
       ) : (
         loaded && (
           <span>

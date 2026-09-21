@@ -82,7 +82,6 @@ export function mapDetailedSpecialite(
   referenceSpecialite: DetailedSpecialite["referenceSpecialite"],
   statusDate: Date | null,
   een: string | null,
-  centralisedUrl: string | null,
 ): DetailedSpecialite {
   return {
     ...mapCatalogSpecialiteWithEen(row, een),
@@ -94,6 +93,5 @@ export function mapDetailedSpecialite(
     titulairesList,
     genericGroupCode,
     referenceSpecialite,
-    urlCentralise: centralisedUrl,
   };
 }

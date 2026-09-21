@@ -2,7 +2,6 @@
 import "server-cli-only";
 
 import { cache } from "react";
-import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { sql } from "kysely";
 import db from "@/db";
 import { getFullPresentations } from "@/db/utils/presentation";
@@ -82,7 +81,6 @@ export const getDetailedSpecialite = cache(
       importedReference,
       statusEvent,
       een,
-      legacyEpar,
     ] = await Promise.all([
       db
         .selectFrom("ansm_specialite_titulaire")
@@ -109,11 +107,6 @@ export const getDetailedSpecialite = cache(
             .executeTakeFirst()
         : Promise.resolve(undefined),
       row.een === "PRESENTS" ? getEenLabel(CIS) : Promise.resolve(null),
-      pdbmMySQL
-        .selectFrom("VUEmaEpar")
-        .where("SpecId", "=", CIS)
-        .select("UrlEpar")
-        .executeTakeFirst(),
     ]);
 
     const titulaireNames = titulaires
@@ -148,7 +141,6 @@ export const getDetailedSpecialite = cache(
       referenceSpecialite,
       statusEvent?.date_evenement ?? null,
       een,
-      legacyEpar?.UrlEpar ?? null,
     );
   },
 );

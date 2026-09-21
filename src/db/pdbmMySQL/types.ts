@@ -14,7 +14,6 @@ export interface PdbmMySQL {
   StatutAdm: StatutAdmTable;
   Patho: PathoTable;
   Spec_Patho: Spec_PathoTable;
-  VUEmaEpar: VUEmaEparTable; //Documents Centralisés
   Spec_Titu: Spec_TituTable; //Titulaire date + id table Titulaire
   Titulaire: TitulaireTable; //Nom du titulaire
   HAS_SMR: HASSMRTable; //SMR informations
@@ -142,12 +141,6 @@ interface Spec_PathoTable {
   codePatho: string;
 }
 
-
-interface VUEmaEparTable {
-  SpecId: string;
-  Product_Number: string;
-  UrlEpar: string;
-}
 
 interface Spec_TituTable {
   SpecId: string;
