@@ -26,8 +26,8 @@ Les variables principales sont :
 
 - `DATABASE_URL` : l'URL PostgreSQL utilisée par l'application;
 - `PDBM_URL` : l'URL MySQL de la copie locale de la BDPM.
-- `RATE_LIMIT` : le nombre maximal de requêtes applicatives hors ressources statiques par minute et par IP (200 par défaut);
-- `RATE_LIMIT_ENABLED` : définir à `false` pour désactiver temporairement la limite globale, notamment pendant les tests de charge.
+- `RATE_LIMIT` : la limite par minute et par IP, appliquée séparément aux navigations de pages et aux endpoints applicatifs (200 par défaut). Les ressources statiques et les requêtes RSC/prefetch internes à Next.js ne sont pas comptées;
+- `RATE_LIMIT_ENABLED` : définir à `false` pour désactiver temporairement ces deux limites, notamment pendant les tests de charge. La limite dédiée de `/rating` reste active.
 
 `DATABASE_URL` doit être définie si vous lancez l'application hors Dev Container.
 Dans le Dev Container, l'application sait aussi utiliser les identifiants

@@ -119,14 +119,14 @@ function IndicationsBlock({
               Pour visualiser les indications thérapeutiques, consulter la fiche
               info de la spécialité de réfèrence de cette autorisation
               d'importation parallèle
-              {specialite.generiqueName && specialite.SpecGeneId && (
+              {specialite.referenceSpecialite && (
                 <>
                   &nbsp;:&nbsp;
                   <Link
-                    href={`/medicaments/${specialite.SpecGeneId}`}
+                    href={`/medicaments/${specialite.referenceSpecialite.cis}`}
                     aria-description="Lien vers le médicament"
                   >
-                    {specialite.generiqueName}
+                    {specialite.referenceSpecialite.name}
                   </Link>
                 </>
               )}

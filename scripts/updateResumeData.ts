@@ -14,6 +14,8 @@ import { getSpecialiteGroupName, groupSpecialites, isSurveillanceRenforcee } fro
 import { ShortIndication } from "@/types/IndicationsTypes";
 import { getPregnancyMentionAlert } from "@/db/utils/pregnancy";
 import { getPediatrics } from "@/db/utils/pediatrics";
+import { Specialite } from "@/types/SpecialiteTypes";
+import { findPregnancyPlanAlert } from "@/db/utils/pregnancyCatalog";
 
 type DataToResumeType = "indications" | "substances" | "medicaments" | "atc1" | "atc2" | "generiques" | "specialites";
 
@@ -131,7 +133,7 @@ async function createResumeMedicaments(): Promise<string[]> {
     .execute();
 
   const allSpecialites = await getAllSpecialites();
-  const medicaments: MedicamentGroup[] = groupSpecialites(allSpecialites);
+  const medicaments: MedicamentGroup<Specialite>[] = groupSpecialites(allSpecialites);
   const letters: string[] = [];
   const results = await Promise.all(
     medicaments.map(async (medGroup) => {
@@ -199,24 +201,43 @@ async function createResumeGeneriques(): Promise<string[]> {
     .deleteFrom('resume_generiques')
     .execute();
 
-  const allGenerics = await pdbmMySQL
-    .selectFrom("Specialite")
-    .innerJoin("GroupeGene", "Specialite.SpecGeneId", "GroupeGene.SpecId")
-    .where("Specialite.ProcId", "!=", "50") //Not AIP
-    .where("Specialite.IsBdm", "=", 1)
-    .select(["Specialite.SpecGeneId", "GroupeGene.LibLong"])
-    .groupBy(["GroupeGene.LibLong", "GroupeGene.SpecId"])
-    .orderBy("GroupeGene.LibLong")
+  const allGenerics = await db
+    .selectFrom("ansm_groupe_generique")
+    .innerJoin(
+      "ansm_specialite_groupe_generique",
+      "ansm_specialite_groupe_generique.code_groupe",
+      "ansm_groupe_generique.code_groupe",
+    )
+    .innerJoin("ansm_specialite", "ansm_specialite.cis", "ansm_specialite_groupe_generique.cis")
+    .where("ansm_specialite.disponibilite", "in", ["DISPONIBLE", "PARTIELLE", "ALERTE"])
+    .where((eb) => eb.or([
+      eb("ansm_specialite.procedure", "is", null),
+      eb("ansm_specialite.procedure", "!=", "IMPORTATION_PARALLELE"),
+    ]))
+    .select([
+      "ansm_groupe_generique.code_groupe",
+      "ansm_groupe_generique.libelle",
+      "ansm_specialite_groupe_generique.cis",
+      "ansm_specialite_groupe_generique.role",
+      "ansm_specialite_groupe_generique.rang",
+    ])
+    .orderBy("ansm_groupe_generique.libelle")
+    .orderBy("ansm_specialite_groupe_generique.rang")
     .execute();
 
   const letters: string[] = [];
-  const resumeData: ResumeGeneric[] = allGenerics
-    .map((generic) => {
-      const genericName: string = formatSpecName(groupGeneNameToDCI(generic.LibLong));
+  const groups = new Map<number, string>();
+  for (const generic of allGenerics) {
+    if (!groups.has(generic.code_groupe)) groups.set(generic.code_groupe, generic.libelle ?? "");
+  }
+
+  const resumeData: ResumeGeneric[] = [...groups]
+    .map(([codeGroupe, libelle]) => {
+      const genericName: string = formatSpecName(groupGeneNameToDCI(libelle));
       const subLetter = getNormalizeLetter(genericName.substring(0, 1));
       if (!letters.includes(subLetter)) letters.push(subLetter);
       return {
-        SpecId: generic.SpecGeneId,
+        SpecId: codeGroupe.toString(),
         SpecName: genericName,
       }
     });
@@ -260,8 +281,9 @@ async function createResumeSpecialites(): Promise<void> {
       const atc2: string | undefined = atc ? getAtc2Code(atc) : undefined;
 
       const events = await getEvents(spec.SpecId);
-      const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
-        rawComposants.find((c) => Number(c.SubsId.trim()) === Number(s.id)),
+      const pregnancyPlanAlert = findPregnancyPlanAlert(
+        rawComposants.map((component) => component.SubsId),
+        allPregnancyPlanAlerts,
       );
       const pediatrics = await getPediatrics(spec.SpecId);
 

@@ -128,10 +128,10 @@ test("FI_026–FI_027: a generic medicine links to its generic group", async ({
   const alternatives = page
     .getByRole("link", { name: "Voir les alternatives" })
     .filter({ visible: true });
-  await expect(alternatives).toHaveAttribute("href", "/generiques/64103828");
+  await expect(alternatives).toHaveAttribute("href", /\/generiques\/\d+$/);
   await alternatives.click();
 
-  await expect(page).toHaveURL(/\/generiques\/64103828$/);
+  await expect(page).toHaveURL(/\/generiques\/\d+$/);
   await expect(
     page.getByRole("heading", { name: "Omeprazole 20 mg", exact: true }),
   ).toBeVisible();
@@ -207,7 +207,7 @@ test("FI_046: a generic without an SMR links to its generic group", async ({
     smrGuidance.getByRole("link", {
       name: "cliquez ici pour accéder au groupe générique",
     }),
-  ).toHaveAttribute("href", "/generiques/64103828");
+  ).toHaveAttribute("href", /\/generiques\/\d+$/);
 });
 
 test("FI_047–FI_048: complete SMR and ASMR histories are displayed", async ({

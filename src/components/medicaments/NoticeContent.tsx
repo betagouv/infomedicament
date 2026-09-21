@@ -5,12 +5,8 @@ import TagContainer from "../tags/TagContainer";
 import ClassTag from "../tags/ClassTag";
 import { fr } from "@codegouvfr/react-dsfr";
 import SubstanceTag from "../tags/SubstanceTag";
-import {
-  SpecComposant,
-  SpecDelivrance,
-  SpecialiteStat,
-  SubstanceNom,
-} from "@/db/pdbmMySQL/types";
+import { SpecDelivrance } from "@/db/pdbmMySQL/types";
+import type { CompositionComponent } from "@/types/SubstanceTypes";
 import PrescriptionTag from "../tags/PrescriptionTag";
 import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "./notice/PresentationsList";
@@ -19,7 +15,7 @@ import styled from "styled-components";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import ArticlesResumeList from "../articles/ArticlesResumeList";
 import { Marr } from "@/types/MarrTypes";
-import { NoticeData } from "@/types/SpecialiteTypes";
+import { NoticeData, SpecialiteStat } from "@/types/SpecialiteTypes";
 import QuestionsBox from "./notice/QuestionsBox";
 import NoticeChunkResultsBox from "./notice/NoticeChunkResultsBox";
 import Badge from "@codegouvfr/react-dsfr/Badge";
@@ -94,7 +90,7 @@ interface NoticeContentProps extends HTMLAttributes<HTMLDivElement> {
   atcList: string[];
   atc2?: ATC;
   specialite?: DetailedSpecialite;
-  composants: Array<SpecComposant & SubstanceNom>;
+  composants: CompositionComponent[];
   isPrinceps: boolean;
   delivrance: SpecDelivrance[];
   pregnancyPlanAlert: PregnancyAlert | undefined;
@@ -289,7 +285,7 @@ function NoticeContent({
             {(atc2 ||
               (specialite &&
                 !isAIP(specialite) &&
-                (isPrinceps || !!specialite.SpecGeneId)) ||
+                (isPrinceps || specialite.genericGroupCode !== null)) ||
               !!delivrance.length) && (
               <TagContainer>
                 <DetailsContainer>
@@ -299,9 +295,9 @@ function NoticeContent({
                     <ReimbursableTag hideIcon />
                   )}
                   {isHospitalDelivrance(delivrance) && <HospitalTag hideIcon />}
-                  {specialite && isPrinceps && !isAIP(specialite) && (
+                  {specialite && isPrinceps && specialite.genericGroupCode !== null && !isAIP(specialite) && (
                     <GenericPrincepsTag
-                      id={specialite.SpecId}
+                      genericGroupCode={specialite.genericGroupCode}
                       type="princeps"
                       fromMedicament
                       hideIcon
@@ -309,10 +305,11 @@ function NoticeContent({
                     />
                   )}
                   {specialite &&
-                    !!specialite.SpecGeneId &&
+                    specialite.genericGroupCode !== null &&
+                    !isPrinceps &&
                     !isAIP(specialite) && (
                       <GenericPrincepsTag
-                        id={specialite.SpecGeneId}
+                        genericGroupCode={specialite.genericGroupCode}
                         type="generic"
                         fromMedicament
                         hideIcon
