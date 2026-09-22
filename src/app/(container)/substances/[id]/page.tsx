@@ -1,5 +1,5 @@
 import { fr } from "@codegouvfr/react-dsfr";
-import { SubstanceNom } from "@/db/pdbmMySQL/types";
+import type { Substance } from "@/types/SubstanceTypes";
 import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
@@ -21,8 +21,8 @@ export async function generateMetadata(
 ): Promise<Metadata> {
 
   const { id } = await props.params;
-  const subsIds = decodeURIComponent(id).split(",");
-  const substances: SubstanceNom[] = await getSubstances(subsIds) ?? [];
+  const subsIds = decodeURIComponent(id).split(",");//NomId
+  const substances: Substance[] = await getSubstances(subsIds) ?? [];
   if (substances.length < subsIds.length) {
     return {
       title: `Substance ${id}`,
@@ -41,8 +41,7 @@ export async function generateMetadata(
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
   const subsIds = decodeURIComponent(id).split(",");
-
-  const substances: SubstanceNom[] = await getSubstances(subsIds) ?? [];
+  const substances: Substance[] = await getSubstances(subsIds) ?? [];
   if (substances.length < subsIds.length) return notFound();
 
   const [articles, definitions, CISList] = await Promise.all([

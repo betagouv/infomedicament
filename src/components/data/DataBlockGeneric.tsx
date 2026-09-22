@@ -60,7 +60,10 @@ function DataBlockGeneric({
       } else if(dataType === DataTypeEnum.ATCCLASS){
         setCurrentLink(`/atc/${(data as AdvancedATCClass).class.code}`);
       } else if(dataType === DataTypeEnum.MEDICAMENT){
-        setCurrentLink(`/generiques/${(data as ResumeGeneric).SpecId}`);
+        const genericGroupCode = Number((data as ResumeGeneric).SpecId);
+        setCurrentLink(Number.isSafeInteger(genericGroupCode) && genericGroupCode > 0
+          ? `/generiques/${genericGroupCode}`
+          : "#");
       } else 
         setCurrentLink("#");
     };

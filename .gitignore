@@ -10,6 +10,7 @@
 /coverage
 /playwright-report
 /test-results
+/medicine-comparison-report
 
 # next.js
 /.next/

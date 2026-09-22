@@ -5,7 +5,8 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, PropsWithChildren } from "react";
 import styled, {css} from 'styled-components';
 import GenericPrincepsTag from "@/components/tags/GenericPrincepsTag";
-import { SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecDelivrance } from "@/db/pdbmMySQL/types";
+import type { CompositionComponent } from "@/types/SubstanceTypes";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import PediatricsTags from "@/components/tags/PediatricsTags";
 import Link from "next/link";
@@ -13,7 +14,7 @@ import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } from "@/displayUtils";
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
-import { DetailedSpecialite } from "@/types/SpecialiteTypes";
+import { DetailedSpecialite, SpecialiteStat } from "@/types/SpecialiteTypes";
 import { displayInfosImportantes } from "@/utils/notices";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
@@ -94,7 +95,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   updateVisiblePart: (visiblePart: DetailsNoticePartsEnum) => void;
   specialite?: DetailedSpecialite;
   atcCode?: string;
-  composants: Array<SpecComposant & SubstanceNom>;
+  composants: CompositionComponent[];
   isPrinceps: boolean;
   isPregnancyPlanAlert: boolean;
   isPregnancyMentionAlert: boolean;
@@ -189,24 +190,26 @@ function GeneralInformations({
         </SummaryLine>
         <SummaryLine categoryName="Statut générique">
           <>
-            {(isPrinceps && !isAIP(specialite)) ? (
+            {(isPrinceps && specialite.genericGroupCode !== null && !isAIP(specialite)) ? (
               <GenericPrincepsTag 
-                id={specialite.SpecId} 
+                genericGroupCode={specialite.genericGroupCode}
                 type="princeps"
                 hideIcon
               />
             ) : (
-              (specialite.SpecGeneId && !isAIP(specialite))
+              (specialite.genericGroupCode !== null && !isAIP(specialite))
               ? (
                 <>
                   <GenericPrincepsTag 
-                    id={specialite.SpecGeneId}
+                    genericGroupCode={specialite.genericGroupCode}
                     type="generic"
                     hideIcon
                   />
-                  <div>
-                    <strong>Princeps:&nbsp;</strong>{specialite.generiqueName}
-                  </div>
+                  {specialite.referenceSpecialite && (
+                    <div>
+                      <strong>Princeps:&nbsp;</strong>{specialite.referenceSpecialite.name}
+                    </div>
+                  )}
                 </>
               ) : (
                 <span>Pas de générique</span>
@@ -264,7 +267,7 @@ function GeneralInformations({
         </SummaryLine>
         <SummaryLine categoryName="Type de procédure">
           {specialite.ProcId 
-            ? (<span>{getProcedureLibLong(Number(specialite.ProcId))}</span>)
+            ? (<span>{getProcedureLibLong(specialite.ProcId)}</span>)
             : (<span>Non communiqué</span>)
           }
         </SummaryLine>
@@ -346,6 +349,11 @@ function GeneralInformations({
                       </div>
                     )
                   })}
+                  {element.composants.length === 0 && (
+                    <div className={fr.cx("fr-ml-1w", "fr-mb-1w")}>
+                      {" > "}Pas de substance active
+                    </div>
+                  )}
                 </div>
               )
             })}

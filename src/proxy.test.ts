@@ -122,6 +122,77 @@ describe("proxy rate limiting configuration", () => {
     expect(proxy(new NextRequest("http://localhost/api/data", { headers })).status).toBe(429);
   });
 
+  it("does not count RSC fetches against the page navigation limit", () => {
+    process.env.RATE_LIMIT = "1";
+    const ip = "rsc-page-limit";
+    const fetchHeaders = {
+      "sec-fetch-dest": "empty",
+      "x-forwarded-for": ip,
+    };
+    const documentHeaders = {
+      "sec-fetch-dest": "document",
+      "x-forwarded-for": ip,
+    };
+
+    for (let index = 0; index < 6; index++) {
+      expect(proxy(new NextRequest(`http://localhost/articles?_rsc=${index}`, {
+        headers: fetchHeaders,
+      })).status).toBe(200);
+    }
+
+    expect(proxy(new NextRequest("http://localhost/articles", {
+      headers: documentHeaders,
+    })).status).toBe(200);
+    expect(proxy(new NextRequest("http://localhost/articles", {
+      headers: documentHeaders,
+    })).status).toBe(429);
+  });
+
+  it("keeps API and page navigation quotas separate", () => {
+    process.env.RATE_LIMIT = "1";
+    const ip = "separate-api-page-limits";
+    const fetchHeaders = {
+      "sec-fetch-dest": "empty",
+      "x-forwarded-for": ip,
+    };
+
+    expect(proxy(new NextRequest("http://localhost/rechercher/autocomplete?s=para", {
+      headers: fetchHeaders,
+    })).status).toBe(200);
+    expect(proxy(new NextRequest("http://localhost/rechercher/autocomplete?s=parac", {
+      headers: fetchHeaders,
+    })).status).toBe(429);
+    expect(proxy(new NextRequest("http://localhost/articles", {
+      headers: {
+        "sec-fetch-dest": "document",
+        "x-forwarded-for": ip,
+      },
+    })).status).toBe(200);
+  });
+
+  it("does not count rating requests against the page navigation limit", () => {
+    process.env.RATE_LIMIT = "1";
+    const ip = "separate-rating-page-limits";
+    const ratingRequest = () => proxy(new NextRequest("http://localhost/rating", {
+      method: "POST",
+      headers: {
+        "sec-fetch-dest": "empty",
+        "x-forwarded-for": ip,
+      },
+    }));
+
+    for (let index = 0; index < 4; index++) {
+      expect(ratingRequest().status).toBe(200);
+    }
+    expect(ratingRequest().status).toBe(429);
+    expect(proxy(new NextRequest("http://localhost/articles", {
+      headers: {
+        "sec-fetch-dest": "document",
+        "x-forwarded-for": ip,
+      },
+    })).status).toBe(200);
+  });
+
   it("does not count static requests against the application rate limit", () => {
     process.env.RATE_LIMIT = "1";
     const headers = {

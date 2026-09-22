@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { fr } from "@codegouvfr/react-dsfr";
-import AutocompleteSearch from "@/components/AutocompleteSearch";
+import AutocompleteSearch from "@/components/search/autocomplete/AutocompleteSearch";
 import { getArticles } from "@/db/utils/articles";
 import { getMarketedMedicamentCount } from "@/db/utils/specialities";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";

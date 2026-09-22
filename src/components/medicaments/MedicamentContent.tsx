@@ -1,7 +1,8 @@
 "use client";
 
 import ContentContainer from "../generic/ContentContainer";
-import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
+import { SpecDelivrance } from "@/db/pdbmMySQL/types";
+import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { HTMLAttributes, lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Marr } from "@/types/MarrTypes";
 import { ATC } from "@/types/ATCTypes";
@@ -27,8 +28,9 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   atc2?: ATC;
   atcCode?: string;
   specialite?: DetailedSpecialite;
-  composants: Array<SpecComposant & SubstanceNom>;
+  composants: CompositionComponent[];
   isPrinceps: boolean;
+  isGeneric: boolean;
   delivrance: SpecDelivrance[];
   presentations: Presentation[];
   title: string;
@@ -53,6 +55,7 @@ function MedicamentContent({
   specialite,
   composants,
   isPrinceps,
+  isGeneric,
   delivrance,
   presentations,
   title,
@@ -113,6 +116,7 @@ function MedicamentContent({
               specialite={specialite}
               composants={composants}
               isPrinceps={isPrinceps}
+              isGeneric={isGeneric}
               delivrance={delivrance}
               pregnancyPlanAlert={pregnancyPlanAlert}
               isPregnancyMentionAlert={isPregnancyMentionAlert}
