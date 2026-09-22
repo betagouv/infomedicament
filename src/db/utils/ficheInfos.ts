@@ -44,14 +44,14 @@ export async function getFicheInfos(
 
   const hasSMRPromise: Promise<Smr[]> = db
     .selectFrom("has_smr")
-    .leftJoin("url_has", "url_has.code_ct", "has_smr.code_evamed")
+    .leftJoin("has_url_has", "has_url_has.code_ct", "has_smr.code_evamed")
     .where("has_smr.code_cis", "=", CIS)
     .select([
       "has_smr.date_avis_definitif",
       "has_smr.valeur_smr",
       "has_smr.motif_demande",
       "has_smr.libelle_smr",
-      "url_has.url",
+      "has_url_has.url",
     ])
     .distinct()
     .orderBy("has_smr.date_avis_definitif", "desc")
@@ -60,14 +60,14 @@ export async function getFicheInfos(
 
   const hasASMRPromise: Promise<Asmr[]> = db
     .selectFrom("has_asmr")
-    .leftJoin("url_has", "url_has.code_ct", "has_asmr.code_evamed")
+    .leftJoin("has_url_has", "has_url_has.code_ct", "has_asmr.code_evamed")
     .where("has_asmr.code_cis", "=", CIS)
     .select([
       "has_asmr.date_avis_definitif",
       "has_asmr.valeur_asmr",
       "has_asmr.motif_demande",
       "has_asmr.libelle_asmr",
-      "url_has.url",
+      "has_url_has.url",
     ])
     .distinct()
     .orderBy("has_asmr.date_avis_definitif", "desc")

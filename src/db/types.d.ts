@@ -30,7 +30,7 @@ export interface Database {
   cis_atc: CisAtc;
   has_asmr: AsmrTable;
   has_smr: SmrTable;
-  url_has: UrlHasTable;
+  has_url_has: UrlHasTable;
   triam_gtiam: TriamGtiamTable;
   triam_classes: TriamClassesTable;
   triam_groupe_substance: TriamGroupeSubstanceTable;
