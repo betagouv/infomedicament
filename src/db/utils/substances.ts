@@ -126,10 +126,14 @@ export async function getCisMatchingSubstanceSet(
     .map(([cis]) => cis);
 }
 
-export const getSubstances = cache(async function (
+export const getResumeSubstances = cache(async function (
   subsIds: string[]
 ): Promise<SubstanceNom[] | undefined> {
-  return resolveSubstances(subsIds);
+  return db.selectFrom("resume_substances")
+    .selectAll()
+    .where("SubsId", "in", subsIds)
+    .orderBy("NomLib")
+    .execute();
 });
 
 export const getAllSubsWithSpecialites = cache(async function () {

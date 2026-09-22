@@ -5,7 +5,7 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { Metadata, ResolvingMetadata } from "next";
-import { getSubstances, getSubstanceDefinition } from "@/db/utils/substances";
+import { getResumeSubstances, getSubstanceDefinition } from "@/db/utils/substances";
 import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinitionContent";
 import { getArticlesFromSubstances } from "@/db/utils/articles";
 import { getResumeSpecsGroupsWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
@@ -21,8 +21,8 @@ export async function generateMetadata(
 ): Promise<Metadata> {
 
   const { id } = await props.params;
-  const subsIds = decodeURIComponent(id).split(",");//NomId
-  const substances: Substance[] = await getSubstances(subsIds) ?? [];
+  const subsIds = decodeURIComponent(id).split(",");
+  const substances: Substance[] = await getResumeSubstances(subsIds) ?? [];
   if (substances.length < subsIds.length) {
     return {
       title: `Substance ${id}`,
@@ -41,7 +41,7 @@ export async function generateMetadata(
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
   const subsIds = decodeURIComponent(id).split(",");
-  const substances: Substance[] = await getSubstances(subsIds) ?? [];
+  const substances: Substance[] = await getResumeSubstances(subsIds) ?? [];
   if (substances.length < subsIds.length) return notFound();
 
   const [articles, definitions, CISList] = await Promise.all([
