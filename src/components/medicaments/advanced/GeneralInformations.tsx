@@ -471,9 +471,7 @@ function GeneralInformations({
                       <span className={fr.cx("fr-mr-2w")}>
                         <b>{getPresentationName(pres)}</b>
                       </span>
-                      {pres.pricingKnown && (
-                        <span>{getPresentationFullPriceText(pres)}</span>
-                      )}
+                      <span>{getPresentationFullPriceText(pres)}</span>
                     </div>
                     {(pres.priceExcludingDispensingFee ||
                       pres.dispensingFee) && (
@@ -507,85 +505,121 @@ function GeneralInformations({
                           </span>
                         )}
                       </div>
-                  )}
-                  {(pres.commercialisationDate || pres.cip13) && (
-                    <div className={fr.cx("fr-mb-0")}>
-                      {pres.cip13 && (
-                        <span className={fr.cx("fr-mr-2w")}>Code CIP : {pres.cip13}</span>
-                      )}
-                      {pres.commercialisationDate && (
-                        <span>Déclaration de commercialisation : {dateShortFormat(pres.commercialisationDate)}</span>
-                      )}
-                    </div>
-                  )}
-                  {isAbrogee(pres) && (
-                    <div className={fr.cx("fr-mb-0")}>
-                      Abrogée
-                    </div>
-                  )}
-                  {getPresentationCommercialStatusLabel(pres) && (
-                    <div className={fr.cx("fr-mb-0")}>
-                      {getPresentationCommercialStatusLabel(pres)}
-                      {pres.commercialisationEndDate && ` : ${dateShortFormat(pres.commercialisationEndDate)}`}
-                    </div>
-                  )}
-                  {isAgree(pres) ? (
-                    <div className={fr.cx("fr-mb-0")}>
-                      Cette présentation est{" "}
-                      <WithDefinition
-                        definition={definitions && getDefinition(definitions,"Agrément aux collectivités")}
-                        word="agréée aux collectivités"
-                      />.
-                    </div>
-                  ) : (
-                    <div className={fr.cx("fr-mb-0")}>
-                      Cette présentation n'est pas agréée aux collectivités.
-                    </div>
-                  )}
-                  {isListeSus(pres) && (
-                    <div>
-                      Inscription sur la{" "}
-                      <WithDefinition
-                        definition={definitions && getDefinition(definitions, "Liste en sus")}
-                        word="liste en sus"
-                      />, pour au moins l'une de ses indications.{" "}
-                      <WithDefinition
-                        definition={definitions && getDefinition(definitions, "Tarif de responsabilité")}
-                        word="Tarif de responsabilité"
-                      />{" "}publié au Journal Officiel.</div>
-                  )}
-                  {isListeRetrocession(pres) && (
-                    <div>
-                      Inscription sur la{" "}
-                      <WithDefinition
-                        definition={definitions && getDefinition(definitions, "Liste de rétrocession")}
-                        word="liste de rétrocession"
-                      />{" "}
-                      au titre de son AMM, selon les conditions précisées au Journal Officiel.{" "}
-                      <WithDefinition
-                        definition={definitions && getDefinition(definitions, "Prix de cession")}
-                        word="Prix de cession"
-                      />{" "}publié au Journal Officiel.</div>
-                  )}
-                  {isIVG(pres) && (
-                    <div>
-                      Tarification particulière en ville : médicament vendu en officine uniquement aux médecins ou sages-femmes - prix fixé par{" "}
-                      <Link 
-                        href="https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000032164949"
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                      >
-                        arrêté du 26 juillet 2016
-                      </Link>{" "}relatif aux forfaits afférents à l'interruption volontaire de grossesse.
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : (
-          <span>Pas de conditionnement à afficher</span>
-        )}
+                    )}
+                    {(pres.commercialisationDate || pres.cip13) && (
+                      <div className={fr.cx("fr-mb-0")}>
+                        {pres.cip13 && (
+                          <span className={fr.cx("fr-mr-2w")}>
+                            Code CIP : {pres.cip13}
+                          </span>
+                        )}
+                        {pres.commercialisationDate && (
+                          <span>
+                            Déclaration de commercialisation :{" "}
+                            {dateShortFormat(pres.commercialisationDate)}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {isAbrogee(pres) && (
+                      <div className={fr.cx("fr-mb-0")}>Abrogée</div>
+                    )}
+                    {getPresentationCommercialStatusLabel(pres) && (
+                      <div className={fr.cx("fr-mb-0")}>
+                        {getPresentationCommercialStatusLabel(pres)}
+                        {pres.commercialisationEndDate &&
+                          ` : ${dateShortFormat(pres.commercialisationEndDate)}`}
+                      </div>
+                    )}
+                    {isAgree(pres) ? (
+                      <div className={fr.cx("fr-mb-0")}>
+                        Cette présentation est{" "}
+                        <WithDefinition
+                          definition={
+                            definitions &&
+                            getDefinition(
+                              definitions,
+                              "Agrément aux collectivités",
+                            )
+                          }
+                          word="agréée aux collectivités"
+                        />
+                        .
+                      </div>
+                    ) : (
+                      <div className={fr.cx("fr-mb-0")}>
+                        Cette présentation n'est pas agréée aux collectivités.
+                      </div>
+                    )}
+                    {isListeSus(pres) && (
+                      <div>
+                        Inscription sur la{" "}
+                        <WithDefinition
+                          definition={
+                            definitions &&
+                            getDefinition(definitions, "Liste en sus")
+                          }
+                          word="liste en sus"
+                        />
+                        , pour au moins l'une de ses indications.{" "}
+                        <WithDefinition
+                          definition={
+                            definitions &&
+                            getDefinition(
+                              definitions,
+                              "Tarif de responsabilité",
+                            )
+                          }
+                          word="Tarif de responsabilité"
+                        />{" "}
+                        publié au Journal Officiel.
+                      </div>
+                    )}
+                    {isListeRetrocession(pres) && (
+                      <div>
+                        Inscription sur la{" "}
+                        <WithDefinition
+                          definition={
+                            definitions &&
+                            getDefinition(definitions, "Liste de rétrocession")
+                          }
+                          word="liste de rétrocession"
+                        />{" "}
+                        au titre de son AMM, selon les conditions précisées au
+                        Journal Officiel.{" "}
+                        <WithDefinition
+                          definition={
+                            definitions &&
+                            getDefinition(definitions, "Prix de cession")
+                          }
+                          word="Prix de cession"
+                        />{" "}
+                        publié au Journal Officiel.
+                      </div>
+                    )}
+                    {isIVG(pres) && (
+                      <div>
+                        Tarification particulière en ville : médicament vendu en
+                        officine uniquement aux médecins ou sages-femmes - prix
+                        fixé par{" "}
+                        <Link
+                          href="https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000032164949"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          arrêté du 26 juillet 2016
+                        </Link>{" "}
+                        relatif aux forfaits afférents à l'interruption
+                        volontaire de grossesse.
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <span>Pas de conditionnement à afficher</span>
+          )}
         </ContentContainer>
 
         {marr && marr.pdf.length > 0 && (

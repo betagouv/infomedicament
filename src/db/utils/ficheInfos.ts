@@ -23,8 +23,6 @@ import { mapAsmr, mapSmr } from "./hasCatalog";
 import { CompositionNature } from "@/types/SubstanceTypes";
 import { getComposants } from "./composants";
 
-export { getEvents } from "./safety";
-
 async function getImportantInformation(
   CIS: string,
 ): Promise<ImportantInformation[]> {
