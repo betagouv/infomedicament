@@ -24,7 +24,6 @@ type RawResumeSubstance = {
   SubsId: string;
   NomId: string;
   NomLib: string;
-  specialites: string[];
 }
 
 if (process.argv.length !== 3) {
@@ -90,35 +89,38 @@ async function createResumeSubstances(): Promise<string[]> {
   const allSubs = await getAllSubsWithSpecialites();
 
   const rawResumeData: RawResumeSubstance[] = [];
+  const nbSpecsBySubstance = new Map<string, string[]>();
   const letters: string[] = [];
   allSubs.forEach((sub) => {
-    const index = rawResumeData.findIndex((resumeData) => resumeData.NomLib.trim() === sub.NomLib.trim());
+    const index = rawResumeData.findIndex((data) => data.SubsId.trim() === sub.SubsId.trim() && data.NomId.trim() === sub.NomId.trim());
+    if (index === -1) {
+      rawResumeData.push({
+        SubsId: sub.SubsId.trim(),
+        NomId: sub.NomId.trim(),
+        NomLib: sub.NomLib,
+      })
+      const subLetter = getNormalizeLetter(sub.NomLib.substring(0, 1));
+      if (!letters.includes(subLetter)) letters.push(subLetter);
+    }
     const specGroupName = getSpecialiteGroupName(sub.SpecDenom01);
-    if (index !== -1) {
-      if (!rawResumeData[index].specialites.includes(specGroupName)) {
-        rawResumeData[index].specialites.push(specGroupName);
+    if(nbSpecsBySubstance.has(sub.SubsId)) {
+      if(!nbSpecsBySubstance.get(sub.SubsId)!.includes(specGroupName)) {
+        nbSpecsBySubstance.set(sub.SubsId, [...nbSpecsBySubstance.get(sub.SubsId)!, specGroupName]);
       }
-    } else rawResumeData.push({
-      SubsId: sub.SubsId.trim(),
-      NomId: sub.NomId.trim(),
-      NomLib: sub.NomLib,
-      specialites: [
-        specGroupName,
-      ],
-    });
-    const subLetter = getNormalizeLetter(sub.NomLib.substring(0, 1));
-    if (!letters.includes(subLetter)) letters.push(subLetter);
+    } else {
+      nbSpecsBySubstance.set(sub.SubsId, [specGroupName]);
+    }
   });
   const resumeData: ResumeSubstance[] = rawResumeData
     .map((resumeSub) => {
+      const specialites = nbSpecsBySubstance.get(resumeSub.SubsId) ?? [];
       return {
         SubsId: resumeSub.SubsId,
         NomId: resumeSub.NomId,
         NomLib: resumeSub.NomLib,
-        specialites: resumeSub.specialites.length,
+        specialites: specialites.length,
       }
-    })
-    .filter((resumeSub) => resumeSub.specialites > 0);
+    });
   const result = await db
     .insertInto('resume_substances')
     .values(resumeData)

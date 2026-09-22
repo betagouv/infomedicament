@@ -134,7 +134,10 @@ export const getSubstances = cache(async function (
 
 export const getAllSubsWithSpecialites = cache(async function () {
   const [components, names, specialites] = await Promise.all([
-    db.selectFrom("ansm_composant").selectAll().execute(),
+    db.selectFrom("ansm_composant")
+      .selectAll()
+      .where("nature", "=", "Substance active")
+      .execute(),
     db.selectFrom("ansm_substance_nom").selectAll().execute(),
     db
       .selectFrom("ansm_specialite")
