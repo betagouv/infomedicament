@@ -19,7 +19,7 @@ import {
   VISIBLE_SPECIALITE_AVAILABILITIES,
 } from "@/db/utils/specialiteCatalog";
 import { groupGeneNameToDCI } from "@/displayUtils";
-import { getNormalizeLetter } from "@/utils/alphabeticNav";
+import { getNormalizeLetter, normalizeString } from "@/utils/alphabeticNav";
 import { getAtc1Code, getAtc2Code } from "@/utils/atc";
 import {
   getSpecialiteGroupName,
@@ -29,7 +29,7 @@ import {
 import type { Specialite } from "@/types/SpecialiteTypes";
 
 type DataToResumeType = LetterType | "specialites";
-type ComponentRow = Pick<
+type ComposantRow = Pick<
   AnsmComposant,
   | "cis"
   | "numero_element"
@@ -42,22 +42,22 @@ type ComponentRow = Pick<
 
 const INSERT_CHUNK_SIZE = 500;
 
-function normalizeName(value: string | null): string {
-  return (value ?? "").trim().toLocaleLowerCase("fr-FR");
-}
-
-function componentKey(row: ComponentRow): string {
+function composantKey(row: ComposantRow): string {
   return `${row.numero_element}:${row.ordre ?? row.numero_composant}`;
 }
 
+// Picks a stable substance name/id for a composant by preferring an exact
+// label match and canonical names, with deterministic fallbacks.
 function preferredName(
-  component: ComponentRow,
+  composant: ComposantRow,
   namesByCode: Map<string, AnsmSubstanceNom[]>,
 ): { id: string; label: string } {
-  const code = component.code_substance?.trim() ?? "";
+  const code = composant.code_substance?.trim() ?? "";
   const names = namesByCode.get(code) ?? [];
   const exact = names.filter(
-    (name) => normalizeName(name.nom) === normalizeName(component.substance),
+    (name) =>
+      normalizeString(name.nom ?? "") ===
+      normalizeString(composant.substance ?? ""),
   );
   const selected =
     exact.find((name) => name.type === "CANONIQUE") ??
@@ -70,16 +70,18 @@ function preferredName(
     )[0];
   return {
     id: selected?.code_nom.trim() ?? code,
-    label: component.substance?.trim() || selected?.nom?.trim() || "",
+    label: composant.substance?.trim() || selected?.nom?.trim() || "",
   };
 }
 
-function displayComponentNames(rows: ComponentRow[]): string {
-  const grouped = new Map<string, ComponentRow[]>();
+// Builds the display label for a specialty composition by grouping equivalent
+// components and preferring "Fraction active" rows when available.
+function displayComposantNames(rows: ComposantRow[]): string {
+  const grouped = new Map<string, ComposantRow[]>();
   for (const row of rows) {
-    const values = grouped.get(componentKey(row)) ?? [];
+    const values = grouped.get(composantKey(row)) ?? [];
     values.push(row);
-    grouped.set(componentKey(row), values);
+    grouped.set(composantKey(row), values);
   }
   return [...grouped.values()]
     .flatMap((values) => {
@@ -204,7 +206,7 @@ async function createResumeSubstances(): Promise<void> {
     { SubsId: string; NomId: string; NomLib: string; groups: Set<string> }
   >();
   for (const rows of byCis.values()) {
-    if (new Set(rows.map(componentKey)).size !== 1) continue;
+    if (new Set(rows.map(composantKey)).size !== 1) continue;
     const component =
       rows.find((row) => row.nature === "Fraction active") ?? rows[0];
     const name = preferredName(component, namesByCode);
@@ -248,7 +250,7 @@ async function loadSpecialityResumeSources() {
   requireNonEmpty("visible specialities", specialites);
   const cis = specialites.map((row) => row.SpecId);
   const [
-    components,
+    composants,
     atcs,
     indications,
     events,
@@ -287,16 +289,17 @@ async function loadSpecialityResumeSources() {
       .select(["cis", "contre_indication"])
       .execute(),
   ]);
-  requireNonEmpty("visible speciality components", components);
   requireNonEmpty("ATC relationships", atcs);
   requireNonEmpty("indications", indications);
   requireNonEmpty("reinforced-surveillance events", events);
 
-  const componentsByCis = new Map<string, ComponentRow[]>();
-  for (const component of components) {
-    const values = componentsByCis.get(component.cis) ?? [];
-    values.push(component);
-    componentsByCis.set(component.cis, values);
+  requireNonEmpty("visible speciality components", composants);
+
+  const composantsByCis = new Map<string, ComposantRow[]>();
+  for (const composant of composants) {
+    const values = composantsByCis.get(composant.cis) ?? [];
+    values.push(composant);
+    composantsByCis.set(composant.cis, values);
   }
   const atcByCis = new Map(
     atcs.flatMap((row) =>
@@ -312,7 +315,7 @@ async function loadSpecialityResumeSources() {
 
   return {
     specialites,
-    componentsByCis,
+    composantsByCis,
     atcByCis,
     indications,
     eventsByCis,
@@ -352,13 +355,13 @@ async function createResumeMedicaments(): Promise<void> {
   const rows: ResumeSpecGroupDB[] = groupSpecialites(source.specialites).map(
     ([groupName, specialites]) => {
       const cis = specialites.map((row) => row.SpecId.trim());
-      const components =
-        source.componentsByCis.get(specialites[0].SpecId) ?? [];
+      const composants =
+        source.composantsByCis.get(specialites[0].SpecId) ?? [];
       const indications = indicationsForCis(source.indications, cis);
       const atc = source.atcByCis.get(specialites[0].SpecId);
       return {
         groupName,
-        composants: displayComponentNames(components),
+        composants: displayComposantNames(composants),
         specialites: specialites.map((specialite) => [
           specialite.SpecId,
           specialite.SpecDenom01,
@@ -373,7 +376,7 @@ async function createResumeMedicaments(): Promise<void> {
         CISList: cis,
         subsIds: [
           ...new Set(
-            components.flatMap((row) =>
+            composants.flatMap((row) =>
               row.code_substance ? [row.code_substance.trim()] : [],
             ),
           ),
@@ -465,7 +468,7 @@ async function createResumeSpecialites(): Promise<void> {
   const source = await loadSpecialityResumeSources();
   const rows: ResumeSpecialiteDB[] = source.specialites.map(
     (specialite: Specialite) => {
-      const components = source.componentsByCis.get(specialite.SpecId) ?? [];
+      const composants = source.composantsByCis.get(specialite.SpecId) ?? [];
       const indications = indicationsForCis(source.indications, [
         specialite.SpecId,
       ]);
@@ -474,10 +477,10 @@ async function createResumeSpecialites(): Promise<void> {
         specId: specialite.SpecId.trim(),
         specName: specialite.SpecDenom01.trim(),
         groupName: getSpecialiteGroupName(specialite),
-        composants: displayComponentNames(components),
+        composants: displayComposantNames(composants),
         subsIds: [
           ...new Set(
-            components.flatMap((row) =>
+            composants.flatMap((row) =>
               row.code_substance ? [row.code_substance.trim()] : [],
             ),
           ),
@@ -493,7 +496,7 @@ async function createResumeSpecialites(): Promise<void> {
           source.eventsByCis.get(specialite.SpecId) ?? [],
         ),
         StatutBdm: specialite.StatutBdm,
-        isAlertPregnancyPlan: components.some(
+        isAlertPregnancyPlan: composants.some(
           (row) =>
             row.code_substance &&
             source.pregnancyPlanIds.has(
