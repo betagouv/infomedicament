@@ -472,9 +472,7 @@ function GeneralInformations({
                       <span className={fr.cx("fr-mr-2w")}>
                         <b>{getPresentationName(pres)}</b>
                       </span>
-                      {pres.pricingKnown && (
-                        <span>{getPresentationFullPriceText(pres)}</span>
-                      )}
+                      <span>{getPresentationFullPriceText(pres)}</span>
                     </div>
                     {(pres.priceExcludingDispensingFee ||
                       pres.dispensingFee) && (

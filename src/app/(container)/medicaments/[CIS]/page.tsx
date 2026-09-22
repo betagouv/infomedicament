@@ -28,7 +28,6 @@ import { getMarr } from "@/db/utils/marr";
 import { getArticlesFromFilters } from "@/db/utils/articles";
 import { getFicheInfos } from "@/db/utils/ficheInfos";
 import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
-import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { getIndicationsBlock } from "@/utils/noticeHtml";
 import { getVideosFromCIS } from "@/db/utils/videos";
