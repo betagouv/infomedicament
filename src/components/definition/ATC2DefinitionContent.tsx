@@ -18,10 +18,10 @@ function ATC2DefinitionContent({ atc, articles, dataList }: ATC2DefinitionConten
 
   return (
     <PageDefinitionContent
-      title={title}
+      title={atc.label}
       definition={atc.description}
       definitionType="Sous-classe de médicament"
-      definitionTitle={atc.label}
+      listTitle={title}
       dataList={dataList}
       dataType={DataTypeEnum.SUBSTANCE}
       articles={articles}

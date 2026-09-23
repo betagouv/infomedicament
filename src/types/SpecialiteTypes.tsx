@@ -96,7 +96,3 @@ export type GroupeGenerique = {
   id: number;
   libelle: string;
 }
-
-export type SpecialiteWithSubstance = Specialite & {
-  NomId: string;
-}

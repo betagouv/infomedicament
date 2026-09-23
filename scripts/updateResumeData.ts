@@ -6,7 +6,7 @@ import { getComposants } from "@/db/utils/composants";
 import { getEvents } from "@/db/utils/ficheInfos";
 import { getSpecialitesIndications } from "@/db/utils/indications";
 import { getAllSpecialites } from "@/db/utils/specialities";
-import { getAllSubsWithSpecialites } from "@/db/utils/substances";
+import { getAllMainSubstancesNames, getAllSubsWithSpecialites } from "@/db/utils/substances";
 import { displaySimpleComposants, formatSpecName, MedicamentGroup } from "@/displayUtils";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
 import { getAtc1Code, getAtc2Code, getAtcCode } from "@/utils/atc";
@@ -16,6 +16,7 @@ import { getPregnancyMentionAlert } from "@/db/utils/pregnancy";
 import { getPediatrics } from "@/db/utils/pediatrics";
 import { Specialite } from "@/types/SpecialiteTypes";
 import { findPregnancyPlanAlert } from "@/db/utils/pregnancyCatalog";
+import { Substance } from "@/types/SubstanceTypes";
 
 type DataToResumeType = "indications" | "substances" | "medicaments" | "atc1" | "atc2" | "generiques" | "specialites";
 
@@ -23,7 +24,6 @@ type RawResumeSubstance = {
   SubsId: string;
   NomId: string;
   NomLib: string;
-  specialites: string[];
 }
 
 if (process.argv.length !== 3) {
@@ -89,32 +89,36 @@ async function createResumeSubstances(): Promise<string[]> {
   const allSubs = await getAllSubsWithSpecialites();
 
   const rawResumeData: RawResumeSubstance[] = [];
+  const nbSpecsBySubstance = new Map<string, string[]>();
   const letters: string[] = [];
   allSubs.forEach((sub) => {
-    const index = rawResumeData.findIndex((resumeData) => resumeData.NomId.trim() === sub.NomId.trim());
+    const index = rawResumeData.findIndex((data) => data.SubsId.trim() === sub.SubsId.trim() && data.NomId.trim() === sub.NomId.trim());
+    if (index === -1) {
+      rawResumeData.push({
+        SubsId: sub.SubsId.trim(),
+        NomId: sub.NomId.trim(),
+        NomLib: sub.NomLib,
+      })
+      const subLetter = getNormalizeLetter(sub.NomLib.substring(0, 1));
+      if (!letters.includes(subLetter)) letters.push(subLetter);
+    }
     const specGroupName = getSpecialiteGroupName(sub.SpecDenom01);
-    if (index !== -1) {
-      if (!rawResumeData[index].specialites.includes(specGroupName)) {
-        rawResumeData[index].specialites.push(specGroupName);
+    if(nbSpecsBySubstance.has(sub.SubsId)) {
+      if(!nbSpecsBySubstance.get(sub.SubsId)!.includes(specGroupName)) {
+        nbSpecsBySubstance.set(sub.SubsId, [...nbSpecsBySubstance.get(sub.SubsId)!, specGroupName]);
       }
-    } else rawResumeData.push({
-      SubsId: sub.SubsId.trim(),
-      NomId: sub.NomId.trim(),
-      NomLib: sub.NomLib,
-      specialites: [
-        specGroupName,
-      ],
-    });
-    const subLetter = getNormalizeLetter(sub.NomLib.substring(0, 1));
-    if (!letters.includes(subLetter)) letters.push(subLetter);
+    } else {
+      nbSpecsBySubstance.set(sub.SubsId, [specGroupName]);
+    }
   });
   const resumeData: ResumeSubstance[] = rawResumeData
     .map((resumeSub) => {
+      const specialites = nbSpecsBySubstance.get(resumeSub.SubsId) ?? [];
       return {
         SubsId: resumeSub.SubsId,
         NomId: resumeSub.NomId,
         NomLib: resumeSub.NomLib,
-        specialites: resumeSub.specialites.length,
+        specialites: specialites.length,
       }
     })
     .filter((resumeSub) => resumeSub.specialites > 0);
@@ -130,19 +134,18 @@ async function createResumeSubstances(): Promise<string[]> {
 async function createResumeMedicaments(): Promise<string[]> {
   await db
     .deleteFrom('resume_medicaments')
-    .execute();
+    .execute(); 
 
   const allSpecialites = await getAllSpecialites();
   const medicaments: MedicamentGroup<Specialite>[] = groupSpecialites(allSpecialites);
   const letters: string[] = [];
+
   const results = await Promise.all(
     medicaments.map(async (medGroup) => {
       const [groupName, rawSpecialites] = medGroup;
       const rawComposants = await getComposants(rawSpecialites[0].SpecId);
-      const composants: string = displaySimpleComposants(rawComposants)
-        .map((s) => s.NomLib.trim())
-        .join(", ");
-      const subsIds: string[] = rawComposants.map((subs) => subs.SubsId.trim());
+      const composants: Substance[] = displaySimpleComposants(rawComposants);
+      const subsIds: string[] = composants.map((s) => s.SubsId.trim());
       const specialites: string[][] = await Promise.all(
         rawSpecialites.map(async (spec) => {
           const events = await getEvents(spec.SpecId);
@@ -177,14 +180,15 @@ async function createResumeMedicaments(): Promise<string[]> {
         .insertInto('resume_medicaments')
         .values({
           groupName: groupName,
-          composants: composants,
+          composants: composants.map((s) => s.NomLib.trim()).join(", "),
+          subsIds: subsIds,
+          subsNamesIds: composants.map((s) => s.NomId.trim()),
           indicationsIds: indicationsIds,
           specialites: specialites,
           atc1Code: atc1,
           atc2Code: atc2,
           atc5Code: atc ?? undefined,
           CISList: CISList,
-          subsIds: subsIds,
           indicationsIdsNames: indicationsIdsNames,
         })
         .execute();
@@ -261,13 +265,21 @@ async function createResumeSpecialites(): Promise<void> {
     .select(["subs_id", "lien_site_ansm"])
     .execute()
     .then((rows) => rows.map((row) => ({ id: row.subs_id?.trim() || "", link: row.lien_site_ansm?.trim() || "" })));
+
+  //Get all main subsName 
+  const allMainSubsNames = await getAllMainSubstancesNames();
+  const mainSubsNamesBySubsId = new Map(allMainSubsNames.map((row) => [row.SubsId.trim(), row.NomLib.trim()]));
+
   const results = await Promise.all(
     allSpecialites.map(async (spec) => {
       const rawComposants = await getComposants(spec.SpecId);
-      const composants: string = displaySimpleComposants(rawComposants)
-        .map((s) => s.NomLib.trim())
-        .join(", ");
-      const subsIds: string[] = rawComposants.map((subs) => subs.SubsId.trim());
+      const composants: Substance[] = displaySimpleComposants(rawComposants);
+      const subsIds: string[] = composants.map((s) => s.SubsId.trim());
+
+      // Fill subsMainNames only if one name is not the substance's main name.
+      const subsMainNames = composants.map((s) => mainSubsNamesBySubsId.get(s.SubsId.trim()) ?? s.NomLib.trim());
+      const isSecondarySubsName = composants.some((s, i) => s.NomLib.trim() !== subsMainNames[i]);
+
       const rawIndicationsCodes: ShortIndication[] = await getSpecialitesIndications([spec.SpecId]);
       const indicationsIds: number[] = rawIndicationsCodes
         .map((indication) => indication.idIndication)
@@ -293,8 +305,9 @@ async function createResumeSpecialites(): Promise<void> {
           specId: spec.SpecId.trim(),
           specName: spec.SpecDenom01.trim(),
           groupName: getSpecialiteGroupName(spec),
-          composants: composants,
+          composants: composants.map((s) => s.NomLib.trim()).join(", "),
           subsIds: subsIds,
+          subsMainNames: isSecondarySubsName ? subsMainNames.join(", ") : null,
           indicationsIds: indicationsIds,
           indicationsIdsNames: indicationsIdsNames,
           atc1Code: atc1,

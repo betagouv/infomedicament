@@ -1,9 +1,7 @@
 "use server";
 import "server-cli-only";
 
-import { unstable_cache } from "next/cache";
 import { cache } from "react";
-import type { SpecialiteWithSubstance } from "@/types/SpecialiteTypes";
 import type { ResumeSubstance, AnsmComposant } from "../types";
 import db from "..";
 import { sql } from "kysely";
@@ -15,7 +13,6 @@ import {
   toSubstance,
 } from "./substanceCatalog";
 import {
-  mapCatalogSpecialite,
   VISIBLE_SPECIALITE_AVAILABILITIES,
 } from "./specialiteCatalog";
 
@@ -24,25 +21,25 @@ type SubstanceSetComponent = Pick<
   "cis" | "numero_element" | "numero_composant" | "ordre" | "code_substance"
 >;
 
-async function resolveSubstances(ids: string[]): Promise<Substance[]> {
-  if (ids.length === 0) return [];
+async function resolveSubstances(subsIds: string[]): Promise<Substance[]> {
+  if (subsIds.length === 0) return [];
 
   const [ansmNames, resumeFallbacks] = await Promise.all([
     db
       .selectFrom("ansm_substance_nom")
       .where((eb) =>
-        eb.or([eb("code_nom", "in", ids), eb("code_substance", "in", ids)]),
+        eb.or([eb("code_nom", "in", subsIds), eb("code_substance", "in", subsIds)]),
       )
       .selectAll()
       .execute(),
     db
       .selectFrom("resume_substances")
-      .where((eb) => eb.or([eb("NomId", "in", ids), eb("SubsId", "in", ids)]))
+      .where((eb) => eb.or([eb("NomId", "in", subsIds), eb("SubsId", "in", subsIds)]))
       .select(["SubsId", "NomId", "NomLib"])
       .execute(),
   ]);
 
-  const resolved = ids.flatMap((id) => {
+  const resolved = subsIds.flatMap((id) => {
     const exactName = ansmNames.find((row) => row.code_nom === id);
     if (exactName) return [toSubstance(exactName)];
 
@@ -74,13 +71,13 @@ async function resolveSubstances(ids: string[]): Promise<Substance[]> {
 }
 
 async function componentsForCandidateCis(
-  substanceCodes: string[],
+  subsIds: string[],
 ): Promise<Map<string, SubstanceSetComponent[]>> {
-  if (substanceCodes.length === 0) return new Map();
+  if (subsIds.length === 0) return new Map();
 
   const targetRows = await db
     .selectFrom("ansm_composant")
-    .where("code_substance", "in", substanceCodes)
+    .where("code_substance", "in", subsIds)
     .select([
       "cis",
       "numero_element",
@@ -118,24 +115,31 @@ export async function getCisMatchingSubstanceSet(
   const substances = await resolveSubstances(ids);
   if (substances.length !== ids.length) return [];
 
-  const substanceCodes = substances.map((substance) => substance.SubsId);
-  const byCis = await componentsForCandidateCis(substanceCodes);
+  const subsIds = substances.map((substance) => substance.SubsId);
+  const byCis = await componentsForCandidateCis(subsIds);
   return [...byCis.entries()]
     .filter(([, components]) =>
-      compositionMatchesSubstanceSet(components, substanceCodes),
+      compositionMatchesSubstanceSet(components, subsIds),
     )
     .map(([cis]) => cis);
 }
 
-export const getSubstances = cache(async function (
-  ids: string[],
-): Promise<Substance[]> {
-  return resolveSubstances(ids);
+export const getResumeSubstances = cache(async function (
+  subsIds: string[]
+): Promise<ResumeSubstance[]> {
+  const result = await db.selectFrom("resume_substances")
+    .selectAll()
+    .where("SubsId", "in", subsIds)
+    .orderBy("NomLib")
+    .execute();
+  return result ?? [];
 });
 
 export const getAllSubsWithSpecialites = cache(async function () {
   const [components, names, specialites] = await Promise.all([
-    db.selectFrom("ansm_composant").selectAll().execute(),
+    db.selectFrom("ansm_composant")
+      .selectAll()
+      .execute(),
     db.selectFrom("ansm_substance_nom").selectAll().execute(),
     db
       .selectFrom("ansm_specialite")
@@ -190,40 +194,6 @@ export const getAllSubsWithSpecialites = cache(async function () {
     .sort((left, right) => left.NomLib.localeCompare(right.NomLib, "fr"));
 });
 
-export const getSubstanceAllSpecialites = unstable_cache(
-  async function (substanceIDs: string[]): Promise<SpecialiteWithSubstance[]> {
-    if (substanceIDs.length === 0) return [];
-    const substances = await resolveSubstances(substanceIDs);
-    const codeToNomId = new Map(
-      substances.map((substance) => [substance.SubsId, substance.NomId]),
-    );
-    const byCis = await componentsForCandidateCis([...codeToNomId.keys()]);
-    const cisToCode = new Map<string, string>();
-    for (const [cis, components] of byCis) {
-      if (!hasExactlyOneComponent(components)) continue;
-      const code = components.find(
-        (component) =>
-          component.code_substance && codeToNomId.has(component.code_substance),
-      )?.code_substance;
-      if (code) cisToCode.set(cis, code);
-    }
-    if (cisToCode.size === 0) return [];
-
-    const rows = await db
-      .selectFrom("ansm_specialite")
-      .where("cis", "in", [...cisToCode.keys()])
-      .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
-      .selectAll()
-      .execute();
-    return rows.map((row) => ({
-      ...mapCatalogSpecialite(row),
-      NomId: codeToNomId.get(cisToCode.get(row.cis) ?? "") ?? "",
-    }));
-  },
-  ["substance-all-specialites"],
-  { revalidate: 3600 },
-);
-
 export const getSubstancesResumeWithLetter = cache(async function (
   letter: string,
 ): Promise<ResumeSubstance[]> {
@@ -231,9 +201,9 @@ export const getSubstancesResumeWithLetter = cache(async function (
     .selectFrom("resume_substances")
     .where(({ eb, ref }) =>
       eb(
-        sql<string>`upper(${ref("NomLib")})`,
+        sql<string>`unaccent(upper(${ref("NomLib")}))`,
         "like",
-        `${letter.toUpperCase()}%`,
+        sql<string>`unaccent(${`${letter.toUpperCase()}%`})`,
       ),
     )
     .selectAll()
@@ -241,34 +211,57 @@ export const getSubstancesResumeWithLetter = cache(async function (
     .execute();
 });
 
-export const getSubstancesResume = cache(async function (
-  substanceIDs: string[],
-): Promise<ResumeSubstance[]> {
-  if (substanceIDs.length === 0) return [];
-  return db
-    .selectFrom("resume_substances")
-    .selectAll()
-    .where("NomId", "in", substanceIDs)
-    .orderBy("NomLib")
-    .execute();
-});
-
-export async function getSubstanceDefinition(ids: string[], subsIds: string[]) {
-  const rows = await db
-    .selectFrom("ref_substance_active_definitions")
+export async function getSubstanceDefinition(
+  subsIds: string[],
+) {
+  const rows = await db.selectFrom("ref_substance_active_definitions")
     .select(["nom_id", "subs_id", "sa", "definition"])
     .execute();
-  let definitions = rows.filter(
-    (row) => row.nom_id && ids.includes(row.nom_id.trim()),
+
+  // First try to match by NomId
+  let definitions = rows.filter((row) =>
+    row.subs_id && subsIds.includes(row.subs_id.trim())
   );
-  if (definitions.length === 0) {
-    definitions = rows.filter(
-      (row) => row.subs_id && subsIds.includes(row.subs_id.trim()),
-    );
-  }
-  return definitions.map((row) => ({
-    NomId: row.nom_id?.trim() || "",
-    SA: row.sa?.trim() || "",
-    Definition: row.definition?.trim() || "",
-  }));
+
+  // Map to the expected format (matching Grist structure)
+  return definitions.map((row) => (
+    {
+      SubsId: row.subs_id?.trim() || "",
+      SA: row.sa?.trim() || "",
+      Definition: row.definition?.trim() || "",
+    }
+  ));
 }
+
+export const getAllMainSubstancesNames = cache(async function (
+): Promise<Substance[]> {
+
+  const rows = await db
+    .selectFrom("ansm_substance_nom")
+    .whereRef("code_nom", "=", "code_substance")
+    .selectAll()
+    .execute();
+
+  return rows.map((row) => ({
+    SubsId: row.code_substance?.trim() || "",
+    NomId: row.code_nom?.trim() || "",
+    NomLib: row.nom?.trim() || "",
+  })) ?? [];
+});
+
+export const getSubstancesNames = cache(async function (
+  subsIds: string[]
+): Promise<Substance[]> {
+
+  const rows = await db
+    .selectFrom("ansm_substance_nom")
+    .where("code_substance", "in", subsIds)
+    .selectAll()
+    .execute();
+
+  return rows.map((row) => ({
+    SubsId: row.code_substance?.trim() || "",
+    NomId: row.code_nom?.trim() || "",
+    NomLib: row.nom?.trim() || "",
+  })) ?? [];
+});

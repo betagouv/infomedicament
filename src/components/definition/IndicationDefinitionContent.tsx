@@ -18,10 +18,10 @@ function IndicationDefinitionContent({ indication, articles, dataList }: Indicat
 
   return (
     <PageDefinitionContent
-      title={title}
+      title={indication.nom}
       definition={indication.definition}
       definitionType="Indication"
-      definitionTitle={indication.nom}
+      listTitle={title}
       dataList={dataList}
       dataType={DataTypeEnum.MEDICAMENT}
       articles={articles}

@@ -1,6 +1,3 @@
-import type { Substance } from "./SubstanceTypes";
-import { SpecialiteWithSubstance } from "./SpecialiteTypes";
-
 export interface ATC1 extends ATC {
   children: ATC[];
 }
@@ -12,10 +9,9 @@ export interface ATC {
   children?: ATC[];
 }
 
-export type ATCSubsSpecs = {
+export type ATCSubs = {
   atc: ATC;
-  substances: Substance[];
-  specialites: SpecialiteWithSubstance[];
+  nbSubstances: number;
 }
 
 export type ATCLabels = {

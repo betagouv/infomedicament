@@ -1,8 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
-import { getAllSubsWithSpecialites, getSubstanceAllSpecialites, getSubstances } from "./substances";
-
-// disable cache for testing
-vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
+import { describe, it, expect } from "vitest";
+import { getAllSubsWithSpecialites } from "./substances";
 
 describe("db utils substances", () => {
 
@@ -17,22 +14,4 @@ describe("db utils substances", () => {
     expect(isInactiveSpec).toBe(-1);
     expect(isActiveSpec).not.toBe(-1);
   })
-
-  it("getSubstanceAllSpecialites - should return only actives specialites", async () => {
-    //Paracétamol
-    const specs = await getSubstanceAllSpecialites(["02202"]);
-
-    //61933092
-    const isInactiveSpec = specs.findIndex((spec) => spec.SpecDenom01.trim() === "DOLIPRANE 500 mg, comprimé orodispersible");
-    //60234100
-    const isActiveSpec = specs.findIndex((spec) => spec.SpecDenom01.trim() === "DOLIPRANE 1000 mg, comprimé");
-
-    expect(isInactiveSpec).toBe(-1);
-    expect(isActiveSpec).not.toBe(-1);
-  })
-  it("keeps canonical and synonym public IDs addressable", async () => {
-    const substances = await getSubstances(["00005", "34911"]);
-    expect(substances.map((substance) => substance.NomId)).toEqual(["00005", "34911"]);
-    expect(substances[1].NomLib).toBe("acide acétylsalicylique");
-  });
 });

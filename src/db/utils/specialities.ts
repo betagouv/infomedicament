@@ -308,10 +308,8 @@ export const getSubstanceSpecialites = unstable_cache(
 );
 
 export const getSubstanceSpecialitesCIS = unstable_cache(
-  async function (subsNomsIDs: string | string[]): Promise<string[]> {
-    const ids: string[] = !Array.isArray(subsNomsIDs)
-      ? [subsNomsIDs]
-      : subsNomsIDs;
+  async function (subsIds: string | string[]): Promise<string[]> {
+    const ids: string[] = !Array.isArray(subsIds) ? [subsIds] : subsIds;
     const cisList = await getCisMatchingSubstanceSet(ids);
     if (cisList.length === 0) return [];
     const rows = await db

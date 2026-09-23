@@ -1,18 +1,24 @@
 import { fr } from "@codegouvfr/react-dsfr";
-import type { Substance } from "@/types/SubstanceTypes";
-import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { Metadata, ResolvingMetadata } from "next";
-import { getSubstances, getSubstanceDefinition } from "@/db/utils/substances";
+import { getSubstanceDefinition, getSubstancesNames } from "@/db/utils/substances";
 import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinitionContent";
 import { getArticlesFromSubstances } from "@/db/utils/articles";
 import { getResumeSpecsGroupsWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
+import { getSubstanceMainName } from "@/utils/substances";
+import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
+import { Substance } from "@/types/SubstanceTypes";
+import notFound from "@/app/not-found";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+
+const getSubstancesTitles = (subsIds: string[], substances: Substance[]): string[] => {
+  return subsIds.map((subsId) => getSubstanceMainName(substances.filter((subs) => subs.SubsId.trim() === subsId)));
+};
 
 export async function generateMetadata(
   props: { params: Promise<{ id: string }> },
@@ -20,45 +26,58 @@ export async function generateMetadata(
 ): Promise<Metadata> {
 
   const { id } = await props.params;
-  const ids = decodeURIComponent(id).split(",");//NomId
-  const substances: Substance[] = await getSubstances(ids);
-  if (substances.length < ids.length) {
+  const subsIds = decodeURIComponent(id).split(",");
+  const substances: Substance[] = await getSubstancesNames(subsIds) ?? [];
+  if (substances.length < subsIds.length) {
     return {
       title: `Substance ${id}`,
     };
   }
 
-  const definitionsRaw = await getSubstanceDefinition(ids, substances.map((subs) => subs.SubsId.trim()));
-  const definitionString = definitionsRaw.map(d => `${d.SA} : ${d.Definition}`).join(" - ")
+  const definitionsRaw = await getSubstanceDefinition(subsIds);
+  const definitionString = definitionsRaw.map(d => `${d.SA} : ${d.Definition}`).join(" - ");
 
   return {
-    title: `${substances.map((s) => s.NomLib).join(", ")} - ${(await parent).title?.absolute}`,
+    title: `${getSubstancesTitles(subsIds, substances).join(", ")} - ${(await parent).title?.absolute}`,
     description: definitionString,
   };
 }
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
-  const ids = decodeURIComponent(id).split(",");//NomId
-
-  const substances: Substance[] = await getSubstances(ids);
-  if (substances.length < ids.length) return notFound();
-
-  const subsIds = substances.map((s) => s.SubsId.trim());
+  const subsIds = decodeURIComponent(id).split(",");
+  
+  const substances: Substance[] = await getSubstancesNames(subsIds) ?? [];
+  if (substances.length < subsIds.length) return notFound();
 
   const [articles, definitions, CISList] = await Promise.all([
-    getArticlesFromSubstances(ids),
-    getSubstanceDefinition(ids, subsIds),
-    getSubstanceSpecialitesCIS(ids),
+    getArticlesFromSubstances(subsIds),
+    getSubstanceDefinition(subsIds),
+    getSubstanceSpecialitesCIS(subsIds),
   ]);
-
   const definition = definitions.map((d) => ({ title: d.SA, desc: d.Definition }));
 
-  const allSpecsGroups = await getResumeSpecsGroupsWithCIS(CISList);
+  const allSpecsGroups: ResumeSpecGroup[] = await getResumeSpecsGroupsWithCIS(CISList);
   const dataList = allSpecsGroups.length > 0
     ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
     : [];
 
+  const titles: string[] = getSubstancesTitles(subsIds, substances);
+  const title: string = titles.join(", ");
+  const secondaryNamesBySubs: string[] = subsIds.map((subsId) => substances
+    .filter((subs) =>
+      subs.SubsId.trim() === subsId && titles.findIndex((name) => subs.NomLib.trim() === name) === -1
+    )
+    .filter((subs) => allSpecsGroups.some((group) => group.subsNamesIds.includes(subs.NomId)))
+    .map((subs) => subs.NomLib.trim())
+    .join(", ")
+  );
+  // Only show the line when at least one substance actually has a secondary name
+  // For page with multiples substances, if one substance has no secondary name display the main name instead
+  const subtitle = secondaryNamesBySubs.some((names) => names.length > 0)
+    ? secondaryNamesBySubs.map((names, index) => names || titles[index]).join(", ")
+    : "";
+  
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
@@ -69,23 +88,24 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
               {
                 label: "Listes des substances",
                 linkProps: {
-                  href: `/substances/${substances[0].NomLib.slice(0, 1)}`,
+                  href: `/substances/${title[0].slice(0, 1)}`,
                 },
               },
             ]}
-            currentPageLabel={substances.map((s) => s.NomLib).join(", ")}
+            currentPageLabel={title}
           />
         </div>
       </div>
       <SubstanceDefinitionContent
-        ids={ids}
-        substances={substances}
+        subsIds={subsIds}
         articles={articles}
         definition={definition}
         dataList={dataList}
+        title={title}
+        subtitle={subtitle}
       />
       <RatingToaster
-        pageId={substances.map((s) => s.NomLib).join(", ")}
+        pageId={title}
       />
     </ContentContainer>
   );
