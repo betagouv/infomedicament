@@ -1,7 +1,6 @@
 "use server";
 import "server-cli-only";
 
-import { SubstanceNom } from "../pdbmMySQL/types";
 import { cache } from "react";
 import type { ResumeSubstance, AnsmComposant } from "../types";
 import db from "..";
@@ -14,7 +13,6 @@ import {
   toSubstance,
 } from "./substanceCatalog";
 import {
-  mapCatalogSpecialite,
   VISIBLE_SPECIALITE_AVAILABILITIES,
 } from "./specialiteCatalog";
 
@@ -128,12 +126,13 @@ export async function getCisMatchingSubstanceSet(
 
 export const getResumeSubstances = cache(async function (
   subsIds: string[]
-): Promise<SubstanceNom[] | undefined> {
-  return db.selectFrom("resume_substances")
+): Promise<ResumeSubstance[]> {
+  const result = await db.selectFrom("resume_substances")
     .selectAll()
     .where("SubsId", "in", subsIds)
     .orderBy("NomLib")
     .execute();
+  return result ?? [];
 });
 
 export const getAllSubsWithSpecialites = cache(async function () {
@@ -209,18 +208,6 @@ export const getSubstancesResumeWithLetter = cache(async function (
       ),
     )
     .selectAll()
-    .orderBy("NomLib")
-    .execute();
-});
-
-export const getSubstancesResume = cache(async function (
-  subsIDs: string[],
-): Promise<ResumeSubstance[]> {
-  if (subsIDs.length === 0) return [];
-  return db
-    .selectFrom("resume_substances")
-    .selectAll()
-    .where("SubsId", "in", subsIDs)
     .orderBy("NomLib")
     .execute();
 });

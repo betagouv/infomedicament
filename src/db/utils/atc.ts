@@ -5,7 +5,7 @@ import { unstable_cache } from "next/cache";
 import { ATCError } from "@/utils/atc";
 import { ATC, ATC1, ATCLabels, ATCSubs } from "@/types/ATCTypes";
 import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
-import { getSubstancesResume } from "./substances";
+import { getResumeSubstances } from "./substances";
 import db from "@/db/";
 import { RefAtcFriendlyNiveau1, RefAtcFriendlyNiveau2 } from "../types";
 import type { Substance } from "@/types/SubstanceTypes";
@@ -313,7 +313,7 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubs[]> {
 
   // Fetch the resume_substances rows for all substances at once (same source the ATC2 page counts from)
   const allSubsIds = [...new Set(substancesWithCIS.map((s) => s.SubsId.trim()))];
-  const allResumeSubstances = await getSubstancesResume(allSubsIds);
+  const allResumeSubstances = await getResumeSubstances(allSubsIds);
   return atc1.children.map((atc2) => {
     const cisSet = new Set(atc2ToCIS.get(atc2.code) ?? []);
     const subsIds = new Set(

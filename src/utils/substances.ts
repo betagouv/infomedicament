@@ -1,7 +1,7 @@
-import { SubstanceNom } from "@/db/pdbmMySQL/types";
+import { Substance } from "@/types/SubstanceTypes";
 
 export function getSubstanceMainName(
-  substances: SubstanceNom[],
+  substances: Substance[],
 ): string {
   if(substances.length === 0) return "";
   const subsId = substances[0].SubsId;
