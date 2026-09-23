@@ -139,7 +139,6 @@ export const getAllSubsWithSpecialites = cache(async function () {
   const [components, names, specialites] = await Promise.all([
     db.selectFrom("ansm_composant")
       .selectAll()
-      .where("nature", "=", "Substance active")
       .execute(),
     db.selectFrom("ansm_substance_nom").selectAll().execute(),
     db
@@ -233,3 +232,36 @@ export async function getSubstanceDefinition(
     }
   ));
 }
+
+export const getAllMainSubstancesNames = cache(async function (
+): Promise<Substance[]> {
+
+  const rows = await db
+    .selectFrom("ansm_substance_nom")
+    .whereRef("code_nom", "=", "code_substance")
+    .selectAll()
+    .execute();
+
+  return rows.map((row) => ({
+    SubsId: row.code_substance?.trim() || "",
+    NomId: row.code_nom?.trim() || "",
+    NomLib: row.nom?.trim() || "",
+  })) ?? [];
+});
+
+export const getSubstancesNames = cache(async function (
+  subsIds: string[]
+): Promise<Substance[]> {
+
+  const rows = await db
+    .selectFrom("ansm_substance_nom")
+    .where("code_substance", "in", subsIds)
+    .selectAll()
+    .execute();
+
+  return rows.map((row) => ({
+    SubsId: row.code_substance?.trim() || "",
+    NomId: row.code_nom?.trim() || "",
+    NomLib: row.nom?.trim() || "",
+  })) ?? [];
+});

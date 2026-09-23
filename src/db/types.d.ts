@@ -150,13 +150,14 @@ interface ResumeSubstancesTable {
 interface ResumeMedicamentsTable {
   groupName: string;
   composants: string;
+  subsIds: string[];
+  subsNamesIds: string[];
   specialites: string[][];//SpecId, SpecDenom01, StatutBdm, ProcId, Surveillance Renforcée
   indicationsIds: number[];
   atc1Code?: string;
   atc2Code?: string;
   atc5Code?: string;
   CISList: string[];
-  subsIds: string[];
   indicationsIdsNames: string[][];//idIndication, nomIndication
 }
 
