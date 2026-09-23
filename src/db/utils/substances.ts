@@ -203,9 +203,9 @@ export const getSubstancesResumeWithLetter = cache(async function (
     .selectFrom("resume_substances")
     .where(({ eb, ref }) =>
       eb(
-        sql<string>`upper(${ref("NomLib")})`,
+        sql<string>`unaccent(upper(${ref("NomLib")}))`,
         "like",
-        `${letter.toUpperCase()}%`,
+        sql<string>`unaccent(${`${letter.toUpperCase()}%`})`,
       ),
     )
     .selectAll()

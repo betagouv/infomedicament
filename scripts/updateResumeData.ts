@@ -6,7 +6,7 @@ import { getComposants } from "@/db/utils/composants";
 import { getEvents } from "@/db/utils/ficheInfos";
 import { getSpecialitesIndications } from "@/db/utils/indications";
 import { getAllSpecialites } from "@/db/utils/specialities";
-import { getAllSubsWithSpecialites } from "@/db/utils/substances";
+import { getAllMainSubstancesNames, getAllSubsWithSpecialites } from "@/db/utils/substances";
 import { displaySimpleComposants, formatSpecName, MedicamentGroup } from "@/displayUtils";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
 import { getAtc1Code, getAtc2Code, getAtcCode } from "@/utils/atc";
@@ -120,7 +120,8 @@ async function createResumeSubstances(): Promise<string[]> {
         NomLib: resumeSub.NomLib,
         specialites: specialites.length,
       }
-    });
+    })
+    .filter((resumeSub) => resumeSub.specialites > 0);
   const result = await db
     .insertInto('resume_substances')
     .values(resumeData)
@@ -133,11 +134,12 @@ async function createResumeSubstances(): Promise<string[]> {
 async function createResumeMedicaments(): Promise<string[]> {
   await db
     .deleteFrom('resume_medicaments')
-    .execute();
+    .execute(); 
 
   const allSpecialites = await getAllSpecialites();
   const medicaments: MedicamentGroup<Specialite>[] = groupSpecialites(allSpecialites);
   const letters: string[] = [];
+
   const results = await Promise.all(
     medicaments.map(async (medGroup) => {
       const [groupName, rawSpecialites] = medGroup;
@@ -179,13 +181,14 @@ async function createResumeMedicaments(): Promise<string[]> {
         .values({
           groupName: groupName,
           composants: composants.map((s) => s.NomLib.trim()).join(", "),
+          subsIds: subsIds,
+          subsNamesIds: composants.map((s) => s.NomId.trim()),
           indicationsIds: indicationsIds,
           specialites: specialites,
           atc1Code: atc1,
           atc2Code: atc2,
           atc5Code: atc ?? undefined,
           CISList: CISList,
-          subsIds: subsIds,
           indicationsIdsNames: indicationsIdsNames,
         })
         .execute();
@@ -264,11 +267,7 @@ async function createResumeSpecialites(): Promise<void> {
     .then((rows) => rows.map((row) => ({ id: row.subs_id?.trim() || "", link: row.lien_site_ansm?.trim() || "" })));
 
   //Get all main subsName 
-  const allMainSubsNames = await pdbmMySQL
-    .selectFrom("Subs_Nom")
-    .select(["SubsId", "NomLib"])
-    .whereRef("NomId", "=", "SubsId")
-    .execute();
+  const allMainSubsNames = await getAllMainSubstancesNames();
   const mainSubsNamesBySubsId = new Map(allMainSubsNames.map((row) => [row.SubsId.trim(), row.NomLib.trim()]));
 
   const results = await Promise.all(
