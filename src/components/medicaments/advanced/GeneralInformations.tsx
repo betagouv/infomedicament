@@ -436,11 +436,11 @@ function GeneralInformations({
                         word="agréée aux collectivités"
                       />.
                     </div>
-                  ) : pres.communityApproval === false ? (
+                  ) : (
                     <div className={fr.cx("fr-mb-0")}>
                       Cette présentation n'est pas agréée aux collectivités.
                     </div>
-                  ) : null}
+                  )}
                   {isListeSus(pres) && (
                     <div>
                       Inscription sur la{" "}

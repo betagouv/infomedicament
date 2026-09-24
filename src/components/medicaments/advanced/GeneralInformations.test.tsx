@@ -127,5 +127,8 @@ describe("GeneralInformations presentations", () => {
 
     expect(screen.getByText("Code CIP : 3400949004751")).not.toBeNull();
     expect(screen.getByText("Prix libre - non remboursable")).not.toBeNull();
+    expect(
+      screen.getByText("Cette présentation n'est pas agréée aux collectivités."),
+    ).not.toBeNull();
   });
 });
