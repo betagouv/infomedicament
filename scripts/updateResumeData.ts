@@ -1,362 +1,562 @@
 import db from "@/db";
-import { pdbmMySQL } from "@/db/pdbmMySQL";
-import { Letters, LetterType, Indication, ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
+import type { Transaction } from "kysely";
+import type {
+  AnsmComposant,
+  AnsmSubstanceNom,
+  Indication,
+  LetterType,
+  ResumeGeneric,
+  ResumeIndication,
+  ResumeSpecialiteDB,
+  ResumeSpecGroupDB,
+  ResumeSubstance,
+  Database,
+} from "@/db/types";
+import { getReinforcedSurveillanceEvents } from "@/db/utils/safety";
+import { requireNonEmpty } from "@/db/utils/refreshGuard";
+import {
+  mapCatalogSpecialite,
+  VISIBLE_SPECIALITE_AVAILABILITIES,
+} from "@/db/utils/specialiteCatalog";
 import { groupGeneNameToDCI } from "@/displayUtils";
-import { getComposants } from "@/db/utils/composants";
-import { getEvents } from "@/db/utils/ficheInfos";
-import { getSpecialitesIndications } from "@/db/utils/indications";
-import { getAllSpecialites } from "@/db/utils/specialities";
-import { getAllSubsWithSpecialites } from "@/db/utils/substances";
-import { displaySimpleComposants, formatSpecName, MedicamentGroup } from "@/displayUtils";
-import { getNormalizeLetter } from "@/utils/alphabeticNav";
-import { getAtc1Code, getAtc2Code, getAtcCode } from "@/utils/atc";
-import { getSpecialiteGroupName, groupSpecialites, isSurveillanceRenforcee } from "@/utils/specialites";
-import { ShortIndication } from "@/types/IndicationsTypes";
-import { getPregnancyMentionAlert } from "@/db/utils/pregnancy";
-import { getPediatrics } from "@/db/utils/pediatrics";
-import { Specialite } from "@/types/SpecialiteTypes";
-import { findPregnancyPlanAlert } from "@/db/utils/pregnancyCatalog";
+import { getNormalizeLetter, normalizeString } from "@/utils/alphabeticNav";
+import { getAtc1Code, getAtc2Code } from "@/utils/atc";
+import {
+  getSpecialiteGroupName,
+  groupSpecialites,
+  isSurveillanceRenforcee,
+} from "@/utils/specialites";
+import type { Specialite } from "@/types/SpecialiteTypes";
 
-type DataToResumeType = "indications" | "substances" | "medicaments" | "atc1" | "atc2" | "generiques" | "specialites";
+type DataToResumeType = LetterType | "specialites";
+type ComposantRow = Pick<
+  AnsmComposant,
+  | "cis"
+  | "numero_element"
+  | "numero_composant"
+  | "ordre"
+  | "nature"
+  | "code_substance"
+  | "substance"
+>;
 
-type RawResumeSubstance = {
-  SubsId: string;
-  NomId: string;
-  NomLib: string;
-  specialites: string[];
+const INSERT_CHUNK_SIZE = 500;
+
+function composantKey(row: ComposantRow): string {
+  return `${row.numero_element}:${row.ordre ?? row.numero_composant}`;
 }
 
-if (process.argv.length !== 3) {
-  console.info('Usage: npx tsx scripts/updateResumeData.ts dataToResume');
-  process.exit(1);
-}
-const dataToResume: DataToResumeType = process.argv[2] as DataToResumeType;
-
-async function createResumeIndications(): Promise<string[]> {
-  await db
-    .deleteFrom('resume_indications')
-    .execute();
-
-  const resumeData: ResumeIndication[] = [];
-  const letters: string[] = [];
-
-  const allIndications: Indication[] = await db
-    .selectFrom("indications")
-    .selectAll()
-    .execute();
-  const allSpec = await pdbmMySQL
-    .selectFrom("Specialite")
-    .where("Specialite.IsBdm", "=", 1)
-    .select(["SpecId", "SpecDenom01"])
-    .execute();
-  
-  allIndications.forEach((indication: Indication) => {
-    const specialites: string[] = [];
-    if(indication.CIS.length > 0){
-      indication.CIS.forEach((CIS: string) => {
-        const specDetail = allSpec.find((spec) => spec.SpecId === CIS);
-        if(specDetail) {
-          specialites.push(getSpecialiteGroupName(specDetail.SpecDenom01))
-        }
-      });
-    }
-    if(specialites.length > 0) {
-      resumeData.push({
-        idIndication: indication.id,
-        nomIndication: indication.nom,
-        specialites: specialites.length
-      });
-    }
-
-    const indicationLetter = getNormalizeLetter(indication.nom.substring(0, 1));
-    if (!letters.includes(indicationLetter)) letters.push(indicationLetter);
-  });
-
-  const result = await db
-    .insertInto('resume_indications')
-    .values(resumeData)
-    .execute();
-  console.log(`Nombre d'indications ajoutées: ${result[0].numInsertedOrUpdatedRows}`);
-
-  return letters;
-}
-
-async function createResumeSubstances(): Promise<string[]> {
-  await db
-    .deleteFrom('resume_substances')
-    .execute();
-
-  const allSubs = await getAllSubsWithSpecialites();
-
-  const rawResumeData: RawResumeSubstance[] = [];
-  const letters: string[] = [];
-  allSubs.forEach((sub) => {
-    const index = rawResumeData.findIndex((resumeData) => resumeData.NomId.trim() === sub.NomId.trim());
-    const specGroupName = getSpecialiteGroupName(sub.SpecDenom01);
-    if (index !== -1) {
-      if (!rawResumeData[index].specialites.includes(specGroupName)) {
-        rawResumeData[index].specialites.push(specGroupName);
-      }
-    } else rawResumeData.push({
-      SubsId: sub.SubsId.trim(),
-      NomId: sub.NomId.trim(),
-      NomLib: sub.NomLib,
-      specialites: [
-        specGroupName,
-      ],
-    });
-    const subLetter = getNormalizeLetter(sub.NomLib.substring(0, 1));
-    if (!letters.includes(subLetter)) letters.push(subLetter);
-  });
-  const resumeData: ResumeSubstance[] = rawResumeData
-    .map((resumeSub) => {
-      return {
-        SubsId: resumeSub.SubsId,
-        NomId: resumeSub.NomId,
-        NomLib: resumeSub.NomLib,
-        specialites: resumeSub.specialites.length,
-      }
-    })
-    .filter((resumeSub) => resumeSub.specialites > 0);
-  const result = await db
-    .insertInto('resume_substances')
-    .values(resumeData)
-    .execute();
-  console.log(`Nombre de substances ajoutées: ${result[0].numInsertedOrUpdatedRows}`);
-
-  return letters;
-}
-
-async function createResumeMedicaments(): Promise<string[]> {
-  await db
-    .deleteFrom('resume_medicaments')
-    .execute();
-
-  const allSpecialites = await getAllSpecialites();
-  const medicaments: MedicamentGroup<Specialite>[] = groupSpecialites(allSpecialites);
-  const letters: string[] = [];
-  const results = await Promise.all(
-    medicaments.map(async (medGroup) => {
-      const [groupName, rawSpecialites] = medGroup;
-      const rawComposants = await getComposants(rawSpecialites[0].SpecId);
-      const composants: string = displaySimpleComposants(rawComposants)
-        .map((s) => s.NomLib.trim())
-        .join(", ");
-      const subsIds: string[] = rawComposants.map((subs) => subs.SubsId.trim());
-      const specialites: string[][] = await Promise.all(
-        rawSpecialites.map(async (spec) => {
-          const events = await getEvents(spec.SpecId);
-          const surveillanceRenforcee: string = isSurveillanceRenforcee(events) ? "true" : "false";
-          return [
-            spec.SpecId,
-            spec.SpecDenom01,
-            spec.StatutBdm.toString(),
-            spec.ProcId,
-            surveillanceRenforcee,
-          ];
-        })
-      );
-      const CISList: string[] = rawSpecialites.map((spec) => spec.SpecId.trim());
-      const rawIndicationsCodes: ShortIndication[] = await getSpecialitesIndications(CISList);
-      const indicationsIds: number[] = rawIndicationsCodes
-        .map((indication) => indication.idIndication)
-        .filter((idIndication, index, arr) => arr.indexOf(idIndication) === index);
-      const indicationsIdsNames: string[][] = rawIndicationsCodes.map((indication) => [
-        indication.idIndication.toString(), 
-        indication.nomIndication ? indication.nomIndication : "",
-      ]);
-
-      const atc = await getAtcCode(rawSpecialites[0].SpecId);
-      const atc1: string | undefined = atc ? getAtc1Code(atc) : undefined;
-      const atc2: string | undefined = atc ? getAtc2Code(atc) : undefined;
-
-      const subLetter = getNormalizeLetter(groupName.substring(0, 1));
-      if (!letters.includes(subLetter)) letters.push(subLetter);
-
-      await db
-        .insertInto('resume_medicaments')
-        .values({
-          groupName: groupName,
-          composants: composants,
-          indicationsIds: indicationsIds,
-          specialites: specialites,
-          atc1Code: atc1,
-          atc2Code: atc2,
-          atc5Code: atc ?? undefined,
-          CISList: CISList,
-          subsIds: subsIds,
-          indicationsIdsNames: indicationsIdsNames,
-        })
-        .execute();
-      return true;
-    })
+// Picks a stable substance name/id for a composant by preferring an exact
+// label match and canonical names, with deterministic fallbacks.
+function preferredName(
+  composant: ComposantRow,
+  namesByCode: Map<string, AnsmSubstanceNom[]>,
+): { id: string; label: string } {
+  const code = composant.code_substance?.trim() ?? "";
+  const names = namesByCode.get(code) ?? [];
+  const exact = names.filter(
+    (name) =>
+      normalizeString(name.nom ?? "") ===
+      normalizeString(composant.substance ?? ""),
   );
-  console.log(`Nombre de médicaments ajoutés: ${results.length}`);
-
-  return letters;
+  const selected =
+    exact.find((name) => name.type === "CANONIQUE") ??
+    exact.sort((left, right) =>
+      left.code_nom.localeCompare(right.code_nom),
+    )[0] ??
+    names.find((name) => name.type === "CANONIQUE") ??
+    [...names].sort((left, right) =>
+      left.code_nom.localeCompare(right.code_nom),
+    )[0];
+  return {
+    id: selected?.code_nom.trim() ?? code,
+    label: composant.substance?.trim() || selected?.nom?.trim() || "",
+  };
 }
 
-async function createResumeGeneriques(): Promise<string[]> {
-  await db
-    .deleteFrom('resume_generiques')
-    .execute();
+// Builds the display label for a specialty composition by grouping equivalent
+// components and preferring "Fraction active" rows when available.
+function displayComposantNames(rows: ComposantRow[]): string {
+  const grouped = new Map<string, ComposantRow[]>();
+  for (const row of rows) {
+    const values = grouped.get(composantKey(row)) ?? [];
+    values.push(row);
+    grouped.set(composantKey(row), values);
+  }
+  return [...grouped.values()]
+    .flatMap((values) => {
+      const fractions = values.filter(
+        (row) => row.nature === "Fraction active",
+      );
+      return fractions.length > 0 ? fractions : values;
+    })
+    .map((row) => row.substance?.trim() ?? "")
+    .filter(Boolean)
+    .join(", ");
+}
 
-  const allGenerics = await db
+function collectLetters(values: string[]): string[] {
+  return [
+    ...new Set(
+      values.map((value) => getNormalizeLetter(value.substring(0, 1))),
+    ),
+  ]
+    .filter(Boolean)
+    .sort((left, right) => left.localeCompare(right));
+}
+
+async function replaceLetters(
+  trx: Transaction<Database>,
+  type: LetterType,
+  letters: string[],
+): Promise<void> {
+  requireNonEmpty(`${type} letters`, letters);
+  await trx.deleteFrom("letters").where("type", "=", type).execute();
+  await trx.insertInto("letters").values({ type, letters }).execute();
+}
+
+async function getVisibleSpecialities(): Promise<Specialite[]> {
+  const rows = await db
+    .selectFrom("ansm_specialite")
+    .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
+    .selectAll()
+    .orderBy("denomination")
+    .execute();
+  return rows.map(mapCatalogSpecialite);
+}
+
+async function createResumeIndications(): Promise<void> {
+  const [indications, specialites] = await Promise.all([
+    db.selectFrom("indications").selectAll().execute(),
+    getVisibleSpecialities(),
+  ]);
+  requireNonEmpty("indications", indications);
+  requireNonEmpty("visible specialities", specialites);
+
+  const specialiteByCis = new Map(specialites.map((row) => [row.SpecId, row]));
+  const rows: ResumeIndication[] = indications.flatMap((indication) => {
+    const groups = indication.CIS.flatMap((cis) => {
+      const specialite = specialiteByCis.get(cis);
+      return specialite ? [getSpecialiteGroupName(specialite)] : [];
+    });
+    return groups.length === 0
+      ? []
+      : [
+          {
+            idIndication: indication.id,
+            nomIndication: indication.nom,
+            specialites: groups.length,
+          },
+        ];
+  });
+  requireNonEmpty("resume indications", rows);
+  const letters = collectLetters(indications.map((row) => row.nom));
+
+  await db.transaction().execute(async (trx) => {
+    await trx.deleteFrom("resume_indications").execute();
+    await trx.insertInto("resume_indications").values(rows).execute();
+    await replaceLetters(trx, "indications", letters);
+  });
+  console.log(
+    `resume_indications: ${rows.length} rows; letters: ${letters.length}`,
+  );
+}
+
+async function createResumeSubstances(): Promise<void> {
+  const [components, names] = await Promise.all([
+    db
+      .selectFrom("ansm_composant")
+      .innerJoin("ansm_specialite", "ansm_specialite.cis", "ansm_composant.cis")
+      .where(
+        "ansm_specialite.disponibilite",
+        "in",
+        VISIBLE_SPECIALITE_AVAILABILITIES,
+      )
+      .select([
+        "ansm_composant.cis",
+        "ansm_composant.numero_element",
+        "ansm_composant.numero_composant",
+        "ansm_composant.ordre",
+        "ansm_composant.nature",
+        "ansm_composant.code_substance",
+        "ansm_composant.substance",
+        "ansm_specialite.denomination",
+      ])
+      .execute(),
+    db.selectFrom("ansm_substance_nom").selectAll().execute(),
+  ]);
+  requireNonEmpty("visible speciality components", components);
+  requireNonEmpty("substance names", names);
+
+  const namesByCode = new Map<string, AnsmSubstanceNom[]>();
+  for (const name of names) {
+    const values = namesByCode.get(name.code_substance) ?? [];
+    values.push(name);
+    namesByCode.set(name.code_substance, values);
+  }
+  const byCis = new Map<string, typeof components>();
+  for (const component of components) {
+    const values = byCis.get(component.cis) ?? [];
+    values.push(component);
+    byCis.set(component.cis, values);
+  }
+
+  const grouped = new Map<
+    string,
+    { SubsId: string; NomId: string; NomLib: string; groups: Set<string> }
+  >();
+  for (const rows of byCis.values()) {
+    if (new Set(rows.map(composantKey)).size !== 1) continue;
+    const component =
+      rows.find((row) => row.nature === "Fraction active") ?? rows[0];
+    const name = preferredName(component, namesByCode);
+    if (!name.id || !name.label) continue;
+    const current = grouped.get(name.id) ?? {
+      SubsId: component.code_substance?.trim() ?? "",
+      NomId: name.id,
+      NomLib: name.label,
+      groups: new Set<string>(),
+    };
+    current.groups.add(getSpecialiteGroupName(component.denomination ?? ""));
+    grouped.set(name.id, current);
+  }
+
+  const rows: ResumeSubstance[] = [...grouped.values()].map((row) => ({
+    SubsId: row.SubsId,
+    NomId: row.NomId,
+    NomLib: row.NomLib,
+    specialites: row.groups.size,
+  }));
+  requireNonEmpty("resume substances", rows);
+  const letters = collectLetters(rows.map((row) => row.NomLib));
+
+  await db.transaction().execute(async (trx) => {
+    await trx.deleteFrom("resume_substances").execute();
+    for (let i = 0; i < rows.length; i += INSERT_CHUNK_SIZE) {
+      await trx
+        .insertInto("resume_substances")
+        .values(rows.slice(i, i + INSERT_CHUNK_SIZE))
+        .execute();
+    }
+    await replaceLetters(trx, "substances", letters);
+  });
+  console.log(
+    `resume_substances: ${rows.length} rows; letters: ${letters.length}`,
+  );
+}
+
+async function loadSpecialityResumeSources() {
+  const specialites = await getVisibleSpecialities();
+  requireNonEmpty("visible specialities", specialites);
+  const cis = specialites.map((row) => row.SpecId);
+  const [
+    composants,
+    atcs,
+    indications,
+    events,
+    pregnancyPlans,
+    pregnancyMentions,
+    pediatrics,
+  ] = await Promise.all([
+    db
+      .selectFrom("ansm_composant")
+      .where("cis", "in", cis)
+      .select([
+        "cis",
+        "numero_element",
+        "numero_composant",
+        "ordre",
+        "nature",
+        "code_substance",
+        "substance",
+      ])
+      .execute(),
+    db
+      .selectFrom("cis_atc")
+      .innerJoin("atc", "atc.code_terme", "cis_atc.code_terme_atc")
+      .where("cis_atc.code_cis", "in", cis)
+      .select(["cis_atc.code_cis", "atc.code"])
+      .execute(),
+    db.selectFrom("indications").selectAll().execute(),
+    getReinforcedSurveillanceEvents(cis),
+    db
+      .selectFrom("ref_grossesse_substances_contre_indiquees")
+      .select("subs_id")
+      .execute(),
+    db.selectFrom("ref_grossesse_mention").select("cis").execute(),
+    db
+      .selectFrom("ref_pediatrie")
+      .select(["cis", "contre_indication"])
+      .execute(),
+  ]);
+  requireNonEmpty("ATC relationships", atcs);
+  requireNonEmpty("indications", indications);
+  requireNonEmpty("reinforced-surveillance events", events);
+
+  requireNonEmpty("visible speciality components", composants);
+
+  const composantsByCis = new Map<string, ComposantRow[]>();
+  for (const composant of composants) {
+    const values = composantsByCis.get(composant.cis) ?? [];
+    values.push(composant);
+    composantsByCis.set(composant.cis, values);
+  }
+  const atcByCis = new Map(
+    atcs.flatMap((row) =>
+      row.code_cis && row.code ? [[row.code_cis, row.code] as const] : [],
+    ),
+  );
+  const eventsByCis = new Map<string, typeof events>();
+  for (const event of events) {
+    const values = eventsByCis.get(event.specialiteId) ?? [];
+    values.push(event);
+    eventsByCis.set(event.specialiteId, values);
+  }
+
+  return {
+    specialites,
+    composantsByCis,
+    atcByCis,
+    indications,
+    eventsByCis,
+    pregnancyPlanIds: new Set(
+      pregnancyPlans.flatMap((row) =>
+        row.subs_id ? [String(Number(row.subs_id.trim()))] : [],
+      ),
+    ),
+    pregnancyMentionCis: new Set(
+      pregnancyMentions.flatMap((row) => (row.cis ? [row.cis.trim()] : [])),
+    ),
+    pediatricCis: new Set(
+      pediatrics.flatMap((row) =>
+        row.cis && row.contre_indication ? [row.cis.trim()] : [],
+      ),
+    ),
+  };
+}
+
+function indicationsForCis(indications: Indication[], cis: string[]) {
+  const cisSet = new Set(cis);
+  return indications.filter((indication) =>
+    indication.CIS.some((value: string) => cisSet.has(value)),
+  );
+}
+
+function atcValues(code: string | undefined) {
+  return {
+    atc1Code: code ? getAtc1Code(code) : undefined,
+    atc2Code: code ? getAtc2Code(code) : undefined,
+    atc5Code: code,
+  };
+}
+
+async function createResumeMedicaments(): Promise<void> {
+  const source = await loadSpecialityResumeSources();
+  const rows: ResumeSpecGroupDB[] = groupSpecialites(source.specialites).map(
+    ([groupName, specialites]) => {
+      const cis = specialites.map((row) => row.SpecId.trim());
+      const composants =
+        source.composantsByCis.get(specialites[0].SpecId) ?? [];
+      const indications = indicationsForCis(source.indications, cis);
+      const atc = source.atcByCis.get(specialites[0].SpecId);
+      return {
+        groupName,
+        composants: displayComposantNames(composants),
+        specialites: specialites.map((specialite) => [
+          specialite.SpecId,
+          specialite.SpecDenom01,
+          specialite.StatutBdm.toString(),
+          specialite.ProcId,
+          isSurveillanceRenforcee(
+            source.eventsByCis.get(specialite.SpecId) ?? [],
+          ).toString(),
+        ]),
+        indicationsIds: indications.map((row) => row.id),
+        ...atcValues(atc),
+        CISList: cis,
+        subsIds: [
+          ...new Set(
+            composants.flatMap((row) =>
+              row.code_substance ? [row.code_substance.trim()] : [],
+            ),
+          ),
+        ],
+        indicationsIdsNames: indications.map((row) => [
+          row.id.toString(),
+          row.nom,
+        ]),
+      };
+    },
+  );
+  requireNonEmpty("resume medicines", rows);
+  const letters = collectLetters(rows.map((row) => row.groupName));
+
+  await db.transaction().execute(async (trx) => {
+    await trx.deleteFrom("resume_medicaments").execute();
+    for (let i = 0; i < rows.length; i += INSERT_CHUNK_SIZE) {
+      await trx
+        .insertInto("resume_medicaments")
+        .values(rows.slice(i, i + INSERT_CHUNK_SIZE))
+        .execute();
+    }
+    await replaceLetters(trx, "medicaments", letters);
+  });
+  console.log(
+    `resume_medicaments: ${rows.length} rows; letters: ${letters.length}`,
+  );
+}
+
+async function createResumeGeneriques(): Promise<void> {
+  const generics = await db
     .selectFrom("ansm_groupe_generique")
     .innerJoin(
       "ansm_specialite_groupe_generique",
       "ansm_specialite_groupe_generique.code_groupe",
       "ansm_groupe_generique.code_groupe",
     )
-    .innerJoin("ansm_specialite", "ansm_specialite.cis", "ansm_specialite_groupe_generique.cis")
-    .where("ansm_specialite.disponibilite", "in", ["DISPONIBLE", "PARTIELLE", "ALERTE"])
-    .where((eb) => eb.or([
-      eb("ansm_specialite.procedure", "is", null),
-      eb("ansm_specialite.procedure", "!=", "IMPORTATION_PARALLELE"),
-    ]))
+    .innerJoin(
+      "ansm_specialite",
+      "ansm_specialite.cis",
+      "ansm_specialite_groupe_generique.cis",
+    )
+    .where(
+      "ansm_specialite.disponibilite",
+      "in",
+      VISIBLE_SPECIALITE_AVAILABILITIES,
+    )
+    .where((eb) =>
+      eb.or([
+        eb("ansm_specialite.procedure", "is", null),
+        eb("ansm_specialite.procedure", "!=", "IMPORTATION_PARALLELE"),
+      ]),
+    )
     .select([
       "ansm_groupe_generique.code_groupe",
       "ansm_groupe_generique.libelle",
-      "ansm_specialite_groupe_generique.cis",
-      "ansm_specialite_groupe_generique.role",
-      "ansm_specialite_groupe_generique.rang",
     ])
-    .orderBy("ansm_groupe_generique.libelle")
-    .orderBy("ansm_specialite_groupe_generique.rang")
+    .distinct()
     .execute();
+  requireNonEmpty("visible generic groups", generics);
 
-  const letters: string[] = [];
-  const groups = new Map<number, string>();
-  for (const generic of allGenerics) {
-    if (!groups.has(generic.code_groupe)) groups.set(generic.code_groupe, generic.libelle ?? "");
-  }
+  const rows: ResumeGeneric[] = generics.map((row) => ({
+    SpecId: row.code_groupe.toString(),
+    SpecName: groupGeneNameToDCI(row.libelle ?? "")
+      .split(" ")
+      .map((word) =>
+        /[A-Z]/.test(word[0]) ? word[0] + word.slice(1).toLowerCase() : word,
+      )
+      .join(" "),
+  }));
+  const letters = collectLetters(rows.map((row) => row.SpecName));
 
-  const resumeData: ResumeGeneric[] = [...groups]
-    .map(([codeGroupe, libelle]) => {
-      const genericName: string = formatSpecName(groupGeneNameToDCI(libelle));
-      const subLetter = getNormalizeLetter(genericName.substring(0, 1));
-      if (!letters.includes(subLetter)) letters.push(subLetter);
-      return {
-        SpecId: codeGroupe.toString(),
-        SpecName: genericName,
-      }
-    });
-  const result = await db
-    .insertInto('resume_generiques')
-    .values(resumeData)
-    .execute();
-  console.log(`Nombre de génériques ajoutées: ${result[0].numInsertedOrUpdatedRows}`);
-
-  return letters;
+  await db.transaction().execute(async (trx) => {
+    await trx.deleteFrom("resume_generiques").execute();
+    for (let i = 0; i < rows.length; i += INSERT_CHUNK_SIZE) {
+      await trx
+        .insertInto("resume_generiques")
+        .values(rows.slice(i, i + INSERT_CHUNK_SIZE))
+        .execute();
+    }
+    await replaceLetters(trx, "generiques", letters);
+  });
+  console.log(
+    `resume_generiques: ${rows.length} rows; letters: ${letters.length}`,
+  );
 }
 
 async function createResumeSpecialites(): Promise<void> {
-  await db
-    .deleteFrom('resume_specialites')
-    .execute();
-
-  const allSpecialites = await getAllSpecialites();
-  const allPregnancyPlanAlerts = await db
-    .selectFrom("ref_grossesse_substances_contre_indiquees")
-    .select(["subs_id", "lien_site_ansm"])
-    .execute()
-    .then((rows) => rows.map((row) => ({ id: row.subs_id?.trim() || "", link: row.lien_site_ansm?.trim() || "" })));
-  const results = await Promise.all(
-    allSpecialites.map(async (spec) => {
-      const rawComposants = await getComposants(spec.SpecId);
-      const composants: string = displaySimpleComposants(rawComposants)
-        .map((s) => s.NomLib.trim())
-        .join(", ");
-      const subsIds: string[] = rawComposants.map((subs) => subs.SubsId.trim());
-      const rawIndicationsCodes: ShortIndication[] = await getSpecialitesIndications([spec.SpecId]);
-      const indicationsIds: number[] = rawIndicationsCodes
-        .map((indication) => indication.idIndication)
-        .filter((idIndication, index, arr) => arr.indexOf(idIndication) === index);
-      const indicationsIdsNames: string[][] = rawIndicationsCodes.map((indication) => [
-        indication.idIndication.toString(), 
-        indication.nomIndication ? indication.nomIndication : "",
+  const source = await loadSpecialityResumeSources();
+  const rows: ResumeSpecialiteDB[] = source.specialites.map(
+    (specialite: Specialite) => {
+      const composants = source.composantsByCis.get(specialite.SpecId) ?? [];
+      const indications = indicationsForCis(source.indications, [
+        specialite.SpecId,
       ]);
-      const atc = await getAtcCode(spec.SpecId);
-      const atc1: string | undefined = atc ? getAtc1Code(atc) : undefined;
-      const atc2: string | undefined = atc ? getAtc2Code(atc) : undefined;
-
-      const events = await getEvents(spec.SpecId);
-      const pregnancyPlanAlert = findPregnancyPlanAlert(
-        rawComposants.map((component) => component.SubsId),
-        allPregnancyPlanAlerts,
-      );
-      const pediatrics = await getPediatrics(spec.SpecId);
-
-      await db
-        .insertInto('resume_specialites')
-        .values({
-          specId: spec.SpecId.trim(),
-          specName: spec.SpecDenom01.trim(),
-          groupName: getSpecialiteGroupName(spec),
-          composants: composants,
-          subsIds: subsIds,
-          indicationsIds: indicationsIds,
-          indicationsIdsNames: indicationsIdsNames,
-          atc1Code: atc1,
-          atc2Code: atc2,
-          atc5Code: atc ?? undefined,
-          ProcId: spec.ProcId,
-          isSurveillanceRenforcee: isSurveillanceRenforcee(events),
-          StatutBdm: spec.StatutBdm,
-          isAlertPregnancyPlan: pregnancyPlanAlert ? true : false,
-          isAlertPregnancyMention: await getPregnancyMentionAlert(spec.SpecId),
-          isAlertPediatricContraindication: pediatrics && pediatrics.contraindication ? true : false,
-        })
-        .execute();
-      return true;
-    })
+      const atc = source.atcByCis.get(specialite.SpecId);
+      return {
+        specId: specialite.SpecId.trim(),
+        specName: specialite.SpecDenom01.trim(),
+        groupName: getSpecialiteGroupName(specialite),
+        composants: displayComposantNames(composants),
+        subsIds: [
+          ...new Set(
+            composants.flatMap((row) =>
+              row.code_substance ? [row.code_substance.trim()] : [],
+            ),
+          ),
+        ],
+        indicationsIds: indications.map((row) => row.id),
+        indicationsIdsNames: indications.map((row) => [
+          row.id.toString(),
+          row.nom,
+        ]),
+        ...atcValues(atc),
+        ProcId: specialite.ProcId,
+        isSurveillanceRenforcee: isSurveillanceRenforcee(
+          source.eventsByCis.get(specialite.SpecId) ?? [],
+        ),
+        StatutBdm: specialite.StatutBdm,
+        isAlertPregnancyPlan: composants.some(
+          (row) =>
+            row.code_substance &&
+            source.pregnancyPlanIds.has(
+              String(Number(row.code_substance.trim())),
+            ),
+        ),
+        isAlertPregnancyMention: source.pregnancyMentionCis.has(
+          specialite.SpecId,
+        ),
+        isAlertPediatricContraindication: source.pediatricCis.has(
+          specialite.SpecId,
+        ),
+      };
+    },
   );
-  console.log(`Nombre de spécialités ajoutées: ${results.length}`);
-}
+  requireNonEmpty("resume specialities", rows);
 
-async function saveResumeLetters(
-  dataToResume: LetterType,
-  letters: string[]
-): Promise<boolean> {
-  console.log("Ajout des letters");
-  const lettersValue: Letters = {
-    type: dataToResume,
-    letters: letters.sort((a, b) => a.localeCompare(b)),
-  }
-  await db
-    .deleteFrom('letters')
-    .where("type", "=", dataToResume)
-    .execute();
-  await db
-    .insertInto('letters')
-    .values(lettersValue)
-    .execute();
-
-  return true;
-}
-
-async function createResumeDataFromBDPM() {
-  if (dataToResume === "indications" || dataToResume === "substances" || dataToResume === "medicaments" || dataToResume === "generiques") {
-    let letters: string[] = [];
-    if (dataToResume === "indications") {
-      letters = await createResumeIndications();
-    } else if (dataToResume === "substances") {
-      letters = await createResumeSubstances();
-    } else if (dataToResume === "medicaments") {
-      letters = await createResumeMedicaments();
-    } else if (dataToResume === "generiques") {
-      letters = await createResumeGeneriques();
+  await db.transaction().execute(async (trx) => {
+    await trx.deleteFrom("resume_specialites").execute();
+    for (let i = 0; i < rows.length; i += INSERT_CHUNK_SIZE) {
+      await trx
+        .insertInto("resume_specialites")
+        .values(rows.slice(i, i + INSERT_CHUNK_SIZE))
+        .execute();
     }
-    await saveResumeLetters(dataToResume, letters);
-  } else {
-     if (dataToResume === "specialites") {
-      await createResumeSpecialites();
-    }
-  }
-  process.exit(0);
+  });
+  console.log(`resume_specialites: ${rows.length} rows`);
 }
 
-createResumeDataFromBDPM().finally(async () => {
-  await db.destroy();
-  await pdbmMySQL.destroy();
-});
+async function run(target: DataToResumeType): Promise<void> {
+  if (target === "indications") return createResumeIndications();
+  if (target === "substances") return createResumeSubstances();
+  if (target === "medicaments") return createResumeMedicaments();
+  if (target === "generiques") return createResumeGeneriques();
+  return createResumeSpecialites();
+}
+
+const target = process.argv[2];
+const validTargets: DataToResumeType[] = [
+  "indications",
+  "substances",
+  "medicaments",
+  "generiques",
+  "specialites",
+];
+if (!validTargets.includes(target as DataToResumeType)) {
+  console.error(
+    `Usage: npx tsx scripts/updateResumeData.ts ${validTargets.join("|")}`,
+  );
+  process.exitCode = 1;
+} else {
+  run(target as DataToResumeType)
+    .then(() => {
+      process.exitCode = 0;
+    })
+    .catch((error) => {
+      console.error(`updateResumeData ${target} failed:`, error);
+      process.exitCode = 1;
+    })
+    .finally(async () => {
+      await db.destroy();
+    });
+}

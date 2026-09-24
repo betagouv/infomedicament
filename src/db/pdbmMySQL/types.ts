@@ -14,8 +14,6 @@ export interface PdbmMySQL {
   StatutAdm: StatutAdmTable;
   Patho: PathoTable;
   Spec_Patho: Spec_PathoTable;
-  VUEmaEpar: VUEmaEparTable; //Documents Centralisés
-  VUEvnts: VUEvntsTable; //Informations Importantes
   Spec_Titu: Spec_TituTable; //Titulaire date + id table Titulaire
   Titulaire: TitulaireTable; //Nom du titulaire
   HAS_SMR: HASSMRTable; //SMR informations
@@ -144,20 +142,6 @@ interface Spec_PathoTable {
 }
 
 
-interface VUEmaEparTable {
-  SpecId: string;
-  Product_Number: string;
-  UrlEpar: string;
-}
-
-interface VUEvntsTable {
-  SpecId: string;
-  codeEvnt: string;
-  dateEvnt: Date;
-  dateEcheance: Date;
-  remCommentaire: string;
-  codeTypeInfo: number;
-}
 interface Spec_TituTable {
   SpecId: string;
   TituId: string;
@@ -222,7 +206,6 @@ export type PresAgreColl = Selectable<CNAMAgreCollTable>;
 export type SpecDelivrance = Selectable<SpecDelivranceTable> &
   Selectable<DicoDelivranceTable>;
 export type Patho = Selectable<PathoTable>;
-export type VUEvnts = Selectable<VUEvntsTable>;
 export type PresentationRetro = Selectable<CNAMRetroTable>;
 
 // Those enums are store as small dictionary tables in the database

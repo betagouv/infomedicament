@@ -2,7 +2,6 @@
 import "server-cli-only";
 
 import { cache } from "react";
-import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { sql } from "kysely";
 import db from "@/db";
 import { getFullPresentations } from "@/db/utils/presentation";
@@ -27,6 +26,7 @@ import {
   mapDetailedSpecialite,
   VISIBLE_SPECIALITE_AVAILABILITIES,
 } from "./specialiteCatalog";
+import { getEenLabel } from "./specialiteEen";
 import { getGenericGroupMembership } from "./generics";
 import { getCisMatchingSubstanceSet } from "./substances";
 
@@ -80,7 +80,7 @@ export const getDetailedSpecialite = cache(
       genericGroupMembership,
       importedReference,
       statusEvent,
-      excipientsEffetNotoire,
+      een,
     ] = await Promise.all([
       db
         .selectFrom("ansm_specialite_titulaire")
@@ -106,22 +106,7 @@ export const getDetailedSpecialite = cache(
             .orderBy("date_evenement", "desc")
             .executeTakeFirst()
         : Promise.resolve(undefined),
-      row.een === "PRESENTS"
-        ? db
-            .selectFrom("ansm_specialite_excipient_effet_notoire")
-            .innerJoin(
-              "ansm_excipient_effet_notoire",
-              "ansm_excipient_effet_notoire.code",
-              "ansm_specialite_excipient_effet_notoire.code_excipient",
-            )
-            .where("ansm_specialite_excipient_effet_notoire.cis", "=", CIS)
-            .where("ansm_excipient_effet_notoire.libelle", "is not", null)
-            .select("ansm_excipient_effet_notoire.libelle")
-            .orderBy(
-              "ansm_specialite_excipient_effet_notoire.code_excipient",
-            )
-            .execute()
-        : Promise.resolve([]),
+      row.een === "PRESENTS" ? getEenLabel(CIS) : Promise.resolve(null),
     ]);
 
     const titulaireNames = titulaires
@@ -155,10 +140,7 @@ export const getDetailedSpecialite = cache(
       genericGroupMembership?.codeGroupe ?? null,
       referenceSpecialite,
       statusEvent?.date_evenement ?? null,
-      excipientsEffetNotoire
-        .map((excipient) => excipient.libelle)
-        .filter((libelle): libelle is string => libelle !== null)
-        .join(", ") || null,
+      een,
     );
   },
 );
@@ -192,7 +174,7 @@ export const getSpecialite = cache(async (CIS: string) => {
         ])
         .orderBy("ansm_delivrance.libelle_long")
         .execute()
-    : [];
+      : [];
 
   return {
     specialite,

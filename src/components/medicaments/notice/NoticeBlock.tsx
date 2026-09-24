@@ -44,9 +44,7 @@ function NoticeBlock({
         {notice ? (
           <DocumentHtml contentHtml={notice.contentHtml} definitions={definitions} />
         ) : (specialite && isCentralisee(specialite)) ? (
-          <CentraliseBlock
-            pdfURL={specialite.urlCentralise ? specialite.urlCentralise : undefined}
-          />
+          <CentraliseBlock />
         ) : null}
       </ContentContainer>
     </NoticeBlockContainer>
