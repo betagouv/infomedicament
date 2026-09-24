@@ -44,3 +44,4 @@ next-env.d.ts
 
 # Local data folder
 /data
+/reports
