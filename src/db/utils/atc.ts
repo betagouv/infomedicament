@@ -7,7 +7,7 @@ import { ATC, ATC1, ATCLabels, ATCSubs } from "@/types/ATCTypes";
 import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { getResumeSubstancesByNomId } from "./substances";
 import db from "@/db/";
-import { RefAtcFriendlyNiveau1, RefAtcFriendlyNiveau2 } from "../types";
+import { RefAtcFriendlyNiveau1, RefAtcFriendlyNiveau2, ResumeSubstance } from "../types";
 import type { Substance } from "@/types/SubstanceTypes";
 import { getComposantsList } from "./composants";
 import { VISIBLE_SPECIALITE_AVAILABILITIES } from "./specialiteCatalog";
@@ -66,6 +66,16 @@ export const getSubstancesByAtc = cache(async (atc2: ATC): Promise<Substance[]> 
       all.findIndex((candidate) => candidate.NomId === substance.NomId) === index,
     )
     .sort((left, right) => left.NomLib.localeCompare(right.NomLib, "fr"));
+});
+
+/**
+ * Loads the resume_substances displayed on an ATC2 page.
+ */
+export const getResumeSubstancesByAtc = cache(async (atc2: ATC): Promise<ResumeSubstance[]> => {
+  const substances = await getSubstancesByAtc(atc2);
+  const nomIds = [...new Set(substances.map((s) => s.NomId.trim()))];
+  if (nomIds.length === 0) return [];
+  return getResumeSubstancesByNomId(nomIds);
 });
 
 export const getAtcMenuItems = unstable_cache(
@@ -312,16 +322,16 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubs[]> {
   }
 
   // Fetch the resume_substances rows for all substances at once (same source the ATC2 page counts from)
-  const allSubsIds = [...new Set(substancesWithCIS.map((s) => s.SubsId.trim()))];
-  const allResumeSubstances = await getResumeSubstancesByNomId(allSubsIds);
+  const allNomIds = [...new Set(substancesWithCIS.map((s) => s.NomId.trim()))];
+  const allResumeSubstances = await getResumeSubstancesByNomId(allNomIds);
   return atc1.children.map((atc2) => {
     const cisSet = new Set(atc2ToCIS.get(atc2.code) ?? []);
-    const subsIds = new Set(
+    const nomIds = new Set(
       substancesWithCIS
         .filter((s) => s.SpecId && cisSet.has(s.SpecId))
-        .map((s) => s.SubsId.trim())
+        .map((s) => s.NomId.trim())
     );
-    const nbSubstances = allResumeSubstances.filter((r) => subsIds.has(r.SubsId.trim())).length;
+    const nbSubstances = allResumeSubstances.filter((r) => nomIds.has(r.NomId.trim())).length;
 
     return { atc: atc2, nbSubstances };
   });

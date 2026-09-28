@@ -1,5 +1,5 @@
 import { fr } from "@codegouvfr/react-dsfr";
-import { getAtc1, getAtc2, getAtc1DefinitionData, getSubstancesByAtc } from "@/db/utils/atc";
+import { getAtc1, getAtc2, getAtc1DefinitionData, getResumeSubstancesByAtc } from "@/db/utils/atc";
 import { ATC, ATC1, ATCSubs } from "@/types/ATCTypes";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
@@ -12,7 +12,6 @@ import { getArticlesFromATC } from "@/db/utils/articles";
 import { AdvancedATCClass } from "@/types/DataTypes";
 import { ResumeSubstance } from "@/db/types";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
-import { getResumeSubstancesByNomId } from "@/db/utils/substances";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -63,12 +62,10 @@ async function fetchATC1Data(atc1: ATC1): Promise<{ articles: ArticleCardResume[
 }
 
 async function fetchATC2Data(atc2: ATC): Promise<{ articles: ArticleCardResume[]; dataList: ResumeSubstance[] }> {
-  const [articles, substances] = await Promise.all([
+  const [articles, dataList] = await Promise.all([
     getArticlesFromATC(atc2.code),
-    getSubstancesByAtc(atc2),
+    getResumeSubstancesByAtc(atc2),
   ]);
-  const subsIDs = [...new Set(substances.map((s) => s.SubsId.trim()))];
-  const dataList = await getResumeSubstancesByNomId(subsIDs);
   return { articles, dataList };
 }
 
