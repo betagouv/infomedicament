@@ -1,4 +1,4 @@
-import type { Kysely } from "kysely";
+import { sql, type Kysely } from "kysely";
 
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
@@ -7,7 +7,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute();
   await db.schema
     .alterTable("resume_medicaments")
-    .addColumn("subsNamesIds", "varchar")
+    .addColumn("subsNamesIds", sql`character varying[]`)
     .execute();
 }
 
