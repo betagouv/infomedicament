@@ -81,7 +81,7 @@ describe("Autocomplete suggestions", () => {
       { ...makeGroup("DOLIPRANE", "Paracétamol"), specId: "61234567", specName: "DOLIPRANE 1000 mg" },
     ]);
     mockExecute.mockResolvedValueOnce([
-      { NomId: "123", NomLib: "Paracétamol" },
+      { SubsId: "123", NomLib: "Paracétamol" },
     ]);
 
     const sections = await getAutocompleteSuggestions("paracetamol");
@@ -109,7 +109,7 @@ describe("Autocomplete suggestions", () => {
       { ...makeGroup("DOLIPRANE", "Paracétamol"), specId: "61234567", specName: "DOLIPRANE 1000 mg" },
     ]);
     mockExecute.mockResolvedValueOnce([
-      { NomId: "123", NomLib: "Paracétamol" },
+      { SubsId: "123", NomLib: "Paracétamol" },
     ]);
 
     const sections = await getAutocompleteSuggestions("paracetamol");
