@@ -33,6 +33,22 @@ export function groupSpecialites<T extends Specialite>(
   return allGroups;
 }
 
+// A group gathers specialites by name, whatever their composition:
+// keeps in each group only the specialites of the CIS list, and removes the empty groups
+export function filterSpecsGroupsByCIS(
+  specsGroups: ResumeSpecGroup[],
+  CISList: string[],
+): ResumeSpecGroup[] {
+  return specsGroups
+    .map((group) => ({
+      ...group,
+      CISList: group.CISList.filter((cis) => CISList.includes(cis.trim())),
+      specialites: group.specialites.filter((spec) => CISList.includes(spec[0].trim())),
+      shortSpecialites: group.shortSpecialites.filter((spec) => CISList.includes(spec.SpecId.trim())),
+    }))
+    .filter((group) => group.CISList.length > 0);
+}
+
 export function isCentralisee(
   specialite: DetailedSpecialite | Specialite
 ): boolean {

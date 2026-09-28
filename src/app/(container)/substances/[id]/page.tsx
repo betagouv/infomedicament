@@ -6,7 +6,7 @@ import { Metadata, ResolvingMetadata } from "next";
 import { getSubstanceDefinition, getSubstancesNames } from "@/db/utils/substances";
 import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinitionContent";
 import { getArticlesFromSubstances } from "@/db/utils/articles";
-import { getResumeSpecsGroupsWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
+import { getSubstanceSpecsGroups } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { getSubstanceMainName } from "@/utils/substances";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
@@ -50,14 +50,13 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   const substances: Substance[] = await getSubstancesNames(subsIds) ?? [];
   if (substances.length < subsIds.length) return notFound();
 
-  const [articles, definitions, CISList] = await Promise.all([
+  const [articles, definitions, allSpecsGroups] = await Promise.all([
     getArticlesFromSubstances(subsIds),
     getSubstanceDefinition(subsIds),
-    getSubstanceSpecialitesCIS(subsIds),
+    getSubstanceSpecsGroups(subsIds),
   ]);
   const definition = definitions.map((d) => ({ title: d.SA, desc: d.Definition }));
 
-  const allSpecsGroups: ResumeSpecGroup[] = await getResumeSpecsGroupsWithCIS(CISList);
   const dataList = allSpecsGroups.length > 0
     ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
     : [];

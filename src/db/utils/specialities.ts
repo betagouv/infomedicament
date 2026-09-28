@@ -19,6 +19,7 @@ import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
 import {
   formatSpecialitesResume,
+  filterSpecsGroupsByCIS,
   formatSpecialitesResumeFromGroups,
 } from "@/utils/specialites";
 import { SpecialiteMetadata } from "../types";
@@ -253,6 +254,15 @@ export const getResumeSpecsGroupsWithCIS = cache(async function (
   return formatSpecialitesResumeFromGroups(result);
 });
 
+// Groups of the specialites containing exactly the substances, and only them
+export const getSubstanceSpecsGroups = cache(async function (
+  subsIds: string[],
+): Promise<ResumeSpecGroup[]> {
+  const CISList = await getSubstanceSpecialitesCIS(subsIds);
+  const specsGroups = await getResumeSpecsGroupsWithCIS(CISList);
+  return filterSpecsGroupsByCIS(specsGroups, CISList);
+});
+
 export const getResumeSpecialitesWithCIS = cache(async function (
   CISList: string[],
 ): Promise<ResumeSpecialite[]> {
@@ -318,7 +328,7 @@ export const getSubstanceSpecialitesCIS = unstable_cache(
       .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
       .select("cis")
       .execute();
-    return rows.map((row) => row.cis);
+    return rows.map((row) => row.cis.trim());
   },
   ["substance-specialites-cis"],
   { revalidate: 3600 }, // cache for one hour
