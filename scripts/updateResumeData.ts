@@ -17,6 +17,7 @@ import { getPediatrics } from "@/db/utils/pediatrics";
 import { Specialite } from "@/types/SpecialiteTypes";
 import { findPregnancyPlanAlert } from "@/db/utils/pregnancyCatalog";
 import { Substance } from "@/types/SubstanceTypes";
+import { cleanSubstanceName } from "@/utils/substances";
 
 type DataToResumeType = "indications" | "substances" | "medicaments" | "atc1" | "atc2" | "generiques" | "specialites";
 
@@ -94,12 +95,13 @@ async function createResumeSubstances(): Promise<string[]> {
   allSubs.forEach((sub) => {
     const index = rawResumeData.findIndex((data) => data.SubsId.trim() === sub.SubsId.trim() && data.NomId.trim() === sub.NomId.trim());
     if (index === -1) {
+      const nomLib = cleanSubstanceName(sub.NomLib);
       rawResumeData.push({
         SubsId: sub.SubsId.trim(),
         NomId: sub.NomId.trim(),
-        NomLib: sub.NomLib,
+        NomLib: nomLib,
       })
-      const subLetter = getNormalizeLetter(sub.NomLib.substring(0, 1));
+      const subLetter = getNormalizeLetter(nomLib.substring(0, 1));
       if (!letters.includes(subLetter)) letters.push(subLetter);
     }
     const specGroupName = getSpecialiteGroupName(sub.SpecDenom01);
