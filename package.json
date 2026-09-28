@@ -22,6 +22,7 @@
     "db:sync-grist": "npx tsx scripts/syncWithGrist.ts",
     "db:migrate:latest": "npx kysely migrate:latest",
     "db:migrate:down": "npx kysely migrate:down",
+    "db:migrate:list": "npx kysely migrate:list",
     "db:update-resume": "npx tsx scripts/updateResumeData.ts",
     "db:seed-search-index": "npx tsx scripts/seedSearchIndex.ts",
     "db:seed-review-app": "node .next/standalone/scripts/seedReviewApp.js",
