@@ -80,7 +80,7 @@ export const getDetailedSpecialite = cache(
       genericGroupMembership,
       importedReference,
       statusEvent,
-      een,
+      excipientsEffetNotoire,
     ] = await Promise.all([
       db
         .selectFrom("ansm_specialite_titulaire")
@@ -140,7 +140,7 @@ export const getDetailedSpecialite = cache(
       genericGroupMembership?.codeGroupe ?? null,
       referenceSpecialite,
       statusEvent?.date_evenement ?? null,
-      een,
+      excipientsEffetNotoire,
     );
   },
 );

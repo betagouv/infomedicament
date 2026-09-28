@@ -1,6 +1,6 @@
 export type DocBonUsage = {
   url: string | null;
-  updatedAt: Date;
+  updatedAt: Date | null;
   type: string | null;
   title: string | null;
 }
