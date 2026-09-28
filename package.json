@@ -19,15 +19,11 @@
     "test:e2e:install": "playwright install",
     "test:all": "vitest run",
     "test:watch": "vitest --watch",
-    "db:sync-grist": "npx tsx scripts/syncWithGrist.ts",
     "db:migrate:latest": "npx kysely migrate:latest",
     "db:migrate:down": "npx kysely migrate:down",
-    "db:update-resume": "npx tsx scripts/updateResumeData.ts",
     "db:seed-search-index": "npx tsx scripts/seedSearchIndex.ts",
     "db:seed-review-app": "node .next/standalone/scripts/seedReviewApp.js",
-    "db:populate-spec-metadata": "node .next/standalone/scripts/populateSpecMetadataTable.js",
-    "db:seed-interactions": "npx tsx scripts/seedInteractionsSearch.ts",
-    "db:indications": "npx tsx scripts/aggregatePathoClasseClinique.ts"
+    "db:seed-interactions": "npx tsx scripts/seedInteractionsSearch.ts"
   },
   "dependencies": {
     "@codegouvfr/react-dsfr": "^1.16.0",
