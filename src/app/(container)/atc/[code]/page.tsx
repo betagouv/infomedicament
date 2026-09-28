@@ -12,7 +12,7 @@ import { getArticlesFromATC } from "@/db/utils/articles";
 import { AdvancedATCClass } from "@/types/DataTypes";
 import { ResumeSubstance } from "@/db/types";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
-import { getResumeSubstances } from "@/db/utils/substances";
+import { getResumeSubstancesByNomId } from "@/db/utils/substances";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -68,7 +68,7 @@ async function fetchATC2Data(atc2: ATC): Promise<{ articles: ArticleCardResume[]
     getSubstancesByAtc(atc2),
   ]);
   const subsIDs = [...new Set(substances.map((s) => s.SubsId.trim()))];
-  const dataList = await getResumeSubstances(subsIDs);
+  const dataList = await getResumeSubstancesByNomId(subsIDs);
   return { articles, dataList };
 }
 

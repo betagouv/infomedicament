@@ -135,6 +135,17 @@ export const getResumeSubstances = cache(async function (
   return result ?? [];
 });
 
+export const getResumeSubstancesByNomId = cache(async function (
+  subsNomsIds: string[]
+): Promise<ResumeSubstance[]> {
+  const result = await db.selectFrom("resume_substances")
+    .selectAll()
+    .where("NomId", "in", subsNomsIds)
+    .orderBy("NomLib")
+    .execute();
+  return result ?? [];
+});
+
 export const getAllSubsWithSpecialites = cache(async function () {
   const [components, names, specialites] = await Promise.all([
     db.selectFrom("ansm_composant")
