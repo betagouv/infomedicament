@@ -9,7 +9,10 @@ import {
   REINFORCED_SURVEILLANCE_EVENT_CODE,
 } from "./safetyCatalog";
 
-async function queryEvents(CISList: string[], code?: number): Promise<SafetyEvent[]> {
+async function queryEvents(
+  CISList: string[],
+  code?: number,
+): Promise<SafetyEvent[]> {
   if (CISList.length === 0) return [];
 
   let query = db
@@ -18,10 +21,13 @@ async function queryEvents(CISList: string[], code?: number): Promise<SafetyEven
     .selectAll();
   if (code !== undefined) query = query.where("code_evenement", "=", code);
 
-  return (await query.execute()).map(mapAnsmSafetyEvent);
+  const events = await query.execute();
+  return events.map(mapAnsmSafetyEvent);
 }
 
-export async function getEvents(CISList: string | string[]): Promise<SafetyEvent[]> {
+export async function getEvents(
+  CISList: string | string[],
+): Promise<SafetyEvent[]> {
   return queryEvents(Array.isArray(CISList) ? CISList : [CISList]);
 }
 

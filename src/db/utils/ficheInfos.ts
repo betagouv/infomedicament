@@ -9,8 +9,6 @@ import {
   ImportantInformation,
   Smr,
 } from "@/types/FicheInfoTypes";
-import { pdbmMySQL } from "../pdbmMySQL";
-import { ComposantNatureId, SpecElement } from "../pdbmMySQL/types";
 import { isSurveillanceRenforcee } from "@/utils/specialites";
 import db from "@/db";
 import { splitDosageReference } from "./substanceCatalog";
@@ -74,23 +72,25 @@ export async function getFicheInfos(
     .execute()
     .then((rows) => rows.map(mapAsmr));
 
-  const hasDocsBUPromise: Promise<DocBonUsage[]> = pdbmMySQL
-    .selectFrom("HAS_DocsBonUsage")
-    .where("HAS_DocsBonUsage.SpecId", "=", CIS)
+  const hasDocsBUPromise: Promise<DocBonUsage[]> = db
+    .selectFrom("has_documents_bon_usage")
+    .where("has_documents_bon_usage.code_cis", "=", CIS)
     .select([
-      "HAS_DocsBonUsage.TypeDoc",
-      "HAS_DocsBonUsage.DateMAJ",
-      "HAS_DocsBonUsage.TitreDoc",
-      "HAS_DocsBonUsage.Url",
+      "has_documents_bon_usage.type_document",
+      "has_documents_bon_usage.date_mise_a_jour",
+      "has_documents_bon_usage.titre",
+      "has_documents_bon_usage.url",
     ])
     .distinct()
     .execute()
     .then((rows) =>
       rows.map((row) => ({
-        url: row.Url ?? null,
-        updatedAt: row.DateMAJ,
-        type: row.TypeDoc ?? null,
-        title: row.TitreDoc ?? null,
+        url: row.url,
+        updatedAt: row.date_mise_a_jour
+          ? new Date(row.date_mise_a_jour)
+          : null,
+        type: row.type_document,
+        title: row.titre,
       })),
     );
 
