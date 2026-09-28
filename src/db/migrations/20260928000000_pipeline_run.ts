@@ -1,21 +1,23 @@
-import { sql, type Kysely } from "kysely";
+import type { Kysely } from "kysely";
 
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql`
-    CREATE TABLE pipeline_run (
-      id uuid PRIMARY KEY,
-      trigger text NOT NULL CHECK (trigger IN ('schedule', 'manual', 'retry')),
-      status text NOT NULL CHECK (status IN ('running', 'success', 'failure')),
-      started_at timestamptz NOT NULL,
-      finished_at timestamptz,
-      failed_step text,
-      error text
-    )
-  `.execute(db);
+  await db.schema
+    .createTable("pipeline_run")
+    .ifNotExists()
+    .addColumn("id", "uuid", (col) => col.primaryKey())
+    .addColumn("trigger", "text", (col) => col.notNull()) // schedule, manual, retry
+    .addColumn("status", "text", (col) => col.notNull()) // running, success, failure
+    .addColumn("started_at", "timestamptz", (col) => col.notNull())
+    .addColumn("finished_at", "timestamptz")
+    .addColumn("failed_step", "text")
+    .addColumn("error", "text")
+    .execute();
 
-  await sql`
-    CREATE INDEX pipeline_run_started_at_idx ON pipeline_run (started_at DESC)
-  `.execute(db);
+  await db.schema
+    .createIndex("pipeline_run_started_at_idx")
+    .on("pipeline_run")
+    .column("started_at desc")
+    .execute();
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
