@@ -152,12 +152,17 @@ async function createResumeMedicaments(): Promise<string[]> {
         rawSpecialites.map(async (spec) => {
           const events = await getEvents(spec.SpecId);
           const surveillanceRenforcee: string = isSurveillanceRenforcee(events) ? "true" : "false";
+          // Composition of each specialite: a group can have specialites with different compositions
+          const specComposants: Substance[] = displaySimpleComposants(await getComposants(spec.SpecId));
           return [
             spec.SpecId,
             spec.SpecDenom01,
             spec.StatutBdm.toString(),
             spec.ProcId,
             surveillanceRenforcee,
+            specComposants.map((s) => s.NomLib.trim()).join(", "),
+            specComposants.map((s) => s.SubsId.trim()).join(","),
+            specComposants.map((s) => s.NomId.trim()).join(","),
           ];
         })
       );

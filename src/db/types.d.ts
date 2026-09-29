@@ -152,7 +152,7 @@ interface ResumeMedicamentsTable {
   composants: string;
   subsIds: string[];
   subsNamesIds: string[];
-  specialites: string[][];//SpecId, SpecDenom01, StatutBdm, ProcId, Surveillance Renforcée
+  specialites: string[][];//SpecId, SpecDenom01, StatutBdm, ProcId, Surveillance Renforcée, composants (substances names), subsIds (joined by ","), subsNamesIds (joined by ",")
   indicationsIds: number[];
   atc1Code?: string;
   atc2Code?: string;
