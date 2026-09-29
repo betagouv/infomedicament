@@ -247,7 +247,7 @@ export const getAllMainSubstancesNames = cache(async function (
 
   const rows = await db
     .selectFrom("ansm_substance_nom")
-    .whereRef("code_nom", "=", "code_substance")
+    .where("type", "=", "CANONIQUE")
     .selectAll()
     .execute();
 
