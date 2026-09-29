@@ -276,27 +276,6 @@ export const getResumeSpecialitesWithCIS = cache(async function (
   return formatSpecialitesResume(result);
 });
 
-export const getResumeSpecsGroupsWithCISSubsIds = cache(async function (
-  CISList: string[],
-  SubsIds: string[],
-): Promise<ResumeSpecGroup[]> {
-  if (CISList.length === 0) return [];
-  const result = await db
-    .selectFrom("resume_medicaments")
-    .where(({ eb }) =>
-      SubsIds.length
-        ? eb.or([
-            eb("CISList", "&&", Array(CISList)),
-            eb("subsIds", "&&", Array(SubsIds)),
-          ])
-        : eb("CISList", "&&", Array(CISList)),
-    )
-    .selectAll()
-    .orderBy("groupName")
-    .execute();
-  return formatSpecialitesResumeFromGroups(result);
-});
-
 export const getSubstanceSpecialites = unstable_cache(
   async function (subsNomsIDs: string | string[]): Promise<Specialite[]> {
     const ids: string[] = !Array.isArray(subsNomsIDs)

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { getAllSpecialites, getDetailedSpecialite, getSpecialite, getSubstanceSpecialites, getSubstanceSpecialitesCIS } from "./specialities";
+import { getAllSpecialites, getDetailedSpecialite, getSpecialite, getSubstanceSpecialites, getSubstanceSpecialitesCIS, getSubstanceSpecsGroups } from "./specialities";
 import { isPrincepsSpecialite } from "./generics";
 
 // disable cache for testing
@@ -110,5 +110,62 @@ describe("db utils specialities", () => {
     expect(secondDate?.getFullYear()).toBe(2025);
     expect(secondDate?.getMonth()).toBe(6);
     expect(secondDate?.getDate()).toBe(25);
+  });
+});
+
+describe("substance page : specialites list", () => {
+  const getGroupsCIS = async (subsIds: string[]) =>
+    (await getSubstanceSpecsGroups(subsIds)).flatMap((group) => group.CISList);
+
+  it("one substance: returns only the specialites with this substance alone", async () => {
+    // Paracétamol (02202)
+    const CISList = await getGroupsCIS(["02202"]);
+
+    expect(CISList).toContain("60025403"); // CLARADOL 500 mg (paracétamol)
+    expect(CISList).not.toContain("60009573"); // CLARADOL CODEINE (paracétamol + codéine)
+    expect(CISList).not.toContain("61076468"); // CEFALINE HAUTH (paracétamol + caféine)
+  });
+
+  it("several substances: returns the specialites with all of them, and no other", async () => {
+    // Paracétamol (02202) + codéine phosphate hémihydraté (74765)
+    const CISList = await getGroupsCIS(["02202", "74765"]);
+
+    expect(CISList).toContain("60009573"); // CLARADOL CODEINE 500 mg/20 mg
+    expect(CISList).not.toContain("60025403"); // CLARADOL 500 mg (paracétamol only)
+    expect(CISList).not.toContain("61644230"); // PARACETAMOL/CAFEINE/CODEINE ARROW (+ caféine)
+  });
+
+  it("several substances: does not depend on the order of the substances", async () => {
+    const CISList = await getGroupsCIS(["02202", "74765"]);
+    const reversedCISList = await getGroupsCIS(["74765", "02202"]);
+
+    expect(reversedCISList.sort()).toEqual(CISList.sort());
+  });
+
+  it("removes from a medicament group the specialites with another composition", async () => {
+    // Acide fusidique (02160): FUCIDINE group also contains fusidate de sodium (04913) specialites
+    const groups = await getSubstanceSpecsGroups(["02160"]);
+    const fucidine = groups.find((group) => group.groupName === "FUCIDINE");
+
+    expect(fucidine?.CISList).toEqual(["60330586"]); // FUCIDINE 2 POUR CENT, crème
+    expect(fucidine?.shortSpecialites.map((spec) => spec.SpecId)).toEqual(["60330586"]);
+  });
+
+  it("removes from a medicament group the specialites with more substances", async () => {
+    // Hydroxyde d'aluminium (02940): the MAALOX group mostly contains aluminium + magnésium specialites
+    const groups = await getSubstanceSpecsGroups(["02940"]);
+    const maalox = groups.find((group) => group.groupName === "MAALOX MAUX D'ESTOMAC HYDROXYDE D'ALUMINIUM/HYDROXYDE DE MAGNESIUM");
+
+    expect(maalox?.CISList).toEqual(["64216427"]);
+  });
+
+  it("displays the actives substances from the specialites kept", async () => {
+    // Paracétamol (02202): the CLARADOL group starts with "CLARADOL 500 mg CAFEINE" (caféine + paracétamol)
+    const groups = await getSubstanceSpecsGroups(["02202"]);
+    const claradol = groups.find((group) => group.groupName === "CLARADOL");
+
+    expect(claradol?.CISList).toEqual(["67458001"]); // CLARADOL 500 mg, comprimé sécable
+    expect(claradol?.composants).toBe("paracétamol");
+    expect(claradol?.subsIds).toEqual(["02202"]);
   });
 });
