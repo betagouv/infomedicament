@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import db from "@/db";
-import { getAllSubsWithSpecialites, getSubstancesResumeWithLetter } from "./substances";
+import { getAllSubsWithSpecialites, getCisMatchingSubstanceSet, getSubstancesResumeWithLetter } from "./substances";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
 
 // Substances list from the letter of this name
@@ -72,6 +72,33 @@ describe("substances list (resume_substances)", () => {
   it("lists accented names under the unaccented letter", async () => {
     const substances = await getSubstancesResumeWithLetter("E");
     expect(substances.some((subs) => subs.NomLib === "ébastine")).toBe(true);
+  });
+
+  it("decodes HTML entities in names", async () => {
+    // 84495: ANSM name contains "l&rsquo;arylsulfatase"
+    const substances = await getSubstancesList("population enrichie");
+    const subs = substances.find((subs) => subs.SubsId === "84495");
+
+    expect(subs?.NomLib).toContain("l’arylsulfatase");
+    const withHTML = await db
+      .selectFrom("resume_substances")
+      .select("NomLib")
+      .where("NomLib", "~", "&#?[a-zA-Z0-9]+;")
+      .execute();
+    expect(withHTML).toEqual([]);
+  });
+
+  it("removes double spaces in names", async () => {
+    // 15285: ANSM name is "pixantrone  (dimaléate de)"
+    const substances = await getSubstancesList("pixantrone");
+
+    expect(substances.some((subs) => subs.SubsId === "15285" && subs.NomLib === "pixantrone (dimaléate de)")).toBe(true);
+    const withDoubleSpaces = await db
+      .selectFrom("resume_substances")
+      .select("NomLib")
+      .where("NomLib", "~", "\\s{2,}")
+      .execute();
+    expect(withDoubleSpaces).toEqual([]);
   });
 
   it("has no duplicate SubsId / NomId couple", async () => {
