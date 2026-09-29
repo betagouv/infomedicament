@@ -1,7 +1,7 @@
 import { getFullPresentations, getPresentations } from "@/db/utils/presentation";
 import { Presentation } from "@/types/PresentationTypes";
 import { describe, it, expect } from "vitest";
-import { getPresentationName, isAbrogee, isAgree, isArret, isIVG, isListeRetrocession, isListeSus, isNotAuthorized } from "./presentations";
+import { formatPresentationCip, getPresentationName, isAbrogee, isAgree, isArret, isIVG, isListeRetrocession, isListeSus, isNotAuthorized } from "./presentations";
 
 describe("utils presentations", () => {
 
@@ -126,6 +126,22 @@ describe("utils presentations", () => {
     const shortPresentationName: string = getPresentationName(presentations[0], true);
     expect(fullPresentationName).toBe("1 plaquette PVC-Aluminium PVDC de 12 comprimés - 1 plaquette PVC-Aluminium de 4 comprimés");
     expect(shortPresentationName).toBe("Plaquette de 12 comprimés - Plaquette de 4 comprimés");
+  });
+
+  it("uses the ANSM name to keep the device on the correct recipient", async () => {
+    const [presentation] = await getFullPresentations("64460075");
+    expect(getPresentationName(presentation)).toBe(
+      "1 flacon en verre de 4 ml - 1 ampoule en verre avec seringue avec aiguille de 2 ml",
+    );
+  });
+
+  it("keeps CIP7 availability and separate start and stop dates", async () => {
+    const [withCip7] = await getFullPresentations("65089833");
+    const [withoutCip7] = await getFullPresentations("60928110");
+    expect(formatPresentationCip(withCip7)).toBe("341 255-9 ou 34009 341 255 9 1");
+    expect(formatPresentationCip(withoutCip7)).toBe("34009 490 047 5 1");
+    expect(withCip7.commercialisationDate?.getUTCFullYear()).toBe(1998);
+    expect(withCip7.commercialisationEndDate?.getUTCFullYear()).toBe(2024);
   });
 
   it("getFullPresentations - abrogée status", async () => {

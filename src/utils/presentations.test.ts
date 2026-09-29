@@ -1,6 +1,34 @@
 import { AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation, PresentationPackagingDetail } from "@/types/PresentationTypes";
 import { describe, it, expect } from "vitest";
-import { caracCompDisplay, cleanPresentationsDetails, contenanceDisplay, dispositifDisplay, getAggregatePresentationRecipientsTexts, getPresentationFullPriceText, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isPresentationVisible, isReimbursable, replacePluralSingular, totalDisplay } from "./presentations";
+import { caracCompDisplay, cleanPresentationsDetails, contenanceDisplay, dispositifDisplay, formatPresentationCip, getAggregatePresentationRecipientsTexts, getPresentationNonCommercializedStatusLabel, getPresentationFullPriceText, getPresentationName, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isPresentationVisible, isReimbursable, replacePluralSingular, totalDisplay } from "./presentations";
+
+describe("presentation identifiers and statuses", () => {
+  it("formats the CIP7 only when supplied and always formats the CIP13", () => {
+    expect(formatPresentationCip({ cip7: "3412559", cip13: "3400934125591" }))
+      .toBe("341 255-9 ou 34009 341 255 9 1");
+    expect(formatPresentationCip({ cip7: null, cip13: "3400934125591" }))
+      .toBe("34009 341 255 9 1");
+  });
+
+  it("labels stopped and withdrawn presentations", () => {
+    const stopped = { commercialStatus: "stopped" } as Presentation;
+    const withdrawn = { commercialStatus: "withdrawn" } as Presentation;
+    expect(getPresentationNonCommercializedStatusLabel(stopped)).toBe("Déclaration d'arrêt de commercialisation");
+    expect(getPresentationNonCommercializedStatusLabel(withdrawn))
+      .toBe("Arrêt de commercialisation (le médicament n'a plus d'autorisation)");
+  });
+
+  it("preserves the device location in a multi-recipient ANSM presentation", () => {
+    const details = [
+      { codecip13: "3400949003938", nom_presentation: "", numelement: 1, nomelement: "", recipient: "flacon(s)", numrecipient: 1, nbrrecipient: 1, qtecontenance: 4, unitecontenance: "ml", caraccomplrecip: "en verre", numordreedit: 1, numdispositif: 1, dispositif: "avec seringue(s) avec aiguille(s)" },
+      { codecip13: "3400949003938", nom_presentation: "", numelement: 2, nomelement: "", recipient: "ampoule(s)", numrecipient: 2, nbrrecipient: 1, qtecontenance: 2, unitecontenance: "ml", caraccomplrecip: "en verre", numordreedit: 1, numdispositif: 1, dispositif: "avec seringue(s) avec aiguille(s)" },
+    ];
+    expect(getPresentationName({
+      name: "1 flacon(s) en verre de 4 ml - 1 ampoule(s) en verre avec seringue(s) avec aiguille(s) de 2 ml",
+      details,
+    } as Presentation)).toBe("1 flacon en verre de 4 ml - 1 ampoule en verre avec seringue avec aiguille de 2 ml");
+  });
+});
 
 describe("utils presentations - commercial visibility", () => {
   const cutoff = new Date("2024-09-14T00:00:00.000Z");

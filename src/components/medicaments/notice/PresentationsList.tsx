@@ -5,7 +5,7 @@ import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
 import { HTMLAttributes, useEffect, useState } from "react";
 import { AggregatePresentationDetails, Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
-import { cleanPresentationsDetails, getPresentationCommercialStatusLabel, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isAbrogee, getAggregatePresentationRecipientsTexts } from "@/utils/presentations";
+import { cleanPresentationsDetails, getPresentationNonCommercializedStatusLabel, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isAbrogee, getAggregatePresentationRecipientsTexts } from "@/utils/presentations";
 import styled from "styled-components";
 
 type PresentationToDisplay = {
@@ -101,6 +101,7 @@ const [presentationsDetails, setPresentationsDetails] = useState<PresentationToD
                   {presDetails.detailsLines.map((details, i) => {
                     return details.map((line, j) => (
                       <span key={`${i}-${j}`}>
+                        {(i > 0 || j > 0) && " - "}
                         {line.contenance && (
                           <strong>{line.contenance}</strong>
                         )}
@@ -115,15 +116,16 @@ const [presentationsDetails, setPresentationsDetails] = useState<PresentationToD
                   })}
                 </div>
               </div>
-              {getPresentationCommercialStatusLabel(presDetails.presentation) && (
+              {getPresentationNonCommercializedStatusLabel(presDetails.presentation) && (
                 <Badge severity="warning" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
-                  {getPresentationCommercialStatusLabel(presDetails.presentation)}
+                  {getPresentationNonCommercializedStatusLabel(presDetails.presentation)}
                   {presDetails.presentation.commercialisationEndDate && ` (${dateShortFormat(presDetails.presentation.commercialisationEndDate)})`}
                 </Badge>
               )}
               {isAbrogee(presDetails.presentation) && (
                 <Badge severity="error" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
-                  Abrogée
+                  Abrogation
+                  {presDetails.presentation.administrativeStatusDate && ` (${dateShortFormat(presDetails.presentation.administrativeStatusDate)})`}
                 </Badge>
               )}
             </li>

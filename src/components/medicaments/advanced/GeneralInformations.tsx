@@ -21,7 +21,7 @@ import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getProcedureLibLong, getTypeInfoTxt, isAIP, isHospitalDelivrance } from "@/utils/specialites";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { getPresentationName, getPresentationFullPriceText, getPresentationCommercialStatusLabel, isAbrogee, isAgree, isIVG, isListeRetrocession, isListeSus, isReimbursable } from "@/utils/presentations";
+import { getPresentationName, getPresentationFullPriceText, getPresentationNonCommercializedStatusLabel, formatPresentationCip, isAbrogee, isAgree, isIVG, isListeRetrocession, isListeSus, isReimbursable } from "@/utils/presentations";
 import { FicheInfos, InfosImportantes } from "@/types/FicheInfoTypes";
 import WithDefinition from "@/components/glossary/WithDefinition";
 import { Definition } from "@/types/GlossaireTypes";
@@ -407,12 +407,12 @@ function GeneralInformations({
                       )}
                     </div>
                   )}
-                  {(pres.commercialisationDate || pres.cip13) && (
+                  {(pres.cip13 || (pres.commercialStatus === "commercialised" && pres.commercialisationDate)) && (
                     <div className={fr.cx("fr-mb-0")}>
                       {pres.cip13 && (
-                        <span className={fr.cx("fr-mr-2w")}>Code CIP : {pres.cip13}</span>
+                        <span className={fr.cx("fr-mr-2w")}>Code CIP : {formatPresentationCip(pres)}</span>
                       )}
-                      {pres.commercialisationDate && (
+                      {pres.commercialStatus === "commercialised" && pres.commercialisationDate && (
                         <span>Déclaration de commercialisation : {dateShortFormat(pres.commercialisationDate)}</span>
                       )}
                     </div>
@@ -420,11 +420,12 @@ function GeneralInformations({
                   {isAbrogee(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
                       Abrogée
+                      {pres.administrativeStatusDate && ` le ${dateShortFormat(pres.administrativeStatusDate)}`}
                     </div>
                   )}
-                  {getPresentationCommercialStatusLabel(pres) && (
+                  {getPresentationNonCommercializedStatusLabel(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
-                      {getPresentationCommercialStatusLabel(pres)}
+                      {getPresentationNonCommercializedStatusLabel(pres)}
                       {pres.commercialisationEndDate && ` : ${dateShortFormat(pres.commercialisationEndDate)}`}
                     </div>
                   )}

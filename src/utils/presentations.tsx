@@ -222,6 +222,15 @@ export function getPresentationName(
 ): string {
   if(presentation.details && presentation.details.length > 0){
     const allPresDetails: AggregatePresentationDetails[] = cleanPresentationsDetails(presentation.details);
+    // The ANSM name preserves which recipient carries a device. Device rows
+    // only have a CIP, so rebuilding a multi-recipient name loses that link.
+    if (!shortName && presentation.name?.includes(" - ") && /\bavec (?!\d)/i.test(presentation.name) &&
+        allPresDetails.some((details) => details.recipients.length > 1 && details.dispositifs.length > 0)) {
+      return presentation.name.split(" - ").map((part) => {
+        const count = Number(part.trim().match(/^\d+/)?.[0] ?? 1);
+        return replacePluralSingular(part.trim(), count);
+      }).join(" - ");
+    }
     let allPresNames: string = "";
     allPresDetails.forEach((presDetails: AggregatePresentationDetails) => {
       if(presDetails.recipients.length === 0) return;
@@ -374,9 +383,23 @@ export function isReimbursable(presentations: Presentation[]): boolean {
   return presentations.some((pres) => pres.reimbursementRate);
 }
 
-export function getPresentationCommercialStatusLabel(presentation: Presentation): string | null {
-  if (isArret(presentation)) return "Arrêt de commercialisation";
-  if (presentation.commercialStatus === "suspended") return "Commercialisation suspendue";
-  if (isNotAuthorized(presentation)) return "Autorisation retirée";
+export function formatPresentationCip(presentation: Pick<Presentation, "cip7" | "cip13">): string {
+  const cip13 = presentation.cip13.trim();
+  const cip7 = presentation.cip7?.trim() ?? "";
+  // Exemple: 325 047-6 
+  const formattedCip13 = /^\d{13}$/.test(cip13)
+    ? `${cip13.slice(0, 5)} ${cip13.slice(5, 8)} ${cip13.slice(8, 11)} ${cip13.slice(11, 12)} ${cip13.slice(12)}`
+    : cip13;
+  // Exemple: 34009 325 047 6 3
+  const formattedCip7 = /^\d{7}$/.test(cip7)
+    ? `${cip7.slice(0, 3)} ${cip7.slice(3, 6)}-${cip7.slice(6)}`
+    : cip7;
+  return formattedCip7 ? `${formattedCip7} ou ${formattedCip13}` : formattedCip13;
+}
+
+export function getPresentationNonCommercializedStatusLabel(presentation: Presentation): string | null {
+  if (isArret(presentation)) return "Déclaration d'arrêt de commercialisation";
+  if (presentation.commercialStatus === "suspended") return "Suspension de commercialisation";
+  if (isNotAuthorized(presentation)) return "Arrêt de commercialisation (le médicament n'a plus d'autorisation)";
   return null;
 }

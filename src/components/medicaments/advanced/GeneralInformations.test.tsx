@@ -84,7 +84,7 @@ describe("GeneralInformations composition", () => {
 });
 
 describe("GeneralInformations presentations", () => {
-  it("shows the raw CIP13 and the free-price fallback without a CEPS row", () => {
+  it("shows formatted CIP codes and the free-price fallback without a CEPS row", () => {
     const presentation: Presentation = {
       cis: "60928110",
       cip13: "3400949004751",
@@ -107,7 +107,7 @@ describe("GeneralInformations presentations", () => {
       ivgPricing: null,
     };
 
-    render(
+    const { rerender } = render(
       <GeneralInformations
         updateVisiblePart={vi.fn()}
         specialite={specialite}
@@ -125,10 +125,34 @@ describe("GeneralInformations presentations", () => {
       />,
     );
 
-    expect(screen.getByText("Code CIP : 3400949004751")).not.toBeNull();
+    expect(screen.getByText("Code CIP : 34009 490 047 5 1")).not.toBeNull();
     expect(screen.getByText("Prix libre - non remboursable")).not.toBeNull();
     expect(
       screen.getByText("Cette présentation n'est pas agréée aux collectivités."),
     ).not.toBeNull();
+
+    rerender(
+      <GeneralInformations
+        updateVisiblePart={vi.fn()}
+        specialite={specialite}
+        composants={[]}
+        isPrinceps={false}
+        isPregnancyPlanAlert={false}
+        isPregnancyMentionAlert={false}
+        pediatrics={undefined}
+        presentations={[{
+          ...presentation,
+          commercialStatus: "stopped",
+          commercialisationEndDate: new Date("2024-12-12"),
+        }]}
+        ficheInfos={ficheInfos}
+        delivrance={[]}
+        definitions={[]}
+        indications={[]}
+        stocks={[]}
+      />,
+    );
+    expect(screen.queryByText(/Déclaration de commercialisation/)).toBeNull();
+    expect(screen.getByText("Déclaration d'arrêt de commercialisation : 12/12/2024")).not.toBeNull();
   });
 });
