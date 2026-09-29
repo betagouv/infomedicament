@@ -84,3 +84,21 @@ describe("substances list (resume_substances)", () => {
     expect(duplicates).toEqual([]);
   });
 });
+
+describe("getCisMatchingSubstanceSet", () => {
+
+  it("resolves SubsId before a NomId", async () => {
+    // 00140 is the SubsId of "chiendent" and the NomId of "CHIENDENT OFFICINAL" (SubsId 40182)
+    const CISList = await getCisMatchingSubstanceSet(["00140"]);
+    expect(CISList).not.toContain("69601081"); // CIS containing only 40182
+  });
+
+  it("resolves a NomId which is not a SubsId", async () => {
+    // 20260: NomId "oxalate d'escitalopram" of the SubsId 78924
+    const byNomId = await getCisMatchingSubstanceSet(["20260"]);
+    const bySubsId = await getCisMatchingSubstanceSet(["78924"]);
+
+    expect(byNomId.length).toBeGreaterThan(0);
+    expect(byNomId.sort()).toEqual(bySubsId.sort());
+  });
+});

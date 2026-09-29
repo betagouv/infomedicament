@@ -40,14 +40,15 @@ async function resolveSubstances(subsIds: string[]): Promise<Substance[]> {
   ]);
 
   const resolved = subsIds.flatMap((id) => {
-    const exactName = ansmNames.find((row) => row.code_nom === id);
-    if (exactName) return [toSubstance(exactName)];
-
+    // Ids are SubsId first: a SubsId can also be the code_nom of another substance (e.g. 00140)
     const canonical =
       ansmNames.find(
         (row) => row.code_substance === id && row.type === "CANONIQUE",
       ) ?? ansmNames.find((row) => row.code_substance === id);
     if (canonical) return [toSubstance(canonical)];
+
+    const exactName = ansmNames.find((row) => row.code_nom === id);
+    if (exactName) return [toSubstance(exactName)];
 
     const fallback = resumeFallbacks.find(
       (row) => row.NomId.trim() === id || row.SubsId.trim() === id,
