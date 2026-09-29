@@ -8,16 +8,34 @@ import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinit
 import { getArticlesFromSubstances } from "@/db/utils/articles";
 import { getSubstanceSpecsGroups } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
-import { getSubstanceMainName } from "@/utils/substances";
+import { getSubstanceMainName, getSubstancePageNames } from "@/utils/substances";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 import { Substance } from "@/types/SubstanceTypes";
-import notFound from "@/app/not-found";
+import { notFound } from "next/navigation";
 
 export const dynamic = "error";
 export const dynamicParams = true;
 
-const getSubstancesTitles = (subsIds: string[], substances: Substance[]): string[] => {
-  return subsIds.map((subsId) => getSubstanceMainName(substances.filter((subs) => subs.SubsId.trim() === subsId)));
+// Check if all the requested substances are loaded
+// Usefull when the page are for multiple substances and some of them are the same
+const hasAllSubstances = (subsIds: string[], substances: Substance[]): boolean =>
+  subsIds.every((subsId) => substances.some((subs) => subs.SubsId.trim() === subsId));
+
+// Title and subtitle of the page: only the substances names in specsGroups
+const getSubstancesPageNames = (
+  subsIds: string[],
+  substances: Substance[],
+  specsGroups: ResumeSpecGroup[],
+): { title: string, subtitle: string } => {
+  const names = getSubstancePageNames(subsIds, specsGroups);
+  if (names.title) {
+    return { title: names.title, subtitle: names.secondaryNames.join(subsIds.length > 1 ? " ; " : ", ") };
+  }
+  // No medicament: main name of each substance
+  return {
+    title: subsIds.map((subsId) => getSubstanceMainName(substances.filter((subs) => subs.SubsId.trim() === subsId))).join(", "),
+    subtitle: "",
+  };
 };
 
 export async function generateMetadata(
@@ -28,17 +46,21 @@ export async function generateMetadata(
   const { id } = await props.params;
   const subsIds = decodeURIComponent(id).split(",");
   const substances: Substance[] = await getSubstancesNames(subsIds) ?? [];
-  if (substances.length < subsIds.length) {
+  if (!hasAllSubstances(subsIds, substances)) {
     return {
       title: `Substance ${id}`,
     };
   }
 
-  const definitionsRaw = await getSubstanceDefinition(subsIds);
+  const [definitionsRaw, allSpecsGroups] = await Promise.all([
+    getSubstanceDefinition(subsIds),
+    getSubstanceSpecsGroups(subsIds),
+  ]);
   const definitionString = definitionsRaw.map(d => `${d.SA} : ${d.Definition}`).join(" - ");
+  const { title } = getSubstancesPageNames(subsIds, substances, allSpecsGroups);
 
   return {
-    title: `${getSubstancesTitles(subsIds, substances).join(", ")} - ${(await parent).title?.absolute}`,
+    title: `${title} - ${(await parent).title?.absolute}`,
     description: definitionString,
   };
 }
@@ -48,7 +70,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   const subsIds = decodeURIComponent(id).split(",");
   
   const substances: Substance[] = await getSubstancesNames(subsIds) ?? [];
-  if (substances.length < subsIds.length) return notFound();
+  if (!hasAllSubstances(subsIds, substances)) notFound();
 
   const [articles, definitions, allSpecsGroups] = await Promise.all([
     getArticlesFromSubstances(subsIds),
@@ -61,21 +83,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
     : [];
 
-  const titles: string[] = getSubstancesTitles(subsIds, substances);
-  const title: string = titles.join(", ");
-  const secondaryNamesBySubs: string[] = subsIds.map((subsId) => substances
-    .filter((subs) =>
-      subs.SubsId.trim() === subsId && titles.findIndex((name) => subs.NomLib.trim() === name) === -1
-    )
-    .filter((subs) => allSpecsGroups.some((group) => group.subsNamesIds.includes(subs.NomId)))
-    .map((subs) => subs.NomLib.trim())
-    .join(", ")
-  );
-  // Only show the line when at least one substance actually has a secondary name
-  // For page with multiples substances, if one substance has no secondary name display the main name instead
-  const subtitle = secondaryNamesBySubs.some((names) => names.length > 0)
-    ? secondaryNamesBySubs.map((names, index) => names || titles[index]).join(", ")
-    : "";
+  const { title, subtitle } = getSubstancesPageNames(subsIds, substances, allSpecsGroups);
   
   return (
     <ContentContainer frContainer>
