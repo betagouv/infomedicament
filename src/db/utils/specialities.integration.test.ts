@@ -126,6 +126,14 @@ describe("substance page : specialites list", () => {
     expect(CISList).not.toContain("61076468"); // CEFALINE HAUTH (paracétamol + caféine)
   });
 
+  it("one substance: does not return the specialites containing it several times", async () => {
+    // Tolvaptan (16736): JINARC 30 mg + JINARC 60 mg is a kit of two tolvaptan tablets
+    const CISList = await getGroupsCIS(["16736"]);
+
+    expect(CISList).toContain("66056341"); // JINARC 30 mg
+    expect(CISList).not.toContain("68174566"); // JINARC 30 mg + JINARC 60 mg
+  });
+
   it("several substances: returns the specialites with all of them, and no other", async () => {
     // Paracétamol (02202) + codéine phosphate hémihydraté (74765)
     const CISList = await getGroupsCIS(["02202", "74765"]);
@@ -140,6 +148,14 @@ describe("substance page : specialites list", () => {
     const reversedCISList = await getGroupsCIS(["74765", "02202"]);
 
     expect(reversedCISList.sort()).toEqual(CISList.sort());
+  });
+
+  it("same substance twice: returns the specialites containing it twice", async () => {
+    // Link of the substance tag on the kit page: /substances/16736,16736
+    const CISList = await getGroupsCIS(["16736", "16736"]);
+
+    expect(CISList).toContain("68174566"); // JINARC 30 mg + JINARC 60 mg
+    expect(CISList).not.toContain("66056341"); // JINARC 30 mg
   });
 
   it("removes from a medicament group the specialites with another composition", async () => {

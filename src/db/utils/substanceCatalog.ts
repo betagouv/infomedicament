@@ -124,8 +124,9 @@ export function toCompositionComponents(
 }
 
 /**
- * Verifies that all requested substance codes are present across the composition's
- * components, without accepting duplicates or missing entries.
+ * Verifies that the composition's components are exactly the requested substance codes:
+ * each component matches one requested code, and a code requested twice needs two components
+ * (e.g. a kit of two tablets of the same substance).
  */
 export function compositionMatchesSubstanceSet(
   components: Pick<
@@ -134,16 +135,8 @@ export function compositionMatchesSubstanceSet(
   >[],
   substanceCodes: string[],
 ): boolean {
-  const requestedCodes = [...new Set(substanceCodes)];
-  if (
-    requestedCodes.length === 0 ||
-    requestedCodes.length !== substanceCodes.length
-  ) {
-    return false;
-  }
+  if (substanceCodes.length === 0) return false;
 
-  const requestedCodeSet = new Set(requestedCodes);
-  const matchedCodes = new Set<string>();
   const codesByComponent = new Map<string, Set<string>>();
   for (const component of components) {
     const codes =
@@ -151,15 +144,15 @@ export function compositionMatchesSubstanceSet(
     if (component.code_substance) codes.add(component.code_substance);
     codesByComponent.set(componentKey(component), codes);
   }
+  if (codesByComponent.size !== substanceCodes.length) return false;
 
+  const remainingCodes = [...substanceCodes];
   for (const codes of codesByComponent.values()) {
-    const requestedMatches = [...codes].filter((code) =>
-      requestedCodeSet.has(code),
-    );
-    if (requestedMatches.length === 0) return false;
-    requestedMatches.forEach((code) => matchedCodes.add(code));
+    const index = remainingCodes.findIndex((code) => codes.has(code));
+    if (index === -1) return false;
+    remainingCodes.splice(index, 1);
   }
-  return matchedCodes.size === requestedCodes.length;
+  return remainingCodes.length === 0;
 }
 
 export function hasExactlyOneComponent(

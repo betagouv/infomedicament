@@ -64,11 +64,8 @@ async function resolveSubstances(subsIds: string[]): Promise<Substance[]> {
       : [];
   });
 
-  return resolved.filter(
-    (substance, index, all) =>
-      all.findIndex((candidate) => candidate.NomId === substance.NomId) ===
-      index,
-  );
+  // Keep the duplicates: a substance requested twice is two components
+  return resolved;
 }
 
 async function componentsForCandidateCis(

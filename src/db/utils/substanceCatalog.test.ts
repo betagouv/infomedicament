@@ -154,12 +154,14 @@ describe("legacy substance-set semantics", () => {
     expect(compositionMatchesSubstanceSet(rows, ["a", "b"])).toBe(true);
   });
 
-  it("matches one substance repeated across distinct elements", () => {
+  it("matches one substance repeated across distinct elements only when requested as many times", () => {
     const rows = [
       component({ numero_element: 1, code_substance: "a" }),
       component({ numero_element: 2, code_substance: "a" }),
     ];
     expect(hasExactlyOneComponent(rows)).toBe(false);
-    expect(compositionMatchesSubstanceSet(rows, ["a"])).toBe(true);
+    expect(compositionMatchesSubstanceSet(rows, ["a"])).toBe(false);
+    expect(compositionMatchesSubstanceSet(rows, ["a", "a"])).toBe(true);
+    expect(compositionMatchesSubstanceSet(rows, ["a", "a", "a"])).toBe(false);
   });
 });
