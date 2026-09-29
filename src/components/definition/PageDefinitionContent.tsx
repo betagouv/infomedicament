@@ -1,7 +1,7 @@
 "use client";
 
 import { fr } from "@codegouvfr/react-dsfr";
-import React, { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, useState } from "react";
 import DefinitionBanner from "@/components/DefinitionBanner";
 import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import DataList from "@/components/data/DataList";
@@ -13,10 +13,11 @@ import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 
 interface PageDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
+  subtitle?: string;
   definition: string | { title: string; desc: string }[];
   definitionType: string;
-  definitionTitle: string;
   definitionDisclaimer?: string;
+  listTitle: string;
   dataList: ResumeSubstance[] | ResumeSpecGroup[] | AdvancedATCClass[];
   dataType: DataTypeEnum;
   articles: ArticleCardResume[];
@@ -25,10 +26,11 @@ interface PageDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
 
 function PageDefinitionContent({
     title,
+    subtitle,
     definition,
     definitionType,
-    definitionTitle,
     definitionDisclaimer,
+    listTitle,
     dataList,
     dataType,
     articles,
@@ -36,59 +38,40 @@ function PageDefinitionContent({
   }: PageDefinitionContentProps) {
 
   const PAGINATION_LENGTH = 10;
-  const [currentDefinition, setCurrentDefinition] = useState<string | { title: string; desc: string }[]>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumeSpecGroup[] | AdvancedATCClass[]>([]);
-  const [currentTitle, setCurrentTitle] = useState<string>();
-  const [currentArticles, setCurrentArticles] = useState<ArticleCardResume[]>();
-
-  useEffect(() => {
-    setCurrentTitle(title);
-  }, [title, setCurrentTitle]);
-
-  useEffect(() => {
-    setCurrentDefinition(definition);
-  }, [definition, setCurrentDefinition]);
-
-  useEffect(() => {
-    setCurrentDataList(dataList);
-  }, [dataList, setCurrentDataList]);
-
-  useEffect(() => {
-    setCurrentArticles(articles);
-  }, [articles, setCurrentArticles]);
 
   return (
     <div className={fr.cx("fr-grid-row")} style={{justifyContent: "space-between"}}>
       <div className={fr.cx("fr-col-12", "fr-col-md-8")}>
         <DefinitionBanner
           type={definitionType}
-          title={definitionTitle}
-          definition={currentDefinition}
+          title={title}
+          subtitle={subtitle}
+          definition={definition}
           disclaimer={definitionDisclaimer}
         />
         <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
-          {currentTitle}
+          {listTitle}
         </h2>
       </div>
       <div className={fr.cx("fr-col-12", "fr-col-md-8")}>
         <DataList
-          dataList={currentDataList}
+          dataList={dataList}
           type={dataType}
           paginationLength={PAGINATION_LENGTH}
           currentPage={currentPage}
         />
       </div>
-      {(currentArticles && currentArticles.length > 0) && (
+      {(articles && articles.length > 0) && (
         <div className={fr.cx("fr-col-12", "fr-col-md-3")}>
           <ArticlesSearchList 
-            articles={currentArticles} 
+            articles={articles} 
             trackingFrom={articleTrackingFrom}
           />
         </div>
       )}
       <DataListPagination
-        dataLength={currentDataList.length}
+        dataLength={dataList.length}
         paginationLength={PAGINATION_LENGTH}
         updateCurrentPage={setCurrentPage}
       />

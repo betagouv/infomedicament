@@ -19,6 +19,7 @@ import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
 import {
   formatSpecialitesResume,
+  filterSpecsGroupsByCIS,
   formatSpecialitesResumeFromGroups,
 } from "@/utils/specialites";
 import { SpecialiteMetadata } from "../types";
@@ -253,6 +254,15 @@ export const getResumeSpecsGroupsWithCIS = cache(async function (
   return formatSpecialitesResumeFromGroups(result);
 });
 
+// Groups of the specialites containing exactly the substances, and only them
+export const getSubstanceSpecsGroups = cache(async function (
+  subsIds: string[],
+): Promise<ResumeSpecGroup[]> {
+  const CISList = await getSubstanceSpecialitesCIS(subsIds);
+  const specsGroups = await getResumeSpecsGroupsWithCIS(CISList);
+  return filterSpecsGroupsByCIS(specsGroups, CISList);
+});
+
 export const getResumeSpecialitesWithCIS = cache(async function (
   CISList: string[],
 ): Promise<ResumeSpecialite[]> {
@@ -264,27 +274,6 @@ export const getResumeSpecialitesWithCIS = cache(async function (
     .orderBy("groupName")
     .execute();
   return formatSpecialitesResume(result);
-});
-
-export const getResumeSpecsGroupsWithCISSubsIds = cache(async function (
-  CISList: string[],
-  SubsIds: string[],
-): Promise<ResumeSpecGroup[]> {
-  if (CISList.length === 0) return [];
-  const result = await db
-    .selectFrom("resume_medicaments")
-    .where(({ eb }) =>
-      SubsIds.length
-        ? eb.or([
-            eb("CISList", "&&", Array(CISList)),
-            eb("subsIds", "&&", Array(SubsIds)),
-          ])
-        : eb("CISList", "&&", Array(CISList)),
-    )
-    .selectAll()
-    .orderBy("groupName")
-    .execute();
-  return formatSpecialitesResumeFromGroups(result);
 });
 
 export const getSubstanceSpecialites = unstable_cache(
@@ -308,10 +297,8 @@ export const getSubstanceSpecialites = unstable_cache(
 );
 
 export const getSubstanceSpecialitesCIS = unstable_cache(
-  async function (subsNomsIDs: string | string[]): Promise<string[]> {
-    const ids: string[] = !Array.isArray(subsNomsIDs)
-      ? [subsNomsIDs]
-      : subsNomsIDs;
+  async function (subsIds: string | string[]): Promise<string[]> {
+    const ids: string[] = !Array.isArray(subsIds) ? [subsIds] : subsIds;
     const cisList = await getCisMatchingSubstanceSet(ids);
     if (cisList.length === 0) return [];
     const rows = await db
@@ -320,7 +307,7 @@ export const getSubstanceSpecialitesCIS = unstable_cache(
       .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
       .select("cis")
       .execute();
-    return rows.map((row) => row.cis);
+    return rows.map((row) => row.cis.trim());
   },
   ["substance-specialites-cis"],
   { revalidate: 3600 }, // cache for one hour
