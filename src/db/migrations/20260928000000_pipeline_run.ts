@@ -9,6 +9,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn("status", "text", (col) => col.notNull()) // running, success, failure
     .addColumn("started_at", "timestamptz", (col) => col.notNull())
     .addColumn("finished_at", "timestamptz")
+    .addColumn("semantic_watermark", "timestamptz")
     .addColumn("failed_step", "text")
     .addColumn("error", "text")
     .execute();
