@@ -110,14 +110,12 @@ interface RcpTable {
   codeCIS: number,
   title?: string,
   dateNotif?: string,
-  children?: number[],
   content_html?: string | null,
 }
 interface NoticeTable {
   codeCIS: number,
   title?: string,
   dateNotif?: string,
-  children?: number[],
   content_html?: string | null,
 }
 interface RatingTable {
