@@ -9,6 +9,12 @@ function normalizeName(value: string | null): string {
   return (value ?? "").trim().toLocaleLowerCase("fr-FR");
 }
 
+function displayName(value: string): string {
+  // ANSM component labels may append the cell source of a biological substance.
+  // Keep it in the source data, but use the shorter substance label in the UI.
+  return value.trim().replace(/\s+\(\([^()]+\)\)$/, "");
+}
+
 /**
  * Splits a dosage string into a base dosage and its explanatory reference,
  * for example "5 mg pour traitement de courte durée" becomes
@@ -108,7 +114,7 @@ export function toCompositionComponents(
         CompOrdre: row.ordre ?? row.numero_composant,
         SubsId: code,
         NomId: name?.code_nom.trim() ?? code,
-        NomLib: row.substance?.trim() || name?.nom?.trim() || "",
+        NomLib: displayName(row.substance || name?.nom || ""),
         CompDosage: row.dosage?.trim() ?? "",
         CompRem: "",
       };

@@ -5,7 +5,6 @@ import { Selectable } from "kysely";
 export interface Database {
   search_index: SearchIndexTable;
   search_synonyms: SearchSynonymsTable;
-  presentations: PresentationTable;
   rcp: RcpTable;
   notices: NoticeTable;
   rating: RatingTable;
@@ -88,22 +87,6 @@ interface SearchSynonymsTable {
   id: Generated<number>;
   alias: string; // lay term, stored normalized (lowercase, unaccented)
   canonical: string; // medical term, accented form; normalized at query time
-}
-
-interface PresentationTable {
-  codecip13: string;
-  nom_presentation: string;
-  numelement: number; //Display order for nomelement - first element to display
-  nomelement: string;
-  recipient: string;
-  numrecipient: number; //Display order for recipient - second element to display
-  nbrrecipient: number;
-  qtecontenance: number;
-  unitecontenance: string;
-  caraccomplrecip: string;
-  numordreedit: number; //Display order for caraccomplrecip - third element to display
-  numdispositif: number;
-  dispositif: string;
 }
 
 interface RcpTable {
@@ -469,7 +452,6 @@ interface AnsmStockTable {
 
 export type SearchResult = Selectable<SearchIndexTable>;
 export type SearchSynonym = Selectable<SearchSynonymsTable>;
-export type PresentationDetail = Selectable<PresentationTable>;
 export type RCPContent = Selectable<RcpContentTable>;
 export type Rating = Selectable<RatingTable>;
 export type ResumeIndication = Selectable<ResumeIndicationsTable>;
