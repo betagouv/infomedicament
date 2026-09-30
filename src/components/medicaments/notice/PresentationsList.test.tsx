@@ -32,7 +32,7 @@ describe("PresentationsList", () => {
     render(<PresentationsList presentations={[presentation, stopped]} />);
 
     expect(await screen.findByText("Abrogation (12/12/2024)")).not.toBeNull();
-    expect(screen.getByText("Déclaration d'arrêt de commercialisation (12/12/2024)")).not.toBeNull();
+    expect(screen.getByText("Arrêt (12/12/2024)")).not.toBeNull();
     expect(screen.getByText("4 flacons").parentElement?.parentElement?.textContent)
       .toBe("4 flacons - 4 seringues préremplies");
   });

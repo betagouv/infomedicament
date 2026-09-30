@@ -5,7 +5,7 @@ import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
 import { HTMLAttributes, useEffect, useState } from "react";
 import { AggregatePresentationDetails, Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
-import { cleanPresentationsDetails, getPresentationNonCommercializedStatusLabel, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isAbrogee, getAggregatePresentationRecipientsTexts } from "@/utils/presentations";
+import { cleanPresentationsDetails, getPresentationNonCommercializedBadgeLabel, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isAbrogee, getAggregatePresentationRecipientsTexts } from "@/utils/presentations";
 import styled from "styled-components";
 
 type PresentationToDisplay = {
@@ -116,9 +116,9 @@ const [presentationsDetails, setPresentationsDetails] = useState<PresentationToD
                   })}
                 </div>
               </div>
-              {getPresentationNonCommercializedStatusLabel(presDetails.presentation) && (
+              {getPresentationNonCommercializedBadgeLabel(presDetails.presentation) && (
                 <Badge severity="warning" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
-                  {getPresentationNonCommercializedStatusLabel(presDetails.presentation)}
+                  {getPresentationNonCommercializedBadgeLabel(presDetails.presentation)}
                   {presDetails.presentation.commercialisationEndDate && ` (${dateShortFormat(presDetails.presentation.commercialisationEndDate)})`}
                 </Badge>
               )}

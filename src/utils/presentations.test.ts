@@ -1,6 +1,6 @@
 import { AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation, PresentationPackagingDetail } from "@/types/PresentationTypes";
 import { describe, it, expect } from "vitest";
-import { caracCompDisplay, cleanPresentationsDetails, contenanceDisplay, dispositifDisplay, formatPresentationCip, getAggregatePresentationRecipientsTexts, getPresentationNonCommercializedStatusLabel, getPresentationFullPriceText, getPresentationName, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isPresentationVisible, isReimbursable, replacePluralSingular, totalDisplay } from "./presentations";
+import { caracCompDisplay, cleanPresentationsDetails, contenanceDisplay, dispositifDisplay, formatPresentationCip, getAggregatePresentationRecipientsTexts, getPresentationNonCommercializedBadgeLabel, getPresentationNonCommercializedStatusLabel, getPresentationFullPriceText, getPresentationName, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isPresentationVisible, isReimbursable, replacePluralSingular, totalDisplay } from "./presentations";
 
 describe("presentation identifiers and statuses", () => {
   it("formats the CIP7 only when supplied and always formats the CIP13", () => {
@@ -10,9 +10,13 @@ describe("presentation identifiers and statuses", () => {
       .toBe("34009 341 255 9 1");
   });
 
-  it("labels stopped and withdrawn presentations", () => {
+  it("uses short badge labels and detailed status labels", () => {
     const stopped = { commercialStatus: "stopped" } as Presentation;
+    const suspended = { commercialStatus: "suspended" } as Presentation;
     const withdrawn = { commercialStatus: "withdrawn" } as Presentation;
+    expect(getPresentationNonCommercializedBadgeLabel(stopped)).toBe("Arrêt");
+    expect(getPresentationNonCommercializedBadgeLabel(suspended)).toBe("Commercialisation suspendue");
+    expect(getPresentationNonCommercializedBadgeLabel(withdrawn)).toBe("Autorisation retirée");
     expect(getPresentationNonCommercializedStatusLabel(stopped)).toBe("Déclaration d'arrêt de commercialisation");
     expect(getPresentationNonCommercializedStatusLabel(withdrawn))
       .toBe("Arrêt de commercialisation (le médicament n'a plus d'autorisation)");

@@ -403,3 +403,10 @@ export function getPresentationNonCommercializedStatusLabel(presentation: Presen
   if (isNotAuthorized(presentation)) return "Arrêt de commercialisation (le médicament n'a plus d'autorisation)";
   return null;
 }
+
+export function getPresentationNonCommercializedBadgeLabel(presentation: Presentation): string | null {
+  if (isArret(presentation)) return "Arrêt";
+  if (presentation.commercialStatus === "suspended") return "Commercialisation suspendue";
+  if (isNotAuthorized(presentation)) return "Autorisation retirée";
+  return null;
+}
