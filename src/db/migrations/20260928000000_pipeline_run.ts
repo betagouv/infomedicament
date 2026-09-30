@@ -16,6 +16,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   await db.schema
     .createIndex("pipeline_run_started_at_idx")
+    .ifNotExists()
     .on("pipeline_run")
     .column("started_at desc")
     .execute();
