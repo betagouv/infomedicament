@@ -59,6 +59,7 @@ async function resolveSubstances(subsIds: string[]): Promise<Substance[]> {
             SubsId: fallback.SubsId.trim(),
             NomId: fallback.NomId.trim(),
             NomLib: fallback.NomLib.trim(),
+            isCanonical: fallback.NomId.trim() === fallback.SubsId.trim(),
           },
         ]
       : [];
@@ -255,6 +256,7 @@ export const getAllMainSubstancesNames = cache(async function (
     SubsId: row.code_substance?.trim() || "",
     NomId: row.code_nom?.trim() || "",
     NomLib: row.nom?.trim() || "",
+    isCanonical: true,
   })) ?? [];
 });
 
@@ -272,5 +274,6 @@ export const getSubstancesNames = cache(async function (
     SubsId: row.code_substance?.trim() || "",
     NomId: row.code_nom?.trim() || "",
     NomLib: row.nom?.trim() || "",
+    isCanonical: row.type === "CANONIQUE",
   })) ?? [];
 });

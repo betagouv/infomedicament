@@ -2,6 +2,7 @@ export type Substance = {
   SubsId: string;
   NomId: string;
   NomLib: string;
+  isCanonical: boolean;
 };
 
 export enum CompositionNature {

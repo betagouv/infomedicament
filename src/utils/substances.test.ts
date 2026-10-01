@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { cleanSubstanceName, getSubstancePageNames } from "./substances";
+import { cleanSubstanceName, getSubstancePageNames, getSubstanceMainName } from "./substances";
 
 describe("utils/substance - cleanSubstanceName", () => {
   it("decodes named HTML entities", () => {
@@ -93,5 +93,23 @@ describe("utils/substance - getSubstancePageNames", () => {
 
   it("returns an empty title without medicament", () => {
     expect(getSubstancePageNames(["15285"], [])).toEqual({ title: "", secondaryNames: [] });
+  });
+});
+
+describe("utils/substance - getSubstanceMainName", () => {
+  it("takes the canonical name", () => {
+    const substances = [
+      { SubsId: "31844", NomId: "31844", NomLib: "abacavir base", isCanonical: true },
+      { SubsId: "31844", NomId: "65799", NomLib: "abacavir", isCanonical: false },
+    ];
+
+    expect(getSubstanceMainName(substances)).toBe("abacavir base");
+  });
+
+  it("takes the first name without canonical name", () => {
+    const substances = [{ SubsId: "48528", NomId: "20551", NomLib: "losartan potassique", isCanonical: false }];
+
+    expect(getSubstanceMainName(substances)).toBe("losartan potassique");
+    expect(getSubstanceMainName([])).toBe("");
   });
 });

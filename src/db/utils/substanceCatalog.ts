@@ -32,6 +32,7 @@ export function toSubstance(row: AnsmSubstanceNom): Substance {
     SubsId: row.code_substance.trim(),
     NomId: row.code_nom.trim(),
     NomLib: row.nom?.trim() ?? "",
+    isCanonical: row.type === "CANONIQUE",
   };
 }
 
@@ -109,6 +110,7 @@ export function toCompositionComponents(
         SubsId: code,
         NomId: name?.code_nom.trim() ?? code,
         NomLib: row.substance?.trim() || name?.nom?.trim() || "",
+        isCanonical: name?.type === "CANONIQUE",
         CompDosage: row.dosage?.trim() ?? "",
         CompRem: "",
       };

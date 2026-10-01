@@ -61,7 +61,7 @@ export const getSubstancesByAtc = cache(async (atc2: ATC): Promise<Substance[]> 
   const components = await getComposantsList(visibleRows.map((row) => row.cis));
 
   return components
-    .map(({ SubsId, NomId, NomLib }) => ({ SubsId, NomId, NomLib }))
+    .map(({ SubsId, NomId, NomLib, isCanonical }) => ({ SubsId, NomId, NomLib, isCanonical }))
     .filter((substance, index, all) =>
       all.findIndex((candidate) => candidate.NomId === substance.NomId) === index,
     )
