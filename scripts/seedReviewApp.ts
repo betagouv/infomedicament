@@ -38,6 +38,7 @@ const cisBigints = cisCodes.map(Number);
 // Reference tables: copied in full (small, no CIS key)
 const FULL_COPY_TABLES = [
   "atc",
+  "ansm_groupe_generique",
   "classes_cliniques",
   "letters",
   'indications',
@@ -62,6 +63,10 @@ const BIGINT_CIS_TABLES = ["notices", "rcp"];
 
 // Tables with a text CIS column named "cis"
 const CIS_TEXT_TABLES: Array<[string, string]> = [
+  ["ansm_specialite", "cis"],
+  ["ansm_specialite_evenement", "cis"],
+  ["ansm_specialite_groupe_generique", "cis"],
+  ["ansm_specialite_titulaire", "cis"],
   ["cis_atc", "code_cis"],
   ["ref_pediatrie", "cis"],
   ["ref_marr_url_cis", "cis"],
@@ -71,12 +76,6 @@ const CIS_TEXT_TABLES: Array<[string, string]> = [
   // search query reads result rows from it, so it must be seeded or search
   // returns empty. Filtered by specId to stay aligned with the seeded CIS subset.
   ["resume_specialites", "specId"],
-];
-
-// Pairs of [parent table, content table] for recursive tree copies
-const CONTENT_TREE_TABLE_PAIRS: Array<[string, string]> = [
-  ["notices", "notices_content"],
-  ["rcp", "rcp_content"],
 ];
 
 async function insertRows(
@@ -91,11 +90,50 @@ async function insertRows(
   console.log(`  Copying ${tablename}: ${rows.length} rows...`);
   await sql`TRUNCATE TABLE ${sql.table(tablename)} CASCADE`.execute(review);
   const CHUNK_SIZE = 500;
-  for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
-    await review
-      .insertInto(tablename)
-      .values(rows.slice(i, i + CHUNK_SIZE))
-      .execute();
+  const totalBatches = Math.ceil(rows.length / CHUNK_SIZE);
+  let progressLineWidth = 0;
+
+  const updateProgress = (message: string, done = false) => {
+    const line = `  Copying ${tablename}: ${message}`;
+    progressLineWidth = Math.max(progressLineWidth, line.length);
+    process.stdout.write(
+      `\r${line.padEnd(progressLineWidth)}${done ? "\n" : ""}`,
+    );
+  };
+
+  try {
+    updateProgress(`${rows.length.toLocaleString()} rows - truncating...`);
+    await sql`TRUNCATE TABLE ${sql.table(tablename)} CASCADE`.execute(review);
+
+    if (rows.length === 0) {
+      updateProgress("truncated - no matching rows", true);
+      return;
+    }
+
+    for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+      const completedBatch = i / CHUNK_SIZE + 1;
+      updateProgress(
+        `truncated - inserting batch ${completedBatch}/${totalBatches} - ${i.toLocaleString()}/${rows.length.toLocaleString()} rows`,
+      );
+
+      await review
+        .insertInto(tablename)
+        .values(rows.slice(i, i + CHUNK_SIZE))
+        .execute();
+
+      const insertedRows = Math.min(i + CHUNK_SIZE, rows.length);
+      updateProgress(
+        `truncated - batch ${completedBatch}/${totalBatches} - ${insertedRows.toLocaleString()}/${rows.length.toLocaleString()} rows`,
+      );
+    }
+
+    updateProgress(
+      `done - ${totalBatches}/${totalBatches} batches - ${rows.length.toLocaleString()} rows`,
+      true,
+    );
+  } catch (error) {
+    updateProgress("failed", true);
+    throw error;
   }
 }
 
@@ -144,31 +182,9 @@ async function main() {
     await insertRows(review, "resume_medicaments", rows);
   }
 
-  // 5. Tree tables — collect all content nodes reachable from the filtered notices/rcps
-  console.log("\n--- Tree tables (recursive content nodes) ---");
-  for (const [parent, content] of CONTENT_TREE_TABLE_PAIRS) {
-    const { rows } = await sql<any>`
-      WITH RECURSIVE tree(id) AS (
-        SELECT unnest(children) AS id
-        FROM ${sql.table(parent)}
-        WHERE "codeCIS" = ANY(${sql.val(cisBigints)}::bigint[])
-        UNION
-        SELECT unnest(c.children)
-        FROM ${sql.table(content)} c
-        INNER JOIN tree ON c.id = tree.id
-        WHERE c.children IS NOT NULL
-      )
-      SELECT DISTINCT c.*
-      FROM ${sql.table(content)} c
-      WHERE c.id IN (SELECT id FROM tree WHERE id IS NOT NULL)
-    `.execute(staging);
-    await insertRows(review, content, rows);
-  }
-
-  // 6. Skipped tables
+  // 5. Skipped tables
   console.log("\n--- Skipped ---");
   console.log("  search_index  (run npm run db:seed-search-index if needed)");
-  console.log("  leaflet_images  (too large, not needed in review apps)");
 
   await staging.destroy();
   await review.destroy();

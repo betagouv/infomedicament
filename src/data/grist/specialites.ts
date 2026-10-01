@@ -1,5 +1,9 @@
 import { ResumeSpecGroup, ShortSpecialite } from "@/types/SpecialiteTypes";
-import { getAllPregnancyMentionAlerts, getAllPregnancyPlanAlerts } from "@/db/utils/pregnancy";
+import {
+  getAllPregnancyMentionAlerts,
+  getAllPregnancyPlanAlerts,
+} from "@/db/utils/pregnancy";
+import { findPregnancyPlanAlert } from "@/db/utils/pregnancyCatalog";
 import { getAllPediatrics } from "@/db/utils/pediatrics";
 
 export const getResumeSpecsGroupsAlerts = async function (specsGroups: ResumeSpecGroup[]): Promise<ResumeSpecGroup[]> {
@@ -8,24 +12,19 @@ export const getResumeSpecsGroupsAlerts = async function (specsGroups: ResumeSpe
   const allPediatricsInfo = await getAllPediatrics();
 
   return specsGroups.map((group) => {
-    const pregnancyPlanAlert = allPregnancyPlanAlerts.find((s) =>
-      group.subsIds.find((id) => Number(id.trim()) === Number(s.id)),
+    const pregnancyPlanAlert = findPregnancyPlanAlert(
+      group.subsIds,
+      allPregnancyPlanAlerts,
     );
 
     const pediatricsInfo = {
-      indication: false,
       contraindication: false,
-      doctorAdvice: false,
-      mention: false,
     }
     let pregnancyMentionAlert = false;
     const specialites: ShortSpecialite[] = group.shortSpecialites.map((spec: ShortSpecialite) => {
       const pediatrics = allPediatricsInfo.find((info) => info.CIS === spec.SpecId);
       if (pediatrics) {
-        if (pediatrics.indication) pediatricsInfo.indication = true;
-        if (pediatrics.contraindication) pediatricsInfo.contraindication = true;
-        if (pediatrics.doctorAdvice) pediatricsInfo.doctorAdvice = true;
-        if (pediatrics.mention) pediatricsInfo.mention = true;
+        pediatricsInfo.contraindication = pediatrics.contraindication;
       }
       const pregnancyAlert = allPregnancyMentionAlerts.find((mentionCIS) => mentionCIS === spec.SpecId);
       if (pregnancyAlert) pregnancyMentionAlert = true;
@@ -44,7 +43,7 @@ export const getResumeSpecsGroupsAlerts = async function (specsGroups: ResumeSpe
       alerts: {
         pregnancyPlanAlert: !!pregnancyPlanAlert,
         pregnancyMentionAlert: pregnancyMentionAlert,
-        pediatrics: (pediatricsInfo.indication || pediatricsInfo.contraindication || pediatricsInfo.doctorAdvice || pediatricsInfo.mention) ? pediatricsInfo : undefined
+        pediatrics: pediatricsInfo ?? undefined,
       },
       shortSpecialites: specialites,
     }

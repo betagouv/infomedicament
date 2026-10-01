@@ -5,7 +5,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, PropsWithChildren } from "react";
 import styled, {css} from 'styled-components';
 import GenericPrincepsTag from "@/components/tags/GenericPrincepsTag";
-import { SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
+import type { CompositionComponent } from "@/types/SubstanceTypes";
 import PrescriptionTag from "@/components/tags/PrescriptionTag";
 import PediatricsTags from "@/components/tags/PediatricsTags";
 import Link from "next/link";
@@ -13,7 +13,7 @@ import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { dateShortFormat, displayCompleteComposants, displaySimpleComposants } from "@/displayUtils";
 import MarrNoticeAdvanced from "@/components/marr/MarrNoticeAdvanced";
 import { Marr } from "@/types/MarrTypes";
-import { DetailedSpecialite, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
+import { DelivranceCondition, DetailedSpecialite, SpecialiteStat } from "@/types/SpecialiteTypes";
 import { displayInfosImportantes } from "@/utils/notices";
 import PregnancyMentionTag from "@/components/tags/PregnancyMentionTag";
 import PregnancyPlanTag from "@/components/tags/PregnancyPlanTag";
@@ -21,14 +21,17 @@ import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getProcedureLibLong, getTypeInfoTxt, isAIP, isHospitalDelivrance } from "@/utils/specialites";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import { getPresentationName, getPresentationFullPriceText, isAbrogee, isAgree, isArret, isIVG, isListeRetrocession, isListeSus, isNotAuthorized, isReimbursable } from "@/utils/presentations";
+import { getPresentationName, getPresentationFullPriceText, getPresentationNonCommercializedStatusLabel, formatPresentationCip, isAbrogee, isAgree, isIVG, isListeRetrocession, isListeSus, isReimbursable } from "@/utils/presentations";
 import { FicheInfos, InfosImportantes } from "@/types/FicheInfoTypes";
 import WithDefinition from "@/components/glossary/WithDefinition";
 import { Definition } from "@/types/GlossaireTypes";
+import { ShortIndication } from "@/types/IndicationsTypes";
 import { getDefinition } from "@/utils/glossary";
 import IndicationsBlock from "../blocks/IndicationsBlock";
 import HospitalTag from "@/components/tags/HospitalTag";
 import ReimbursableTag from "@/components/tags/ReimbursableTag";
+import StockTag from "@/components/tags/StockTag";
+import { AnsmStock } from "@/types/StockTypes";
 
 const SummaryLineContainer = styled.div<{ $hideBorder?: boolean; }>`
   display: flex;
@@ -59,6 +62,12 @@ const InfosImportantesBlock = styled.div`
   }
 `;
 
+const StockBlock = styled.div<{ $hideBorder?: boolean; }>`
+  ${props => !props.$hideBorder && css`
+    border-bottom: var(--border-open-blue-france) 4px solid;
+  `}
+`;
+
 interface SummaryLineProps extends HTMLAttributes<HTMLDivElement> {
   categoryName: string;
   hideBorder?: boolean;
@@ -85,7 +94,7 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   updateVisiblePart: (visiblePart: DetailsNoticePartsEnum) => void;
   specialite?: DetailedSpecialite;
   atcCode?: string;
-  composants: Array<SpecComposant & SubstanceNom>;
+  composants: CompositionComponent[];
   isPrinceps: boolean;
   isPregnancyPlanAlert: boolean;
   isPregnancyMentionAlert: boolean;
@@ -93,9 +102,11 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   presentations: Presentation[];
   marr?: Marr;
   ficheInfos?: FicheInfos;
-  indicationsBlock?: NoticeRCPContentBlock;
-  delivrance: SpecDelivrance[];
+  delivrance: DelivranceCondition[];
   definitions?: Definition[];
+  indications: ShortIndication[];
+  indicationsBlock?: string;
+  stocks: AnsmStock[];
 }
 
 function GeneralInformations({ 
@@ -110,9 +121,11 @@ function GeneralInformations({
   presentations,
   marr,
   ficheInfos,
-  indicationsBlock,
   delivrance,
   definitions,
+  indications,
+  indicationsBlock,
+  stocks,
   ...props 
 }: GeneralInformationsProps) {
   
@@ -176,24 +189,26 @@ function GeneralInformations({
         </SummaryLine>
         <SummaryLine categoryName="Statut générique">
           <>
-            {(isPrinceps && !isAIP(specialite)) ? (
+            {(isPrinceps && specialite.genericGroupCode !== null && !isAIP(specialite)) ? (
               <GenericPrincepsTag 
-                id={specialite.SpecId} 
+                genericGroupCode={specialite.genericGroupCode}
                 type="princeps"
                 hideIcon
               />
             ) : (
-              (specialite.SpecGeneId && !isAIP(specialite))
+              (specialite.genericGroupCode !== null && !isAIP(specialite))
               ? (
                 <>
                   <GenericPrincepsTag 
-                    id={specialite.SpecGeneId}
+                    genericGroupCode={specialite.genericGroupCode}
                     type="generic"
                     hideIcon
                   />
-                  <div>
-                    <strong>Princeps:&nbsp;</strong>{specialite.generiqueName}
-                  </div>
+                  {specialite.referenceSpecialite && (
+                    <div>
+                      <strong>Princeps:&nbsp;</strong>{specialite.referenceSpecialite.name}
+                    </div>
+                  )}
                 </>
               ) : (
                 <span>Pas de générique</span>
@@ -251,7 +266,7 @@ function GeneralInformations({
         </SummaryLine>
         <SummaryLine categoryName="Type de procédure">
           {specialite.ProcId 
-            ? (<span>{getProcedureLibLong(Number(specialite.ProcId))}</span>)
+            ? (<span>{getProcedureLibLong(specialite.ProcId)}</span>)
             : (<span>Non communiqué</span>)
           }
         </SummaryLine>
@@ -266,17 +281,19 @@ function GeneralInformations({
                 <HospitalTag hideIcon className={fr.cx("fr-ml-1-5v")}/>
               )}
               <ul>
-                {delivrance.map((line: SpecDelivrance, index) => {
+                {delivrance.map((line: DelivranceCondition, index) => {
+                  const label = line.longLabel?.trim();
+                  if (!label) return null;
                   return (
-                    <li key={index}>
-                      {(line.DelivLong.trim() === "liste I" || line.DelivLong.trim() === "liste II")
+                    <li key={line.code || index}>
+                      {(label === "liste I" || label === "liste II")
                         ? (
                           <WithDefinition
                             definition={definitions && getDefinition(definitions, "Liste I et II")}
-                            word={line.DelivLong}
+                            word={label}
                           />
                         )
-                        : line.DelivLong}
+                        : label}
                     </li>
                   );
                 })}
@@ -290,7 +307,9 @@ function GeneralInformations({
 
       <IndicationsBlock
         specialite={specialite}
+        indications={indications}
         indicationsBlock={indicationsBlock}
+        definitions={definitions}
       />
       
       <ContentContainer id="informations-composition" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
@@ -331,6 +350,11 @@ function GeneralInformations({
                       </div>
                     )
                   })}
+                  {element.composants.length === 0 && (
+                    <div className={fr.cx("fr-ml-1w", "fr-mb-1w")}>
+                      {" > "}Pas de substance active
+                    </div>
+                  )}
                 </div>
               )
             })}
@@ -346,7 +370,7 @@ function GeneralInformations({
           <div>
             <ul className={fr.cx("fr-raw-list")}>
               {presentations.map((pres, index) => (
-                <li key={`${pres.Cip13}-${index}`} className={fr.cx("fr-mb-1w")}>
+                <li key={`${pres.cip13}-${index}`} className={fr.cx("fr-mb-1w")}>
                   <div className={fr.cx("fr-mb-0")}>
                     <span
                       className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
@@ -354,23 +378,21 @@ function GeneralInformations({
                     <span className={fr.cx("fr-mr-2w")}>
                       <b>{getPresentationName(pres)}</b>
                     </span>
-                    <span>
-                      {getPresentationFullPriceText(pres)}
-                    </span>
+                    <span>{getPresentationFullPriceText(pres)}</span>
                   </div>
-                  {(pres.Ppttc || pres.HonoDisp) && (
+                  {(pres.priceExcludingDispensingFee || pres.dispensingFee) && (
                     <div className={fr.cx("fr-mb-0")}>
-                      {pres.Ppttc && (
+                      {pres.priceExcludingDispensingFee && (
                         <span className={fr.cx("fr-mr-2w")}>
                           Prix hors honoraire de dispensation :{" "}
                           {Intl.NumberFormat("fr-FR", {
                             style: "currency",
                             currency: "EUR",
-                          }).format(pres.Ppttc)}
+                          }).format(pres.priceExcludingDispensingFee)}
                           {" "}
                         </span>
                       )}
-                      {pres.HonoDisp && (
+                      {pres.dispensingFee && (
                         <span>
                           <WithDefinition
                             definition={definitions && getDefinition(definitions, "Honoraire de dispensation")}
@@ -379,38 +401,32 @@ function GeneralInformations({
                           {Intl.NumberFormat("fr-FR", {
                             style: "currency",
                             currency: "EUR",
-                          }).format(pres.HonoDisp)}
+                          }).format(pres.dispensingFee)}
                           {" "}
                         </span>
                       )}
                     </div>
                   )}
-                  {(pres.PresCommDate && pres.PresCodeCip) && (
+                  {(pres.cip13 || (pres.commercialStatus === "commercialised" && pres.commercialisationDate)) && (
                     <div className={fr.cx("fr-mb-0")}>
-                      {pres.PresCodeCip && (
-                        <span className={fr.cx("fr-mr-2w")}>Code CIP : {pres.PresCodeCip}</span>
+                      {pres.cip13 && (
+                        <span className={fr.cx("fr-mr-2w")}>Code CIP : {formatPresentationCip(pres)}</span>
                       )}
-                      {pres.PresCommDate && (
-                        <span>Déclaration de commercialisation : {dateShortFormat(pres.PresCommDate)}</span>
+                      {pres.commercialStatus === "commercialised" && pres.commercialisationDate && (
+                        <span>Déclaration de commercialisation : {dateShortFormat(pres.commercialisationDate)}</span>
                       )}
                     </div>
                   )}
                   {isAbrogee(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
                       Abrogée
-                      {pres.PresStatDAte && ` le ${dateShortFormat(pres.PresStatDAte)}`}
+                      {pres.administrativeStatusDate && ` le ${dateShortFormat(pres.administrativeStatusDate)}`}
                     </div>
                   )}
-                  {isArret(pres) && (
+                  {getPresentationNonCommercializedStatusLabel(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
-                      Déclaration d'arrêt de commercialisation
-                      {pres.PresCommDate && ` : ${dateShortFormat(pres.PresCommDate)}`}
-                    </div>
-                  )}
-                  {isNotAuthorized(pres) && (
-                    <div className={fr.cx("fr-mb-0")}>
-                      Arrêt de commercialisation (le médicament n'a plus d'autorisation)
-                      {pres.PresCommDate && ` : ${dateShortFormat(pres.PresCommDate)}`}
+                      {getPresentationNonCommercializedStatusLabel(pres)}
+                      {pres.commercialisationEndDate && ` : ${dateShortFormat(pres.commercialisationEndDate)}`}
                     </div>
                   )}
                   {isAgree(pres) ? (
@@ -472,10 +488,49 @@ function GeneralInformations({
         )}
       </ContentContainer>
 
-
       {(marr && marr.pdf.length > 0) && (
         <ContentContainer id="informations-marr" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
           <MarrNoticeAdvanced marr={marr} />
+        </ContentContainer>
+      )}
+
+      {stocks.length > 0 && (
+        <ContentContainer id="informations-stock" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
+          <h2 className={fr.cx("fr-h6")}>Ruptures de stock ou risques de rupture de stock</h2>
+          {stocks.map((stock, index) => (
+            <StockBlock key={index} $hideBorder={index === stocks.length - 1}>
+              <SummaryLine categoryName="Code CIS concerné">
+                {formatCIS(specialite.SpecId)}
+              </SummaryLine>
+              {stock.CIP && stock.CIP.length > 0 && (
+                <SummaryLine categoryName={stock.CIP.length > 1 ? 'Codes CIP concernés' : 'Code CIP concerné'}>
+                  {stock.CIP.join(", ")}
+                </SummaryLine>
+              )}
+              <SummaryLine categoryName="Statut">
+                <StockTag
+                  statusId={stock.status_id}
+                />
+              </SummaryLine>
+              <SummaryLine categoryName="Date de début">
+                {(stock.date_begin).toLocaleDateString('fr-FR')}
+              </SummaryLine>
+              <SummaryLine categoryName="Date de mise à jour">
+                {(stock.date_update).toLocaleDateString('fr-FR')}
+              </SummaryLine>
+              {stock.date_end && (
+                <SummaryLine categoryName="Date de remise à disposition">
+                  {(stock.date_end).toLocaleDateString('fr-FR')}
+                </SummaryLine>
+              )}
+              <SummaryLine 
+                categoryName="Lien vers la page du site de l'ANSM"
+                hideBorder
+              >
+                <a href={stock.link} target="_blank">{stock.link}</a>
+              </SummaryLine>
+            </StockBlock>
+          ))}
         </ContentContainer>
       )}
     </div>

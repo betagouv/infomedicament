@@ -8,6 +8,9 @@
 
 # testing
 /coverage
+/playwright-report
+/test-results
+/medicine-comparison-report
 
 # next.js
 /.next/
@@ -41,3 +44,4 @@ next-env.d.ts
 
 # Local data folder
 /data
+/reports

@@ -1,4 +1,4 @@
-import { SubstanceNom } from "@/db/pdbmMySQL/types";
+import type { Substance } from "./SubstanceTypes";
 import { SpecialiteWithSubstance } from "./SpecialiteTypes";
 
 export interface ATC1 extends ATC {
@@ -14,7 +14,7 @@ export interface ATC {
 
 export type ATCSubsSpecs = {
   atc: ATC;
-  substances: SubstanceNom[];
+  substances: Substance[];
   specialites: SpecialiteWithSubstance[];
 }
 

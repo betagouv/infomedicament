@@ -1,11 +1,11 @@
 "use client";
 
 import ContentContainer from "../generic/ContentContainer";
-import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
+import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { HTMLAttributes, lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Marr } from "@/types/MarrTypes";
 import { ATC } from "@/types/ATCTypes";
-import { DetailedSpecialite, NoticeData, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
+import { DelivranceCondition, DetailedSpecialite, NoticeData } from "@/types/SpecialiteTypes";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
@@ -18,6 +18,8 @@ import { Definition } from "@/types/GlossaireTypes";
 import GoTopButton from "../generic/GoTopButton";
 import { ShortIndication } from "@/types/IndicationsTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
+import { AnsmVideos } from "@/db/types";
+import { AnsmStock } from "@/types/StockTypes";
 
 
 interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
@@ -25,14 +27,15 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   atc2?: ATC;
   atcCode?: string;
   specialite?: DetailedSpecialite;
-  composants: Array<SpecComposant & SubstanceNom>;
+  composants: CompositionComponent[];
   isPrinceps: boolean;
-  delivrance: SpecDelivrance[];
+  isGeneric: boolean;
+  delivrance: DelivranceCondition[];
   presentations: Presentation[];
   title: string;
   indications: ShortIndication[];
+  indicationsBlock?: string;
   notice?: NoticeData;
-  indicationsBlock?: NoticeRCPContentBlock;
   ficheInfos?: FicheInfos;
   definitions: Definition[];
   pregnancyPlanAlert?: PregnancyAlert;
@@ -40,6 +43,8 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   pediatrics?: PediatricsInfo;
   marr?: Marr;
   articles: ArticleCardResume[];
+  videos?: AnsmVideos[];
+  stocks: AnsmStock[];
 }
 
 function MedicamentContent({
@@ -49,12 +54,13 @@ function MedicamentContent({
   specialite,
   composants,
   isPrinceps,
+  isGeneric,
   delivrance,
   presentations,
   title,
   indications,
-  notice,
   indicationsBlock,
+  notice,
   ficheInfos,
   definitions,
   pregnancyPlanAlert,
@@ -62,6 +68,8 @@ function MedicamentContent({
   pediatrics,
   marr,
   articles,
+  videos,
+  stocks,
   ...props
 }: MedicamentContentProps) {
 
@@ -107,6 +115,7 @@ function MedicamentContent({
               specialite={specialite}
               composants={composants}
               isPrinceps={isPrinceps}
+              isGeneric={isGeneric}
               delivrance={delivrance}
               pregnancyPlanAlert={pregnancyPlanAlert}
               isPregnancyMentionAlert={isPregnancyMentionAlert}
@@ -115,9 +124,11 @@ function MedicamentContent({
               marr={marr}
               ficheInfos={ficheInfos}
               definitions={definitions}
+              indications={indications}
               indicationsBlock={indicationsBlock}
               advancedAnchor={advancedAnchor}
               title={title}
+              stocks={stocks}
               onGoToAdvanced={onGoToAdvanced}
             />
           </Suspense>
@@ -137,10 +148,11 @@ function MedicamentContent({
             notice={notice}
             ficheInfos={ficheInfos}
             definitions={definitions}
-            indicationsBlock={indicationsBlock}
             title={title}
             indications={indications}
+            indicationsBlock={indicationsBlock}
             articles={articles}
+            videos={videos}
             onGoToAdvanced={onGoToAdvanced}
             onGoToAdvancedAnchor={onGoToAdvancedAnchor}
           />

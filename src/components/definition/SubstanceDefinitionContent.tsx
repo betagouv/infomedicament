@@ -3,13 +3,13 @@
 import React, { HTMLAttributes } from "react";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
-import { SubstanceNom } from "@/db/pdbmMySQL/types";
+import type { Substance } from "@/types/SubstanceTypes";
 import PageDefinitionContent from "./PageDefinitionContent";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 
 interface SubstanceDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
   ids: string[];
-  substances: SubstanceNom[];
+  substances: Substance[];
   articles: ArticleCardResume[];
   definition: string | { title: string; desc: string }[];
   dataList: ResumeSpecGroup[];
