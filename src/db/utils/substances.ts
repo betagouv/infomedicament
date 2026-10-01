@@ -192,7 +192,7 @@ export const getAllSubsWithSpecialites = cache(async function () {
               SubsId: component.SubsId,
               NomId: component.NomId,
               NomLib: component.NomLib,
-              isCanonical: typeByNomId.get(component.NomId.trim()) === "CANONIQUE",
+              type: typeByNomId.get(component.NomId.trim()) ?? null,
               SpecDenom01: denomination,
             },
           ];
