@@ -145,6 +145,7 @@ interface ResumeSubstancesTable {
   NomId: string;
   NomLib: string;
   specialites: number;
+  type: "CANONIQUE" | "SYNONYME" | null; // ansm_substance_nom.type
 }
 
 interface ResumeMedicamentsTable {

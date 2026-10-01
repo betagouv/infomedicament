@@ -35,7 +35,7 @@ async function resolveSubstances(subsIds: string[]): Promise<Substance[]> {
     db
       .selectFrom("resume_substances")
       .where((eb) => eb.or([eb("NomId", "in", subsIds), eb("SubsId", "in", subsIds)]))
-      .select(["SubsId", "NomId", "NomLib"])
+      .select(["SubsId", "NomId", "NomLib", "type"])
       .execute(),
   ]);
 
@@ -59,7 +59,7 @@ async function resolveSubstances(subsIds: string[]): Promise<Substance[]> {
             SubsId: fallback.SubsId.trim(),
             NomId: fallback.NomId.trim(),
             NomLib: fallback.NomLib.trim(),
-            isCanonical: fallback.NomId.trim() === fallback.SubsId.trim(),
+            isCanonical: fallback.type === "CANONIQUE",
           },
         ]
       : [];
@@ -179,6 +179,7 @@ export const getAllSubsWithSpecialites = cache(async function () {
       specialite.denomination ?? "",
     ]),
   );
+  const typeByNomId = new Map(names.map((name) => [name.code_nom.trim(), name.type]));
   const seen = new Set<string>();
 
   return mappedComponents
@@ -191,6 +192,7 @@ export const getAllSubsWithSpecialites = cache(async function () {
               SubsId: component.SubsId,
               NomId: component.NomId,
               NomLib: component.NomLib,
+              isCanonical: typeByNomId.get(component.NomId.trim()) === "CANONIQUE",
               SpecDenom01: denomination,
             },
           ];

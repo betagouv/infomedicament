@@ -25,6 +25,7 @@ type RawResumeSubstance = {
   SubsId: string;
   NomId: string;
   NomLib: string;
+  type: ResumeSubstance["type"];
 }
 
 if (process.argv.length !== 3) {
@@ -100,6 +101,7 @@ async function createResumeSubstances(): Promise<string[]> {
         SubsId: sub.SubsId.trim(),
         NomId: sub.NomId.trim(),
         NomLib: nomLib,
+        type: sub.type,
       })
       const subLetter = getNormalizeLetter(nomLib.substring(0, 1));
       if (!letters.includes(subLetter)) letters.push(subLetter);
@@ -120,6 +122,7 @@ async function createResumeSubstances(): Promise<string[]> {
         SubsId: resumeSub.SubsId,
         NomId: resumeSub.NomId,
         NomLib: resumeSub.NomLib,
+        type: resumeSub.type,
         specialites: specialites.length,
       }
     })
