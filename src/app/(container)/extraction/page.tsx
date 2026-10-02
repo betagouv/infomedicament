@@ -5,13 +5,14 @@ import ExtractionModule from "@/components/extraction/ExtractionModule";
 import db from "@/db";
 import { getAtc } from "@/db/utils/atc";
 import { AtcOption, SubstanceOption } from "@/types/ExtractionTypes";
+import { connection } from "next/server";
 
-// Rendered at request time: the lists come from the DB, which isn't populated at build time
-// (e.g. on review apps, seeded after the build)
-export const dynamic = "force-dynamic";
 const PAGE_LABEL = "Extraction des données de spécialités";
 
 export default async function Page() {
+  // Rendered at request time: the lists come from the DB, which isn't populated at build time
+  // (e.g. on review apps, seeded after the build)
+  await connection();
   const [substanceRows, atc1List] = await Promise.all([
     db
       .selectFrom("resume_substances")
