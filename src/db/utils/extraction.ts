@@ -65,10 +65,11 @@ export async function getMedicamentsExtract(
       .select(["codeCIS", "content_html"])
       .where("codeCIS", "in", cisNumbers)
       .execute();
-    const contentHtmlByCIS = new Map(rcpRows.map((r) => [r.codeCIS, r.content_html]));
+    // codeCIS is a bigint: pg returns it as a string, despite its number type
+    const contentHtmlByCIS = new Map(rcpRows.map((r) => [String(r.codeCIS), r.content_html]));
 
     for (const row of rows) {
-      const contentHtml = contentHtmlByCIS.get(Number(row.specId.trim()));
+      const contentHtml = contentHtmlByCIS.get(String(Number(row.specId.trim())));
       if (!contentHtml) continue;
       for (const key of rcpFieldKeys) {
         const anchor = RCP_ANCHOR_BY_FIELD_KEY[key];
