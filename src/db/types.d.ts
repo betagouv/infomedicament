@@ -28,8 +28,10 @@ export interface Database {
   ref_substance_active_definitions: RefSubstanceActiveDefinitions;
   atc: Atc;
   cis_atc: CisAtc;
-  asmr: AsmrTable;
-  smr: SmrTable;
+  has_asmr: AsmrTable;
+  has_smr: SmrTable;
+  has_url_has: UrlHasTable;
+  has_documents_bon_usage: HasDocumentsBonUsageTable;
   triam_gtiam: TriamGtiamTable;
   triam_classes: TriamClassesTable;
   triam_groupe_substance: TriamGroupeSubstanceTable;
@@ -296,6 +298,20 @@ export interface SmrTable {
   smr: string | null;
   valeur_smr: string | null;
   libelle_smr: string | null;
+}
+
+export interface UrlHasTable {
+  code_ct: string;
+  url: string | null;
+}
+
+export interface HasDocumentsBonUsageTable {
+  code_cis: string | null;
+  auteur: string | null;
+  type_document: string | null;
+  date_mise_a_jour: string | null;
+  titre: string | null;
+  url: string | null;
 }
 
 export interface CisAtc {

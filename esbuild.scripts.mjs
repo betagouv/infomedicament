@@ -2,13 +2,9 @@ import { build } from "esbuild";
 
 await build({
   entryPoints: [
-    "scripts/aggregatePathoClasseClinique.ts",
-    "scripts/populateSpecMetadataTable.ts",
     "scripts/seedInteractionsSearch.ts",
     "scripts/seedReviewApp.ts",
     "scripts/seedSearchIndex.ts",
-    "scripts/syncWithGrist.ts",
-    "scripts/updateResumeData.ts",
   ],
   bundle: true,
   platform: "node",
