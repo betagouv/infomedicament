@@ -26,7 +26,7 @@ export default async function Page() {
               Trouvez instantanément les informations claires, précises et officielles sur vos médicaments, en toute simplicité !
             </h1>
             <p className="fr-text--sm">
-              Infomédicament comprend tous les médicaments dont les {marketedCount.toLocaleString("fr-FR")} actuellement commercialisés.
+              Info Médicament comprend tous les médicaments dont les {marketedCount.toLocaleString("fr-FR")} actuellement commercialisés ou ayant été commercialisés durant les trois dernières années en France.
             </p>
             <AutocompleteSearch inputName="s" />
             <p className="fr-text--sm">
