@@ -1,5 +1,9 @@
 import { HTMLElement, parse } from "node-html-parser";
 
+function escapeRegExpLiteral(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 /**
  * Level of a RCP section title: a heading (h1-h6), or an ANSM title paragraph
  * (class "AmmAnnexeTitre1", "AmmAnnexeTitre2"…) as in the documents of the BDPM.
@@ -15,7 +19,7 @@ function getTitleLevel(element: HTMLElement): number | undefined {
 // Some ANSM titles have no anchor (e.g. <p class=AmmAnnexeTitre2>4.5. Interactions…</p>):
 // find the title starting with the section number instead
 function findTitleByNumber(root: HTMLElement, sectionNumber: string): HTMLElement | undefined {
-  const numberPattern = new RegExp(`^${sectionNumber.replace(/\./g, "\\.")}\\.?(\\s|$)`);
+  const numberPattern = new RegExp(`^${escapeRegExpLiteral(sectionNumber)}\\.?(\\s|$)`);
   return root
     .querySelectorAll("*")
     .find((element) => getTitleLevel(element) !== undefined && numberPattern.test(element.textContent.trim()));
