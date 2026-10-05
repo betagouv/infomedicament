@@ -21,3 +21,11 @@ export type CompositionComponent = Substance & {
   CompDosage: string;
   CompRem: string;
 };
+
+export type SubstancesName = {
+  name: string,
+  isCanonical: boolean,
+  nbSpecsGroups: number,
+  // Name of each substance; empty with a single substance
+  details: { subsId: string, name: string }[],
+};

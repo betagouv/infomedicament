@@ -1,4 +1,4 @@
-import { Substance } from "@/types/SubstanceTypes";
+import { Substance, SubstancesName } from "@/types/SubstanceTypes";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 
 export function getSubstanceMainName(
@@ -32,42 +32,55 @@ export function cleanSubstanceName(name: string): string {
     .trim();
 }
 
-// Names displayed on a substance page, only names from medicaments groups:
-// title : 1. the canonical names (NomId = SubsId), 2. the names displayed on the most medicaments
-// subtile : the other names 
-export function getSubstancePageNames(
-  subsIds: string[],
-  specsGroups: Pick<ResumeSpecGroup, "composants" | "subsIds" | "subsNamesIds">[],
-): { title: string, secondaryNames: string[] } {
-  const pageSubsIds = subsIds.map((subsId) => subsId.trim()).sort().join(",");
-  // Same names in a different order are the same names: group them by their NomIds
-  const namesMap = new Map<string, { nbMedicaments: number, isMainName: boolean, labels: Map<string, number> }>();
+// Names details of one or several substances
+// If multiple substances, the name of each substance are in the same row
+// Only names used in specsGroups
+// isCanonical: each name is canonical
+// Ordered by the number of medicaments
+export function getSubstancesNamesList(
+  substances: Substance[],
+  specsGroups: Pick<ResumeSpecGroup, "subsIds" | "subsNamesIds">[],
+): SubstancesName[] {
+  // Names grouped by NomIds (same NomIds in a different order are the same),
+  // with the number of medicaments for each order of the NomIds
+  const namesByNomIds = new Map<string, {
+    nbSpecsGroups: number,
+    orders: Map<string, { nb: number, groupSubsIds: string[], groupNomIds: string[] }>,
+  }>();
+
   specsGroups.forEach((group) => {
-    const key = group.subsNamesIds.map((nomId) => nomId.trim()).sort().join(",");
-    const label = cleanSubstanceName(group.composants);
-    // Main names of the page substances
-    const isPageSubstances = group.subsIds.map((subsId) => subsId.trim()).sort().join(",") === pageSubsIds;
-    const isMainName = isPageSubstances
-      && group.subsNamesIds.every((nomId, index) => nomId.trim() === group.subsIds[index]?.trim());
-    const current = namesMap.get(key) ?? { nbMedicaments: 0, isMainName: false, labels: new Map<string, number>() };
-    current.nbMedicaments += 1;
-    current.isMainName = current.isMainName || isMainName;
-    current.labels.set(label, (current.labels.get(label) ?? 0) + 1);
-    namesMap.set(key, current);
+    const groupSubsIds = group.subsIds.map((subsId) => subsId.trim());
+    const groupNomIds = group.subsNamesIds.map((nomId) => nomId.trim());
+    if (groupNomIds.length === 0) return;
+
+    const nomIdsKey = [...groupNomIds].sort().join(",");
+    const current = namesByNomIds.get(nomIdsKey) ?? { nbSpecsGroups: 0, orders: new Map() };
+    current.nbSpecsGroups += 1;
+    const orderKey = groupNomIds.join(",");
+    const order = current.orders.get(orderKey) ?? { nb: 0, groupSubsIds, groupNomIds };
+    order.nb += 1;
+    current.orders.set(orderKey, order);
+    namesByNomIds.set(nomIdsKey, current);
   });
 
-  // For each names, display the most frequent order
-  const sortedNames = [...namesMap.values()]
-    .map((names) => ({
-      ...names,
-      label: [...names.labels.entries()].sort(([labelA, a], [labelB, b]) => b - a || labelA.localeCompare(labelB, "fr"))[0][0],
-    }))
-    .sort((a, b) => b.nbMedicaments - a.nbMedicaments || a.label.localeCompare(b.label, "fr"));
-  if (sortedNames.length === 0) return { title: "", secondaryNames: [] };
+  // Name of each NomId, from the substances names
+  const getSubstance = (nomId: string) => substances.find((subs) => subs.NomId.trim() === nomId);
 
-  const title = (sortedNames.find((names) => names.isMainName) ?? sortedNames[0]).label;
-  return {
-    title,
-    secondaryNames: sortedNames.map((names) => names.label).filter((label) => label !== title),
-  };
+  return [...namesByNomIds.values()]
+    .map(({ nbSpecsGroups, orders }) => {
+      // The most frequent order of the NomIds
+      const [, { groupSubsIds, groupNomIds }] = [...orders.entries()]
+        .sort(([orderA, a], [orderB, b]) => b.nb - a.nb || orderA.localeCompare(orderB))[0];
+      const details = groupNomIds.map((nomId, index) => ({
+        subsId: groupSubsIds[index],
+        name: cleanSubstanceName(getSubstance(nomId)?.NomLib ?? ""),
+      }));
+      return {
+        name: details.map((detail) => detail.name).join(", "),
+        isCanonical: groupNomIds.every((nomId) => getSubstance(nomId)?.isCanonical ?? false),
+        nbSpecsGroups,
+        details: details.length > 1 ? details : [],
+      };
+    })
+    .sort((a, b) => b.nbSpecsGroups - a.nbSpecsGroups || a.name.localeCompare(b.name, "fr"));
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { cleanSubstanceName, getSubstancePageNames, getSubstanceMainName } from "./substances";
+import { cleanSubstanceName, getSubstanceMainName, getSubstancesNamesList } from "./substances";
 
 describe("utils/substance - cleanSubstanceName", () => {
   it("decodes named HTML entities", () => {
@@ -26,76 +26,6 @@ describe("utils/substance - cleanSubstanceName", () => {
   });
 });
 
-describe("utils/substance - getSubstancePageNames", () => {
-  // Escitalopram oxalate (78924): its medicaments display the active fraction escitalopram (89971)
-  const escitalopram = { composants: "escitalopram", subsIds: ["89971"], subsNamesIds: ["89971"] };
-  const escitalopramOxalate = { composants: "oxalate d'escitalopram", subsIds: ["78924"], subsNamesIds: ["20260"] };
-  const escitalopramOxalateMain = { composants: "escitalopram (oxalate d')", subsIds: ["78924"], subsNamesIds: ["78924"] };
-
-  it("takes the names displayed on the medicaments groups", () => {
-    const names = getSubstancePageNames(["78924"], [escitalopram, escitalopram]);
-
-    expect(names.title).toBe("escitalopram");
-    expect(names.secondaryNames).toEqual([]);
-  });
-
-  it("takes the canonical names of the page substances when displayed, even on fewer medicaments", () => {
-    const names = getSubstancePageNames(["78924"], [escitalopramOxalate, escitalopramOxalate, escitalopramOxalateMain]);
-
-    expect(names.title).toBe("escitalopram (oxalate d')");
-    expect(names.secondaryNames).toEqual(["oxalate d'escitalopram"]);
-  });
-
-  it("does not give priority to the canonical name of another substance", () => {
-    // Losartan potassique (48528): 12 medicaments display "losartan potassique",
-    // 4 display its active fraction "losartan" (64438) under its canonical name
-    const losartanPotassique = { composants: "losartan potassique", subsIds: ["48528"], subsNamesIds: ["20551"] };
-    const losartan = { composants: "losartan", subsIds: ["64438"], subsNamesIds: ["64438"] };
-    const names = getSubstancePageNames(["48528"], [losartan, losartanPotassique, losartanPotassique]);
-
-    expect(names.title).toBe("losartan potassique");
-    expect(names.secondaryNames).toEqual(["losartan"]);
-  });
-
-  it("takes the names displayed on the most medicaments when no canonical name is displayed", () => {
-    // Monoxyde d'azote (48940): its canonical name is not used by the specialites
-    const monoxydeAzote = { composants: "monoxyde d'azote", subsIds: ["48940"], subsNamesIds: ["82993"] };
-    const azoteMonoxyde = { composants: "azote (monoxyde d')", subsIds: ["48940"], subsNamesIds: ["90002"] };
-    const names = getSubstancePageNames(["48940"], [azoteMonoxyde, monoxydeAzote, monoxydeAzote]);
-
-    expect(names.title).toBe("monoxyde d'azote");
-    expect(names.secondaryNames).toEqual(["azote (monoxyde d')"]);
-  });
-
-  it("uses all the substances names of a combination", () => {
-    const main = { composants: "paracétamol, codéine", subsIds: ["02202", "74765"], subsNamesIds: ["02202", "74765"] };
-    const synonym = { composants: "paracétamol, phosphate de codéine hémihydraté", subsIds: ["02202", "74765"], subsNamesIds: ["02202", "89219"] };
-    const names = getSubstancePageNames(["02202", "74765"], [synonym, synonym, main]);
-
-    expect(names.title).toBe("paracétamol, codéine");
-    expect(names.secondaryNames).toEqual(["paracétamol, phosphate de codéine hémihydraté"]);
-  });
-
-  it("groups the same names in a different order", () => {
-    const paracetamolCodeine = { composants: "paracétamol, codéine", subsIds: ["02202", "74765"], subsNamesIds: ["02202", "74765"] };
-    const codeineParacetamol = { composants: "codéine, paracétamol", subsIds: ["74765", "02202"], subsNamesIds: ["74765", "02202"] };
-    const names = getSubstancePageNames(["02202", "74765"], [codeineParacetamol, paracetamolCodeine, paracetamolCodeine]);
-
-    expect(names.title).toBe("paracétamol, codéine");
-    expect(names.secondaryNames).toEqual([]);
-  });
-
-  it("cleans the names", () => {
-    const pixantrone = { composants: "pixantrone  (dimaléate de)", subsIds: ["15285"], subsNamesIds: ["15285"] };
-
-    expect(getSubstancePageNames(["15285"], [pixantrone]).title).toBe("pixantrone (dimaléate de)");
-  });
-
-  it("returns an empty title without medicament", () => {
-    expect(getSubstancePageNames(["15285"], [])).toEqual({ title: "", secondaryNames: [] });
-  });
-});
-
 describe("utils/substance - getSubstanceMainName", () => {
   it("takes the canonical name", () => {
     const substances = [
@@ -111,5 +41,106 @@ describe("utils/substance - getSubstanceMainName", () => {
 
     expect(getSubstanceMainName(substances)).toBe("losartan potassique");
     expect(getSubstanceMainName([])).toBe("");
+  });
+});
+
+describe("utils/substance - getSubstancesNamesList", () => {
+  const group = (composants: string, subsIds: string[], subsNamesIds: string[]) => ({ composants, subsIds, subsNamesIds });
+  const substance = (SubsId: string, NomId: string, NomLib: string, isCanonical: boolean) => ({ SubsId, NomId, NomLib, isCanonical });
+
+  it("returns the names displayed on the medicaments", () => {
+    // Losartan potassique (48528): its medicaments display "losartan potassique" or its active fraction "losartan"
+    const substances = [substance("48528", "20551", "losartan potassique", false)];
+    const groups = [
+      group("losartan", ["64438"], ["64438"]),
+      group("losartan potassique", ["48528"], ["20551"]),
+      group("losartan potassique", ["48528"], ["20551"]),
+    ];
+
+    expect(getSubstancesNamesList(substances, groups)).toEqual([
+      { name: "losartan potassique", isCanonical: false, nbSpecsGroups: 2, details: [] },
+      // Name of the active fraction, not in substances: from the medicament label, not canonical
+      { name: "losartan", isCanonical: false, nbSpecsGroups: 1, details: [] },
+    ]);
+  });
+
+  it("uses the canonical type of the substances names", () => {
+    const substances = [
+      substance("31844", "31844", "abacavir base", true),
+      substance("31844", "65799", "abacavir", false),
+    ];
+    const groups = [group("abacavir", ["31844"], ["65799"]), group("abacavir base", ["31844"], ["31844"])];
+
+    expect(getSubstancesNamesList(substances, groups)).toEqual([
+      { name: "abacavir", isCanonical: false, nbSpecsGroups: 1, details: [] },
+      { name: "abacavir base", isCanonical: true, nbSpecsGroups: 1, details: [] },
+    ]);
+  });
+
+  it("details the names of several substances, canonical only if each name is canonical", () => {
+    const substances = [
+      substance("02202", "02202", "paracétamol", true),
+      substance("74765", "74765", "codéine (phosphate de) hémihydraté", true),
+      substance("74765", "89219", "phosphate de codéine hémihydraté", false),
+    ];
+    const main = group("paracétamol, codéine (phosphate de) hémihydraté", ["02202", "74765"], ["02202", "74765"]);
+    const synonym = group("phosphate de codéine hémihydraté, paracétamol", ["74765", "02202"], ["89219", "02202"]);
+
+    expect(getSubstancesNamesList(substances, [synonym, synonym, main])).toEqual([
+      {
+        name: "phosphate de codéine hémihydraté, paracétamol",
+        isCanonical: false,
+        nbSpecsGroups: 2,
+        details: [{ subsId: "74765", name: "phosphate de codéine hémihydraté" }, { subsId: "02202", name: "paracétamol" }],
+      },
+      {
+        name: "paracétamol, codéine (phosphate de) hémihydraté",
+        isCanonical: true,
+        nbSpecsGroups: 1,
+        details: [{ subsId: "02202", name: "paracétamol" }, { subsId: "74765", name: "codéine (phosphate de) hémihydraté" }],
+      },
+    ]);
+  });
+
+  it("groups the same names in a different order, with the most frequent order", () => {
+    const substances = [substance("02202", "02202", "paracétamol", true), substance("00420", "00420", "caféine", true)];
+    const groups = [
+      group("caféine, paracétamol", ["00420", "02202"], ["00420", "02202"]),
+      group("paracétamol, caféine", ["02202", "00420"], ["02202", "00420"]),
+      group("paracétamol, caféine", ["02202", "00420"], ["02202", "00420"]),
+    ];
+    const namesList = getSubstancesNamesList(substances, groups);
+
+    expect(namesList).toHaveLength(1);
+    expect(namesList[0]).toMatchObject({ name: "paracétamol, caféine", nbSpecsGroups: 3 });
+  });
+
+  it("returns all the names of the medicaments, grouped by NomIds", () => {
+    // "codéine" (00467) is displayed on a medicament of the paracétamol + codéine phosphate (74765) page
+    const substances = [substance("02202", "02202", "paracétamol", true)];
+    const groups = [group("codéine, paracétamol", ["00467", "02202"], ["00467", "02202"])];
+
+    expect(getSubstancesNamesList(substances, groups)).toEqual([{
+      name: "codéine, paracétamol",
+      isCanonical: false,
+      nbSpecsGroups: 1,
+      details: [{ subsId: "00467", name: "codéine" }, { subsId: "02202", name: "paracétamol" }],
+    }]);
+  });
+
+  it("keeps a substance displayed several times", () => {
+    const substances = [substance("16736", "16736", "tolvaptan", true)];
+    const groups = [group("tolvaptan, tolvaptan", ["16736", "16736"], ["16736", "16736"])];
+
+    expect(getSubstancesNamesList(substances, groups)).toEqual([{
+      name: "tolvaptan, tolvaptan",
+      isCanonical: true,
+      nbSpecsGroups: 1,
+      details: [{ subsId: "16736", name: "tolvaptan" }, { subsId: "16736", name: "tolvaptan" }],
+    }]);
+  });
+
+  it("returns no names without medicament", () => {
+    expect(getSubstancesNamesList([substance("49632", "49632", "ranitidine base", true)], [])).toEqual([]);
   });
 });

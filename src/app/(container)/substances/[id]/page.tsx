@@ -8,9 +8,9 @@ import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinit
 import { getArticlesFromSubstances } from "@/db/utils/articles";
 import { getSubstanceSpecsGroups } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
-import { getSubstanceMainName, getSubstancePageNames } from "@/utils/substances";
+import { getSubstanceMainName, getSubstancesNamesList } from "@/utils/substances";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
-import { Substance } from "@/types/SubstanceTypes";
+import { Substance, SubstancesName } from "@/types/SubstanceTypes";
 import { notFound } from "next/navigation";
 
 export const dynamic = "error";
@@ -21,20 +21,31 @@ export const dynamicParams = true;
 const hasAllSubstances = (subsIds: string[], substances: Substance[]): boolean =>
   subsIds.every((subsId) => substances.some((subs) => subs.SubsId.trim() === subsId));
 
-// Title and subtitle of the page: only the substances names in specsGroups
+// Title and subtitle of the page: only the substances names from specsGroups
 const getSubstancesPageNames = (
   subsIds: string[],
   substances: Substance[],
   specsGroups: ResumeSpecGroup[],
-): { title: string, subtitle: string } => {
-  const names = getSubstancePageNames(subsIds, specsGroups);
-  if (names.title) {
-    return { title: names.title, subtitle: names.secondaryNames.join(subsIds.length > 1 ? " ; " : ", ") };
+): { title: string, subtitle: string, titleDetails: SubstancesName["details"] } => {
+  // Title: the canonical names if displayed on the medicaments, otherwise the names displayed on the most medicaments
+  const namesList = getSubstancesNamesList(substances, specsGroups);
+  const titleNames = namesList.find((names) => names.isCanonical) ?? namesList[0];
+  if (titleNames) {
+    // Subtitle: the other names
+    const secondaryNames = namesList
+      .filter((names) => names !== titleNames)
+      .map((names) => names.name);
+    return {
+      title: titleNames.name,
+      subtitle: secondaryNames.join(subsIds.length > 1 ? " ; " : ", "),
+      titleDetails: titleNames.details,
+    };
   }
   // No medicament: main name of each substance
   return {
     title: subsIds.map((subsId) => getSubstanceMainName(substances.filter((subs) => subs.SubsId.trim() === subsId))).join(", "),
     subtitle: "",
+    titleDetails: [],
   };
 };
 
@@ -77,13 +88,22 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     getSubstanceDefinition(subsIds),
     getSubstanceSpecsGroups(subsIds),
   ]);
-  const definition = definitions.map((d) => ({ title: d.SA, desc: d.Definition }));
 
   const dataList = allSpecsGroups.length > 0
     ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
     : [];
 
-  const { title, subtitle } = getSubstancesPageNames(subsIds, substances, allSpecsGroups);
+  const { title, subtitle, titleDetails } = getSubstancesPageNames(subsIds, substances, allSpecsGroups);
+  // Definition title: no title with a single substance, otherwise the name of its substance in the page title
+  const definition = definitions
+    // Only the definitions with a text
+    .filter((d) => d.Definition.trim().length > 0)
+    .map((d) => ({
+      title: subsIds.length > 1
+        ? titleDetails.find((detail) => detail.subsId === d.SubsId.trim())?.name ?? d.SA
+        : "Définition",
+      desc: d.Definition,
+    }));
   
   return (
     <ContentContainer frContainer>
