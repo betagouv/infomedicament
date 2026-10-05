@@ -42,6 +42,21 @@ describe("utils/substance - getSubstanceMainName", () => {
     expect(getSubstanceMainName(substances)).toBe("losartan potassique");
     expect(getSubstanceMainName([])).toBe("");
   });
+
+  it("does not take a deprecated name, even canonical", () => {
+    const substances = [
+      { SubsId: "02725", NomId: "02725", NomLib: "(NE PAS UTILISER)- LEVOGLUTAMIDE", isCanonical: true },
+      { SubsId: "02725", NomId: "72547", NomLib: "glutamine", isCanonical: false },
+    ];
+
+    expect(getSubstanceMainName(substances)).toBe("glutamine");
+  });
+
+  it("takes a deprecated name when it is the only name", () => {
+    const substances = [{ SubsId: "02725", NomId: "02725", NomLib: "(NE PAS UTILISER)- LEVOGLUTAMIDE", isCanonical: true }];
+
+    expect(getSubstanceMainName(substances)).toBe("(NE PAS UTILISER)- LEVOGLUTAMIDE");
+  });
 });
 
 describe("utils/substance - getSubstancesNamesList", () => {

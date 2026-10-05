@@ -281,26 +281,6 @@ export const getResumeSpecialitesWithCIS = cache(async function (
   return formatSpecialitesResume(result);
 });
 
-export const getSubstanceSpecialites = unstable_cache(
-  async function (subsNomsIDs: string | string[]): Promise<Specialite[]> {
-    const ids: string[] = !Array.isArray(subsNomsIDs)
-      ? [subsNomsIDs]
-      : subsNomsIDs;
-    const cisList = await getCisMatchingSubstanceSet(ids);
-    if (cisList.length === 0) return [];
-    const rows = await db
-      .selectFrom("ansm_specialite")
-      .where("cis", "in", cisList)
-      .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
-      .selectAll()
-      .execute();
-
-    return rows.map((row) => mapCatalogSpecialite(row));
-  },
-  ["substance-specialites"],
-  { revalidate: 3600 }, // cache for one hour
-);
-
 export const getSubstanceSpecialitesCIS = unstable_cache(
   async function (subsIds: string | string[]): Promise<string[]> {
     const ids: string[] = !Array.isArray(subsIds) ? [subsIds] : subsIds;

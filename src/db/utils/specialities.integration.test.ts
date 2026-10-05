@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { getAllSpecialites, getDetailedSpecialite, getSpecialite, getSubstanceSpecialites, getSubstanceSpecialitesCIS, getSubstanceSpecsGroups } from "./specialities";
+import { getAllSpecialites, getDetailedSpecialite, getSpecialite, getSubstanceSpecialitesCIS, getSubstanceSpecsGroups } from "./specialities";
 import { isPrincepsSpecialite } from "./generics";
 import { isHospitalDelivrance } from "@/utils/specialites";
 
@@ -65,19 +65,6 @@ describe("db utils specialities", () => {
     const isInactiveSpec = CISList.findIndex((CIS) => CIS.trim() === "61933092");
     //DOLIPRANE 1000 mg, comprimé
     const isActiveSpec = CISList.findIndex((CIS) => CIS.trim() === "60234100"); 
-    
-    expect(isInactiveSpec).toBe(-1);
-    expect(isActiveSpec).not.toBe(-1);
-  })
-
-  it("getSubstanceSpecialites - should return only actives specialities", async () => {
-    //Paracétamol
-    const specs = await getSubstanceSpecialites("02202");
-
-    //DOLIPRANE 500 mg, comprimé orodispersible
-    const isInactiveSpec = specs.findIndex((spec) => spec.SpecId.trim() === "61933092");
-    //DOLIPRANE 1000 mg, comprimé
-    const isActiveSpec = specs.findIndex((spec) => spec.SpecId.trim() === "60234100"); 
     
     expect(isInactiveSpec).toBe(-1);
     expect(isActiveSpec).not.toBe(-1);

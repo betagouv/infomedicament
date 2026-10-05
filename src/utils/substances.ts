@@ -1,13 +1,20 @@
 import { Substance, SubstancesName } from "@/types/SubstanceTypes";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 
+// ANSM names that must not be used, e.g. "(NE PAS UTILISER)- LEVOGLUTAMIDE"
+const isDeprecatedName = (subs: Substance): boolean => subs.NomLib.trim().startsWith("(NE PAS UTILISER)");
+
 export function getSubstanceMainName(
   substances: Substance[],
 ): string {
   if(substances.length === 0) return "";
-  const subs = substances.find((subs) => subs.isCanonical);
+  // Without the deprecated names, unless they are the only names
+  const names = substances.some((subs) => !isDeprecatedName(subs))
+    ? substances.filter((subs) => !isDeprecatedName(subs))
+    : substances;
+  const subs = names.find((subs) => subs.isCanonical);
   if(subs) return subs.NomLib.trim();
-  else return substances[0].NomLib.trim();
+  else return names[0].NomLib.trim();
 }
 
 const HTML_ENTITIES: Record<string, string> = {
@@ -49,8 +56,9 @@ export function getSubstancesNamesList(
   }>();
 
   specsGroups.forEach((group) => {
-    const groupSubsIds = group.subsIds.map((subsId) => subsId.trim());
-    const groupNomIds = group.subsNamesIds.map((nomId) => nomId.trim());
+    // Empty until the resume data is updated after the migration
+    const groupSubsIds = (group.subsIds ?? []).map((subsId) => subsId.trim());
+    const groupNomIds = (group.subsNamesIds ?? []).map((nomId) => nomId.trim());
     if (groupNomIds.length === 0) return;
 
     const nomIdsKey = [...groupNomIds].sort().join(",");
