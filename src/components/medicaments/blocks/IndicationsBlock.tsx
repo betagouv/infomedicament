@@ -157,9 +157,22 @@ function IndicationsBlock({
                 </button>
               )}
             </div>
-          ) : !indications?.length ? (
+          ) : isCentralisee(specialite) ? (
+            <span>
+              Vous trouverez les indications thérapeutiques de ce médicament
+              dans le paragraphe 4.1 du RCP ou dans le paragraphe 1 de la
+              notice. Ces documents sont disponibles{" "}
+              <Link
+                href="https://www.ema.europa.eu/fr/homepage"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                en cliquant ici.
+              </Link>
+            </span>
+          ) : (
             <span>Les indications thérapeutiques ne sont pas disponibles.</span>
-          ) : null}
+          )}
         </IndicationBlock>
         {indications && indications.length > 0 && (
           <IndicationsContainer>
