@@ -127,9 +127,10 @@ export const canonicalPaths = [
   "/indications/3",
   "/indications/4",
   "/indications/5",
-  "/generiques/68053454",
-  "/generiques/60005856",
-  "/generiques/67557907",
-  "/generiques/60806188",
-  "/generiques/64103828",
+  // ANSM generic-group identifiers, verified against public sitemap criteria.
+  "/generiques/2",
+  "/generiques/12",
+  "/generiques/13",
+  "/generiques/14",
+  "/generiques/15",
 ];
