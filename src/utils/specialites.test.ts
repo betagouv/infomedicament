@@ -1,9 +1,26 @@
 import { describe, it, expect } from "vitest";
-import { filterSpecsGroupsByCIS, formatIndicationsDetails, formatSpecialitesResume, getProcedureLibLong, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isHospitalDelivrance, isSurveillanceRenforcee } from "./specialites";
-import { DelivranceCondition, DetailedSpecialite, ResumeSpecGroup, SpecialiteStat } from "@/types/SpecialiteTypes";
-import { VUEvnts } from "@/db/pdbmMySQL/types";
-import { ShortIndication } from "@/types/IndicationsTypes";
-import { ResumeSpecialiteDB } from "@/db/types";
+import type { VUEvnts } from "@/db/pdbmMySQL/types";
+import type { ResumeSpecialiteDB } from "@/db/types";
+import type { ShortIndication } from "@/types/IndicationsTypes";
+import {
+  type DelivranceCondition,
+  type DetailedSpecialite,
+  type ResumeSpecGroup,
+  SpecialiteStat,
+} from "@/types/SpecialiteTypes";
+import {
+  filterSpecsGroupsByCIS,
+  formatIndicationsDetails,
+  formatSpecialitesResume,
+  getProcedureLibLong,
+  isAIP,
+  isAlerteSecurite,
+  isCentralisee,
+  isCommercialisee,
+  isHomeopathie,
+  isHospitalDelivrance,
+  isSurveillanceRenforcee,
+} from "./specialites";
 
 const detailedSpec: DetailedSpecialite = {
   SpecId: "60035714",
