@@ -54,7 +54,7 @@ function RatingAdvanced({
       </div>
       <div>
         <RadioButtons 
-            legend="Après votre visite sur InfoMédicament, diriez-vous que :"
+            legend="Après votre visite sur Info Médicament, diriez-vous que :"
             small 
             options={question2Options.map((option: string) => ({
               label: option,

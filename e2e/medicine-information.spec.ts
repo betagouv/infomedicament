@@ -151,7 +151,7 @@ test("FI_028–FI_042: composition and presentation details are complete", async
   ).toBeVisible();
 
   const presentation = page.getByRole("listitem").filter({
-    hasText: "Code CIP : 267 527-4 ou 34009 267 527 4 3",
+    hasText: "Code CIP : 3400926752743",
   });
   await expect(presentation).toContainText(
     "1 plaquette aluminium de 7 gélules",

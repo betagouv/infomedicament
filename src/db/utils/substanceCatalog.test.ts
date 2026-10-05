@@ -122,6 +122,18 @@ describe("substance catalog mapping", () => {
     );
     expect(result.NomId).toBe("23185");
   });
+
+  it("omits cell-source metadata from the displayed substance label", () => {
+    const [result] = toCompositionComponents(
+      [component({ code_substance: "65853", substance: "avélumab ((MAMMIFERE/HAMSTER/CELLULES CHO))" })],
+      [{ code_substance: "65853", code_nom: "65853", nom: "avélumab", type: "CANONIQUE" }],
+      elements,
+    );
+    expect(result).toMatchObject({
+      SubsId: "65853",
+      NomLib: "avélumab",
+    });
+  });
 });
 
 describe("legacy substance-set semantics", () => {
