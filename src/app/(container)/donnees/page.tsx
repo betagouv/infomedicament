@@ -49,7 +49,7 @@ type Mapping = {
     | "Sources disponibles"
     | "Correspondance partielle"
     | "Correspondance à confirmer"
-    | "Remplacement non identifié";
+    | "Remplacement à définir";
   sources: ReactNode;
   details: string;
 };
@@ -76,7 +76,7 @@ const mappings: Mapping[] = [
       </ul>
     ),
     details:
-      "Le catalogue et les titulaires sont répartis entre plusieurs tables, reliées par le code CIS. La reprise de chaque ancien champ, notamment la forme pharmaceutique, les voies d’administration et la surveillance renforcée, reste à documenter. Le nouveau fichier specialite ne remplace pas à lui seul toutes les colonnes de CIS_bdpm.",
+      "Le catalogue et les titulaires sont répartis entre plusieurs tables, reliées par le code CIS. Le nouveau fichier specialite ne remplace pas à lui seul toutes les colonnes de CIS_bdpm.",
   },
   {
     file: "CIS_CIP_bdpm.txt",
@@ -200,12 +200,12 @@ const mappings: Mapping[] = [
       </ul>
     ),
     details:
-      "Les ressources d’événements sont des pistes pour retrouver les informations de disponibilité. Leur équivalence avec l’ancien fichier de ruptures n’est pas encore validée : codes de statut, dates de remise à disposition et liens ANSM doivent être vérifiés. Ne considérez pas l’absence d’un événement comme une preuve de disponibilité.",
+      "Les ressources d’événements sont des pistes pour retrouver les informations de disponibilité. Ne considérez pas l’absence d’un événement comme une preuve de disponibilité.",
   },
   {
     file: "CIS_MITM.txt",
     label: "Médicaments d’intérêt thérapeutique majeur",
-    status: "Remplacement non identifié",
+    status: "Remplacement à définir",
     sources: (
       <a href="#donnees-manquantes">Correspondance en cours de recherche</a>
     ),
@@ -215,10 +215,10 @@ const mappings: Mapping[] = [
   {
     file: "CIS_InfoImportantes_AAAAMMJJhhmiss_bdpm.txt",
     label: "Informations importantes",
-    status: "Correspondance à confirmer",
+    status: "Sources disponibles",
     sources: <AnsmResource name="specialite_evenement" />,
     details:
-      "Les événements de spécialité sont une piste, mais la correspondance des types, des périodes de validité, des textes et des liens reste à valider. L’ancien export était généré à la demande : ne supposez pas que la nouvelle ressource a la même fraîcheur ou le même périmètre.",
+      "Les informations importantes sont disponibles dans specialite_evenement. Cette ressource décrit les événements associés à chaque spécialité, avec leur type, leurs dates et leurs commentaires. Utilisez le code CIS pour les relier au catalogue des spécialités et consultez le schéma pour adapter votre import.",
   },
 ];
 
@@ -482,10 +482,10 @@ export default function Page() {
           <h3>Autres correspondances à compléter</h3>
           <p>
             Les informations de remboursement, l’agrément aux collectivités, la
-            liste des MITM et l’équivalence exacte des fichiers de ruptures et
-            d’informations importantes restent à documenter ou à valider.
-            Certaines colonnes de l’ancien fichier des spécialités et des
-            compositions nécessitent également une correspondance plus précise.
+            liste des MITM et l’équivalence exacte du fichier de ruptures
+            restent à documenter ou à valider. Certaines colonnes de l’ancien
+            fichier des spécialités et des compositions nécessitent également
+            une correspondance plus précise.
           </p>
           <p>
             Une valeur absente ou une correspondance non validée doit rester «
