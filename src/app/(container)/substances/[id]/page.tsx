@@ -28,7 +28,8 @@ const getSubstancesPageNames = (
   specsGroups: ResumeSpecGroup[],
 ): { title: string, subtitle: string, titleDetails: SubstancesName["details"] } => {
   // Title: the canonical names if displayed on the medicaments, otherwise the names displayed on the most medicaments
-  const namesList = getSubstancesNamesList(substances, specsGroups);
+  // Title and subtitle: the substances in the order of the page ids
+  const namesList = getSubstancesNamesList(substances, specsGroups, subsIds);
   const titleNames = namesList.find((names) => names.isCanonical) ?? namesList[0];
   if (titleNames) {
     // Subtitle: the other names

@@ -39,14 +39,31 @@ export function cleanSubstanceName(name: string): string {
     .trim();
 }
 
+// Sorts the names details in the order of the substances ids (a substance requested twice takes two positions),
+// the substances not in the ids at the end
+function sortBySubsIds<T extends { subsId: string }>(details: T[], subsIds: string[]): T[] {
+  const pageSubsIds = subsIds.map((subsId) => subsId.trim());
+  const usedPositions = new Set<number>();
+  return details
+    .map((detail) => {
+      const position = pageSubsIds.findIndex((subsId, index) => subsId === detail.subsId && !usedPositions.has(index));
+      if (position !== -1) usedPositions.add(position);
+      return { detail, position: position === -1 ? pageSubsIds.length : position };
+    })
+    .sort((a, b) => a.position - b.position)
+    .map(({ detail }) => detail);
+}
+
 // Names details of one or several substances
 // If multiple substances, the name of each substance are in the same row
 // Only names used in specsGroups
 // isCanonical: each name is canonical
 // Ordered by the number of medicaments
+// subsIds: order of the substances in each name (e.g. the page substances), otherwise the most frequent order
 export function getSubstancesNamesList(
   substances: Substance[],
   specsGroups: Pick<ResumeSpecGroup, "subsIds" | "subsNamesIds">[],
+  subsIds: string[] = [],
 ): SubstancesName[] {
   // Names grouped by NomIds (same NomIds in a different order are the same),
   // with the number of medicaments for each order of the NomIds
@@ -79,10 +96,13 @@ export function getSubstancesNamesList(
       // The most frequent order of the NomIds
       const [, { groupSubsIds, groupNomIds }] = [...orders.entries()]
         .sort(([orderA, a], [orderB, b]) => b.nb - a.nb || orderA.localeCompare(orderB))[0];
-      const details = groupNomIds.map((nomId, index) => ({
-        subsId: groupSubsIds[index],
-        name: cleanSubstanceName(getSubstance(nomId)?.NomLib ?? ""),
-      }));
+      const details = sortBySubsIds(
+        groupNomIds.map((nomId, index) => ({
+          subsId: groupSubsIds[index],
+          name: cleanSubstanceName(getSubstance(nomId)?.NomLib ?? ""),
+        })),
+        subsIds,
+      );
       return {
         name: details.map((detail) => detail.name).join(", "),
         isCanonical: groupNomIds.every((nomId) => getSubstance(nomId)?.isCanonical ?? false),

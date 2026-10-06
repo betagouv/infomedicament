@@ -143,6 +143,33 @@ describe("utils/substance - getSubstancesNamesList", () => {
     }]);
   });
 
+  it("orders the substances of each name as the requested substances", () => {
+    const substances = [
+      substance("02202", "02202", "paracétamol", true),
+      substance("74765", "74765", "codéine (phosphate de) hémihydraté", true),
+      substance("74765", "89219", "phosphate de codéine hémihydraté", false),
+    ];
+    const main = group("paracétamol, codéine (phosphate de) hémihydraté", ["02202", "74765"], ["02202", "74765"]);
+    const synonym = group("phosphate de codéine hémihydraté, paracétamol", ["74765", "02202"], ["89219", "02202"]);
+
+    expect(getSubstancesNamesList(substances, [synonym, synonym, main], ["02202", "74765"]).map((names) => names.name)).toEqual([
+      "paracétamol, phosphate de codéine hémihydraté",
+      "paracétamol, codéine (phosphate de) hémihydraté",
+    ]);
+    expect(getSubstancesNamesList(substances, [synonym, main], ["74765", "02202"]).map((names) => names.name)).toEqual([
+      "codéine (phosphate de) hémihydraté, paracétamol",
+      "phosphate de codéine hémihydraté, paracétamol",
+    ]);
+  });
+
+  it("orders a substance requested several times", () => {
+    const substances = [substance("02202", "02202", "paracétamol", true), substance("02678", "02678", "diphénhydramine (chlorhydrate de)", true)];
+    const groups = [group("", ["02202", "02678", "02202"], ["02202", "02678", "02202"])];
+
+    expect(getSubstancesNamesList(substances, groups, ["02202", "02202", "02678"])[0].name)
+      .toBe("paracétamol, paracétamol, diphénhydramine (chlorhydrate de)");
+  });
+
   it("keeps a substance displayed several times", () => {
     const substances = [substance("16736", "16736", "tolvaptan", true)];
     const groups = [group("tolvaptan, tolvaptan", ["16736", "16736"], ["16736", "16736"])];
