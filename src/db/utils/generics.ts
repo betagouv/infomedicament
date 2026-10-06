@@ -224,6 +224,3 @@ export async function isGenericSpecialite(CIS: string): Promise<boolean> {
   );
 }
 
-export async function getGeneriques(codeGroupe: number): Promise<Specialite[]> {
-  return (await getGenericGroup(codeGroupe))?.generiques ?? [];
-}

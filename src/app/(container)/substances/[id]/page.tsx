@@ -1,18 +1,54 @@
 import { fr } from "@codegouvfr/react-dsfr";
-import type { Substance } from "@/types/SubstanceTypes";
-import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { Metadata, ResolvingMetadata } from "next";
-import { getSubstances, getSubstanceDefinition } from "@/db/utils/substances";
+import { getSubstanceDefinition, getSubstancesNames } from "@/db/utils/substances";
 import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinitionContent";
 import { getArticlesFromSubstances } from "@/db/utils/articles";
-import { getResumeSpecsGroupsWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
+import { getSubstanceSpecsGroups } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
+import { getSubstanceMainName, getSubstancesNamesList } from "@/utils/substances";
+import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
+import { Substance, SubstancesName } from "@/types/SubstanceTypes";
+import { notFound } from "next/navigation";
 
 export const dynamic = "error";
 export const dynamicParams = true;
+
+// Check if all the requested substances are loaded
+// Usefull when the page are for multiple substances and some of them are the same
+const hasAllSubstances = (subsIds: string[], substances: Substance[]): boolean =>
+  subsIds.every((subsId) => substances.some((subs) => subs.SubsId.trim() === subsId));
+
+// Title and subtitle of the page: only the substances names from specsGroups
+const getSubstancesPageNames = (
+  subsIds: string[],
+  substances: Substance[],
+  specsGroups: ResumeSpecGroup[],
+): { title: string, subtitle: string, titleDetails: SubstancesName["details"] } => {
+  // Title: the canonical names if displayed on the medicaments, otherwise the names displayed on the most medicaments
+  // Title and subtitle: the substances in the order of the page ids
+  const namesList = getSubstancesNamesList(substances, specsGroups, subsIds);
+  const titleNames = namesList.find((names) => names.isCanonical) ?? namesList[0];
+  if (titleNames) {
+    // Subtitle: the other names
+    const secondaryNames = namesList
+      .filter((names) => names !== titleNames)
+      .map((names) => names.name);
+    return {
+      title: titleNames.name,
+      subtitle: secondaryNames.join(subsIds.length > 1 ? " ; " : ", "),
+      titleDetails: titleNames.details,
+    };
+  }
+  // No medicament: main name of each substance
+  return {
+    title: subsIds.map((subsId) => getSubstanceMainName(substances.filter((subs) => subs.SubsId.trim() === subsId))).join(", "),
+    subtitle: "",
+    titleDetails: [],
+  };
+};
 
 export async function generateMetadata(
   props: { params: Promise<{ id: string }> },
@@ -20,45 +56,56 @@ export async function generateMetadata(
 ): Promise<Metadata> {
 
   const { id } = await props.params;
-  const ids = decodeURIComponent(id).split(",");//NomId
-  const substances: Substance[] = await getSubstances(ids);
-  if (substances.length < ids.length) {
+  const subsIds = decodeURIComponent(id).split(",");
+  const substances: Substance[] = await getSubstancesNames(subsIds) ?? [];
+  if (!hasAllSubstances(subsIds, substances)) {
     return {
       title: `Substance ${id}`,
     };
   }
 
-  const definitionsRaw = await getSubstanceDefinition(ids, substances.map((subs) => subs.SubsId.trim()));
-  const definitionString = definitionsRaw.map(d => `${d.SA} : ${d.Definition}`).join(" - ")
+  const [definitionsRaw, allSpecsGroups] = await Promise.all([
+    getSubstanceDefinition(subsIds),
+    getSubstanceSpecsGroups(subsIds),
+  ]);
+  const definitionString = definitionsRaw.map(d => `${d.SA} : ${d.Definition}`).join(" - ");
+  const { title } = getSubstancesPageNames(subsIds, substances, allSpecsGroups);
 
   return {
-    title: `${substances.map((s) => s.NomLib).join(", ")} - ${(await parent).title?.absolute}`,
+    title: `${title} - ${(await parent).title?.absolute}`,
     description: definitionString,
   };
 }
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
-  const ids = decodeURIComponent(id).split(",");//NomId
+  const subsIds = decodeURIComponent(id).split(",");
+  
+  const substances: Substance[] = await getSubstancesNames(subsIds) ?? [];
+  if (!hasAllSubstances(subsIds, substances)) notFound();
 
-  const substances: Substance[] = await getSubstances(ids);
-  if (substances.length < ids.length) return notFound();
-
-  const subsIds = substances.map((s) => s.SubsId.trim());
-
-  const [articles, definitions, CISList] = await Promise.all([
-    getArticlesFromSubstances(ids),
-    getSubstanceDefinition(ids, subsIds),
-    getSubstanceSpecialitesCIS(ids),
+  const [articles, definitions, allSpecsGroups] = await Promise.all([
+    getArticlesFromSubstances(subsIds),
+    getSubstanceDefinition(subsIds),
+    getSubstanceSpecsGroups(subsIds),
   ]);
 
-  const definition = definitions.map((d) => ({ title: d.SA, desc: d.Definition }));
-
-  const allSpecsGroups = await getResumeSpecsGroupsWithCIS(CISList);
   const dataList = allSpecsGroups.length > 0
     ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
     : [];
 
+  const { title, subtitle, titleDetails } = getSubstancesPageNames(subsIds, substances, allSpecsGroups);
+  // Definition title: no title with a single substance, otherwise the name of its substance in the page title
+  const definition = definitions
+    // Only the definitions with a text
+    .filter((d) => d.Definition.trim().length > 0)
+    .map((d) => ({
+      title: subsIds.length > 1
+        ? titleDetails.find((detail) => detail.subsId === d.SubsId.trim())?.name ?? d.SA
+        : "Définition",
+      desc: d.Definition,
+    }));
+  
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
@@ -69,23 +116,24 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
               {
                 label: "Listes des substances",
                 linkProps: {
-                  href: `/substances/${substances[0].NomLib.slice(0, 1)}`,
+                  href: `/substances/${title[0].slice(0, 1)}`,
                 },
               },
             ]}
-            currentPageLabel={substances.map((s) => s.NomLib).join(", ")}
+            currentPageLabel={title}
           />
         </div>
       </div>
       <SubstanceDefinitionContent
-        ids={ids}
-        substances={substances}
+        subsIds={subsIds}
         articles={articles}
         definition={definition}
         dataList={dataList}
+        title={title}
+        subtitle={subtitle}
       />
       <RatingToaster
-        pageId={substances.map((s) => s.NomLib).join(", ")}
+        pageId={title}
       />
     </ContentContainer>
   );

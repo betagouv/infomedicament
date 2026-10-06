@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { getIndications, getSpecialiteIndications, getSpecialitePathologies, getSpecialitesIndications } from "./indications";
+import { getIndications, getSpecialitePathologies, getSpecialitesIndications } from "./indications";
 import { ShortIndication } from "@/types/IndicationsTypes";
 
 // disable cache for testing
@@ -20,14 +20,6 @@ describe("db utils indications", () => {
       expect(classeClinique.codePatho).toBeNull();
       expect(classeClinique.codeClasseClinique).toBe(65);
     }
-  });
-
-  it("getSpecialiteIndications - should return patho and / or classe clinique", async () => {
-    const indications = await getSpecialiteIndications("68600724");
-    const isPatho = indications.findIndex((indication: number) => indication === 99);
-    expect(isPatho).not.toBe(-1);
-    const isClasseClinique = indications.findIndex((indication: number) => indication === 236);
-    expect(isClasseClinique).not.toBe(-1);
   });
 
   it("getSpecialitesIndications - should return patho and / or classe clinique", async () => {

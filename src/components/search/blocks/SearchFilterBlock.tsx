@@ -83,6 +83,7 @@ function SearchFilterBlock({
                     label: (
                       <SearchFilterLabel
                         name={filter.name}
+                        secondaryName={filter.secondaryName}
                         count={filter.count}
                       />
                     ),

@@ -22,7 +22,7 @@ function SubstanceTag({ composants, fromMedicament }: SubstanceTagProps) {
     <Tag
       linkProps={{
         href: `/substances/${displaySimpleComposants(composants)
-          .map((s) => s.NomId.trim())
+          .map((s) => s.SubsId.trim())
           .join(",")}`,
         className: cx("fr-tag--custom-alt-substance"),
         target: "_blank",

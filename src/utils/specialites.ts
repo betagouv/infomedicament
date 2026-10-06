@@ -33,6 +33,34 @@ export function groupSpecialites<T extends Specialite>(
   return allGroups;
 }
 
+// A group gathers specialites by name, whatever their composition:
+// keeps in each group only the specialites of the CIS list, and removes the empty groups
+export function filterSpecsGroupsByCIS(
+  specsGroups: ResumeSpecGroup[],
+  CISList: string[],
+): ResumeSpecGroup[] {
+  return specsGroups
+    .map((group) => {
+      const specialites = group.specialites.filter((spec) => CISList.includes(spec[0].trim()));
+      const filteredGroup = {
+        ...group,
+        CISList: group.CISList.filter((cis) => CISList.includes(cis.trim())),
+        specialites: specialites,
+        shortSpecialites: group.shortSpecialites.filter((spec) => CISList.includes(spec.SpecId.trim())),
+      };
+      // The group substances come from its first specialite
+      const firstSpec = specialites[0];
+      if (!firstSpec || firstSpec[0] === group.specialites[0][0] || firstSpec[5] === undefined) return filteredGroup;
+      return {
+        ...filteredGroup,
+        composants: firstSpec[5],
+        subsIds: firstSpec[6].split(","),
+        subsNamesIds: firstSpec[7].split(","),
+      };
+    })
+    .filter((group) => group.CISList.length > 0);
+}
+
 export function isCentralisee(
   specialite: DetailedSpecialite | Specialite
 ): boolean {
