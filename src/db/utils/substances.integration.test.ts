@@ -34,12 +34,12 @@ describe("substances list (resume_substances)", () => {
   });
 
   it("does not return the canonical names if it's not used by any specialite", async () => {
-    // Venlafaxine chlorhydrate (20256): canonical name "venlafaxine (chlorhydrate de)" is not used by any specialite
-    const canonicalSubstances = await getSubstancesList("venlafaxine (chlorhydrate de)");
-    const synonymSubstances = await getSubstancesList("chlorhydrate de venlafaxine");
+    // Nitrate d'éconazole (03929): canonical name "éconazole (nitrate d')" is not used by any specialite
+    const canonicalSubstances = await getSubstancesList("éconazole (nitrate d')");
+    const synonymSubstances = await getSubstancesList("nitrate d'éconazole");
 
-    expect(canonicalSubstances.some((subs) => subs.NomLib === "venlafaxine (chlorhydrate de)")).toBe(false);
-    expect(synonymSubstances.some((subs) => subs.SubsId === "20256" && subs.NomLib === "chlorhydrate de venlafaxine")).toBe(true);
+    expect(canonicalSubstances.some((subs) => subs.NomLib === "éconazole (nitrate d')")).toBe(false);
+    expect(synonymSubstances.some((subs) => subs.SubsId === "03929" && subs.NomLib === "nitrate d'éconazole")).toBe(true);
   });
 
   it("does not list substances without visible specialites", async () => {
@@ -48,19 +48,27 @@ describe("substances list (resume_substances)", () => {
     expect(substances.some((subs) => subs.SubsId === "49632")).toBe(false);
   });
 
-  it("lists an active fraction with specialites and their substances", async () => {
+  it("lists an active fraction with specialites", async () => {
     // Escitalopram (89971) is the active fraction of escitalopram oxalate (78924)
     const fractionSubstances = await getSubstancesList("escitalopram");
-    const substances = await getSubstancesList("oxalate d'escitalopram");
 
     expect(fractionSubstances.some((subs) => subs.SubsId === "89971" && subs.NomLib === "escitalopram")).toBe(true);
-    expect(substances.some((subs) => subs.SubsId === "78924")).toBe(true);
   });
 
-  it("lists a substance without canonical name under its used synonym", async () => {
-    // Pantoprazole sodium sesquihydrate (67373) has no CANONIQUE name in ansm_substance_nom
-    const substances = await getSubstancesList("pantoprazole sodique sesquihydraté");
-    expect(substances.some((subs) => subs.SubsId === "67373" && subs.NomLib === "pantoprazole sodique sesquihydraté")).toBe(true);
+  it("does not list a substance always displayed as its active fraction, and its page has no medicament", async () => {
+    // Escitalopram oxalate (78924): all its specialites are displayed as escitalopram (89971)
+    const substances = await getSubstancesList("oxalate d'escitalopram");
+
+    expect(substances.some((subs) => subs.SubsId === "78924")).toBe(false);
+    expect(await getCisMatchingSubstanceSet(["78924"])).toEqual([]);
+  });
+
+  it("lists the active fraction instead of its substance", async () => {
+    // Pantoprazole sodique sesquihydraté (67373): all its specialites are displayed as pantoprazole (38524)
+    const substances = await getSubstancesList("pantoprazole");
+
+    expect(substances.some((subs) => subs.SubsId === "67373")).toBe(false);
+    expect(substances.some((subs) => subs.SubsId === "38524" && subs.NomLib === "pantoprazole")).toBe(true);
   });
 
   it("does not list a substance with combination (more than one component)", async () => {
@@ -89,10 +97,10 @@ describe("substances list (resume_substances)", () => {
   });
 
   it("removes double spaces in names", async () => {
-    // 15285: ANSM name is "pixantrone  (dimaléate de)"
-    const substances = await getSubstancesList("pixantrone");
+    // 09692: ANSM name is "antigène  de surface de l'hépatite B recombinant  ((LEVURE/SACCHAROMYCES CEREVISIAE))"
+    const substances = await getSubstancesList("antigène de surface de l'hépatite B recombinant");
 
-    expect(substances.some((subs) => subs.SubsId === "15285" && subs.NomLib === "pixantrone (dimaléate de)")).toBe(true);
+    expect(substances.some((subs) => subs.SubsId === "09692" && subs.NomLib === "antigène de surface de l'hépatite B recombinant")).toBe(true);
     const withDoubleSpaces = await db
       .selectFrom("resume_substances")
       .select("NomLib")
@@ -121,9 +129,9 @@ describe("getCisMatchingSubstanceSet", () => {
   });
 
   it("resolves a NomId which is not a SubsId", async () => {
-    // 20260: NomId "oxalate d'escitalopram" of the SubsId 78924
-    const byNomId = await getCisMatchingSubstanceSet(["20260"]);
-    const bySubsId = await getCisMatchingSubstanceSet(["78924"]);
+    // 61187: NomId "acétaminophène" of the SubsId 02202 (paracétamol)
+    const byNomId = await getCisMatchingSubstanceSet(["61187"]);
+    const bySubsId = await getCisMatchingSubstanceSet(["02202"]);
 
     expect(byNomId.length).toBeGreaterThan(0);
     expect(byNomId.sort()).toEqual(bySubsId.sort());

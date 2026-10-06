@@ -18,7 +18,7 @@ import {
 
 type SubstanceSetComponent = Pick<
   AnsmComposant,
-  "cis" | "numero_element" | "numero_composant" | "ordre" | "code_substance"
+  "cis" | "numero_element" | "numero_composant" | "ordre" | "code_substance" | "nature"
 >;
 
 async function resolveSubstances(subsIds: string[]): Promise<Substance[]> {
@@ -97,6 +97,7 @@ async function componentsForCandidateCis(
       "numero_composant",
       "ordre",
       "code_substance",
+      "nature",
     ])
     .execute();
   const byCis = new Map<string, SubstanceSetComponent[]>();
@@ -163,16 +164,15 @@ export const getAllSubsWithSpecialites = cache(async function () {
     rows.push(component);
     byCis.set(component.cis, rows);
   }
-  const singleComponentCis = new Set(
-    [...byCis.entries()]
-      .filter(([, rows]) => hasExactlyOneComponent(rows))
-      .map(([cis]) => cis),
-  );
-  const mappedComponents = toCompositionComponents(
-    components.filter((component) => singleComponentCis.has(component.cis)),
-    names,
-    [],
-  );
+  // Substances of the single component CIS: the active fractions if any, otherwise the active substances
+  // (same as the substance displayed on the medicament page, see displaySimpleComposants)
+  const singleComponentRows = [...byCis.values()]
+    .filter((rows) => hasExactlyOneComponent(rows))
+    .flatMap((rows) => {
+      const fractions = rows.filter((row) => row.nature === "Fraction active");
+      return fractions.length > 0 ? fractions : rows;
+    });
+  const mappedComponents = toCompositionComponents(singleComponentRows, names, []);
   const denominationByCis = new Map(
     specialites.map((specialite) => [
       specialite.cis,

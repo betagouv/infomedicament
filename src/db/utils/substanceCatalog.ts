@@ -132,44 +132,57 @@ export function toCompositionComponents(
 }
 
 /**
- * Verifies that the composition's components are exactly the requested substance codes:
- * each component matches one requested code, and a code requested twice needs two components
- * (e.g. a kit of two tablets of the same substance).
+ * Verifies that the substances displayed for the composition are exactly the requested substance codes:
+ * for each component, its active fractions if any, otherwise its active substances
+ * (same as the substances displayed on the medicament page, see displaySimpleComposants).
+ * A code requested twice needs to be displayed twice (e.g. a kit of two tablets of the same substance).
  */
 export function compositionMatchesSubstanceSet(
   components: Pick<
     AnsmComposant,
-    "numero_element" | "numero_composant" | "ordre" | "code_substance"
+    "numero_element" | "numero_composant" | "ordre" | "code_substance" | "nature"
   >[],
   substanceCodes: string[],
 ): boolean {
   if (substanceCodes.length === 0) return false;
 
-  const codesByComponent = new Map<string, Set<string>>();
+  const rowsByComponent = new Map<string, typeof components>();
   for (const component of components) {
-    const codes =
-      codesByComponent.get(componentKey(component)) ?? new Set<string>();
-    if (component.code_substance) codes.add(component.code_substance);
-    codesByComponent.set(componentKey(component), codes);
+    const key = componentKey(component);
+    rowsByComponent.set(key, [...(rowsByComponent.get(key) ?? []), component]);
   }
-  if (codesByComponent.size !== substanceCodes.length) return false;
+  const displayedCodes = [...rowsByComponent.values()].flatMap((rows) => {
+    const fractions = rows.filter((row) => row.nature === "Fraction active");
+    const displayed = fractions.length > 0 ? fractions : rows;
+    return [...new Set(displayed.flatMap((row) => row.code_substance ? [row.code_substance.trim()] : []))];
+  });
 
-  const remainingCodes = [...substanceCodes];
-  for (const codes of codesByComponent.values()) {
-    const index = remainingCodes.findIndex((code) => codes.has(code));
-    if (index === -1) return false;
-    remainingCodes.splice(index, 1);
-  }
-  return remainingCodes.length === 0;
+  const sortedCodes = (codes: string[]) => [...codes].sort().join(",");
+  return sortedCodes(displayedCodes) === sortedCodes(substanceCodes.map((code) => code.trim()));
 }
 
+/**
+ * A single component, with a single active substance and at most a single active fraction
+ * (e.g. not N(2)-L-alanyl-L-glutamine and its two active fractions alanine and glutamine).
+ */
 export function hasExactlyOneComponent(
   components: Pick<
     AnsmComposant,
-    "numero_element" | "numero_composant" | "ordre"
+    "numero_element" | "numero_composant" | "ordre" | "code_substance" | "nature"
   >[],
 ): boolean {
+  const codes = (nature: AnsmComposant["nature"]) =>
+    new Set(
+      components
+        .filter((component) => component.nature === nature)
+        .map((component) => component.code_substance?.trim()),
+    );
+  const substances = codes("Substance active");
+  const fractions = codes("Fraction active");
   return (
-    components.length > 0 && new Set(components.map(componentKey)).size === 1
+    components.length > 0 &&
+    new Set(components.map(componentKey)).size === 1 &&
+    (substances.size === 0 || substances.size === 1) &&
+    (fractions.size === 0 || fractions.size === 1)
   );
 }

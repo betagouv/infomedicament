@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { getAllSpecialites, getDetailedSpecialite, getSpecialite, getSubstanceSpecialitesCIS, getSubstanceSpecsGroups } from "./specialities";
 import { isPrincepsSpecialite } from "./generics";
 import { isHospitalDelivrance } from "@/utils/specialites";
+import db from "@/db";
 
 // disable cache for testing
 vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
@@ -165,12 +166,13 @@ describe("substance page : specialites list", () => {
     expect(fucidine?.shortSpecialites.map((spec) => spec.SpecId)).toEqual(["60330586"]);
   });
 
-  it("removes from a medicament group the specialites with more substances", async () => {
-    // Hydroxyde d'aluminium (02940): the MAALOX group mostly contains aluminium + magnésium specialites
-    const groups = await getSubstanceSpecsGroups(["02940"]);
-    const maalox = groups.find((group) => group.groupName === "MAALOX MAUX D'ESTOMAC HYDROXYDE D'ALUMINIUM/HYDROXYDE DE MAGNESIUM");
+  it("removes from a medicament group the specialites with other substances", async () => {
+    // Caféine + paracétamol (00420, 02202): the CLARADOL group also contains paracétamol only specialites
+    const groups = await getSubstanceSpecsGroups(["00420", "02202"]);
+    const claradol = groups.find((group) => group.groupName === "CLARADOL");
 
-    expect(maalox?.CISList).toEqual(["64216427"]);
+    expect(claradol?.CISList).toEqual(["63332717"]); // CLARADOL 500 mg CAFEINE, comprimé
+    expect(claradol?.composants).toBe("caféine, paracétamol");
   });
 
   it("displays the actives substances from the specialites kept", async () => {
@@ -181,5 +183,63 @@ describe("substance page : specialites list", () => {
     expect(claradol?.CISList).toEqual(["67458001"]); // CLARADOL 500 mg, comprimé sécable
     expect(claradol?.composants).toBe("paracétamol");
     expect(claradol?.subsIds).toEqual(["02202"]);
+  });
+});
+
+//run `npm run db:update-resume substances` is necessary first
+describe("substance page and substances list: substances displayed on the medicaments", () => {
+  // Medicaments groups on the substance page
+  const getPageMedicaments = async (subsIds: string[]) => (await getSubstanceSpecsGroups(subsIds)).length;
+  // Medicaments groups of the substance in the substances list, undefined if not in the list
+  const getListMedicaments = async (subsId: string) => {
+    const row = await db
+      .selectFrom("resume_substances")
+      .where("SubsId", "=", subsId)
+      .select("specialites")
+      .executeTakeFirst();
+    return row?.specialites;
+  };
+
+  // Substance page with several substances
+  it.each([
+    // sacubitril + valsartan
+    [["78789", "15734"], 1],
+    // paracétamol + phosphate de codéine hémihydraté
+    [["02202", "74765"], 8],
+    // paracétamol + phosphate de codéine anhydre
+    [["02202", "25936"], 1],
+    // paracétamol + codéine
+    [["02202", "00467"], 3],
+    // glutamine + alanine: DIPEPTIVEN
+    [["02725", "00031"], 1],
+    // paracétamol twice + chlorhydrate de diphénhydramine
+    [["02202", "02202", "02678"], 1],
+  ])("page %j: %i medicament(s)", async (subsIds, nbMedicaments) => {
+    expect(await getPageMedicaments(subsIds)).toBe(nbMedicaments);
+  });
+
+  // Substance page and substances list with a single substance
+  it.each([
+    // sacubitril: only with valsartan
+    ["78789", 0],
+    // valsartan
+    ["15734", 13],
+    // paracétamol
+    ["02202", 58],
+    // phosphate de codéine hémihydraté: displayed as its active fraction codéine
+    ["74765", 0],
+    // phosphate de codéine anhydre: displayed as its active fraction codéine
+    ["25936", 0],
+    // codéine
+    ["00467", 2],
+    // N(2)-L-alanyl-L-glutamine: displayed as its active fractions glutamine and alanine
+    ["89263", 0],
+    // glutamine: only with alanine
+    ["02725", 0],
+    // alanine
+    ["00031", 1],
+  ])("substance %s: %i medicament(s), in the substances list if any", async (subsId, nbMedicaments) => {
+    expect(await getPageMedicaments([subsId])).toBe(nbMedicaments);
+    expect(await getListMedicaments(subsId)).toBe(nbMedicaments > 0 ? nbMedicaments : undefined);
   });
 });

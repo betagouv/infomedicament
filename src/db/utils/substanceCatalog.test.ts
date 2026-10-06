@@ -140,10 +140,42 @@ describe("legacy substance-set semantics", () => {
   it("treats a parent and active fraction as one component", () => {
     const rows = [
       component({ numero_composant: 1, ordre: 1, code_substance: "parent" }),
-      component({ numero_composant: 10, ordre: 1, code_substance: "fraction" }),
+      component({ numero_composant: 10, ordre: 1, code_substance: "fraction", nature: "Fraction active" }),
     ];
     expect(compositionMatchesSubstanceSet(rows, ["fraction"])).toBe(true);
     expect(hasExactlyOneComponent(rows)).toBe(true);
+  });
+
+  it("is not a single component with several active fractions", () => {
+    // N(2)-L-alanyl-L-glutamine and its active fractions alanine and glutamine
+    const rows = [
+      component({ numero_composant: 1, ordre: 1, code_substance: "dipeptide" }),
+      component({ numero_composant: 3, ordre: 1, code_substance: "alanine", nature: "Fraction active" }),
+      component({ numero_composant: 4, ordre: 1, code_substance: "glutamine", nature: "Fraction active" }),
+    ];
+    expect(hasExactlyOneComponent(rows)).toBe(false);
+    // Matches only the displayed substances: all the active fractions
+    expect(compositionMatchesSubstanceSet(rows, ["glutamine"])).toBe(false);
+    expect(compositionMatchesSubstanceSet(rows, ["alanine"])).toBe(false);
+    expect(compositionMatchesSubstanceSet(rows, ["dipeptide"])).toBe(false);
+    expect(compositionMatchesSubstanceSet(rows, ["glutamine", "alanine"])).toBe(true);
+  });
+
+  it("matches the active fraction, not its active substance", () => {
+    const rows = [
+      component({ numero_composant: 1, ordre: 1, code_substance: "parent" }),
+      component({ numero_composant: 10, ordre: 1, code_substance: "fraction", nature: "Fraction active" }),
+    ];
+    expect(compositionMatchesSubstanceSet(rows, ["fraction"])).toBe(true);
+    expect(compositionMatchesSubstanceSet(rows, ["parent"])).toBe(false);
+  });
+
+  it("is not a single component with several active substances", () => {
+    const rows = [
+      component({ numero_composant: 1, ordre: 1, code_substance: "a" }),
+      component({ numero_composant: 2, ordre: 1, code_substance: "b" }),
+    ];
+    expect(hasExactlyOneComponent(rows)).toBe(false);
   });
 
   it("requires the complete set across distinct components", () => {
