@@ -11,14 +11,12 @@ import {
   DelivranceCondition,
   DetailedSpecialite,
   ResumeSpecGroup,
-  ResumeSpecialite,
   Specialite,
 } from "@/types/SpecialiteTypes";
 import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
 import {
-  formatSpecialitesResume,
   filterSpecsGroupsByCIS,
   formatSpecialitesResumeFromGroups,
 } from "@/utils/specialites";
@@ -266,19 +264,6 @@ export const getSubstanceSpecsGroups = cache(async function (
   const CISList = await getSubstanceSpecialitesCIS(subsIds);
   const specsGroups = await getResumeSpecsGroupsWithCIS(CISList);
   return filterSpecsGroupsByCIS(specsGroups, CISList);
-});
-
-export const getResumeSpecialitesWithCIS = cache(async function (
-  CISList: string[],
-): Promise<ResumeSpecialite[]> {
-  if (CISList.length === 0) return [];
-  const result = await db
-    .selectFrom("resume_specialites")
-    .where("specId", "in", CISList)
-    .selectAll()
-    .orderBy("groupName")
-    .execute();
-  return formatSpecialitesResume(result);
 });
 
 export const getSubstanceSpecialitesCIS = unstable_cache(

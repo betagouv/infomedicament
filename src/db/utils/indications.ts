@@ -23,21 +23,6 @@ export async function getIndications(code: number): Promise<Indication | undefin
     .executeTakeFirst();
 }
 
-//Get the indications list (only ids) from specialite code CIS
-export const getSpecialiteIndications = unstable_cache(
-  async function (CIS: string): Promise<number[]> {
-    const codes = await db
-      .selectFrom("indications")
-      .select("id")
-      .where("CIS", "&&", Array([CIS]))
-      .distinct()
-      .execute();
-    return codes.map((code) => code.id);
-  },
-  ["specialite-indications"],
-  { revalidate: 3600 } // cache for 1 hour
-);
-
 //Get the pathologies list (only ids) from specialite code CIS
 export const getSpecialitePathologies = unstable_cache(
   async function (CIS: string): Promise<number[]> {

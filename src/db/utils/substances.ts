@@ -24,31 +24,39 @@ type SubstanceSetComponent = Pick<
 async function resolveSubstances(subsIds: string[]): Promise<Substance[]> {
   if (subsIds.length === 0) return [];
 
-  const [ansmNames, resumeFallbacks] = await Promise.all([
-    db
-      .selectFrom("ansm_substance_nom")
-      .where((eb) =>
-        eb.or([eb("code_nom", "in", subsIds), eb("code_substance", "in", subsIds)]),
-      )
-      .selectAll()
-      .execute(),
-    db
-      .selectFrom("resume_substances")
-      .where((eb) => eb.or([eb("NomId", "in", subsIds), eb("SubsId", "in", subsIds)]))
-      .select(["SubsId", "NomId", "NomLib", "type"])
-      .execute(),
-  ]);
+  const ansmNames = await db
+    .selectFrom("ansm_substance_nom")
+    .where((eb) =>
+      eb.or([eb("code_nom", "in", subsIds), eb("code_substance", "in", subsIds)]),
+    )
+    .selectAll()
+    .execute();
 
-  const resolved = subsIds.flatMap((id) => {
+  const resolveFromAnsm = (id: string): Substance | undefined => {
     // Ids are SubsId first: a SubsId can also be the code_nom of another substance (e.g. 00140)
     const canonical =
       ansmNames.find(
         (row) => row.code_substance === id && row.type === "CANONIQUE",
       ) ?? ansmNames.find((row) => row.code_substance === id);
-    if (canonical) return [toSubstance(canonical)];
+    if (canonical) return toSubstance(canonical);
 
     const exactName = ansmNames.find((row) => row.code_nom === id);
-    if (exactName) return [toSubstance(exactName)];
+    return exactName ? toSubstance(exactName) : undefined;
+  };
+
+  // Fallback on the substances list only for the ids not found in the ANSM names
+  const missingIds = [...new Set(subsIds.filter((id) => !resolveFromAnsm(id)))];
+  const resumeFallbacks = missingIds.length > 0
+    ? await db
+      .selectFrom("resume_substances")
+      .where((eb) => eb.or([eb("NomId", "in", missingIds), eb("SubsId", "in", missingIds)]))
+      .select(["SubsId", "NomId", "NomLib", "type"])
+      .execute()
+    : [];
+
+  const resolved = subsIds.flatMap((id) => {
+    const substance = resolveFromAnsm(id);
+    if (substance) return [substance];
 
     const fallback = resumeFallbacks.find(
       (row) => row.NomId.trim() === id || row.SubsId.trim() === id,
@@ -124,17 +132,6 @@ export async function getCisMatchingSubstanceSet(
     .map(([cis]) => cis);
 }
 
-export const getResumeSubstances = cache(async function (
-  subsIds: string[]
-): Promise<ResumeSubstance[]> {
-  const result = await db.selectFrom("resume_substances")
-    .selectAll()
-    .where("SubsId", "in", subsIds)
-    .orderBy("NomLib")
-    .execute();
-  return result ?? [];
-});
-
 export const getResumeSubstancesByNomId = cache(async function (
   subsNomsIds: string[]
 ): Promise<ResumeSubstance[]> {
@@ -204,6 +201,17 @@ export const getAllSubsWithSpecialites = cache(async function () {
       return true;
     })
     .sort((left, right) => left.NomLib.localeCompare(right.NomLib, "fr"));
+});
+
+// SubsIds of the substances list (one per substance, whatever its names)
+export const getAllResumeSubstancesIds = cache(async function (): Promise<string[]> {
+  const rows = await db
+    .selectFrom("resume_substances")
+    .select("SubsId")
+    .distinct()
+    .orderBy("SubsId")
+    .execute();
+  return rows.map((row) => row.SubsId.trim());
 });
 
 export const getSubstancesResumeWithLetter = cache(async function (
