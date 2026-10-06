@@ -8,6 +8,7 @@ import { sql } from "kysely";
 import type { Substance } from "@/types/SubstanceTypes";
 import {
   compositionMatchesSubstanceSet,
+  displayName,
   hasExactlyOneComponent,
   toCompositionComponents,
   toSubstance,
@@ -231,27 +232,24 @@ export const getSubstancesResumeWithLetter = cache(async function (
     .execute();
 });
 
-export async function getSubstanceDefinition(
+export const getSubstanceDefinition = cache(async function (
   subsIds: string[],
 ) {
+  if (subsIds.length === 0) return [];
   const rows = await db.selectFrom("ref_substance_active_definitions")
-    .select(["nom_id", "subs_id", "sa", "definition"])
+    .select(["subs_id", "sa", "definition"])
+    .where("subs_id", "in", subsIds)
     .execute();
 
-  // First try to match by NomId
-  let definitions = rows.filter((row) =>
-    row.subs_id && subsIds.includes(row.subs_id.trim())
-  );
-
   // Map to the expected format (matching Grist structure)
-  return definitions.map((row) => (
+  return rows.map((row) => (
     {
       SubsId: row.subs_id?.trim() || "",
       SA: row.sa?.trim() || "",
       Definition: row.definition?.trim() || "",
     }
   ));
-}
+});
 
 export const getAllMainSubstancesNames = cache(async function (
 ): Promise<Substance[]> {
@@ -273,17 +271,34 @@ export const getAllMainSubstancesNames = cache(async function (
 export const getSubstancesNames = cache(async function (
   subsIds: string[]
 ): Promise<Substance[]> {
+  if (subsIds.length === 0) return [];
 
   const rows = await db
     .selectFrom("ansm_substance_nom")
     .where("code_substance", "in", subsIds)
     .selectAll()
     .execute();
-
-  return rows.map((row) => ({
+  const names: Substance[] = rows.map((row) => ({
     SubsId: row.code_substance?.trim() || "",
     NomId: row.code_nom?.trim() || "",
     NomLib: row.nom?.trim() || "",
     isCanonical: row.type === "CANONIQUE",
-  })) ?? [];
+  }));
+
+  // Substances without ANSM name (e.g. estradiol anhydre 63787): name from the compositions labels, not canonical
+  const missingIds = [...new Set(subsIds.map((subsId) => subsId.trim()))]
+    .filter((subsId) => !names.some((name) => name.SubsId === subsId));
+  if (missingIds.length === 0) return names;
+  const labels = await db
+    .selectFrom("ansm_composant")
+    .where("code_substance", "in", missingIds)
+    .select(["code_substance", "substance"])
+    .distinct()
+    .orderBy("substance")
+    .execute();
+  const fallbacks = missingIds.flatMap((subsId) => {
+    const label = labels.find((row) => row.code_substance?.trim() === subsId && row.substance?.trim());
+    return label ? [{ SubsId: subsId, NomId: subsId, NomLib: displayName(label.substance!), isCanonical: false }] : [];
+  });
+  return [...names, ...fallbacks];
 });

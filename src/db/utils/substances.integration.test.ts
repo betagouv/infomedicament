@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import db from "@/db";
-import { getAllSubsWithSpecialites, getCisMatchingSubstanceSet, getSubstancesResumeWithLetter } from "./substances";
+import { getAllSubsWithSpecialites, getCisMatchingSubstanceSet, getSubstancesNames, getSubstancesResumeWithLetter } from "./substances";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
 
 // Substances list from the letter of this name
@@ -117,6 +117,19 @@ describe("substances list (resume_substances)", () => {
       .having((eb) => eb.fn.countAll(), ">", 1)
       .execute();
     expect(duplicates).toEqual([]);
+  });
+});
+
+describe("getSubstancesNames", () => {
+  it("names a substance without ANSM name from its compositions labels", async () => {
+    // Estradiol anhydre (63787): no row in ansm_substance_nom
+    expect(await getSubstancesNames(["63787"])).toEqual([
+      { SubsId: "63787", NomId: "63787", NomLib: "estradiol anhydre", isCanonical: false },
+    ]);
+  });
+
+  it("returns no name for an unknown substance", async () => {
+    expect(await getSubstancesNames(["unknown"])).toEqual([]);
   });
 });
 

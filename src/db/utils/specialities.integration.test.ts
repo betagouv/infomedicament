@@ -238,6 +238,8 @@ describe("substance page and substances list: substances displayed on the medica
     ["02725", 0],
     // alanine
     ["00031", 1],
+    // estradiol anhydre: no ANSM name
+    ["63787", 3],
   ])("substance %s: %i medicament(s), in the substances list if any", async (subsId, nbMedicaments) => {
     expect(await getPageMedicaments([subsId])).toBe(nbMedicaments);
     expect(await getListMedicaments(subsId)).toBe(nbMedicaments > 0 ? nbMedicaments : undefined);
