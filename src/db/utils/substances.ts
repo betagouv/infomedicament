@@ -253,6 +253,16 @@ export const getSubstancesResume = cache(async function (
     .execute();
 });
 
+export const getAllSubstancesResumes = cache(
+  async function (): Promise<ResumeSubstance[]> 
+{
+  return db
+    .selectFrom("resume_substances")
+    .selectAll()
+    .orderBy("NomLib")
+    .execute() ;
+});
+
 export async function getSubstanceDefinition(ids: string[], subsIds: string[]) {
   const rows = await db
     .selectFrom("ref_substance_active_definitions")

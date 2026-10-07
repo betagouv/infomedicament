@@ -227,3 +227,30 @@ export async function isGenericSpecialite(CIS: string): Promise<boolean> {
 export async function getGeneriques(codeGroupe: number): Promise<Specialite[]> {
   return (await getGenericGroup(codeGroupe))?.generiques ?? [];
 }
+
+// Labels of the generic groups of each specialite (a specialite can belong to several groups)
+export async function getGenericGroupsLabelsByCIS(CISList: string[]): Promise<Record<string, string>> {
+  if (CISList.length === 0) return {};
+  const rows = await db
+    .selectFrom("ansm_specialite_groupe_generique")
+    .innerJoin(
+      "ansm_groupe_generique",
+      "ansm_groupe_generique.code_groupe",
+      "ansm_specialite_groupe_generique.code_groupe",
+    )
+    .where("ansm_specialite_groupe_generique.cis", "in", CISList)
+    .where("ansm_specialite_groupe_generique.role", "in", VISIBLE_GENERIC_GROUP_ROLES)
+    .select(["ansm_specialite_groupe_generique.cis", "ansm_groupe_generique.libelle"])
+    .orderBy("ansm_specialite_groupe_generique.code_groupe")
+    .execute();
+
+  const labelsByCIS: Record<string, string[]> = {};
+  for (const row of rows) {
+    if (!row.libelle) continue;
+    const cis = row.cis.trim();
+    labelsByCIS[cis] = [...(labelsByCIS[cis] ?? []), row.libelle.trim()];
+  }
+  return Object.fromEntries(
+    Object.entries(labelsByCIS).map(([cis, labels]) => [cis, labels.join(" ; ")]),
+  );
+}
