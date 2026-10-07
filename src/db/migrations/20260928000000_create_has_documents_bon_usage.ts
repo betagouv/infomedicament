@@ -3,6 +3,7 @@ import type { Kysely } from "kysely";
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable("has_documents_bon_usage")
+    .ifNotExists()
     .addColumn("code_cis", "text")
     .addColumn("auteur", "text")
     .addColumn("type_document", "text")
@@ -13,5 +14,5 @@ export async function up(db: Kysely<any>): Promise<void> {
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable("has_documents_bon_usage").execute();
+  await db.schema.dropTable("has_documents_bon_usage").ifExists().execute();
 }
