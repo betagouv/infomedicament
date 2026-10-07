@@ -26,14 +26,22 @@ function AnsmResource({ name }: { name: keyof typeof ansmResources }) {
   const resource = ansmResources[name];
   return (
     <>
-      <a href={`${ANSM_RESOURCE_BASE}${resource.id}`}>
+      <a
+        href={`${ANSM_RESOURCE_BASE}${resource.id}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <code>{name}</code>
       </a>
       {resource.schemaId ? (
         <>
           {" "}
           —{" "}
-          <a href={`${ANSM_RESOURCE_BASE}${resource.schemaId}`}>
+          <a
+            href={`${ANSM_RESOURCE_BASE}${resource.schemaId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             schéma de {name}
           </a>
         </>
@@ -120,7 +128,11 @@ const mappings: Mapping[] = [
     label: "Avis SMR",
     status: "Sources disponibles",
     sources: (
-      <a href={`${HAS_RESOURCE_BASE}${hasResources.smr}`}>
+      <a
+        href={`${HAS_RESOURCE_BASE}${hasResources.smr}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         Télécharger les évaluations SMR de la HAS
       </a>
     ),
@@ -132,7 +144,11 @@ const mappings: Mapping[] = [
     label: "Avis ASMR",
     status: "Sources disponibles",
     sources: (
-      <a href={`${HAS_RESOURCE_BASE}${hasResources.asmr}`}>
+      <a
+        href={`${HAS_RESOURCE_BASE}${hasResources.asmr}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         Télécharger les évaluations ASMR de la HAS
       </a>
     ),
@@ -144,7 +160,11 @@ const mappings: Mapping[] = [
     label: "Liens vers les avis de la commission de la transparence",
     status: "Sources disponibles",
     sources: (
-      <a href={`${HAS_RESOURCE_BASE}${hasResources.avis}`}>
+      <a
+        href={`${HAS_RESOURCE_BASE}${hasResources.avis}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         Télécharger les liens vers les avis HAS
       </a>
     ),
@@ -275,7 +295,11 @@ export default function Page() {
             L’ancienne BDPM s’appuyait sur une base interne à l’ANSM, alimentée
             par plusieurs organismes. Une partie de ses données était exposée
             sous forme de fichiers librement téléchargeables sur la{" "}
-            <a href="https://base-donnees-publique.medicaments.gouv.fr/telechargement">
+            <a
+              href="https://base-donnees-publique.medicaments.gouv.fr/telechargement"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               page de téléchargement de la BDPM
             </a>
             . Ces exports rassemblaient des informations de différentes sources
@@ -301,7 +325,13 @@ export default function Page() {
           <h3>ANSM : le catalogue et les données réglementaires</h3>
           <p>
             Le jeu{" "}
-            <a href={ANSM_DATASET_URL}>ANSM Open Data sur data.gouv.fr</a>{" "}
+            <a
+              href={ANSM_DATASET_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ANSM Open Data sur data.gouv.fr
+            </a>{" "}
             propose notamment les spécialités, leurs titulaires, les
             présentations, les compositions et substances, les groupes
             génériques, les conditions de délivrance, les événements et les
@@ -312,11 +342,19 @@ export default function Page() {
           <p>
             Chaque table est proposée en CSV avec un schéma JSON décrivant ses
             champs. Vous pouvez également télécharger le{" "}
-            <a href={`${ANSM_RESOURCE_BASE}${ansmResources.packageZip.id}`}>
+            <a
+              href={`${ANSM_RESOURCE_BASE}${ansmResources.packageZip.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Data Package complet au format ZIP
             </a>{" "}
             et consulter son{" "}
-            <a href={`${ANSM_RESOURCE_BASE}${ansmResources.packageSchema.id}`}>
+            <a
+              href={`${ANSM_RESOURCE_BASE}${ansmResources.packageSchema.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               descripteur datapackage.json
             </a>{" "}
             pour examiner les ressources et leurs relations.
@@ -331,18 +369,26 @@ export default function Page() {
           <h3>HAS : les évaluations et les avis sur les médicaments</h3>
           <p>
             Le jeu{" "}
-            <a href={HAS_DATASET_URL}>
+            <a href={HAS_DATASET_URL} target="_blank" rel="noopener noreferrer">
               Évaluation des médicaments sur data.gouv.fr
             </a>{" "}
             fournit les évaluations du service médical rendu (SMR), de
             l’amélioration du service médical rendu (ASMR) et les liens vers les
             avis de la commission de la transparence. Il propose également des
-            <a href={`${HAS_RESOURCE_BASE}${hasResources.bonUsage}`}>
+            <a
+              href={`${HAS_RESOURCE_BASE}${hasResources.bonUsage}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {" "}
               documents de bon usage
             </a>{" "}
             et un calendrier d’évaluation. La{" "}
-            <a href={`${HAS_RESOURCE_BASE}${hasResources.documentation}`}>
+            <a
+              href={`${HAS_RESOURCE_BASE}${hasResources.documentation}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               documentation du jeu HAS
             </a>{" "}
             explique le contenu des fichiers.
