@@ -17,7 +17,7 @@ import {
   getReinforcedSurveillanceEvents,
 } from "./safety";
 import { mapImportantInformation } from "./safetyCatalog";
-import { mapAsmr, mapSmr } from "./hasCatalog";
+import { mapAsmr, mapDocBonUsage, mapSmr, sortHasHistory } from "./hasCatalog";
 import { CompositionNature } from "@/types/SubstanceTypes";
 import { getComposants } from "./composants";
 
@@ -52,9 +52,8 @@ export async function getFicheInfos(
       "has_url_has.url",
     ])
     .distinct()
-    .orderBy("has_smr.date_avis_definitif", "desc")
     .execute()
-    .then((rows) => rows.map(mapSmr));
+    .then((rows) => sortHasHistory(rows.map(mapSmr)));
 
   const hasASMRPromise: Promise<Asmr[]> = db
     .selectFrom("has_asmr")
@@ -68,9 +67,8 @@ export async function getFicheInfos(
       "has_url_has.url",
     ])
     .distinct()
-    .orderBy("has_asmr.date_avis_definitif", "desc")
     .execute()
-    .then((rows) => rows.map(mapAsmr));
+    .then((rows) => sortHasHistory(rows.map(mapAsmr)));
 
   const hasDocsBUPromise: Promise<DocBonUsage[]> = db
     .selectFrom("has_documents_bon_usage")
@@ -83,16 +81,7 @@ export async function getFicheInfos(
     ])
     .distinct()
     .execute()
-    .then((rows) =>
-      rows.map((row) => ({
-        url: row.url,
-        updatedAt: row.date_mise_a_jour
-          ? new Date(row.date_mise_a_jour)
-          : null,
-        type: row.type_document,
-        title: row.titre,
-      })),
-    );
+    .then((rows) => rows.map(mapDocBonUsage));
 
   const elementsRaw = await db
     .selectFrom("ansm_element")

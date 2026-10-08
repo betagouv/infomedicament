@@ -38,13 +38,13 @@ function getSmrAsmrFormattedAvis(date?: string | null, link?: string | null) {
           href={link}
           target="_blank"
           rel="noopener noreferrer"
-          title={`Lien vers l'avis complet de la commission de la transparence du ${formattedDate.toLocaleDateString('fr-FR')} - nouvelle fenêtre vers le site de la HAS`}
+          title={`Lien vers l'avis complet de la commission de la transparence du ${formattedDate.toLocaleDateString('fr-FR', { timeZone: 'UTC' })} - nouvelle fenêtre vers le site de la HAS`}
           className={fr.cx("fr-link", "fr-link--sm")}
         >
-          Avis&nbsp;du {formattedDate.toLocaleDateString('fr-FR')}
+          Avis&nbsp;du {formattedDate.toLocaleDateString('fr-FR', { timeZone: 'UTC' })}
         </Link>
       );
-    return formattedDate.toLocaleDateString('fr-FR');
+    return formattedDate.toLocaleDateString('fr-FR', { timeZone: 'UTC' });
   }
   return "";
 }
@@ -85,7 +85,7 @@ function DocumentHas({
                       </Link>
                     )}
                     <div className={fr.cx("fr-mt-1w")}>
-                      {date && (<i className={fr.cx("fr-text--xs", "fr-mb-0")} style={{textTransform:"capitalize"}}>{date.toLocaleDateString('fr-FR', {month: 'long', year: 'numeric'})}</i>)}
+                      {date && (<i className={fr.cx("fr-text--xs", "fr-mb-0")} style={{textTransform:"capitalize"}}>{date.toLocaleDateString('fr-FR', {month: 'long', year: 'numeric', timeZone: 'UTC'})}</i>)}
                       {document.type && (<Badge className={fr.cx("fr-badge--purple-glycine")} small>{document.type}</Badge>)}
                     </div>
                   </DocBonUsage>

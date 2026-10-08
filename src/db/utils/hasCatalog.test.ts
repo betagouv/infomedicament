@@ -1,5 +1,36 @@
 import { describe, expect, it } from "vitest";
-import { mapAsmr, mapSmr } from "./hasCatalog";
+import { mapAsmr, mapSmr, parseHasDate, sortHasHistory } from "./hasCatalog";
+
+describe("HAS calendar dates", () => {
+  it.each([
+    ["03/10/2018", "2018-10-03"],
+    ["29/04/2015", "2015-04-29"],
+    ["23/05/2012", "2012-05-23"],
+    ["24/06/2020", "2020-06-24"],
+    ["29/02/2024", "2024-02-29"],
+    [" 12/02/2015 ", "2015-02-12"],
+  ])("parses %s explicitly", (source, expected) => {
+    expect(parseHasDate(source)?.toISOString()).toBe(`${expected}T00:00:00.000Z`);
+  });
+
+  it.each([null, "", "Invalid Date", "31/04/2023", "29/02/2023", "12/13/2016"])(
+    "returns null for an absent or impossible date (%s)", (source) => {
+      expect(parseHasDate(source)).toBeNull();
+    },
+  );
+
+  it("keeps undated opinions last and preserves the source order of same-day opinions", () => {
+    const history = [
+      { opinionDate: null, id: "undated" },
+      { opinionDate: "2015-04-29", id: "older" },
+      { opinionDate: "2018-10-03", id: "first" },
+      { opinionDate: "2018-10-03", id: "second" },
+    ];
+    expect(sortHasHistory(history).map((entry) => entry.id)).toEqual([
+      "first", "second", "older", "undated",
+    ]);
+  });
+});
 
 describe("HAS history mappings", () => {
   it("preserves the complete SMR history entry and commission URL", () => {
