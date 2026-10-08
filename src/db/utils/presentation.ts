@@ -55,9 +55,14 @@ function preserveDispositifCount(dispositif: string | null, denomination: string
     .replaceAll("(x)", "x");
   const dispositifWithoutAvec = pluralDispositif.slice("avec ".length);
   const escapedDispositif = dispositifWithoutAvec.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const countedDevice = denomination.match(new RegExp(`avec\\s+\\d+\\s+${escapedDispositif}`, "i"));
+  const singularDispositif = dispositif.slice("avec ".length)
+    .replaceAll("(s)", "").replaceAll("al(aux)", "al").replaceAll("(x)", "")
+    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const countedDevice = denomination.match(new RegExp(
+    `(?:avec\\s+|\\+\\s*)\\d+\\s+(?:${escapedDispositif}|${singularDispositif})(?!\\p{L})`, "iu",
+  ));
 
-  return countedDevice?.[0] ?? dispositif;
+  return countedDevice?.[0].replace(/^\+\s*/, "avec ") ?? dispositif;
 }
 
 export const getPresentations = cache(async (CIS: string): Promise<Presentation[]> => {
