@@ -54,15 +54,11 @@ describe("getSpecialitesExport", () => {
 
   it("returns an empty list when there is no filter", async () => {
     expect(await getSpecialitesExport({})).toEqual([]);
-    expect(await getSpecialitesExport({ subsIds: [], atc2Codes: [] }, ["specId"])).toEqual([]);
-  });
-
-  it("returns an empty list when nothing matches", async () => {
-    expect(await getSpecialitesExport({ atc2Codes: ["ZZZ"] }, ["genericGroup", "rcp43"])).toEqual([]);
+    expect(await getSpecialitesExport({ subsIds: [], atc2Codes: [] })).toEqual([]);
   });
 
   it("loads the AMM status", async () => {
-    const results = await getSpecialitesExport({ atc2Codes: [ATC2_CODE] }, ["ammActiveFrance"]);
+    const results = atcResults;
     const statuts = await db
       .selectFrom("ansm_specialite")
       .select(["cis", "statut_amm"])
@@ -75,7 +71,7 @@ describe("getSpecialitesExport", () => {
   });
 
   it("loads the generic group, except for the AIP", async () => {
-    const results = await getSpecialitesExport({ atc2Codes: [ATC2_CODE] }, ["genericGroup"]);
+    const results = atcResults;
     expect(results.every((spec) => typeof spec.genericGroup === "string")).toBe(true);
     expect(results.some((spec) => spec.genericGroup !== "")).toBe(true);
     for (const spec of results.filter(isAIP)) {
@@ -83,14 +79,14 @@ describe("getSpecialitesExport", () => {
     }
   });
 
-  it("loads only the requested RCP sections", async () => {
-    const results = await getSpecialitesExport({ atc2Codes: [ATC2_CODE] }, ["rcp43"]);
-    const withRcp = results.filter((spec) => spec.rcp43);
-    expect(withRcp.length).toBeGreaterThan(0);
-    for (const spec of withRcp) {
-      expect(spec.rcp43).toMatch(/^4\.3/);
+  it("loads all the RCP sections", () => {
+    for (const [key, sectionNumber] of [["rcp43", "4.3"], ["rcp44", "4.4"], ["rcp45", "4.5"]] as const) {
+      const withSection = atcResults.filter((spec) => spec[key]);
+      expect(withSection.length).toBeGreaterThan(0);
+      for (const spec of withSection) {
+        expect(spec[key]?.startsWith(sectionNumber)).toBe(true);
+      }
     }
-    expect(results.every((spec) => spec.rcp44 === undefined && spec.rcp45 === undefined)).toBe(true);
   });
 
   it("leaves the RCP sections empty when there is no RCP", async () => {
@@ -107,9 +103,11 @@ describe("getSpecialitesExport", () => {
       .executeTakeFirst();
     if (!specWithoutRcp) return;
 
-    const results = await getSpecialitesExport({ atc2Codes: [specWithoutRcp.atc2Code!] }, ["rcp43"]);
+    const results = await getSpecialitesExport({ atc2Codes: [specWithoutRcp.atc2Code!] });
     const spec = results.find((s) => s.specId === specWithoutRcp.specId);
     expect(spec).toBeDefined();
     expect(spec?.rcp43).toBeUndefined();
+    expect(spec?.rcp44).toBeUndefined();
+    expect(spec?.rcp45).toBeUndefined();
   });
 });

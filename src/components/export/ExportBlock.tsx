@@ -129,7 +129,6 @@ export default function ExportBlock({
         body: JSON.stringify({
           subsIds,
           atc2Codes: selectedAtc2Codes,
-          fieldKeys: selectedFields,
         }),
       });
       if (!results.ok) throw new Error("La requête a échoué");

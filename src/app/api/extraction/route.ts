@@ -6,8 +6,7 @@ export async function POST(req: NextRequest) {
 
   const subsIds = Array.isArray(body?.subsIds) ? body.subsIds : [];
   const atc2Codes = Array.isArray(body?.atc2Codes) ? body.atc2Codes : [];
-  const fieldKeys = Array.isArray(body?.fieldKeys) ? body.fieldKeys : [];
 
-  const results = await getSpecialitesExport({ subsIds, atc2Codes }, fieldKeys);
+  const results = await getSpecialitesExport({ subsIds, atc2Codes });
   return NextResponse.json(results);
 }
