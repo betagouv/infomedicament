@@ -194,33 +194,41 @@ export const getSubstanceAllSpecialites = unstable_cache(
   async function (substanceIDs: string[]): Promise<SpecialiteWithSubstance[]> {
     if (substanceIDs.length === 0) return [];
     const substances = await resolveSubstances(substanceIDs);
-    const codeToNomId = new Map(
-      substances.map((substance) => [substance.SubsId, substance.NomId]),
-    );
-    const byCis = await componentsForCandidateCis([...codeToNomId.keys()]);
-    const cisToCode = new Map<string, string>();
+    const codeToNomIds = new Map<string, string[]>();
+    for (const substance of substances) {
+      const ids = codeToNomIds.get(substance.SubsId) ?? [];
+      ids.push(substance.NomId);
+      codeToNomIds.set(substance.SubsId, ids);
+    }
+    const byCis = await componentsForCandidateCis([...codeToNomIds.keys()]);
+    const cisToNomIds = new Map<string, string[]>();
     for (const [cis, components] of byCis) {
       if (!hasExactlyOneComponent(components)) continue;
-      const code = components.find(
-        (component) =>
-          component.code_substance && codeToNomId.has(component.code_substance),
-      )?.code_substance;
-      if (code) cisToCode.set(cis, code);
+      // Preserve every requested name, including active fractions in the same
+      // component, rather than letting one name overwrite another in a batch.
+      const ids = new Set(components.flatMap((component) =>
+        component.code_substance
+          ? codeToNomIds.get(component.code_substance) ?? []
+          : [],
+      ));
+      if (ids.size > 0) cisToNomIds.set(cis, [...ids]);
     }
-    if (cisToCode.size === 0) return [];
+    if (cisToNomIds.size === 0) return [];
 
     const rows = await db
       .selectFrom("ansm_specialite")
-      .where("cis", "in", [...cisToCode.keys()])
+      .where("cis", "in", [...cisToNomIds.keys()])
       .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
       .selectAll()
       .execute();
-    return rows.map((row) => ({
-      ...mapCatalogSpecialite(row),
-      NomId: codeToNomId.get(cisToCode.get(row.cis) ?? "") ?? "",
-    }));
+    return rows.flatMap((row) =>
+      (cisToNomIds.get(row.cis) ?? []).map((NomId) => ({
+        ...mapCatalogSpecialite(row),
+        NomId,
+      })),
+    );
   },
-  ["substance-all-specialites"],
+  ["substance-all-specialites-v2"],
   { revalidate: 3600 },
 );
 

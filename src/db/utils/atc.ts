@@ -3,13 +3,13 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { ATCError } from "@/utils/atc";
-import { ATC, ATC1, ATCLabels, ATCSubsSpecs } from "@/types/ATCTypes";
+import { ATC, ATC1, ATCLabels, ATCSubstances } from "@/types/ATCTypes";
 import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import db from "@/db/";
 import { RefAtcFriendlyNiveau1, RefAtcFriendlyNiveau2 } from "../types";
 import type { Substance } from "@/types/SubstanceTypes";
 import { getComposantsList } from "./composants";
-import { getSubstanceAllSpecialites } from "./substances";
+import { getSubstancesResume } from "./substances";
 import { VISIBLE_SPECIALITE_AVAILABILITIES } from "./specialiteCatalog";
 
 /**
@@ -276,10 +276,10 @@ export const getResumeSpecsATCLabels = async function (
 }
 
 /**
- * Loads substances and specialites for all ATC2 children in a single server call.
- * Before, we were making 2 queries per ATC2 child !
+ * Loads the destination's summary-backed substance list for each ATC2 child.
+ * Composition and summary rows are fetched in bulk across the subclasses.
  */
-export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubsSpecs[]> {
+export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubstances[]> {
   // Build map of ATC2 code -> CIS codes from the database
   const atc2ToCIS = new Map<string, string[]>();
   const allCIS: string[] = [];
@@ -297,7 +297,6 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubsSpecs[]>
     return atc1.children.map((atc2) => ({
       atc: atc2,
       substances: [],
-      specialites: [],
     }));
   }
 
@@ -315,7 +314,6 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubsSpecs[]>
     return atc1.children.map((atc2) => ({
       atc: atc2,
       substances: [],
-      specialites: [],
     }));
   }
 
@@ -327,29 +325,22 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubsSpecs[]>
       .filter((substance) => cisSet.has(substance.SpecId))
       .map(({ SubsId, NomId, NomLib }) => ({ SubsId, NomId, NomLib }));
 
-    // Deduplicate by NomId and sort
-    // TODO: check if deduplicating is needed !
-    const unique = substances.filter(
-      (sub, i, self) => self.findIndex((s) => s.NomId === sub.NomId) === i
-    );
-    unique.sort((a, b) => a.NomLib.localeCompare(b.NomLib));
-    atc2ToSubstances.set(atc2Code, unique);
+    atc2ToSubstances.set(atc2Code, substances);
   }
 
-  // Fetch all specialites for all substances at once
+  // Apply the same summary lookup as the ATC2 destination pages.
   const allSubstanceIDs = [...new Set(substancesWithCIS.map((s) => s.NomId.trim()))];
 
-  const allSpecialites = await getSubstanceAllSpecialites(allSubstanceIDs);
+  const allResumes = await getSubstancesResume(allSubstanceIDs);
 
   // Build result
-  const allATC: ATCSubsSpecs[] = atc1.children.map((atc2) => {
+  const allATC: ATCSubstances[] = atc1.children.map((atc2) => {
     const substances = atc2ToSubstances.get(atc2.code) ?? [];
     const substanceIDs = new Set(substances.map((s) => s.NomId.trim()));
 
     return {
       atc: atc2,
-      substances,
-      specialites: allSpecialites.filter((sp) => substanceIDs.has(sp.NomId.trim())),
+      substances: allResumes.filter((substance) => substanceIDs.has(substance.NomId.trim())),
     };
   });
 
