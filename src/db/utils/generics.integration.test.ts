@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { getAllGenericGroupCodes, getGenericGroup, getGenericGroupMembership, getGeneriques } from "./generics";
+import db from "..";
+import {
+  getAllGenericGroupCodes,
+  getGenericGroup,
+  getGenericGroupMembership,
+  getGenericGroupsLabelsByCIS,
+  getGeneriques,
+} from "./generics";
 
 async function getGroupCode(CIS: string): Promise<number> {
   const membership = await getGenericGroupMembership(CIS);
@@ -39,5 +46,58 @@ describe("db utils generics", () => {
     expect(ids).toContain("14");
     await expect(Promise.all(ids.slice(0, 25).map(getGenericGroup))).resolves
       .not.toContain(undefined);
+  });
+});
+
+describe("getGenericGroupsLabelsByCIS", () => {
+  it("returns an empty object for an empty list", async () => {
+    expect(await getGenericGroupsLabelsByCIS([])).toEqual({});
+  });
+
+  it("returns nothing for an unknown CIS", async () => {
+    expect(await getGenericGroupsLabelsByCIS(["00000000"])).toEqual({});
+  });
+
+  it("returns the label of the generic group", async () => {
+    const row = await db
+      .selectFrom("ansm_specialite_groupe_generique")
+      .innerJoin(
+        "ansm_groupe_generique",
+        "ansm_groupe_generique.code_groupe",
+        "ansm_specialite_groupe_generique.code_groupe",
+      )
+      .select(["ansm_specialite_groupe_generique.cis", "ansm_groupe_generique.libelle"])
+      .where("ansm_groupe_generique.libelle", "is not", null)
+      .limit(1)
+      .executeTakeFirstOrThrow();
+    const cis = row.cis.trim();
+    const labels = await getGenericGroupsLabelsByCIS([cis]);
+    expect(labels[cis].split(" ; ")).toContain(row.libelle!.trim());
+  });
+
+  it("joins the labels when a CIS belongs to several groups", async () => {
+    const row = await db
+      .selectFrom("ansm_specialite_groupe_generique")
+      .select("cis")
+      .groupBy("cis")
+      .having((eb) => eb.fn.countAll(), ">", 1)
+      .limit(1)
+      .executeTakeFirst();
+    if (!row) return;
+    const cis = row.cis.trim();
+    const labels = await getGenericGroupsLabelsByCIS([cis]);
+    expect(labels[cis].split(" ; ").length).toBeGreaterThan(1);
+  });
+
+  it("returns one entry per CIS", async () => {
+    const rows = await db
+      .selectFrom("ansm_specialite_groupe_generique")
+      .select("cis")
+      .distinct()
+      .limit(5)
+      .execute();
+    const cisList = rows.map((r) => r.cis.trim());
+    const labels = await getGenericGroupsLabelsByCIS([...cisList, "00000000"]);
+    expect(Object.keys(labels).sort()).toEqual([...cisList].sort());
   });
 });
