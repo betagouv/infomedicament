@@ -23,7 +23,7 @@ const ModalContent = styled.div`
 `;
 
 interface GenericPrincepsTagProps extends HTMLAttributes<HTMLDivElement> {
-  id: string;
+  genericGroupCode: number;
   type: GenericPrinceps;
   hideIcon?: boolean;
   fromMedicament?: boolean;
@@ -31,7 +31,7 @@ interface GenericPrincepsTagProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function GenericPrincepsTag({ 
-  id,
+  genericGroupCode,
   type,
   hideIcon,
   fromMedicament,
@@ -80,7 +80,7 @@ function GenericPrincepsTag({
         </Tag>
         <div style={{display: "inline"}}>
           <Link
-            href={`/generiques/${id}`}
+            href={`/generiques/${genericGroupCode}`}
             className={cx("fr-text--sm", "fr-link", "fr-ml-0-5v")}
             onClick={() => onTrackEvent()}
             style={{whiteSpace: "nowrap"}}
@@ -93,7 +93,7 @@ function GenericPrincepsTag({
       <Tag
         iconId={!hideIcon ? "fr-icon-capsule-fill" : undefined}
         linkProps= {{
-          href:`/generiques/${id}`,
+          href:`/generiques/${genericGroupCode}`,
           target: "_blank",
           className: cx("fr-tag--custom-alt-blue"),
           onClick: () => onTrackEvent(),

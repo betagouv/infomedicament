@@ -1,10 +1,29 @@
 import { describe, it, expect, vi } from "vitest";
-import { getAllSubsWithSpecialites, getSubstanceAllSpecialites } from "./substances";
+import { getAllSubsWithSpecialites, getSubstanceAllSpecialites, getSubstances } from "./substances";
 
 // disable cache for testing
 vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
 
 describe("db utils substances", () => {
+  it.each([
+    ["00005", "34911"], // Aspirin synonyms share a substance code.
+    ["17407", "96973"], // Esomeprazole and its salt share a component.
+  ])("preserves batched speciality matches for %s and %s", async (...ids) => {
+    const individually = await Promise.all(
+      ids.map((id) => getSubstanceAllSpecialites([id])),
+    );
+    const batched = await getSubstanceAllSpecialites(ids);
+    const reversed = await getSubstanceAllSpecialites([...ids].reverse());
+
+    ids.forEach((id, index) => {
+      const expectedCis = individually[index].map((s) => s.SpecId).sort();
+      expect(expectedCis.length).toBeGreaterThan(0);
+      for (const result of [batched, reversed]) {
+        expect(result.filter((s) => s.NomId === id).map((s) => s.SpecId).sort())
+          .toEqual(expectedCis);
+      }
+    });
+  });
 
   it("getAllSubsWithSpecialites - should return only subs with actives specialities", async () => {
     const allSubs = await getAllSubsWithSpecialites();
@@ -30,4 +49,9 @@ describe("db utils substances", () => {
     expect(isInactiveSpec).toBe(-1);
     expect(isActiveSpec).not.toBe(-1);
   })
+  it("keeps canonical and synonym public IDs addressable", async () => {
+    const substances = await getSubstances(["00005", "34911"]);
+    expect(substances.map((substance) => substance.NomId)).toEqual(["00005", "34911"]);
+    expect(substances[1].NomLib).toBe("acide acétylsalicylique");
+  });
 });

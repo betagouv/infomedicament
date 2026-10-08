@@ -1,44 +1,34 @@
 import { describe, it, expect } from "vitest";
-import { formatIndicationsDetails, formatSpecialitesResume, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isHospitalDelivrance, isSurveillanceRenforcee } from "./specialites";
-import { DetailedSpecialite } from "@/types/SpecialiteTypes";
-import { SpecDelivrance, SpecialiteComm, SpecialiteStat, VUEvnts } from "@/db/pdbmMySQL/types";
+import { formatIndicationsDetails, formatSpecialitesResume, getProcedureLibLong, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isHospitalDelivrance, isSurveillanceRenforcee } from "./specialites";
+import { DelivranceCondition, DetailedSpecialite, SpecialiteStat } from "@/types/SpecialiteTypes";
+import type { SafetyEvent } from "@/types/FicheInfoTypes";
 import { ShortIndication } from "@/types/IndicationsTypes";
 import { ResumeSpecialiteDB } from "@/db/types";
 
 const detailedSpec: DetailedSpecialite = {
   SpecId: "60035714",
   StatId: SpecialiteStat.Valide,
-  CommId: SpecialiteComm.Commercialisée,
-  ProcId: "20",
-  SpecGeneId: "",
+  ProcId: "CENTRALISEE",
   SpecDenom01: "SIMPONI 50 mg, solution injectable en seringue préremplie",
-  SpecDenom02: "",
-  SpecAbrev: "",
   SpecDateAMM: new Date("2009-10-01"),
-  SpecRem: "",
   SpecStatDate: new Date("2009-10-01"),
-  SpecDC01: "",
-  SpecDC02: "",
-  SpecFormPh: "",
-  SpecVoie: "",
   StatutBdm: 1,
-  IsBdm: 1,
-  NumAuthEurope: "EU/1/09/546",
   Een: "Latex caoutchouc naturel, Sorbitol",
-  urlCentralise: "https://www.ema.europa.eu/fr/documents/product-information/simponi-epar-product-information_fr.pdf",
   statutAutorisation: "Valide",
   statutComm: "Commercialisée",
   titulairesList: 'JANSSEN BIOLOGICS BV',
-  generiqueName: null,
+  genericGroupCode: null,
+  referenceSpecialite: null,
 }
 
 describe("utils specialities", () => {
 
   it("isCentralisee", async () => {
     //Centralisée
+    detailedSpec.ProcId = "CENTRALISEE";
     expect(isCentralisee(detailedSpec)).toBe(true);
     //Not centralisée
-    detailedSpec.ProcId = "50";
+    detailedSpec.ProcId = "IMPORTATION_PARALLELE";
     expect(isCentralisee(detailedSpec)).toBe(false);
   })
 
@@ -52,9 +42,10 @@ describe("utils specialities", () => {
 
   it("isAIP", async () => {
     //AIP
+    detailedSpec.ProcId = "IMPORTATION_PARALLELE";
     expect(isAIP(detailedSpec)).toBe(true);
     //Not AIP
-    detailedSpec.ProcId = "20";
+    detailedSpec.ProcId = "CENTRALISEE";
     expect(isAIP(detailedSpec)).toBe(false);
   })
 
@@ -68,73 +59,41 @@ describe("utils specialities", () => {
 
   it("isHomeopathie", async () => {
     //Not Homéopathie
+    detailedSpec.ProcId = "CENTRALISEE";
     expect(isHomeopathie(detailedSpec)).toBe(false);
     //Homéopathie
-    detailedSpec.ProcId = "60";
+    detailedSpec.ProcId = "HOMEOPATHIQUE_NATIONALE";
     expect(isHomeopathie(detailedSpec)).toBe(true);
   })
 
+  it("formats textual procedures", () => {
+    expect(getProcedureLibLong("NATIONALE")).toBe("Procédure nationale");
+    expect(getProcedureLibLong("CENTRALISEE")).toBe("Procédure centralisée");
+    expect(getProcedureLibLong("IMPORTATION_PARALLELE")).toBe("Autorisation d'Importation Parallèle");
+    expect(getProcedureLibLong("HOMEOPATHIQUE_NATIONALE")).toBe("Enregistrement homéopathique en procédure nationale");
+  });
+
   it("isSurveillanceRenforcee", async () => {
-    const eventsSurveillance: VUEvnts[] = [
-      {
-        SpecId: "60035714",
-        codeEvnt: "84",
-        dateEvnt: new Date("2021-10-01"),
-        dateEcheance: new Date("2025-10-01"),
-        remCommentaire: "Commentaire 1",
-        codeTypeInfo: 1,
-      },
-      {
-        SpecId: "60035714",
-        codeEvnt: "83",
-        dateEvnt: new Date("2021-10-01"),
-        dateEcheance: new Date("2029-10-01"),
-        remCommentaire: "Commentaire 1",
-        codeTypeInfo: 1,
-      }
-    ];
-    const eventsNotSurveillance: VUEvnts[] = [
-      {
-        SpecId: "60035714",
-        codeEvnt: "84",
-        dateEvnt: new Date("2021-10-01"),
-        dateEcheance: new Date("2025-10-01"),
-        remCommentaire: "Commentaire 1",
-        codeTypeInfo: 1,
-      },
-      {
-        SpecId: "60035714",
-        codeEvnt: "84",
-        dateEvnt: new Date("2021-10-01"),
-        dateEcheance: new Date("2025-10-01"),
-        remCommentaire: "Commentaire 1",
-        codeTypeInfo: 1,
-      }
-    ];
-    const eventsNotSurveillanceBis: VUEvnts[] = [
-      {
-        SpecId: "60035714",
-        codeEvnt: "84",
-        dateEvnt: new Date("2021-10-01"),
-        dateEcheance: new Date("2025-10-01"),
-        remCommentaire: "Commentaire 1",
-        codeTypeInfo: 1,
-      },
-      {
-        SpecId: "60035714",
-        codeEvnt: "83",
-        dateEvnt: new Date("2021-10-01"),
-        dateEcheance: new Date("2025-10-01"),
-        remCommentaire: "Commentaire 1",
-        codeTypeInfo: 1,
-      }
-    ];
+    const event = (code: number, expiryDate: string): SafetyEvent => ({
+      specialiteId: "60035714",
+      code,
+      sequence: 1,
+      typeLabel: code === 83 ? "Médicament soumis à une surveillance renforcée" : "Autre",
+      eventDate: new Date("2021-10-01"),
+      expiryDate: new Date(expiryDate),
+      comment: "Commentaire 1",
+      modifiedAt: null,
+    });
+    const now = new Date("2026-01-01");
+    const eventsSurveillance = [event(84, "2029-10-01"), event(83, "2029-10-01")];
+    const eventsNotSurveillance = [event(84, "2029-10-01")];
+    const eventsNotSurveillanceBis = [event(84, "2029-10-01"), event(83, "2025-10-01")];
     //Surveillance Renforcée
-    expect(isSurveillanceRenforcee(eventsSurveillance)).toBe(true);
+    expect(isSurveillanceRenforcee(eventsSurveillance, now)).toBe(true);
     //Not Surveillance Renforcé : zéro event
-    expect(isSurveillanceRenforcee(eventsNotSurveillance)).toBe(false);
+    expect(isSurveillanceRenforcee(eventsNotSurveillance, now)).toBe(false);
     //Not Surveillance Renforcé : not between the two dates
-    expect(isSurveillanceRenforcee(eventsNotSurveillanceBis)).toBe(false);
+    expect(isSurveillanceRenforcee(eventsNotSurveillanceBis, now)).toBe(false);
   });
 
   it("formatIndicationsDetails", async () => {
@@ -212,50 +171,43 @@ describe("utils specialities - delivrance", () => {
 
   it("isHospitalDelivrance", async () => {
     //Usage hospitalier
-    const delivrances_1: SpecDelivrance[] = [{
-      DelivCourt: "liste I",
-      DelivId: "120",
-      DelivLong: "liste I",
-      SpecId: "60199966",
+    const delivrances_1: DelivranceCondition[] = [{
+      shortLabel: "liste I",
+      code: 120,
+      longLabel: "liste I",
     },
     {
-      DelivCourt:"nécessitant surveillance particulière pendant traitement",
-      DelivId: "13",
-      DelivLong: "médicament nécessitant une surveillance particulière pendant le traitement",
-      SpecId: "60199966",
+      shortLabel:"nécessitant surveillance particulière pendant traitement",
+      code: 13,
+      longLabel: "médicament nécessitant une surveillance particulière pendant le traitement",
     },
     {
-      DelivCourt: "médecins compétents en CANCEROLOGIE",
-      DelivId: "211",
-      DelivLong: "prescription réservée aux médecins compétents en CANCEROLOGIE",
-      SpecId: "60199966",
+      shortLabel: "médecins compétents en CANCEROLOGIE",
+      code: 211,
+      longLabel: "prescription réservée aux médecins compétents en CANCEROLOGIE",
     },
     {
-      DelivCourt: "spécialistes et services ONCOLOGIE MEDICALE",
-      DelivId: "15",
-      DelivLong: "prescription réservée aux spécialistes et services ONCOLOGIE MEDICALE",
-      SpecId: "60199966",
+      shortLabel: "spécialistes et services ONCOLOGIE MEDICALE",
+      code: 15,
+      longLabel: "prescription réservée aux spécialistes et services ONCOLOGIE MEDICALE",
     },
     {
-      DelivCourt: "réservé à l'usage HOSPITALIER",
-      DelivId: "3",
-      DelivLong: "réservé à l'usage HOSPITALIER",
-      SpecId: "60199966",
+      shortLabel: "réservé à l'usage HOSPITALIER",
+      code: 3,
+      longLabel: "réservé à l'usage HOSPITALIER",
     }];
     expect(isHospitalDelivrance(delivrances_1)).toBe(true);
 
     //Not "Usage hospitalier"
-    const delivrances_2: SpecDelivrance[] = [{
-      DelivCourt: "hors ETS : prescr. par médecins, sages-femmes et centres habilités art L.2212-2",
-      DelivId: "199",
-      DelivLong: "hors établissement de santé : prescription réservée aux médecins, sages-femmes et centres habilités conformément à l'article L.2212-2 du code de la santé publique",
-      SpecId: "69981979",
+    const delivrances_2: DelivranceCondition[] = [{
+      shortLabel: "hors ETS : prescr. par médecins, sages-femmes et centres habilités art L.2212-2",
+      code: 199,
+      longLabel: "hors établissement de santé : prescription réservée aux médecins, sages-femmes et centres habilités conformément à l'article L.2212-2 du code de la santé publique",
     },
     {
-      DelivCourt: "liste I",
-      DelivId: "120",
-      DelivLong: "liste I",
-      SpecId: "69981979",
+      shortLabel: "liste I",
+      code: 120,
+      longLabel: "liste I",
     }];
     
     expect(isHospitalDelivrance(delivrances_2)).toBe(false);

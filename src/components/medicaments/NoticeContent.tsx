@@ -5,16 +5,16 @@ import TagContainer from "../tags/TagContainer";
 import ClassTag from "../tags/ClassTag";
 import { fr } from "@codegouvfr/react-dsfr";
 import SubstanceTag from "../tags/SubstanceTag";
-import { SpecComposant, SpecDelivrance, SpecialiteStat, SubstanceNom } from "@/db/pdbmMySQL/types";
+import type { CompositionComponent } from "@/types/SubstanceTypes";
 import PrescriptionTag from "../tags/PrescriptionTag";
 import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "./notice/PresentationsList";
 import { HTMLAttributes, useEffect, useState } from "react";
-import styled from 'styled-components';
+import styled from "styled-components";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import ArticlesResumeList from "../articles/ArticlesResumeList";
 import { Marr } from "@/types/MarrTypes";
-import { NoticeData, NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
+import { DelivranceCondition, NoticeData, SpecialiteStat } from "@/types/SpecialiteTypes";
 import QuestionsBox from "./notice/QuestionsBox";
 import NoticeChunkResultsBox from "./notice/NoticeChunkResultsBox";
 import Badge from "@codegouvfr/react-dsfr/Badge";
@@ -27,7 +27,11 @@ import PregnancyPlanTag from "../tags/PregnancyPlanTag";
 import { ATC } from "@/types/ATCTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
-import { isAIP, isCentralisee, isHospitalDelivrance } from "@/utils/specialites";
+import {
+  isAIP,
+  isCentralisee,
+  isHospitalDelivrance,
+} from "@/utils/specialites";
 import { Presentation } from "@/types/PresentationTypes";
 import MedicamentContentHeaderBlock from "./blocks/MedicamentContentHeaderBlock";
 import { FicheInfos } from "@/types/FicheInfoTypes";
@@ -43,11 +47,13 @@ import { ShortIndication } from "@/types/IndicationsTypes";
 import HospitalTag from "../tags/HospitalTag";
 import { isReimbursable } from "@/utils/presentations";
 import ReimbursableTag from "../tags/ReimbursableTag";
+import { AnsmVideos } from "@/db/types";
+import { VideosBlock } from "./notice/VideosBlock";
 
 const NoticeContentContainer = styled.div`
   @media (max-width: 48em) {
     margin-top: 0rem;
-    .fr-mb-4w{
+    .fr-mb-4w {
       margin-bottom: 1rem !important;
     }
   }
@@ -83,9 +89,9 @@ interface NoticeContentProps extends HTMLAttributes<HTMLDivElement> {
   atcList: string[];
   atc2?: ATC;
   specialite?: DetailedSpecialite;
-  composants: Array<SpecComposant & SubstanceNom>;
+  composants: CompositionComponent[];
   isPrinceps: boolean;
-  delivrance: SpecDelivrance[];
+  delivrance: DelivranceCondition[];
   pregnancyPlanAlert: PregnancyAlert | undefined;
   isPregnancyMentionAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
@@ -94,10 +100,11 @@ interface NoticeContentProps extends HTMLAttributes<HTMLDivElement> {
   notice?: NoticeData;
   ficheInfos?: FicheInfos;
   definitions?: Definition[];
-  indicationsBlock?: NoticeRCPContentBlock;
   title: string;
   indications: ShortIndication[];
+  indicationsBlock?: string;
   articles: ArticleCardResume[];
+  videos?: AnsmVideos[];
   onGoToAdvanced: (advanced: boolean) => void;
   onGoToAdvancedAnchor: (anchor?: AnchorMenu) => void;
 }
@@ -117,22 +124,23 @@ function NoticeContent({
   notice,
   ficheInfos,
   definitions,
-  indicationsBlock,
   title,
   indications,
+  indicationsBlock,
   articles,
+  videos,
   onGoToAdvanced,
   onGoToAdvancedAnchor,
   ...props
 }: NoticeContentProps) {
-
   const [currentMarr, setCurrentMarr] = useState<Marr>();
 
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
-  const [noticeContainerClassName, setNoticeContainerClassName] = useState<string>("");
   const [noticeHits, setNoticeHits] = useState<NoticeChunkHit[] | null>(null);
   const [hitsLoading, setHitsLoading] = useState<boolean>(false);
-  const [activeQuestion, setActiveQuestion] = useState<QuestionAnchors | null>(null);
+  const [activeQuestion, setActiveQuestion] = useState<QuestionAnchors | null>(
+    null,
+  );
 
   useEffect(() => {
     if (marr) {
@@ -144,7 +152,7 @@ function NoticeContent({
       };
       marr.pdf.forEach((marrLine) => {
         if (marrLine.type === "Patients") newMarr.pdf.push(marrLine);
-      })
+      });
       setCurrentMarr(newMarr);
     }
   }, [marr, setCurrentMarr]);
@@ -152,17 +160,27 @@ function NoticeContent({
   const updateCurrentQuestion = async (questionId: string) => {
     const question = questionsList[questionId];
     setCurrentQuestion(questionId);
-    const anchorEl = question.headerId ? document.getElementById(question.headerId) : null;
+    const anchorEl = question.headerId
+      ? document.getElementById(question.headerId)
+      : null;
     if (anchorEl) {
       setActiveQuestion(question);
-      setNoticeHits([{ section_anchor: question.headerId!, section_title: "", sub_header: null }]);
+      setNoticeHits([
+        {
+          section_anchor: question.headerId!,
+          section_title: "",
+          sub_header: null,
+        },
+      ]);
       return;
     }
     setActiveQuestion(question);
     setHitsLoading(true);
     setNoticeHits(null);
     if (question.queryText && specialite) {
-      const res = await fetch(`/medicaments/${specialite.SpecId}/notice-search?q=${encodeURIComponent(question.queryText)}`);
+      const res = await fetch(
+        `/medicaments/${specialite.SpecId}/notice-search?q=${encodeURIComponent(question.queryText)}`,
+      );
       const data = await res.json();
       setNoticeHits(data.hits ?? []);
     }
@@ -174,7 +192,9 @@ function NoticeContent({
     setActiveQuestion(null);
     setHitsLoading(true);
     setNoticeHits(null);
-    const res = await fetch(`/medicaments/${specialite.SpecId}/notice-search?q=${encodeURIComponent(query)}`);
+    const res = await fetch(
+      `/medicaments/${specialite.SpecId}/notice-search?q=${encodeURIComponent(query)}`,
+    );
     const data = await res.json();
     setNoticeHits(data.hits ?? []);
     setHitsLoading(false);
@@ -184,12 +204,24 @@ function NoticeContent({
     setActiveQuestion(null);
     setCurrentQuestion("");
     setHitsLoading(false);
-    setNoticeContainerClassName("");
   };
   return (
-    <NoticeContentContainer {...props} className={["mobile-display-contents", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ")}>
-      <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-md-5")].join(" ")}>
-        <DetailsContentContainer className={["mobile-display-contents", fr.cx("fr-mb-2w")].join(" ")}>
+    <NoticeContentContainer
+      {...props}
+      className={[
+        "mobile-display-contents",
+        fr.cx("fr-grid-row", "fr-grid-row--gutters"),
+      ].join(" ")}
+    >
+      <ContentContainer
+        className={[
+          "mobile-display-contents",
+          fr.cx("fr-col-12", "fr-col-md-5"),
+        ].join(" ")}
+      >
+        <DetailsContentContainer
+          className={["mobile-display-contents", fr.cx("fr-mb-2w")].join(" ")}
+        >
           <DesktopTitleBlock
             title={title}
             isAdvanced={false}
@@ -211,22 +243,27 @@ function NoticeContent({
           />
           <IndicationsBlock
             specialite={specialite}
-            indicationsBlock={indicationsBlock}
             title="À quoi sert-il ?"
-            resizable
             small
+            resizable
             indications={indications}
+            indicationsBlock={indicationsBlock}
+            definitions={definitions}
           />
-          {(notice && notice.children) && (
-            <ContentContainer 
-              whiteContainer 
-              className={fr.cx("fr-mb-2w", "fr-pt-1w", "fr-px-1w", "fr-hidden-md")}
+          {notice && (
+            <ContentContainer
+              whiteContainer
+              className={fr.cx(
+                "fr-mb-2w",
+                "fr-pt-1w",
+                "fr-px-1w",
+                "fr-hidden-md",
+              )}
               mobileOverflowX
             >
               <QuestionsBox
                 currentQuestion={currentQuestion}
                 updateCurrentQuestion={updateCurrentQuestion}
-                updateNoticeContainerClassName={setNoticeContainerClassName}
                 onSearch={handleSearch}
               />
             </ContentContainer>
@@ -237,103 +274,97 @@ function NoticeContent({
               hits={noticeHits ?? []}
               loading={hitsLoading}
               questionLabel={activeQuestion?.question}
-              onClose={onCloseResults}/>
+              onClose={onCloseResults}
+            />
           )}
-          <ContentContainer whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
-            {(atc2 || 
-              (specialite && !isAIP(specialite) && (isPrinceps || !!specialite.SpecGeneId)) 
-              || !!delivrance.length) && (
+          <ContentContainer
+            whiteContainer
+            className={fr.cx("fr-mb-2w", "fr-p-2w")}
+          >
+            {(atc2 ||
+              (specialite &&
+                !isAIP(specialite) &&
+                (isPrinceps || specialite.genericGroupCode !== null)) ||
+              !!delivrance.length) && (
               <TagContainer>
                 <DetailsContainer>
-                  {atc2 && (
-                    <ClassTag atc2={atc2} fromMedicament/>
-                  )}
-                  {!!delivrance.length && (
-                    <PrescriptionTag hideIcon/>
-                  )}
+                  {atc2 && <ClassTag atc2={atc2} fromMedicament />}
+                  {!!delivrance.length && <PrescriptionTag hideIcon />}
                   {isReimbursable(presentations) && (
-                    <ReimbursableTag hideIcon/>
+                    <ReimbursableTag hideIcon />
                   )}
-                  {isHospitalDelivrance(delivrance) && (
-                    <HospitalTag hideIcon/>
-                  )}
-                  {(specialite && isPrinceps && !isAIP(specialite)) && (
+                  {isHospitalDelivrance(delivrance) && <HospitalTag hideIcon />}
+                  {specialite && isPrinceps && specialite.genericGroupCode !== null && !isAIP(specialite) && (
                     <GenericPrincepsTag
-                      id={specialite.SpecId}
+                      genericGroupCode={specialite.genericGroupCode}
                       type="princeps"
                       fromMedicament
                       hideIcon
                       noLink
                     />
                   )}
-                  {(specialite && !!specialite.SpecGeneId && !isAIP(specialite)) && (
-                    <GenericPrincepsTag
-                      id={specialite.SpecGeneId}
-                      type="generic"
-                      fromMedicament
-                      hideIcon
-                      noLink
-                    />
-                  )}
+                  {specialite &&
+                    specialite.genericGroupCode !== null &&
+                    !isPrinceps &&
+                    !isAIP(specialite) && (
+                      <GenericPrincepsTag
+                        genericGroupCode={specialite.genericGroupCode}
+                        type="generic"
+                        fromMedicament
+                        hideIcon
+                        noLink
+                      />
+                    )}
                 </DetailsContainer>
-                
               </TagContainer>
             )}
             {composants && (
-              <TagContainer 
-                category="Substance active" 
+              <TagContainer
+                category="Substance active"
                 inLine
                 className="notice-content-tag-container"
               >
-                <SubstanceTag composants={composants} fromMedicament/>
+                <SubstanceTag composants={composants} fromMedicament />
               </TagContainer>
             )}
             {(pregnancyPlanAlert || isPregnancyMentionAlert || pediatrics) && (
-              <TagContainer
-                className="notice-content-tag-container"
-              >
-                  {pregnancyPlanAlert && (
-                    <PregnancyPlanTag fromMedicament/>
-                  )}
-                  {(!pregnancyPlanAlert && isPregnancyMentionAlert) && (
-                    <PregnancyMentionTag fromMedicament/>
-                  )}
-                  {pediatrics && (
-                    <PediatricsTags 
-                      info={pediatrics} 
-                      fromMedicament
-                    />
-                  )}
+              <TagContainer className="notice-content-tag-container">
+                {pregnancyPlanAlert && <PregnancyPlanTag fromMedicament />}
+                {!pregnancyPlanAlert && isPregnancyMentionAlert && (
+                  <PregnancyMentionTag fromMedicament />
+                )}
+                {pediatrics && (
+                  <PediatricsTags info={pediatrics} fromMedicament />
+                )}
               </TagContainer>
             )}
-            <TagContainer 
-              category="Statut d'autorisation" 
-              hideSeparator
-              inLine
-            >
-              {(specialite && specialite.statutAutorisation) ? (
+            <TagContainer category="Statut d'autorisation" hideSeparator inLine>
+              {specialite && specialite.statutAutorisation ? (
                 <span>
-                  <span className={fr.cx("fr-text--sm", "fr-mb-0")}> 
+                  <span className={fr.cx("fr-text--sm", "fr-mb-0")}>
                     {specialite.statutAutorisation}
                   </span>
-                  {(specialite.StatId && Number(specialite.StatId) === SpecialiteStat.Abrogée && specialite.SpecStatDate) && (
-                    <span className={fr.cx("fr-text--sm", "fr-mb-0")}>
-                      {" "}le {(specialite.SpecStatDate).toLocaleDateString('fr-FR')}
-                    </span>
-                  )}
+                  {specialite.StatId &&
+                    Number(specialite.StatId) === SpecialiteStat.Abrogée &&
+                    specialite.SpecStatDate && (
+                      <span className={fr.cx("fr-text--sm", "fr-mb-0")}>
+                        {" "}
+                        le {specialite.SpecStatDate.toLocaleDateString("fr-FR")}
+                      </span>
+                    )}
                 </span>
               ) : (
                 <span>Non communiqué</span>
               )}
             </TagContainer>
-            <TagContainer 
+            <TagContainer
               category="Date d'autorisation de mise sur le marché"
               inLine
               hideSeparator
             >
-              {(specialite && specialite.SpecDateAMM) ? (
+              {specialite && specialite.SpecDateAMM ? (
                 <span className={fr.cx("fr-text--sm", "fr-mb-0")}>
-                  {(specialite.SpecDateAMM).toLocaleDateString('fr-FR')}
+                  {specialite.SpecDateAMM.toLocaleDateString("fr-FR")}
                 </span>
               ) : (
                 <span>Non communiquée</span>
@@ -341,29 +372,37 @@ function NoticeContent({
             </TagContainer>
           </ContentContainer>
           {presentations && (
-            <ContentContainer 
-              whiteContainer 
+            <ContentContainer
+              whiteContainer
               className={fr.cx("fr-mb-2w", "fr-p-2w")}
               mobileOverflowX
             >
               <PresentationsList presentations={presentations} />
             </ContentContainer>
           )}
-          {(articles && articles.length > 0) && (
-            <ContentContainer 
-              whiteContainer 
-              className={fr.cx("fr-mb-2w", "fr-p-2w")} 
+          {articles && articles.length > 0 && (
+            <ContentContainer
+              whiteContainer
+              className={fr.cx("fr-mb-2w", "fr-p-2w")}
               mobileOverflowX
             >
-              <ArticlesResumeList 
-                articles={articles} 
+              <ArticlesResumeList
+                articles={articles}
                 trackingFrom="Page médicament"
               />
             </ContentContainer>
           )}
+          {(videos && videos.length > 0) && (
+            <ContentContainer 
+              whiteContainer 
+              className={fr.cx("fr-mb-2w", "fr-p-2w")}
+            >
+              <VideosBlock videos={videos} />
+            </ContentContainer>
+          )}
           {(currentMarr && currentMarr.pdf.length > 0) && (
             <ContentContainer whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
-              <MarrNotice 
+              <MarrNotice
                 marr={currentMarr}
                 onGoToAdvanced={onGoToAdvancedAnchor}
                 hiddenTag
@@ -372,7 +411,12 @@ function NoticeContent({
           )}
         </DetailsContentContainer>
       </ContentContainer>
-      <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-md-7")].join(" ")}>
+      <ContentContainer
+        className={[
+          "mobile-display-contents",
+          fr.cx("fr-col-12", "fr-col-md-7"),
+        ].join(" ")}
+      >
         <MedicamentContentHeaderBlock
           className={fr.cx("fr-hidden", "fr-unhidden-md")}
           specialite={specialite}
@@ -381,23 +425,27 @@ function NoticeContent({
           pregnancyPlanAlert={pregnancyPlanAlert}
           isPregnancyMentionAlert={isPregnancyMentionAlert}
           pediatrics={pediatrics}
-        />              
-        {(notice && notice.children && notice.children.length > 0) && (
-          <ContentContainer 
+        />
+        {notice && (
+          <ContentContainer
             whiteContainer
             className={fr.cx("fr-mb-2w", "fr-hidden", "fr-unhidden-md")}
           >
             <QuestionsBox
               currentQuestion={currentQuestion}
               updateCurrentQuestion={updateCurrentQuestion}
-              updateNoticeContainerClassName={setNoticeContainerClassName}
               onSearch={handleSearch}
             />
           </ContentContainer>
         )}
         {(hitsLoading || noticeHits !== null) && (
           <NoticeChunkResultsBox
-            className={fr.cx("fr-hidden", "fr-unhidden-md", "fr-mb-2w", "fr-px-1w")}
+            className={fr.cx(
+              "fr-hidden",
+              "fr-unhidden-md",
+              "fr-mb-2w",
+              "fr-px-1w",
+            )}
             hits={noticeHits ?? []}
             loading={hitsLoading}
             questionLabel={activeQuestion?.question}
@@ -408,30 +456,36 @@ function NoticeContent({
           <NoticeContainer>
             <div className={fr.cx("fr-mb-4w")}>
               <div style={{ display: "flex" }}>
-                <span className={["fr-icon--custom-notice", fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md")].join(" ")} />
+                <span
+                  className={[
+                    "fr-icon--custom-notice",
+                    fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md"),
+                  ].join(" ")}
+                />
                 <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice complète</h2>
               </div>
               <ContentContainer>
-                {(notice && notice.dateNotif) && (
+                {notice && notice.dateNotif && (
                   <Badge severity={"info"}>{notice.dateNotif}</Badge>
                 )}
               </ContentContainer>
             </div>
-            {(specialite && (notice || isCentralisee(specialite))) ? (
+            {specialite && (notice || isCentralisee(specialite)) ? (
               <NoticeBlock
                 notice={notice}
                 specialite={specialite}
                 definitions={definitions}
-                noticeContainerClassName={noticeContainerClassName}
               />
-            ) :
-              (<span>La notice n&rsquo;est pas disponible pour ce médicament.</span>)
-            }
+            ) : (
+              <span>
+                La notice n&rsquo;est pas disponible pour ce médicament.
+              </span>
+            )}
           </NoticeContainer>
         </ContentContainer>
       </ContentContainer>
     </NoticeContentContainer>
   );
-};
+}
 
 export default NoticeContent;

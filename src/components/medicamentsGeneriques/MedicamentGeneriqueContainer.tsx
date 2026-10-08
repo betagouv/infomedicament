@@ -6,20 +6,22 @@ import { fr } from "@codegouvfr/react-dsfr";
 import ClassTag from "../tags/ClassTag";
 import { ATC } from "@/types/ATCTypes";
 import SubstanceTag from "../tags/SubstanceTag";
-import { SpecComposant, Specialite, SubstanceNom, VUEvnts } from "@/db/pdbmMySQL/types";
+import type { CompositionComponent } from "@/types/SubstanceTypes";
+import type { SafetyEvent } from "@/types/FicheInfoTypes";
 import { displayCompleteComposants } from "@/displayUtils";
 import GenericAccordion from "../GenericAccordion";
-import { DetailedSpecialite } from "@/types/SpecialiteTypes";
+import { Specialite } from "@/types/SpecialiteTypes";
 import DataBlockSpecGenerique from "../data/DataBlockSpecGenerique";
 import { isSurveillanceRenforcee } from "@/utils/specialites";
 
-interface MedicamentGeneriqueContainerProps extends HTMLAttributes<HTMLDivElement> {
+interface MedicamentGeneriqueContainerProps
+  extends HTMLAttributes<HTMLDivElement> {
   atc2?: ATC;
-  composants : Array<SpecComposant & SubstanceNom>;
+  composants: CompositionComponent[];
   groupName: string;
-  princeps: DetailedSpecialite;
+  princeps: Specialite[];
   generiques: Specialite[];
-  events: VUEvnts[];
+  events: SafetyEvent[];
 }
 
 function MedicamentGeneriqueContainer({
@@ -31,18 +33,15 @@ function MedicamentGeneriqueContainer({
   events,
   ...props
 }: MedicamentGeneriqueContainerProps) {
-
   return (
-    <ContentContainer frContainer {...props}>              
+    <ContentContainer frContainer {...props}>
       <ul className={fr.cx("fr-tags-group", "fr-mb-1v")}>
-        {atc2 && (<ClassTag atc2={atc2} />)}
+        {atc2 && <ClassTag atc2={atc2} />}
         <SubstanceTag composants={composants} />
       </ul>
       <div className={"fr-mb-1w"}>
         <span
-          className={["fr-icon--custom-molecule", fr.cx("fr-mr-1w")].join(
-            " ",
-          )}
+          className={["fr-icon--custom-molecule", fr.cx("fr-mr-1w")].join(" ")}
         />
         <b>Substance active</b>
         <br />
@@ -55,27 +54,35 @@ function MedicamentGeneriqueContainer({
       </div>
       <GenericAccordion />
 
-      <h2 className={fr.cx("fr-h6", "fr-mt-2w", "fr-mb-1w")}>
-        Médicament princeps
-      </h2>
-      <DataBlockSpecGenerique 
-          key={princeps.SpecId}
-          specialite={princeps}
-          isSurveillanceRenforcee={false}
-        />
+      {princeps.length > 0 && (
+        <>
+          <h2 className={fr.cx("fr-h6", "fr-mt-2w", "fr-mb-1w")}>
+            {princeps.length} médicament{princeps.length > 1 && "s"} princeps
+          </h2>
+          {princeps.map((specialite) => (
+            <DataBlockSpecGenerique
+              key={specialite.SpecId}
+              specialite={specialite}
+              isSurveillanceRenforcee={false}
+            />
+          ))}
+        </>
+      )}
       <h2 className={fr.cx("fr-h6", "fr-mt-4w")}>
         {generiques.length} médicament{generiques.length > 1 && "s"} générique
         {generiques.length > 1 && "s"}
       </h2>
       {generiques.map((generique) => (
-        <DataBlockSpecGenerique 
+        <DataBlockSpecGenerique
           key={generique.SpecId}
           specialite={generique}
-          isSurveillanceRenforcee={isSurveillanceRenforcee(events.filter((event) => event.SpecId === generique.SpecId))}
+          isSurveillanceRenforcee={isSurveillanceRenforcee(
+            events.filter((event) => event.specialiteId === generique.SpecId),
+          )}
         />
       ))}
     </ContentContainer>
   );
-};
+}
 
 export default MedicamentGeneriqueContainer;

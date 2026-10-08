@@ -26,6 +26,8 @@ Les variables principales sont :
 
 - `DATABASE_URL` : l'URL PostgreSQL utilisée par l'application;
 - `PDBM_URL` : l'URL MySQL de la copie locale de la BDPM.
+- `RATE_LIMIT` : la limite par minute et par IP, appliquée séparément aux navigations de pages et aux endpoints applicatifs (200 par défaut). Les ressources statiques et les requêtes RSC/prefetch internes à Next.js ne sont pas comptées;
+- `RATE_LIMIT_ENABLED` : définir à `false` pour désactiver temporairement ces deux limites, notamment pendant les tests de charge. La limite dédiée de `/rating` reste active.
 
 `DATABASE_URL` doit être définie si vous lancez l'application hors Dev Container.
 Dans le Dev Container, l'application sait aussi utiliser les identifiants
@@ -81,7 +83,6 @@ de la base de données publique des médicaments.
 Info Médicament utilise une base de données PostgreSQL
 pour stocker les données spécifiques à l'application :
 
-- les images des notices (pour éviter d'avoir à les stocker dans un système de fichiers)
 - les index de recherche plein texte
 
 Vous devez d'abord jouer les migrations pour créer les tables,
@@ -89,13 +90,44 @@ puis charger les données. La base MySQL doit être accessible préalablement.
 
 ```bash
 # Créer les tables
-kysele migrate:latest
+kysely migrate:latest
 
-# Charger les images et les index de recherche
-# Le chemin vers le dossier contenant les images des notices doit être spécifié
-# avec la variable d'environnement LEAFLET_IMAGES
-LEAFLET_IMAGES=/path/to/folder kysely seed run
+# Charger les index de recherche
+kysely seed run
 ```
+
+### Restaurer une sauvegarde PostgreSQL de Scalingo en local
+
+Le script de restauration remplace le contenu de la base PostgreSQL du Dev
+Container par la dernière sauvegarde Scalingo disponible. La staging est utilisée
+par défaut :
+
+```bash
+./scripts/scalingo/restore_db.sh
+```
+
+Pour uniquement télécharger la dernière sauvegarde sans la restaurer :
+
+```bash
+./scripts/scalingo/download_db_backup.sh
+./scripts/scalingo/download_db_backup.sh --env prod
+```
+
+Les sauvegardes sont conservées dans `data/backups/` par défaut. Un chemin de
+sortie peut être choisi avec `--output /path/to/backup.tar.gz`.
+
+Il faut au préalable avoir démarré les services du Dev Container, être connecté
+avec la CLI Scalingo et avoir accès à l'application concernée. Pour restaurer la
+production ou utiliser une sauvegarde déjà téléchargée :
+
+```bash
+./scripts/scalingo/restore_db.sh --env prod
+./scripts/scalingo/restore_db.sh --input /path/to/backup.tar.gz
+```
+
+La restauration détruit les données PostgreSQL locales existantes, demande une
+confirmation et joue ensuite les migrations Kysely. Consultez
+`./scripts/scalingo/restore_db.sh --help` pour toutes les options.
 
 ## Déploiement
 

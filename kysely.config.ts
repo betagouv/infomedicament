@@ -6,6 +6,7 @@ export default defineConfig({
   migrations: {
     migrationFolder: "src/db/migrations",
     getMigrationPrefix: getKnexTimestampPrefix,
+    allowUnorderedMigrations: true,
   },
   seeds: {
     seedFolder: "src/db/seeds",

@@ -22,7 +22,6 @@ export default function RootLayout({
 }>) {
   const lang = "fr";
   return (
-    <ThemeProvider>
     <html {...getHtmlAttributes({ defaultColorScheme, lang })}>
       <head>
         <StartDsfr />
@@ -37,10 +36,10 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <DsfrProvider lang={lang}>
-          {children}
-        </DsfrProvider>
+        <ThemeProvider>
+          <DsfrProvider lang={lang}>{children}</DsfrProvider>
+        </ThemeProvider>
       </body>
-    </html></ThemeProvider>
+    </html>
   );
 }

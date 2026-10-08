@@ -12,10 +12,10 @@ export const getAllPregnancyPlanAlerts = unstable_cache(
             .select(["subs_id", "lien_site_ansm"])
             .execute();
 
-        return rows.map((row) => ({
-            id: row.subs_id?.trim() || "",
-            link: row.lien_site_ansm?.trim() || "",
-        }));
+        return rows.flatMap((row) => {
+            const id = row.subs_id?.trim();
+            return id ? [{ id, link: row.lien_site_ansm?.trim() || "" }] : [];
+        });
     },
     ["all-pregnancy-plan-alerts"],
     { revalidate: 3600 }
