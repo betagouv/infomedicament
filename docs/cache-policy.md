@@ -88,16 +88,20 @@ and distributed tag checks remain compatible. Shared cache scopes still exclude
 request authentication and free-text search keys; resolved URL inputs enter
 cached functions through Suspense.
 
-The header parallel slot now explicitly matches the container's page routes,
-with a default header fallback. Its previous catch-all also matched API routes
-and the standalone embed page, which 16.4's strict route validator rejects.
-The shared cached header component and the home/search header variants retain
-their existing rendering behavior. Strict matching remains enabled.
+The container layout renders one shared cached header component. Its client
+component uses `useSelectedLayoutSegment` to hide search on the home and search
+pages and show it on other container pages, including during client navigation.
+The route-aware client header is inside Suspense, as required for dynamic routes
+with Cache Components.
+There is no parallel header slot or route-specific header re-export boilerplate.
+The standalone embed page remains outside the container layout. Strict route
+matching remains enabled.
 
 Verification on 16.4.0: 260 unit tests (including 24 adapter regression tests),
-TypeScript, source lint, and production builds with both webpack and Turbopack
-passed. Both builds generated 711 pages; the prior extra route was the header
-catch-all. A standalone Chromium smoke check confirmed the home/search header
-variants, client navigation to the searchable header, the separate embed layout,
-and the autocomplete API. Runtime Redis failure and invalidation tests use a
+TypeScript, source lint, and the default Turbopack production build passed,
+generating 711 pages. The framework upgrade also passed a webpack build.
+Standalone Chromium smoke checks confirmed home/search header variants, header
+search visibility during client navigation in both directions, rewritten list
+URLs, dynamic medicine pages, the separate embed layout, and the autocomplete
+API. Runtime Redis failure and invalidation tests use a
 shared simulated Redis store; this check does not benchmark deployment latency.

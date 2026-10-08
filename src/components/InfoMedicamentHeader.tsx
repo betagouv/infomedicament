@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import ClientHeader from "@/components/ClientHeader";
 import { getAtcMenuItems } from "@/db/utils/atc";
 import { cacheLife } from "next/cache";
@@ -8,5 +9,9 @@ export default async function InfoMedicamentHeader() {
 
   const atcs = await getAtcMenuItems();
 
-  return <ClientHeader atcs={atcs} />;
+  return (
+    <Suspense fallback={null}>
+      <ClientHeader atcs={atcs} />
+    </Suspense>
+  );
 }
