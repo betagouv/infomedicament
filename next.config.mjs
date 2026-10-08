@@ -39,6 +39,7 @@ const embedCspHeader = cspHeader.replace(
 const nextConfig = {
   output: "standalone",
   cacheComponents: true,
+  partialPrefetching: true,
   cacheLife: {
     hourly: {
       stale: 5 * 60,

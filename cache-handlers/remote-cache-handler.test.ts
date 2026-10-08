@@ -2,10 +2,7 @@ import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type {
-  CacheEntry,
-  CacheHandler,
-} from "next/dist/server/lib/cache-handlers/types";
+import type { CacheEntry, CacheHandler } from "next/cache";
 
 const require = createRequire(import.meta.url);
 const { __testing } = require("./remote-cache-handler.js") as {

@@ -152,6 +152,7 @@ async function getTagStates(tags, client) {
   }));
 }
 
+/** @type {import("next/cache").CacheHandler} */
 const remoteCacheHandler = {
   async get(cacheKey, softTags = []) {
     try {

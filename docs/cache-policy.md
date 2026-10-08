@@ -1,6 +1,7 @@
 # Next.js caching policy
 
-Application data caching uses Next.js Cache Components (`cacheComponents: true`).
+Application data caching uses Next.js Cache Components (`cacheComponents: true`)
+and Partial Prefetching (`partialPrefetching: true`).
 Use `"use cache: remote"` and `cacheLife` for shared database and API reads.
 The remote adapter stores entries in Redis when configured. The separate
 Incremental Cache adapter serves Next's generated-page/ISR infrastructure;
@@ -45,7 +46,7 @@ the launcher does not override them.
 
 ## Next.js handler contract
 
-Cache Components shipped in Next.js 16. This branch uses Next.js 16.2.6; the
+Cache Components shipped in Next.js 16. This branch uses Next.js 16.4.0; the
 review follows the current official [Cache Components release notes](https://nextjs.org/blog/next-16),
 [remote cache guidance](https://nextjs.org/docs/app/api-reference/directives/use-cache-remote),
 and [custom handler contract](https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheHandlers),
@@ -72,3 +73,31 @@ The startup connectivity check still refuses to start with configured but
 unavailable Redis. Runtime storage failures are logged and leave Next free to
 regenerate data from its source. No explicit application `cacheTag` policy is
 introduced; current application freshness remains governed by the profiles.
+
+## Next.js 16.4 review
+
+Next.js 16.4 [recommends Cache Components for every app](https://nextjs.org/blog/next-16-4).
+Partial Prefetching is enabled alongside Cache Components so navigation shares
+static app shells and resolves URL-dependent cached content on navigation.
+Existing intentional `prefetch: false` settings remain unchanged.
+
+The custom handlers were checked against the installed 16.4 CacheHandler types,
+Next's default handler, and the implicit-tag behavior in its cache wrapper.
+The existing profiles, Redis stream serialization, atomic writes, error handling,
+and distributed tag checks remain compatible. Shared cache scopes still exclude
+request authentication and free-text search keys; resolved URL inputs enter
+cached functions through Suspense.
+
+The header parallel slot now explicitly matches the container's page routes,
+with a default header fallback. Its previous catch-all also matched API routes
+and the standalone embed page, which 16.4's strict route validator rejects.
+The shared cached header component and the home/search header variants retain
+their existing rendering behavior. Strict matching remains enabled.
+
+Verification on 16.4.0: 260 unit tests (including 24 adapter regression tests),
+TypeScript, source lint, and production builds with both webpack and Turbopack
+passed. Both builds generated 711 pages; the prior extra route was the header
+catch-all. A standalone Chromium smoke check confirmed the home/search header
+variants, client navigation to the searchable header, the separate embed layout,
+and the autocomplete API. Runtime Redis failure and invalidation tests use a
+shared simulated Redis store; this check does not benchmark deployment latency.
