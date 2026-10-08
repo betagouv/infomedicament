@@ -132,7 +132,7 @@ export async function getSearchResultsFromMatches(
   const formatted = formatSpecialitesResume(rawGroups);
   const withATC = await getResumeSpecsATCLabels(formatted);
 
-  // Attach match reasons, score per spécialité, sort, cap output at 200 to keep cache entries bounded
+  // Attach match reasons, score per spécialité, sort, cap output at 200 to keep result payloads bounded
   return withATC
     .map((spec) => {
       const matchReasons = groupMap.get(spec.groupName)?.reasons ?? [];

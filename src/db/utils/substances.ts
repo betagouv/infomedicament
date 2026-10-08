@@ -116,6 +116,9 @@ async function componentsForCandidateCis(
 export async function getCisMatchingSubstanceSet(
   ids: string[],
 ): Promise<string[]> {
+  "use cache: remote";
+  cacheLife("hourly");
+
   const substances = await resolveSubstances(ids);
   if (substances.length !== ids.length) return [];
 

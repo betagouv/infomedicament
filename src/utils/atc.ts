@@ -1,3 +1,5 @@
+
+import { cacheLife } from "next/cache";
 import db from "@/db";
 
 export class ATCError extends Error {
@@ -7,6 +9,9 @@ export class ATCError extends Error {
 }
 
 export async function getAtcCode(CIS: string): Promise<string | undefined> {
+  "use cache: remote";
+  cacheLife("daily");
+
   const result = await db
     .selectFrom("cis_atc")
     .innerJoin("atc", "atc.code_terme", "cis_atc.code_terme_atc")

@@ -8,6 +8,9 @@ import { sql } from "kysely";
 import { ShortIndication } from "@/types/IndicationsTypes";
 
 export async function getAllIndications(): Promise<Indication[]> {
+  "use cache: remote";
+  cacheLife("daily");
+
   return await db.selectFrom("indications").selectAll().execute();
 }
 

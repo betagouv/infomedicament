@@ -1,4 +1,6 @@
 "use server";
+
+import { cacheLife } from "next/cache";
 import "server-cli-only";
 
 import db from "@/db";
@@ -13,6 +15,9 @@ async function queryEvents(
   CISList: string[],
   code?: number,
 ): Promise<SafetyEvent[]> {
+  "use cache: remote";
+  cacheLife("hourly");
+
   if (CISList.length === 0) return [];
 
   let query = db

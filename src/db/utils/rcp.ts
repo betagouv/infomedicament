@@ -1,9 +1,14 @@
 "use server";
 
+import { cacheLife } from "next/cache";
+
 import db from "@/db";
 import { RcpData } from "@/types/SpecialiteTypes";
 
 export async function getRCP(CIS: string): Promise<RcpData | undefined> {
+  "use cache: remote";
+  cacheLife("hourly");
+
   const rcpRaw = await db
     .selectFrom("rcp")
     .selectAll()

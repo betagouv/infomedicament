@@ -133,13 +133,20 @@ confirmation et joue ensuite les migrations Kysely. Consultez
 
 L'application est déployée sur Scalingo.
 
-### Cache ISR
+### Cache Next.js
 
 Au démarrage, l'application utilise Redis pour partager le cache Next.js entre
 les conteneurs lorsque `SCALINGO_REDIS_URL` ou `REDIS_URL` est définie. Si Redis
 est configuré mais inaccessible, le démarrage échoue afin d'éviter que les
 instances utilisent des caches locaux incohérents. Sans URL Redis, le cache
 local standard de Next.js est conservé.
+
+Les lectures partagées utilisent `"use cache: remote"` et les profils `hourly`
+et `daily`. Grist utilise le cache local `"use cache"`. Les recherches en texte
+libre restent sans cache persistant. Voir [la politique de cache](docs/cache-policy.md).
+
+Définir `HOSTNAME` et `PORT` dans l’environnement de déploiement. Le lanceur
+`start.mjs` conserve ces valeurs sans les modifier.
 
 ### Review Apps
 

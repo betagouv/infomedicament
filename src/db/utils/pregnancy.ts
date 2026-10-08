@@ -31,6 +31,9 @@ export async function getAllPregnancyMentionAlerts(): Promise<string[]> {
     }
 
 export async function getPregnancyMentionAlert(CIS: string): Promise<boolean> {
+  "use cache: remote";
+  cacheLife("hourly");
+
     const rows = await db.selectFrom("ref_grossesse_mention")
         .select(["cis"])
         .where("cis", "=", CIS)

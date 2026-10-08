@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isValidPageId } from "./route";
+import { isValidPageId } from "@/utils/rating";
 
 describe("isValidPageId", () => {
   describe("valid page ids", () => {

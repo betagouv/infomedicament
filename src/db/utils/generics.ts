@@ -59,6 +59,9 @@ export async function getGenericsResumeWithLetter(letter: string): Promise<Resum
 export async function getGenericGroup(
   codeGroupe: number,
 ): Promise<GenericGroup | undefined> {
+  "use cache: remote";
+  cacheLife("hourly");
+
   const [group, members] = await Promise.all([
     db
       .selectFrom("ansm_groupe_generique")
@@ -118,6 +121,9 @@ export async function getGenericGroup(
 }
 
 export async function getGenericGroupMembership(CIS: string) {
+  "use cache: remote";
+  cacheLife("hourly");
+
   const membership = await db
     .selectFrom("ansm_specialite_groupe_generique")
     .where("cis", "=", CIS)
@@ -154,6 +160,9 @@ export async function getGenericGroupMembership(CIS: string) {
 }
 
 export async function getAllGenericGroupCodes(): Promise<number[]> {
+  "use cache: remote";
+  cacheLife("daily");
+
   const groups = await db
     .selectFrom("ansm_specialite_groupe_generique")
     .innerJoin(
@@ -180,6 +189,9 @@ export async function getAllGenericGroupCodes(): Promise<number[]> {
 }
 
 export async function isPrincepsSpecialite(CIS: string): Promise<boolean> {
+  "use cache: remote";
+  cacheLife("hourly");
+
   return Boolean(
     await db
       .selectFrom("ansm_specialite_groupe_generique")
@@ -191,6 +203,9 @@ export async function isPrincepsSpecialite(CIS: string): Promise<boolean> {
 }
 
 export async function isGenericSpecialite(CIS: string): Promise<boolean> {
+  "use cache: remote";
+  cacheLife("hourly");
+
   return Boolean(
     await db
       .selectFrom("ansm_specialite_groupe_generique")

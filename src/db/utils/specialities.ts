@@ -55,6 +55,9 @@ export async function getMarketedMedicamentCount(): Promise<number> {
   }
 
 export async function getSpecialiteName(CIS: string): Promise<string> {
+  "use cache: remote";
+  cacheLife("hourly");
+
   const result = await db
     .selectFrom("ansm_specialite")
     .where("cis", "=", CIS)

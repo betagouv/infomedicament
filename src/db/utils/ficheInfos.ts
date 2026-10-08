@@ -1,5 +1,7 @@
 "use server";
 
+import { cacheLife } from "next/cache";
+
 import {
   Asmr,
   ComposantComposition,
@@ -37,6 +39,9 @@ function formatElementName(name: string): string {
 export async function getFicheInfos(
   CIS: string,
 ): Promise<FicheInfos | undefined> {
+  "use cache: remote";
+  cacheLife("hourly");
+
   const eventsPromise = getReinforcedSurveillanceEvents([CIS]);
   const infosImportantesPromise = getImportantInformation(CIS);
 

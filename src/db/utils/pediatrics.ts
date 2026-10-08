@@ -23,6 +23,9 @@ export async function getAllPediatrics(): Promise<AllPediatricsInfo[]> {
 export async function getPediatrics(
     CIS: string,
 ): Promise<PediatricsInfo | undefined> {
+  "use cache: remote";
+  cacheLife("hourly");
+
     const rows = await db.selectFrom("ref_pediatrie")
         .select(["cis", "contre_indication"])
         .where("cis", "=", CIS)

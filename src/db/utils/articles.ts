@@ -33,9 +33,7 @@ export async function getArticles(): Promise<Article[]> {
 }
 
 export async function getArticlesFromFilters(articlesFilters: SearchArticlesFilters): Promise<ArticleCardResume[]> {
-    const rows = await db.selectFrom("ref_articles")
-        .select(["titre", "lien", "metadescription", "homepage", "atc_classe", "substances", "specialites", "pathologies"])
-        .execute();
+    const rows = await getArticleFilterRows();
 
     const articles: any[] = [];
 
@@ -146,4 +144,12 @@ export async function getArticlesFromSubstances(ids: string[]): Promise<ArticleC
     };
 
     return getArticlesFromFilters(articlesFilters);
+}
+
+async function getArticleFilterRows() {
+  "use cache: remote";
+  cacheLife("hourly");
+  return db.selectFrom("ref_articles")
+        .select(["titre", "lien", "metadescription", "homepage", "atc_classe", "substances", "specialites", "pathologies"])
+        .execute();
 }

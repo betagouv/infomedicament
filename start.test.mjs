@@ -6,7 +6,6 @@ import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
 import {
   assertRedisCacheAvailable,
-  configureServerBinding,
   getRedisCacheUrl,
 } from "./start.mjs";
 
@@ -32,15 +31,7 @@ describe("Redis cache startup selection", () => {
     await expect(assertRedisCacheAvailable({})).resolves.toBeUndefined();
   });
 
-  it("binds Next to every interface for Scalingo port detection", () => {
-    const environment = { HOSTNAME: "container-hostname" };
-
-    configureServerBinding(environment);
-
-    expect(environment.HOSTNAME).toBe("0.0.0.0");
-  });
-
-  it("loads when root node_modules is excluded from the deployment", async () => {
+  it("starts from the standalone bundle and preserves the configured hostname and port", async () => {
     const deploymentDirectory = await mkdtemp(join(tmpdir(), "next-start-"));
     const deployedLauncher = join(deploymentDirectory, "start.mjs");
     const packagedHandlerDirectory = join(
@@ -53,14 +44,28 @@ describe("Redis cache startup selection", () => {
       await mkdir(packagedHandlerDirectory, { recursive: true });
       await writeFile(
         join(packagedHandlerDirectory, "incremental-cache-handler.js"),
-        "module.exports.assertRedisCacheAvailable = async () => {};",
+        'module.exports.assertRedisCacheAvailable = async () => { console.log("cache-ready"); };',
       );
-      await execFileAsync(process.execPath, [
+      await writeFile(
+        join(deploymentDirectory, ".next/standalone/server.js"),
+        'console.log("binding:" + process.env.HOSTNAME + ":" + process.env.PORT);',
+      );
+      const { stdout } = await execFileAsync(process.execPath, [
         "--input-type=module",
         "--eval",
         `const launcher = await import(${JSON.stringify(deployedLauncher)});
-         await launcher.assertRedisCacheAvailable({ REDIS_URL: "redis://cache" });`,
-      ]);
+         await launcher.start();`,
+      ], {
+        env: {
+          ...process.env,
+          REDIS_URL: "redis://cache",
+          SCALINGO_REDIS_URL: "redis://cache",
+          HOSTNAME: "127.0.0.1",
+          PORT: "4321",
+        },
+      });
+      expect(stdout).toContain("cache-ready");
+      expect(stdout).toContain("binding:127.0.0.1:4321");
     } finally {
       await rm(deploymentDirectory, { recursive: true, force: true });
     }
