@@ -1,0 +1,1852 @@
+{
+  "presentations": [
+    {
+      "cis": "60000229",
+      "cip": "3400930326237",
+      "denomination": "4 stylos préremplis en verre de 0,75 mL",
+      "specialite": "WEGOVY 2,4 mg, solution injectable en stylo prérempli"
+    },
+    {
+      "cis": "60007565",
+      "cip": "3400930323731",
+      "denomination": "1 seringue préremplie en verre de 0,25 mL avec 2 aiguilles",
+      "specialite": "PALIPERIDONE ZENTIVA 25 mg, suspension injectable à libération prolongée en seringue préremplie"
+    },
+    {
+      "cis": "60018444",
+      "cip": "3400930100998",
+      "denomination": "30 plaquette(s) prédécoupées unitaires PVC PVDC aluminium de 1 comprimé(s)",
+      "specialite": "ENTECAVIR TEVA 1 mg, comprimé pelliculé"
+    },
+    {
+      "cis": "60018444",
+      "cip": "3400930101001",
+      "denomination": "30 plaquette(s) prédécoupées unitaires aluminium OPA : polyamide orienté PVC-Aluminium de 1 comprimé(s)",
+      "specialite": "ENTECAVIR TEVA 1 mg, comprimé pelliculé"
+    },
+    {
+      "cis": "60018444",
+      "cip": "3400930128282",
+      "denomination": "plaquette(s) PVC PVDC aluminium de 30 comprimé(s)",
+      "specialite": "ENTECAVIR TEVA 1 mg, comprimé pelliculé"
+    },
+    {
+      "cis": "60018444",
+      "cip": "3400930128299",
+      "denomination": "plaquette(s) aluminium OPA : polyamide orienté PVC-Aluminium de 30 comprimé(s)",
+      "specialite": "ENTECAVIR TEVA 1 mg, comprimé pelliculé"
+    },
+    {
+      "cis": "60052222",
+      "cip": "3400930276419",
+      "denomination": "1 flacon en verre brun de 13,2 mL (150 pulvérisations) avec pompe pour pulvérisation PEBD  polypropylène",
+      "specialite": "NICOTINELL 1 mg/dose, solution pour pulvérisation buccale"
+    },
+    {
+      "cis": "60052222",
+      "cip": "3400930276464",
+      "denomination": "2 flacons en verre brun de 13,2 mL (150 pulvérisations) avec pompe pour pulvérisation PEBD polypropylène",
+      "specialite": "NICOTINELL 1 mg/dose, solution pour pulvérisation buccale"
+    },
+    {
+      "cis": "60184188",
+      "cip": "3400931922766",
+      "denomination": "tube(s) polypropylène de 40  comprimé(s)",
+      "specialite": "DEPAKINE 500 mg, comprimé gastro-résistant"
+    },
+    {
+      "cis": "60184188",
+      "cip": "3400933926441",
+      "denomination": "tube(s) polypropylène de 10  comprimé(s)",
+      "specialite": "DEPAKINE 500 mg, comprimé gastro-résistant"
+    },
+    {
+      "cis": "60184188",
+      "cip": "3400934445132",
+      "denomination": "pilulier(s) en verre de 40  comprimé(s)",
+      "specialite": "DEPAKINE 500 mg, comprimé gastro-résistant"
+    },
+    {
+      "cis": "60184188",
+      "cip": "3400934445361",
+      "denomination": "pilulier(s) en verre de 10  comprimé(s)",
+      "specialite": "DEPAKINE 500 mg, comprimé gastro-résistant"
+    },
+    {
+      "cis": "60184188",
+      "cip": "3400936092105",
+      "denomination": "plaquette(s) thermoformée(s) polyamide aluminium PVC-Aluminium de 10  comprimé(s)",
+      "specialite": "DEPAKINE 500 mg, comprimé gastro-résistant"
+    },
+    {
+      "cis": "60184188",
+      "cip": "3400936092273",
+      "denomination": "plaquette(s) thermoformée(s) polyamide aluminium PVC-Aluminium de 40  comprimé(s)",
+      "specialite": "DEPAKINE 500 mg, comprimé gastro-résistant"
+    },
+    {
+      "cis": "60206332",
+      "cip": "3400935753274",
+      "denomination": "plaquette(s) PVC-Aluminium PVDC de 12 comprimé(s) - plaquette(s) PVC-Aluminium de 4 comprimé(s)",
+      "specialite": "ACTIFED RHUME JOUR ET NUIT, comprimé"
+    },
+    {
+      "cis": "61183406",
+      "cip": "3400927721267",
+      "denomination": "1 tube(s) aluminium verni de 50 g",
+      "specialite": "FLECTOREFFIGEL 1 %, gel"
+    },
+    {
+      "cis": "61183406",
+      "cip": "3400927721328",
+      "denomination": "1 tube(s) aluminium verni de 60 g",
+      "specialite": "FLECTOREFFIGEL 1 %, gel"
+    },
+    {
+      "cis": "61183406",
+      "cip": "3400927721496",
+      "denomination": "1 tube(s) aluminium verni de 100 g",
+      "specialite": "FLECTOREFFIGEL 1 %, gel"
+    },
+    {
+      "cis": "61183406",
+      "cip": "3400927721557",
+      "denomination": "1 flacon(s) aluminium de 50 g",
+      "specialite": "FLECTOREFFIGEL 1 %, gel"
+    },
+    {
+      "cis": "61183406",
+      "cip": "3400927721618",
+      "denomination": "1 flacon(s) aluminium de 60 g",
+      "specialite": "FLECTOREFFIGEL 1 %, gel"
+    },
+    {
+      "cis": "61183406",
+      "cip": "3400927721786",
+      "denomination": "1 flacon(s) aluminium de 100 g",
+      "specialite": "FLECTOREFFIGEL 1 %, gel"
+    },
+    {
+      "cis": "61183406",
+      "cip": "3400930247709",
+      "denomination": "1 tube(s) polyéthylène avec applicateur à billes de 100 g",
+      "specialite": "FLECTOREFFIGEL 1 %, gel"
+    },
+    {
+      "cis": "61207647",
+      "cip": "3400930258668",
+      "denomination": "1 cartouche en verre de 3 mL dans stylo prérempli + 4 aiguilles",
+      "specialite": "WEGOVY 2,4 mg, FlexTouch solution injectable en stylo prérempli"
+    },
+    {
+      "cis": "61207647",
+      "cip": "3400955090724",
+      "denomination": "3 cartouches en verre de 3 mL dans stylos préremplis + 12 aiguilles",
+      "specialite": "WEGOVY 2,4 mg, FlexTouch solution injectable en stylo prérempli"
+    },
+    {
+      "cis": "61376960",
+      "cip": "3400930326183",
+      "denomination": "4 stylos préremplis en verre de 0,5 mL",
+      "specialite": "WEGOVY 0,25 mg, solution injectable en stylo prérempli"
+    },
+    {
+      "cis": "61715282",
+      "cip": "3400930232231",
+      "denomination": "plaquette(s) thermoformée(s) OPA : polyamide orienté aluminium polyéthylène polytéréphtalate (PET) - Pack d\u001ainitiation 14 comprimés (2 x 2 mg + 2 x 3 mg + 2 x 4 mg + 1 x 5 mg + 1 x 6 mg + 1 x 7 mg + 1 x 8 mg + 1 x 9 mg + 3 x 10 mg)",
+      "specialite": "PONVORY 2 mg + 3 mg + 4 mg + 5 mg + 6 mg + 7 mg + 8 mg + 9 mg + 10 mg, comprimé pelliculé"
+    },
+    {
+      "cis": "61829909",
+      "cip": "3400930258644",
+      "denomination": "1 cartouche en verre de 3 mL dans stylo prérempli + 4 aiguilles",
+      "specialite": "WEGOVY 1 mg, FlexTouch solution injectable en stylo prérempli"
+    },
+    {
+      "cis": "61829909",
+      "cip": "3400949501908",
+      "denomination": "1 cartouche en verre de 3 mL dans stylo prérempli + 4 aiguilles (Distributeur parallèle : Abacus Medicine A/S)",
+      "specialite": "WEGOVY 1 mg, FlexTouch solution injectable en stylo prérempli"
+    },
+    {
+      "cis": "62056415",
+      "cip": "3400930232224",
+      "denomination": "plaquette(s) thermoformée(s) OPA : polyamide orienté aluminium polyéthylène polytéréphtalate (PET) de 28 comprimé(s)",
+      "specialite": "PONVORY 20 mg, comprimé pelliculé"
+    },
+    {
+      "cis": "63169946",
+      "cip": "3400930258637",
+      "denomination": "1 cartouche en verre de 1,5 mL dans stylo prérempli + 4 aiguilles",
+      "specialite": "WEGOVY 0,5 mg, FlexTouch solution injectable en stylo prérempli"
+    },
+    {
+      "cis": "63169946",
+      "cip": "3400930317815",
+      "denomination": "1 cartouche en verre de  3 mL dans stylo prérempli + 4 aiguilles",
+      "specialite": "WEGOVY 0,5 mg, FlexTouch solution injectable en stylo prérempli"
+    },
+    {
+      "cis": "63169946",
+      "cip": "3400949501915",
+      "denomination": "1 cartouche en verre de 1,5 mL dans stylo prérempli + 4 aiguilles (Distributeur Parallèle : Abacus Medicine A/S)",
+      "specialite": "WEGOVY 0,5 mg, FlexTouch solution injectable en stylo prérempli"
+    },
+    {
+      "cis": "63735700",
+      "cip": "3400930326220",
+      "denomination": "4 stylos préremplis en verre de 0,75 mL",
+      "specialite": "WEGOVY 1,7 mg, solution injectable en stylo prérempli"
+    },
+    {
+      "cis": "63886766",
+      "cip": "3400921676327",
+      "denomination": "4 flacon(s) en verre - 4 seringue(s) préremplie(s) en verre avec 4 aiguille(s) avec 4 adaptateur(s) pour flacon avec 8 tampon(s) alcoolisé(s)",
+      "specialite": "ENBREL 10 mg, poudre et solvant pour solution injectable pour usage pédiatrique"
+    },
+    {
+      "cis": "64259827",
+      "cip": "3400930326190",
+      "denomination": "4 stylos préremplis en verre de 0,5 mL",
+      "specialite": "WEGOVY 0,5 mg, solution injectable en stylo prérempli"
+    },
+    {
+      "cis": "64346456",
+      "cip": "3400930258620",
+      "denomination": "1 cartouche en verre de 1,5 mL dans stylo prérempli + 4 aiguilles",
+      "specialite": "WEGOVY 0,25 mg, FlexTouch solution injectable en stylo prérempli"
+    },
+    {
+      "cis": "64460075",
+      "cip": "3400949003938",
+      "denomination": "1 flacon(s) en verre de 4 ml - 1 ampoule(s) en verre avec seringue(s) avec aiguille(s) de 2 ml",
+      "specialite": "DECAPEPTYL L.P. 11,25 mg, poudre et solvant pour suspension injectable (IM ou SC) forme à libération prolongée sur 3 mois"
+    },
+    {
+      "cis": "64783769",
+      "cip": "3400930042670",
+      "denomination": "1 stylo prérempli de 0,4 ml avec 2 tampon(s) alcoolisé(s) dans une plaquette thermoformée",
+      "specialite": "HUMIRA 40 mg, solution injectable en stylo prérempli (0,4 ml)"
+    },
+    {
+      "cis": "64783769",
+      "cip": "3400930042687",
+      "denomination": "2 stylos préremplis de 0,4 ml avec 2 tampon(s) alcoolisé(s) dans une plaquette thermoformée",
+      "specialite": "HUMIRA 40 mg, solution injectable en stylo prérempli (0,4 ml)"
+    },
+    {
+      "cis": "64783769",
+      "cip": "3400930042694",
+      "denomination": "4 stylos préremplis de 0,4 ml avec 4 tampon(s) alcoolisé(s) dans une plaquette thermoformée",
+      "specialite": "HUMIRA 40 mg, solution injectable en stylo prérempli (0,4 ml)"
+    },
+    {
+      "cis": "64783769",
+      "cip": "3400930042700",
+      "denomination": "6 stylos préremplis de 0,4 ml avec 6 tampon(s) alcoolisé(s) dans une plaquette thermoformée",
+      "specialite": "HUMIRA 40 mg, solution injectable en stylo prérempli (0,4 ml)"
+    },
+    {
+      "cis": "65103539",
+      "cip": "3400930326206",
+      "denomination": "4 stylos préremplis en verre de 0,5 mL",
+      "specialite": "WEGOVY 1 mg, solution injectable en stylo prérempli"
+    },
+    {
+      "cis": "65183460",
+      "cip": "3400930260241",
+      "denomination": "1 cartouche en verre de 3 mL dans stylo prérempli + 4 aiguilles",
+      "specialite": "WEGOVY 1,7 mg, FlexTouch solution injectable en stylo prérempli"
+    },
+    {
+      "cis": "66150367",
+      "cip": "3400935437068",
+      "denomination": "plaquette(s) PVC-Aluminium de 30 gélule(s)",
+      "specialite": "CELEBREX 200 mg, gélule"
+    },
+    {
+      "cis": "66150367",
+      "cip": "3400935437129",
+      "denomination": "plaquette(s) PVC aluminium-ACLAR de 30 gélule(s) ( abrogée le 13/02/2004)",
+      "specialite": "CELEBREX 200 mg, gélule"
+    },
+    {
+      "cis": "66150367",
+      "cip": "3400956280513",
+      "denomination": "plaquette(s) PVC-Aluminium de 100 gélule(s)",
+      "specialite": "CELEBREX 200 mg, gélule"
+    },
+    {
+      "cis": "66150367",
+      "cip": "3400956280681",
+      "denomination": "plaquette(s) PVC aluminium-ACLAR de 100 gélule(s) ( abrogée le 13/02/2004)",
+      "specialite": "CELEBREX 200 mg, gélule"
+    },
+    {
+      "cis": "66663761",
+      "cip": "3400935395382",
+      "denomination": "1 seringue(s) préremplie(s) en verre de 0,5  ml",
+      "specialite": "NEUPOGEN 30 MU/0,5 mL (0,6 mg/mL), solution injectable en seringue préremplie"
+    },
+    {
+      "cis": "66663761",
+      "cip": "3400935395443",
+      "denomination": "5 seringue(s) préremplie(s) en verre de 0,5  ml",
+      "specialite": "NEUPOGEN 30 MU/0,5 mL (0,6 mg/mL), solution injectable en seringue préremplie"
+    }
+  ],
+  "ansm_recipient": [
+    {
+      "cip": "3400930326237",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "stylo prérempli",
+      "nombre": 4,
+      "quantite_contenance": "0.75",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400930323731",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "seringue(s) préremplie(s)",
+      "nombre": 1,
+      "quantite_contenance": "0.25",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400930100998",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "plaquette(s)",
+      "nombre": 30,
+      "quantite_contenance": "1.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400930101001",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "plaquette(s)",
+      "nombre": 30,
+      "quantite_contenance": "1.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400930128282",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "plaquette(s)",
+      "nombre": null,
+      "quantite_contenance": "30.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400930128299",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "plaquette(s)",
+      "nombre": null,
+      "quantite_contenance": "30.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400930276419",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "flacon(s)",
+      "nombre": 1,
+      "quantite_contenance": "13.199999809265137",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400930276464",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "flacon(s)",
+      "nombre": 2,
+      "quantite_contenance": "13.199999809265137",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400931922766",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "tube(s)",
+      "nombre": null,
+      "quantite_contenance": "40.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400933926441",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "tube(s)",
+      "nombre": null,
+      "quantite_contenance": "10.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400934445132",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "pilulier(s)",
+      "nombre": null,
+      "quantite_contenance": "40.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400934445361",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "pilulier(s)",
+      "nombre": null,
+      "quantite_contenance": "10.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400936092105",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "plaquette(s) thermoformée(s)",
+      "nombre": null,
+      "quantite_contenance": "10.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400936092273",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "plaquette(s) thermoformée(s)",
+      "nombre": null,
+      "quantite_contenance": "40.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400935753274",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "plaquette(s)",
+      "nombre": null,
+      "quantite_contenance": "12.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400935753274",
+      "numero_element": 2,
+      "numero_recipient": 2,
+      "nature_recipient": "plaquette(s)",
+      "nombre": null,
+      "quantite_contenance": "4.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400927721267",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "tube(s)",
+      "nombre": 1,
+      "quantite_contenance": "50.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "g"
+    },
+    {
+      "cip": "3400927721328",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "tube(s)",
+      "nombre": 1,
+      "quantite_contenance": "60.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "g"
+    },
+    {
+      "cip": "3400927721496",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "tube(s)",
+      "nombre": 1,
+      "quantite_contenance": "100.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "g"
+    },
+    {
+      "cip": "3400927721557",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "flacon(s)",
+      "nombre": 1,
+      "quantite_contenance": "50.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "g"
+    },
+    {
+      "cip": "3400927721618",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "flacon(s)",
+      "nombre": 1,
+      "quantite_contenance": "60.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "g"
+    },
+    {
+      "cip": "3400927721786",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "flacon(s)",
+      "nombre": 1,
+      "quantite_contenance": "100.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "g"
+    },
+    {
+      "cip": "3400930247709",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "tube(s)",
+      "nombre": 1,
+      "quantite_contenance": "100.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "g"
+    },
+    {
+      "cip": "3400930258668",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "cartouche(s)",
+      "nombre": 1,
+      "quantite_contenance": "3.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400955090724",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "cartouche(s)",
+      "nombre": 3,
+      "quantite_contenance": "3.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400930326183",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "stylo prérempli",
+      "nombre": 4,
+      "quantite_contenance": "0.5",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400930232231",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "plaquette(s) thermoformée(s)",
+      "nombre": null,
+      "quantite_contenance": "2.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400930232231",
+      "numero_element": 2,
+      "numero_recipient": 2,
+      "nature_recipient": "plaquette(s) thermoformée(s)",
+      "nombre": null,
+      "quantite_contenance": "2.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400930232231",
+      "numero_element": 3,
+      "numero_recipient": 3,
+      "nature_recipient": "plaquette(s) thermoformée(s)",
+      "nombre": null,
+      "quantite_contenance": "2.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400930232231",
+      "numero_element": 4,
+      "numero_recipient": 4,
+      "nature_recipient": "plaquette(s) thermoformée(s)",
+      "nombre": null,
+      "quantite_contenance": "2.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400930232231",
+      "numero_element": 5,
+      "numero_recipient": 5,
+      "nature_recipient": "plaquette(s) thermoformée(s)",
+      "nombre": null,
+      "quantite_contenance": "2.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400930232231",
+      "numero_element": 6,
+      "numero_recipient": 6,
+      "nature_recipient": "plaquette(s) thermoformée(s)",
+      "nombre": null,
+      "quantite_contenance": "2.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400930232231",
+      "numero_element": 7,
+      "numero_recipient": 7,
+      "nature_recipient": "plaquette(s) thermoformée(s)",
+      "nombre": null,
+      "quantite_contenance": "2.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400930232231",
+      "numero_element": 8,
+      "numero_recipient": 8,
+      "nature_recipient": "plaquette(s) thermoformée(s)",
+      "nombre": null,
+      "quantite_contenance": "2.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400930232231",
+      "numero_element": 9,
+      "numero_recipient": 9,
+      "nature_recipient": "plaquette(s) thermoformée(s)",
+      "nombre": null,
+      "quantite_contenance": "2.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400930258644",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "cartouche(s)",
+      "nombre": 1,
+      "quantite_contenance": "3.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400949501908",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "cartouche(s)",
+      "nombre": 1,
+      "quantite_contenance": "3.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400930232224",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "plaquette(s) thermoformée(s)",
+      "nombre": null,
+      "quantite_contenance": "28.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "comprimé(s)"
+    },
+    {
+      "cip": "3400930258637",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "cartouche(s)",
+      "nombre": 1,
+      "quantite_contenance": "1.5",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400930317815",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "cartouche(s)",
+      "nombre": 1,
+      "quantite_contenance": "3.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400949501915",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "cartouche(s)",
+      "nombre": 1,
+      "quantite_contenance": "1.5",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400930326220",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "stylo prérempli",
+      "nombre": 4,
+      "quantite_contenance": "0.75",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400921676327",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "flacon(s)",
+      "nombre": 4,
+      "quantite_contenance": null,
+      "code_unite_contenance": "",
+      "unite_contenance": ""
+    },
+    {
+      "cip": "3400921676327",
+      "numero_element": 2,
+      "numero_recipient": 2,
+      "nature_recipient": "seringue(s) préremplie(s)",
+      "nombre": 4,
+      "quantite_contenance": null,
+      "code_unite_contenance": "",
+      "unite_contenance": ""
+    },
+    {
+      "cip": "3400930326190",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "stylo prérempli",
+      "nombre": 4,
+      "quantite_contenance": "0.5",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400930258620",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "cartouche(s)",
+      "nombre": 1,
+      "quantite_contenance": "1.5",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400949003938",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "flacon(s)",
+      "nombre": 1,
+      "quantite_contenance": "4.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400949003938",
+      "numero_element": 2,
+      "numero_recipient": 2,
+      "nature_recipient": "ampoule(s)",
+      "nombre": 1,
+      "quantite_contenance": "2.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400930042670",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "stylo prérempli",
+      "nombre": 1,
+      "quantite_contenance": "0.4000000059604645",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400930042687",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "stylo prérempli",
+      "nombre": 2,
+      "quantite_contenance": "0.4000000059604645",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400930042694",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "stylo prérempli",
+      "nombre": 4,
+      "quantite_contenance": "0.4000000059604645",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400930042700",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "stylo prérempli",
+      "nombre": 6,
+      "quantite_contenance": "0.4000000059604645",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400930326206",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "stylo prérempli",
+      "nombre": 4,
+      "quantite_contenance": "0.5",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400930260241",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "cartouche(s)",
+      "nombre": 1,
+      "quantite_contenance": "3.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400935437068",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "plaquette(s)",
+      "nombre": null,
+      "quantite_contenance": "30.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "gélule(s)"
+    },
+    {
+      "cip": "3400956280513",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "plaquette(s)",
+      "nombre": null,
+      "quantite_contenance": "100.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "gélule(s)"
+    },
+    {
+      "cip": "3400935437129",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "plaquette(s)",
+      "nombre": null,
+      "quantite_contenance": "30.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "gélule(s)"
+    },
+    {
+      "cip": "3400956280681",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "plaquette(s)",
+      "nombre": null,
+      "quantite_contenance": "100.0",
+      "code_unite_contenance": "",
+      "unite_contenance": "gélule(s)"
+    },
+    {
+      "cip": "3400935395382",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "seringue(s) préremplie(s)",
+      "nombre": 1,
+      "quantite_contenance": "0.5",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    },
+    {
+      "cip": "3400935395443",
+      "numero_element": 1,
+      "numero_recipient": 1,
+      "nature_recipient": "seringue(s) préremplie(s)",
+      "nombre": 5,
+      "quantite_contenance": "0.5",
+      "code_unite_contenance": "",
+      "unite_contenance": "ml"
+    }
+  ],
+  "ansm_caracteristique": [
+    {
+      "cip": "3400930326237",
+      "numero_recipient": 1,
+      "code_caracteristique": 4,
+      "ordre": 1,
+      "libelle": "unidose(s)"
+    },
+    {
+      "cip": "3400930326237",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 2,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400930323731",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400930100998",
+      "numero_recipient": 1,
+      "code_caracteristique": 87,
+      "ordre": 1,
+      "libelle": "PVC"
+    },
+    {
+      "cip": "3400930100998",
+      "numero_recipient": 1,
+      "code_caracteristique": 16,
+      "ordre": 2,
+      "libelle": "PVDC"
+    },
+    {
+      "cip": "3400930100998",
+      "numero_recipient": 1,
+      "code_caracteristique": 42,
+      "ordre": 3,
+      "libelle": "aluminium"
+    },
+    {
+      "cip": "3400930101001",
+      "numero_recipient": 1,
+      "code_caracteristique": 42,
+      "ordre": 1,
+      "libelle": "aluminium"
+    },
+    {
+      "cip": "3400930101001",
+      "numero_recipient": 1,
+      "code_caracteristique": 482,
+      "ordre": 2,
+      "libelle": "OPA : polyamide orienté"
+    },
+    {
+      "cip": "3400930101001",
+      "numero_recipient": 1,
+      "code_caracteristique": 71,
+      "ordre": 3,
+      "libelle": "PVC-Aluminium"
+    },
+    {
+      "cip": "3400930128282",
+      "numero_recipient": 1,
+      "code_caracteristique": 87,
+      "ordre": 1,
+      "libelle": "PVC"
+    },
+    {
+      "cip": "3400930128282",
+      "numero_recipient": 1,
+      "code_caracteristique": 16,
+      "ordre": 2,
+      "libelle": "PVDC"
+    },
+    {
+      "cip": "3400930128282",
+      "numero_recipient": 1,
+      "code_caracteristique": 42,
+      "ordre": 3,
+      "libelle": "aluminium"
+    },
+    {
+      "cip": "3400930128299",
+      "numero_recipient": 1,
+      "code_caracteristique": 42,
+      "ordre": 1,
+      "libelle": "aluminium"
+    },
+    {
+      "cip": "3400930128299",
+      "numero_recipient": 1,
+      "code_caracteristique": 482,
+      "ordre": 2,
+      "libelle": "OPA : polyamide orienté"
+    },
+    {
+      "cip": "3400930128299",
+      "numero_recipient": 1,
+      "code_caracteristique": 71,
+      "ordre": 3,
+      "libelle": "PVC-Aluminium"
+    },
+    {
+      "cip": "3400930276419",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400930276419",
+      "numero_recipient": 1,
+      "code_caracteristique": 65,
+      "ordre": 2,
+      "libelle": "brun"
+    },
+    {
+      "cip": "3400930276464",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400930276464",
+      "numero_recipient": 1,
+      "code_caracteristique": 65,
+      "ordre": 2,
+      "libelle": "brun"
+    },
+    {
+      "cip": "3400931922766",
+      "numero_recipient": 1,
+      "code_caracteristique": 64,
+      "ordre": 1,
+      "libelle": "polypropylène"
+    },
+    {
+      "cip": "3400933926441",
+      "numero_recipient": 1,
+      "code_caracteristique": 64,
+      "ordre": 1,
+      "libelle": "polypropylène"
+    },
+    {
+      "cip": "3400934445132",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400934445361",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400936092105",
+      "numero_recipient": 1,
+      "code_caracteristique": 78,
+      "ordre": 1,
+      "libelle": "polyamide"
+    },
+    {
+      "cip": "3400936092105",
+      "numero_recipient": 1,
+      "code_caracteristique": 42,
+      "ordre": 2,
+      "libelle": "aluminium"
+    },
+    {
+      "cip": "3400936092105",
+      "numero_recipient": 1,
+      "code_caracteristique": 71,
+      "ordre": 3,
+      "libelle": "PVC-Aluminium"
+    },
+    {
+      "cip": "3400936092273",
+      "numero_recipient": 1,
+      "code_caracteristique": 78,
+      "ordre": 1,
+      "libelle": "polyamide"
+    },
+    {
+      "cip": "3400936092273",
+      "numero_recipient": 1,
+      "code_caracteristique": 42,
+      "ordre": 2,
+      "libelle": "aluminium"
+    },
+    {
+      "cip": "3400936092273",
+      "numero_recipient": 1,
+      "code_caracteristique": 71,
+      "ordre": 3,
+      "libelle": "PVC-Aluminium"
+    },
+    {
+      "cip": "3400935753274",
+      "numero_recipient": 1,
+      "code_caracteristique": 71,
+      "ordre": 1,
+      "libelle": "PVC-Aluminium"
+    },
+    {
+      "cip": "3400935753274",
+      "numero_recipient": 1,
+      "code_caracteristique": 16,
+      "ordre": 2,
+      "libelle": "PVDC"
+    },
+    {
+      "cip": "3400935753274",
+      "numero_recipient": 2,
+      "code_caracteristique": 71,
+      "ordre": 1,
+      "libelle": "PVC-Aluminium"
+    },
+    {
+      "cip": "3400927721267",
+      "numero_recipient": 1,
+      "code_caracteristique": 139,
+      "ordre": 1,
+      "libelle": "aluminium verni"
+    },
+    {
+      "cip": "3400927721328",
+      "numero_recipient": 1,
+      "code_caracteristique": 139,
+      "ordre": 1,
+      "libelle": "aluminium verni"
+    },
+    {
+      "cip": "3400927721496",
+      "numero_recipient": 1,
+      "code_caracteristique": 139,
+      "ordre": 1,
+      "libelle": "aluminium verni"
+    },
+    {
+      "cip": "3400927721557",
+      "numero_recipient": 1,
+      "code_caracteristique": 42,
+      "ordre": 1,
+      "libelle": "aluminium"
+    },
+    {
+      "cip": "3400927721618",
+      "numero_recipient": 1,
+      "code_caracteristique": 42,
+      "ordre": 1,
+      "libelle": "aluminium"
+    },
+    {
+      "cip": "3400927721786",
+      "numero_recipient": 1,
+      "code_caracteristique": 42,
+      "ordre": 1,
+      "libelle": "aluminium"
+    },
+    {
+      "cip": "3400930247709",
+      "numero_recipient": 1,
+      "code_caracteristique": 63,
+      "ordre": 1,
+      "libelle": "polyéthylène"
+    },
+    {
+      "cip": "3400930247709",
+      "numero_recipient": 1,
+      "code_caracteristique": 506,
+      "ordre": 2,
+      "libelle": "avec applicateur à billes"
+    },
+    {
+      "cip": "3400930258668",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400955090724",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400930326183",
+      "numero_recipient": 1,
+      "code_caracteristique": 4,
+      "ordre": 1,
+      "libelle": "unidose(s)"
+    },
+    {
+      "cip": "3400930326183",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 2,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400930232231",
+      "numero_recipient": 1,
+      "code_caracteristique": 482,
+      "ordre": 1,
+      "libelle": "OPA : polyamide orienté"
+    },
+    {
+      "cip": "3400930232231",
+      "numero_recipient": 1,
+      "code_caracteristique": 42,
+      "ordre": 2,
+      "libelle": "aluminium"
+    },
+    {
+      "cip": "3400930232231",
+      "numero_recipient": 1,
+      "code_caracteristique": 63,
+      "ordre": 3,
+      "libelle": "polyéthylène"
+    },
+    {
+      "cip": "3400930232231",
+      "numero_recipient": 1,
+      "code_caracteristique": 9,
+      "ordre": 4,
+      "libelle": "polyéthylène téréphtalate (PET)"
+    },
+    {
+      "cip": "3400930258644",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400949501908",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400930232224",
+      "numero_recipient": 1,
+      "code_caracteristique": 482,
+      "ordre": 1,
+      "libelle": "OPA : polyamide orienté"
+    },
+    {
+      "cip": "3400930232224",
+      "numero_recipient": 1,
+      "code_caracteristique": 42,
+      "ordre": 2,
+      "libelle": "aluminium"
+    },
+    {
+      "cip": "3400930232224",
+      "numero_recipient": 1,
+      "code_caracteristique": 63,
+      "ordre": 3,
+      "libelle": "polyéthylène"
+    },
+    {
+      "cip": "3400930232224",
+      "numero_recipient": 1,
+      "code_caracteristique": 9,
+      "ordre": 4,
+      "libelle": "polyéthylène téréphtalate (PET)"
+    },
+    {
+      "cip": "3400930258637",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400930317815",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400949501915",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400930326220",
+      "numero_recipient": 1,
+      "code_caracteristique": 4,
+      "ordre": 1,
+      "libelle": "unidose(s)"
+    },
+    {
+      "cip": "3400930326220",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 2,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400921676327",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400921676327",
+      "numero_recipient": 2,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400930326190",
+      "numero_recipient": 1,
+      "code_caracteristique": 4,
+      "ordre": 1,
+      "libelle": "unidose(s)"
+    },
+    {
+      "cip": "3400930326190",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 2,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400930258620",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400949003938",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400949003938",
+      "numero_recipient": 2,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400949003938",
+      "numero_recipient": 2,
+      "code_caracteristique": 27,
+      "ordre": 2,
+      "libelle": "avec seringue(s)"
+    },
+    {
+      "cip": "3400949003938",
+      "numero_recipient": 2,
+      "code_caracteristique": 28,
+      "ordre": 3,
+      "libelle": "avec aiguille(s)"
+    },
+    {
+      "cip": "3400930042670",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400930042694",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400930042700",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400930326206",
+      "numero_recipient": 1,
+      "code_caracteristique": 4,
+      "ordre": 1,
+      "libelle": "unidose(s)"
+    },
+    {
+      "cip": "3400930326206",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 2,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400930260241",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400935437068",
+      "numero_recipient": 1,
+      "code_caracteristique": 71,
+      "ordre": 1,
+      "libelle": "PVC-Aluminium"
+    },
+    {
+      "cip": "3400956280513",
+      "numero_recipient": 1,
+      "code_caracteristique": 71,
+      "ordre": 1,
+      "libelle": "PVC-Aluminium"
+    },
+    {
+      "cip": "3400935437129",
+      "numero_recipient": 1,
+      "code_caracteristique": 87,
+      "ordre": 1,
+      "libelle": "PVC"
+    },
+    {
+      "cip": "3400935437129",
+      "numero_recipient": 1,
+      "code_caracteristique": 90,
+      "ordre": 2,
+      "libelle": "aluminium-ACLAR"
+    },
+    {
+      "cip": "3400956280681",
+      "numero_recipient": 1,
+      "code_caracteristique": 87,
+      "ordre": 1,
+      "libelle": "PVC"
+    },
+    {
+      "cip": "3400956280681",
+      "numero_recipient": 1,
+      "code_caracteristique": 90,
+      "ordre": 2,
+      "libelle": "aluminium-ACLAR"
+    },
+    {
+      "cip": "3400935395382",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    },
+    {
+      "cip": "3400935395443",
+      "numero_recipient": 1,
+      "code_caracteristique": 35,
+      "ordre": 1,
+      "libelle": "en verre"
+    }
+  ],
+  "ansm_dispositif": [
+    {
+      "cip": "3400930323731",
+      "numero_dispositif": 1,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec aiguille(s)"
+    },
+    {
+      "cip": "3400930276419",
+      "numero_dispositif": 3,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec dispositif(s) pulvérisateur(s)"
+    },
+    {
+      "cip": "3400930276464",
+      "numero_dispositif": 3,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec dispositif(s) pulvérisateur(s)"
+    },
+    {
+      "cip": "3400930258668",
+      "numero_dispositif": 1,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "dans stylo pré-rempli"
+    },
+    {
+      "cip": "3400930258668",
+      "numero_dispositif": 2,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec aiguille(s)"
+    },
+    {
+      "cip": "3400955090724",
+      "numero_dispositif": 1,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "dans stylo pré-rempli"
+    },
+    {
+      "cip": "3400955090724",
+      "numero_dispositif": 2,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec aiguille(s)"
+    },
+    {
+      "cip": "3400930258644",
+      "numero_dispositif": 1,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "dans stylo pré-rempli"
+    },
+    {
+      "cip": "3400930258644",
+      "numero_dispositif": 2,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec aiguille(s)"
+    },
+    {
+      "cip": "3400949501908",
+      "numero_dispositif": 1,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "dans stylo pré-rempli"
+    },
+    {
+      "cip": "3400949501908",
+      "numero_dispositif": 2,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec aiguille(s)"
+    },
+    {
+      "cip": "3400930258637",
+      "numero_dispositif": 1,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "dans stylo pré-rempli"
+    },
+    {
+      "cip": "3400930258637",
+      "numero_dispositif": 2,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec aiguille(s)"
+    },
+    {
+      "cip": "3400930317815",
+      "numero_dispositif": 1,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "dans stylo pré-rempli"
+    },
+    {
+      "cip": "3400930317815",
+      "numero_dispositif": 2,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec aiguille(s)"
+    },
+    {
+      "cip": "3400949501915",
+      "numero_dispositif": 1,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "dans stylo pré-rempli"
+    },
+    {
+      "cip": "3400949501915",
+      "numero_dispositif": 2,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec aiguille(s)"
+    },
+    {
+      "cip": "3400921676327",
+      "numero_dispositif": 1,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec aiguille(s)"
+    },
+    {
+      "cip": "3400921676327",
+      "numero_dispositif": 2,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec adaptateur(s) pour flacon"
+    },
+    {
+      "cip": "3400921676327",
+      "numero_dispositif": 3,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec tampon(s) alcoolisé(s)"
+    },
+    {
+      "cip": "3400930258620",
+      "numero_dispositif": 1,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "dans stylo pré-rempli"
+    },
+    {
+      "cip": "3400930258620",
+      "numero_dispositif": 2,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec aiguille(s)"
+    },
+    {
+      "cip": "3400930042670",
+      "numero_dispositif": 1,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec tampon(s) alcoolisé(s)"
+    },
+    {
+      "cip": "3400930042687",
+      "numero_dispositif": 1,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec tampon(s) alcoolisé(s)"
+    },
+    {
+      "cip": "3400930042694",
+      "numero_dispositif": 1,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec tampon(s) alcoolisé(s)"
+    },
+    {
+      "cip": "3400930042700",
+      "numero_dispositif": 1,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec tampon(s) alcoolisé(s)"
+    },
+    {
+      "cip": "3400930260241",
+      "numero_dispositif": 1,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "dans stylo pré-rempli"
+    },
+    {
+      "cip": "3400930260241",
+      "numero_dispositif": 2,
+      "code_nature_dispositif": "",
+      "nature_dispositif": "avec aiguille(s)"
+    }
+  ],
+  "ansm_element": [
+    {
+      "cis": "60000229",
+      "numero_element": 1,
+      "denomination": "solution",
+      "ordre": 1
+    },
+    {
+      "cis": "60007565",
+      "numero_element": 1,
+      "denomination": "suspension",
+      "ordre": 1
+    },
+    {
+      "cis": "60018444",
+      "numero_element": 1,
+      "denomination": "comprimé",
+      "ordre": 1
+    },
+    {
+      "cis": "60052222",
+      "numero_element": 1,
+      "denomination": "solution",
+      "ordre": 1
+    },
+    {
+      "cis": "60184188",
+      "numero_element": 1,
+      "denomination": "comprimé",
+      "ordre": 1
+    },
+    {
+      "cis": "60206332",
+      "numero_element": 1,
+      "denomination": "comprimé blanc",
+      "ordre": 1
+    },
+    {
+      "cis": "60206332",
+      "numero_element": 2,
+      "denomination": "comprimé bleu",
+      "ordre": 2
+    },
+    {
+      "cis": "61183406",
+      "numero_element": 1,
+      "denomination": "gel",
+      "ordre": 0
+    },
+    {
+      "cis": "61207647",
+      "numero_element": 1,
+      "denomination": "solution",
+      "ordre": 1
+    },
+    {
+      "cis": "61376960",
+      "numero_element": 1,
+      "denomination": "solution",
+      "ordre": 1
+    },
+    {
+      "cis": "61715282",
+      "numero_element": 1,
+      "denomination": "comprimé 2 mg",
+      "ordre": 1
+    },
+    {
+      "cis": "61715282",
+      "numero_element": 2,
+      "denomination": "comprimé 3 mg",
+      "ordre": 2
+    },
+    {
+      "cis": "61715282",
+      "numero_element": 3,
+      "denomination": "comprimé 4 mg",
+      "ordre": 3
+    },
+    {
+      "cis": "61715282",
+      "numero_element": 4,
+      "denomination": "comprimé 5 mg",
+      "ordre": 4
+    },
+    {
+      "cis": "61715282",
+      "numero_element": 5,
+      "denomination": "comprimé 6 mg",
+      "ordre": 5
+    },
+    {
+      "cis": "61715282",
+      "numero_element": 6,
+      "denomination": "comprimé 7 mg",
+      "ordre": 6
+    },
+    {
+      "cis": "61715282",
+      "numero_element": 7,
+      "denomination": "comprimé 8 mg",
+      "ordre": 7
+    },
+    {
+      "cis": "61715282",
+      "numero_element": 8,
+      "denomination": "comprimé 9 mg",
+      "ordre": 8
+    },
+    {
+      "cis": "61715282",
+      "numero_element": 9,
+      "denomination": "comprimé 10 mg",
+      "ordre": 9
+    },
+    {
+      "cis": "61829909",
+      "numero_element": 1,
+      "denomination": "solution",
+      "ordre": 1
+    },
+    {
+      "cis": "62056415",
+      "numero_element": 1,
+      "denomination": "comprimé",
+      "ordre": 1
+    },
+    {
+      "cis": "63169946",
+      "numero_element": 1,
+      "denomination": "solution",
+      "ordre": 1
+    },
+    {
+      "cis": "63735700",
+      "numero_element": 1,
+      "denomination": "solution",
+      "ordre": 1
+    },
+    {
+      "cis": "63886766",
+      "numero_element": 1,
+      "denomination": "poudre",
+      "ordre": 1
+    },
+    {
+      "cis": "63886766",
+      "numero_element": 2,
+      "denomination": "solvant",
+      "ordre": 2
+    },
+    {
+      "cis": "64259827",
+      "numero_element": 1,
+      "denomination": "solution",
+      "ordre": 1
+    },
+    {
+      "cis": "64346456",
+      "numero_element": 1,
+      "denomination": "solution",
+      "ordre": 1
+    },
+    {
+      "cis": "64460075",
+      "numero_element": 1,
+      "denomination": "poudre",
+      "ordre": 1
+    },
+    {
+      "cis": "64460075",
+      "numero_element": 2,
+      "denomination": "solvant",
+      "ordre": 2
+    },
+    {
+      "cis": "64783769",
+      "numero_element": 1,
+      "denomination": "solution injectable en stylo prérempli",
+      "ordre": 1
+    },
+    {
+      "cis": "65103539",
+      "numero_element": 1,
+      "denomination": "solution",
+      "ordre": 1
+    },
+    {
+      "cis": "65183460",
+      "numero_element": 1,
+      "denomination": "solution",
+      "ordre": 1
+    },
+    {
+      "cis": "66150367",
+      "numero_element": 1,
+      "denomination": "gélule",
+      "ordre": 1
+    },
+    {
+      "cis": "66663761",
+      "numero_element": 1,
+      "denomination": "solution",
+      "ordre": 1
+    }
+  ]
+}

@@ -3,8 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import RcpBlock from "./RcpBlock";
 
-const { getRCP } = vi.hoisted(() => ({
+const { getRCP, isCentralisee } = vi.hoisted(() => ({
   getRCP: vi.fn(),
+  isCentralisee: vi.fn(),
 }));
 
 vi.mock("@/db/utils/rcp", () => ({ getRCP }));
@@ -15,8 +16,7 @@ vi.mock("@codegouvfr/react-dsfr", () => ({
 vi.mock("@codegouvfr/react-dsfr/Badge", () => ({
   default: ({ children }: React.PropsWithChildren) => <span>{children}</span>,
 }));
-vi.mock("@/utils/specialites", () => ({ isCentralisee: () => false }));
-vi.mock("../blocks/CentraliseBlock", () => ({ default: () => null }));
+vi.mock("@/utils/specialites", () => ({ isCentralisee }));
 vi.mock("@/components/generic/GoTopButton", () => ({ default: () => null }));
 
 const specialite = { SpecId: "123" } as DetailedSpecialite;
@@ -24,6 +24,7 @@ const specialite = { SpecId: "123" } as DetailedSpecialite;
 describe("RcpBlock", () => {
   beforeEach(() => {
     getRCP.mockReset();
+    isCentralisee.mockReturnValue(false);
   });
 
   it("renders the RCP HTML with document styles", async () => {
@@ -53,5 +54,17 @@ describe("RcpBlock", () => {
     expect(await screen.findByText("RCP content")).not.toBeNull();
     expect(screen.queryByText(/Invalid Date/)).toBeNull();
     expect(screen.queryByText(/RCP mis à jour le/)).toBeNull();
+  });
+
+  it("links to EMA only after finding no local RCP for a centralized medicine", async () => {
+    getRCP.mockResolvedValue(undefined);
+    isCentralisee.mockReturnValue(true);
+
+    render(<RcpBlock specialite={specialite} />);
+
+    expect(screen.queryByRole("link", { name: /EMA/ })).toBeNull();
+    expect(
+      (await screen.findByRole("link", { name: /EMA/ })).getAttribute("href"),
+    ).toBe("https://www.ema.europa.eu/en/search");
   });
 });
