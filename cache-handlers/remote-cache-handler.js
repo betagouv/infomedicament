@@ -6,7 +6,7 @@ const DEFAULT_TTL_SECONDS = 365 * 24 * 60 * 60;
 const LOCAL_CACHE_MAX_BYTES = 50 * 1024 * 1024;
 const localEntries = new Map();
 let localEntriesSize = 0;
-const localTagTimestamps = new Map();
+const localTagStates = new Map();
 const pendingSets = new Map();
 
 function digest(value) {
@@ -138,38 +138,53 @@ function getRedisClient() {
   return redisClient;
 }
 
-async function getExpiration(tags) {
-  if (tags.length === 0) return 0;
+async function getTagStates(tags, client) {
+  if (!client) return tags.map((tag) => localTagStates.get(tag) ?? {});
+  if (tags.length === 0) return [];
 
-  const client = getRedisClient();
-  if (!client) {
-    return Math.max(...tags.map((tag) => localTagTimestamps.get(tag) ?? 0), 0);
-  }
-
-  await redisConnection;
-  const timestamps = await client.mGet(tags.map(tagKey));
-  return Math.max(...timestamps.map((value) => Number(value) || 0), 0);
+  // Read live shared markers, including implicit path tags supplied by Next.
+  const values = await client.mGet(
+    tags.flatMap((tag) => [tagKey(tag), `${tagKey(tag)}:stale`]),
+  );
+  return tags.map((_, index) => ({
+    expired: Number(values[index * 2]) || 0,
+    stale: Number(values[index * 2 + 1]) || 0,
+  }));
 }
 
 const remoteCacheHandler = {
   async get(cacheKey, softTags = []) {
-    const pendingSet = pendingSets.get(cacheKey);
-    if (pendingSet) await pendingSet;
+    try {
+      const pendingSet = pendingSets.get(cacheKey);
+      if (pendingSet) await pendingSet;
 
-    const client = getRedisClient();
-    if (client) await redisConnection;
-    const stored = client
-      ? await client.get(entryKey(cacheKey))
-      : getLocalEntry(cacheKey);
-    if (!stored) return undefined;
+      const client = getRedisClient();
+      if (client) await redisConnection;
+      const stored = client
+        ? await client.get(entryKey(cacheKey))
+        : getLocalEntry(cacheKey);
+      if (!stored) return undefined;
 
-    const entry = deserializeEntry(stored);
-    const now = Date.now();
-    const maxAge = client ? entry.expire : entry.revalidate;
-    if (now > entry.timestamp + maxAge * 1000) return undefined;
+      const entry = deserializeEntry(stored);
+      const now = Date.now();
+      const maxAge = client ? entry.expire : entry.revalidate;
+      if (now >= entry.timestamp + maxAge * 1000) return undefined;
 
-    const invalidatedAt = await getExpiration([...entry.tags, ...softTags]);
-    return invalidatedAt > entry.timestamp ? undefined : entry;
+      const states = await getTagStates([...entry.tags, ...softTags], client);
+      if (
+        states.some(
+          ({ expired }) => expired > entry.timestamp && expired <= now,
+        )
+      ) {
+        return undefined;
+      }
+      return states.some(({ stale }) => stale > entry.timestamp)
+        ? { ...entry, revalidate: -1 }
+        : entry;
+    } catch (error) {
+      console.error("Redis use-cache read failed", error);
+      return undefined;
+    }
   },
 
   async set(cacheKey, pendingEntry) {
@@ -188,36 +203,67 @@ const remoteCacheHandler = {
       await client.set(entryKey(cacheKey), stored, {
         EX: getTtlSeconds(entry),
       });
-    })();
+    })().catch((error) => {
+      // Interrupted renders and unavailable storage must not cache partial data
+      // or reject readers waiting for this write.
+      console.error("Redis use-cache write failed", error);
+    });
 
     pendingSets.set(cacheKey, operation);
     try {
       await operation;
     } finally {
-      pendingSets.delete(cacheKey);
+      if (pendingSets.get(cacheKey) === operation) pendingSets.delete(cacheKey);
     }
   },
 
+  // Tags are read directly from Redis on every get, so no local manifest sync
+  // is required. Infinity asks Next to check implicit tags in get as well.
   async refreshTags() {},
 
-  getExpiration,
+  async getExpiration() {
+    return Infinity;
+  },
 
   async updateTags(tags, durations) {
     const timestamp = Date.now();
     const client = getRedisClient();
 
     if (!client) {
-      for (const tag of tags) localTagTimestamps.set(tag, timestamp);
+      for (const tag of tags) {
+        const previous = localTagStates.get(tag) ?? {};
+        localTagStates.set(
+          tag,
+          durations === undefined
+            ? { ...previous, expired: timestamp }
+            : {
+                ...previous,
+                stale: timestamp,
+                ...(durations.expire !== undefined
+                  ? { expired: timestamp + durations.expire * 1000 }
+                  : {}),
+              },
+        );
+      }
       return;
     }
 
     await redisConnection;
     const transaction = client.multi();
     for (const tag of tags) {
-      const options = durations?.expire
-        ? { EX: Math.ceil(durations.expire) }
-        : undefined;
-      transaction.set(tagKey(tag), String(timestamp), options);
+      // expire is a grace period before hard invalidation, not a Redis marker
+      // TTL. Removing markers could resurrect older entries still in Redis.
+      if (durations === undefined) {
+        transaction.set(tagKey(tag), String(timestamp));
+      } else {
+        transaction.set(`${tagKey(tag)}:stale`, String(timestamp));
+        if (durations.expire !== undefined) {
+          transaction.set(
+            tagKey(tag),
+            String(timestamp + durations.expire * 1000),
+          );
+        }
+      }
     }
     await transaction.exec();
   },

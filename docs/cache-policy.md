@@ -42,3 +42,33 @@ behind Suspense; pass their resolved values into cached components.
 The startup launcher checks configured Redis connectivity and starts Next's
 standalone server. Configure `HOSTNAME` and `PORT` in the deployment environment;
 the launcher does not override them.
+
+## Next.js handler contract
+
+Cache Components shipped in Next.js 16. This branch uses Next.js 16.2.6; the
+review follows the current official [Cache Components release notes](https://nextjs.org/blog/next-16),
+[remote cache guidance](https://nextjs.org/docs/app/api-reference/directives/use-cache-remote),
+and [custom handler contract](https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheHandlers),
+checked against the installed Next.js implementation.
+
+- Cache keys use resolved, shared inputs; request authentication and arbitrary
+  search strings remain outside shared cached scopes.
+- Remote entries store completed serialized bytes and return a fresh stream on
+  every hit. Interrupted streams are discarded. Writes are atomic, and failed
+  reads become misses; failed writes are logged without failing the render.
+- Redis retains remote entries until hard expiration, allowing Next to refresh
+  stale data in the background after the profile's revalidation interval.
+- Tag invalidation honors immediate expiration and delayed expiration with
+  stale-while-revalidate. The remote handler checks implicit tags directly from
+  Redis; `refreshTags` needs no local-manifest synchronization.
+- Incremental page entries include Next's implicit header tags, and fetch reads
+  check their soft tags. Delayed invalidation respects its expiration deadline.
+- Invalidation markers have no short Redis TTL: deleting a marker while an old
+  entry survives would make invalidated data valid again. Markers are scoped to
+  the application/release namespace, which deployment cleanup may retire only
+  after that release is no longer serving requests.
+
+The startup connectivity check still refuses to start with configured but
+unavailable Redis. Runtime storage failures are logged and leave Next free to
+regenerate data from its source. No explicit application `cacheTag` policy is
+introduced; current application freshness remains governed by the profiles.

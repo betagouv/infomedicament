@@ -131,38 +131,75 @@ class RedisCacheHandler {
     return `${this.namespace}:tag:${digest(tag)}`;
   }
 
-  async get(key) {
-    await this.connection;
-    const stored = await this.client.get(this.cacheKey(key));
-    return stored ? decode(stored) : null;
+  async get(key, context = {}) {
+    try {
+      await this.connection;
+      const stored = await this.client.get(this.cacheKey(key));
+      if (!stored) return null;
+      const record = decode(stored);
+      const tags = [
+        ...(record.tags ?? []),
+        ...(context.tags ?? []),
+        ...(context.softTags ?? []),
+      ];
+      if (tags.length > 0) {
+        const timestamps = await this.client.mGet(
+          tags.map((tag) => `${this.tagKey(tag)}:expired`),
+        );
+        const now = Date.now();
+        if (
+          timestamps.some(
+            (value) =>
+              Number(value) > record.lastModified && Number(value) <= now,
+          )
+        ) {
+          return null;
+        }
+      }
+      return record;
+    } catch (error) {
+      console.error("Redis incremental-cache read failed", error);
+      return null;
+    }
   }
 
   async set(key, data, context = {}) {
-    const tags = [...new Set(context.tags ?? [])];
-    const record = {
-      value: data,
-      lastModified: Date.now(),
-      tags,
-    };
+    try {
+      // Next carries implicit route tags in generated page/route headers.
+      const headerTags = data?.headers?.["x-next-cache-tags"];
+      const tags = [
+        ...new Set([
+          ...(context.tags ?? []),
+          ...(typeof headerTags === "string" ? headerTags.split(",") : []),
+        ]),
+      ];
+      const record = {
+        value: data,
+        lastModified: Date.now(),
+        tags,
+      };
 
-    await this.connection;
-    const cacheKey = this.cacheKey(key);
-    const ttl = getTtlSeconds(data, context);
-    const transaction = this.client.multi().set(cacheKey, encode(record), {
-      EX: ttl,
-    });
+      await this.connection;
+      const cacheKey = this.cacheKey(key);
+      const ttl = getTtlSeconds(data, context);
+      const transaction = this.client.multi().set(cacheKey, encode(record), {
+        EX: ttl,
+      });
 
-    for (const tag of tags) {
-      transaction.sAdd(this.tagKey(tag), cacheKey);
-      // Keep the tag index for at least as long as its longest-lived entry.
-      transaction.expire(this.tagKey(tag), ttl, "NX");
-      transaction.expire(this.tagKey(tag), ttl, "GT");
+      for (const tag of tags) {
+        transaction.sAdd(this.tagKey(tag), cacheKey);
+        // Keep the tag index for at least as long as its longest-lived entry.
+        transaction.expire(this.tagKey(tag), ttl, "NX");
+        transaction.expire(this.tagKey(tag), ttl, "GT");
+      }
+
+      await transaction.exec();
+    } catch (error) {
+      console.error("Redis incremental-cache write failed", error);
     }
-
-    await transaction.exec();
   }
 
-  async revalidateTag(tags) {
+  async revalidateTag(tags, durations) {
     const tagList = [tags].flat();
 
     await this.connection;
@@ -172,6 +209,22 @@ class RedisCacheHandler {
       const cacheKeys = await this.client.sMembers(tagKey);
       const transaction = this.client.multi();
 
+      // Persist an invalidation marker as well as deleting indexed entries.
+      // Fetch soft tags may only be known at read time, and delayed expiration
+      // must retain the marker after its grace period has elapsed.
+      const expiresAt =
+        durations === undefined
+          ? Date.now()
+          : durations.expire !== undefined
+            ? Date.now() + durations.expire * 1000
+            : undefined;
+      if (expiresAt !== undefined) {
+        transaction.set(`${tagKey}:expired`, String(expiresAt));
+      }
+      if (durations !== undefined && durations.expire !== 0) {
+        await transaction.exec();
+        continue;
+      }
       if (cacheKeys.length > 0) {
         transaction.del(cacheKeys);
       }
