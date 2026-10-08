@@ -20,6 +20,7 @@ vi.mock("@/db", () => ({ default: {
     return query;
   },
 } }));
+vi.mock("next/cache", () => ({ cacheLife: vi.fn() }));
 vi.mock("@/db/pdbmMySQL", () => ({ pdbmMySQL: {} }));
 
 async function presentations() {

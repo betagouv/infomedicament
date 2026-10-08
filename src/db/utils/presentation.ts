@@ -247,7 +247,7 @@ export async function getPresentationsDetails(codeCIP13List: string[]): Promise<
 
 export async function getFullPresentations(CIS: string): Promise<Presentation[]> {
   "use cache: remote";
-  cacheLife("daily");
+  cacheLife("hourly");
   const presentations = await getPresentations(CIS);
   const cips = presentations.map((presentation) => presentation.cip13);
   const [details, retroRows] = cips.length > 0

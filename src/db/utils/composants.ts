@@ -2,14 +2,13 @@
 import { cacheLife } from "next/cache";
 import "server-cli-only";
 
-
 import db from "@/db";
 import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { toCompositionComponents } from "./substanceCatalog";
 
 export async function getComposants(CIS: string) {
   "use cache: remote";
-  cacheLife("daily");
+  cacheLife("hourly");
   return getComposantsList([CIS]);
 }
 
