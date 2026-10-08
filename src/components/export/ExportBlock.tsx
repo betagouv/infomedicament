@@ -123,7 +123,7 @@ export default function ExportBlock({
     setError(null);
     try {
       const subsIds = [...new Set(selectedSubstances.map((s) => s.subsId))];
-      const results = await fetch("/extraction/api", {
+      const results = await fetch("/api/extraction", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -230,7 +230,9 @@ export default function ExportBlock({
         small
       />
 
-      <Button className={fr.cx("fr-mt-4w")} onClick={onExtractData} disabled={loading}>
+      <Button className={fr.cx("fr-mt-4w")} onClick={onExtractData}
+        disabled={loading || (selectedSubstances.length === 0 && selectedAtc2Codes.length === 0)}
+      >
         {loading ? "Extraction en cours…" : "Extraire"}
       </Button>
 

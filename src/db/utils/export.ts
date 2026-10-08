@@ -24,16 +24,19 @@ export async function getSpecialitesExport(
   const subsIds = filters.subsIds ?? [];
   const atc2Codes = filters.atc2Codes ?? [];
 
+  // No filter: do not export the whole table
+  if (subsIds.length === 0 && atc2Codes.length === 0) return [];
+
   // All the filters are "or": one of the substances or one of the ATC classes
-  let query = db.selectFrom("resume_specialites").selectAll();
-  if (subsIds.length > 0 || atc2Codes.length > 0) {
-    query = query.where((eb) => eb.or([
+  const specialites: ExportSpecs[] = await db
+    .selectFrom("resume_specialites")
+    .selectAll()
+    .where((eb) => eb.or([
       ...(subsIds.length > 0 ? [eb("subsIds", "&&", Array(subsIds))] : []),
       ...(atc2Codes.length > 0 ? [eb("atc2Code", "in", atc2Codes)] : []),
-    ]));
-  }
-
-  const specialites: ExportSpecs[] = await query.orderBy("specName").execute();
+    ]))
+    .orderBy("specName")
+    .execute();
   if (specialites.length === 0) return specialites;
 
   //Generic group name

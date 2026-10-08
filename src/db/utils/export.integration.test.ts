@@ -52,6 +52,11 @@ describe("getSpecialitesExport", () => {
     expect(results.some((spec) => spec.specId === resumeSpec.specId)).toBe(true);
   });
 
+  it("returns an empty list when there is no filter", async () => {
+    expect(await getSpecialitesExport({})).toEqual([]);
+    expect(await getSpecialitesExport({ subsIds: [], atc2Codes: [] }, ["specId"])).toEqual([]);
+  });
+
   it("returns an empty list when nothing matches", async () => {
     expect(await getSpecialitesExport({ atc2Codes: ["ZZZ"] }, ["genericGroup", "rcp43"])).toEqual([]);
   });
