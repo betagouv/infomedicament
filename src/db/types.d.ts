@@ -8,6 +8,7 @@ export interface Database {
   rcp: RcpTable;
   notices: NoticeTable;
   rating: RatingTable;
+  pipeline_run: PipelineRunTable;
   resume_indications: ResumeIndicationsTable;
   resume_substances: ResumeSubstancesTable;
   resume_medicaments: ResumeMedicamentsTable;
@@ -75,6 +76,17 @@ export interface Database {
   ansm_specialite_groupe_generique: AnsmSpecialiteGroupeGeneriqueTable;
   ansm_excipient_effet_notoire: AnsmExcipientEffetNotoireTable;
   ansm_specialite_excipient_effet_notoire: AnsmSpecialiteExcipientEffetNotoireTable;
+}
+
+interface PipelineRunTable {
+  id: string;
+  trigger: string;
+  status: "running" | "success" | "failure";
+  started_at: Date;
+  finished_at: Date | null;
+  semantic_watermark: Date | null;
+  failed_step: string | null;
+  error: string | null;
 }
 
 interface SearchIndexTable {
