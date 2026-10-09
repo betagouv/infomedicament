@@ -48,9 +48,7 @@ export function AutocompleteSearchInput({
   const { data: autocompleteSections } = useSWR(
     inputValue ?? null,
     async (search) =>
-      fetch(`/rechercher/autocomplete?s=${encodeURIComponent(search)}`, {
-        cache: "force-cache",
-      }).then((res) => res.json()),
+      fetch(`/rechercher/autocomplete?s=${encodeURIComponent(search)}`).then((res) => res.json()),
     {
       keepPreviousData: true,
       revalidateOnMount: false,

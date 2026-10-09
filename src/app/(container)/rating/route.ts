@@ -2,27 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { SimpleRating, QUESTION_1_OPTIONS, QUESTION_2_OPTIONS } from "@/types/RatingTypes";
 import axios from "axios";
 import { randomUUID } from "crypto";
+import { isValidPageId } from "@/utils/rating";
 
 // IDOR protection: bind each PATCH to the record created by the same POST session.
 // POST stores a random token in memory; PATCH must echo it back and it is consumed on use.
 // No persistence needed since the POST / PATCH window is a few seconds at most in practice.
 const pendingTokens = new Map<number, string>();
-
-// Allowlist: Unicode letters/digits, spaces, and punctuation found in real page labels.
-// Blocks shell/SQL/XSS/JNDI metacharacters ($, {, }, |, ;, `, <, >, ", \, #, ^, =, @, ...).
-const VALID_PAGE_ID_RE = /^[\p{L}\p{N} \-,.:/()!?'''&%]+$/u;
-
-export function isValidPageId(pageId: unknown): boolean {
-  return (
-    typeof pageId === "string" &&
-    pageId.length > 0 &&
-    pageId.length <= 150 &&
-    VALID_PAGE_ID_RE.test(pageId) &&
-    !pageId.includes("..") &&   // no path traversal
-    !pageId.includes("//") &&   // no URLs
-    !/[^ ]:/.test(pageId)       // colon must be preceded by a space (blocks javascript:, http:, c:/)
-  );
-}
 
 export async function POST(req: NextRequest) {
   try {

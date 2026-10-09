@@ -1,9 +1,12 @@
 "use server";
 
+
 import db from "@/db";
 import { RcpData } from "@/types/SpecialiteTypes";
 
 export async function getRCP(CIS: string): Promise<RcpData | undefined> {
+  "use cache: remote";
+
   const rcpRaw = await db
     .selectFrom("rcp")
     .selectAll()

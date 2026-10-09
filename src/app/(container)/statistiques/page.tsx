@@ -6,11 +6,11 @@ import Statistics from "@/components/statistics/Statistics";
 import ShareButtons from "@/components/generic/ShareButtons";
 import RatingToaster from "@/components/rating/RatingToaster";
 
-export const dynamic = "error";
-export const dynamicParams = true;
 const PAGE_LABEL:string = "Nos statistiques";
 
 export default async function Page() {
+  "use cache: remote";
+
   return (
     <ContentContainer frContainer>
       {" "}

@@ -1,13 +1,13 @@
 "use server";
 
 import "server-only";
-import { unstable_cache } from "next/cache";
 import db from "@/db/"
 import slugify from "slugify";
 import { SearchArticlesFilters, SearchResultItem } from "@/types/SearchTypes";
 import { Article, ArticleCardResume } from "@/types/ArticlesTypes";
 
-export const getArticles = unstable_cache(async function(): Promise<Article[]> {
+export async function getArticles(): Promise<Article[]> {
+  "use cache: remote";
 
     const rows = await db.selectFrom("ref_articles")
         .select(["titre", "source", "contenu", "theme", "lien", "metadescription", "homepage", "image"])
@@ -28,12 +28,10 @@ export const getArticles = unstable_cache(async function(): Promise<Article[]> {
                 : {}),
         };
     });
-}, ["articles"], { revalidate: 3600 });
+}
 
 export async function getArticlesFromFilters(articlesFilters: SearchArticlesFilters): Promise<ArticleCardResume[]> {
-    const rows = await db.selectFrom("ref_articles")
-        .select(["titre", "lien", "metadescription", "homepage", "atc_classe", "substances", "specialites", "pathologies"])
-        .execute();
+    const rows = await getArticleFilterRows();
 
     const articles: any[] = [];
 
@@ -144,4 +142,11 @@ export async function getArticlesFromSubstances(ids: string[]): Promise<ArticleC
     };
 
     return getArticlesFromFilters(articlesFilters);
+}
+
+async function getArticleFilterRows() {
+  "use cache: remote";
+  return db.selectFrom("ref_articles")
+        .select(["titre", "lien", "metadescription", "homepage", "atc_classe", "substances", "specialites", "pathologies"])
+        .execute();
 }

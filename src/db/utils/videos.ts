@@ -1,10 +1,13 @@
 "use server";
 
+
 import db from "..";
 import { AnsmVideos } from "../types";
 
 
 export async function getVideosFromCIS(CIS: string): Promise<AnsmVideos[]> {
+  "use cache: remote";
+
   const videos = await db
     .selectFrom('ansm_videos_cis')
     .innerJoin('ansm_videos', 'ansm_videos.id', "ansm_videos_cis.id_video")

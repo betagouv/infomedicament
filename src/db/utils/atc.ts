@@ -1,7 +1,7 @@
 "use server";
 
-import { cache } from "react";
-import { unstable_cache } from "next/cache";
+
+
 import { ATCError } from "@/utils/atc";
 import { ATC, ATC1, ATCLabels, ATCSubstances } from "@/types/ATCTypes";
 import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
@@ -16,6 +16,8 @@ import { VISIBLE_SPECIALITE_AVAILABILITIES } from "./specialiteCatalog";
  * Returns all CIS codes for an ATC class.
  */
 async function getCISCodesForAtc(atc: ATC): Promise<string[]> {
+  "use cache: remote";
+
   if (!atc.children) return [];
   const childCodes = (atc.children as ATC[]).map((child) => child.code);
   if (childCodes.length === 0) return [];
@@ -34,6 +36,8 @@ async function getCISCodesForAtc(atc: ATC): Promise<string[]> {
  * Builds ATC children from the database.
  */
 async function buildFullAtcChildren(atc2Code: string): Promise<ATC[]> {
+  "use cache: remote";
+
   const rows = await db
     .selectFrom("atc")
     .select(["code", "label_court"])
@@ -47,7 +51,8 @@ async function buildFullAtcChildren(atc2Code: string): Promise<ATC[]> {
   }));
 }
 
-export const getSubstancesByAtc = cache(async (atc2: ATC): Promise<Substance[]> => {
+export async function getSubstancesByAtc(atc2: ATC): Promise<Substance[]> {
+  "use cache: remote";
   const CIS = await getCISCodesForAtc(atc2);
 
   if (!CIS.length) return [];
@@ -66,22 +71,19 @@ export const getSubstancesByAtc = cache(async (atc2: ATC): Promise<Substance[]> 
       all.findIndex((candidate) => candidate.NomId === substance.NomId) === index,
     )
     .sort((left, right) => left.NomLib.localeCompare(right.NomLib, "fr"));
-});
+}
 
-export const getAtcMenuItems = unstable_cache(
-  async function (): Promise<{ code: string; label: string }[]> {
+export async function getAtcMenuItems(): Promise<{ code: string; label: string }[]> {
+  "use cache: remote";
     const rows = await db
       .selectFrom("ref_atc_friendly_niveau_1")
       .select(["code", "libelle"])
       .execute();
     return rows.map((r) => ({ code: r.code as string, label: r.libelle as string }));
-  },
-  ["atc-menu"],
-  { revalidate: 86400 },
-);
+  }
 
-export const getAtc = unstable_cache(
-  async function (): Promise<ATC1[]> {
+export async function getAtc(): Promise<ATC1[]> {
+  "use cache: remote";
     const rows = await db.selectFrom("ref_atc_friendly_niveau_1")
       .select(["code", "definition_classe", "libelle"])
       .execute();
@@ -108,13 +110,10 @@ export const getAtc = unstable_cache(
         ),
       })),
     );
-  },
-  ["atc-all"],
-  { revalidate: 86400 } // 24hrs cache
-);
+  }
 
-export const getAtc1 = unstable_cache(
-  async function (code: string): Promise<ATC1> {
+export async function getAtc1(code: string): Promise<ATC1> {
+  "use cache: remote";
     const rows = await db.selectFrom("ref_atc_friendly_niveau_1")
       .select(["code", "definition_classe", "libelle"])
       .execute();
@@ -144,10 +143,7 @@ export const getAtc1 = unstable_cache(
       description: record.definition_classe as string,
       children,
     };
-  },
-  ["atc1"],
-  { revalidate: 86400 } // 24hrs cache
-);
+  }
 
 /** Internal function used by getAtc and getAtc1 */
 async function buildAtc2(code: string, tableNiveau2: any[]): Promise<ATC> {
@@ -165,8 +161,8 @@ async function buildAtc2(code: string, tableNiveau2: any[]): Promise<ATC> {
   };
 }
 
-export const getAtc2 = unstable_cache(
-  async function (code: string): Promise<ATC> {
+export async function getAtc2(code: string): Promise<ATC> {
+  "use cache: remote";
     const record = await db.selectFrom("ref_atc_friendly_niveau_2")
       .select(["code", "libelle", "definition_sous_classe"])
       .where("code", "=", code.slice(0, 3))
@@ -182,10 +178,7 @@ export const getAtc2 = unstable_cache(
       description: record.definition_sous_classe as string,
       children: await buildFullAtcChildren(code),
     };
-  },
-  ["atc2"],
-  { revalidate: 86400 } // 24hrs cache
-);
+  }
 export const getSpecATCLabels = async function (
   specialite: ResumeSpecGroup | ResumeSpecialite,
   rowsATC1?: RefAtcFriendlyNiveau1[],
@@ -194,16 +187,12 @@ export const getSpecATCLabels = async function (
   let allRowsATC1: RefAtcFriendlyNiveau1[] = [];
   let allRowsATC2: RefAtcFriendlyNiveau2[] = [];
   if(!rowsATC1) {
-    allRowsATC1 = await db.selectFrom("ref_atc_friendly_niveau_1")
-      .selectAll()
-      .execute();
+    allRowsATC1 = await getAtc1LabelRows();
   } else 
     allRowsATC1 = rowsATC1;
     
   if(!rowsATC2) {
-    allRowsATC2 = await db.selectFrom("ref_atc_friendly_niveau_2")
-      .selectAll()
-      .execute();
+    allRowsATC2 = await getAtc2LabelRows();
   } else
     allRowsATC2 = rowsATC2;
     
@@ -230,13 +219,9 @@ export const getSpecATCLabels = async function (
 export const getResumeSpecsGroupsATCLabels = async function (
   specsGroups: ResumeSpecGroup[]
 ): Promise<ResumeSpecGroup[]> {
-  const rowsATC1 = await db.selectFrom("ref_atc_friendly_niveau_1")
-    .selectAll()
-    .execute();
+  const rowsATC1 = await getAtc1LabelRows();
 
-  const rowsATC2 = await db.selectFrom("ref_atc_friendly_niveau_2")
-    .selectAll()
-    .execute();
+  const rowsATC2 = await getAtc2LabelRows();
 
   const specsWithATC = await Promise.all(
     specsGroups.map(async (spec: ResumeSpecGroup) => {
@@ -254,13 +239,9 @@ export const getResumeSpecsGroupsATCLabels = async function (
 export const getResumeSpecsATCLabels = async function (
   specsGroups: ResumeSpecialite[]
 ): Promise<ResumeSpecialite[]> {
-  const rowsATC1 = await db.selectFrom("ref_atc_friendly_niveau_1")
-    .selectAll()
-    .execute();
+  const rowsATC1 = await getAtc1LabelRows();
 
-  const rowsATC2 = await db.selectFrom("ref_atc_friendly_niveau_2")
-    .selectAll()
-    .execute();
+  const rowsATC2 = await getAtc2LabelRows();
 
   const specsWithATC = await Promise.all(
     specsGroups.map(async (spec: ResumeSpecialite) => {
@@ -280,6 +261,8 @@ export const getResumeSpecsATCLabels = async function (
  * Composition and summary rows are fetched in bulk across the subclasses.
  */
 export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubstances[]> {
+  "use cache: remote";
+
   // Build map of ATC2 code -> CIS codes from the database
   const atc2ToCIS = new Map<string, string[]>();
   const allCIS: string[] = [];
@@ -345,4 +328,14 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubstances[]
   });
 
   return allATC;
+}
+
+async function getAtc1LabelRows() {
+  "use cache: remote";
+  return db.selectFrom("ref_atc_friendly_niveau_1").selectAll().execute();
+}
+
+async function getAtc2LabelRows() {
+  "use cache: remote";
+  return db.selectFrom("ref_atc_friendly_niveau_2").selectAll().execute();
 }

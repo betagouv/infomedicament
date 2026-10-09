@@ -7,11 +7,6 @@ import { getResumeSpecsATCLabels } from "./atc";
 import { formatSpecialitesResume } from "@/utils/specialites";
 import { MatchReason } from "@/types/SearchTypes";
 
-// Mocking the cache so it doesn't apply
-vi.mock("next/cache", () => ({
-  unstable_cache: (fn: any) => fn,
-}));
-
 // Mocking Kysely
 const { dbMock, mockExecute } = vi.hoisted(() => {
   const execute = vi.fn();

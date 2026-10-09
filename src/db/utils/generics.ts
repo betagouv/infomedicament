@@ -1,6 +1,6 @@
 "use server";
 
-import { cache } from "react";
+
 import { ResumeGeneric } from "../types";
 import db from "..";
 import { sql } from "kysely";
@@ -36,9 +36,8 @@ export type GenericGroup = {
   generiques: Specialite[];
 };
 
-export const getGenericsResumeWithLetter = cache(async function (
-  letter: string,
-): Promise<ResumeGeneric[]> {
+export async function getGenericsResumeWithLetter(letter: string): Promise<ResumeGeneric[]> {
+  "use cache: remote";
   const result: ResumeGeneric[] = await db
     .selectFrom("resume_generiques")
     .selectAll()
@@ -53,11 +52,13 @@ export const getGenericsResumeWithLetter = cache(async function (
     .orderBy("SpecName")
     .execute();
   return result;
-});
+}
 
 export async function getGenericGroup(
   codeGroupe: number,
 ): Promise<GenericGroup | undefined> {
+  "use cache: remote";
+
   const [group, members] = await Promise.all([
     db
       .selectFrom("ansm_groupe_generique")
@@ -117,6 +118,8 @@ export async function getGenericGroup(
 }
 
 export async function getGenericGroupMembership(CIS: string) {
+  "use cache: remote";
+
   const membership = await db
     .selectFrom("ansm_specialite_groupe_generique")
     .where("cis", "=", CIS)
@@ -153,6 +156,8 @@ export async function getGenericGroupMembership(CIS: string) {
 }
 
 export async function getAllGenericGroupCodes(): Promise<number[]> {
+  "use cache: remote";
+
   const groups = await db
     .selectFrom("ansm_specialite_groupe_generique")
     .innerJoin(
@@ -179,6 +184,8 @@ export async function getAllGenericGroupCodes(): Promise<number[]> {
 }
 
 export async function isPrincepsSpecialite(CIS: string): Promise<boolean> {
+  "use cache: remote";
+
   return Boolean(
     await db
       .selectFrom("ansm_specialite_groupe_generique")
@@ -190,6 +197,8 @@ export async function isPrincepsSpecialite(CIS: string): Promise<boolean> {
 }
 
 export async function isGenericSpecialite(CIS: string): Promise<boolean> {
+  "use cache: remote";
+
   return Boolean(
     await db
       .selectFrom("ansm_specialite_groupe_generique")

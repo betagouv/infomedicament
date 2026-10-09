@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 import { getAtc1, getAtc1DefinitionData, getAtc2, getSubstancesByAtc } from "./atc";
 import { getSubstancesResume } from "./substances";
 
-vi.mock("next/cache", () => ({ unstable_cache: (fn: unknown) => fn }));
 
 describe("PostgreSQL ATC projections", () => {
   it("uses the destination substance list for the parent A02 card", async () => {

@@ -1,10 +1,13 @@
 "use server";
 
+
 import "server-only";
 import db from '@/db'
 import { Marr, MarrPdf } from "@/types/MarrTypes";
 
 export async function getMarr(CIS: string): Promise<Marr> {
+  "use cache: remote";
+
 
     // Get list of MARR matching CIS
     // By assumption, only 1 MARR can be returned for each CIS code
