@@ -3,12 +3,14 @@ import { fr } from "@codegouvfr/react-dsfr";
 import AutocompleteSearch from "@/components/search/autocomplete/AutocompleteSearch";
 import { getArticles } from "@/db/utils/articles";
 import { getMarketedMedicamentCount } from "@/db/utils/specialities";
+import { getLastSuccessfulPipelineRunDate } from "@/db/utils/pipeline";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
 
 export default async function Page() {
-  const [articles, marketedCount] = await Promise.all([
+  const [articles, marketedCount, lastUpdated] = await Promise.all([
     getArticles().then((a) => a.filter(({ homepage }) => homepage)),
     getMarketedMedicamentCount(),
+    getLastSuccessfulPipelineRunDate(),
   ]);
 
   return (
@@ -28,6 +30,16 @@ export default async function Page() {
             <p className="fr-text--sm">
               Info Médicament comprend tous les médicaments dont les {marketedCount.toLocaleString("fr-FR")} actuellement commercialisés ou ayant été commercialisés durant les trois dernières années en France.
             </p>
+            {lastUpdated ? (
+              <p className="fr-text--sm">
+                Les données ont été mises à jour le {new Date(lastUpdated).toLocaleDateString("fr-FR", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                  timeZone: "Europe/Paris",
+                })}.
+              </p>
+            ) : null}
             <AutocompleteSearch inputName="s" />
             <p className="fr-text--sm">
               Cherchez un <b>médicament</b>, une <b>substance active</b> (ex : paracétamol), une <b>indication</b> (ex : diabète), ou une <b>classe de médicaments</b> (ex : antibiotiques).
