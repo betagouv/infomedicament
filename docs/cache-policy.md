@@ -25,6 +25,9 @@ not every result projection or the full medicine objects passed into them.
 
 ## Intentional exclusions
 
+- Filtered data exports and their batch enrichment are uncached: arbitrary
+  substance/ATC filter combinations have low reuse. The shared full substance
+  selector table uses the `daily` profile.
 - Free-text medicine search, autocomplete, and interaction search are uncached:
   their high-cardinality query keys have low reuse. Their small shared synonym
   and ATC-reference tables remain cached.
@@ -105,3 +108,13 @@ search visibility during client navigation in both directions, rewritten list
 URLs, dynamic medicine pages, the separate embed layout, and the autocomplete
 API. Runtime Redis failure and invalidation tests use a
 shared simulated Redis store; this check does not benchmark deployment latency.
+
+## CI against the current main branch
+
+GitHub Actions checks the PR merged with its current base branch, rather than
+only the branch checkout. Main's extraction feature added a React `cache`
+wrapper after this PR removed that import. The resulting merged module failed
+at import time in the search and autocomplete tests. The extraction helper now
+uses the shared daily Next remote cache, and its static-page guard uses
+`ensureStatic = "navigation"` instead of the incompatible legacy `dynamic`
+segment option. Query and export behavior remain unchanged.

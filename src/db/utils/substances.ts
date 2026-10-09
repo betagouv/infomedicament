@@ -265,15 +265,15 @@ export async function getSubstancesResume(substanceIDs: string[]): Promise<Resum
     .execute();
 }
 
-export const getAllSubstancesResumes = cache(
-  async function (): Promise<ResumeSubstance[]> 
-{
+export async function getAllSubstancesResumes(): Promise<ResumeSubstance[]> {
+  "use cache: remote";
+  cacheLife("daily");
   return db
     .selectFrom("resume_substances")
     .selectAll()
     .orderBy("NomLib")
-    .execute() ;
-});
+    .execute();
+}
 
 export async function getSubstanceDefinition(ids: string[], subsIds: string[]) {
   "use cache: remote";
