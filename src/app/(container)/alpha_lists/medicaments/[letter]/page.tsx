@@ -6,7 +6,6 @@ import { getLetters } from "@/db/utils/letters";
 import { getResumeSpecsGroupsWithLetter } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { DataTypeEnum } from "@/types/DataTypes";
-import { cacheLife } from "next/cache";
 import { withStaticParamFallback } from "@/utils/staticParams";
 
 export async function generateStaticParams() {
@@ -27,7 +26,6 @@ export default async function Page(props: {
 
 async function CachedMedicamentsList({ letter }: { letter: string }) {
   "use cache: remote";
-  cacheLife("daily");
 
   const [letters, specsGroups] = await Promise.all([
     getLetters("medicaments"),

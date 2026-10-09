@@ -1,5 +1,4 @@
 "use server";
-import { cacheLife } from "next/cache";
 import "server-cli-only";
 
 
@@ -117,7 +116,6 @@ export async function getCisMatchingSubstanceSet(
   ids: string[],
 ): Promise<string[]> {
   "use cache: remote";
-  cacheLife("hourly");
 
   const substances = await resolveSubstances(ids);
   if (substances.length !== ids.length) return [];
@@ -133,13 +131,11 @@ export async function getCisMatchingSubstanceSet(
 
 export async function getSubstances(ids: string[]): Promise<Substance[]> {
   "use cache: remote";
-  cacheLife("daily");
   return resolveSubstances(ids);
 }
 
 export async function getAllSubsWithSpecialites() {
   "use cache: remote";
-  cacheLife("daily");
   const [components, names, specialites] = await Promise.all([
     db.selectFrom("ansm_composant").selectAll().execute(),
     db.selectFrom("ansm_substance_nom").selectAll().execute(),
@@ -198,7 +194,6 @@ export async function getAllSubsWithSpecialites() {
 
 export async function getSubstanceAllSpecialites(substanceIDs: string[]): Promise<SpecialiteWithSubstance[]> {
   "use cache: remote";
-  cacheLife("hourly");
     if (substanceIDs.length === 0) return [];
     const substances = await resolveSubstances(substanceIDs);
     const codeToNomIds = new Map<string, string[]>();
@@ -238,7 +233,6 @@ export async function getSubstanceAllSpecialites(substanceIDs: string[]): Promis
 
 export async function getSubstancesResumeWithLetter(letter: string): Promise<ResumeSubstance[]> {
   "use cache: remote";
-  cacheLife("daily");
   return db
     .selectFrom("resume_substances")
     .where(({ eb, ref }) =>
@@ -255,7 +249,6 @@ export async function getSubstancesResumeWithLetter(letter: string): Promise<Res
 
 export async function getSubstancesResume(substanceIDs: string[]): Promise<ResumeSubstance[]> {
   "use cache: remote";
-  cacheLife("daily");
   if (substanceIDs.length === 0) return [];
   return db
     .selectFrom("resume_substances")
@@ -267,7 +260,6 @@ export async function getSubstancesResume(substanceIDs: string[]): Promise<Resum
 
 export async function getAllSubstancesResumes(): Promise<ResumeSubstance[]> {
   "use cache: remote";
-  cacheLife("daily");
   return db
     .selectFrom("resume_substances")
     .selectAll()
@@ -277,7 +269,6 @@ export async function getAllSubstancesResumes(): Promise<ResumeSubstance[]> {
 
 export async function getSubstanceDefinition(ids: string[], subsIds: string[]) {
   "use cache: remote";
-  cacheLife("daily");
   const rows = await db
     .selectFrom("ref_substance_active_definitions")
     .select(["nom_id", "subs_id", "sa", "definition"])

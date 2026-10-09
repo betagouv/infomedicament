@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { cacheLife } from "next/cache";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
@@ -139,7 +138,6 @@ async function ResolvedMedicamentPage({ params }: { params: Promise<{ CIS: strin
 
 async function CachedMedicamentPage({ CIS }: { CIS: string }) {
   "use cache: remote";
-  cacheLife("daily");
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);
   const indications = await getSpecialitesIndications([CIS]);

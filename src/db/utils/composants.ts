@@ -1,5 +1,4 @@
 "use server";
-import { cacheLife } from "next/cache";
 import "server-cli-only";
 
 import db from "@/db";
@@ -8,13 +7,11 @@ import { toCompositionComponents } from "./substanceCatalog";
 
 export async function getComposants(CIS: string) {
   "use cache: remote";
-  cacheLife("hourly");
   return getComposantsList([CIS]);
 }
 
 export async function getComposantsList(CISList: string[]): Promise<CompositionComponent[]> {
   "use cache: remote";
-  cacheLife("hourly");
     if (CISList.length === 0) return [];
 
     const [components, elements] = await Promise.all([

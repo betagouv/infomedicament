@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { cacheLife } from "next/cache";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { fr } from "@codegouvfr/react-dsfr";
 import { getAtc1, getAtc2, getAtc1DefinitionData, getSubstancesByAtc } from "@/db/utils/atc";
@@ -82,7 +81,6 @@ async function ResolvedATCPage({ params }: { params: Promise<{ code: string }> }
 
 async function CachedATCPage({ code }: { code: string }) {
   "use cache: remote";
-  cacheLife("daily");
 
   const atc1 = await getAtc1(code);
   const atc2 = code.length === 3 ? await getAtc2(code) : undefined;

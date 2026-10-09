@@ -1,5 +1,4 @@
 "use server";
-import { cacheLife } from "next/cache";
 
 
 import { ResumeGeneric } from "../types";
@@ -39,7 +38,6 @@ export type GenericGroup = {
 
 export async function getGenericsResumeWithLetter(letter: string): Promise<ResumeGeneric[]> {
   "use cache: remote";
-  cacheLife("daily");
   const result: ResumeGeneric[] = await db
     .selectFrom("resume_generiques")
     .selectAll()
@@ -60,7 +58,6 @@ export async function getGenericGroup(
   codeGroupe: number,
 ): Promise<GenericGroup | undefined> {
   "use cache: remote";
-  cacheLife("hourly");
 
   const [group, members] = await Promise.all([
     db
@@ -122,7 +119,6 @@ export async function getGenericGroup(
 
 export async function getGenericGroupMembership(CIS: string) {
   "use cache: remote";
-  cacheLife("hourly");
 
   const membership = await db
     .selectFrom("ansm_specialite_groupe_generique")
@@ -161,7 +157,6 @@ export async function getGenericGroupMembership(CIS: string) {
 
 export async function getAllGenericGroupCodes(): Promise<number[]> {
   "use cache: remote";
-  cacheLife("daily");
 
   const groups = await db
     .selectFrom("ansm_specialite_groupe_generique")
@@ -190,7 +185,6 @@ export async function getAllGenericGroupCodes(): Promise<number[]> {
 
 export async function isPrincepsSpecialite(CIS: string): Promise<boolean> {
   "use cache: remote";
-  cacheLife("hourly");
 
   return Boolean(
     await db
@@ -204,7 +198,6 @@ export async function isPrincepsSpecialite(CIS: string): Promise<boolean> {
 
 export async function isGenericSpecialite(CIS: string): Promise<boolean> {
   "use cache: remote";
-  cacheLife("hourly");
 
   return Boolean(
     await db

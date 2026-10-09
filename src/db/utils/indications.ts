@@ -1,7 +1,6 @@
 "use server";
 import "server-cli-only";
 
-import { cacheLife } from "next/cache";
 import db from "..";
 import { Indication, ResumeIndication } from "../types";
 import { sql } from "kysely";
@@ -9,7 +8,6 @@ import { ShortIndication } from "@/types/IndicationsTypes";
 
 export async function getAllIndications(): Promise<Indication[]> {
   "use cache: remote";
-  cacheLife("daily");
 
   return await db.selectFrom("indications").selectAll().execute();
 }
@@ -18,7 +16,6 @@ export async function getIndications(
   code: number,
 ): Promise<Indication | undefined> {
   "use cache: remote";
-  cacheLife("daily");
 
   return await db
     .selectFrom("indications")
@@ -30,7 +27,6 @@ export async function getIndications(
 //Get the indications list (only ids) from specialite code CIS
 export async function getSpecialiteIndications(CIS: string): Promise<number[]> {
   "use cache: remote";
-  cacheLife("hourly");
 
   const codes = await db
     .selectFrom("indications")
@@ -44,7 +40,6 @@ export async function getSpecialiteIndications(CIS: string): Promise<number[]> {
 //Get the pathologies list (only ids) from specialite code CIS
 export async function getSpecialitePathologies(CIS: string): Promise<number[]> {
   "use cache: remote";
-  cacheLife("hourly");
 
   const rawCodes = await db
     .selectFrom("indications")
@@ -63,7 +58,6 @@ export async function getSpecialitesIndications(
   CIS: string[],
 ): Promise<ShortIndication[]> {
   "use cache: remote";
-  cacheLife("hourly");
 
   const indications: ShortIndication[] = await db
     .selectFrom("indications")
@@ -77,7 +71,6 @@ export async function getIndicationsResumeWithLetter(
   letter: string,
 ): Promise<ResumeIndication[]> {
   "use cache: remote";
-  cacheLife("daily");
 
   const result: ResumeIndication[] = await db
     .selectFrom("resume_indications")

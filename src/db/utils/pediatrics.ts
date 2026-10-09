@@ -1,13 +1,11 @@
 "use server"
 
-import { cacheLife } from "next/cache";
 import db from '@/db/'
 import { AllPediatricsInfo, PediatricsInfo } from "@/types/PediatricTypes";
 
 // Cache for 1 hour - this data rarely changes
 export async function getAllPediatrics(): Promise<AllPediatricsInfo[]> {
   "use cache: remote";
-        cacheLife("hourly");
 
         const rows = await db.selectFrom("ref_pediatrie")
             .select(["cis", "contre_indication"])
@@ -24,7 +22,6 @@ export async function getPediatrics(
     CIS: string,
 ): Promise<PediatricsInfo | undefined> {
   "use cache: remote";
-  cacheLife("hourly");
 
     const rows = await db.selectFrom("ref_pediatrie")
         .select(["cis", "contre_indication"])

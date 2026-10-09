@@ -1,5 +1,4 @@
 "use server";
-import { cacheLife } from "next/cache";
 import "server-cli-only";
 
 
@@ -33,7 +32,6 @@ import { getCisMatchingSubstanceSet } from "./substances";
 
 export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
   "use cache: remote";
-  cacheLife("hourly");
   const result = await db
     .selectFrom("ansm_document")
     .select((eb) => eb.fn.max("date_modification").as("lastUpdated"))
@@ -44,7 +42,6 @@ export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
 
 export async function getMarketedMedicamentCount(): Promise<number> {
   "use cache: remote";
-  cacheLife("hourly");
     const result = await db
       .selectFrom("ansm_specialite")
       .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
@@ -56,7 +53,6 @@ export async function getMarketedMedicamentCount(): Promise<number> {
 
 export async function getSpecialiteName(CIS: string): Promise<string> {
   "use cache: remote";
-  cacheLife("hourly");
 
   const result = await db
     .selectFrom("ansm_specialite")
@@ -69,7 +65,6 @@ export async function getSpecialiteName(CIS: string): Promise<string> {
 
 export async function getDetailedSpecialite(CIS: string): Promise<DetailedSpecialite | undefined> {
   "use cache: remote";
-  cacheLife("hourly");
     const row = await db
       .selectFrom("ansm_specialite")
       .where("cis", "=", CIS)
@@ -151,7 +146,6 @@ export async function getDetailedSpecialite(CIS: string): Promise<DetailedSpecia
 
 export async function getSpecialite(CIS: string) {
   "use cache: remote";
-  cacheLife("hourly");
   const specialite: DetailedSpecialite | undefined =
     await getDetailedSpecialite(CIS);
 
@@ -194,7 +188,6 @@ export async function getAllSpecialites(): Promise<
   Specialite[]
 > {
   "use cache: remote";
-  cacheLife("daily");
   const rows = await db
     .selectFrom("ansm_specialite")
     .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
@@ -207,7 +200,6 @@ export async function getAllSpecialites(): Promise<
 
 export async function getResumeSpecsGroupsWithLetter(letter: string): Promise<ResumeSpecGroup[]> {
   "use cache: remote";
-  cacheLife("daily");
   const result = await db
     .selectFrom("resume_medicaments")
     .where(({ eb, ref }) =>
@@ -225,7 +217,6 @@ export async function getResumeSpecsGroupsWithLetter(letter: string): Promise<Re
 
 export async function getResumeSpecsGroupsWithIndication(indicationsIds: number): Promise<ResumeSpecGroup[]> {
   "use cache: remote";
-  cacheLife("daily");
   const result = await db
     .selectFrom("resume_medicaments")
     .where("indicationsIds", "&&", Array([indicationsIds]))
@@ -237,7 +228,6 @@ export async function getResumeSpecsGroupsWithIndication(indicationsIds: number)
 
 export async function getResumeSpecsGroupsWithCIS(CISList: string[]): Promise<ResumeSpecGroup[]> {
   "use cache: remote";
-  cacheLife("daily");
   if (CISList.length === 0) return [];
   const result = await db
     .selectFrom("resume_medicaments")
@@ -250,7 +240,6 @@ export async function getResumeSpecsGroupsWithCIS(CISList: string[]): Promise<Re
 
 export async function getResumeSpecialitesWithCIS(CISList: string[]): Promise<ResumeSpecialite[]> {
   "use cache: remote";
-  cacheLife("daily");
   if (CISList.length === 0) return [];
   const result = await db
     .selectFrom("resume_specialites")
@@ -263,7 +252,6 @@ export async function getResumeSpecialitesWithCIS(CISList: string[]): Promise<Re
 
 export async function getResumeSpecsGroupsWithCISSubsIds(CISList: string[], SubsIds: string[]): Promise<ResumeSpecGroup[]> {
   "use cache: remote";
-  cacheLife("daily");
   if (CISList.length === 0) return [];
   const result = await db
     .selectFrom("resume_medicaments")
@@ -283,7 +271,6 @@ export async function getResumeSpecsGroupsWithCISSubsIds(CISList: string[], Subs
 
 export async function getSubstanceSpecialites(subsNomsIDs: string | string[]): Promise<Specialite[]> {
   "use cache: remote";
-  cacheLife("hourly");
     const ids: string[] = !Array.isArray(subsNomsIDs)
       ? [subsNomsIDs]
       : subsNomsIDs;
@@ -301,7 +288,6 @@ export async function getSubstanceSpecialites(subsNomsIDs: string | string[]): P
 
 export async function getSubstanceSpecialitesCIS(subsNomsIDs: string | string[]): Promise<string[]> {
   "use cache: remote";
-  cacheLife("hourly");
     const ids: string[] = !Array.isArray(subsNomsIDs)
       ? [subsNomsIDs]
       : subsNomsIDs;
@@ -320,7 +306,6 @@ export async function getSpecialiteMetadata(
   CIS: number,
 ): Promise<SpecialiteMetadata | undefined> {
   "use cache: remote";
-  cacheLife("daily");
   return await db
     .selectFrom("specialites_metadata")
     .where("CIS", "=", CIS)

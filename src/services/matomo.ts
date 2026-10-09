@@ -1,4 +1,3 @@
-import { cacheLife } from "next/cache";
 import { MatomoErrorResult } from "@/types/Matomo";
 
 type ConfigType = Record<string, unknown>;
@@ -80,7 +79,6 @@ export function generateMonthsToNow(): string[] {
 
 async function getMatomoBulkResults<Result>(config: ConfigType, period: string[]): Promise<Result[][]> {
   "use cache: remote";
-  cacheLife("hourly");
   const response = await fetch(
     buildMatomoURL(
       config,

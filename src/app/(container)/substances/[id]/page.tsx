@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { cacheLife } from "next/cache";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { fr } from "@codegouvfr/react-dsfr";
 import type { Substance } from "@/types/SubstanceTypes";
@@ -49,7 +48,6 @@ async function ResolvedSubstancePage({ params }: { params: Promise<{ id: string 
 
 async function CachedSubstancePage({ id }: { id: string }) {
   "use cache: remote";
-  cacheLife("daily");
   const ids = decodeURIComponent(id).split(",");//NomId
 
   const substances: Substance[] = await getSubstances(ids);

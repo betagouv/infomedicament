@@ -1,4 +1,3 @@
-import { cacheLife } from "next/cache";
 import { MetadataRoute } from "next";
 import { getAllSpecialites } from "@/db/utils/specialities";
 import { getAllSubsWithSpecialites } from "@/db/utils/substances";
@@ -30,7 +29,6 @@ const STATIC_ROUTES = [
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   "use cache: remote";
-  cacheLife("daily");
   const [
     specialites,
     substances,

@@ -1,5 +1,4 @@
 import db from "@/db";
-import { cacheLife } from "next/cache";
 import { SearchSynonym } from "@/db/types";
 
 // Same normalization as search.ts: lowercase + strip accents. Trim for safety.
@@ -88,7 +87,6 @@ export function matchedCanonicals(
 // Small curated table with high reuse across otherwise uncached searches.
 export async function getSynonymMap(): Promise<SearchSynonym[]> {
   "use cache: remote";
-  cacheLife("hourly");
 
   return db.selectFrom("search_synonyms").selectAll().execute();
 }

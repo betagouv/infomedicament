@@ -5,7 +5,6 @@ import PageListContent from "@/components/list/PageListContent";
 import { getLetters } from "@/db/utils/letters";
 import { getSubstancesResumeWithLetter } from "@/db/utils/substances";
 import { DataTypeEnum } from "@/types/DataTypes";
-import { cacheLife } from "next/cache";
 import { withStaticParamFallback } from "@/utils/staticParams";
 
 export async function generateStaticParams() {
@@ -26,7 +25,6 @@ export default async function Page(props: {
 
 async function CachedSubstancesList({ letter }: { letter: string }) {
   "use cache: remote";
-  cacheLife("daily");
 
   const [letters, rawData] = await Promise.all([
     getLetters("substances"),

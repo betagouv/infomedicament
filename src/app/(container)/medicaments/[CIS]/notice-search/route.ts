@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cacheLife } from "next/cache";
 import { answerNoticeQuestion } from "@/lib/albert";
 import { getNotice } from "@/db/utils/notice";
 
@@ -25,7 +24,6 @@ async function getCachedAnswer(
   q: string,
 ): Promise<LLMResult | undefined> {
   "use cache: remote";
-  cacheLife("daily");
 
   const notice = await getNotice(CIS);
   if (!notice?.contentHtml) return undefined;

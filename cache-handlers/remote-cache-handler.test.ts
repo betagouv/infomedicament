@@ -258,4 +258,23 @@ describe("remote cache lifecycle", () => {
       first.get("page", ["_N_T_/medicaments"]),
     ).resolves.toBeUndefined();
   });
+
+  it("root layout invalidation expires nested page and data entries across instances", async () => {
+    vi.useFakeTimers();
+    const redis = createRedisStore();
+    const serving = loadAdapter(redis);
+    const importing = loadAdapter(redis);
+    for (const key of ["medicine-page", "medicine-data", "grist-data"]) {
+      await serving.set(key, Promise.resolve(entry()));
+    }
+    vi.advanceTimersByTime(1000);
+    await importing.updateTags(["_N_T_/layout"]);
+    for (const key of ["medicine-page", "medicine-data", "grist-data"]) {
+      await expect(
+        serving.get(key, ["_N_T_/layout", "_N_T_/medicaments/[CIS]/page"]),
+      ).resolves.toBeUndefined();
+    }
+    await serving.set("medicine-data", Promise.resolve(entry()));
+    expect(await serving.get("medicine-data", ["_N_T_/layout"])).toBeDefined();
+  });
 });

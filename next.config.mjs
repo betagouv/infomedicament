@@ -41,12 +41,8 @@ const nextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   cacheLife: {
-    hourly: {
-      stale: 5 * 60,
-      revalidate: 60 * 60,
-      expire: 24 * 60 * 60,
-    },
-    daily: {
+    // Shared daily lifetime for every cache scope without an explicit override.
+    default: {
       stale: 60 * 60,
       revalidate: 24 * 60 * 60,
       expire: 7 * 24 * 60 * 60,

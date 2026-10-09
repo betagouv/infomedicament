@@ -3,14 +3,12 @@
 import db from '@/db';
 import { Definition } from "@/types/GlossaireTypes";
 import { sql } from "kysely";
-import { cacheLife } from "next/cache";
 import sanitizeHtml from "sanitize-html";
 
 const ALLOWED_TAGS = { allowedTags: ["p", "br", "ul", "ol", "li"] as string[] };
 
 export default async function getGlossaryDefinitions(): Promise<Definition[]> {
   "use cache: remote";
-  cacheLife("daily");
 
     const rows = await db.
         selectFrom("ref_glossaire").
@@ -27,7 +25,6 @@ export default async function getGlossaryDefinitions(): Promise<Definition[]> {
 
 export async function getHighlightedGlossaryDefinitions(): Promise<Definition[]> {
   "use cache: remote";
-  cacheLife("daily");
 
     const rows = await db.selectFrom("ref_glossaire")
         .select(["nom", "definition", "source", "a_souligner"])
@@ -40,7 +37,6 @@ export async function getHighlightedGlossaryDefinitions(): Promise<Definition[]>
 
 export async function getGlossaryDefinitionsByFirstLetter(firstLetter: string): Promise<Definition[]> {
   "use cache: remote";
-  cacheLife("daily");
 
     const rows = await db.selectFrom("ref_glossaire")
         .select(["nom", "definition", "source", "a_souligner"])
@@ -56,7 +52,6 @@ export async function getGlossaryDefinitionsByFirstLetter(firstLetter: string): 
 
 export async function getGlossaryLetters() {
   "use cache: remote";
-    cacheLife("daily");
 
     const letters = await db.selectFrom("ref_glossaire")
         .select(sql<string>`upper(substring(nom, 1, 1))`.as("letter"))

@@ -1,4 +1,3 @@
-import { cacheLife } from "next/cache";
 import "server-cli-only";
 
 import { pdbmMySQL } from "@/db/pdbmMySQL";
@@ -68,7 +67,6 @@ function preserveDispositifCount(dispositif: string | null, denomination: string
 
 export async function getPresentations(CIS: string): Promise<Presentation[]> {
   "use cache: remote";
-  cacheLife("hourly");
   const rows = await db
     .selectFrom("ansm_presentation")
     .where("cis", "=", CIS)
@@ -161,7 +159,6 @@ export async function getPresentations(CIS: string): Promise<Presentation[]> {
 
 export async function getPresentationsDetails(codeCIP13List: string[]): Promise<PresentationPackagingDetail[]> {
   "use cache: remote";
-  cacheLife("hourly");
   if (codeCIP13List.length === 0) return [];
 
   const presentationRows = await db
@@ -247,7 +244,6 @@ export async function getPresentationsDetails(codeCIP13List: string[]): Promise<
 
 export async function getFullPresentations(CIS: string): Promise<Presentation[]> {
   "use cache: remote";
-  cacheLife("hourly");
   const presentations = await getPresentations(CIS);
   const cips = presentations.map((presentation) => presentation.cip13);
   const [details, retroRows] = cips.length > 0

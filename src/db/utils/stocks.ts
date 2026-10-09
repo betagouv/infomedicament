@@ -1,6 +1,5 @@
 "use server";
 
-import { cacheLife } from "next/cache";
 
 import db from "..";
 import { AnsmStock } from "@/types/StockTypes";
@@ -8,7 +7,6 @@ import { AnsmStockDB } from "../types";
 
 export async function getStockFromCIS(CIS: string): Promise<AnsmStock[]> {
   "use cache: remote";
-  cacheLife("hourly");
 
   const rawStock: AnsmStockDB[] = await db
     .selectFrom("ansm_stock")

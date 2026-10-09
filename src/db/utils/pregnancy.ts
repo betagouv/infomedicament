@@ -1,5 +1,4 @@
 "use server";
-import { cacheLife } from "next/cache";
 import "server-cli-only";
 
 
@@ -9,7 +8,6 @@ import { PregnancyAlert } from "@/types/PregancyTypes";
 // Cache for 1 hour - this data rarely changes
 export async function getAllPregnancyPlanAlerts(): Promise<PregnancyAlert[]> {
   "use cache: remote";
-  cacheLife("hourly");
         const rows = await db.selectFrom("ref_grossesse_substances_contre_indiquees")
             .select(["subs_id", "lien_site_ansm"])
             .execute();
@@ -22,7 +20,6 @@ export async function getAllPregnancyPlanAlerts(): Promise<PregnancyAlert[]> {
 
 export async function getAllPregnancyMentionAlerts(): Promise<string[]> {
   "use cache: remote";
-  cacheLife("hourly");
         const rows = await db.selectFrom("ref_grossesse_mention")
             .select(["cis"])
             .execute();
@@ -32,7 +29,6 @@ export async function getAllPregnancyMentionAlerts(): Promise<string[]> {
 
 export async function getPregnancyMentionAlert(CIS: string): Promise<boolean> {
   "use cache: remote";
-  cacheLife("hourly");
 
     const rows = await db.selectFrom("ref_grossesse_mention")
         .select(["cis"])

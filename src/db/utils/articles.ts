@@ -1,7 +1,6 @@
 "use server";
 
 import "server-only";
-import { cacheLife } from "next/cache";
 import db from "@/db/"
 import slugify from "slugify";
 import { SearchArticlesFilters, SearchResultItem } from "@/types/SearchTypes";
@@ -9,7 +8,6 @@ import { Article, ArticleCardResume } from "@/types/ArticlesTypes";
 
 export async function getArticles(): Promise<Article[]> {
   "use cache: remote";
-    cacheLife("hourly");
 
     const rows = await db.selectFrom("ref_articles")
         .select(["titre", "source", "contenu", "theme", "lien", "metadescription", "homepage", "image"])
@@ -148,7 +146,6 @@ export async function getArticlesFromSubstances(ids: string[]): Promise<ArticleC
 
 async function getArticleFilterRows() {
   "use cache: remote";
-  cacheLife("hourly");
   return db.selectFrom("ref_articles")
         .select(["titre", "lien", "metadescription", "homepage", "atc_classe", "substances", "specialites", "pathologies"])
         .execute();

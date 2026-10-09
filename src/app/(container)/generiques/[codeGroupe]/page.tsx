@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { cacheLife } from "next/cache";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import {
@@ -33,7 +32,6 @@ async function ResolvedGenericPage({ params }: { params: Promise<{ codeGroupe: s
 
 async function CachedGenericPage({ codeGroupe }: { codeGroupe: string }) {
   "use cache: remote";
-  cacheLife("daily");
   const genericGroupCode = Number(codeGroupe);
   if (!Number.isSafeInteger(genericGroupCode) || genericGroupCode <= 0) notFound();
 

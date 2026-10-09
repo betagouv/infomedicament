@@ -1,7 +1,6 @@
 import "server-cli-only";
 import { assert, is } from "tsafe";
 import { ImageProps } from "next/image";
-import { cacheLife } from "next/cache";
 
 function matchesFields<F extends string[]>(
   record: Record<
@@ -28,8 +27,7 @@ export async function getGristTableData<F extends string>(
     >;
   }[]
 > {
-  "use cache";
-  cacheLife("daily");
+  "use cache: remote";
 
   const response = await fetch(
     `https://grist.numerique.gouv.fr/api/docs/${process.env.GRIST_DOC_ID}/tables/${tableId}/records?sort=manualSort`,

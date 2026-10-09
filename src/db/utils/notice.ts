@@ -1,6 +1,5 @@
 "use server";
 
-import { cacheLife } from "next/cache";
 
 import db from '@/db';
 import { NoticeData } from '@/types/SpecialiteTypes';
@@ -9,7 +8,6 @@ import { formatNoticeDateNotif } from '@/utils/notices';
 
 export async function getNotice(CIS: string): Promise<NoticeData | undefined> {
   "use cache: remote";
-  cacheLife("hourly");
 
   const noticeRaw = await db
     .selectFrom("notices")
@@ -31,7 +29,6 @@ export async function getNoticesByCIS(
   CISList: number[],
 ): Promise<Pick<NoticeDB, "codeCIS" | "content_html">[]> {
   "use cache: remote";
-  cacheLife("hourly");
 
   return await db
     .selectFrom("notices")

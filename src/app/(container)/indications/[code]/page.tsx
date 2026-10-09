@@ -10,7 +10,6 @@ import { Indication } from "@/db/types";
 import { Metadata, ResolvingMetadata } from "next";
 import { getArticlesFromPatho } from "@/db/utils/articles";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
-import { cacheLife } from "next/cache";
 import { Suspense } from "react";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 
@@ -53,7 +52,6 @@ async function ResolvedIndicationPage({
 
 async function CachedIndicationPage({ code }: { code: `${number}` }) {
   "use cache: remote";
-  cacheLife("daily");
 
   const indication: Indication | undefined = await getIndications(Number(code));
   if (!indication) return notFound();

@@ -9,7 +9,6 @@ import slugify from "slugify";
 import { Fragment } from "react";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { cacheLife } from "next/cache";
 import { withStaticParamFallback } from "@/utils/staticParams";
 
 export async function generateStaticParams() {
@@ -30,7 +29,6 @@ export default async function Page(props: {
 
 async function CachedGlossaryPage({ letter }: { letter: string }) {
   "use cache: remote";
-  cacheLife("daily");
 
   const letters = await getGlossaryLetters();
   if (!letters.includes(letter)) return notFound();

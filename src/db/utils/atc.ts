@@ -1,5 +1,4 @@
 "use server";
-import { cacheLife } from "next/cache";
 
 
 
@@ -18,7 +17,6 @@ import { VISIBLE_SPECIALITE_AVAILABILITIES } from "./specialiteCatalog";
  */
 async function getCISCodesForAtc(atc: ATC): Promise<string[]> {
   "use cache: remote";
-  cacheLife("daily");
 
   if (!atc.children) return [];
   const childCodes = (atc.children as ATC[]).map((child) => child.code);
@@ -39,7 +37,6 @@ async function getCISCodesForAtc(atc: ATC): Promise<string[]> {
  */
 async function buildFullAtcChildren(atc2Code: string): Promise<ATC[]> {
   "use cache: remote";
-  cacheLife("daily");
 
   const rows = await db
     .selectFrom("atc")
@@ -56,7 +53,6 @@ async function buildFullAtcChildren(atc2Code: string): Promise<ATC[]> {
 
 export async function getSubstancesByAtc(atc2: ATC): Promise<Substance[]> {
   "use cache: remote";
-  cacheLife("daily");
   const CIS = await getCISCodesForAtc(atc2);
 
   if (!CIS.length) return [];
@@ -79,7 +75,6 @@ export async function getSubstancesByAtc(atc2: ATC): Promise<Substance[]> {
 
 export async function getAtcMenuItems(): Promise<{ code: string; label: string }[]> {
   "use cache: remote";
-  cacheLife("daily");
     const rows = await db
       .selectFrom("ref_atc_friendly_niveau_1")
       .select(["code", "libelle"])
@@ -89,7 +84,6 @@ export async function getAtcMenuItems(): Promise<{ code: string; label: string }
 
 export async function getAtc(): Promise<ATC1[]> {
   "use cache: remote";
-  cacheLife("daily");
     const rows = await db.selectFrom("ref_atc_friendly_niveau_1")
       .select(["code", "definition_classe", "libelle"])
       .execute();
@@ -120,7 +114,6 @@ export async function getAtc(): Promise<ATC1[]> {
 
 export async function getAtc1(code: string): Promise<ATC1> {
   "use cache: remote";
-  cacheLife("daily");
     const rows = await db.selectFrom("ref_atc_friendly_niveau_1")
       .select(["code", "definition_classe", "libelle"])
       .execute();
@@ -170,7 +163,6 @@ async function buildAtc2(code: string, tableNiveau2: any[]): Promise<ATC> {
 
 export async function getAtc2(code: string): Promise<ATC> {
   "use cache: remote";
-  cacheLife("daily");
     const record = await db.selectFrom("ref_atc_friendly_niveau_2")
       .select(["code", "libelle", "definition_sous_classe"])
       .where("code", "=", code.slice(0, 3))
@@ -270,7 +262,6 @@ export const getResumeSpecsATCLabels = async function (
  */
 export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubstances[]> {
   "use cache: remote";
-  cacheLife("daily");
 
   // Build map of ATC2 code -> CIS codes from the database
   const atc2ToCIS = new Map<string, string[]>();
@@ -341,12 +332,10 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubstances[]
 
 async function getAtc1LabelRows() {
   "use cache: remote";
-  cacheLife("daily");
   return db.selectFrom("ref_atc_friendly_niveau_1").selectAll().execute();
 }
 
 async function getAtc2LabelRows() {
   "use cache: remote";
-  cacheLife("daily");
   return db.selectFrom("ref_atc_friendly_niveau_2").selectAll().execute();
 }

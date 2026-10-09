@@ -5,10 +5,6 @@ import { getSynonymMap } from "./searchSynonyms";
 import { getResumeSpecsATCLabels } from "./atc";
 import { formatSpecialitesResume } from "@/utils/specialites";
 
-vi.mock("next/cache", () => ({
-  cacheLife: vi.fn(),
-}));
-
 const { dbMock, mockExecute } = vi.hoisted(() => {
   const execute = vi.fn();
 
