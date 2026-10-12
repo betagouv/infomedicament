@@ -11,6 +11,7 @@
 /playwright-report
 /test-results
 /medicine-comparison-report
+/load-tests/dist/
 
 # next.js
 /.next/
@@ -45,3 +46,4 @@ next-env.d.ts
 # Local data folder
 /data
 /reports
+/artifacts

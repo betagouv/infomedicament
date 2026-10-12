@@ -8,7 +8,6 @@ import { questionsList, questionKeys } from "@/data/pages/notices_anchors";
 import { QuestionAnchors } from "@/types/NoticesAnchors";
 import { trackEvent } from "@/services/tracking";
 import Image from "next/image";
-import Link from "next/link";
 
 const QuestionsBoxContainer = styled.div`
   display: flex;

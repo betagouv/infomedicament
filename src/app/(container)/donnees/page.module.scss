@@ -1,0 +1,72 @@
+.article {
+  max-width: 72rem;
+  padding-bottom: 3rem;
+
+  section {
+    margin-top: 3rem;
+    scroll-margin-top: 2rem;
+  }
+
+  p,
+  ol,
+  ul {
+    max-width: 52rem;
+  }
+
+  li + li {
+    margin-top: 0.5rem;
+  }
+
+  code {
+    overflow-wrap: anywhere;
+  }
+}
+
+.tableScroll {
+  overflow-x: auto;
+
+  &:focus-visible {
+    outline: 2px solid var(--border-active-blue-france);
+    outline-offset: 2px;
+  }
+}
+
+.table {
+  width: 100%;
+  min-width: 48rem;
+  border-collapse: collapse;
+
+  caption {
+    text-align: left;
+    margin-bottom: 1rem;
+    font-weight: bold;
+  }
+
+  th,
+  td {
+    padding: 1rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--border-default-grey);
+  }
+
+  thead {
+    background: var(--background-alt-grey);
+  }
+
+  th:first-child {
+    width: 25%;
+  }
+
+  td:nth-child(2) {
+    width: 30%;
+  }
+
+  ul {
+    padding-left: 1rem;
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+}

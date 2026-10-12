@@ -8,8 +8,10 @@ import { Specialite } from "@/types/SpecialiteTypes";
 import type { AnsmSpecialiteGroupeGeneriqueRole } from "../types";
 import {
   mapCatalogSpecialite,
+  mapCatalogSpecialiteWithEen,
   VISIBLE_SPECIALITE_AVAILABILITIES,
 } from "./specialiteCatalog";
+import { getEenLabelsByCis } from "./specialiteEen";
 
 const PRINCEPS_ROLES: AnsmSpecialiteGroupeGeneriqueRole[] = [
   "REFERENCE",
@@ -88,44 +90,18 @@ export async function getGenericGroup(
   if (!group) return undefined;
 
   const membersWithEen = members.filter((member) => member.een === "PRESENTS");
-  const excipientRows = membersWithEen.length > 0
-    ? await db
-        .selectFrom("ansm_specialite_excipient_effet_notoire")
-        .innerJoin(
-          "ansm_excipient_effet_notoire",
-          "ansm_excipient_effet_notoire.code",
-          "ansm_specialite_excipient_effet_notoire.code_excipient",
-        )
-        .where(
-          "ansm_specialite_excipient_effet_notoire.cis",
-          "in",
-          membersWithEen.map((member) => member.cis),
-        )
-        .where("ansm_excipient_effet_notoire.libelle", "is not", null)
-        .select([
-          "ansm_specialite_excipient_effet_notoire.cis",
-          "ansm_specialite_excipient_effet_notoire.code_excipient",
-          "ansm_excipient_effet_notoire.libelle",
-        ])
-        .orderBy("ansm_specialite_excipient_effet_notoire.code_excipient")
-        .execute()
-    : [];
-  const excipientsByCis = new Map<string, string[]>();
-  for (const excipient of excipientRows) {
-    if (!excipient.libelle) continue;
-    const labels = excipientsByCis.get(excipient.cis) ?? [];
-    labels.push(excipient.libelle);
-    excipientsByCis.set(excipient.cis, labels);
-  }
+  const eenLabelsByCis = await getEenLabelsByCis(
+    membersWithEen.map((member) => member.cis),
+  );
 
   const princeps: Specialite[] = [];
   const generiques: Specialite[] = [];
 
   for (const member of members) {
-    const specialite = mapCatalogSpecialite(
-      member,
-      excipientsByCis.get(member.cis)?.join(", ") ?? null,
-    );
+    const een = eenLabelsByCis.get(member.cis) ?? null;
+    const specialite = een
+      ? mapCatalogSpecialiteWithEen(member, een)
+      : mapCatalogSpecialite(member);
     if (member.role && PRINCEPS_ROLES.includes(member.role))
       princeps.push(specialite);
     if (member.role && GENERIC_ROLES.includes(member.role))
@@ -224,3 +200,33 @@ export async function isGenericSpecialite(CIS: string): Promise<boolean> {
   );
 }
 
+export async function getGeneriques(codeGroupe: number): Promise<Specialite[]> {
+  return (await getGenericGroup(codeGroupe))?.generiques ?? [];
+}
+
+// Labels of the generic groups of each specialite (a specialite can belong to several groups)
+export async function getGenericGroupsLabelsByCIS(CISList: string[]): Promise<Record<string, string>> {
+  if (CISList.length === 0) return {};
+  const rows = await db
+    .selectFrom("ansm_specialite_groupe_generique")
+    .innerJoin(
+      "ansm_groupe_generique",
+      "ansm_groupe_generique.code_groupe",
+      "ansm_specialite_groupe_generique.code_groupe",
+    )
+    .where("ansm_specialite_groupe_generique.cis", "in", CISList)
+    .where("ansm_specialite_groupe_generique.role", "in", VISIBLE_GENERIC_GROUP_ROLES)
+    .select(["ansm_specialite_groupe_generique.cis", "ansm_groupe_generique.libelle"])
+    .orderBy("ansm_specialite_groupe_generique.code_groupe")
+    .execute();
+
+  const labelsByCIS: Record<string, string[]> = {};
+  for (const row of rows) {
+    if (!row.libelle) continue;
+    const cis = row.cis.trim();
+    labelsByCIS[cis] = [...(labelsByCIS[cis] ?? []), row.libelle.trim()];
+  }
+  return Object.fromEntries(
+    Object.entries(labelsByCIS).map(([cis, labels]) => [cis, labels.join(" ; ")]),
+  );
+}

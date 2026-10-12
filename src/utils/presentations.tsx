@@ -92,13 +92,14 @@ export function dispositifDisplay(dispositifDetails: AggregateDispositifDetails[
 }
 
 function isCaraccomplrecipDetails(details: PresentationPackagingDetail): boolean {
-  if(details.caraccomplrecip) {
-    const find = details.nom_presentation.toLowerCase().trim().indexOf(details.caraccomplrecip.toLowerCase().trim());
-    if(find !== -1){
-      return true;
-    }
-  }
-  return false;
+  if (!details.caraccomplrecip) return false;
+  const normalize = (text: string) => text.toLowerCase().replaceAll("(s)", "")
+    .replace(/\s+/g, " ").trim();
+  const source = normalize(details.nom_presentation);
+  const characteristic = normalize(details.caraccomplrecip);
+  // Source denominations sometimes use a different expanded name for the same material.
+  const acronym = details.caraccomplrecip.match(/\(([A-Z]{2,})\)/)?.[0];
+  return source.includes(characteristic) || (acronym !== undefined && source.includes(acronym.toLowerCase()));
 }
 
 function cleanRecipientDetails(details: PresentationPackagingDetail): AggregateRecipientDetails {
@@ -125,20 +126,19 @@ function sortCleanPresentationsDetails(cleanPresDetails: AggregatePresentationDe
         .map((presRecipient) => {
           //Sort caraccomplrecips
           presRecipient.caraccomplrecips = presRecipient.caraccomplrecips
+            .sort((a, b) => a.numordreedit - b.numordreedit)
             .filter((detailA: AggregateCaraccomplrecipsDetails, indexA: number) => {
               //Only one of each caraccomplrecips
               const findIndex = presRecipient.caraccomplrecips.findIndex(
-                (detailB, indexB) => indexA !== indexB && detailB.caraccomplrecip.toLowerCase().trim() === detailA.caraccomplrecip.toLowerCase().trim()
+                (detailB) => detailB.caraccomplrecip.toLowerCase().trim() === detailA.caraccomplrecip.toLowerCase().trim()
               );
-              if(findIndex === -1 && detailA.caraccomplrecip.toLowerCase().trim() === "pvc"){
+              if(detailA.caraccomplrecip.toLowerCase().trim() === "pvc"){
                 //if PVC-Aluminium is in the list and also PVC : PVC-Aluminium win
                 const findIndexPVC = presRecipient.caraccomplrecips.findIndex((detailB) => detailB.caraccomplrecip.toLowerCase().trim() === "pvc-aluminium");
                 if(findIndexPVC !== -1)
                   return false;
               }
-              if(findIndex === -1 
-                || (findIndex !== -1 && presRecipient.caraccomplrecips[findIndex].numordreedit > detailA.numordreedit)) return true;
-              return false;
+              return findIndex === indexA;
             })
             .sort((a,b) => 
               a.numordreedit && b.numordreedit ? a.numordreedit - b.numordreedit : a.numordreedit ? -1 : b.numordreedit ? 1 : 0
@@ -216,21 +216,52 @@ export function cleanPresentationsDetails(presDetails: PresentationPackagingDeta
   return sortCleanPresentationsDetails(cleanPresDetails);
 }
 
+function sourcePresentationName(presentation: Presentation): string {
+  // Resolve ANSM's optional plurals locally: recipient counts and content counts differ.
+  let name = (presentation.name ?? "").replaceAll("\u001a", "’")
+    .split(" - ").map((recipientPart) => {
+      let count = 1;
+      return recipientPart.split(/(\d+(?:[.,]\d+)?)/).map((part) => {
+        if (/^\d+(?:[.,]\d+)?$/.test(part)) {
+          count = Number(part.replace(",", "."));
+          return part;
+        }
+        return part.replaceAll("(s)", count > 1 ? "s" : "")
+          .replaceAll("al(aux)", count > 1 ? "aux" : "al")
+          .replaceAll("(x)", count > 1 ? "x" : "");
+      }).join("");
+    }).join(" - ").replace(/\s+/g, " ").trim();
+
+  const recipients = cleanPresentationsDetails(presentation.details ?? []).flatMap((detail) => detail.recipients);
+  // Only replace a measured quantity when one recipient and one matching quantity
+  // identify it unambiguously. Mixed packs retain the source's composition.
+  if (recipients.length === 1) {
+    const recipient = recipients[0];
+    const recipientName = replacePluralSingular(recipient.recipient, recipient.nbrrecipient || 1);
+    const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const sourceRecipient = name.match(new RegExp(`^(?:(\\d+)\\s+)?${escape(recipientName)}\\b`, "i"));
+    const sameCount = !sourceRecipient?.[1] || Number(sourceRecipient[1]) === recipient.nbrrecipient;
+    if (sourceRecipient && sameCount && Number.isFinite(recipient.qtecontenance) && recipient.qtecontenance > 0 && unitesMesures.includes(recipient.unitecontenance)) {
+      const quantity = new RegExp(`\\bde\\s+\\d+(?:[.,]\\d+)?\\s+(${escape(recipient.unitecontenance)})(?![\\p{L}\\d/])`, "giu");
+      const quantities = [...name.matchAll(quantity)];
+      const accessoryStart = name.search(/\b(?:avec|dans|et)\b|\+| - /i);
+      if (quantities.length === 1 && (accessoryStart === -1 || quantities[0].index! < accessoryStart)) {
+        name = name.replace(quantity, (_, unit: string) => `de ${recipient.qtecontenance.toLocaleString("fr-FR")} ${unit}`);
+      }
+    }
+  }
+  return name;
+}
+
 export function getPresentationName(
   presentation: Presentation,
   shortName?: boolean,
 ): string {
+  // The denomination carries accessories, materials and mixed-pack composition
+  // that normalized recipient/device rows cannot fully represent.
+  if (!shortName && presentation.name?.trim()) return sourcePresentationName(presentation);
   if(presentation.details && presentation.details.length > 0){
     const allPresDetails: AggregatePresentationDetails[] = cleanPresentationsDetails(presentation.details);
-    // The ANSM name preserves which recipient carries a device. Device rows
-    // only have a CIP, so rebuilding a multi-recipient name loses that link.
-    if (!shortName && presentation.name?.includes(" - ") && /\bavec (?!\d)/i.test(presentation.name) &&
-        allPresDetails.some((details) => details.recipients.length > 1 && details.dispositifs.length > 0)) {
-      return presentation.name.split(" - ").map((part) => {
-        const count = Number(part.trim().match(/^\d+/)?.[0] ?? 1);
-        return replacePluralSingular(part.trim(), count);
-      }).join(" - ");
-    }
     let allPresNames: string = "";
     allPresDetails.forEach((presDetails: AggregatePresentationDetails) => {
       if(presDetails.recipients.length === 0) return;

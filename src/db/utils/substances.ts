@@ -251,9 +251,18 @@ export const getSubstanceDefinition = cache(async function (
   ));
 });
 
+export const getAllSubstancesResumes = cache(
+  async function (): Promise<ResumeSubstance[]> 
+{
+  return db
+    .selectFrom("resume_substances")
+    .selectAll()
+    .orderBy("NomLib")
+    .execute() ;
+});
+
 export const getAllMainSubstancesNames = cache(async function (
 ): Promise<Substance[]> {
-
   const rows = await db
     .selectFrom("ansm_substance_nom")
     .where("type", "=", "CANONIQUE")

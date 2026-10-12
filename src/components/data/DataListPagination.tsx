@@ -19,7 +19,7 @@ function DataListPagination({
   const [currentPageCount, setCurrentPageCount] = useState<number>(1);
 
   useEffect(() => {
-    if(paginationLength > 0){ 
+    if(paginationLength > 0){
       const pageCount =
         Math.trunc(dataLength / paginationLength) +
         (dataLength % paginationLength ? 1 : 0);
@@ -27,7 +27,9 @@ function DataListPagination({
     } else {
       setCurrentPageCount(1);
     }
-  }, [dataLength, paginationLength, setCurrentPageCount]);
+    setCurrentPage(1);
+    updateCurrentPage(1);
+  }, [dataLength, paginationLength, setCurrentPageCount, setCurrentPage, updateCurrentPage]);
 
   function onPaginationChange(pageNumber:number) {
     let newPage = 1;
@@ -38,22 +40,18 @@ function DataListPagination({
     updateCurrentPage(newPage);
   }
   
-  return (
-    <>
-      {currentPageCount > 1 && (
-        <div className={fr.cx("fr-col-12")}>
-          <Pagination
-            className={fr.cx("fr-mt-1w")}
-            count={currentPageCount}
-            defaultPage={currentPage}
-            getPageLinkProps={(page: number) => ({
-              onClick: () => onPaginationChange(page),
-              href: '#',
-            })}
-          />
-        </div>
-      )}
-    </>
+  return currentPageCount > 1 && (
+    <div className={fr.cx("fr-col-12")}>
+      <Pagination
+        className={fr.cx("fr-mt-1w")}
+        count={currentPageCount}
+        defaultPage={currentPage}
+        getPageLinkProps={(page: number) => ({
+          onClick: () => onPaginationChange(page),
+          href: '#',
+        })}
+      />
+    </div>
   );
 };
 

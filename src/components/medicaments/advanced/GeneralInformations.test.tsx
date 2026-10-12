@@ -24,7 +24,6 @@ const specialite: DetailedSpecialite = {
   StatId: null,
   SpecDateAMM: null,
   SpecStatDate: null,
-  urlCentralise: null,
   statutAutorisation: null,
   statutComm: null,
   titulairesList: null,

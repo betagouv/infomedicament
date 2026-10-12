@@ -40,3 +40,9 @@
     background-image:url('pediatric_alert.svg');
     --icon-size: 22px;
 }
+.fr-icon--custom-filters::before,
+.fr-icon--custom-filters::after {
+    background-image:url('filters.svg');
+    background-color: unset;
+    /*background-color: var(--yellow-tournesol-950-100);*/
+}

@@ -8,7 +8,6 @@ const getSubstancesList = async (nomLib: string) =>
   getSubstancesResumeWithLetter(getNormalizeLetter(nomLib.substring(0, 1)));
 
 describe("db utils substances", () => {
-
   it("getAllSubsWithSpecialites - should return only subs with actives specialities", async () => {
     const allSubs = await getAllSubsWithSpecialites();
 

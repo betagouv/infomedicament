@@ -66,7 +66,6 @@ export type DetailedSpecialite = Specialite & {
   StatId: SpecialiteStat | null,
   SpecDateAMM: Date | null,
   SpecStatDate: Date | null,
-  urlCentralise: string | null,
   statutAutorisation: string | null,
   statutComm: string | null,
   titulairesList: string | null,

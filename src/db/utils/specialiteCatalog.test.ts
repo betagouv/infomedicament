@@ -4,6 +4,7 @@ import {
   disponibiliteToDisplayStatus,
   disponibiliteToStatutBdm,
   mapCatalogSpecialite,
+  mapCatalogSpecialiteWithEen,
   mapDetailedSpecialite,
   statutAmmToCompatibilityId,
   statutAmmToDisplayStatus,
@@ -44,6 +45,10 @@ describe("specialite catalog mappings", () => {
     expect(mapCatalogSpecialite(postgresRow).Een).toBeNull();
   });
 
+  it("maps separately loaded EEN labels", () => {
+    expect(mapCatalogSpecialiteWithEen(postgresRow, "Latex").Een).toBe("Latex");
+  });
+
   it("maps PostgreSQL rows without leaking their snake_case shape", () => {
     expect(mapDetailedSpecialite(
       postgresRow,
@@ -67,7 +72,6 @@ describe("specialite catalog mappings", () => {
         titulairesList: "JANSSEN BIOLOGICS BV",
         genericGroupCode: 123,
         referenceSpecialite: { cis: "61234567", name: "PRINCEPS" },
-        urlCentralise: null,
       });
   });
 });

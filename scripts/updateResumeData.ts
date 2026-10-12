@@ -3,7 +3,6 @@ import { pdbmMySQL } from "@/db/pdbmMySQL";
 import { Letters, LetterType, Indication, ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
 import { groupGeneNameToDCI } from "@/displayUtils";
 import { getComposants } from "@/db/utils/composants";
-import { getEvents } from "@/db/utils/ficheInfos";
 import { getSpecialitesIndications } from "@/db/utils/indications";
 import { getAllSpecialites } from "@/db/utils/specialities";
 import { getAllMainSubstancesNames, getAllSubsWithSpecialites } from "@/db/utils/substances";
@@ -18,6 +17,7 @@ import { Specialite } from "@/types/SpecialiteTypes";
 import { findPregnancyPlanAlert } from "@/db/utils/pregnancyCatalog";
 import { Substance } from "@/types/SubstanceTypes";
 import { cleanSubstanceName } from "@/utils/substances";
+import { getEvents } from "@/db/utils/safety";
 
 type DataToResumeType = "indications" | "substances" | "medicaments" | "atc1" | "atc2" | "generiques" | "specialites";
 

@@ -1,3 +1,5 @@
+import type { ResumeSubstance } from "@/db/types";
+
 export interface ATC1 extends ATC {
   children: ATC[];
 }
@@ -9,9 +11,9 @@ export interface ATC {
   children?: ATC[];
 }
 
-export type ATCSubs = {
+export type ATCSubstances = {
   atc: ATC;
-  nbSubstances: number;
+  substances: ResumeSubstance[];
 }
 
 export type ATCLabels = {

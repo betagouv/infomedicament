@@ -3,7 +3,7 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { ATCError } from "@/utils/atc";
-import { ATC, ATC1, ATCLabels, ATCSubs } from "@/types/ATCTypes";
+import { ATC, ATC1, ATCLabels, ATCSubstances } from "@/types/ATCTypes";
 import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import { getResumeSubstancesByNomId } from "./substances";
 import db from "@/db/";
@@ -286,10 +286,10 @@ export const getResumeSpecsATCLabels = async function (
 }
 
 /**
- * Loads substances and specialites for all ATC2 children in a single server call.
- * Before, we were making 2 queries per ATC2 child !
+ * Loads the destination's summary-backed substance list for each ATC2 child.
+ * Composition and summary rows are fetched in bulk across the subclasses.
  */
-export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubs[]> {
+export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubstances[]> {
   // Build map of ATC2 code -> CIS codes from the database
   const atc2ToCIS = new Map<string, string[]>();
   const allCIS: string[] = [];
@@ -304,7 +304,10 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubs[]> {
 
   // Early return if no medications found
   if (uniqueCIS.length === 0) {
-    return atc1.children.map((atc2) => ({ atc: atc2, nbSubstances: 0 }));
+    return atc1.children.map((atc2) => ({
+      atc: atc2,
+      substances: [],
+    }));
   }
 
   const visibleSpecialities = await db
@@ -318,7 +321,7 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubs[]> {
   );
 
   if (substancesWithCIS.length === 0) {
-    return atc1.children.map((atc2) => ({ atc: atc2, nbSubstances: 0 }));
+    return atc1.children.map((atc2) => ({ atc: atc2, substances: [] }));
   }
 
   // Fetch the resume_substances rows for all substances at once (same source the ATC2 page counts from)
@@ -326,13 +329,14 @@ export async function getAtc1DefinitionData(atc1: ATC1): Promise<ATCSubs[]> {
   const allResumeSubstances = await getResumeSubstancesByNomId(allNomIds);
   return atc1.children.map((atc2) => {
     const cisSet = new Set(atc2ToCIS.get(atc2.code) ?? []);
-    const nomIds = new Set(
+    const substancesNomIds = new Set(
       substancesWithCIS
         .filter((s) => s.SpecId && cisSet.has(s.SpecId))
         .map((s) => s.NomId.trim())
     );
-    const nbSubstances = allResumeSubstances.filter((r) => nomIds.has(r.NomId.trim())).length;
-
-    return { atc: atc2, nbSubstances };
+    return {
+      atc: atc2,
+      substances: allResumeSubstances.filter((substance) => substancesNomIds.has(substance.NomId.trim())),
+    };
   });
 }
