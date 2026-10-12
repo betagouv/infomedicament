@@ -1,6 +1,4 @@
-import { PresentationComm, PresentationStat } from "@/db/pdbmMySQL/types";
-import { PresentationDetail } from "@/db/types";
-import { AggregateCaraccomplrecipsDetails, AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
+import { AggregateCaraccomplrecipsDetails, AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation, PresentationCommercialStatus, PresentationPackagingDetail, PresentationRecipientsDetails } from "@/types/PresentationTypes";
 import { capitalize } from "tsafe";
 
 const unitesMesures = [
@@ -17,6 +15,27 @@ const unitesMesures = [
   "ml",
   "UI",
 ];
+
+export function isPresentationVisible(
+  presentation: {
+    commercialStatus: PresentationCommercialStatus;
+    commercialisationEndDate: Date | null;
+    administrativeStatus?: "active" | "abrogated" | "unknown";
+    administrativeStatusDate?: Date | null;
+  },
+  cutoff: Date,
+): boolean {
+  const commercialStatusVisible = presentation.commercialStatus === "commercialised"
+    || (["stopped", "suspended", "withdrawn"].includes(presentation.commercialStatus)
+      && presentation.commercialisationEndDate !== null
+      && presentation.commercialisationEndDate >= cutoff);
+  const administrativeStatusVisible = presentation.administrativeStatus !== "abrogated"
+    || (presentation.administrativeStatusDate !== null
+      && presentation.administrativeStatusDate !== undefined
+      && presentation.administrativeStatusDate >= cutoff);
+
+  return commercialStatusVisible && administrativeStatusVisible;
+}
 
 export function replacePluralSingular(textToReplace: string, nb: number, shortName?: boolean){
   let newText = "";
@@ -72,17 +91,18 @@ export function dispositifDisplay(dispositifDetails: AggregateDispositifDetails[
   return detailsText;
 }
 
-function isCaraccomplrecipDetails(details: PresentationDetail): boolean {
-  if(details.caraccomplrecip) {
-    const find = details.nom_presentation.toLowerCase().trim().indexOf(details.caraccomplrecip.toLowerCase().trim());
-    if(find !== -1){
-      return true;
-    }
-  }
-  return false;
+function isCaraccomplrecipDetails(details: PresentationPackagingDetail): boolean {
+  if (!details.caraccomplrecip) return false;
+  const normalize = (text: string) => text.toLowerCase().replaceAll("(s)", "")
+    .replace(/\s+/g, " ").trim();
+  const source = normalize(details.nom_presentation);
+  const characteristic = normalize(details.caraccomplrecip);
+  // Source denominations sometimes use a different expanded name for the same material.
+  const acronym = details.caraccomplrecip.match(/\(([A-Z]{2,})\)/)?.[0];
+  return source.includes(characteristic) || (acronym !== undefined && source.includes(acronym.toLowerCase()));
 }
 
-function cleanRecipientDetails(details: PresentationDetail): AggregateRecipientDetails {
+function cleanRecipientDetails(details: PresentationPackagingDetail): AggregateRecipientDetails {
   return {
       recipient: details.recipient,
       numrecipient: details.numrecipient,
@@ -106,20 +126,19 @@ function sortCleanPresentationsDetails(cleanPresDetails: AggregatePresentationDe
         .map((presRecipient) => {
           //Sort caraccomplrecips
           presRecipient.caraccomplrecips = presRecipient.caraccomplrecips
+            .sort((a, b) => a.numordreedit - b.numordreedit)
             .filter((detailA: AggregateCaraccomplrecipsDetails, indexA: number) => {
               //Only one of each caraccomplrecips
               const findIndex = presRecipient.caraccomplrecips.findIndex(
-                (detailB, indexB) => indexA !== indexB && detailB.caraccomplrecip.toLowerCase().trim() === detailA.caraccomplrecip.toLowerCase().trim()
+                (detailB) => detailB.caraccomplrecip.toLowerCase().trim() === detailA.caraccomplrecip.toLowerCase().trim()
               );
-              if(findIndex === -1 && detailA.caraccomplrecip.toLowerCase().trim() === "pvc"){
+              if(detailA.caraccomplrecip.toLowerCase().trim() === "pvc"){
                 //if PVC-Aluminium is in the list and also PVC : PVC-Aluminium win
                 const findIndexPVC = presRecipient.caraccomplrecips.findIndex((detailB) => detailB.caraccomplrecip.toLowerCase().trim() === "pvc-aluminium");
                 if(findIndexPVC !== -1)
                   return false;
               }
-              if(findIndex === -1 
-                || (findIndex !== -1 && presRecipient.caraccomplrecips[findIndex].numordreedit > detailA.numordreedit)) return true;
-              return false;
+              return findIndex === indexA;
             })
             .sort((a,b) => 
               a.numordreedit && b.numordreedit ? a.numordreedit - b.numordreedit : a.numordreedit ? -1 : b.numordreedit ? 1 : 0
@@ -147,9 +166,9 @@ function sortCleanPresentationsDetails(cleanPresDetails: AggregatePresentationDe
     });
 }
 
-export function cleanPresentationsDetails(presDetails: PresentationDetail[]): AggregatePresentationDetails[]{
+export function cleanPresentationsDetails(presDetails: PresentationPackagingDetail[]): AggregatePresentationDetails[]{
   const cleanPresDetails:AggregatePresentationDetails[] = [];
-  presDetails.forEach((details: PresentationDetail) => {
+  presDetails.forEach((details: PresentationPackagingDetail) => {
     const index = cleanPresDetails.findIndex((cleanDetails) => cleanDetails.codecip13 === details.codecip13);
     if(index === -1){
       //New element in the presentations
@@ -197,10 +216,50 @@ export function cleanPresentationsDetails(presDetails: PresentationDetail[]): Ag
   return sortCleanPresentationsDetails(cleanPresDetails);
 }
 
+function sourcePresentationName(presentation: Presentation): string {
+  // Resolve ANSM's optional plurals locally: recipient counts and content counts differ.
+  let name = (presentation.name ?? "").replaceAll("\u001a", "’")
+    .split(" - ").map((recipientPart) => {
+      let count = 1;
+      return recipientPart.split(/(\d+(?:[.,]\d+)?)/).map((part) => {
+        if (/^\d+(?:[.,]\d+)?$/.test(part)) {
+          count = Number(part.replace(",", "."));
+          return part;
+        }
+        return part.replaceAll("(s)", count > 1 ? "s" : "")
+          .replaceAll("al(aux)", count > 1 ? "aux" : "al")
+          .replaceAll("(x)", count > 1 ? "x" : "");
+      }).join("");
+    }).join(" - ").replace(/\s+/g, " ").trim();
+
+  const recipients = cleanPresentationsDetails(presentation.details ?? []).flatMap((detail) => detail.recipients);
+  // Only replace a measured quantity when one recipient and one matching quantity
+  // identify it unambiguously. Mixed packs retain the source's composition.
+  if (recipients.length === 1) {
+    const recipient = recipients[0];
+    const recipientName = replacePluralSingular(recipient.recipient, recipient.nbrrecipient || 1);
+    const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const sourceRecipient = name.match(new RegExp(`^(?:(\\d+)\\s+)?${escape(recipientName)}\\b`, "i"));
+    const sameCount = !sourceRecipient?.[1] || Number(sourceRecipient[1]) === recipient.nbrrecipient;
+    if (sourceRecipient && sameCount && Number.isFinite(recipient.qtecontenance) && recipient.qtecontenance > 0 && unitesMesures.includes(recipient.unitecontenance)) {
+      const quantity = new RegExp(`\\bde\\s+\\d+(?:[.,]\\d+)?\\s+(${escape(recipient.unitecontenance)})(?![\\p{L}\\d/])`, "giu");
+      const quantities = [...name.matchAll(quantity)];
+      const accessoryStart = name.search(/\b(?:avec|dans|et)\b|\+| - /i);
+      if (quantities.length === 1 && (accessoryStart === -1 || quantities[0].index! < accessoryStart)) {
+        name = name.replace(quantity, (_, unit: string) => `de ${recipient.qtecontenance.toLocaleString("fr-FR")} ${unit}`);
+      }
+    }
+  }
+  return name;
+}
+
 export function getPresentationName(
   presentation: Presentation,
   shortName?: boolean,
 ): string {
+  // The denomination carries accessories, materials and mixed-pack composition
+  // that normalized recipient/device rows cannot fully represent.
+  if (!shortName && presentation.name?.trim()) return sourcePresentationName(presentation);
   if(presentation.details && presentation.details.length > 0){
     const allPresDetails: AggregatePresentationDetails[] = cleanPresentationsDetails(presentation.details);
     let allPresNames: string = "";
@@ -244,18 +303,19 @@ export function getPresentationName(
       return allPresNames;
   }
 
-  const index = presentation.PresNom01.indexOf("stylo prérempli");
+  const name = presentation.name ?? "";
+  const index = name.indexOf("stylo prérempli");
   if(index !== -1){
     if(index === 0){
-      return capitalize(presentation.PresNom01);
+      return capitalize(name);
     }
-    const qt = presentation.PresNom01.substring(0, index).trim();
-    if(!isNaN(Number(qt)) && Number(qt) > 1 && Number(presentation.PresNum) <= 1){
-      return presentation.PresNom01.replaceAll("stylo prérempli", "stylos préremplis");
+    const qt = name.substring(0, index).trim();
+    if(!isNaN(Number(qt)) && Number(qt) > 1){
+      return name.replaceAll("stylo prérempli", "stylos préremplis");
     }
   }
 
-  return presentation.PresNom01;
+  return name;
 }
 
 export function getAggregatePresentationRecipientsTexts(
@@ -285,13 +345,13 @@ export function getAggregatePresentationRecipientsTexts(
 export function getPresentationFullPriceText(
   presentation: Presentation
 ): string {
-  if(presentation.PPF && presentation.TauxPriseEnCharge) {
+  if(presentation.retailPrice && presentation.reimbursementRate) {
     const price: string = Intl.NumberFormat(
       "fr-FR", {
         style: "currency",
         currency: "EUR",
-      }).format(presentation.PPF);
-    return `Prix ${price} - remboursé à ${presentation.TauxPriseEnCharge}`;               
+      }).format(presentation.retailPrice);
+    return `Prix ${price} - remboursé à ${presentation.reimbursementRate}`;
   } else {
     return "Prix libre - non remboursable";
   }                 
@@ -300,8 +360,8 @@ export function getPresentationFullPriceText(
 export function getPresentationTauxPriseEnChargeText(
   presentation: Presentation
 ): string {
-  if(presentation.TauxPriseEnCharge) {
-    return `remboursé à ${presentation.TauxPriseEnCharge}`;
+  if(presentation.reimbursementRate) {
+    return `remboursé à ${presentation.reimbursementRate}`;
   } else {
     return "non remboursable";
   }                 
@@ -310,12 +370,12 @@ export function getPresentationTauxPriseEnChargeText(
 export function getPresentationPriceText(
   presentation: Presentation
 ): string {
-  if(presentation.PPF) {
+  if(presentation.retailPrice) {
     const price: string = Intl.NumberFormat(
       "fr-FR", {
         style: "currency",
         currency: "EUR",
-      }).format(presentation.PPF);
+      }).format(presentation.retailPrice);
     return price;
   } else {
     return "Prix libre";
@@ -323,47 +383,61 @@ export function getPresentationPriceText(
 }
 
 export function isAbrogee(presentation: Presentation): boolean {
-  if(presentation.StatId && Number(presentation.StatId) === PresentationStat.Abrogation)
-    return true;
-  return false;
+  return presentation.administrativeStatus === "abrogated";
 }
 
 export function isArret(presentation: Presentation): boolean {
-  if(presentation.CommId && Number(presentation.CommId) === PresentationComm.Arrêt)
-    return true;
-  return false;
+  return presentation.commercialStatus === "stopped";
 }
 
 export function isNotAuthorized(presentation: Presentation): boolean {
-  if(presentation.CommId && Number(presentation.CommId) === PresentationComm["Plus d'autorisation"])
-    return true;
-  return false;
+  return presentation.commercialStatus === "withdrawn";
 }
 
 export function isAgree(presentation: Presentation): boolean {
-  if(presentation.AgreColl && presentation.AgreColl === 1)
-    return true;
-  return false;
+  return presentation.communityApproval === true;
 }
 
 export function isListeSus(presentation: Presentation): boolean {
-  if(presentation.retro && presentation.retro.ListSus === "oui")
-    return true;
-  return false;
+  return presentation.additionalList === true;
 }
 
 export function isListeRetrocession(presentation: Presentation): boolean {
-  if(presentation.retro && presentation.retro.Retro === "oui")
-    return true;
-  return false;
+  return presentation.retrocessionList === true;
 }
 
 export function isIVG(presentation: Presentation): boolean {
-  if(presentation.retro && presentation.retro.IVG === "oui")
-    return true;
-  return false;
+  return presentation.ivgPricing === true;
 }
 
 export function isReimbursable(presentations: Presentation[]): boolean {
-  return presentations.some((pres) => pres.TauxPriseEnCharge);
+  return presentations.some((pres) => pres.reimbursementRate);
+}
+
+export function formatPresentationCip(presentation: Pick<Presentation, "cip7" | "cip13">): string {
+  const cip13 = presentation.cip13.trim();
+  const cip7 = presentation.cip7?.trim() ?? "";
+  // Exemple: 325 047-6 
+  const formattedCip13 = /^\d{13}$/.test(cip13)
+    ? `${cip13.slice(0, 5)} ${cip13.slice(5, 8)} ${cip13.slice(8, 11)} ${cip13.slice(11, 12)} ${cip13.slice(12)}`
+    : cip13;
+  // Exemple: 34009 325 047 6 3
+  const formattedCip7 = /^\d{7}$/.test(cip7)
+    ? `${cip7.slice(0, 3)} ${cip7.slice(3, 6)}-${cip7.slice(6)}`
+    : cip7;
+  return formattedCip7 ? `${formattedCip7} ou ${formattedCip13}` : formattedCip13;
+}
+
+export function getPresentationNonCommercializedStatusLabel(presentation: Presentation): string | null {
+  if (isArret(presentation)) return "Déclaration d'arrêt de commercialisation";
+  if (presentation.commercialStatus === "suspended") return "Suspension de commercialisation";
+  if (isNotAuthorized(presentation)) return "Arrêt de commercialisation (le médicament n'a plus d'autorisation)";
+  return null;
+}
+
+export function getPresentationNonCommercializedBadgeLabel(presentation: Presentation): string | null {
+  if (isArret(presentation)) return "Arrêt";
+  if (presentation.commercialStatus === "suspended") return "Commercialisation suspendue";
+  if (isNotAuthorized(presentation)) return "Autorisation retirée";
+  return null;
 }

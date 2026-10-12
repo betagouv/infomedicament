@@ -25,7 +25,7 @@ const validAlbertResponse = {
         answer: "Ne pas dépasser la dose recommandée.",
         section_anchor: "Ann3bCommentPrendre",
         sub_header: "",
-        block_id: "[block-98622]",
+        block_id: "document-b98622",
         quote: "Ne pas dépasser la dose recommandée.",
       }),
     },
@@ -42,7 +42,7 @@ describe("notice-search route (integration)", () => {
     expect(body.hits).toHaveLength(1);
     expect(body.hits[0].answer).toBe("Ne pas dépasser la dose recommandée.");
     expect(body.hits[0].section_anchor).toBe("Ann3bCommentPrendre");
-    expect(body.hits[0].block_id).toBe("98622");
+    expect(body.hits[0].block_id).toBe("document-b98622");
     expect(body.hits[0].quote).toBe("Ne pas dépasser la dose recommandée.");
   });
 

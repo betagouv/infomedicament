@@ -2,15 +2,14 @@
 
 import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
-import { SpecComposant, SpecDelivrance, SubstanceNom } from "@/db/pdbmMySQL/types";
+import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { HTMLAttributes, useState } from "react";
 import styled, { css } from 'styled-components';
 import DetailedSubMenu, { AnchorMenu } from "./advanced/DetailedSubMenu";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { Marr } from "@/types/MarrTypes";
-import { NoticeRCPContentBlock } from "@/types/SpecialiteTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
-import { DetailedSpecialite } from "@/types/SpecialiteTypes";
+import { DelivranceCondition, DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import MedicamentContentHeaderBlock from "./blocks/MedicamentContentHeaderBlock";
 import { FicheInfos } from "@/types/FicheInfoTypes";
@@ -22,6 +21,8 @@ import { PregnancyAlert } from "@/types/PregancyTypes";
 import DesktopTitleBlock from "./blocks/DesktopTitleBlock";
 import SwitchNoticeAdvancedBlock from "./blocks/SwitchNoticeAdvancedBlock";
 import { displayInfosImportantes } from "@/utils/notices";
+import { ShortIndication } from "@/types/IndicationsTypes";
+import { AnsmStock } from "@/types/StockTypes";
 
 const AdvancedContentContainer = styled.div`
   @media (max-width: 48em) {
@@ -46,9 +47,10 @@ const DetailedNoticeContainer = styled.div<{ $visible: boolean; }> `
 interface AdvancedContentProps extends HTMLAttributes<HTMLDivElement> {
   atcCode?: string;
   specialite?: DetailedSpecialite;
-  composants: Array<SpecComposant & SubstanceNom>;
+  composants: CompositionComponent[];
   isPrinceps: boolean;
-  delivrance: SpecDelivrance[];
+  isGeneric: boolean;
+  delivrance: DelivranceCondition[];
   pregnancyPlanAlert: PregnancyAlert | undefined;
   isPregnancyMentionAlert: boolean;
   pediatrics: PediatricsInfo | undefined;
@@ -56,9 +58,11 @@ interface AdvancedContentProps extends HTMLAttributes<HTMLDivElement> {
   marr?: Marr;
   ficheInfos?: FicheInfos;
   definitions?: Definition[];
-  indicationsBlock?: NoticeRCPContentBlock;
+  indications: ShortIndication[];
+  indicationsBlock?: string;
   advancedAnchor?: AnchorMenu;
   title: string;
+  stocks: AnsmStock[];
   onGoToAdvanced: (advanced: boolean) => void;
 }
 
@@ -67,6 +71,7 @@ function AdvancedContent({
   specialite,
   composants,
   isPrinceps,
+  isGeneric,
   delivrance,
   pregnancyPlanAlert,
   isPregnancyMentionAlert,
@@ -75,9 +80,11 @@ function AdvancedContent({
   marr,
   ficheInfos,
   definitions,
+  indications,
   indicationsBlock,
   advancedAnchor,
   title,
+  stocks,
   onGoToAdvanced,
   ...props
 }: AdvancedContentProps) {
@@ -101,6 +108,7 @@ function AdvancedContent({
           updateVisiblePart={setCurrentPart}
           isMarr={(marr && marr.pdf.length > 0)}
           isInfosImportantes={displayInfosImportantes(ficheInfos)}
+          isStock={stocks.length > 0}
           anchor={advancedAnchor}
         />
       </ContentContainer>
@@ -126,9 +134,11 @@ function AdvancedContent({
             updateVisiblePart={setCurrentPart}
             marr={marr}
             ficheInfos={ficheInfos}
-            indicationsBlock={indicationsBlock}
             delivrance={delivrance}
             definitions={definitions}
+            indications={indications}
+            indicationsBlock={indicationsBlock}
+            stocks={stocks}
           />
         </DetailedNoticeContainer>
         <DetailedNoticeContainer id="rcp-denomiation" $visible={currentPart === DetailsNoticePartsEnum.RCP}>
@@ -139,7 +149,8 @@ function AdvancedContent({
         <DetailedNoticeContainer id="document-has" $visible={currentPart === DetailsNoticePartsEnum.HAS}>
           <DocumentHas 
             ficheInfos={ficheInfos}
-            SpecGenId={specialite && specialite.SpecGeneId}
+            genericGroupCode={specialite?.genericGroupCode}
+            isGeneric={isGeneric}
             definitions={definitions}
           />
         </DetailedNoticeContainer>

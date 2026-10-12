@@ -5,6 +5,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes, useState } from "react";
 import styled from 'styled-components';
 import { trackEvent } from "@/services/tracking";
+import { useIsHydrated } from "@/hooks/useIsHydrated";
 
 const ToggleSwitchContainer = styled.div`
   background-color: var(--background-contrast-info);
@@ -37,6 +38,7 @@ function SwitchNoticeAdvancedBlock({
 }: SwitchNoticeAdvancedBlockProps) {
 
   const [isCurrentAdvanced, setIsAdvanced] = useState<boolean>(isAdvanced);
+  const isHydrated = useIsHydrated();
 
   const onSwitchAdvanced = (enabled: boolean) => {
     setIsAdvanced(enabled);
@@ -52,6 +54,7 @@ function SwitchNoticeAdvancedBlock({
         inputTitle="Version détaillée"
         helperText="(RCP, données avancées...)"
         showCheckedHint={false}
+        disabled={!isHydrated}
         checked={isCurrentAdvanced}
         onChange={(enabled) => {
           onSwitchAdvanced(enabled);

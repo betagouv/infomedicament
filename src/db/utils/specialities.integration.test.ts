@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { getAllSpecialites, getDetailedSpecialite, getSpecialite, getSubstanceSpecialites, getSubstanceSpecialitesCIS } from "./specialities";
+import { isPrincepsSpecialite } from "./generics";
+import { isHospitalDelivrance } from "@/utils/specialites";
 
 // disable cache for testing
 vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
@@ -45,6 +47,16 @@ describe("db utils specialities", () => {
     expect(delivrance).not.toHaveLength(0);
   })
 
+  it("reads delivery conditions and hospital use from PostgreSQL", async () => {
+    const { delivrance } = await getSpecialite("60199966");
+
+    expect(delivrance).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 120, longLabel: "liste I" }),
+      expect.objectContaining({ code: 3, longLabel: "réservé à l'usage HOSPITALIER" }),
+    ]));
+    expect(isHospitalDelivrance(delivrance)).toBe(true);
+  });
+
   it("getSubstanceSpecialitesCIS - should return CIS only with actives specialities", async () => {
     //Paracétamol
     const CISList = await getSubstanceSpecialitesCIS("02202");
@@ -70,4 +82,44 @@ describe("db utils specialities", () => {
     expect(isInactiveSpec).toBe(-1);
     expect(isActiveSpec).not.toBe(-1);
   })
+
+  it("requires the complete requested substance set", async () => {
+    const paracetamolOnly = await getSubstanceSpecialitesCIS("02202");
+    const paracetamolAndCodeine = await getSubstanceSpecialitesCIS(["02202", "90530"]);
+
+    expect(paracetamolOnly).not.toContain("60009573");
+    expect(paracetamolAndCodeine).toContain("60009573");
+  });
+
+  it("maps a partially available medicine to the public unavailable warning", async () => {
+    const specialite = await getDetailedSpecialite("61651634");
+
+    expect(specialite?.StatutBdm).toBe(2);
+  });
+
+  it("does not treat non-reference generic-group members as princeps", async () => {
+    expect(await isPrincepsSpecialite("66663761")).toBe(false);
+    expect(await isPrincepsSpecialite("64783769")).toBe(false);
+  });
+
+  it("identifies a princeps through its generic-group role", async () => {
+    expect(await isPrincepsSpecialite("67541600")).toBe(true);
+  });
+
+  it("uses textual procedure values", async () => {
+    expect((await getDetailedSpecialite("60928110"))?.ProcId).toBe("IMPORTATION_PARALLELE");
+    expect((await getDetailedSpecialite("60123598"))?.ProcId).toBe("HOMEOPATHIQUE_NATIONALE");
+  });
+
+  it("uses the authorization abrogation event date", async () => {
+    const firstDate = (await getDetailedSpecialite("65701038"))?.SpecStatDate;
+    const secondDate = (await getDetailedSpecialite("69174918"))?.SpecStatDate;
+
+    expect(firstDate?.getFullYear()).toBe(2021);
+    expect(firstDate?.getMonth()).toBe(9);
+    expect(firstDate?.getDate()).toBe(22);
+    expect(secondDate?.getFullYear()).toBe(2025);
+    expect(secondDate?.getMonth()).toBe(6);
+    expect(secondDate?.getDate()).toBe(25);
+  });
 });

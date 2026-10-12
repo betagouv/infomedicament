@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { fr } from "@codegouvfr/react-dsfr";
-import AutocompleteSearch from "@/components/AutocompleteSearch";
+import AutocompleteSearch from "@/components/search/autocomplete/AutocompleteSearch";
 import { getArticles } from "@/db/utils/articles";
 import { getMarketedMedicamentCount } from "@/db/utils/specialities";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
@@ -26,7 +26,7 @@ export default async function Page() {
               Trouvez instantanément les informations claires, précises et officielles sur vos médicaments, en toute simplicité !
             </h1>
             <p className="fr-text--sm">
-              Infomédicament comprend tous les médicaments dont les {marketedCount.toLocaleString("fr-FR")} actuellement commercialisés.
+              Info Médicament comprend tous les médicaments dont les {marketedCount.toLocaleString("fr-FR")} actuellement commercialisés ou ayant été commercialisés durant les trois dernières années en France.
             </p>
             <AutocompleteSearch inputName="s" />
             <p className="fr-text--sm">

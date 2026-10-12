@@ -23,7 +23,6 @@ const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
     border-radius: 8px 8px 0 0;
   `}
 `;
-
 const Container = styled.div`
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
@@ -33,13 +32,11 @@ const Container = styled.div`
     cursor: pointer;
   }
 `;
-
 const DetailsContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
 `;
-
 const RowToColumnContainer = styled.div`
   @media (max-width: 48em) {
     display: flex;
@@ -49,7 +46,6 @@ const RowToColumnContainer = styled.div`
     }
   }
 `;
-
 const SpecName = styled.span`
   color: var(--grey-200-850);
   font-weight: bold;
@@ -66,12 +62,6 @@ const DarkGreyText = styled.span`
 const RedText = styled.span`
   color: var(--text-default-warning);
 `;
-const GreenText = styled.span`
-  color: var(--text-default-success);
-`;
-const YellowText = styled.span`
-  color: var(--yellow-tournesol-main-731);
-`;
 const FiltersTagContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -80,6 +70,9 @@ const FiltersTagContainer = styled.div`
     margin-right: 0.5rem;
     margin-top: 0.2rem;
   }
+`;
+const SpecLine = styled.li`
+  display: flex;
 `;
 
 interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
@@ -259,7 +252,7 @@ function DataBlockAccordion({
           <GreyText className={fr.cx("fr-text--sm")}>Consultez la notice de :</GreyText>
           <ul className={fr.cx("fr-raw-list", "fr-pl-0")}>
             {specialites.map((specialite, i) => (
-              <li key={i} className={fr.cx("fr-mb-1v")}>
+              <SpecLine key={i} className={fr.cx("fr-mb-1v")}>
                 <Link
                   href={`/medicaments/${specialite.SpecId}`}
                   className={fr.cx("fr-text--sm", "fr-link")}
@@ -287,7 +280,7 @@ function DataBlockAccordion({
                     )}
                   </FiltersTagContainer>
                 )}
-              </li>
+              </SpecLine>
             ))}
           </ul>
         </div>

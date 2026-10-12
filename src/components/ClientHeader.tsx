@@ -2,7 +2,7 @@
 
 import { Header } from "@codegouvfr/react-dsfr/Header";
 import Image from "next/image";
-import { AutocompleteSearchInput } from "@/components/AutocompleteSearch";
+import { AutocompleteSearchInput } from "@/components/search/autocomplete/AutocompleteSearch";
 import { useRouter } from "next/navigation";
 import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 import { useTracking } from "@/services/tracking";
@@ -46,7 +46,7 @@ export default function ClientHeader({
       serviceTagline="La référence officielle sur les données des médicaments"
       quickAccessItems={[
         {
-          iconId: 'fr-icon-arrow-left-right-fill',
+          iconId: 'ri-arrow-left-right-fill',
           linkProps: {
             href: "/interactions",
             prefetch: false,
@@ -55,7 +55,7 @@ export default function ClientHeader({
           text: "Interactions entre médicaments",
         },
         {
-          iconId: 'fr-icon-speak-fill',
+          iconId: 'ri-speak-fill',
           linkProps: {
             href: "https://signalement.social-sante.gouv.fr/",
             target: "_blank",

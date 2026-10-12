@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useState } from "react";
+import React, { createContext, useCallback, useRef, useState } from "react";
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import { Definition } from "@/types/GlossaireTypes";
 
@@ -27,36 +27,26 @@ export default function GlossaryContextProvider({
   children: React.ReactNode;
 }) {
   const [definitions, setGlossary] = useState<Definition[]>([]);
-  const [modals, setModals] = useState<
+  const modals = useRef<
     Record<string, ReturnType<typeof createModal>>
   >({});
 
   // We create modals in the context provider to avoid creating them multiple times
   // in WithDefinition on one side and in DefinitionModal on the other side
   // Creating the same modal twice from different places would lead to a bug
-  const getDefinitionModalAndUpdateGlossary = (
+  const getDefinitionModalAndUpdateGlossary = useCallback((
     definition: Definition,
   ): ReturnType<typeof createModal> => {
-    if (
-      !definitions.find(
-        (def) => def.nom === definition.nom,
-      )
-    ) {
-      setGlossary([...definitions, definition]);
-    }
-
-    if (!modals[definition.nom]) {
-      setModals({
-        ...modals,
-        [definition.nom]: createModal({
-          isOpenedByDefault: false,
-          id: `Definition-${definition.nom}`,
-        }),
+    if (!modals.current[definition.nom]) {
+      setGlossary((currentDefinitions) => [...currentDefinitions, definition]);
+      modals.current[definition.nom] = createModal({
+        isOpenedByDefault: false,
+        id: `Definition-${definition.nom}`,
       });
     }
 
-    return modals[definition.nom];
-  };
+    return modals.current[definition.nom];
+  }, []);
 
   return (
     <GlossaryContext.Provider

@@ -8,7 +8,6 @@ import { questionsList, questionKeys } from "@/data/pages/notices_anchors";
 import { QuestionAnchors } from "@/types/NoticesAnchors";
 import { trackEvent } from "@/services/tracking";
 import Image from "next/image";
-import Link from "next/link";
 
 const QuestionsBoxContainer = styled.div`
   display: flex;
@@ -66,21 +65,18 @@ const SearchRow = styled.div`
 interface QuestionsBoxProps extends HTMLAttributes<HTMLDivElement> {
   currentQuestion: string | undefined;
   updateCurrentQuestion: (question: string) => void;
-  updateNoticeContainerClassName: (className: string) => void;
   onSearch: (query: string) => void;
 }
 
 function QuestionsBox({
   currentQuestion,
   updateCurrentQuestion,
-  updateNoticeContainerClassName,
   onSearch,
   ...props
 }: QuestionsBoxProps) {
   const [searchValue, setSearchValue] = useState("");
 
   const onClick = (anchorData: QuestionAnchors) => {
-    updateNoticeContainerClassName("highlight-" + anchorData.id);
     updateCurrentQuestion(anchorData.id);
     trackEvent("Boîte questions", anchorData.tracking);
   };

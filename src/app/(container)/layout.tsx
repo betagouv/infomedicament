@@ -52,6 +52,12 @@ export default async function ContainerLayout({
         }}
         bottomItems={[
           {
+            text: "Données",
+            linkProps: {
+              href: "/donnees",
+            },
+          },
+          {
             text: "À propos",
             linkProps: {
               href: "/a-propos",

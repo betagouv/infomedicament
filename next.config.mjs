@@ -16,7 +16,7 @@ const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-inline' ${process.env.NEXT_PUBLIC_MATOMO_URL}${isDev ? " 'unsafe-eval'" : ''};
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: ${process.env.NEXT_PUBLIC_MATOMO_URL};
+    img-src 'self' blob: data: ${process.env.NEXT_PUBLIC_MATOMO_URL} ${process.env.NEXT_PUBLIC_S3_URL};
     font-src 'self';
     object-src 'none';
     base-uri 'self';
@@ -25,6 +25,7 @@ const cspHeader = `
     upgrade-insecure-requests;
     media-src 'self';
     connect-src 'self' ${process.env.NEXT_PUBLIC_MATOMO_URL} https://sentry.incubateur.net;
+    frame-src https://www.youtube.com/;
 `
 
 // Same as cspHeader but allows any domain to embed via iframe (for /interactions/embed)
