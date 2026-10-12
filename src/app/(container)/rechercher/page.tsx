@@ -1,92 +1,116 @@
 import { getSearchResults, getSynonymSuggestion } from "@/db/utils";
-import SearchPage from "@/components/search/SearchPage";
-import AutocompleteSearch from "@/components/search/autocomplete/AutocompleteSearch";
-import SearchResultsList from "@/components/search/SearchResultsList";
+import { getCachedAdvancedSearchResults } from "@/db/utils/advancedSearch";
+import SearchPage, {
+  SearchResultsContent,
+} from "@/components/search/SearchPage";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { fr } from "@codegouvfr/react-dsfr";
-import { Suspense } from "react";
+import AutocompleteSearch from "@/components/search/autocomplete/AutocompleteSearch";
 import SearchResultsLoading from "@/components/search/SearchResultsLoading";
+import {
+  advancedSearchParams,
+  parseAdvancedSearch,
+  hasAdvancedSearchRequest,
+  getAdvancedSearchDraft,
+} from "@/utils/advancedSearch";
+import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
+import { Suspense } from "react";
 
-type SearchParams = { searchParams?: Promise<Record<string, string>> };
+export default function Page(props: {
+  searchParams?: Promise<Record<string, string>>;
+}) {
+  return (
+    <Suspense fallback={<PageLoadingFallback />}>
+      <SearchResults searchParams={props.searchParams} />
+    </Suspense>
+  );
+}
 
-export default function Page(props: SearchParams) {
+async function SearchResults(props: {
+  searchParams?: Promise<Record<string, string | string[]>>;
+}) {
+  const searchParams = new URLSearchParams();
+  Object.entries((await props.searchParams) ?? {}).forEach(([key, value]) => {
+    (Array.isArray(value) ? value : [value]).forEach((item) =>
+      searchParams.append(key, item),
+    );
+  });
+  let search = searchParams.get("s")?.trim() ?? "";
+  let advancedCriteria;
+  try {
+    advancedCriteria = parseAdvancedSearch(searchParams);
+    // Advanced UI searches use only the visible criteria, including legacy URLs with s.
+    if (advancedCriteria) search = "";
+    if (search.length > 200)
+      throw new Error("La recherche est limitée à 200 caractères.");
+  } catch (error) {
+    const draft = getAdvancedSearchDraft(searchParams);
+    return (
+      <SearchPage
+        key={searchParams.toString()}
+        search={draft ? undefined : search}
+        advancedCriteria={draft}
+        searchError={(error as Error).message}
+      />
+    );
+  }
+  const hasSearchRequest = advancedCriteria
+    ? hasAdvancedSearchRequest(searchParams, advancedCriteria)
+    : Boolean(search);
   return (
     <SearchPage
+      key={`${advancedSearchParams(search, advancedCriteria)}:${hasSearchRequest}`}
+      advancedCriteria={advancedCriteria}
+      search={search || undefined}
       searchInput={
-        <Suspense fallback={<AutocompleteSearch inputName="s" />}>
-          <SearchInput searchParams={props.searchParams} />
-        </Suspense>
+        <AutocompleteSearch inputName="s" initialValue={search || undefined} />
       }
     >
-      <Suspense fallback={<SearchResultsLoading />}>
-        <ResultsForQuery searchParams={props.searchParams} />
+      <Suspense
+        key={searchParams.toString()}
+        fallback={<SearchResultsLoading search={search || undefined} />}
+      >
+        <Results
+          search={search}
+          advancedCriteria={advancedCriteria}
+          hasSearchRequest={hasSearchRequest}
+        />
       </Suspense>
     </SearchPage>
   );
 }
 
-async function SearchInput({ searchParams }: SearchParams) {
-  const params = await searchParams;
-  return (
-    <AutocompleteSearch
-      key={params?.s || ""}
-      inputName="s"
-      initialValue={params?.s || undefined}
-    />
-  );
-}
-
-async function ResultsForQuery({
-  searchParams: searchParamsPromise,
-}: SearchParams) {
-  const searchParams = await searchParamsPromise;
-  const search = searchParams?.s;
-  return (
-    <Suspense
-      key={search || ""}
-      fallback={<SearchResultsLoading search={search} />}
-    >
-      <SearchResults search={search} />
-    </Suspense>
-  );
-}
-
-async function SearchResults({ search }: { search?: string }) {
-  const [results, synonymTerms] = search
+async function Results({
+  search,
+  advancedCriteria,
+  hasSearchRequest,
+}: {
+  search: string;
+  advancedCriteria?: import("@/utils/advancedSearch").AdvancedSearchCriteria;
+  hasSearchRequest: boolean;
+}) {
+  const [results, synonymTerms] = hasSearchRequest
     ? await Promise.all([
-        getSearchResults(search),
-        getSynonymSuggestion(search),
+        advancedCriteria
+          ? getCachedAdvancedSearchResults(search, advancedCriteria)
+          : getSearchResults(search),
+        search && !advancedCriteria
+          ? getSynonymSuggestion(search)
+          : Promise.resolve([]),
       ])
     : [[], []];
+  // const articlesList = results.length > 0
+  //   ? await getArticlesFromSearchResults(results)
+  //   : [];
 
   return (
     <>
-      {synonymTerms.length > 0 && (
-        <div className={fr.cx("fr-grid-row")}>
-          <p
-            className={fr.cx(
-              "fr-col-12",
-              "fr-col-lg-9",
-              "fr-col-md-10",
-              "fr-text--sm",
-              "fr-mb-2w",
-            )}
-            style={{ color: "var(--text-mention-grey)" }}
-          >
-            Vouliez-vous dire : <strong>{synonymTerms.join(", ")}</strong> ?
-          </p>
-        </div>
-      )}
-      {results.length > 0 ? (
-        <SearchResultsList resultsList={results} search={search || undefined} />
-      ) : (
-        <div className={fr.cx("fr-grid-row", "fr-mt-3w")}>
-          <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
-            Il n’y a aucun résultat.
-          </div>
-        </div>
-      )}
-      <RatingToaster pageId={`Recherche ${search || ""}`} />
+      <SearchResultsContent
+        advancedCriteria={advancedCriteria}
+        search={search ? search : undefined}
+        searchResults={hasSearchRequest ? results : undefined}
+        synonymTerms={synonymTerms}
+      />
+      <RatingToaster pageId={`Recherche ${search ? search : ""}`} />
     </>
   );
 }

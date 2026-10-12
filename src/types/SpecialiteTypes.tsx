@@ -33,6 +33,10 @@ export enum SpecialiteStat {
   "Archivée" = 60,
 }
 
+export const authorizationStatusLabels = Object.values(SpecialiteStat).filter(
+  (value): value is string => typeof value === "string",
+);
+
 export type SpecialiteAlerts = {
   pediatrics?: PediatricsInfo,
   pregnancyMentionAlert?: boolean;

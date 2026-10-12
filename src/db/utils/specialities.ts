@@ -68,7 +68,6 @@ export async function getDetailedSpecialite(CIS: string): Promise<DetailedSpecia
     const row = await db
       .selectFrom("ansm_specialite")
       .where("cis", "=", CIS)
-      .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
       .selectAll()
       .executeTakeFirst();
 

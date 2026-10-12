@@ -4,6 +4,7 @@ import { HTMLAttributes } from "react";
 import Link from "next/link";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from "styled-components";
+import Badge from "@codegouvfr/react-dsfr/Badge";
 import DataBlockGenericIcons from "./DataBlockGenericIcons";
 import { formatSpecName } from "@/displayUtils";
 import {
@@ -29,6 +30,22 @@ const ResultLink = styled(Link)`
 const FilterTitle = styled.span`
   color: var(--text-mention-grey);
 `;
+
+const AdvancedDetails = styled.span`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-top: 0.75rem;
+  color: var(--text-mention-grey);
+  .fr-badge {
+    white-space: normal;
+  }
+`;
+
+function dateLabel(date: string): string {
+  return date.split("-").reverse().join("/");
+}
 
 interface DataBlockSpecResultProps extends HTMLAttributes<HTMLDivElement> {
   specialite: SearchResultItem;
@@ -88,6 +105,55 @@ function DataBlockSpecResult({
           <span>
             <strong>{prefixName}</strong>
             {suffixName}
+            {specialite.isHistorical && (
+              <span className={fr.cx("fr-text--sm")}>
+                <br />
+                Spécialité historique · indisponible dans le catalogue ANSM
+              </span>
+            )}
+            {specialite.advancedDetails && (
+              <AdvancedDetails className={fr.cx("fr-text--sm")}>
+                <Badge as="span" small noIcon>
+                  <span>
+                    {specialite.advancedDetails.authorizationStatus ??
+                      "Autorisation non renseignée"}
+                    {specialite.advancedDetails.authorizationDate && (
+                      <>
+                        {" "}
+                        (autorisation du{" "}
+                        <time
+                          dateTime={
+                            specialite.advancedDetails.authorizationDate
+                          }
+                        >
+                          {dateLabel(
+                            specialite.advancedDetails.authorizationDate,
+                          )}
+                        </time>
+                        )
+                      </>
+                    )}
+                  </span>
+                </Badge>
+                <Badge as="span" small noIcon severity="info">
+                  {specialite.advancedDetails.commercialisation}
+                </Badge>
+                <span>
+                  {specialite.advancedDetails.rcpUpdatedAt ? (
+                    <>
+                      RCP mis à jour le{" "}
+                      <time dateTime={specialite.advancedDetails.rcpUpdatedAt}>
+                        {dateLabel(specialite.advancedDetails.rcpUpdatedAt)}
+                      </time>
+                    </>
+                  ) : specialite.advancedDetails.hasRcp ? (
+                    "RCP : date non renseignée"
+                  ) : (
+                    "RCP indisponible"
+                  )}
+                </span>
+              </AdvancedDetails>
+            )}
             {subsNames && (
               <span className={fr.cx("fr-text--sm")}>
                 <br />

@@ -7,7 +7,11 @@ import { SearchBar } from "@codegouvfr/react-dsfr/SearchBar";
 import useSWR from "swr";
 import { useRouter } from "next/navigation";
 import { trackSearchEvent } from "@/services/tracking";
-import { AutocompleteSection, AutocompleteSuggestion, MatchReason } from "@/types/SearchTypes";
+import {
+  AutocompleteSection,
+  AutocompleteSuggestion,
+  MatchReason,
+} from "@/types/SearchTypes";
 import { useIsHydrated } from "@/hooks/useIsHydrated";
 
 type SearchInputProps = {
@@ -18,13 +22,19 @@ type SearchInputProps = {
   placeholder: string;
   type: "search";
   onSearch?: (search: string) => void;
+  onInputChange?: (search: string) => void;
+  disableSuggestions?: boolean;
 };
 
 function formatMatchReason(matchReasons?: MatchReason[]): string | undefined {
-  const substanceReason = matchReasons?.find((reason) => reason.type === "substance");
+  const substanceReason = matchReasons?.find(
+    (reason) => reason.type === "substance",
+  );
   if (substanceReason) return `contient ${substanceReason.label}`;
 
-  const indicationReason = matchReasons?.find((reason) => reason.type === "indication");
+  const indicationReason = matchReasons?.find(
+    (reason) => reason.type === "indication",
+  );
   if (indicationReason) return `lié à ${indicationReason.label}`;
 
   return undefined;
@@ -37,8 +47,9 @@ export function AutocompleteSearchInput({
   id,
   placeholder,
   type,
+  onInputChange,
+  disableSuggestions = false,
 }: SearchInputProps) {
-
   const router = useRouter();
   const [inputValue, setInputValue] = useState(initialValue ?? "");
   const [isOpen, setIsOpen] = useState(false);
@@ -46,7 +57,7 @@ export function AutocompleteSearchInput({
   const isHydrated = useIsHydrated();
 
   const { data: autocompleteSections } = useSWR(
-    inputValue ?? null,
+    !disableSuggestions && inputValue.trim() ? inputValue : null,
     async (search) =>
       fetch(`/rechercher/autocomplete?s=${encodeURIComponent(search)}`).then((res) => res.json()),
     {
@@ -58,16 +69,19 @@ export function AutocompleteSearchInput({
   ) as { data: AutocompleteSection[] };
 
   const options = useMemo(
-    () => (autocompleteSections ?? []).flatMap((section) => (
-      section.items
-    )),
-    [autocompleteSections],
+    () =>
+      disableSuggestions
+        ? []
+        : (autocompleteSections ?? []).flatMap((section) => section.items),
+    [autocompleteSections, disableSuggestions],
   );
 
   function optionIndex(sectionIndex: number, itemIndex: number) {
-    return (autocompleteSections ?? [])
-      .slice(0, sectionIndex)
-      .reduce((count, section) => count + section.items.length, 0) + itemIndex;
+    return (
+      (autocompleteSections ?? [])
+        .slice(0, sectionIndex)
+        .reduce((count, section) => count + section.items.length, 0) + itemIndex
+    );
   }
 
   function selectOption(option: AutocompleteSuggestion) {
@@ -79,6 +93,13 @@ export function AutocompleteSearchInput({
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      setIsOpen(false);
+      setActiveIndex(-1);
+      return;
+    }
+    if (disableSuggestions) return;
     if (!isOpen && e.key === "ArrowDown") {
       setIsOpen(true);
       setActiveIndex(0);
@@ -95,9 +116,6 @@ export function AutocompleteSearchInput({
     } else if (e.key === "Enter" && activeIndex >= 0) {
       e.preventDefault();
       selectOption(options[activeIndex]);
-    } else if (e.key === "Escape") {
-      setIsOpen(false);
-      setActiveIndex(-1);
     }
   }
 
@@ -107,11 +125,15 @@ export function AutocompleteSearchInput({
     <div style={{ position: "relative", width: "100%" }}>
       <input
         id={id}
-        role="combobox"
-        aria-expanded={isOpen && options.length > 0}
-        aria-controls={listboxId}
-        aria-activedescendant={activeIndex >= 0 ? `${id}-option-${activeIndex}` : undefined}
-        aria-autocomplete="list"
+        role={disableSuggestions ? undefined : "combobox"}
+        aria-expanded={
+          disableSuggestions ? undefined : isOpen && options.length > 0
+        }
+        aria-controls={disableSuggestions ? undefined : listboxId}
+        aria-activedescendant={
+          activeIndex >= 0 ? `${id}-option-${activeIndex}` : undefined
+        }
+        aria-autocomplete={disableSuggestions ? undefined : "list"}
         name={name}
         className={className}
         placeholder={placeholder}
@@ -122,7 +144,8 @@ export function AutocompleteSearchInput({
         style={{ textAlign: "left" }}
         onChange={(e) => {
           setInputValue(e.target.value);
-          setIsOpen(true);
+          onInputChange?.(e.target.value);
+          setIsOpen(e.target.value.trim().length > 0);
           setActiveIndex(-1);
         }}
         onKeyDown={handleKeyDown}
@@ -182,9 +205,10 @@ export function AutocompleteSearchInput({
                       style={{
                         padding: "8px 16px",
                         cursor: "pointer",
-                        backgroundColor: index === activeIndex
-                          ? "var(--background-alt-blue-france, #f0f0fb)"
-                          : undefined,
+                        backgroundColor:
+                          index === activeIndex
+                            ? "var(--background-alt-blue-france, #f0f0fb)"
+                            : undefined,
                       }}
                     >
                       <span>{option.label}</span>
@@ -215,22 +239,31 @@ export default function AutocompleteSearch({
   inputName,
   initialValue,
   className: parentClassName,
+  onSearch,
+  onInputChange,
+  allowEmptySearch = false,
+  disableSuggestions = false,
 }: {
   inputName: string;
   initialValue?: string;
   className?: string;
+  onSearch?: (search: string) => void;
+  onInputChange?: (search: string) => void;
+  allowEmptySearch?: boolean;
+  disableSuggestions?: boolean;
 }) {
-
   const router = useRouter();
 
   const onButtonClick = (search: string) => {
     search && trackSearchEvent(search);
-    router.push(`/rechercher?s=${search}`);
+    if (onSearch) onSearch(search);
+    else router.push(`/rechercher?s=${encodeURIComponent(search)}`);
   };
 
   return (
     <>
       <SearchBar
+        allowEmptySearch={allowEmptySearch}
         label={"Que cherchez-vous ?"}
         onButtonClick={(search: string) => onButtonClick(search)}
         renderInput={({ className, ...props }) => (
@@ -240,6 +273,8 @@ export default function AutocompleteSearch({
             name={inputName}
             initialValue={initialValue}
             onSearch={onButtonClick}
+            onInputChange={onInputChange}
+            disableSuggestions={disableSuggestions}
           />
         )}
         className={fr.cx("fr-mb-2w")}

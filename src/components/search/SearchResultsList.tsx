@@ -238,10 +238,15 @@ function SearchResultsList({ resultsList, search }: SearchResultsListProps) {
   return (
     <SearchResultsListContainer className={[fr.cx("fr-grid-row")].join(" ")}>
       <div className={fr.cx("fr-col-12")}>
-        <FiltersTitle className={[fr.cx("fr-mb-3w", "fr-text--md")].join(" ")}>
+        <FiltersTitle className={fr.cx("fr-mb-3w", "fr-text--md")}>
           {filteredResultsList.length} résultat
-          {filteredResultsList.length > 1 && "s"} pour :{" "}
-          <strong>“{search}“</strong>
+          {filteredResultsList.length > 1 && "s"}
+          {search && (
+            <>
+              {" "}
+              pour : <strong>“{search}“</strong>
+            </>
+          )}
         </FiltersTitle>
       </div>
       <div

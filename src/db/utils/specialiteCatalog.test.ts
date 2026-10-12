@@ -8,6 +8,7 @@ import {
   mapDetailedSpecialite,
   statutAmmToCompatibilityId,
   statutAmmToDisplayStatus,
+  getAuthorizationSourceStatuses,
 } from "./specialiteCatalog";
 import { SpecialiteStat } from "@/types/SpecialiteTypes";
 
@@ -39,6 +40,17 @@ describe("specialite catalog mappings", () => {
     expect(statutAmmToCompatibilityId("ABROGEE")).toBe(SpecialiteStat.Abrogée);
     expect(statutAmmToDisplayStatus("ARCHIVEE")).toBe("Archivée");
     expect(statutAmmToCompatibilityId("ARCHIVEE")).toBe(SpecialiteStat.Archivée);
+  });
+
+  it("uses the display mapping to match both archived source statuses", () => {
+    expect(getAuthorizationSourceStatuses("Archivée")).toEqual([
+      "INACTIVE",
+      "ARCHIVEE",
+    ]);
+    expect(getAuthorizationSourceStatuses("Valide")).toEqual(["ACTIVE"]);
+    expect(getAuthorizationSourceStatuses("unknown")).toEqual([]);
+    expect(statutAmmToDisplayStatus(null)).toBeNull();
+    expect(statutAmmToCompatibilityId(null)).toBeNull();
   });
 
   it("does not expose the EEN status as an excipient label", () => {
