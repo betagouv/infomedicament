@@ -1,6 +1,6 @@
 import { fr } from "@codegouvfr/react-dsfr";
 import { getAtc1, getAtc2, getAtc1DefinitionData, getResumeSubstancesByAtc } from "@/db/utils/atc";
-import { ATC, ATC1, ATCSubs } from "@/types/ATCTypes";
+import { ATC, ATC1, ATCSubstances,  } from "@/types/ATCTypes";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
 import ContentContainer from "@/components/generic/ContentContainer";
@@ -50,9 +50,9 @@ async function fetchATC1Data(atc1: ATC1): Promise<{ articles: ArticleCardResume[
     getArticlesFromATC(atc1.code),
     getAtc1DefinitionData(atc1),
   ]);
-  const dataList = (allATC as ATCSubs[]).map((atcSubsSpecs) => ({
+  const dataList = (allATC as ATCSubstances[]).map((atcSubsSpecs) => ({
     class: { 
-      nbSubstances: atcSubsSpecs.nbSubstances, 
+      nbSubstances: atcSubsSpecs.substances.length, 
       ...atcSubsSpecs.atc, 
       children: atcSubsSpecs.atc.children ?? [] 
     },
