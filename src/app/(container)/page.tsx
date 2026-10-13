@@ -50,7 +50,7 @@ export default async function Page() {
             )}
           >
             <h2 className={fr.cx("fr-h4")}>
-              Articles
+              Vos questions
             </h2>
             <Image
               src="/img/homepage_illu.svg"

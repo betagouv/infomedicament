@@ -100,7 +100,7 @@ export default function ClientHeader({
           linkProps: { href: "/interactions", prefetch: false },
         },
         {
-          text: "Articles",
+          text: "Vos questions",
           linkProps: { href: "/articles", prefetch: false },
         },
         {

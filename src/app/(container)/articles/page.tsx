@@ -36,7 +36,7 @@ export default async function Page() {
       />
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
-          <h1>Articles</h1>
+          <h1>Vos questions</h1>
           {categories.map((category) => (
             <Fragment key={category}>
               <h2 className={fr.cx("fr-h4", "fr-mb-1w")}>{category}</h2>
