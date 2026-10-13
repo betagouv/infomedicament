@@ -7,6 +7,7 @@ import { getArticles } from "@/db/utils/articles";
 import { getGlossaryLetters } from "@/db/utils/glossary";
 import { getAllIndications } from "@/db/utils/indications";
 import { getAllGenericGroupCodes } from "@/db/utils/generics";
+import { getSpecSlug } from "@/utils/specialites";
 
 export const dynamic = "force-static";
 export const revalidate = 86400;
@@ -61,7 +62,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const medicamentEntries: MetadataRoute.Sitemap = specialites.map((s) => ({
-    url: `${BASE_URL}/medicaments/${s.SpecId.trim()}`,
+    url: `${BASE_URL}/medicaments/${getSpecSlug(s.SpecId, s.SpecDenom01)}`,
   }));
 
   const articleEntries: MetadataRoute.Sitemap = articles.map((a) => ({

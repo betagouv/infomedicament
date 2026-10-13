@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import DataBlockGenericIcons from "./DataBlockGenericIcons";
 import { formatSpecName } from "@/displayUtils";
 import { MatchReason, SearchFilter, SearchResultItem } from "@/types/SearchTypes";
+import { getSpecSlug } from "@/utils/specialites";
 
 const DataBlockSpecResultContainer = styled.div`
   border-bottom: 2px solid var(--border-open-blue-france);
@@ -102,7 +103,7 @@ function DataBlockSpecResult({
   return specialite.specName && (
     <DataBlockSpecResultContainer>
       <Link
-        href={`medicaments/${specialite.specId}`}
+        href={`/medicaments/${getSpecSlug(specialite.specId, specialite.specName)}`}
         className={["spec-result-link", fr.cx("fr-px-1w", "fr-py-2w")].join(" ")}
       >
         <span>

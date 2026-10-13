@@ -6,7 +6,7 @@ import { HTMLAttributes, useState } from "react";
 import styled, { css } from "styled-components";
 import Link from "next/link";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
-import { isAIP, isCentralisee } from "@/utils/specialites";
+import { getSpecSlug, isAIP, isCentralisee } from "@/utils/specialites";
 import { ShortIndication } from "@/types/IndicationsTypes";
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
@@ -123,7 +123,7 @@ function IndicationsBlock({
                 <>
                   &nbsp;:&nbsp;
                   <Link
-                    href={`/medicaments/${specialite.referenceSpecialite.cis}`}
+                    href={`/medicaments/${getSpecSlug(specialite.referenceSpecialite.cis, specialite.referenceSpecialite.name)}`}
                     aria-description="Lien vers le médicament"
                   >
                     {specialite.referenceSpecialite.name}

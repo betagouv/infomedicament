@@ -11,6 +11,7 @@ import { sql } from "kysely";
 import { unstable_cache } from "next/cache";
 import { getSearchMatches, getSearchResultsFromMatches } from "./search";
 import { normalizeString } from "@/utils/alphabeticNav";
+import { getSpecSlug } from "@/utils/specialites";
 
 const AUTOCOMPLETE_MEDICINE_LIMIT = 5;
 const AUTOCOMPLETE_ENTITY_LIMIT = 3;
@@ -130,7 +131,7 @@ export const getAutocompleteSuggestions = unstable_cache(
         return {
           type: "specialite" as const,
           label: formatSpecName(result.specName),
-          href: `/medicaments/${result.specId}`,
+          href: `/medicaments/${getSpecSlug(result.specId, result.specName)}`,
           matchReasons: result.matchReasons,
           score,
         };

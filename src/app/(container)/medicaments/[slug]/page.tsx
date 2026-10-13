@@ -7,10 +7,10 @@ import {
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { getAtc1, getAtc2 } from "@/db/utils/atc";
 import { getSpecialite } from "@/db/utils";
-import { getWarmupCISCodes } from "@/db/utils/warmup";
+import { getWarmupSpecsSlugs } from "@/db/utils/warmup";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { getSpecialiteGroupName } from "@/utils/specialites";
+import { getCISFromSlug, getSpecialiteGroupName } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
 import { getSpecialiteMetadata, getSpecialiteName } from "@/db/utils/specialities";
 import { isGenericSpecialite, isPrincepsSpecialite } from "@/db/utils/generics";
@@ -41,8 +41,8 @@ export const revalidate = 86400; // 24h ISR: refresh top-500 between deploys
 // HTML before the first request. Other CIS are still rendered on-demand
 // (dynamicParams = true). Returns [] on unseeded DBs (e.g. review-app builds).
 export async function generateStaticParams() {
-  const cisCodes = await getWarmupCISCodes();
-  return cisCodes.map((CIS) => ({ CIS }));
+  const slugs = await getWarmupSpecsSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 async function fetchMedicamentData(
@@ -104,10 +104,11 @@ async function fetchMedicamentData(
 }
 
 export async function generateMetadata(
-  props: { params: Promise<{ CIS: string }> },
+  props: { params: Promise<{ slug: string }> },
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const { CIS } = await props.params;
+  const { slug } = await props.params;
+  const CIS = getCISFromSlug(slug);
 
   const metadata = await getSpecialiteMetadata(Number(CIS.trim()));
 
@@ -125,10 +126,11 @@ export async function generateMetadata(
 }
 
 export default async function Page(props: {
-  params: Promise<{ CIS: string }>;
+  params: Promise<{ slug: string }>;
 }) {
 
-  const { CIS } = await props.params;
+  const { slug } = await props.params;
+  const CIS = getCISFromSlug(slug);
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);
   const indications = await getSpecialitesIndications([CIS]);

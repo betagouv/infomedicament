@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { unstable_cache } from "next/cache";
 import { answerNoticeQuestion } from "@/lib/albert";
 import { getNotice } from "@/db/utils/notice";
+import { getCISFromSlug } from "@/utils/specialites";
 
 export interface NoticeChunkHit {
   section_anchor: string;
@@ -23,9 +24,9 @@ const getCachedAnswer = (CIS: string, q: string, noticeText: string) =>
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ CIS: string }> },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
-  const { CIS } = await params;
+  const CIS = getCISFromSlug((await params).slug);
   const q = req.nextUrl.searchParams.get("q");
   if (!q) return NextResponse.json({ error: "Missing q" }, { status: 400 });
 

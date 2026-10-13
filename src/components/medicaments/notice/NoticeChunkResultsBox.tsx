@@ -4,7 +4,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Button from "@codegouvfr/react-dsfr/Button";
 import { HTMLAttributes, ReactNode, useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { NoticeChunkHit } from "@/app/(container)/medicaments/[CIS]/notice-search/route";
+import { NoticeChunkHit } from "@/app/(container)/medicaments/[slug]/notice-search/route";
 
 const Container = styled.div`
   position: sticky;

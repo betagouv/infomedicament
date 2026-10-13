@@ -8,14 +8,15 @@ import { NextRequest } from "next/server";
 import { GET } from "./route";
 
 const CIS = "69636399"; // DOLIPRANEVITAMINEC
+const SLUG = `dolipranevitaminec-500-mg-150-mg-comprime-effervescent-${CIS}`;
 const ALBERT_API = "https://albert.api.etalab.gouv.fr";
 
 function makeRequest(q: string): NextRequest {
-  return new NextRequest(`http://localhost/medicaments/${CIS}/notice-search?q=${encodeURIComponent(q)}`);
+  return new NextRequest(`http://localhost/medicaments/${SLUG}/notice-search?q=${encodeURIComponent(q)}`);
 }
 
-function makeParams(cis: string) {
-  return { params: Promise.resolve({ CIS: cis }) };
+function makeParams(slug: string) {
+  return { params: Promise.resolve({ slug }) };
 }
 
 const validAlbertResponse = {
@@ -36,7 +37,7 @@ describe("notice-search route (integration)", () => {
   it("fetches a real notice for CIS 69636399 and returns a hit", async () => {
     nock(ALBERT_API).post("/v1/chat/completions").reply(200, validAlbertResponse);
 
-    const res = await GET(makeRequest("Quelle est la posologie ?"), makeParams(CIS));
+    const res = await GET(makeRequest("Quelle est la posologie ?"), makeParams(SLUG));
     const body = await res.json();
 
     expect(body.hits).toHaveLength(1);
@@ -61,7 +62,7 @@ describe("notice-search route (integration)", () => {
       }],
     });
 
-    const res = await GET(makeRequest("Posologie adultes ?"), makeParams(CIS));
+    const res = await GET(makeRequest("Posologie adultes ?"), makeParams(SLUG));
     const body = await res.json();
 
     expect(body.hits[0].answer).toBe("Adultes : 1 comprimé toutes les 6 heures.");
@@ -71,7 +72,7 @@ describe("notice-search route (integration)", () => {
   it("returns empty hits when Albert API returns a 500", async () => {
     nock(ALBERT_API).post("/v1/chat/completions").reply(500);
 
-    const res = await GET(makeRequest("Quelle est la posologie ?"), makeParams(CIS));
+    const res = await GET(makeRequest("Quelle est la posologie ?"), makeParams(SLUG));
     const body = await res.json();
 
     expect(body.hits).toEqual([]);
@@ -80,21 +81,21 @@ describe("notice-search route (integration)", () => {
   it("returns empty hits when Albert API is unreachable", async () => {
     nock(ALBERT_API).post("/v1/chat/completions").replyWithError("Connection refused");
 
-    const res = await GET(makeRequest("Quelle est la posologie ?"), makeParams(CIS));
+    const res = await GET(makeRequest("Quelle est la posologie ?"), makeParams(SLUG));
     const body = await res.json();
 
     expect(body.hits).toEqual([]);
   });
 
   it("returns 400 when q param is missing", async () => {
-    const req = new NextRequest(`http://localhost/medicaments/${CIS}/notice-search`);
-    const res = await GET(req, makeParams(CIS));
+    const req = new NextRequest(`http://localhost/medicaments/${SLUG}/notice-search`);
+    const res = await GET(req, makeParams(SLUG));
 
     expect(res.status).toBe(400);
   });
 
   it("returns empty hits for an unknown CIS", async () => {
-    const res = await GET(makeRequest("test"), makeParams("00000000"));
+    const res = await GET(makeRequest("test"), makeParams("medicament-inconnu-00000000"));
     const body = await res.json();
 
     expect(body.hits).toEqual([]);

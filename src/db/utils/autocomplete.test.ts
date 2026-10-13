@@ -35,7 +35,10 @@ vi.mock("@/db", () => ({
 vi.mock("./atc");
 vi.mock("@/db/pdbmMySQL", () => ({ pdbmMySQL: {} }));
 vi.mock("@/data/grist/specialites");
-vi.mock("@/utils/specialites");
+vi.mock("@/utils/specialites", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/utils/specialites")>();
+  return { ...actual, formatSpecialitesResume: vi.fn() };
+});
 
 vi.mock("./searchSynonyms", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./searchSynonyms")>();
@@ -94,7 +97,7 @@ describe("Autocomplete suggestions", () => {
       href: "/substances/123",
     });
     expect(medicineSection?.items[0]).toMatchObject({
-      href: "/medicaments/61234567",
+      href: "/medicaments/doliprane-1000-mg-61234567",
       matchReasons: [{ type: "substance", label: "Paracétamol" }],
     });
   });
@@ -116,7 +119,7 @@ describe("Autocomplete suggestions", () => {
 
     const medicineSection = sections.find((section) => section.type === "specialite");
 
-    expect(medicineSection?.items.map((item) => item.href)).toContain("/medicaments/70000001");
+    expect(medicineSection?.items.map((item) => item.href)).toContain("/medicaments/paracetamol-70000001");
   });
 
   it("uses cautious wording for indication-linked medicines", async () => {

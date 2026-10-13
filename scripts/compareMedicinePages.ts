@@ -1,21 +1,26 @@
-// Run with: npx tsx scripts/compareMedicinePages.ts
+// Run with: npx tsx scripts/compareMedicinePages.ts [medicine-slug ...]
 // Optional env vars: PRODUCTION_URL=... LOCAL_URL=... REPORT_DIR=...
 import { chromium, type BrowserContext, type Page } from "@playwright/test";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-const DEFAULT_CIS_CODES = [
-  "65701038",
-  "69174918",
-  "60928110",
-  "64460075",
-  "66663761",
-  "64783769",
-  "60657189",
-  "64460075",
-  "60928110",
-  "60123598",
+const DEFAULT_MEDICINE_SLUGS = [
+  "luteran-5-mg-comprime-65701038",
+  "comirnaty-10-microgrammes-dose-dispersion-a-diluer-pour-dispersion-injectable-vaccin-a-arnm-a-nucleoside-modifie-contre-la-covid-19-69174918",
+  "ventoline-100-microgrammes-dose-suspension-pour-inhalation-en-flacon-pressurise-60928110",
+  "decapeptyl-lp-11-25-mg-poudre-et-solvant-pour-suspension-injectable-im-ou-sc-forme-a-liberation-prolongee-sur-3-mois-64460075",
+  "neupogen-30-mu-0-5-ml-0-6-mg-ml-solution-injectable-en-seringue-preremplie-66663761",
+  "humira-40-mg-solution-injectable-en-stylo-prerempli-0-4-ml-64783769",
+  "combigan-2-mg-ml-5-mg-ml-collyre-en-solution-60657189",
+  "hepar-sulfur-hepar-sulfuris-calcareum-boiron-degre-de-dilution-compris-entre-4ch-et-30ch-ou-entre-8dh-et-60dh-60123598",
 ];
+
+// Medicine slug: slugified name followed by the 8 digits CIS code (see getSpecSlug)
+const MEDICINE_SLUG_PATTERN = /^[a-z0-9-]+-(\d{8})$/;
+
+function getCisFromSlug(slug: string) {
+  return slug.match(MEDICINE_SLUG_PATTERN)?.[1] ?? slug;
+}
 
 const productionOrigin =
   process.env.PRODUCTION_URL ?? "https://infomedicament.beta.gouv.fr";
@@ -40,6 +45,7 @@ type DiffLine = {
 };
 
 type Comparison = {
+  slug: string;
   cis: string;
   production: PageSnapshot;
   local: PageSnapshot;
@@ -142,11 +148,11 @@ async function settlePage(page: Page) {
 async function snapshotPage(
   context: BrowserContext,
   origin: string,
-  cis: string,
+  slug: string,
   environment: "production" | "local",
 ): Promise<PageSnapshot> {
   const page = await context.newPage();
-  const screenshotName = `${cis}-${environment}.png`;
+  const screenshotName = `${getCisFromSlug(slug)}-${environment}.png`;
   let status: number | null = null;
 
   try {
@@ -154,7 +160,7 @@ async function snapshotPage(
       window.localStorage.setItem("greetingModal", String(Date.now()));
     });
     const response = await page.goto(
-      `${origin.replace(/\/$/, "")}/medicaments/${cis}`,
+      `${origin.replace(/\/$/, "")}/medicaments/${slug}`,
       {
         waitUntil: "domcontentloaded",
         timeout: 30_000,
@@ -180,7 +186,7 @@ async function snapshotPage(
     };
   } catch (error) {
     return {
-      url: page.url() || `${origin.replace(/\/$/, "")}/medicaments/${cis}`,
+      url: page.url() || `${origin.replace(/\/$/, "")}/medicaments/${slug}`,
       status,
       tree: "",
       screenshot: null,
@@ -257,7 +263,7 @@ function renderReport(comparisons: Comparison[]) {
   const generatedAt = new Date().toISOString();
 
   const sections = comparisons
-    .map(({ cis, production, local, diff }) => {
+    .map(({ slug, cis, production, local, diff }) => {
       const differenceCount = diff.filter(
         (line) => line.kind !== "same",
       ).length;
@@ -265,7 +271,7 @@ function renderReport(comparisons: Comparison[]) {
         differenceCount > 0 || production.error || local.error;
       return `<section>
         <header class="comparison-header">
-          <h2>CIS ${cis}</h2>
+          <h2>${escapeHtml(slug)}</h2>
           <span class="badge ${hasDifference ? "different" : "identical-badge"}">
             ${hasDifference ? `${differenceCount} changed lines` : "Identical"}
           </span>
@@ -330,22 +336,24 @@ function renderReport(comparisons: Comparison[]) {
 </head>
 <body>
   <h1>Medicine page comparison</h1>
-  <p class="report-summary">Generated ${generatedAt}. Compared ${comparisons.length} unique CIS codes; ${differentCount} with differences or errors.</p>
+  <p class="report-summary">Generated ${generatedAt}. Compared ${comparisons.length} unique medicine pages; ${differentCount} with differences or errors.</p>
   ${sections}
 </body>
 </html>`;
 }
 
 async function main() {
-  const requestedCodes = process.argv.slice(2);
-  const invalidCodes = requestedCodes.filter((code) => !/^\d{8}$/.test(code));
-  if (invalidCodes.length > 0) {
+  const requestedSlugs = process.argv.slice(2);
+  const invalidSlugs = requestedSlugs.filter(
+    (slug) => !MEDICINE_SLUG_PATTERN.test(slug),
+  );
+  if (invalidSlugs.length > 0) {
     throw new Error(
-      `Invalid CIS code(s): ${invalidCodes.join(", ")}. Expected 8 digits.`,
+      `Invalid medicine slug(s): ${invalidSlugs.join(", ")}. Expected the medicine name followed by its 8 digits CIS code, e.g. doliprane-1000-mg-comprime-60234100.`,
     );
   }
-  const cisCodes = [
-    ...new Set(requestedCodes.length > 0 ? requestedCodes : DEFAULT_CIS_CODES),
+  const slugs = [
+    ...new Set(requestedSlugs.length > 0 ? requestedSlugs : DEFAULT_MEDICINE_SLUGS),
   ];
 
   await mkdir(reportDirectory, { recursive: true });
@@ -359,14 +367,15 @@ async function main() {
   const comparisons: Comparison[] = [];
 
   try {
-    for (const cis of cisCodes) {
-      console.info(`Comparing CIS ${cis}...`);
+    for (const slug of slugs) {
+      console.info(`Comparing ${slug}...`);
       const [production, local] = await Promise.all([
-        snapshotPage(productionContext, productionOrigin, cis, "production"),
-        snapshotPage(localContext, localOrigin, cis, "local"),
+        snapshotPage(productionContext, productionOrigin, slug, "production"),
+        snapshotPage(localContext, localOrigin, slug, "local"),
       ]);
       comparisons.push({
-        cis,
+        slug,
+        cis: getCisFromSlug(slug),
         production,
         local,
         diff: diffLines(production.tree, local.tree),
