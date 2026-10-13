@@ -6,6 +6,7 @@ import slugify from "slugify";
 import { Fragment } from "react";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { Metadata } from "next";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -15,6 +16,13 @@ export async function generateStaticParams() {
   return letters.map((letter) => ({ letter }));
 }
 const PAGE_LABEL: string = "Glossaire";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: PAGE_LABEL,
+    description: "Retrouvez les définitions des termes médicaux et pharmaceutiques pour mieux comprendre l’information sur les médicaments.",
+  }
+}
 
 export default async function Page(props: {
   params: Promise<{ letter: string }>;

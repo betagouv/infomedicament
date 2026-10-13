@@ -4,6 +4,14 @@ import AutocompleteSearch from "@/components/search/autocomplete/AutocompleteSea
 import { getArticles } from "@/db/utils/articles";
 import { getMarketedMedicamentCount } from "@/db/utils/specialities";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
+import { Metadata } from "next";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: "Info Médicament",
+    description: "Accédez aux informations officielles sur les médicaments, aux notices, aux RCP, aux interactions médicamenteuses et aux ressources pour les professionnels de santé.",
+  }
+}
 
 export default async function Page() {
   const [articles, marketedCount] = await Promise.all([

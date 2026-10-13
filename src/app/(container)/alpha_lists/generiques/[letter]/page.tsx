@@ -5,6 +5,7 @@ import PageListContent from "@/components/list/PageListContent";
 import { getLetters } from "@/db/utils/letters";
 import { getGenericsResumeWithLetter } from "@/db/utils/generics";
 import { DataTypeEnum } from "@/types/DataTypes";
+import { Metadata } from "next";
 
 export const dynamic = "error";
 export const dynamicParams = true;
@@ -14,6 +15,13 @@ export async function generateStaticParams() {
   return letters.map((letter) => ({ letter }));
 }
 const PAGE_LABEL: string = "Liste des groupes génériques";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: PAGE_LABEL,
+    description: "Découvrez leur définition, leurs caractéristiques, leur équivalence avec les médicaments de référence et les informations utiles.",
+  }
+}
 
 export default async function Page(props: {
   params: Promise<{ letter: string }>;

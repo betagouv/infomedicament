@@ -5,9 +5,17 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
+import { Metadata } from "next";
 
 export const dynamic = "error";
 const PAGE_LABEL: string = "Liste des articles";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: PAGE_LABEL,
+    description: "Retrouvez nos articles sur les médicaments et leur utilisation : grossesse, allaitement, génériques, interactions, précautions et autres sujets de santé.",
+  }
+}
 
 export default async function Page() {
   const articles = await getArticles();
