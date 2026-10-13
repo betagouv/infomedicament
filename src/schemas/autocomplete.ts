@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const autocompleteQuerySchema = z.string().trim().min(1).max(200);
+
 const matchReasonSchema = z.object({
   type: z.enum(["name", "substance", "atc", "indication"]),
   label: z.string(),

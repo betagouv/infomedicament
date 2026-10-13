@@ -47,6 +47,7 @@ async function getCISCodesForAtcs(
  * Builds ATC children from the database.
  */
 async function buildFullAtcChildren(atc2Code: string): Promise<ATC[]> {
+  "use cache: remote";
   const rows = await db
     .selectFrom("atc")
     .select(["code", "label_court"])
