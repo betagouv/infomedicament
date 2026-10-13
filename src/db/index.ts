@@ -19,7 +19,7 @@ const db = new Kysely<Database>({
             password: "postgres",
             port: 5432,
           }),
-      max: 3,
+      max: 10,
       connectionTimeoutMillis: 10000, // 10s to establish connection
       idleTimeoutMillis: 30000, // close idle connections after 30s
       keepAlive: true, // enable TCP keepalive
