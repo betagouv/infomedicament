@@ -1,4 +1,11 @@
 import { ResumeSpecialite } from "./SpecialiteTypes";
+import type { MatchReason } from "@/schemas/autocomplete";
+export type {
+  MatchReason,
+  AutocompleteSuggestionType,
+  AutocompleteSuggestion,
+  AutocompleteSection,
+} from "@/schemas/autocomplete";
 
 export type SearchArticlesFilters = {
   ATCList: string[];
@@ -17,11 +24,6 @@ export type SearchFilter = {
 
 export type SortType = "alphabetic" | "score";
 
-export type MatchReason = {
-  type: "name" | "substance" | "atc" | "indication";
-  label: string;
-};
-
 export type SearchResultItem = ResumeSpecialite & {
   advancedDetails?: {
     authorizationStatus: string | null;
@@ -34,21 +36,4 @@ export type SearchResultItem = ResumeSpecialite & {
   isHistorical?: boolean;
   matchReasons: MatchReason[];
   score: number;
-};
-
-export type AutocompleteSuggestionType = "specialite" | "substance" | "indication";
-
-export type AutocompleteSuggestion = {
-  type: AutocompleteSuggestionType;
-  label: string;
-  href: string;
-  score: number;
-  matchReasons?: MatchReason[];
-};
-
-export type AutocompleteSection = {
-  type: AutocompleteSuggestionType;
-  title: string;
-  highestScore: number;
-  items: AutocompleteSuggestion[];
 };
