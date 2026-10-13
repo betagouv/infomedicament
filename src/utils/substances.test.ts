@@ -65,7 +65,10 @@ describe("utils/substance - getSubstancesNamesList", () => {
 
   it("returns the names displayed on the medicaments", () => {
     // Losartan potassique (48528): its medicaments display "losartan potassique" or its active fraction "losartan"
-    const substances = [substance("48528", "20551", "losartan potassique", false)];
+    const substances = [
+      substance("48528", "20551", "losartan potassique", false),
+      substance("64438", "64438", "losartan", false),
+    ];
     const groups = [
       group("losartan", ["64438"], ["64438"]),
       group("losartan potassique", ["48528"], ["20551"]),
@@ -74,7 +77,7 @@ describe("utils/substance - getSubstancesNamesList", () => {
 
     expect(getSubstancesNamesList(substances, groups)).toEqual([
       { name: "losartan potassique", isCanonical: false, nbSpecsGroups: 2, details: [] },
-      // Name of the active fraction, not in substances: from the medicament label, not canonical
+      // Name of the active fraction, not canonical
       { name: "losartan", isCanonical: false, nbSpecsGroups: 1, details: [] },
     ]);
   });
@@ -132,7 +135,10 @@ describe("utils/substance - getSubstancesNamesList", () => {
 
   it("returns all the names of the medicaments, grouped by NomIds", () => {
     // "codéine" (00467) is displayed on a medicament of the paracétamol + codéine phosphate (74765) page
-    const substances = [substance("02202", "02202", "paracétamol", true)];
+    const substances = [
+      substance("02202", "02202", "paracétamol", true),
+      substance("00467", "00467", "codéine", false),
+    ];
     const groups = [group("codéine, paracétamol", ["00467", "02202"], ["00467", "02202"])];
 
     expect(getSubstancesNamesList(substances, groups)).toEqual([{

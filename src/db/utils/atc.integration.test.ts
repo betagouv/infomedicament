@@ -7,7 +7,7 @@ import {
   getResumeSubstancesByAtc,
   getSubstancesByAtc,
 } from "./atc";
-import { getSubstancesResume } from "./substances";
+import { getResumeSubstancesByNomId } from "./substances";
 
 // disable cache for testing
 vi.mock("next/cache", () => ({ unstable_cache: (fn: unknown) => fn }));
@@ -17,7 +17,7 @@ describe("PostgreSQL ATC projections", () => {
     const parent = await getAtc1DefinitionData(await getAtc1("A"));
     const acidity = parent.find((entry) => entry.atc.code === "A02");
     const candidates = await getSubstancesByAtc(await getAtc2("A02"));
-    const destination = await getSubstancesResume(candidates.map((s) => s.NomId));
+    const destination = await getResumeSubstancesByNomId(candidates.map((s) => s.NomId));
 
     expect(destination.length).toBeGreaterThan(0);
     expect(acidity?.substances.map((s) => s.NomId)).toEqual(
