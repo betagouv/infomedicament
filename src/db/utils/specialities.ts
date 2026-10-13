@@ -1,7 +1,6 @@
 "use server";
 import "server-cli-only";
 
-
 import { sql } from "kysely";
 import db from "@/db";
 import { getFullPresentations } from "@/db/utils/presentation";
@@ -42,14 +41,14 @@ export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
 
 export async function getMarketedMedicamentCount(): Promise<number> {
   "use cache: remote";
-    const result = await db
-      .selectFrom("ansm_specialite")
-      .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
-      .select((eb) => eb.fn.countAll<number>().as("count"))
-      .executeTakeFirstOrThrow();
+  const result = await db
+    .selectFrom("ansm_specialite")
+    .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
+    .select((eb) => eb.fn.countAll<number>().as("count"))
+    .executeTakeFirstOrThrow();
 
-    return Number(result.count);
-  }
+  return Number(result.count);
+}
 
 export async function getSpecialiteName(CIS: string): Promise<string> {
   "use cache: remote";
@@ -63,117 +62,123 @@ export async function getSpecialiteName(CIS: string): Promise<string> {
   return result?.denomination ?? "";
 }
 
-export async function getDetailedSpecialite(CIS: string): Promise<DetailedSpecialite | undefined> {
+export async function getDetailedSpecialite(
+  CIS: string,
+): Promise<DetailedSpecialite | undefined> {
   "use cache: remote";
-    const row = await db
-      .selectFrom("ansm_specialite")
+  const row = await db
+    .selectFrom("ansm_specialite")
+    .where("cis", "=", CIS)
+    .selectAll()
+    .executeTakeFirst();
+
+  if (!row) return undefined;
+
+  const genericGroupMembershipPromise = getGenericGroupMembership(CIS);
+  const [
+    titulaires,
+    genericGroupMembership,
+    importedReference,
+    statusEvent,
+    excipientsEffetNotoire,
+  ] = await Promise.all([
+    db
+      .selectFrom("ansm_specialite_titulaire")
       .where("cis", "=", CIS)
-      .selectAll()
-      .executeTakeFirst();
+      .select(["raison_sociale", "raison_sociale_longue"])
+      .orderBy("date_debut", "desc")
+      .execute(),
+    genericGroupMembershipPromise,
+    row.procedure === "IMPORTATION_PARALLELE" && row.generique
+      ? db
+          .selectFrom("ansm_specialite")
+          .where("cis", "=", row.generique.toString())
+          .select("denomination")
+          .executeTakeFirst()
+      : Promise.resolve(undefined),
+    row.statut_amm === "ABROGEE"
+      ? db
+          .selectFrom("ansm_specialite_evenement")
+          .where("cis", "=", CIS)
+          .where("code_evenement", "=", 33)
+          .where("date_evenement", "is not", null)
+          .select("date_evenement")
+          .orderBy("date_evenement", "desc")
+          .executeTakeFirst()
+      : Promise.resolve(undefined),
+    row.een === "PRESENTS" ? getEenLabel(CIS) : Promise.resolve(null),
+  ]);
 
-    if (!row) return undefined;
+  const titulaireNames = titulaires
+    .map(
+      (titulaire) =>
+        titulaire.raison_sociale_longue ?? titulaire.raison_sociale,
+    )
+    .filter((name): name is string => Boolean(name));
 
-    const genericGroupMembershipPromise = getGenericGroupMembership(CIS);
-    const [
-      titulaires,
-      genericGroupMembership,
-      importedReference,
-      statusEvent,
-      excipientsEffetNotoire,
-    ] = await Promise.all([
-      db
-        .selectFrom("ansm_specialite_titulaire")
-        .where("cis", "=", CIS)
-        .select(["raison_sociale", "raison_sociale_longue"])
-        .orderBy("date_debut", "desc")
-        .execute(),
-      genericGroupMembershipPromise,
-      row.procedure === "IMPORTATION_PARALLELE" && row.generique
-        ? db
-            .selectFrom("ansm_specialite")
-            .where("cis", "=", row.generique.toString())
-            .select("denomination")
-            .executeTakeFirst()
-        : Promise.resolve(undefined),
-      row.statut_amm === "ABROGEE"
-        ? db
-            .selectFrom("ansm_specialite_evenement")
-            .where("cis", "=", CIS)
-            .where("code_evenement", "=", 33)
-            .where("date_evenement", "is not", null)
-            .select("date_evenement")
-            .orderBy("date_evenement", "desc")
-            .executeTakeFirst()
-        : Promise.resolve(undefined),
-      row.een === "PRESENTS" ? getEenLabel(CIS) : Promise.resolve(null),
-    ]);
-
-    const titulaireNames = titulaires
-      .map(
-        (titulaire) =>
-          titulaire.raison_sociale_longue ?? titulaire.raison_sociale,
-      )
-      .filter((name): name is string => Boolean(name));
-
-    const referenceSpecialite =
-      genericGroupMembership?.referenceCis &&
-      genericGroupMembership.referenceName
+  const referenceSpecialite =
+    genericGroupMembership?.referenceCis && genericGroupMembership.referenceName
+      ? {
+          cis: genericGroupMembership.referenceCis,
+          name: genericGroupMembership.referenceName,
+        }
+      : row.procedure === "IMPORTATION_PARALLELE" &&
+          row.generique &&
+          importedReference?.denomination
         ? {
-            cis: genericGroupMembership.referenceCis,
-            name: genericGroupMembership.referenceName,
+            cis: row.generique.toString(),
+            name: importedReference.denomination,
           }
-        : row.procedure === "IMPORTATION_PARALLELE" &&
-            row.generique &&
-            importedReference?.denomination
-          ? {
-              cis: row.generique.toString(),
-              name: importedReference.denomination,
-            }
-          : null;
+        : null;
 
-    return mapDetailedSpecialite(
-      row,
-      titulaireNames.length > 0
-        ? [...new Set(titulaireNames)].join(", ")
-        : null,
-      genericGroupMembership?.codeGroupe ?? null,
-      referenceSpecialite,
-      statusEvent?.date_evenement ?? null,
-      excipientsEffetNotoire,
-    );
-  }
+  return mapDetailedSpecialite(
+    row,
+    titulaireNames.length > 0 ? [...new Set(titulaireNames)].join(", ") : null,
+    genericGroupMembership?.codeGroupe ?? null,
+    referenceSpecialite,
+    statusEvent?.date_evenement ?? null,
+    excipientsEffetNotoire,
+  );
+}
 
-export async function getSpecialite(CIS: string) {
+export async function getSpecialite(CIS: string): Promise<{
+  specialite: DetailedSpecialite | undefined;
+  composants: CompositionComponent[];
+  presentations: Presentation[];
+  delivrance: DelivranceCondition[];
+}> {
   "use cache: remote";
   const specialite: DetailedSpecialite | undefined =
     await getDetailedSpecialite(CIS);
 
-  const composants: CompositionComponent[] = specialite
-    ? await getComposants(CIS)
-    : [];
+  if (!specialite) {
+    return {
+      specialite,
+      composants: [],
+      presentations: [],
+      delivrance: [],
+    };
+  }
 
-  const presentations: Presentation[] = specialite
-    ? await getFullPresentations(CIS)
-    : [];
-
-  const delivrance: DelivranceCondition[] =
-    specialite
-      ? await db
-        .selectFrom("ansm_specialite_delivrance")
-        .where("ansm_specialite_delivrance.cis", "=", CIS)
-        .innerJoin(
-          "ansm_delivrance",
-          "ansm_specialite_delivrance.code_delivrance",
-          "ansm_delivrance.code",
-        )
-        .select([
-          "ansm_delivrance.code as code",
-          "ansm_delivrance.libelle_court as shortLabel",
-          "ansm_delivrance.libelle_long as longLabel",
-        ])
-        .orderBy("ansm_delivrance.libelle_long")
-        .execute()
-      : [];
+  const [composants, presentations, delivrance] = await Promise.all([
+    getComposants(CIS),
+    getFullPresentations(CIS),
+    db
+      .selectFrom("ansm_specialite_delivrance")
+      .where("ansm_specialite_delivrance.cis", "=", CIS)
+      .innerJoin(
+        "ansm_delivrance",
+        "ansm_specialite_delivrance.code_delivrance",
+        "ansm_delivrance.code",
+      )
+      .select([
+        "ansm_delivrance.code as code",
+        "ansm_delivrance.libelle_court as shortLabel",
+        "ansm_delivrance.libelle_long as longLabel",
+      ])
+      .orderBy("ansm_delivrance.libelle_long")
+      .execute(),
+  ]);
 
   return {
     specialite,
@@ -183,9 +188,7 @@ export async function getSpecialite(CIS: string) {
   };
 }
 
-export async function getAllSpecialites(): Promise<
-  Specialite[]
-> {
+export async function getAllSpecialites(): Promise<Specialite[]> {
   "use cache: remote";
   const rows = await db
     .selectFrom("ansm_specialite")
@@ -197,7 +200,9 @@ export async function getAllSpecialites(): Promise<
   return rows.map((row) => mapCatalogSpecialite(row));
 }
 
-export async function getResumeSpecsGroupsWithLetter(letter: string): Promise<ResumeSpecGroup[]> {
+export async function getResumeSpecsGroupsWithLetter(
+  letter: string,
+): Promise<ResumeSpecGroup[]> {
   "use cache: remote";
   const result = await db
     .selectFrom("resume_medicaments")
@@ -214,7 +219,9 @@ export async function getResumeSpecsGroupsWithLetter(letter: string): Promise<Re
   return formatSpecialitesResumeFromGroups(result);
 }
 
-export async function getResumeSpecsGroupsWithIndication(indicationsIds: number): Promise<ResumeSpecGroup[]> {
+export async function getResumeSpecsGroupsWithIndication(
+  indicationsIds: number,
+): Promise<ResumeSpecGroup[]> {
   "use cache: remote";
   const result = await db
     .selectFrom("resume_medicaments")
@@ -225,7 +232,9 @@ export async function getResumeSpecsGroupsWithIndication(indicationsIds: number)
   return formatSpecialitesResumeFromGroups(result);
 }
 
-export async function getResumeSpecsGroupsWithCIS(CISList: string[]): Promise<ResumeSpecGroup[]> {
+export async function getResumeSpecsGroupsWithCIS(
+  CISList: string[],
+): Promise<ResumeSpecGroup[]> {
   "use cache: remote";
   if (CISList.length === 0) return [];
   const result = await db
@@ -237,7 +246,9 @@ export async function getResumeSpecsGroupsWithCIS(CISList: string[]): Promise<Re
   return formatSpecialitesResumeFromGroups(result);
 }
 
-export async function getResumeSpecialitesWithCIS(CISList: string[]): Promise<ResumeSpecialite[]> {
+export async function getResumeSpecialitesWithCIS(
+  CISList: string[],
+): Promise<ResumeSpecialite[]> {
   "use cache: remote";
   if (CISList.length === 0) return [];
   const result = await db
@@ -249,7 +260,10 @@ export async function getResumeSpecialitesWithCIS(CISList: string[]): Promise<Re
   return formatSpecialitesResume(result);
 }
 
-export async function getResumeSpecsGroupsWithCISSubsIds(CISList: string[], SubsIds: string[]): Promise<ResumeSpecGroup[]> {
+export async function getResumeSpecsGroupsWithCISSubsIds(
+  CISList: string[],
+  SubsIds: string[],
+): Promise<ResumeSpecGroup[]> {
   "use cache: remote";
   if (CISList.length === 0) return [];
   const result = await db
@@ -268,38 +282,42 @@ export async function getResumeSpecsGroupsWithCISSubsIds(CISList: string[], Subs
   return formatSpecialitesResumeFromGroups(result);
 }
 
-export async function getSubstanceSpecialites(subsNomsIDs: string | string[]): Promise<Specialite[]> {
+export async function getSubstanceSpecialites(
+  subsNomsIDs: string | string[],
+): Promise<Specialite[]> {
   "use cache: remote";
-    const ids: string[] = !Array.isArray(subsNomsIDs)
-      ? [subsNomsIDs]
-      : subsNomsIDs;
-    const cisList = await getCisMatchingSubstanceSet(ids);
-    if (cisList.length === 0) return [];
-    const rows = await db
-      .selectFrom("ansm_specialite")
-      .where("cis", "in", cisList)
-      .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
-      .selectAll()
-      .execute();
+  const ids: string[] = !Array.isArray(subsNomsIDs)
+    ? [subsNomsIDs]
+    : subsNomsIDs;
+  const cisList = await getCisMatchingSubstanceSet(ids);
+  if (cisList.length === 0) return [];
+  const rows = await db
+    .selectFrom("ansm_specialite")
+    .where("cis", "in", cisList)
+    .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
+    .selectAll()
+    .execute();
 
-    return rows.map((row) => mapCatalogSpecialite(row));
-  }
+  return rows.map((row) => mapCatalogSpecialite(row));
+}
 
-export async function getSubstanceSpecialitesCIS(subsNomsIDs: string | string[]): Promise<string[]> {
+export async function getSubstanceSpecialitesCIS(
+  subsNomsIDs: string | string[],
+): Promise<string[]> {
   "use cache: remote";
-    const ids: string[] = !Array.isArray(subsNomsIDs)
-      ? [subsNomsIDs]
-      : subsNomsIDs;
-    const cisList = await getCisMatchingSubstanceSet(ids);
-    if (cisList.length === 0) return [];
-    const rows = await db
-      .selectFrom("ansm_specialite")
-      .where("cis", "in", cisList)
-      .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
-      .select("cis")
-      .execute();
-    return rows.map((row) => row.cis);
-  }
+  const ids: string[] = !Array.isArray(subsNomsIDs)
+    ? [subsNomsIDs]
+    : subsNomsIDs;
+  const cisList = await getCisMatchingSubstanceSet(ids);
+  if (cisList.length === 0) return [];
+  const rows = await db
+    .selectFrom("ansm_specialite")
+    .where("cis", "in", cisList)
+    .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
+    .select("cis")
+    .execute();
+  return rows.map((row) => row.cis);
+}
 
 export async function getSpecialiteMetadata(
   CIS: number,
