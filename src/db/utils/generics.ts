@@ -1,4 +1,5 @@
 "use server";
+import { cache } from "react";
 
 
 import { ResumeGeneric } from "../types";
@@ -117,16 +118,20 @@ export async function getGenericGroup(
   };
 }
 
-export async function getGenericGroupMembership(CIS: string) {
+const getGenericMemberships = cache(async (CIS: string) => {
   "use cache: remote";
-
-  const membership = await db
+  return db
     .selectFrom("ansm_specialite_groupe_generique")
     .where("cis", "=", CIS)
     .where("role", "in", VISIBLE_GENERIC_GROUP_ROLES)
-    .select("code_groupe")
+    .select(["code_groupe", "role"])
     .orderBy("code_groupe")
-    .executeTakeFirst();
+    .execute();
+});
+
+export async function getGenericGroupMembership(CIS: string) {
+  "use cache: remote";
+  const [membership] = await getGenericMemberships(CIS);
 
   if (!membership) return undefined;
 
@@ -185,27 +190,15 @@ export async function getAllGenericGroupCodes(): Promise<number[]> {
 
 export async function isPrincepsSpecialite(CIS: string): Promise<boolean> {
   "use cache: remote";
-
-  return Boolean(
-    await db
-      .selectFrom("ansm_specialite_groupe_generique")
-      .where("cis", "=", CIS)
-      .where("role", "in", PRINCEPS_ROLES)
-      .select("cis")
-      .executeTakeFirst(),
+  return (await getGenericMemberships(CIS)).some(
+    ({ role }) => role !== null && PRINCEPS_ROLES.includes(role),
   );
 }
 
 export async function isGenericSpecialite(CIS: string): Promise<boolean> {
   "use cache: remote";
-
-  return Boolean(
-    await db
-      .selectFrom("ansm_specialite_groupe_generique")
-      .where("cis", "=", CIS)
-      .where("role", "in", GENERIC_ROLES)
-      .select("cis")
-      .executeTakeFirst(),
+  return (await getGenericMemberships(CIS)).some(
+    ({ role }) => role !== null && GENERIC_ROLES.includes(role),
   );
 }
 

@@ -9,6 +9,7 @@ import {
 import { isPresentationVisible } from "@/utils/presentations";
 import db from "..";
 import { mapCommercialStatus } from "./presentationCatalog";
+import { getElementsList } from "./elements";
 
 const PRESENTATION_VISIBILITY_DAYS = 730;
 const ABROGATION_EVENT_CODES = [18, 90];
@@ -176,11 +177,7 @@ export async function getPresentationsDetails(codeCIP13List: string[]): Promise<
       .where("cip", "in", cips)
       .selectAll()
       .execute(),
-    db
-      .selectFrom("ansm_element")
-      .where("cis", "in", cisList)
-      .selectAll()
-      .execute(),
+    getElementsList(cisList),
   ]);
 
   const characteristicsByRecipient = new Map<string, typeof characteristics>();
