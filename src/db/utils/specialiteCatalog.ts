@@ -50,14 +50,15 @@ export function disponibiliteToStatutBdm(
   disponibilite: AnsmSpecialite["disponibilite"],
 ): number {
   if (disponibilite === "ALERTE") return 3;
-  // PARTIELLE medicines remain addressable but must display the public
-  // unavailable/soon-unavailable warning. INDISPONIBLE rows are not routed.
+  // Keep the legacy summary code; availability preserves the distinction
+  // between PARTIELLE and INDISPONIBLE for catalogue-backed displays.
   if (disponibilite === "PARTIELLE" || disponibilite === "INDISPONIBLE") return 2;
   return 1;
 }
 
 export function mapCatalogSpecialite(row: AnsmSpecialite): Specialite {
   return {
+    availability: row.disponibilite,
     SpecId: row.cis,
     SpecDenom01: row.denomination ?? "",
     ProcId: row.procedure ?? "NON_COMMUNIQUEE",

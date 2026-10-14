@@ -126,6 +126,7 @@ export function SearchResultsContent({
         searchResults &&
         (searchResults.length > 0 ? (
           <SearchResultsList
+            advanced={Boolean(advancedCriteria)}
             resultsList={searchResults}
             search={advancedCriteria ? undefined : search}
           />

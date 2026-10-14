@@ -118,19 +118,13 @@ describe("advanced search on the complete catalogue", () => {
           await find({ substance: "racetamol", substanceMatch: "startsWith" }),
         ).toHaveLength(0);
         expect(
-          await find({
-            marketingStatus: "Commercialisée",
-            presentation: "Boîte de 8",
-          }),
-        ).toHaveLength(0);
+          (await find({ marketingStatus: "Commercialisée" })).map(
+            (s) => s.specId,
+          ),
+        ).toEqual(["99999111"]);
         expect(
-          (
-            await find({
-              marketingStatus: "Arrêtée",
-              presentation: "Boîte de 16",
-            })
-          ).map((s) => s.specId),
-        ).toEqual(["99999112"]);
+          (await find({ marketingStatus: "Arrêtée" })).map((s) => s.specId),
+        ).toEqual(["99999111", "99999112"]);
         expect(
           (await find({ documentType: "rcp", documentFrom: "2025-01-01" })).map(
             (s) => s.specId,

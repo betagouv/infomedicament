@@ -6,11 +6,9 @@ export type AdvancedSearchCriteria = {
   specialty: string;
   substance: string;
   holder: string;
-  presentation: string;
   specialtyMatch: MatchMode;
   substanceMatch: MatchMode;
   holderMatch: MatchMode;
-  presentationMatch: MatchMode;
   authorizationStatus: string;
   marketingStatus: string;
   authorizationFrom: string;
@@ -23,11 +21,9 @@ export const initialAdvancedCriteria: AdvancedSearchCriteria = {
   specialty: "",
   substance: "",
   holder: "",
-  presentation: "",
   specialtyMatch: "startsWith",
   substanceMatch: "startsWith",
   holderMatch: "startsWith",
-  presentationMatch: "startsWith",
   authorizationStatus: "",
   marketingStatus: "",
   authorizationFrom: "",

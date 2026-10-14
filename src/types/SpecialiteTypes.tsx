@@ -17,7 +17,10 @@ export type SpecialiteProcedure =
 // Application-facing medicine catalog model. The legacy property names are kept
 // while MySQL consumers are migrated incrementally, but this is deliberately not
 // a database row type: adapters only populate fields used by application code.
+export type MedicineAvailability = "DISPONIBLE" | "PARTIELLE" | "ALERTE" | "INDISPONIBLE";
+
 export type Specialite = {
+  availability?: MedicineAvailability | null;
   SpecId: string;
   SpecDenom01: string;
   ProcId: SpecialiteProcedure;
@@ -44,6 +47,7 @@ export type SpecialiteAlerts = {
 }
 
 export type ShortSpecialite = {
+  availability?: MedicineAvailability | null;
   SpecId: string,
   SpecDenom01: string,
   StatutBdm: string,
@@ -61,6 +65,7 @@ export type ResumeSpecGroup = ResumeSpecGroupDB & {
 }
 
 export type ResumeSpecialite = ResumeSpecialiteDB & {
+  availability?: MedicineAvailability | null;
   atc1Label?: string,
   atc2Label?: string,
   indicationsDetails?: ShortIndication[],

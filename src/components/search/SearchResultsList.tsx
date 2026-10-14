@@ -38,18 +38,25 @@ const ResultsContainer = styled.div`
 `;
 
 interface SearchResultsListProps extends HTMLAttributes<HTMLDivElement> {
+  advanced?: boolean;
   resultsList: SearchResultItem[];
   search?: string;
 }
 
-function SearchResultsList({ resultsList, search }: SearchResultsListProps) {
+function SearchResultsList({
+  advanced = false,
+  resultsList,
+  search,
+}: SearchResultsListProps) {
   const [allSubsFilters, setAllSubsFilters] = useState<SearchFilter[]>([]);
   const [allAtcFilters, setAllAtcFilters] = useState<SearchFilter[]>([]);
   const [allIndicationsFilters, setAllIndicationsFilters] = useState<
     SearchFilter[]
   >([]);
 
-  const [sortType, setSortType] = useState<SortType>("score");
+  const [sortType, setSortType] = useState<SortType>(
+    advanced ? "alphabetic" : "score",
+  );
   const [isSortAsc, setIsSortAsc] = useState<boolean>(true);
 
   //Loading
@@ -204,9 +211,11 @@ function SearchResultsList({ resultsList, search }: SearchResultsListProps) {
         return true;
       })
       .sort((a, b) => {
-        if (sortType === "alphabetic") {
-          if (isSortAsc) return a.groupName.localeCompare(b.groupName, "fr");
-          else return b.groupName.localeCompare(a.groupName, "fr");
+        if (advanced || sortType === "alphabetic") {
+          const nameA = advanced ? a.specName : a.groupName;
+          const nameB = advanced ? b.specName : b.groupName;
+          if (isSortAsc) return nameA.localeCompare(nameB, "fr");
+          else return nameB.localeCompare(nameA, "fr");
         } else {
           if (isSortAsc) {
             if (a.score !== b.score) return b.score - a.score;
@@ -220,6 +229,7 @@ function SearchResultsList({ resultsList, search }: SearchResultsListProps) {
     return newResultsList;
   }, [
     resultsList,
+    advanced,
     sortType,
     isSortAsc,
     allSubsFilters,
@@ -254,6 +264,7 @@ function SearchResultsList({ resultsList, search }: SearchResultsListProps) {
         style={{ width: "100%" }}
       >
         <SearchFiltersSubMenu
+          advanced={advanced}
           allSubsFilters={allSubsFilters}
           allAtcFilters={allAtcFilters}
           allIndicationsFilters={allIndicationsFilters}
@@ -271,6 +282,7 @@ function SearchResultsList({ resultsList, search }: SearchResultsListProps) {
         ].join(" ")}
       >
         <SearchFiltersContainer
+          advanced={advanced}
           allSubsFilters={allSubsFilters}
           allAtcFilters={allAtcFilters}
           allIndicationsFilters={allIndicationsFilters}
@@ -283,6 +295,7 @@ function SearchResultsList({ resultsList, search }: SearchResultsListProps) {
       </FiltersColumn>
       <ResultsContainer className={[fr.cx("fr-col-12")].join(" ")}>
         <SearchSortBlock
+          advanced={advanced}
           onUpdateSortType={setSortType}
           onUpdateIsSortAsc={setIsSortAsc}
           className={fr.cx("fr-hidden", "fr-unhidden-md")}

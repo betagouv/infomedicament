@@ -108,7 +108,7 @@ function DataBlockSpecResult({
             {specialite.isHistorical && (
               <span className={fr.cx("fr-text--sm")}>
                 <br />
-                Spécialité historique · indisponible dans le catalogue ANSM
+                Spécialité historique · Anciennement disponible sur le RSP
               </span>
             )}
             {specialite.advancedDetails && (

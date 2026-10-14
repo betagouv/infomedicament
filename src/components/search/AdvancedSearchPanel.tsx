@@ -83,7 +83,7 @@ const Actions = styled.div`
   gap: 1rem;
   margin-top: 1rem;
 `;
-type TextKey = "specialty" | "substance" | "holder" | "presentation";
+type TextKey = "specialty" | "substance" | "holder";
 type DateKey = "authorization" | "document";
 const textCriteria: { key: TextKey; label: string }[] = [
   { key: "specialty", label: "Nom de la spécialité" },
@@ -215,11 +215,9 @@ export default function AdvancedSearchPanel({
     setDateErrors(errors);
     if (errors.length > 0) return;
     const trimmed = { ...draft };
-    (["specialty", "substance", "holder", "presentation"] as const).forEach(
-      (key) => {
-        trimmed[key] = trimmed[key].trim();
-      },
-    );
+    (["specialty", "substance", "holder"] as const).forEach((key) => {
+      trimmed[key] = trimmed[key].trim();
+    });
     setDraft(trimmed);
     onSearch(trimmed, true);
   }
@@ -273,18 +271,6 @@ export default function AdvancedSearchPanel({
                 onModeChange={(value) => update(`${key}Match`, value)}
               />
             ))}
-            <details>
-              <summary className={fr.cx("fr-text--sm", "fr-mb-2w")}>
-                Rechercher aussi par présentation
-              </summary>
-              <TextCriterion
-                label="Libellé de la présentation"
-                value={draft.presentation}
-                mode={draft.presentationMatch}
-                onChange={(value) => update("presentation", value)}
-                onModeChange={(value) => update("presentationMatch", value)}
-              />
-            </details>
           </fieldset>
           <fieldset>
             <legend>Autorisation et commercialisation</legend>
@@ -310,7 +296,7 @@ export default function AdvancedSearchPanel({
                   update("authorizationStatus", event.target.value),
               }}
             >
-              <option value="">Indifférent</option>
+              <option value="">Toutes</option>
               {authorizationStatuses.map((status) => (
                 <option key={status}>{status}</option>
               ))}
@@ -333,7 +319,7 @@ export default function AdvancedSearchPanel({
                 onChange: (event) => update("documentType", event.target.value),
               }}
             >
-              <option value="">Indifférent</option>
+              <option value="">Tous</option>
               <option value="rcp">RCP</option>
               <option value="notice">Notice</option>
             </Select>

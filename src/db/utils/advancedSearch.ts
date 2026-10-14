@@ -94,12 +94,10 @@ export async function getAdvancedSearchResults(
     query = query.where(
       sql<boolean>`s.date_amm < ${criteria.authorizationTo}::date + interval '1 day'`,
     );
-  // Presentation text and commercial status must match the SAME presentation.
-  if (criteria.presentation || criteria.marketingStatus)
+  if (criteria.marketingStatus)
     query = query.where(sql<boolean>`exists (
     select 1 from ansm_presentation p where p.cis = s.cis
-    ${criteria.presentation ? sql`and ${textMatches("p.denomination", criteria.presentation, criteria.presentationMatch)}` : sql``}
-    ${criteria.marketingStatus ? sql`and p.statut_commercialisation = any(${getPresentationSourceStatuses(criteria.marketingStatus)}::text[])` : sql``}
+    and p.statut_commercialisation = any(${getPresentationSourceStatuses(criteria.marketingStatus)}::text[])
   )`);
   // All document constraints must match one document, including its update date.
   if (criteria.documentType || criteria.documentFrom || criteria.documentTo)
@@ -252,7 +250,8 @@ export async function getAdvancedSearchResults(
       score: 0,
       matchReasons: [],
       authorizationStatus: statutAmmToDisplayStatus(rows[index].statut_amm),
-      isHistorical: rows[index].disponibilite === "INDISPONIBLE",
+      availability: row.disponibilite,
+      isHistorical: row.disponibilite === "INDISPONIBLE",
       advancedDetails: {
         authorizationStatus: statutAmmToDisplayStatus(row.statut_amm),
         authorizationDate: row.authorizationDate,
@@ -266,6 +265,6 @@ export async function getAdvancedSearchResults(
 
 export const getCachedAdvancedSearchResults = unstable_cache(
   getAdvancedSearchResults,
-  ["advanced-search-results-details-v3"],
+  ["advanced-search-results-details-v4"],
   { revalidate: 3600 },
 );

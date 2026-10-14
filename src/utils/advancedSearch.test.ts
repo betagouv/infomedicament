@@ -44,7 +44,6 @@ describe("advanced search URL criteria", () => {
       specialtyMatch: "startsWith",
       substanceMatch: "startsWith",
       holderMatch: "startsWith",
-      presentationMatch: "startsWith",
     });
   });
   it("round trips cumulative criteria, accented names and matching modes", () => {

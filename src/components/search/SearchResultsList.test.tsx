@@ -71,3 +71,19 @@ describe("search result rendering", () => {
     ).not.toBeNull();
   });
 });
+
+it("sorts advanced results by full name and reverses them", () => {
+  const results = [
+    { ...result(2), groupName: "TEST", specName: "TEST B", score: 100 },
+    { ...result(1), groupName: "TEST", specName: "TEST A", score: 0 },
+  ];
+  render(<SearchResultsList advanced resultsList={results} />);
+  const names = () =>
+    screen
+      .getAllByRole("link")
+      .filter((link) => link.getAttribute("href")?.startsWith("medicaments/"))
+      .map((link) => link.textContent?.trim());
+  expect(names()).toEqual(["Test a", "Test b"]);
+  fireEvent.click(screen.getByTitle("Trier par ordre décroissant"));
+  expect(names()).toEqual(["Test b", "Test a"]);
+});
