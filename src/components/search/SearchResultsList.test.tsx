@@ -83,7 +83,7 @@ it("sorts advanced results by full name and reverses them", () => {
       .getAllByRole("link")
       .filter((link) => link.getAttribute("href")?.startsWith("medicaments/"))
       .map((link) => link.textContent?.trim());
-  expect(names()).toEqual(["Test a", "Test b"]);
-  fireEvent.click(screen.getByTitle("Trier par ordre décroissant"));
-  expect(names()).toEqual(["Test b", "Test a"]);
+  expect(names()).toEqual(["Test A", "Test B"]);
+  fireEvent.click(screen.getAllByTitle("Trier par ordre décroissant").at(-1)!);
+  expect(names()).toEqual(["Test B", "Test A"]);
 });

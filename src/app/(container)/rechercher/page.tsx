@@ -11,15 +11,21 @@ import {
   parseAdvancedSearch,
   hasAdvancedSearchRequest,
   getAdvancedSearchDraft,
+  type AdvancedSearchCriteria,
 } from "@/utils/advancedSearch";
-import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { Suspense } from "react";
 
 export default function Page(props: {
-  searchParams?: Promise<Record<string, string>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
 }) {
   return (
-    <Suspense fallback={<PageLoadingFallback />}>
+    <Suspense
+      fallback={
+        <SearchPage searchInput={<AutocompleteSearch inputName="s" />}>
+          <SearchResultsLoading />
+        </SearchPage>
+      }
+    >
       <SearchResults searchParams={props.searchParams} />
     </Suspense>
   );
@@ -85,7 +91,7 @@ async function Results({
   hasSearchRequest,
 }: {
   search: string;
-  advancedCriteria?: import("@/utils/advancedSearch").AdvancedSearchCriteria;
+  advancedCriteria?: AdvancedSearchCriteria;
   hasSearchRequest: boolean;
 }) {
   const [results, synonymTerms] = hasSearchRequest
@@ -98,9 +104,6 @@ async function Results({
           : Promise.resolve([]),
       ])
     : [[], []];
-  // const articlesList = results.length > 0
-  //   ? await getArticlesFromSearchResults(results)
-  //   : [];
 
   return (
     <>
