@@ -3,21 +3,21 @@
 import { Header } from "@codegouvfr/react-dsfr/Header";
 import Image from "next/image";
 import { AutocompleteSearchInput } from "@/components/search/autocomplete/AutocompleteSearch";
-import { useRouter } from "next/navigation";
+import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 import { useTracking } from "@/services/tracking";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 
 export default function ClientHeader({
   atcs,
-  hasSearch = true,
   searchInitial = "",
 }: {
   atcs: { code: string; label: string }[];
-  hasSearch?: boolean;
   searchInitial?: string;
 }) {
   const router = useRouter();
+  const segment = useSelectedLayoutSegment();
+  const hasSearch = segment !== null && segment !== "rechercher";
   const { isDark } = useIsDark();
   useTracking();
 

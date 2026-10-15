@@ -1,10 +1,13 @@
 "use server";
 
+
 import db from "..";
 import { AnsmStock } from "@/types/StockTypes";
 import { AnsmStockDB } from "../types";
 
 export async function getStockFromCIS(CIS: string): Promise<AnsmStock[]> {
+  "use cache: remote";
+
   const rawStock: AnsmStockDB[] = await db
     .selectFrom("ansm_stock")
     .where("CIS", "=", CIS)

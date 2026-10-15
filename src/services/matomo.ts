@@ -37,24 +37,7 @@ export const bulkFetchRangeFromMatomo = async <Result>(
 ): Promise<(Result & { date: string })[]> => {
   const period: string[] = config.date ? [config.date as string] : generateMonthsToNow();
 
-  const response = await fetch(
-    buildMatomoURL(
-      config,
-      period.map((date) => ({
-        date,
-      }))
-    )
-  );
-  if (!response.ok) {
-    throw new Error(`invalid matomo status: ${response.status}`);
-  }
-
-  const bulkResults: Result[][] | MatomoErrorResult[] = await response.json();
-  // consider failure if the first bulk result is an error
-  if (isMatomoErrorResult(bulkResults)) {
-    throw new Error(`matomo error: ${(bulkResults[0] as MatomoErrorResult).message}`);
-  }
-
+  const bulkResults = await getMatomoBulkResults<Result>(config, period);
   return bulkResults.map((bulkResult, i) => ({
     date: period[i],
     ...(reducer
@@ -92,4 +75,27 @@ export function generateMonthsToNow(): string[] {
       return date;
     });
   return months;
+}
+
+async function getMatomoBulkResults<Result>(config: ConfigType, period: string[]): Promise<Result[][]> {
+  "use cache: remote";
+  const response = await fetch(
+    buildMatomoURL(
+      config,
+      period.map((date) => ({
+        date,
+      }))
+    )
+  );
+  if (!response.ok) {
+    throw new Error(`invalid matomo status: ${response.status}`);
+  }
+
+  const bulkResults: Result[][] | MatomoErrorResult[] = await response.json();
+  // consider failure if the first bulk result is an error
+  if (isMatomoErrorResult(bulkResults)) {
+    throw new Error(`matomo error: ${(bulkResults[0] as MatomoErrorResult).message}`);
+  }
+
+  return bulkResults;
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import PageLoadingFallback from "../generic/PageLoadingFallback";
 import ContentContainer from "../generic/ContentContainer";
 import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { HTMLAttributes, lazy, Suspense, useCallback, useEffect, useState } from "react";
@@ -109,7 +110,7 @@ function MedicamentContent({
     <ContentContainer frContainer {...props}>
       {isAdvanced
         ? (
-          <Suspense fallback={null}>
+          <Suspense fallback={<PageLoadingFallback />}>
             <AdvancedContent
               atcCode={atcCode}
               specialite={specialite}

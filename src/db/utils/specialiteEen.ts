@@ -1,8 +1,11 @@
+
 import db from "@/db";
 
 export async function getEenLabelsByCis(
   cisList: readonly string[],
 ): Promise<Map<string, string>> {
+  "use cache: remote";
+
   const uniqueCis = [...new Set(cisList)];
   if (uniqueCis.length === 0) return new Map();
 

@@ -4,9 +4,6 @@ import { isPrincepsSpecialite } from "./generics";
 import { isHospitalDelivrance } from "@/utils/specialites";
 import db from "@/db";
 
-// disable cache for testing
-vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
-
 describe("db utils specialities", () => {
 
   it("getAllSpecialites - should return only actives specialities", async () => {

@@ -2,9 +2,6 @@ import { describe, it, expect, vi } from "vitest";
 import { getIndications, getSpecialitePathologies, getSpecialitesIndications } from "./indications";
 import { ShortIndication } from "@/types/IndicationsTypes";
 
-// disable cache for testing
-vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
-
 describe("db utils indications", () => {
 
   it("getIndications - should return patho and / or classe clinique", async () => {

@@ -1,11 +1,11 @@
 "use server";
 import "server-cli-only";
 
-import { cache } from "react";
+
 import { sql } from "kysely";
 import db from "@/db";
 import { getFullPresentations } from "@/db/utils/presentation";
-import { unstable_cache } from "next/cache";
+
 import {
   DelivranceCondition,
   DetailedSpecialite,
@@ -30,6 +30,7 @@ import { getGenericGroupMembership } from "./generics";
 import { getCisMatchingSubstanceSet } from "./substances";
 
 export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
+  "use cache: remote";
   const result = await db
     .selectFrom("ansm_document")
     .select((eb) => eb.fn.max("date_modification").as("lastUpdated"))
@@ -38,8 +39,8 @@ export async function getNoticeRcpLastUpdated(): Promise<Date | null> {
   return result?.lastUpdated ?? null;
 }
 
-export const getMarketedMedicamentCount = unstable_cache(
-  async function (): Promise<number> {
+export async function getMarketedMedicamentCount(): Promise<number> {
+  "use cache: remote";
     const result = await db
       .selectFrom("ansm_specialite")
       .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
@@ -47,12 +48,11 @@ export const getMarketedMedicamentCount = unstable_cache(
       .executeTakeFirstOrThrow();
 
     return Number(result.count);
-  },
-  ["marketed-medicament-count"],
-  { revalidate: 3600 },
-);
+  }
 
 export async function getSpecialiteName(CIS: string): Promise<string> {
+  "use cache: remote";
+
   const result = await db
     .selectFrom("ansm_specialite")
     .where("cis", "=", CIS)
@@ -62,8 +62,8 @@ export async function getSpecialiteName(CIS: string): Promise<string> {
   return result?.denomination ?? "";
 }
 
-export const getDetailedSpecialite = cache(
-  async (CIS: string): Promise<DetailedSpecialite | undefined> => {
+export async function getDetailedSpecialite(CIS: string): Promise<DetailedSpecialite | undefined> {
+  "use cache: remote";
     const row = await db
       .selectFrom("ansm_specialite")
       .where("cis", "=", CIS)
@@ -141,10 +141,10 @@ export const getDetailedSpecialite = cache(
       statusEvent?.date_evenement ?? null,
       excipientsEffetNotoire,
     );
-  },
-);
+  }
 
-export const getSpecialite = cache(async (CIS: string) => {
+export async function getSpecialite(CIS: string) {
+  "use cache: remote";
   const specialite: DetailedSpecialite | undefined =
     await getDetailedSpecialite(CIS);
 
@@ -181,11 +181,12 @@ export const getSpecialite = cache(async (CIS: string) => {
     presentations,
     delivrance,
   };
-});
+}
 
-export const getAllSpecialites = cache(async function (): Promise<
+export async function getAllSpecialites(): Promise<
   Specialite[]
 > {
+  "use cache: remote";
   const rows = await db
     .selectFrom("ansm_specialite")
     .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
@@ -194,11 +195,10 @@ export const getAllSpecialites = cache(async function (): Promise<
     .execute();
 
   return rows.map((row) => mapCatalogSpecialite(row));
-});
+}
 
-export const getResumeSpecsGroupsWithLetter = cache(async function (
-  letter: string,
-): Promise<ResumeSpecGroup[]> {
+export async function getResumeSpecsGroupsWithLetter(letter: string): Promise<ResumeSpecGroup[]> {
+  "use cache: remote";
   const result = await db
     .selectFrom("resume_medicaments")
     .where(({ eb, ref }) =>
@@ -212,11 +212,10 @@ export const getResumeSpecsGroupsWithLetter = cache(async function (
     .orderBy("groupName")
     .execute();
   return formatSpecialitesResumeFromGroups(result);
-});
+}
 
-export const getResumeSpecsGroupsWithIndication = cache(async function (
-  indicationsIds: number,
-): Promise<ResumeSpecGroup[]> {
+export async function getResumeSpecsGroupsWithIndication(indicationsIds: number): Promise<ResumeSpecGroup[]> {
+  "use cache: remote";
   const result = await db
     .selectFrom("resume_medicaments")
     .where("indicationsIds", "&&", Array([indicationsIds]))
@@ -224,11 +223,10 @@ export const getResumeSpecsGroupsWithIndication = cache(async function (
     .orderBy("groupName")
     .execute();
   return formatSpecialitesResumeFromGroups(result);
-});
+}
 
-export const getResumeSpecsGroupsWithCIS = cache(async function (
-  CISList: string[],
-): Promise<ResumeSpecGroup[]> {
+export async function getResumeSpecsGroupsWithCIS(CISList: string[]): Promise<ResumeSpecGroup[]> {
+  "use cache: remote";
   if (CISList.length === 0) return [];
   const result = await db
     .selectFrom("resume_medicaments")
@@ -237,37 +235,53 @@ export const getResumeSpecsGroupsWithCIS = cache(async function (
     .orderBy("groupName")
     .execute();
   return formatSpecialitesResumeFromGroups(result);
-});
+}
 
 // Groups of the specialites containing exactly the substances, and only them
-export const getSubstanceSpecsGroups = cache(async function (
-  subsIds: string[],
-): Promise<ResumeSpecGroup[]> {
+export async function getSubstanceSpecsGroups(subsIds: string[]): Promise<ResumeSpecGroup[]> {
+  "use cache: remote";
   const CISList = await getSubstanceSpecialitesCIS(subsIds);
   const specsGroups = await getResumeSpecsGroupsWithCIS(CISList);
   return filterSpecsGroupsByCIS(specsGroups, CISList);
-});
+};
 
-export const getSubstanceSpecialitesCIS = unstable_cache(
-  async function (subsIds: string | string[]): Promise<string[]> {
-    const ids: string[] = !Array.isArray(subsIds) ? [subsIds] : subsIds;
-    const cisList = await getCisMatchingSubstanceSet(ids);
-    if (cisList.length === 0) return [];
-    const rows = await db
-      .selectFrom("ansm_specialite")
-      .where("cis", "in", cisList)
-      .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
-      .select("cis")
-      .execute();
-    return rows.map((row) => row.cis.trim());
-  },
-  ["substance-specialites-cis"],
-  { revalidate: 3600 }, // cache for one hour
-);
+export async function getSubstanceSpecialites(subsNomsIDs: string | string[]): Promise<Specialite[]> {
+  "use cache: remote";
+  const ids: string[] = !Array.isArray(subsNomsIDs)
+    ? [subsNomsIDs]
+    : subsNomsIDs;
+  const cisList = await getCisMatchingSubstanceSet(ids);
+  if (cisList.length === 0) return [];
+  const rows = await db
+    .selectFrom("ansm_specialite")
+    .where("cis", "in", cisList)
+    .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
+    .selectAll()
+    .execute();
+
+  return rows.map((row) => mapCatalogSpecialite(row));
+}
+    
+export async function getSubstanceSpecialitesCIS(subsIds: string | string[]): Promise<string[]> {
+  "use cache: remote";
+  const ids: string[] = !Array.isArray(subsIds)
+    ? [subsIds]
+    : subsIds;
+  const cisList = await getCisMatchingSubstanceSet(ids);
+  if (cisList.length === 0) return [];
+  const rows = await db
+    .selectFrom("ansm_specialite")
+    .where("cis", "in", cisList)
+    .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
+    .select("cis")
+    .execute();
+  return rows.map((row) => row.cis.trim());
+}
 
 export async function getSpecialiteMetadata(
   CIS: number,
 ): Promise<SpecialiteMetadata | undefined> {
+  "use cache: remote";
   return await db
     .selectFrom("specialites_metadata")
     .where("CIS", "=", CIS)

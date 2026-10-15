@@ -9,9 +9,6 @@ import {
 } from "./atc";
 import { getResumeSubstancesByNomId } from "./substances";
 
-// disable cache for testing
-vi.mock("next/cache", () => ({ unstable_cache: (fn: unknown) => fn }));
-
 describe("PostgreSQL ATC projections", () => {
   it("uses the destination substance list for the parent A02 card", async () => {
     const parent = await getAtc1DefinitionData(await getAtc1("A"));

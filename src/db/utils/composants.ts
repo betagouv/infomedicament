@@ -1,17 +1,17 @@
 "use server";
 import "server-cli-only";
 
-import { cache } from "react";
 import db from "@/db";
 import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { toCompositionComponents } from "./substanceCatalog";
 
-export const getComposants = cache(async function (CIS: string) {
+export async function getComposants(CIS: string) {
+  "use cache: remote";
   return getComposantsList([CIS]);
-});
+}
 
-export const getComposantsList = cache(
-  async (CISList: string[]): Promise<CompositionComponent[]> => {
+export async function getComposantsList(CISList: string[]): Promise<CompositionComponent[]> {
+  "use cache: remote";
     if (CISList.length === 0) return [];
 
     const [components, elements] = await Promise.all([
@@ -43,5 +43,4 @@ export const getComposantsList = cache(
             .execute();
 
     return toCompositionComponents(components, names, elements);
-  },
-);
+  }

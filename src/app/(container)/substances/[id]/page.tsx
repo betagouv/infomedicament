@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
@@ -13,8 +15,6 @@ import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 import { Substance, SubstancesName } from "@/types/SubstanceTypes";
 import { notFound } from "next/navigation";
 
-export const dynamic = "error";
-export const dynamicParams = true;
 
 // Check if all the requested substances are loaded
 // Usefull when the page are for multiple substances and some of them are the same
@@ -77,8 +77,17 @@ export async function generateMetadata(
   };
 }
 
-export default async function Page(props: { params: Promise<{ id: string }> }) {
-  const { id } = await props.params;
+export default function Page(props: { params: Promise<{ id: string }> }) {
+  return <Suspense fallback={<PageLoadingFallback />}><ResolvedSubstancePage params={props.params} /></Suspense>;
+}
+
+async function ResolvedSubstancePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <CachedSubstancePage id={id} />;
+}
+
+async function CachedSubstancePage({ id }: { id: string }) {
+  "use cache: remote";
   const subsIds = decodeURIComponent(id).split(",");
   
   const substances: Substance[] = await getSubstancesNames(subsIds) ?? [];

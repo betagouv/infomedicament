@@ -1,7 +1,7 @@
 "use server";
 import "server-cli-only";
 
-import { cache } from "react";
+import type { SpecialiteWithSubstance } from "@/types/SpecialiteTypes";
 import type { ResumeSubstance, AnsmComposant } from "../types";
 import db from "..";
 import { sql } from "kysely";
@@ -121,6 +121,8 @@ async function componentsForCandidateCis(
 export async function getCisMatchingSubstanceSet(
   ids: string[],
 ): Promise<string[]> {
+  "use cache: remote";
+
   const substances = await resolveSubstances(ids);
   if (substances.length !== ids.length) return [];
 
@@ -133,18 +135,18 @@ export async function getCisMatchingSubstanceSet(
     .map(([cis]) => cis);
 }
 
-export const getResumeSubstancesByNomId = cache(async function (
-  subsNomsIds: string[]
-): Promise<ResumeSubstance[]> {
+export async function getResumeSubstancesByNomId(subsNomsIds: string[]): Promise<ResumeSubstance[]> {
+  "use cache: remote";
   const result = await db.selectFrom("resume_substances")
     .selectAll()
     .where("NomId", "in", subsNomsIds)
     .orderBy("NomLib")
     .execute();
   return result ?? [];
-});
+};
 
-export const getAllSubsWithSpecialites = cache(async function () {
+export async function getAllSubsWithSpecialites() {
+  "use cache: remote";
   const [components, names, specialites] = await Promise.all([
     db.selectFrom("ansm_composant")
       .selectAll()
@@ -202,10 +204,11 @@ export const getAllSubsWithSpecialites = cache(async function () {
       return true;
     })
     .sort((left, right) => left.NomLib.localeCompare(right.NomLib, "fr"));
-});
+}
 
 // SubsIds of the substances list (one per substance, whatever its names)
-export const getAllResumeSubstancesIds = cache(async function (): Promise<string[]> {
+export async function getAllResumeSubstancesIds(): Promise<string[]> {
+  "use cache: remote";
   const rows = await db
     .selectFrom("resume_substances")
     .select("SubsId")
@@ -213,11 +216,10 @@ export const getAllResumeSubstancesIds = cache(async function (): Promise<string
     .orderBy("SubsId")
     .execute();
   return rows.map((row) => row.SubsId.trim());
-});
+};
 
-export const getSubstancesResumeWithLetter = cache(async function (
-  letter: string,
-): Promise<ResumeSubstance[]> {
+export async function getSubstancesResumeWithLetter(letter: string): Promise<ResumeSubstance[]> {
+  "use cache: remote";
   return db
     .selectFrom("resume_substances")
     .where(({ eb, ref }) =>
@@ -230,11 +232,10 @@ export const getSubstancesResumeWithLetter = cache(async function (
     .selectAll()
     .orderBy("NomLib")
     .execute();
-});
+}
 
-export const getSubstanceDefinition = cache(async function (
-  subsIds: string[],
-) {
+export async function getSubstanceDefinition(subsIds: string[]) {
+  "use cache: remote";
   if (subsIds.length === 0) return [];
   const rows = await db.selectFrom("ref_substance_active_definitions")
     .select(["subs_id", "sa", "definition"])
@@ -249,20 +250,19 @@ export const getSubstanceDefinition = cache(async function (
       Definition: row.definition?.trim() || "",
     }
   ));
-});
+};
 
-export const getAllSubstancesResumes = cache(
-  async function (): Promise<ResumeSubstance[]> 
-{
+export async function getAllSubstancesResumes(): Promise<ResumeSubstance[]> {
+  "use cache: remote";
   return db
     .selectFrom("resume_substances")
     .selectAll()
     .orderBy("NomLib")
-    .execute() ;
-});
+    .execute();
+}
 
-export const getAllMainSubstancesNames = cache(async function (
-): Promise<Substance[]> {
+export async function getAllMainSubstancesNames(): Promise<Substance[]> {
+  "use cache: remote";
   const rows = await db
     .selectFrom("ansm_substance_nom")
     .where("type", "=", "CANONIQUE")
@@ -275,11 +275,13 @@ export const getAllMainSubstancesNames = cache(async function (
     NomLib: row.nom?.trim() || "",
     isCanonical: true,
   })) ?? [];
-});
+};
 
-export const getSubstancesNames = cache(async function (
+export async function getSubstancesNames(
   subsIds: string[]
 ): Promise<Substance[]> {
+
+  "use cache: remote";
   if (subsIds.length === 0) return [];
 
   const rows = await db
@@ -310,4 +312,4 @@ export const getSubstancesNames = cache(async function (
     return label ? [{ SubsId: subsId, NomId: subsId, NomLib: displayName(label.substance!), isCanonical: false }] : [];
   });
   return [...names, ...fallbacks];
-});
+};
