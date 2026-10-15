@@ -1,22 +1,27 @@
 "use client";
 
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes } from "react";
 import Link from "next/link";
 import { fr } from "@codegouvfr/react-dsfr";
-import styled from 'styled-components';
+import styled from "styled-components";
 import DataBlockGenericIcons from "./DataBlockGenericIcons";
 import { formatSpecName } from "@/displayUtils";
-import { MatchReason, SearchFilter, SearchResultItem } from "@/types/SearchTypes";
+import {
+  MatchReason,
+  SearchFilter,
+  SearchResultItem,
+} from "@/types/SearchTypes";
 
 const DataBlockSpecResultContainer = styled.div`
   border-bottom: 2px solid var(--border-open-blue-france);
-  .spec-result-link{
-    background-image: none;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-  }
-  .spec-result-link:hover{
+`;
+
+const ResultLink = styled(Link)`
+  background-image: none;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  &:hover {
     background-color: var(--background-alt-grey);
   }
 `;
@@ -37,113 +42,85 @@ function DataBlockSpecResult({
   specialite,
   subsFilters,
   atcsFilters,
-  indicationsFilters
+  indicationsFilters,
 }: DataBlockSpecResultProps) {
-
-  const [prefixName, setPrefixName] = useState<string>("");
-  const [suffixName, setSuffixName] = useState<string>("");
-  const [subsNames, setSubsNames] = useState<string>("");
-  const [atcNames, setAtcName] = useState<string>("");
-  const [indicationsNames, setIndicationsNames] = useState<string[]>([]);
-
-  useEffect(() => {
-    const indexGroupName = specialite.specName.indexOf(specialite.groupName);
-    if(indexGroupName === 0){
-      setPrefixName(formatSpecName(specialite.groupName));
-      const suffixName:string = formatSpecName(specialite.specName.substring(indexGroupName + specialite.groupName.length));
-      setSuffixName(suffixName);
-    }
-    else {
-      const specName: string = formatSpecName(specialite.specName);
-      setPrefixName(specName);
-      setSuffixName(specName);
-    }
-  }, [specialite, setPrefixName, setSuffixName]);
-
-  useEffect(() => {
-    const findSubs = subsFilters.find((filter) => filter.id === specialite.composants.trim());
-    if(findSubs)
-      setSubsNames(findSubs.name);
-    else
-      setSubsNames("");
-  }, [specialite, subsFilters, setSubsNames]);
-
-  useEffect(() => {
-    const findATC = atcsFilters.find((filter: SearchFilter) => {
-      if(filter.id === specialite.atc1Code?.trim() && filter.children) {
-        return filter.children.find((childrenFilter) => childrenFilter.selected && childrenFilter.id === specialite.atc2Code?.trim());
-      } else return false;
-    });
-    if(findATC) {
-      const findATC2 = findATC.children
-        ? findATC.children.find((childrenFilter) => childrenFilter.selected && childrenFilter.id === specialite.atc2Code?.trim())
-        : undefined;
-      if(findATC2)
-        setAtcName(`${findATC.name} > ${findATC2.name}`)
-      else
-        setAtcName(findATC.name);
-    } else
-      setAtcName("");
-  }, [specialite, atcsFilters, setAtcName]);
-
-  useEffect(() => {
-    if(specialite.indicationsDetails && specialite.indicationsDetails.length > 0){
-      const names: string[] = indicationsFilters
-        .filter((filter: SearchFilter) => 
-          specialite.indicationsDetails?.findIndex((indication) => 
-            indication.idIndication.toString() === filter.id && indication.nomIndication.trim() === filter.name
-          ) !== -1
-        )
-        .map((filter: SearchFilter) => filter.name);
-      setIndicationsNames(names);
-    } else setIndicationsNames([]);
-  }, [specialite, indicationsFilters, setIndicationsNames]);
-
-  return specialite.specName && (
-    <DataBlockSpecResultContainer>
-      <Link
-        href={`medicaments/${specialite.specId}`}
-        className={["spec-result-link", fr.cx("fr-px-1w", "fr-py-2w")].join(" ")}
-      >
-        <span>
-          <strong>{prefixName}</strong>
-          {suffixName}
-          {subsNames && (
-            <span className={fr.cx("fr-text--sm")}>
-              <br/>
-              <FilterTitle>
-                Substance active{' '}
-              </FilterTitle>
-              {subsNames}
-            </span>
-          )}
-          {atcNames && (
-            <span className={fr.cx("fr-text--sm")}>
-              <br/>
-              <FilterTitle>
-                Classe de médicament{' '}
-              </FilterTitle>
-              {atcNames}
-            </span>
-          )}
-          {indicationsNames.length > 0 && (
-            <span className={fr.cx("fr-text--sm")}>
-              <br/>
-              <FilterTitle>
-                Indication{indicationsNames.length > 1 && 's'}{' '}
-              </FilterTitle>
-              {indicationsNames.join(", ")}
-            </span>
-          )}
-        </span>
-        <DataBlockGenericIcons
-          specialite={specialite}
-          isSurveillanceRenforcee={specialite.isSurveillanceRenforcee}
-          withAlerts
-        />
-      </Link>
-    </DataBlockSpecResultContainer>
+  const indexGroupName = specialite.specName.indexOf(specialite.groupName);
+  const prefixName = formatSpecName(
+    indexGroupName === 0 ? specialite.groupName : specialite.specName,
   );
-};
+  const suffixName =
+    indexGroupName === 0
+      ? formatSpecName(
+          specialite.specName.substring(specialite.groupName.length),
+        )
+      : "";
+  const subsNames = subsFilters.find(
+    (filter) => filter.id === specialite.composants.trim(),
+  )?.name;
+  const atc = atcsFilters.find(
+    (filter) =>
+      filter.id === specialite.atc1Code?.trim() &&
+      filter.children?.some(
+        (child) => child.selected && child.id === specialite.atc2Code?.trim(),
+      ),
+  );
+  const atc2 = atc?.children?.find(
+    (child) => child.selected && child.id === specialite.atc2Code?.trim(),
+  );
+  const atcNames = atc2 ? `${atc!.name} > ${atc2.name}` : atc?.name;
+  const indicationsNames = indicationsFilters
+    .filter((filter) =>
+      specialite.indicationsDetails?.some(
+        (indication) =>
+          indication.idIndication.toString() === filter.id &&
+          indication.nomIndication.trim() === filter.name,
+      ),
+    )
+    .map((filter) => filter.name);
+
+  return (
+    specialite.specName && (
+      <DataBlockSpecResultContainer>
+        <ResultLink
+          href={`medicaments/${specialite.specId}`}
+          className={[fr.cx("fr-px-1w", "fr-py-2w")].join(" ")}
+        >
+          <span>
+            <strong>{prefixName}</strong>
+            {suffixName}
+            {subsNames && (
+              <span className={fr.cx("fr-text--sm")}>
+                <br />
+                <FilterTitle>Substance active </FilterTitle>
+                {subsNames}
+              </span>
+            )}
+            {atcNames && (
+              <span className={fr.cx("fr-text--sm")}>
+                <br />
+                <FilterTitle>Classe de médicament </FilterTitle>
+                {atcNames}
+              </span>
+            )}
+            {indicationsNames.length > 0 && (
+              <span className={fr.cx("fr-text--sm")}>
+                <br />
+                <FilterTitle>
+                  Indication{indicationsNames.length > 1 && "s"}{" "}
+                </FilterTitle>
+                {indicationsNames.join(", ")}
+              </span>
+            )}
+          </span>
+          <DataBlockGenericIcons
+            specialite={specialite}
+            isSurveillanceRenforcee={specialite.isSurveillanceRenforcee}
+            withAlerts
+          />
+        </ResultLink>
+      </DataBlockSpecResultContainer>
+    )
+  );
+}
 
 export default DataBlockSpecResult;

@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
+import MedicamentPageLoading from "@/components/medicaments/MedicamentPageLoading";
 import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
 import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
@@ -12,9 +12,13 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
 import { getAtcCode } from "@/utils/atc";
-import { getSpecialiteMetadata, getSpecialiteName } from "@/db/utils/specialities";
+import {
+  getSpecialiteMetadata,
+  getSpecialiteName,
+} from "@/db/utils/specialities";
 import { isGenericSpecialite, isPrincepsSpecialite } from "@/db/utils/generics";
 import MedicamentContent from "@/components/medicaments/MedicamentContent";
+import type { MedicamentData } from "@/components/medicaments/MedicamentData";
 import ShareButtons from "@/components/generic/ShareButtons";
 import {
   getSpecialitesIndications,
@@ -35,7 +39,6 @@ import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { getIndicationsBlock } from "@/utils/noticeHtml";
 import { getVideosFromCIS } from "@/db/utils/videos";
 import { getStockFromCIS } from "@/db/utils/stocks";
-
 
 // Prerender the top ~500 medicaments at build time so they are served as static
 // HTML before the first request. Other CIS are still rendered on-demand
@@ -63,7 +66,7 @@ async function fetchMedicamentData(
     allPregnancyPlanAlerts,
     specialitePathologies,
     videos,
-    stocks
+    stocks,
   ] = await Promise.all([
     getNotice(CIS),
     getFicheInfos(CIS),
@@ -74,7 +77,7 @@ async function fetchMedicamentData(
     getAllPregnancyPlanAlerts(),
     getSpecialitePathologies(CIS),
     getVideosFromCIS(CIS),
-    getStockFromCIS(CIS)
+    getStockFromCIS(CIS),
   ]);
 
   const pregnancyPlanAlert = findPregnancyPlanAlert(
@@ -95,14 +98,14 @@ async function fetchMedicamentData(
     notice,
     ficheInfos,
     definitions,
-    pregnancyMentionAlert,
+    isPregnancyMentionAlert: pregnancyMentionAlert,
     pediatrics,
     marr,
     pregnancyPlanAlert,
     indicationsBlock,
     articles,
     videos,
-    stocks
+    stocks,
   };
 }
 
@@ -128,28 +131,28 @@ export async function generateMetadata(
 }
 
 export default function Page(props: { params: Promise<{ CIS: string }> }) {
-  return <Suspense fallback={<PageLoadingFallback />}><ResolvedMedicamentPage params={props.params} /></Suspense>;
+  return (
+    <Suspense fallback={<MedicamentPageLoading />}>
+      <ResolvedMedicamentPage params={props.params} />
+    </Suspense>
+  );
 }
 
-async function ResolvedMedicamentPage({ params }: { params: Promise<{ CIS: string }> }) {
+async function ResolvedMedicamentPage({
+  params,
+}: {
+  params: Promise<{ CIS: string }>;
+}) {
   const { CIS } = await params;
-  return <CachedMedicamentPage CIS={CIS} />;
+  return <MedicamentPage CIS={CIS} />;
 }
 
-async function CachedMedicamentPage({ CIS }: { CIS: string }) {
-  "use cache: remote";
-  const { specialite, composants, presentations, delivrance } =
-    await getSpecialite(CIS);
-  const indications = await getSpecialitesIndications([CIS]);
-
-  const atcCode = await getAtcCode(CIS);
-  const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
-  const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
-
-  const [isPrinceps, isGeneric] = await Promise.all([
-    isPrincepsSpecialite(CIS),
-    isGenericSpecialite(CIS),
-  ]);
+async function MedicamentPage({ CIS }: { CIS: string }) {
+  const [{ specialite, composants, presentations, delivrance }, atcCode] =
+    await Promise.all([getSpecialite(CIS), getAtcCode(CIS)]);
+  const [atc1, atc2] = atcCode
+    ? await Promise.all([getAtc1(atcCode), getAtc2(atcCode)])
+    : [undefined, undefined];
 
   const atcList: string[] = [];
   const breadcrumb = [{ label: "Accueil", linkProps: { href: "/" } }];
@@ -167,10 +170,6 @@ async function CachedMedicamentPage({ CIS }: { CIS: string }) {
       linkProps: { href: `/atc/${atc2.code}` },
     });
   }
-
-  const medData = specialite
-    ? await fetchMedicamentData(CIS, composants, atcList)
-    : undefined;
 
   if (composants.length > 0) {
     breadcrumb.push({
@@ -225,13 +224,14 @@ async function CachedMedicamentPage({ CIS }: { CIS: string }) {
           backgroundColor: fr.colors.decisions.background.alt.grey.default,
         }}
       >
-        {!specialite || !medData ? (
+        {!specialite ? (
           <ContentContainer frContainer>
             Le médicament demandé n'existe pas ou il n'entre pas dans le
             périmètre d'Info Médicament.
           </ContentContainer>
         ) : (
           <MedicamentContent
+            data={getMedicamentData(CIS, composants, atcList)}
             atcList={atcList}
             atc2={atc2}
             atcCode={atcCode}
@@ -239,25 +239,27 @@ async function CachedMedicamentPage({ CIS }: { CIS: string }) {
             composants={composants}
             delivrance={delivrance}
             presentations={presentations}
-            isPrinceps={isPrinceps}
-            isGeneric={isGeneric}
             title={pageLabel}
-            indications={indications}
-            indicationsBlock={medData.indicationsBlock}
-            notice={medData.notice}
-            ficheInfos={medData.ficheInfos}
-            definitions={medData.definitions}
-            pregnancyPlanAlert={medData.pregnancyPlanAlert}
-            isPregnancyMentionAlert={medData.pregnancyMentionAlert}
-            pediatrics={medData.pediatrics}
-            marr={medData.marr}
-            articles={medData.articles}
-            videos={medData.videos}
-            stocks={medData.stocks}
           />
         )}
       </ContentContainer>
       <RatingToaster pageId={pageLabel} />
     </>
   );
+}
+
+// One stable server promise is shared by the independently suspended sections.
+async function getMedicamentData(
+  CIS: string,
+  composants: CompositionComponent[],
+  atcList: string[],
+): Promise<MedicamentData> {
+  "use cache: remote";
+  const [data, indications, isPrinceps, isGeneric] = await Promise.all([
+    fetchMedicamentData(CIS, composants, atcList),
+    getSpecialitesIndications([CIS]),
+    isPrincepsSpecialite(CIS),
+    isGenericSpecialite(CIS),
+  ]);
+  return { ...data, indications, isPrinceps, isGeneric };
 }

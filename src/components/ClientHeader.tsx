@@ -7,6 +7,22 @@ import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 import { useTracking } from "@/services/tracking";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
+import { Suspense, useEffect, useState } from "react";
+
+function HeaderSearchVisibility({
+  onChange,
+}: {
+  onChange: (visible: boolean) => void;
+}) {
+  const segment = useSelectedLayoutSegment();
+  const hasSearch = segment !== null && segment !== "rechercher";
+
+  useEffect(() => {
+    onChange(hasSearch);
+  }, [hasSearch, onChange]);
+
+  return null;
+}
 
 export default function ClientHeader({
   atcs,
@@ -16,123 +32,128 @@ export default function ClientHeader({
   searchInitial?: string;
 }) {
   const router = useRouter();
-  const segment = useSelectedLayoutSegment();
-  const hasSearch = segment !== null && segment !== "rechercher";
+  const [hasSearch, setHasSearch] = useState(false);
   const { isDark } = useIsDark();
   useTracking();
 
   return (
-    <Header
-      brandTop={
-        <>
-          RÉPUBLIQUE
-          <br />
-          FRANÇAISE
-        </>
-      }
-      homeLinkProps={{
-        href: "/",
-        title: "Accueil",
-      }}
-      serviceTitle={
-        <Image
-          src={isDark ? "/img/logo_white.svg" : "/img/logo.svg"}
-          alt="Info Médicament"
-          width={285}
-          height={33}
-          style={{ maxWidth: "100%", height: "auto" }}
-        />
-      }
-      serviceTagline="La référence officielle sur les données des médicaments"
-      quickAccessItems={[
-        {
-          iconId: 'ri-arrow-left-right-fill',
-          linkProps: {
-            href: "/interactions",
-            prefetch: false,
-            className: cx("fr-hidden-md")
+    <>
+      {/* Only the route reader suspends; DSFR can hydrate the header normally. */}
+      <Suspense fallback={null}>
+        <HeaderSearchVisibility onChange={setHasSearch} />
+      </Suspense>
+      <Header
+        brandTop={
+          <>
+            RÉPUBLIQUE
+            <br />
+            FRANÇAISE
+          </>
+        }
+        homeLinkProps={{
+          href: "/",
+          title: "Accueil",
+        }}
+        serviceTitle={
+          <Image
+            src={isDark ? "/img/logo_white.svg" : "/img/logo.svg"}
+            alt="Info Médicament"
+            width={285}
+            height={33}
+            style={{ maxWidth: "100%", height: "auto" }}
+          />
+        }
+        serviceTagline="La référence officielle sur les données des médicaments"
+        quickAccessItems={[
+          {
+            iconId: "ri-arrow-left-right-fill",
+            linkProps: {
+              href: "/interactions",
+              prefetch: false,
+              className: cx("fr-hidden-md"),
+            },
+            text: "Interactions entre médicaments",
           },
-          text: "Interactions entre médicaments",
-        },
-        {
-          iconId: 'ri-speak-fill',
-          linkProps: {
-            href: "https://signalement.social-sante.gouv.fr/",
-            target: "_blank",
-            rel: "noopener external",
-            className: cx("fr-hidden-md")
+          {
+            iconId: "ri-speak-fill",
+            linkProps: {
+              href: "https://signalement.social-sante.gouv.fr/",
+              target: "_blank",
+              rel: "noopener external",
+              className: cx("fr-hidden-md"),
+            },
+            text: "Signaler un effet indésirable",
           },
-          text: "Signaler un effet indésirable"
-        },
-      ]}
-      navigation={[
-        { text: "Accueil", linkProps: { href: "/", prefetch: false } },
-        {
-          text: "Classes de médicament",
-          menuLinks: atcs.map((atc) => ({
-            linkProps: { href: `/atc/${atc.code}`, prefetch: false },
-            text: atc.label,
-          })),
-        },
-        {
-          text: "Listes",
-          menuLinks: [
-            {
-              text: "Tous les médicaments",
-              linkProps: { href: "/medicaments/A", prefetch: false },
-            },
-            {
-              text: "Toutes les substances actives",
-              linkProps: { href: "/substances/(", prefetch: false },
-            },
-            {
-              text: "Toutes les indications",
-              linkProps: { href: "/indications/A", prefetch: false },
-            },
-            {
-              text: "Tous les groupes génériques",
-              linkProps: { href: "/generiques/A", prefetch: false },
-            },
-          ],
-        },
-        {
-          text: "Interactions",
-          linkProps: { href: "/interactions", prefetch: false },
-        },
-        {
-          text: "Articles",
-          linkProps: { href: "/articles", prefetch: false },
-        },
-        {
-          text: "Glossaire",
-          linkProps: { href: "/glossaire/A", prefetch: false },
-        },
-        {
-          text: "Signaler un effet indésirable",
-          linkProps: {
-            href: "https://signalement.social-sante.gouv.fr/",
-            target: "_blank",
-            rel: "noopener external"
+        ]}
+        navigation={[
+          { text: "Accueil", linkProps: { href: "/", prefetch: false } },
+          {
+            text: "Classes de médicament",
+            menuLinks: atcs.map((atc) => ({
+              linkProps: { href: `/atc/${atc.code}`, prefetch: false },
+              text: atc.label,
+            })),
           },
-        },
-      ]}
-      renderSearchInput={
-        hasSearch
-          ? (props) => (
-              <AutocompleteSearchInput
-                name="s"
-                {...props}
-                placeholder="Que cherchez-vous ?"
-                initialValue={searchInitial}
-              />
-            )
-          : undefined
-      }
-      onSearchButtonClick={
-        hasSearch
-          ? (search: string) => router.push(`/rechercher?s=${search}`)
-          : undefined
-      }
-    />
+          {
+            text: "Listes",
+            menuLinks: [
+              {
+                text: "Tous les médicaments",
+                linkProps: { href: "/medicaments/A", prefetch: false },
+              },
+              {
+                text: "Toutes les substances actives",
+                linkProps: { href: "/substances/(", prefetch: false },
+              },
+              {
+                text: "Toutes les indications",
+                linkProps: { href: "/indications/A", prefetch: false },
+              },
+              {
+                text: "Tous les groupes génériques",
+                linkProps: { href: "/generiques/A", prefetch: false },
+              },
+            ],
+          },
+          {
+            text: "Interactions",
+            linkProps: { href: "/interactions", prefetch: false },
+          },
+          {
+            text: "Articles",
+            linkProps: { href: "/articles", prefetch: false },
+          },
+          {
+            text: "Glossaire",
+            linkProps: { href: "/glossaire/A", prefetch: false },
+          },
+          {
+            text: "Signaler un effet indésirable",
+            linkProps: {
+              href: "https://signalement.social-sante.gouv.fr/",
+              target: "_blank",
+              rel: "noopener external",
+            },
+          },
+        ]}
+        renderSearchInput={
+          hasSearch
+            ? (props) => (
+                <AutocompleteSearchInput
+                  name="s"
+                  {...props}
+                  placeholder="Que cherchez-vous ?"
+                  initialValue={searchInitial}
+                />
+              )
+            : undefined
+        }
+        onSearchButtonClick={
+          hasSearch
+            ? (search: string) => router.push(`/rechercher?s=${search}`)
+            : undefined
+        }
+      />
+    </>
   );
 }
