@@ -2,7 +2,6 @@ import { describe, it, expect, vi } from "vitest";
 
 // expandQuery is pure, but importing the module also pulls in getSynonymMap
 // (db + next/cache), so stub those so the import succeeds.
-vi.mock("next/cache", () => ({ unstable_cache: (fn: any) => fn }));
 vi.mock("@/db", () => ({ default: {} }));
 
 import { expandQuery, matchedCanonicals } from "./searchSynonyms";

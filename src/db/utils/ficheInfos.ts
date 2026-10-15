@@ -1,5 +1,6 @@
 "use server";
 
+
 import {
   Asmr,
   ComposantComposition,
@@ -37,6 +38,8 @@ function formatElementName(name: string): string {
 export async function getFicheInfos(
   CIS: string,
 ): Promise<FicheInfos | undefined> {
+  "use cache: remote";
+
   const eventsPromise = getReinforcedSurveillanceEvents([CIS]);
   const infosImportantesPromise = getImportantInformation(CIS);
 
