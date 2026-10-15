@@ -9,6 +9,7 @@ import { StartDsfr } from "@/app/StartDsfr";
 
 import "@/customIcons/customIcons.css";
 import ThemeProvider from "@/components/ThemeProvider";
+import StyledComponentsRegistry from "@/components/StyledComponentsRegistry";
 
 export const metadata: Metadata = {
   title: "Info Médicament",
@@ -35,7 +36,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <StyledComponentsRegistry>
+          <ThemeProvider>{children}</ThemeProvider>
+        </StyledComponentsRegistry>
       </body>
     </html>
   );

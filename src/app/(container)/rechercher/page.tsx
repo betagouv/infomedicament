@@ -1,48 +1,92 @@
 import { getSearchResults, getSynonymSuggestion } from "@/db/utils";
-import { getArticlesFromSearchResults } from "@/db/utils/articles";
 import SearchPage from "@/components/search/SearchPage";
+import AutocompleteSearch from "@/components/search/autocomplete/AutocompleteSearch";
+import SearchResultsList from "@/components/search/SearchResultsList";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { ArticleCardResume } from "@/types/ArticlesTypes";
+import { fr } from "@codegouvfr/react-dsfr";
 import { Suspense } from "react";
-import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
+import SearchResultsLoading from "@/components/search/SearchResultsLoading";
 
-export default function Page(props: {
-  searchParams?: Promise<Record<string, string>>;
-}) {
+type SearchParams = { searchParams?: Promise<Record<string, string>> };
+
+export default function Page(props: SearchParams) {
   return (
-    <Suspense fallback={<PageLoadingFallback />}>
-      <SearchResults searchParams={props.searchParams} />
+    <SearchPage
+      searchInput={
+        <Suspense fallback={<AutocompleteSearch inputName="s" />}>
+          <SearchInput searchParams={props.searchParams} />
+        </Suspense>
+      }
+    >
+      <Suspense fallback={<SearchResultsLoading />}>
+        <ResultsForQuery searchParams={props.searchParams} />
+      </Suspense>
+    </SearchPage>
+  );
+}
+
+async function SearchInput({ searchParams }: SearchParams) {
+  const params = await searchParams;
+  return (
+    <AutocompleteSearch
+      key={params?.s || ""}
+      inputName="s"
+      initialValue={params?.s || undefined}
+    />
+  );
+}
+
+async function ResultsForQuery({
+  searchParams: searchParamsPromise,
+}: SearchParams) {
+  const searchParams = await searchParamsPromise;
+  const search = searchParams?.s;
+  return (
+    <Suspense
+      key={search || ""}
+      fallback={<SearchResultsLoading search={search} />}
+    >
+      <SearchResults search={search} />
     </Suspense>
   );
 }
 
-async function SearchResults({
-  searchParams: searchParamsPromise,
-}: {
-  searchParams?: Promise<Record<string, string>>;
-}) {
-  const searchParams = await searchParamsPromise;
-  const search = searchParams && "s" in searchParams && searchParams["s"];
+async function SearchResults({ search }: { search?: string }) {
   const [results, synonymTerms] = search
     ? await Promise.all([
-        getSearchResults(searchParams["s"]),
-        getSynonymSuggestion(searchParams["s"]),
+        getSearchResults(search),
+        getSynonymSuggestion(search),
       ])
     : [[], []];
-  // const articlesList = results.length > 0
-  //   ? await getArticlesFromSearchResults(results)
-  //   : [];
-  const articlesList: ArticleCardResume[] = [];
 
   return (
     <>
-      <SearchPage
-        search={search ? search : undefined}
-        searchResults={results}
-        synonymTerms={synonymTerms}
-        articlesList={articlesList}
-      />
-      <RatingToaster pageId={`Recherche ${search ? search : ""}`} />
+      {synonymTerms.length > 0 && (
+        <div className={fr.cx("fr-grid-row")}>
+          <p
+            className={fr.cx(
+              "fr-col-12",
+              "fr-col-lg-9",
+              "fr-col-md-10",
+              "fr-text--sm",
+              "fr-mb-2w",
+            )}
+            style={{ color: "var(--text-mention-grey)" }}
+          >
+            Vouliez-vous dire : <strong>{synonymTerms.join(", ")}</strong> ?
+          </p>
+        </div>
+      )}
+      {results.length > 0 ? (
+        <SearchResultsList resultsList={results} search={search || undefined} />
+      ) : (
+        <div className={fr.cx("fr-grid-row", "fr-mt-3w")}>
+          <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>
+            Il n’y a aucun résultat.
+          </div>
+        </div>
+      )}
+      <RatingToaster pageId={`Recherche ${search || ""}`} />
     </>
   );
 }
