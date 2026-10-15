@@ -1,7 +1,6 @@
 import "server-cli-only";
 import { sql, type Kysely } from "kysely";
 import defaultDatabase from "@/db";
-import { unstable_cache } from "next/cache";
 import type { Database } from "@/db/types";
 import type { SearchResultItem } from "@/types/SearchTypes";
 import type { ResumeSpecialite } from "@/types/SpecialiteTypes";
@@ -263,8 +262,11 @@ export async function getAdvancedSearchResults(
   });
 }
 
-export const getCachedAdvancedSearchResults = unstable_cache(
-  getAdvancedSearchResults,
-  ["advanced-search-results-details-v4"],
-  { revalidate: 3600 },
-);
+export async function getCachedAdvancedSearchResults(
+  search: string,
+  criteria: AdvancedSearchCriteria,
+): Promise<SearchResultItem[]> {
+  "use cache: remote";
+
+  return getAdvancedSearchResults(search, criteria);
+}

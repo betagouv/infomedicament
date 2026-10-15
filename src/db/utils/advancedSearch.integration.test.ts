@@ -4,7 +4,6 @@ import db from "@/db";
 import { getAdvancedSearchResults } from "./advancedSearch";
 import { initialAdvancedCriteria } from "@/utils/advancedSearch";
 
-vi.mock("next/cache", () => ({ unstable_cache: (fn: unknown) => fn }));
 vi.mock("server-only", () => ({}));
 vi.mock("./searchSynonyms", () => ({
   getSynonymMap: vi.fn(() => {
