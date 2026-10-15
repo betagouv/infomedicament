@@ -6,7 +6,6 @@ const mocks = vi.hoisted(() => ({
   execute: vi.fn(), components: vi.fn(), resumes: vi.fn(),
   tables: {} as Record<string, Record<string, unknown>[]>,
 }));
-vi.mock("next/cache", () => ({ unstable_cache: (fn: unknown) => fn }));
 vi.mock("./composants", () => ({ getComposantsList: mocks.components }));
 vi.mock("./substances", () => ({ getSubstancesResume: mocks.resumes }));
 vi.mock("@/db/", () => ({

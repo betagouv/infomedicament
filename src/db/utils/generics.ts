@@ -1,5 +1,4 @@
 "use server";
-import { cache } from "react";
 
 
 import { ResumeGeneric } from "../types";
@@ -118,7 +117,7 @@ export async function getGenericGroup(
   };
 }
 
-const getGenericMemberships = cache(async (CIS: string) => {
+async function getGenericMemberships(CIS: string) {
   "use cache: remote";
   return db
     .selectFrom("ansm_specialite_groupe_generique")
@@ -127,7 +126,7 @@ const getGenericMemberships = cache(async (CIS: string) => {
     .select(["code_groupe", "role"])
     .orderBy("code_groupe")
     .execute();
-});
+}
 
 export async function getGenericGroupMembership(CIS: string) {
   "use cache: remote";

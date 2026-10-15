@@ -4,7 +4,6 @@ import { getSpecialite } from "./specialities";
 const mocks = vi.hoisted(() => ({
   row: vi.fn(), composants: vi.fn(), presentations: vi.fn(), delivrance: vi.fn(),
 }));
-vi.mock("next/cache", () => ({ unstable_cache: (fn: unknown) => fn }));
 vi.mock("./composants", () => ({ getComposants: mocks.composants }));
 vi.mock("./presentation", () => ({ getFullPresentations: mocks.presentations }));
 vi.mock("./generics", () => ({ getGenericGroupMembership: async () => undefined }));
