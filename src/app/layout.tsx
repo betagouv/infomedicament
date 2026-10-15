@@ -3,7 +3,6 @@ import { Metadata } from "next";
 import React from "react";
 import { getHtmlAttributes } from "@codegouvfr/react-dsfr/next-appdir/getHtmlAttributes";
 import { DsfrHead } from "@codegouvfr/react-dsfr/next-appdir/DsfrHead";
-import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
 
 import { defaultColorScheme } from "@/app/defaultColorScheme";
 import { StartDsfr } from "@/app/StartDsfr";
@@ -36,9 +35,7 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <ThemeProvider>
-          <DsfrProvider lang={lang}>{children}</DsfrProvider>
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

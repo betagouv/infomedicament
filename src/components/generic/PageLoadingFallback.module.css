@@ -1,0 +1,58 @@
+.skeleton {
+  margin-block: 2rem;
+  max-width: 48rem;
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.line {
+  position: relative;
+  overflow: hidden;
+  height: 1rem;
+  border-radius: 0.25rem;
+  background-color: var(--background-contrast-grey, #eee);
+}
+
+.line::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--background-default-grey, #fff),
+    transparent
+  );
+  transform: translateX(-100%);
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+.heading {
+  width: 55%;
+  height: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.line:nth-child(3) {
+  width: 92%;
+}
+
+.short {
+  width: 68%;
+}
+
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line::after {
+    animation: none;
+  }
+}

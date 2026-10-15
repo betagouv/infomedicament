@@ -60,7 +60,6 @@ export default async function Page() {
               src="/img/homepage_illu.svg"
               alt="Un dessin d'une personne regardant une boîte de médicaments."
               className={fr.cx(
-                "fr-responsive-img",
                 "fr-hidden-xl",
                 "fr-hidden-lg",
                 "fr-hidden-md",
@@ -69,6 +68,7 @@ export default async function Page() {
               )}
               width={2000}
               height={2000}
+              style={{ width: "100%", height: "auto" }}
               priority
             />
             <ArticlesSimpleList
@@ -93,7 +93,7 @@ export default async function Page() {
             <Image
               src="/img/homepage_illu.svg"
               alt="Un dessin d'une personne regardant une boîte de médicaments."
-              className={fr.cx("fr-responsive-img")}
+              style={{ width: "100%", height: "auto" }}
               width={2000}
               height={2000}
               priority
