@@ -12,7 +12,7 @@ import {
   Specialite,
   SpecialiteProcedure,
 } from "@/types/SpecialiteTypes";
-import slugify from "slugify";
+import { getSlug } from "@/utils/slug";
 
 export function getSpecialiteGroupName(
   specialite: Specialite | string,
@@ -194,25 +194,8 @@ export function isHospitalDelivrance(
 
 /**
  * Builds the speciality page slug: slugified name followed by the CIS code,
- * e.g. "doliprane-1000-mg-comprime-60234100".
- * The CIS suffix keeps slugs unique and stable when a name changes.
+ * e.g. "doliprane-1000-mg-comprime-60234100" (see getSlug).
  */
 export function getSpecSlug(cis: string, name: string): string {
-  // Keep as word separators:
-  // - "/" between dosages and substances (e.g. "500 mg/25 mg")
-  // - parentheses, sometimes not preceded by a space (e.g. "injectable(vaccin")
-  // - the decimal comma (e.g. "11,25 mg" -> "11-25-mg", not "1125-mg")
-  // - the period, except in uppercase abbreviations like "L.P." or "U.I."
-  //   (e.g. "0.5 mg", "XBB.1.5", "injectable.Vaccin")
-  const separatedName = name
-    .replace(/[/()]/g, "-")
-    .replace(/(\d),(\d)/g, "$1-$2")
-    .replace(/(?<![A-ZÀ-Ý])\.|\.(?![A-ZÀ-Ý\s/]|$)/g, "-");
-  const nameSlug = slugify(separatedName, { lower: true, strict: true, locale: "fr" });
-  const trimmedCis = cis.trim();
-  return nameSlug ? `${nameSlug}-${trimmedCis}` : trimmedCis;
-}
-
-export function getCISFromSlug(slug: string): string {
-  return decodeURIComponent(slug).split("-").pop()?.trim() ?? "";
+  return getSlug(cis, name);
 }

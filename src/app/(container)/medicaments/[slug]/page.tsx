@@ -10,7 +10,8 @@ import { withStaticParamFallback } from "@/utils/staticParams";
 import { getWarmupSpecsSlugs } from "@/db/utils/warmup";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { getCISFromSlug, getSpecialiteGroupName } from "@/utils/specialites";
+import { getSpecialiteGroupName } from "@/utils/specialites";
+import { getIdFromSlug } from "@/utils/slug";
 import { getAtcCode } from "@/utils/atc";
 import { getSpecialiteMetadata, getSpecialiteName } from "@/db/utils/specialities";
 import { isGenericSpecialite, isPrincepsSpecialite } from "@/db/utils/generics";
@@ -111,7 +112,7 @@ export async function generateMetadata(
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const { slug } = await props.params;
-  const CIS = getCISFromSlug(slug);
+  const CIS = getIdFromSlug(slug);
 
   const metadata = await getSpecialiteMetadata(Number(CIS.trim()));
 
@@ -139,7 +140,7 @@ async function ResolvedMedicamentPage({ params }: { params: Promise<{ slug: stri
 
 async function CachedMedicamentPage({ slug }: { slug: string }) {
   "use cache: remote";
-  const CIS = getCISFromSlug(slug);
+  const CIS = getIdFromSlug(slug);
 
   const { specialite, composants, presentations, delivrance } =
     await getSpecialite(CIS);

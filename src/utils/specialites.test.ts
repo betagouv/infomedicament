@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatIndicationsDetails, formatSpecialitesResume, getCISFromSlug, getProcedureLibLong, getSpecSlug, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isHospitalDelivrance, isSurveillanceRenforcee } from "./specialites";
+import { formatIndicationsDetails, formatSpecialitesResume, getProcedureLibLong, getSpecSlug, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isHospitalDelivrance, isSurveillanceRenforcee } from "./specialites";
 import { DelivranceCondition, DetailedSpecialite, SpecialiteStat } from "@/types/SpecialiteTypes";
 import type { SafetyEvent } from "@/types/FicheInfoTypes";
 import { ShortIndication } from "@/types/IndicationsTypes";
@@ -256,10 +256,5 @@ describe("specialities slugs", () => {
 
   it("falls back to the CIS code when the name is empty", () => {
     expect(getSpecSlug("60234100", "")).toBe("60234100");
-  });
-
-  it("extracts the CIS code from slugs and legacy URLs", () => {
-    expect(getCISFromSlug("doliprane-1000-mg-comprime-60234100")).toBe("60234100");
-    expect(getCISFromSlug("60234100")).toBe("60234100");
   });
 });

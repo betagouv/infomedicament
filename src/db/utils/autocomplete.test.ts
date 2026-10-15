@@ -134,7 +134,7 @@ describe("Autocomplete suggestions", () => {
     const indicationSection = sections.find((section) => section.type === "indication");
     const medicineSection = sections.find((section) => section.type === "specialite");
 
-    expect(indicationSection?.items[0].href).toBe("/indications/42");
+    expect(indicationSection?.items[0].href).toBe("/indications/migraine-42");
     expect(medicineSection?.items[0].matchReasons).toEqual([
       { type: "indication", label: "Migraine" },
     ]);

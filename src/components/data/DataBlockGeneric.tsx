@@ -6,6 +6,7 @@ import { formatSpecName } from "@/displayUtils";
 import styled from 'styled-components';
 import { AdvancedATC, AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import { ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
+import { getIndicationSlug } from "@/utils/indications";
 
 const Container = styled.div`
   border: var(--border-open-blue-france) 1px solid;
@@ -56,7 +57,7 @@ function DataBlockGeneric({
       if(dataType === DataTypeEnum.SUBSTANCE){
         setCurrentLink(`/substances/${(data as ResumeSubstance).NomId}`);
       } else if(dataType === DataTypeEnum.INDICATION){
-        setCurrentLink(`/indications/${(data as ResumeIndication).idIndication}`);
+        setCurrentLink(`/indications/${getIndicationSlug((data as ResumeIndication).idIndication, (data as ResumeIndication).nomIndication)}`);
       } else if(dataType === DataTypeEnum.ATCCLASS){
         setCurrentLink(`/atc/${(data as AdvancedATCClass).class.code}`);
       } else if(dataType === DataTypeEnum.MEDICAMENT){

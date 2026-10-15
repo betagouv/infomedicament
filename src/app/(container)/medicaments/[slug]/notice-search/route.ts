@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { answerNoticeQuestion } from "@/lib/albert";
 import { getNotice } from "@/db/utils/notice";
-import { getCISFromSlug } from "@/utils/specialites";
+import { getIdFromSlug } from "@/utils/slug";
 
 export interface NoticeChunkHit {
   section_anchor: string;
@@ -36,7 +36,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ slug: string }> },
 ) {
-  const CIS = getCISFromSlug((await params).slug);
+  const CIS = getIdFromSlug((await params).slug);
   const q = req.nextUrl.searchParams.get("q");
   if (!q) return NextResponse.json({ error: "Missing q" }, { status: 400 });
 

@@ -8,6 +8,7 @@ import { getGlossaryLetters } from "@/db/utils/glossary";
 import { getAllIndications } from "@/db/utils/indications";
 import { getAllGenericGroupCodes } from "@/db/utils/generics";
 import { getSpecSlug } from "@/utils/specialites";
+import { getIndicationSlug } from "@/utils/indications";
 
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
@@ -73,7 +74,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const indicationsEntries: MetadataRoute.Sitemap = indications.map((i) => ({
-    url: `${BASE_URL}/indications/${i.id}`,
+    url: `${BASE_URL}/indications/${getIndicationSlug(i.id, i.nom)}`,
   }));
 
   const atcEntries: MetadataRoute.Sitemap = [

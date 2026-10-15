@@ -12,12 +12,13 @@ import { getArticlesFromPatho } from "@/db/utils/articles";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { Suspense } from "react";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
+import { getIdFromSlug } from "@/utils/slug";
 
 export async function generateMetadata(
-  props: { params: Promise<{ code: `${number}` }> },
+  props: { params: Promise<{ slug: string }> },
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const { code } = await props.params;
+  const code = getIdFromSlug((await props.params).slug);
   const indication: Indication | undefined = await getIndications(Number(code));
   if (!indication) {
     return {
@@ -32,7 +33,7 @@ export async function generateMetadata(
 }
 
 export default function Page(props: {
-  params: Promise<{ code: `${number}` }>;
+  params: Promise<{ slug: string }>;
 }) {
   return (
     <Suspense fallback={<PageLoadingFallback />}>
@@ -44,15 +45,16 @@ export default function Page(props: {
 async function ResolvedIndicationPage({
   params,
 }: {
-  params: Promise<{ code: `${number}` }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { code } = await params;
-  return <CachedIndicationPage code={code} />;
+  const { slug } = await params;
+  return <CachedIndicationPage slug={slug} />;
 }
 
-async function CachedIndicationPage({ code }: { code: `${number}` }) {
+async function CachedIndicationPage({ slug }: { slug: string }) {
   "use cache: remote";
 
+  const code = getIdFromSlug(slug);
   const indication: Indication | undefined = await getIndications(Number(code));
   if (!indication) return notFound();
 

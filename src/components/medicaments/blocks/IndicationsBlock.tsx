@@ -12,6 +12,7 @@ import Tag from "@codegouvfr/react-dsfr/Tag";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import { Definition } from "@/types/GlossaireTypes";
 import DocumentHtml from "../DocumentHtml";
+import { getIndicationSlug } from "@/utils/indications";
 
 const IndicationBlock = styled.div<{
   $small?: boolean;
@@ -180,7 +181,7 @@ function IndicationsBlock({
               <Tag
                 key={i}
                 linkProps={{
-                  href: `/indications/${indication.idIndication}`,
+                  href: `/indications/${getIndicationSlug(indication.idIndication, indication.nomIndication)}`,
                   className: cx("fr-tag--custom-alt-blue"),
                   target: "_blank",
                 }}

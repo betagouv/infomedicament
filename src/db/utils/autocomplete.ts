@@ -11,6 +11,7 @@ import { sql } from "kysely";
 import { getSearchMatches, getSearchResultsFromMatches } from "./search";
 import { normalizeString } from "@/utils/alphabeticNav";
 import { getSpecSlug } from "@/utils/specialites";
+import { getIndicationSlug } from "@/utils/indications";
 
 const AUTOCOMPLETE_MEDICINE_LIMIT = 5;
 const AUTOCOMPLETE_ENTITY_LIMIT = 3;
@@ -105,7 +106,7 @@ export async function getAutocompleteSuggestions(query: string): Promise<Autocom
       .map((indication) => ({
         type: "indication" as const,
         label: indication.nomIndication,
-        href: `/indications/${indication.idIndication}`,
+        href: `/indications/${getIndicationSlug(indication.idIndication, indication.nomIndication)}`,
         score:
           indicationScore.get(normalizeString(indication.nomIndication)) ?? 0,
       }))
