@@ -5,13 +5,12 @@ import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
 import GlossaryModals from "@/components/glossary/GlossaryModals";
 import GlossaryContextProvider from "@/components/glossary/GlossaryContextProvider";
 import GreetingModal from "@/components/GreetingModal";
+import InfoMedicamentHeader from "@/components/InfoMedicamentHeader";
 import { getNoticeRcpLastUpdated } from "@/db/utils/specialities";
 export default async function ContainerLayout({
   children,
-  header,
 }: Readonly<{
   children: React.ReactNode;
-  header: React.ReactNode;
 }>) {
   const dataLastUpdated = await getNoticeRcpLastUpdated();
   return (
@@ -29,7 +28,7 @@ export default async function ContainerLayout({
           </>
         }
       />
-      {header}
+      <InfoMedicamentHeader />
       <main>
         {children}
       </main>

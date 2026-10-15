@@ -8,7 +8,6 @@ import {
   AutocompleteSuggestion,
 } from "@/types/SearchTypes";
 import { sql } from "kysely";
-import { unstable_cache } from "next/cache";
 import { getSearchMatches, getSearchResultsFromMatches } from "./search";
 import { normalizeString } from "@/utils/alphabeticNav";
 import { getSpecSlug } from "@/utils/specialites";
@@ -16,8 +15,7 @@ import { getSpecSlug } from "@/utils/specialites";
 const AUTOCOMPLETE_MEDICINE_LIMIT = 5;
 const AUTOCOMPLETE_ENTITY_LIMIT = 3;
 
-export const getAutocompleteSuggestions = unstable_cache(
-  async function (query: string): Promise<AutocompleteSection[]> {
+export async function getAutocompleteSuggestions(query: string): Promise<AutocompleteSection[]> {
     const matches = await getSearchMatches(query);
     if (matches.length === 0) return [];
 
@@ -147,10 +145,7 @@ export const getAutocompleteSuggestions = unstable_cache(
       substanceSuggestions,
       indicationSuggestions,
     );
-  },
-  ["autocomplete-suggestions"],
-  { revalidate: 3600 },
-);
+}
 
 function autocompleteSections(
   medicines: AutocompleteSuggestion[],

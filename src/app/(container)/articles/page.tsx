@@ -7,7 +7,6 @@ import RatingToaster from "@/components/rating/RatingToaster";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
 import { Metadata } from "next";
 
-export const dynamic = "error";
 const PAGE_LABEL: string = "Liste des articles";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -18,6 +17,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page() {
+  "use cache: remote";
+
   const articles = await getArticles();
 
   const categories = Array.from(

@@ -5,14 +5,15 @@ import PageListContent from "@/components/list/PageListContent";
 import { getLetters } from "@/db/utils/letters";
 import { getGenericsResumeWithLetter } from "@/db/utils/generics";
 import { DataTypeEnum } from "@/types/DataTypes";
+import { withStaticParamFallback } from "@/utils/staticParams";
 import { Metadata } from "next";
-
-export const dynamic = "error";
-export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const letters = await getLetters("generiques");
-  return letters.map((letter) => ({ letter }));
+  return withStaticParamFallback(
+    letters.map((letter) => ({ letter })),
+    { letter: "A" },
+  );
 }
 const PAGE_LABEL: string = "Liste des groupes génériques";
 
@@ -27,6 +28,11 @@ export default async function Page(props: {
   params: Promise<{ letter: string }>;
 }) {
   const { letter } = await props.params;
+  return <CachedGenericsList letter={letter} />;
+}
+
+async function CachedGenericsList({ letter }: { letter: string }) {
+  "use cache: remote";
 
   const [letters, rawData] = await Promise.all([
     getLetters("generiques"),

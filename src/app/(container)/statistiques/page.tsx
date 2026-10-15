@@ -7,8 +7,6 @@ import ShareButtons from "@/components/generic/ShareButtons";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { Metadata } from "next";
 
-export const dynamic = "error";
-export const dynamicParams = true;
 const PAGE_LABEL:string = "Nos statistiques";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,6 +17,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page() {
+  "use cache: remote";
+
   return (
     <ContentContainer frContainer>
       {" "}

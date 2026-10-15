@@ -9,8 +9,6 @@ import { getAllIndications } from "@/db/utils/indications";
 import { getAllGenericGroupCodes } from "@/db/utils/generics";
 import { getSpecSlug } from "@/utils/specialites";
 
-export const dynamic = "force-static";
-export const revalidate = 86400;
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 
@@ -31,6 +29,7 @@ const STATIC_ROUTES = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  "use cache: remote";
   const [
     specialites,
     substances,

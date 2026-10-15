@@ -35,13 +35,26 @@ const cisCodes: string[] = (seedCisCodesRaw as string)
 // CIS codes as numbers for bigint columns (notices.codeCIS, rcp.codeCIS)
 const cisBigints = cisCodes.map(Number);
 
-// Reference tables: copied in full (small, no CIS key)
+// Reference catalogs and interaction data: copied in full (no CIS key).
 const FULL_COPY_TABLES = [
   "atc",
+  "ansm_atc",
+  "ansm_classe_clinique",
+  "ansm_classe_clinique_pathologie",
+  "ansm_classe_interaction",
+  "ansm_classe_groupe_substance",
+  "ansm_delivrance",
+  "ansm_excipient_effet_notoire",
   "ansm_groupe_generique",
+  "ansm_groupe_substance",
+  "ansm_interaction",
+  "ansm_pathologie",
+  "ansm_substance_groupe_substance",
+  "ansm_substance_nom",
+  "ansm_videos",
   "classes_cliniques",
+  "has_url_has",
   "letters",
-  'indications',
   "presentations",
   "ref_articles",
   "ref_atc_friendly_niveau_1",
@@ -55,19 +68,33 @@ const FULL_COPY_TABLES = [
   "resume_generiques",
   "resume_indications",
   "resume_substances",
-  "vu_classes_cliniques"
+  "search_synonyms",
+  "vu_classes_cliniques",
 ];
 
 // Tables with a bigint codeCIS column
 const BIGINT_CIS_TABLES = ["notices", "rcp"];
 
-// Tables with a text CIS column named "cis"
+// Tables keyed directly by a text CIS code (column names vary by source).
 const CIS_TEXT_TABLES: Array<[string, string]> = [
   ["ansm_specialite", "cis"],
+  ["ansm_presentation", "cis"],
+  ["ansm_element", "cis"],
+  ["ansm_composant", "cis"],
+  ["ansm_document", "cis"],
+  ["ansm_specialite_atc", "cis"],
+  ["ansm_specialite_classe_clinique", "cis"],
+  ["ansm_specialite_delivrance", "cis"],
   ["ansm_specialite_evenement", "cis"],
+  ["ansm_specialite_excipient_effet_notoire", "cis"],
   ["ansm_specialite_groupe_generique", "cis"],
   ["ansm_specialite_titulaire", "cis"],
+  ["ansm_videos_cis", "CIS"],
+  ["ansm_stock", "CIS"],
   ["cis_atc", "code_cis"],
+  ["has_asmr", "code_cis"],
+  ["has_smr", "code_cis"],
+  ["has_documents_bon_usage", "code_cis"],
   ["ref_pediatrie", "cis"],
   ["ref_marr_url_cis", "cis"],
   ["ref_grossesse_mention", "cis"],
@@ -78,17 +105,15 @@ const CIS_TEXT_TABLES: Array<[string, string]> = [
   ["resume_specialites", "specId"],
 ];
 
-async function insertRows(
-  review: Kysely<any>,
-  tablename: string,
-  rows: any[]
-) {
-  if (rows.length === 0) {
-    console.log(`  Skipping ${tablename} (no matching rows)`);
-    return;
-  }
-  console.log(`  Copying ${tablename}: ${rows.length} rows...`);
-  await sql`TRUNCATE TABLE ${sql.table(tablename)} CASCADE`.execute(review);
+// Packaging and presentation events have a CIP key, rather than a CIS key.
+const CIP_TABLES = [
+  "ansm_recipient",
+  "ansm_dispositif",
+  "ansm_caracteristique",
+  "ansm_presentation_evenement",
+];
+
+async function insertRows(review: Kysely<any>, tablename: string, rows: any[]) {
   const CHUNK_SIZE = 500;
   const totalBatches = Math.ceil(rows.length / CHUNK_SIZE);
   let progressLineWidth = 0;
@@ -143,53 +168,81 @@ async function main() {
 
   console.log(`Seeding review app with ${cisCodes.length} CIS codes...`);
 
-  // 1. Reference tables — copy in full
-  console.log("\n--- Reference tables (full copy) ---");
-  for (const tablename of FULL_COPY_TABLES) {
-    const rows = await staging.selectFrom(tablename).selectAll().execute();
-    await insertRows(review, tablename, rows);
-  }
+  try {
+    // 1. Reference tables — copy in full
+    console.log("\n--- Reference tables (full copy) ---");
+    for (const tablename of FULL_COPY_TABLES) {
+      const rows = await staging.selectFrom(tablename).selectAll().execute();
+      await insertRows(review, tablename, rows);
+    }
 
-  // 2. Tables with bigint codeCIS column
-  console.log("\n--- CIS-filtered tables (bigint codeCIS) ---");
-  for (const tablename of BIGINT_CIS_TABLES) {
-    const rows = await staging
-      .selectFrom(tablename)
-      .selectAll()
-      .where("codeCIS", "in", cisBigints)
-      .execute();
-    await insertRows(review, tablename, rows);
-  }
+    // 2. Tables with bigint codeCIS column
+    console.log("\n--- CIS-filtered tables (bigint codeCIS) ---");
+    for (const tablename of BIGINT_CIS_TABLES) {
+      const rows = await staging
+        .selectFrom(tablename)
+        .selectAll()
+        .where("codeCIS", "in", cisBigints)
+        .execute();
+      await insertRows(review, tablename, rows);
+    }
 
-  // 3. Tables with text CIS column
-  console.log("\n--- CIS-filtered tables (text cis column) ---");
-  for (const [tablename, column] of CIS_TEXT_TABLES) {
-    const rows = await staging
-      .selectFrom(tablename)
-      .selectAll()
-      .where(column, "in", cisCodes)
-      .execute();
-    await insertRows(review, tablename, rows);
-  }
+    // 3. Tables with text CIS column
+    console.log("\n--- CIS-filtered tables (text cis column) ---");
+    for (const [tablename, column] of CIS_TEXT_TABLES) {
+      const rows = await staging
+        .selectFrom(tablename)
+        .selectAll()
+        .where(column, "in", cisCodes)
+        .execute();
+      await insertRows(review, tablename, rows);
+    }
 
-  // 4. resume_medicaments — filter groups that contain at least one of our CIS codes
-  console.log("\n--- resume_medicaments (CISList overlap) ---");
-  {
-    const { rows } = await sql<any>`
+    // 4. CIP-filtered tables — retain packaging for the selected specialites only.
+    console.log("\n--- CIP-filtered tables (selected ANSM presentations) ---");
+    for (const tablename of CIP_TABLES) {
+      const rows = await staging
+        .selectFrom(tablename)
+        .selectAll()
+        .where(
+          "cip",
+          "in",
+          staging
+            .selectFrom("ansm_presentation")
+            .select("cip")
+            .where("cis", "in", cisCodes),
+        )
+        .execute();
+      await insertRows(review, tablename, rows);
+    }
+
+    // 5. resume_medicaments — filter groups that contain at least one of our CIS codes
+    console.log("\n--- resume_medicaments (CISList overlap) ---");
+    {
+      const { rows } = await sql<any>`
       SELECT * FROM resume_medicaments
       WHERE "CISList" && ${sql.val(cisCodes)}::text[]
     `.execute(staging);
-    await insertRows(review, "resume_medicaments", rows);
+      await insertRows(review, "resume_medicaments", rows);
+    }
+
+    // 6. Skipped tables
+    console.log("\n--- Skipped ---");
+    console.log("  search_index  (run npm run db:seed-search-index if needed)");
+    console.log(
+      "  triam_* / interactions_search / indications  (omitted from previews)",
+    );
+    console.log(
+      "  rating / pipeline_run  (user feedback and operational history)",
+    );
+  } finally {
+    await Promise.all([staging.destroy(), review.destroy()]);
   }
-
-  // 5. Skipped tables
-  console.log("\n--- Skipped ---");
-  console.log("  search_index  (run npm run db:seed-search-index if needed)");
-
-  await staging.destroy();
-  await review.destroy();
 
   console.log("\nDone seeding review app from staging.");
 }
 
-main();
+main().catch((error) => {
+  console.error("Failed to seed review app:", error);
+  process.exitCode = 1;
+});
