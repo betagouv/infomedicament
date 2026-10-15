@@ -82,8 +82,6 @@ export async function getResumeSubstancesByAtc(atc2: ATC): Promise<ResumeSubstan
   return getResumeSubstancesByNomId(nomIds);
 }
 
-// export const getAtcMenuItems = unstable_cache(
-//   async function (): Promise<{ code: string; label: string }[]> {
 export async function getAtcMenuItems(): Promise<{ code: string; label: string }[]> {
   "use cache: remote";
   const rows = await db
