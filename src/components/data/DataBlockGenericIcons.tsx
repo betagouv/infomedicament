@@ -2,7 +2,7 @@
 import { HTMLAttributes } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import { Tooltip } from "@codegouvfr/react-dsfr/Tooltip";
-import { isAIP, isAlerteSecurite, isCommercialisee } from "@/utils/specialites";
+import { isAIP, isAlerteSecurite, getAvailabilityWarning } from "@/utils/specialites";
 import { ResumeSpecialite, ShortSpecialite, Specialite } from "@/types/SpecialiteTypes";
 
 interface DataBlockGenericIconsProps extends HTMLAttributes<HTMLDivElement> {
@@ -16,6 +16,7 @@ function DataBlockGenericIcons({
   isSurveillanceRenforcee,
   withAlerts,
 }: DataBlockGenericIconsProps) {
+  const availabilityWarning = getAvailabilityWarning(specialite);
   
   return (
     <div>
@@ -29,14 +30,14 @@ function DataBlockGenericIcons({
           </b>
         </Tooltip>
       )}
-      {!isCommercialisee(specialite) && (
+      {availabilityWarning && (
         <Tooltip
-          title="Ce médicament n'est ou ne sera bientôt plus disponible sur le marché."
+          title={availabilityWarning.title}
           kind="hover"
         >
           <i 
             className={fr.cx("fr-icon-close-circle-line", "fr-ml-1v")} 
-            style={{color: "var(--text-action-high-blue-france)"}}
+            style={{color: availabilityWarning.color}}
           />
         </Tooltip>
       )}

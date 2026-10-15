@@ -15,16 +15,19 @@ const SortContainerDesktop = styled.div`
 `;
 
 interface SearchSortBlockProps extends HTMLAttributes<HTMLDivElement> {
+  advanced?: boolean;
   onUpdateSortType: (sortType: SortType) => void;
   onUpdateIsSortAsc: (isSortAsc: boolean) => void;
 }
 
 function SearchSortBlock({
+  advanced = false,
   onUpdateSortType,
   onUpdateIsSortAsc,
   ...props
 }: SearchSortBlockProps) {
-  const [sortType, setSortType] = useState<SortType>("score");
+  const [selectedSortType, setSortType] = useState<SortType>("score");
+  const sortType = advanced ? "alphabetic" : selectedSortType;
   const [isSortAsc, setIsSortAsc] = useState<boolean>(true);
   const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false);
 
@@ -49,13 +52,18 @@ function SearchSortBlock({
         ) : (
           <span className={fr.cx("fr-text--bold")}>ordre alphabétique</span>
         )}
-        {" / "}
-        {sortType !== "score" ? (
-          <Link href="" onClick={() => setSortType("score")}>
-            pertinence
-          </Link>
-        ) : (
-          <span className={fr.cx("fr-text--bold")}>pertinence</span>
+        {!advanced && (
+          <>
+            {" "}
+            /{" "}
+            {sortType !== "score" ? (
+              <Link href="" onClick={() => setSortType("score")}>
+                pertinence
+              </Link>
+            ) : (
+              <span className={fr.cx("fr-text--bold")}>pertinence</span>
+            )}
+          </>
         )}
         <Button
           iconId={
@@ -75,31 +83,35 @@ function SearchSortBlock({
       >
         <RadioButtons
           options={[
-            {
-              label: <SearchFilterLabel name="Plus pertinent d'abord" />,
-              nativeInputProps: {
-                checked: sortType === "score" && isSortAsc,
-                onChange: (e) => {
-                  setSortType("score");
-                  setIsSortAsc(true);
-                },
-              },
-            },
-            {
-              label: <SearchFilterLabel name="Moins pertinent d'abord" />,
-              nativeInputProps: {
-                checked: sortType === "score" && !isSortAsc,
-                onChange: (e) => {
-                  setSortType("score");
-                  setIsSortAsc(false);
-                },
-              },
-            },
+            ...(!advanced
+              ? [
+                  {
+                    label: <SearchFilterLabel name="Plus pertinent d'abord" />,
+                    nativeInputProps: {
+                      checked: sortType === "score" && isSortAsc,
+                      onChange: () => {
+                        setSortType("score");
+                        setIsSortAsc(true);
+                      },
+                    },
+                  },
+                  {
+                    label: <SearchFilterLabel name="Moins pertinent d'abord" />,
+                    nativeInputProps: {
+                      checked: sortType === "score" && !isSortAsc,
+                      onChange: () => {
+                        setSortType("score");
+                        setIsSortAsc(false);
+                      },
+                    },
+                  },
+                ]
+              : []),
             {
               label: <SearchFilterLabel name="Ordre alphabétique de A à Z" />,
               nativeInputProps: {
                 checked: sortType === "alphabetic" && isSortAsc,
-                onChange: (e) => {
+                onChange: () => {
                   setSortType("alphabetic");
                   setIsSortAsc(true);
                 },
@@ -109,7 +121,7 @@ function SearchSortBlock({
               label: <SearchFilterLabel name="Ordre alphabétique de Z à A" />,
               nativeInputProps: {
                 checked: sortType === "alphabetic" && !isSortAsc,
-                onChange: (e) => {
+                onChange: () => {
                   setSortType("alphabetic");
                   setIsSortAsc(false);
                 },

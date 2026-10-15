@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Button from "@codegouvfr/react-dsfr/Button";
 import { fr } from "@codegouvfr/react-dsfr";
 import AutocompleteSearch from "@/components/search/autocomplete/AutocompleteSearch";
 import { getArticles } from "@/db/utils/articles";
@@ -25,10 +26,14 @@ export default async function Page() {
                 maxWidth: "47rem",
               }}
             >
-              Trouvez instantanément les informations claires, précises et officielles sur vos médicaments, en toute simplicité !
+              Trouvez instantanément les informations claires, précises et
+              officielles sur vos médicaments, en toute simplicité !
             </h1>
             <p className="fr-text--sm">
-              Info Médicament comprend tous les médicaments dont les {marketedCount.toLocaleString("fr-FR")} actuellement commercialisés ou ayant été commercialisés durant les trois dernières années en France.
+              Info Médicament comprend tous les médicaments dont les{" "}
+              {marketedCount.toLocaleString("fr-FR")} actuellement
+              commercialisés ou ayant été commercialisés durant les trois
+              dernières années en France.
             </p>
             {lastUpdated ? (
               <p className="fr-text--sm">
@@ -41,8 +46,20 @@ export default async function Page() {
               </p>
             ) : null}
             <AutocompleteSearch inputName="s" />
+            <p className={fr.cx("fr-text--sm", "fr-mt-1w", "fr-mb-2w")}>
+              <Button
+                priority="tertiary"
+                size="small"
+                iconId="fr-icon-equalizer-line"
+                linkProps={{ href: "/rechercher?advanced=1" }}
+              >
+                Recherche avancée
+              </Button>
+            </p>
             <p className="fr-text--sm">
-              Cherchez un <b>médicament</b>, une <b>substance active</b> (ex : paracétamol), une <b>indication</b> (ex : diabète), ou une <b>classe de médicaments</b> (ex : antibiotiques).
+              Cherchez un <b>médicament</b>, une <b>substance active</b> (ex :
+              paracétamol), une <b>indication</b> (ex : diabète), ou une{" "}
+              <b>classe de médicaments</b> (ex : antibiotiques).
             </p>
           </div>
           <div
@@ -53,9 +70,7 @@ export default async function Page() {
               "fr-mt-4w",
             )}
           >
-            <h2 className={fr.cx("fr-h4")}>
-              Articles
-            </h2>
+            <h2 className={fr.cx("fr-h4")}>Articles</h2>
             <Image
               src="/img/homepage_illu.svg"
               alt="Un dessin d'une personne regardant une boîte de médicaments."

@@ -23,6 +23,15 @@ export type MatchReason = {
 };
 
 export type SearchResultItem = ResumeSpecialite & {
+  advancedDetails?: {
+    authorizationStatus: string | null;
+    authorizationDate: string | null;
+    commercialisation: string;
+    hasRcp: boolean;
+    rcpUpdatedAt: string | null;
+  };
+  authorizationStatus?: string | null;
+  isHistorical?: boolean;
   matchReasons: MatchReason[];
   score: number;
 };
