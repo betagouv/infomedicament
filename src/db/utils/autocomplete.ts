@@ -109,7 +109,7 @@ async function getCachedAutocompleteSuggestions(
     substanceLabels.length > 0
       ? db
           .selectFrom("resume_substances")
-          .select(["NomId", "NomLib"])
+          .select(["SubsId", "NomLib"])
           .where(({ eb, ref }) =>
             eb(
               sql<string>`lower(unaccent(${ref("NomLib")}))`,
@@ -145,7 +145,7 @@ async function getCachedAutocompleteSuggestions(
     .map((substance) => ({
       type: "substance" as const,
       label: substance.NomLib,
-      href: `/substances/${substance.NomId}`,
+      href: `/substances/${substance.SubsId}`,
       score: substanceScore.get(normalizeString(substance.NomLib)) ?? 0,
     }))
     .sort((a, b) => {

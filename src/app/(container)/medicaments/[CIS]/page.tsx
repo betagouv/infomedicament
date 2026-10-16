@@ -99,7 +99,7 @@ async function MedicamentPage({ CIS }: { CIS: string }) {
         .join(", "),
       linkProps: {
         href: `/substances/${displaySimpleComposants(composants)
-          .map((s) => s.NomId.trim())
+          .map((s) => s.SubsId.trim())
           .join(",")}`,
       },
     });

@@ -24,19 +24,6 @@ export async function getIndications(
     .executeTakeFirst();
 }
 
-//Get the indications list (only ids) from specialite code CIS
-export async function getSpecialiteIndications(CIS: string): Promise<number[]> {
-  "use cache: remote";
-
-  const codes = await db
-    .selectFrom("indications")
-    .select("id")
-    .where("CIS", "&&", Array([CIS]))
-    .distinct()
-    .execute();
-  return codes.map((code) => code.id);
-}
-
 //Get the pathologies list (only ids) from specialite code CIS
 export async function getSpecialitePathologies(CIS: string): Promise<number[]> {
   "use cache: remote";

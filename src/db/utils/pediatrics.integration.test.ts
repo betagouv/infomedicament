@@ -1,7 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
 
-// disable cache for testing
-
 import { getAllPediatrics, getPediatrics } from "./pediatrics";
 
 describe("getAllPediatrics", () => {

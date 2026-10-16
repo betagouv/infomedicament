@@ -19,7 +19,8 @@ const PAGE_LABEL: string = "Liste des substances";
 export default async function Page(props: {
   params: Promise<{ letter: string }>;
 }) {
-  const { letter } = await props.params;
+  const { letter: rawLetter } = await props.params;
+  const letter = decodeURIComponent(rawLetter);
   return <CachedSubstancesList letter={letter} />;
 }
 

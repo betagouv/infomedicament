@@ -85,7 +85,7 @@ describe("Autocomplete suggestions", () => {
       { ...makeGroup("DOLIPRANE", "Paracétamol"), specId: "61234567", specName: "DOLIPRANE 1000 mg" },
     ]);
     mockExecute.mockResolvedValueOnce([
-      { NomId: "123", NomLib: "Paracétamol" },
+      { SubsId: "123", NomLib: "Paracétamol" },
     ]);
 
     const sections = await getAutocompleteSuggestions("paracetamol");
@@ -113,7 +113,7 @@ describe("Autocomplete suggestions", () => {
       { ...makeGroup("DOLIPRANE", "Paracétamol"), specId: "61234567", specName: "DOLIPRANE 1000 mg" },
     ]);
     mockExecute.mockResolvedValueOnce([
-      { NomId: "123", NomLib: "Paracétamol" },
+      { SubsId: "123", NomLib: "Paracétamol" },
     ]);
 
     const sections = await getAutocompleteSuggestions("paracetamol");
@@ -178,7 +178,7 @@ describe("Autocomplete suggestions", () => {
       { match_type: "substance", group_name: "DRUG", match_label: "Ingredient", sml: 1 },
       { match_type: "indication", group_name: "DRUG", match_label: "Migraine", sml: 0.9 },
     ]).mockReturnValueOnce(new Promise<[]>((resolve) => { resolveMedicines = resolve; }))
-      .mockResolvedValueOnce([{ NomId: "1", NomLib: "Ingredient" }])
+      .mockResolvedValueOnce([{ SubsId: "1", NomLib: "Ingredient" }])
       .mockResolvedValueOnce([{ idIndication: 2, nomIndication: "Migraine" }]);
     const loading = getAutocompleteSuggestions("ingredient");
     await vi.waitFor(() => expect(mockExecute).toHaveBeenCalledTimes(4));
@@ -194,7 +194,7 @@ describe("Autocomplete suggestions", () => {
       { match_type: "substance", group_name: "DRUG", match_label: "Migraine", sml: 1 },
       { match_type: "indication", group_name: "DRUG", match_label: "Migraine", sml: 1 },
     ]).mockResolvedValueOnce([{ ...makeGroup("DRUG"), specId: "123", specName: "MIGRAINE" }])
-      .mockResolvedValueOnce([{ NomId: "1", NomLib: "Migraine" }])
+      .mockResolvedValueOnce([{ SubsId: "1", NomLib: "Migraine" }])
       .mockResolvedValueOnce([{ idIndication: 2, nomIndication: "Migraine" }]);
     const sections = await getAutocompleteSuggestions("migraine");
     expect(sections.map((section) => section.type)).toEqual(["specialite", "substance", "indication"]);
@@ -206,7 +206,7 @@ describe("Autocomplete suggestions", () => {
     mockExecute.mockResolvedValueOnce([
       { match_type: "substance", group_name: "DRUG", match_label: "Paracétamol", sml: 1 },
       { match_type: "substance", group_name: "DRUG", match_label: "PARACETAMOL", sml: 0.8 },
-    ]).mockResolvedValueOnce([]).mockResolvedValueOnce([{ NomId: "1", NomLib: "Paracétamol" }]);
+    ]).mockResolvedValueOnce([]).mockResolvedValueOnce([{ SubsId: "1", NomLib: "Paracétamol" }]);
     expect((await getAutocompleteSuggestions("para"))[0].items).toEqual([
       { type: "substance", label: "Paracétamol", href: "/substances/1", score: 1 },
     ]);

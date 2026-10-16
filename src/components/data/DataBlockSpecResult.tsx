@@ -71,9 +71,12 @@ function DataBlockSpecResult({
           specialite.specName.substring(specialite.groupName.length),
         )
       : "";
-  const subsNames = subsFilters.find(
-    (filter) => filter.id === specialite.composants.trim(),
-  )?.name;
+  // Substance filters are identified by the substances ids of the medicament
+  const subsNames = subsFilters.some(
+    (filter) => filter.id === specialite.subsIds.join(),
+  )
+    ? specialite.composants
+    : undefined;
   const atc = atcsFilters.find(
     (filter) =>
       filter.id === specialite.atc1Code?.trim() &&

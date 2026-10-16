@@ -10,14 +10,13 @@ import {
   DelivranceCondition,
   DetailedSpecialite,
   ResumeSpecGroup,
-  ResumeSpecialite,
   Specialite,
 } from "@/types/SpecialiteTypes";
 import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { getComposants } from "./composants";
 import {
-  formatSpecialitesResume,
+  filterSpecsGroupsByCIS,
   formatSpecialitesResumeFromGroups,
 } from "@/utils/specialites";
 import { SpecialiteMetadata } from "../types";
@@ -244,69 +243,46 @@ export async function getResumeSpecsGroupsWithCIS(CISList: string[]): Promise<Re
   return formatSpecialitesResumeFromGroups(result);
 }
 
-export async function getResumeSpecialitesWithCIS(CISList: string[]): Promise<ResumeSpecialite[]> {
+// Groups of the specialites containing exactly the substances, and only them
+export async function getSubstanceSpecsGroups(subsIds: string[]): Promise<ResumeSpecGroup[]> {
   "use cache: remote";
-  if (CISList.length === 0) return [];
-  const result = await db
-    .selectFrom("resume_specialites")
-    .where("specId", "in", CISList)
-    .selectAll()
-    .orderBy("groupName")
-    .execute();
-  return formatSpecialitesResume(result);
-}
-
-export async function getResumeSpecsGroupsWithCISSubsIds(CISList: string[], SubsIds: string[]): Promise<ResumeSpecGroup[]> {
-  "use cache: remote";
-  if (CISList.length === 0) return [];
-  const result = await db
-    .selectFrom("resume_medicaments")
-    .where(({ eb }) =>
-      SubsIds.length
-        ? eb.or([
-            eb("CISList", "&&", Array(CISList)),
-            eb("subsIds", "&&", Array(SubsIds)),
-          ])
-        : eb("CISList", "&&", Array(CISList)),
-    )
-    .selectAll()
-    .orderBy("groupName")
-    .execute();
-  return formatSpecialitesResumeFromGroups(result);
-}
+  const CISList = await getSubstanceSpecialitesCIS(subsIds);
+  const specsGroups = await getResumeSpecsGroupsWithCIS(CISList);
+  return filterSpecsGroupsByCIS(specsGroups, CISList);
+};
 
 export async function getSubstanceSpecialites(subsNomsIDs: string | string[]): Promise<Specialite[]> {
   "use cache: remote";
-    const ids: string[] = !Array.isArray(subsNomsIDs)
-      ? [subsNomsIDs]
-      : subsNomsIDs;
-    const cisList = await getCisMatchingSubstanceSet(ids);
-    if (cisList.length === 0) return [];
-    const rows = await db
-      .selectFrom("ansm_specialite")
-      .where("cis", "in", cisList)
-      .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
-      .selectAll()
-      .execute();
+  const ids: string[] = !Array.isArray(subsNomsIDs)
+    ? [subsNomsIDs]
+    : subsNomsIDs;
+  const cisList = await getCisMatchingSubstanceSet(ids);
+  if (cisList.length === 0) return [];
+  const rows = await db
+    .selectFrom("ansm_specialite")
+    .where("cis", "in", cisList)
+    .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
+    .selectAll()
+    .execute();
 
-    return rows.map((row) => mapCatalogSpecialite(row));
-  }
-
-export async function getSubstanceSpecialitesCIS(subsNomsIDs: string | string[]): Promise<string[]> {
+  return rows.map((row) => mapCatalogSpecialite(row));
+}
+    
+export async function getSubstanceSpecialitesCIS(subsIds: string | string[]): Promise<string[]> {
   "use cache: remote";
-    const ids: string[] = !Array.isArray(subsNomsIDs)
-      ? [subsNomsIDs]
-      : subsNomsIDs;
-    const cisList = await getCisMatchingSubstanceSet(ids);
-    if (cisList.length === 0) return [];
-    const rows = await db
-      .selectFrom("ansm_specialite")
-      .where("cis", "in", cisList)
-      .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
-      .select("cis")
-      .execute();
-    return rows.map((row) => row.cis);
-  }
+  const ids: string[] = !Array.isArray(subsIds)
+    ? [subsIds]
+    : subsIds;
+  const cisList = await getCisMatchingSubstanceSet(ids);
+  if (cisList.length === 0) return [];
+  const rows = await db
+    .selectFrom("ansm_specialite")
+    .where("cis", "in", cisList)
+    .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
+    .select("cis")
+    .execute();
+  return rows.map((row) => row.cis.trim());
+}
 
 export async function getSpecialiteMetadata(
   CIS: number,

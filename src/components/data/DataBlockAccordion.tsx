@@ -71,8 +71,11 @@ const FiltersTagContainer = styled.div`
     margin-top: 0.2rem;
   }
 `;
-const SpecLine = styled.li`
+const SpecialiteLine = styled.li`
   display: flex;
+  flex-direction: row;
+  align-items: center;
+
 `;
 
 interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
@@ -252,7 +255,7 @@ function DataBlockAccordion({
           <GreyText className={fr.cx("fr-text--sm")}>Consultez la notice de :</GreyText>
           <ul className={fr.cx("fr-raw-list", "fr-pl-0")}>
             {specialites.map((specialite, i) => (
-              <SpecLine key={i} className={fr.cx("fr-mb-1v")}>
+              <SpecialiteLine key={i} className={fr.cx("fr-mb-1v")}>
                 <Link
                   href={`/medicaments/${specialite.SpecId}`}
                   className={fr.cx("fr-text--sm", "fr-link")}
@@ -280,7 +283,7 @@ function DataBlockAccordion({
                     )}
                   </FiltersTagContainer>
                 )}
-              </SpecLine>
+              </SpecialiteLine>
             ))}
           </ul>
         </div>
