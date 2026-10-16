@@ -18,21 +18,21 @@ describe("db utils specialities", () => {
     expect(isActiveSpec).not.toBe(-1);
   })
 
-  it("getDetailedSpecialite - should return only active specialite", async () => {
+  it("getDetailedSpecialite - should also return historical specialites", async () => {
     const inactiveSpec = await getDetailedSpecialite("61933092");
-    expect(inactiveSpec).toBeUndefined();
+    expect(inactiveSpec).toBeDefined();
 
     const activeSpec = await getDetailedSpecialite("60234100");
     expect(activeSpec).not.toBeUndefined();
   })
 
-  it("getSpecialite - should not return data for inactive specialite", async () => {
+  it("getSpecialite - should return the record and composition for historical specialites", async () => {
     const { specialite, composants, presentations, delivrance } =
         await getSpecialite("61933092");
-    expect(specialite).toBeUndefined();
-    expect(composants).toHaveLength(0);
-    expect(presentations).toHaveLength(0);
-    expect(delivrance).toHaveLength(0);
+    expect(specialite).toBeDefined();
+    expect(composants.length).toBeGreaterThan(0);
+    expect(Array.isArray(presentations)).toBe(true);
+    expect(Array.isArray(delivrance)).toBe(true);
   })
 
   it("getSpecialite - should return data for active specialite", async () => {

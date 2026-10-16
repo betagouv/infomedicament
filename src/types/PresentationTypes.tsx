@@ -7,6 +7,16 @@ export type PresentationCommercialStatus =
 
 export type PresentationAdministrativeStatus = "active" | "abrogated" | "unknown";
 
+export const presentationCommercialStatusLabels: Record<
+  Exclude<PresentationCommercialStatus, "unknown">,
+  string
+> = {
+  commercialised: "Commercialisée",
+  stopped: "Arrêtée",
+  suspended: "Suspendue",
+  withdrawn: "Retirée",
+};
+
 export type PresentationCommercialData = {
   pricingKnown: boolean;
   retailPrice: number | null;

@@ -1,6 +1,13 @@
 "use client";
 
 import ContentContainer from "../generic/ContentContainer";
+import { WithMedicamentData, type MedicamentData } from "./MedicamentData";
+import {
+  IndicationsLoading,
+  DetailsLoading,
+  NoticeTextLoading,
+} from "./MedicamentSectionLoading";
+import { SkeletonLine } from "../generic/Skeleton";
 import TagContainer from "../tags/TagContainer";
 import ClassTag from "../tags/ClassTag";
 import { fr } from "@codegouvfr/react-dsfr";
@@ -9,12 +16,10 @@ import type { CompositionComponent } from "@/types/SubstanceTypes";
 import PrescriptionTag from "../tags/PrescriptionTag";
 import PediatricsTags from "../tags/PediatricsTags";
 import { PresentationsList } from "./notice/PresentationsList";
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, Suspense, useState } from "react";
 import styled from "styled-components";
-import { ArticleCardResume } from "@/types/ArticlesTypes";
 import ArticlesResumeList from "../articles/ArticlesResumeList";
-import { Marr } from "@/types/MarrTypes";
-import { DelivranceCondition, NoticeData, SpecialiteStat } from "@/types/SpecialiteTypes";
+import { DelivranceCondition, SpecialiteStat } from "@/types/SpecialiteTypes";
 import QuestionsBox from "./notice/QuestionsBox";
 import NoticeChunkResultsBox from "./notice/NoticeChunkResultsBox";
 import Badge from "@codegouvfr/react-dsfr/Badge";
@@ -25,7 +30,6 @@ import NoticeBlock from "./notice/NoticeBlock";
 import PregnancyMentionTag from "../tags/PregnancyMentionTag";
 import PregnancyPlanTag from "../tags/PregnancyPlanTag";
 import { ATC } from "@/types/ATCTypes";
-import { PediatricsInfo } from "@/types/PediatricTypes";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import {
   isAIP,
@@ -34,47 +38,40 @@ import {
 } from "@/utils/specialites";
 import { Presentation } from "@/types/PresentationTypes";
 import MedicamentContentHeaderBlock from "./blocks/MedicamentContentHeaderBlock";
-import { FicheInfos } from "@/types/FicheInfoTypes";
-import { Definition } from "@/types/GlossaireTypes";
 import SwitchNoticeAdvancedBlock from "./blocks/SwitchNoticeAdvancedBlock";
 import MarrNotice from "../marr/MarrNotice";
 import { AnchorMenu } from "./advanced/DetailedSubMenu";
 import IndicationsBlock from "./blocks/IndicationsBlock";
 import GenericPrincepsTag from "../tags/GenericPrincepsTag";
-import { PregnancyAlert } from "@/types/PregancyTypes";
 import DesktopTitleBlock from "./blocks/DesktopTitleBlock";
-import { ShortIndication } from "@/types/IndicationsTypes";
 import HospitalTag from "../tags/HospitalTag";
 import { isReimbursable } from "@/utils/presentations";
 import ReimbursableTag from "../tags/ReimbursableTag";
-import { AnsmVideos } from "@/db/types";
 import { VideosBlock } from "./notice/VideosBlock";
 
 const NoticeContentContainer = styled.div`
+  flex-direction: row-reverse;
   @media (max-width: 48em) {
-    margin-top: 0rem;
-    .fr-mb-4w {
+    display: contents;
+    & .fr-mb-4w {
       margin-bottom: 1rem !important;
     }
   }
-  @media (min-width: 48em) {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row-reverse;
-  }
 `;
 
-const NoticeContainer = styled.div`
-  padding: 2rem;
+const NoticeColumn = styled(ContentContainer)`
   @media (max-width: 48em) {
-    padding: 1rem;
+    display: contents;
   }
 `;
 
 const DetailsContentContainer = styled.div`
   width: 100%;
-  > div {
+  & > div {
     width: 100%;
+  }
+  @media (max-width: 48em) {
+    display: contents;
   }
 `;
 
@@ -85,26 +82,22 @@ const DetailsContainer = styled.div`
   gap: 0.5rem;
 `;
 
+const NoticeContainer = styled.div`
+  padding: 2rem;
+  @media (max-width: 48em) {
+    padding: 1rem;
+  }
+`;
+
 interface NoticeContentProps extends HTMLAttributes<HTMLDivElement> {
   atcList: string[];
   atc2?: ATC;
   specialite?: DetailedSpecialite;
   composants: CompositionComponent[];
-  isPrinceps: boolean;
   delivrance: DelivranceCondition[];
-  pregnancyPlanAlert: PregnancyAlert | undefined;
-  isPregnancyMentionAlert: boolean;
-  pediatrics: PediatricsInfo | undefined;
   presentations: Presentation[];
-  marr?: Marr;
-  notice?: NoticeData;
-  ficheInfos?: FicheInfos;
-  definitions?: Definition[];
   title: string;
-  indications: ShortIndication[];
-  indicationsBlock?: string;
-  articles: ArticleCardResume[];
-  videos?: AnsmVideos[];
+  data: Promise<MedicamentData>;
   onGoToAdvanced: (advanced: boolean) => void;
   onGoToAdvancedAnchor: (anchor?: AnchorMenu) => void;
 }
@@ -114,48 +107,20 @@ function NoticeContent({
   atc2,
   specialite,
   composants,
-  isPrinceps,
   delivrance,
-  pregnancyPlanAlert,
-  isPregnancyMentionAlert,
-  pediatrics,
   presentations,
-  marr,
-  notice,
-  ficheInfos,
-  definitions,
   title,
-  indications,
-  indicationsBlock,
-  articles,
-  videos,
+  data,
   onGoToAdvanced,
   onGoToAdvancedAnchor,
   ...props
 }: NoticeContentProps) {
-  const [currentMarr, setCurrentMarr] = useState<Marr>();
-
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
   const [noticeHits, setNoticeHits] = useState<NoticeChunkHit[] | null>(null);
   const [hitsLoading, setHitsLoading] = useState<boolean>(false);
   const [activeQuestion, setActiveQuestion] = useState<QuestionAnchors | null>(
     null,
   );
-
-  useEffect(() => {
-    if (marr) {
-      //Que des patients
-      const newMarr: Marr = {
-        CIS: marr.CIS,
-        ansmUrl: marr.ansmUrl,
-        pdf: [],
-      };
-      marr.pdf.forEach((marrLine) => {
-        if (marrLine.type === "Patients") newMarr.pdf.push(marrLine);
-      });
-      setCurrentMarr(newMarr);
-    }
-  }, [marr, setCurrentMarr]);
 
   const updateCurrentQuestion = async (questionId: string) => {
     const question = questionsList[questionId];
@@ -208,66 +173,72 @@ function NoticeContent({
   return (
     <NoticeContentContainer
       {...props}
-      className={[
-        "mobile-display-contents",
-        fr.cx("fr-grid-row", "fr-grid-row--gutters"),
-      ].join(" ")}
+      className={[fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ")}
     >
-      <ContentContainer
-        className={[
-          "mobile-display-contents",
-          fr.cx("fr-col-12", "fr-col-md-5"),
-        ].join(" ")}
-      >
-        <DetailsContentContainer
-          className={["mobile-display-contents", fr.cx("fr-mb-2w")].join(" ")}
-        >
+      <NoticeColumn className={[fr.cx("fr-col-12", "fr-col-md-5")].join(" ")}>
+        <DetailsContentContainer className={[fr.cx("fr-mb-2w")].join(" ")}>
           <DesktopTitleBlock
             title={title}
             isAdvanced={false}
             onGoToAdvanced={onGoToAdvanced}
           />
-          <MedicamentContentHeaderBlock
-            className={fr.cx("fr-hidden-md")}
-            specialite={specialite}
-            ficheInfos={ficheInfos}
-            definitions={definitions}
-            pregnancyPlanAlert={pregnancyPlanAlert}
-            isPregnancyMentionAlert={isPregnancyMentionAlert}
-            pediatrics={pediatrics}
-          />
+          <Suspense fallback={null}>
+            <WithMedicamentData data={data}>
+              {({
+                ficheInfos,
+                definitions,
+                pregnancyPlanAlert,
+                isPregnancyMentionAlert,
+                pediatrics,
+              }) => (
+                <MedicamentContentHeaderBlock
+                  className={fr.cx("fr-hidden-md")}
+                  specialite={specialite}
+                  ficheInfos={ficheInfos}
+                  definitions={definitions}
+                  pregnancyPlanAlert={pregnancyPlanAlert}
+                  isPregnancyMentionAlert={isPregnancyMentionAlert}
+                  pediatrics={pediatrics}
+                />
+              )}
+            </WithMedicamentData>
+          </Suspense>
           <SwitchNoticeAdvancedBlock
             isAdvanced={false}
             onGoToAdvanced={onGoToAdvanced}
             className={fr.cx("fr-mb-2w", "fr-hidden-md")}
           />
-          <IndicationsBlock
-            specialite={specialite}
-            title="À quoi sert-il ?"
-            small
-            resizable
-            indications={indications}
-            indicationsBlock={indicationsBlock}
-            definitions={definitions}
-          />
-          {notice && (
-            <ContentContainer
-              whiteContainer
-              className={fr.cx(
-                "fr-mb-2w",
-                "fr-pt-1w",
-                "fr-px-1w",
-                "fr-hidden-md",
+          <Suspense fallback={<IndicationsLoading />}>
+            <WithMedicamentData data={data}>
+              {({ indications, indicationsBlock, definitions }) => (
+                <IndicationsBlock
+                  specialite={specialite}
+                  title="À quoi sert-il ?"
+                  small
+                  resizable
+                  indications={indications}
+                  indicationsBlock={indicationsBlock}
+                  definitions={definitions}
+                />
               )}
-              mobileOverflowX
-            >
-              <QuestionsBox
-                currentQuestion={currentQuestion}
-                updateCurrentQuestion={updateCurrentQuestion}
-                onSearch={handleSearch}
-              />
-            </ContentContainer>
-          )}
+            </WithMedicamentData>
+          </Suspense>
+          <ContentContainer
+            whiteContainer
+            className={fr.cx(
+              "fr-mb-2w",
+              "fr-pt-1w",
+              "fr-px-1w",
+              "fr-hidden-md",
+            )}
+            mobileOverflowX
+          >
+            <QuestionsBox
+              currentQuestion={currentQuestion}
+              updateCurrentQuestion={updateCurrentQuestion}
+              onSearch={handleSearch}
+            />
+          </ContentContainer>
           {(hitsLoading || noticeHits !== null) && (
             <NoticeChunkResultsBox
               className={fr.cx("fr-hidden-md", "fr-mb-2w", "fr-px-1w")}
@@ -277,167 +248,216 @@ function NoticeContent({
               onClose={onCloseResults}
             />
           )}
-          <ContentContainer
-            whiteContainer
-            className={fr.cx("fr-mb-2w", "fr-p-2w")}
-          >
-            {(atc2 ||
-              (specialite &&
-                !isAIP(specialite) &&
-                (isPrinceps || specialite.genericGroupCode !== null)) ||
-              !!delivrance.length) && (
-              <TagContainer>
-                <DetailsContainer>
-                  {atc2 && <ClassTag atc2={atc2} fromMedicament />}
-                  {!!delivrance.length && <PrescriptionTag hideIcon />}
-                  {isReimbursable(presentations) && (
-                    <ReimbursableTag hideIcon />
+          <Suspense fallback={<DetailsLoading />}>
+            <WithMedicamentData data={data}>
+              {({
+                isPrinceps,
+                pregnancyPlanAlert,
+                isPregnancyMentionAlert,
+                pediatrics,
+                articles,
+                videos,
+                marr,
+              }) => (
+                <>
+                  <ContentContainer
+                    whiteContainer
+                    className={fr.cx("fr-mb-2w", "fr-p-2w")}
+                  >
+                    {(atc2 ||
+                      (specialite &&
+                        !isAIP(specialite) &&
+                        (isPrinceps || specialite.genericGroupCode !== null)) ||
+                      !!delivrance.length) && (
+                      <TagContainer>
+                        <DetailsContainer>
+                          {atc2 && <ClassTag atc2={atc2} fromMedicament />}
+                          {!!delivrance.length && <PrescriptionTag hideIcon />}
+                          {isReimbursable(presentations) && (
+                            <ReimbursableTag hideIcon />
+                          )}
+                          {isHospitalDelivrance(delivrance) && (
+                            <HospitalTag hideIcon />
+                          )}
+                          {specialite &&
+                            isPrinceps &&
+                            specialite.genericGroupCode !== null &&
+                            !isAIP(specialite) && (
+                              <GenericPrincepsTag
+                                genericGroupCode={specialite.genericGroupCode}
+                                type="princeps"
+                                fromMedicament
+                                hideIcon
+                                noLink
+                              />
+                            )}
+                          {specialite &&
+                            specialite.genericGroupCode !== null &&
+                            !isPrinceps &&
+                            !isAIP(specialite) && (
+                              <GenericPrincepsTag
+                                genericGroupCode={specialite.genericGroupCode}
+                                type="generic"
+                                fromMedicament
+                                hideIcon
+                                noLink
+                              />
+                            )}
+                        </DetailsContainer>
+                      </TagContainer>
+                    )}
+                    {composants && (
+                      <TagContainer
+                        category="Substance active"
+                        inLine
+                        className="notice-content-tag-container"
+                      >
+                        <SubstanceTag composants={composants} fromMedicament />
+                      </TagContainer>
+                    )}
+                    {(pregnancyPlanAlert ||
+                      isPregnancyMentionAlert ||
+                      pediatrics) && (
+                      <TagContainer className="notice-content-tag-container">
+                        {pregnancyPlanAlert && (
+                          <PregnancyPlanTag fromMedicament />
+                        )}
+                        {!pregnancyPlanAlert && isPregnancyMentionAlert && (
+                          <PregnancyMentionTag fromMedicament />
+                        )}
+                        {pediatrics && (
+                          <PediatricsTags info={pediatrics} fromMedicament />
+                        )}
+                      </TagContainer>
+                    )}
+                    <TagContainer
+                      category="Statut d'autorisation"
+                      hideSeparator
+                      inLine
+                    >
+                      {specialite && specialite.statutAutorisation ? (
+                        <span>
+                          <span className={fr.cx("fr-text--sm", "fr-mb-0")}>
+                            {specialite.statutAutorisation}
+                          </span>
+                          {specialite.StatId &&
+                            Number(specialite.StatId) ===
+                              SpecialiteStat.Abrogée &&
+                            specialite.SpecStatDate && (
+                              <span className={fr.cx("fr-text--sm", "fr-mb-0")}>
+                                {" "}
+                                le{" "}
+                                {specialite.SpecStatDate.toLocaleDateString(
+                                  "fr-FR",
+                                )}
+                              </span>
+                            )}
+                        </span>
+                      ) : (
+                        <span>Non communiqué</span>
+                      )}
+                    </TagContainer>
+                    <TagContainer
+                      category="Date d'autorisation de mise sur le marché"
+                      inLine
+                      hideSeparator
+                    >
+                      {specialite && specialite.SpecDateAMM ? (
+                        <span className={fr.cx("fr-text--sm", "fr-mb-0")}>
+                          {specialite.SpecDateAMM.toLocaleDateString("fr-FR")}
+                        </span>
+                      ) : (
+                        <span>Non communiquée</span>
+                      )}
+                    </TagContainer>
+                  </ContentContainer>
+                  {presentations && (
+                    <ContentContainer
+                      whiteContainer
+                      className={fr.cx("fr-mb-2w", "fr-p-2w")}
+                      mobileOverflowX
+                    >
+                      <PresentationsList presentations={presentations} />
+                    </ContentContainer>
                   )}
-                  {isHospitalDelivrance(delivrance) && <HospitalTag hideIcon />}
-                  {specialite && isPrinceps && specialite.genericGroupCode !== null && !isAIP(specialite) && (
-                    <GenericPrincepsTag
-                      genericGroupCode={specialite.genericGroupCode}
-                      type="princeps"
-                      fromMedicament
-                      hideIcon
-                      noLink
-                    />
-                  )}
-                  {specialite &&
-                    specialite.genericGroupCode !== null &&
-                    !isPrinceps &&
-                    !isAIP(specialite) && (
-                      <GenericPrincepsTag
-                        genericGroupCode={specialite.genericGroupCode}
-                        type="generic"
-                        fromMedicament
-                        hideIcon
-                        noLink
+                  {articles && articles.length > 0 && (
+                    <ContentContainer
+                      whiteContainer
+                      className={fr.cx("fr-mb-2w", "fr-p-2w")}
+                      mobileOverflowX
+                    >
+                      <ArticlesResumeList
+                        articles={articles}
+                        trackingFrom="Page médicament"
                       />
+                    </ContentContainer>
+                  )}
+                  {videos && videos.length > 0 && (
+                    <ContentContainer
+                      whiteContainer
+                      className={fr.cx("fr-mb-2w", "fr-p-2w")}
+                    >
+                      <VideosBlock videos={videos} />
+                    </ContentContainer>
+                  )}
+                  {marr &&
+                    marr.pdf.some(
+                      (document) => document.type === "Patients",
+                    ) && (
+                      <ContentContainer
+                        whiteContainer
+                        className={fr.cx("fr-mb-2w", "fr-p-2w")}
+                      >
+                        <MarrNotice
+                          marr={{
+                            ...marr!,
+                            pdf: marr!.pdf.filter(
+                              (document) => document.type === "Patients",
+                            ),
+                          }}
+                          onGoToAdvanced={onGoToAdvancedAnchor}
+                          hiddenTag
+                        />
+                      </ContentContainer>
                     )}
-                </DetailsContainer>
-              </TagContainer>
-            )}
-            {composants && (
-              <TagContainer
-                category="Substance active"
-                inLine
-                className="notice-content-tag-container"
-              >
-                <SubstanceTag composants={composants} fromMedicament />
-              </TagContainer>
-            )}
-            {(pregnancyPlanAlert || isPregnancyMentionAlert || pediatrics) && (
-              <TagContainer className="notice-content-tag-container">
-                {pregnancyPlanAlert && <PregnancyPlanTag fromMedicament />}
-                {!pregnancyPlanAlert && isPregnancyMentionAlert && (
-                  <PregnancyMentionTag fromMedicament />
-                )}
-                {pediatrics && (
-                  <PediatricsTags info={pediatrics} fromMedicament />
-                )}
-              </TagContainer>
-            )}
-            <TagContainer category="Statut d'autorisation" hideSeparator inLine>
-              {specialite && specialite.statutAutorisation ? (
-                <span>
-                  <span className={fr.cx("fr-text--sm", "fr-mb-0")}>
-                    {specialite.statutAutorisation}
-                  </span>
-                  {specialite.StatId &&
-                    Number(specialite.StatId) === SpecialiteStat.Abrogée &&
-                    specialite.SpecStatDate && (
-                      <span className={fr.cx("fr-text--sm", "fr-mb-0")}>
-                        {" "}
-                        le {specialite.SpecStatDate.toLocaleDateString("fr-FR")}
-                      </span>
-                    )}
-                </span>
-              ) : (
-                <span>Non communiqué</span>
+                </>
               )}
-            </TagContainer>
-            <TagContainer
-              category="Date d'autorisation de mise sur le marché"
-              inLine
-              hideSeparator
-            >
-              {specialite && specialite.SpecDateAMM ? (
-                <span className={fr.cx("fr-text--sm", "fr-mb-0")}>
-                  {specialite.SpecDateAMM.toLocaleDateString("fr-FR")}
-                </span>
-              ) : (
-                <span>Non communiquée</span>
-              )}
-            </TagContainer>
-          </ContentContainer>
-          {presentations && (
-            <ContentContainer
-              whiteContainer
-              className={fr.cx("fr-mb-2w", "fr-p-2w")}
-              mobileOverflowX
-            >
-              <PresentationsList presentations={presentations} />
-            </ContentContainer>
-          )}
-          {articles && articles.length > 0 && (
-            <ContentContainer
-              whiteContainer
-              className={fr.cx("fr-mb-2w", "fr-p-2w")}
-              mobileOverflowX
-            >
-              <ArticlesResumeList
-                articles={articles}
-                trackingFrom="Page médicament"
-              />
-            </ContentContainer>
-          )}
-          {(videos && videos.length > 0) && (
-            <ContentContainer 
-              whiteContainer 
-              className={fr.cx("fr-mb-2w", "fr-p-2w")}
-            >
-              <VideosBlock videos={videos} />
-            </ContentContainer>
-          )}
-          {(currentMarr && currentMarr.pdf.length > 0) && (
-            <ContentContainer whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
-              <MarrNotice
-                marr={currentMarr}
-                onGoToAdvanced={onGoToAdvancedAnchor}
-                hiddenTag
-              />
-            </ContentContainer>
-          )}
+            </WithMedicamentData>
+          </Suspense>
         </DetailsContentContainer>
-      </ContentContainer>
-      <ContentContainer
-        className={[
-          "mobile-display-contents",
-          fr.cx("fr-col-12", "fr-col-md-7"),
-        ].join(" ")}
-      >
-        <MedicamentContentHeaderBlock
-          className={fr.cx("fr-hidden", "fr-unhidden-md")}
-          specialite={specialite}
-          ficheInfos={ficheInfos}
-          definitions={definitions}
-          pregnancyPlanAlert={pregnancyPlanAlert}
-          isPregnancyMentionAlert={isPregnancyMentionAlert}
-          pediatrics={pediatrics}
-        />
-        {notice && (
-          <ContentContainer
-            whiteContainer
-            className={fr.cx("fr-mb-2w", "fr-hidden", "fr-unhidden-md")}
-          >
-            <QuestionsBox
-              currentQuestion={currentQuestion}
-              updateCurrentQuestion={updateCurrentQuestion}
-              onSearch={handleSearch}
-            />
-          </ContentContainer>
-        )}
+      </NoticeColumn>
+      <NoticeColumn className={[fr.cx("fr-col-12", "fr-col-md-7")].join(" ")}>
+        <Suspense fallback={null}>
+          <WithMedicamentData data={data}>
+            {({
+              ficheInfos,
+              definitions,
+              pregnancyPlanAlert,
+              isPregnancyMentionAlert,
+              pediatrics,
+            }) => (
+              <MedicamentContentHeaderBlock
+                className={fr.cx("fr-hidden", "fr-unhidden-md")}
+                specialite={specialite}
+                ficheInfos={ficheInfos}
+                definitions={definitions}
+                pregnancyPlanAlert={pregnancyPlanAlert}
+                isPregnancyMentionAlert={isPregnancyMentionAlert}
+                pediatrics={pediatrics}
+              />
+            )}
+          </WithMedicamentData>
+        </Suspense>
+        <ContentContainer
+          whiteContainer
+          className={fr.cx("fr-mb-2w", "fr-hidden", "fr-unhidden-md")}
+        >
+          <QuestionsBox
+            currentQuestion={currentQuestion}
+            updateCurrentQuestion={updateCurrentQuestion}
+            onSearch={handleSearch}
+          />
+        </ContentContainer>
         {(hitsLoading || noticeHits !== null) && (
           <NoticeChunkResultsBox
             className={fr.cx(
@@ -465,25 +485,39 @@ function NoticeContent({
                 <h2 className={fr.cx("fr-h3", "fr-mb-1w")}>Notice complète</h2>
               </div>
               <ContentContainer>
-                {notice && notice.dateNotif && (
-                  <Badge severity={"info"}>{notice.dateNotif}</Badge>
-                )}
+                <Suspense
+                  fallback={<SkeletonLine width="7rem" height="1.5rem" />}
+                >
+                  <WithMedicamentData data={data}>
+                    {({ notice }) =>
+                      notice?.dateNotif ? (
+                        <Badge severity="info">{notice.dateNotif}</Badge>
+                      ) : null
+                    }
+                  </WithMedicamentData>
+                </Suspense>
               </ContentContainer>
             </div>
-            {specialite && (notice || isCentralisee(specialite)) ? (
-              <NoticeBlock
-                notice={notice}
-                specialite={specialite}
-                definitions={definitions}
-              />
-            ) : (
-              <span>
-                La notice n&rsquo;est pas disponible pour ce médicament.
-              </span>
-            )}
+            <Suspense fallback={<NoticeTextLoading />}>
+              <WithMedicamentData data={data}>
+                {({ notice, definitions }) =>
+                  specialite && (notice || isCentralisee(specialite)) ? (
+                    <NoticeBlock
+                      notice={notice}
+                      specialite={specialite}
+                      definitions={definitions}
+                    />
+                  ) : (
+                    <span>
+                      La notice n&rsquo;est pas disponible pour ce médicament.
+                    </span>
+                  )
+                }
+              </WithMedicamentData>
+            </Suspense>
           </NoticeContainer>
         </ContentContainer>
-      </ContentContainer>
+      </NoticeColumn>
     </NoticeContentContainer>
   );
 }

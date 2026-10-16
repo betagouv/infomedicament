@@ -170,6 +170,14 @@ describe("proxy rate limiting configuration", () => {
     })).status).toBe(200);
   });
 
+  it("counts the advanced search endpoint against the API quota", () => {
+    process.env.RATE_LIMIT = "1";
+    const headers = { "sec-fetch-dest": "empty", "x-forwarded-for": "advanced-search-api-quota" };
+    expect(proxy(new NextRequest("http://localhost/rechercher/advanced/results?holder=Exemple", { headers })).status).toBe(200);
+    expect(proxy(new NextRequest("http://localhost/rechercher/advanced/results?holder=Autre", { headers })).status).toBe(429);
+    expect(proxy(new NextRequest("http://localhost/rechercher", { headers: { ...headers, "sec-fetch-dest": "document" } })).status).toBe(200);
+  });
+
   it("does not count rating requests against the page navigation limit", () => {
     process.env.RATE_LIMIT = "1";
     const ip = "separate-rating-page-limits";

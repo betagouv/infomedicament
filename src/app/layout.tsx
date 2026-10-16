@@ -3,13 +3,13 @@ import { Metadata } from "next";
 import React from "react";
 import { getHtmlAttributes } from "@codegouvfr/react-dsfr/next-appdir/getHtmlAttributes";
 import { DsfrHead } from "@codegouvfr/react-dsfr/next-appdir/DsfrHead";
-import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
 
 import { defaultColorScheme } from "@/app/defaultColorScheme";
 import { StartDsfr } from "@/app/StartDsfr";
 
 import "@/customIcons/customIcons.css";
 import ThemeProvider from "@/components/ThemeProvider";
+import StyledComponentsRegistry from "@/components/StyledComponentsRegistry";
 
 export const metadata: Metadata = {
   title: "Info Médicament",
@@ -36,9 +36,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <ThemeProvider>
-          <DsfrProvider lang={lang}>{children}</DsfrProvider>
-        </ThemeProvider>
+        <StyledComponentsRegistry>
+          <ThemeProvider>{children}</ThemeProvider>
+        </StyledComponentsRegistry>
       </body>
     </html>
   );

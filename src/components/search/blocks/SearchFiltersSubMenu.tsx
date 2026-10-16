@@ -90,6 +90,7 @@ const SubMenuOpenButton = styled.div<{
 `;
 
 interface SearchFiltersSubMenuProps extends HTMLAttributes<HTMLDivElement> {
+  advanced?: boolean;
   allSubsFilters: SearchFilter[];
   allAtcFilters: SearchFilter[];
   allIndicationsFilters: SearchFilter[];
@@ -102,6 +103,7 @@ interface SearchFiltersSubMenuProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function SearchFiltersSubMenu({
+  advanced = false,
   allSubsFilters,
   allAtcFilters,
   allIndicationsFilters,
@@ -139,6 +141,7 @@ function SearchFiltersSubMenu({
       </SubMenuOpenButton>
       <div hidden={!isFiltersOpen}>
         <SearchFiltersContainer
+          advanced={advanced}
           allSubsFilters={allSubsFilters}
           allAtcFilters={allAtcFilters}
           allIndicationsFilters={allIndicationsFilters}

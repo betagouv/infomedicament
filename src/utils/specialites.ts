@@ -87,6 +87,31 @@ export function isCommercialisee(
   return true;
 }
 
+// Summary rows only contain the legacy status; status 2 retains the pending
+// unavailability warning until catalogue availability is supplied.
+export function getAvailabilityWarning(
+  specialite: Specialite | ShortSpecialite | ResumeSpecialite,
+) {
+  if (specialite.availability === "INDISPONIBLE") {
+    return {
+      title: "Ce médicament n'est plus disponible sur le marché.",
+      severity: "error" as const,
+      color: "var(--text-default-error)",
+    };
+  }
+  if (
+    specialite.availability === "PARTIELLE" ||
+    (specialite.availability == null && !isCommercialisee(specialite))
+  ) {
+    return {
+      title: "Ce médicament ne sera bientôt plus disponible sur le marché.",
+      severity: "info" as const,
+      color: "var(--text-action-high-blue-france)",
+    };
+  }
+  return null;
+}
+
 export function isAIP(
   specialite:
     | DetailedSpecialite
