@@ -136,6 +136,9 @@ export function AutocompleteSearchInput({
       setActiveIndex((i) => Math.max(i - 1, 0));
     } else if (e.key === "Enter" && activeIndex >= 0 && options[activeIndex]) {
       e.preventDefault();
+      // DSFR listens for Enter directly on the input. Stop it in capture so
+      // selecting a suggestion cannot also submit the full search.
+      e.stopPropagation();
       selectOption(options[activeIndex]);
     }
   }
@@ -172,7 +175,7 @@ export function AutocompleteSearchInput({
           setIsOpen(e.target.value.trim().length > 0);
           setActiveIndex(-1);
         }}
-        onKeyDown={handleKeyDown}
+        onKeyDownCapture={handleKeyDown}
         onBlur={() => {
           setIsOpen(false);
           setActiveIndex(-1);

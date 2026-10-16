@@ -87,3 +87,40 @@ it("sorts advanced results by full name and reverses them", () => {
   fireEvent.click(screen.getAllByTitle("Trier par ordre décroissant").at(-1)!);
   expect(names()).toEqual(["Test B", "Test A"]);
 });
+
+it("preserves the selected substance and matching medicines when changing sort", () => {
+  const results = [
+    { ...result(2), composants: "included", score: 10 },
+    { ...result(1), composants: "included", score: 1 },
+    { ...result(3), composants: "excluded", score: 20 },
+  ];
+  render(<SearchResultsList resultsList={results} search="test" />);
+  const substanceFilters = () =>
+    screen.getAllByRole("checkbox", { name: "included (2)" });
+  fireEvent.click(substanceFilters().at(-1)!);
+  const medicineLinks = () =>
+    screen
+      .getAllByRole("link")
+      .map((link) => link.getAttribute("href"))
+      .filter((href) => href?.startsWith("medicaments/"));
+  expect(medicineLinks()).toEqual(["medicaments/2", "medicaments/1"]);
+
+  fireEvent.click(
+    screen.getAllByRole("button", { name: "ordre alphabétique" }).at(-1)!,
+  );
+  expect(medicineLinks()).toEqual(["medicaments/1", "medicaments/2"]);
+  expect(
+    substanceFilters().every((input) => (input as HTMLInputElement).checked),
+  ).toBe(true);
+  expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(
+    "2 résultats",
+  );
+
+  fireEvent.click(
+    screen.getAllByRole("button", { name: "pertinence" }).at(-1)!,
+  );
+  expect(medicineLinks()).toEqual(["medicaments/2", "medicaments/1"]);
+  expect(
+    substanceFilters().every((input) => (input as HTMLInputElement).checked),
+  ).toBe(true);
+});
