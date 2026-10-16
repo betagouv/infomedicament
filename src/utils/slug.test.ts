@@ -8,6 +8,11 @@ describe("slug", () => {
     );
   });
 
+  it("replaces apostrophes with dashes", () => {
+    expect(getSlug(1, "Troubles de l'acidité")).toBe("troubles-de-l-acidite-1");
+    expect(getSlug(2, "Médicaments contre l’acné")).toBe("medicaments-contre-l-acne-2");
+  });
+
   it("falls back to the identifier when the name is empty", () => {
     expect(getSlug(42, "")).toBe("42");
   });

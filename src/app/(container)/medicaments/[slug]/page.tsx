@@ -4,7 +4,7 @@ import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
 import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import { getAtc1, getAtc2 } from "@/db/utils/atc";
+import { getAtc1, getAtc2, getAtcCode } from "@/db/utils/atc";
 import { getSpecialite } from "@/db/utils";
 import { withStaticParamFallback } from "@/utils/staticParams";
 import { getWarmupSpecsSlugs } from "@/db/utils/warmup";
@@ -12,7 +12,6 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
 import { getIdFromSlug } from "@/utils/slug";
-import { getAtcCode } from "@/utils/atc";
 import { getSpecialiteMetadata, getSpecialiteName } from "@/db/utils/specialities";
 import { isGenericSpecialite, isPrincepsSpecialite } from "@/db/utils/generics";
 import MedicamentContent from "@/components/medicaments/MedicamentContent";
@@ -36,6 +35,7 @@ import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { getIndicationsBlock } from "@/utils/noticeHtml";
 import { getVideosFromCIS } from "@/db/utils/videos";
 import { getStockFromCIS } from "@/db/utils/stocks";
+import { getAtcSlug } from "@/utils/atc";
 
 
 // Prerender the top ~500 medicaments at build time so they are served as static
@@ -161,14 +161,14 @@ async function CachedMedicamentPage({ slug }: { slug: string }) {
     atcList.push(atc1.code.trim());
     breadcrumb.push({
       label: atc1.label,
-      linkProps: { href: `/atc/${atc1.code}` },
+      linkProps: { href: `/atc/${getAtcSlug(atc1.code, atc1.label)}` },
     });
   }
   if (atc2) {
     atcList.push(atc2.code.trim());
     breadcrumb.push({
       label: atc2.label,
-      linkProps: { href: `/atc/${atc2.code}` },
+      linkProps: { href: `/atc/${getAtcSlug(atc2.code, atc2.label)}` },
     });
   }
 

@@ -9,6 +9,7 @@ import { getAllIndications } from "@/db/utils/indications";
 import { getAllGenericGroupCodes } from "@/db/utils/generics";
 import { getSpecSlug } from "@/utils/specialites";
 import { getIndicationSlug } from "@/utils/indications";
+import { getAtcSlug } from "@/utils/atc";
 
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
@@ -78,9 +79,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const atcEntries: MetadataRoute.Sitemap = [
-    ...atcData.map((a) => ({ url: `${BASE_URL}/atc/${a.code}` })),
+    ...atcData.map((a) => ({ url: `${BASE_URL}/atc/${getAtcSlug(a.code, a.label)}` })),
     ...atcData.flatMap((a) =>
-      a.children.map((c) => ({ url: `${BASE_URL}/atc/${c.code}` }))
+      a.children.map((c) => ({ url: `${BASE_URL}/atc/${getAtcSlug(c.code, c.label)}` }))
     ),
   ];
 

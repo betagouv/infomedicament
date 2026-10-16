@@ -7,6 +7,7 @@ import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 import { useTracking } from "@/services/tracking";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
+import { getAtcSlug } from "@/utils/atc";
 
 export default function ClientHeader({
   atcs,
@@ -70,7 +71,7 @@ export default function ClientHeader({
         {
           text: "Classes de médicament",
           menuLinks: atcs.map((atc) => ({
-            linkProps: { href: `/atc/${atc.code}`, prefetch: false },
+            linkProps: { href: `/atc/${getAtcSlug(atc.code, atc.label)}`, prefetch: false },
             text: atc.label,
           })),
         },
