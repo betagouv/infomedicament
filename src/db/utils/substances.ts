@@ -1,7 +1,6 @@
 "use server";
 import "server-cli-only";
 
-import type { SpecialiteWithSubstance } from "@/types/SpecialiteTypes";
 import type { ResumeSubstance, AnsmComposant } from "../types";
 import db from "..";
 import { sql } from "kysely";

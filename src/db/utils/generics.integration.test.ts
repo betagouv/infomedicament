@@ -29,7 +29,7 @@ describe("db utils generics", () => {
 
   it("only emits sitemap IDs for groups with visible public members", async () => {
     const ids = await getAllGenericGroupCodes();
-    expect(ids).toContain("14");
+    expect(ids).toContain(14);
     await expect(Promise.all(ids.slice(0, 25).map(getGenericGroup))).resolves
       .not.toContain(undefined);
   });
