@@ -36,7 +36,7 @@ const mockAutocompleteSections = [
       {
         type: "specialite",
         label: "Doliprane 1000 mg",
-        href: "/medicaments/61234567",
+        href: "/medicaments/doliprane-1000-mg-61234567",
         matchReasons: [{ type: "substance", label: "Paracétamol" }],
         score: 5,
       },
@@ -154,7 +154,7 @@ describe("AutocompleteSearchInput", () => {
     fireEvent.keyDown(input, { key: "ArrowDown" });
     fireEvent.keyDown(input, { key: "Enter" });
 
-    expect(mockPush).toHaveBeenCalledExactlyOnceWith("/medicaments/61234567");
+    expect(mockPush).toHaveBeenCalledExactlyOnceWith("/medicaments/doliprane-1000-mg-61234567");
     expect(onSearch).not.toHaveBeenCalled();
   });
 
@@ -199,7 +199,7 @@ describe("AutocompleteSearchInput", () => {
       .find((o) => o.textContent?.includes("Doliprane 1000 mg"))!;
     fireEvent.mouseDown(option);
 
-    expect(mockPush).toHaveBeenCalledWith("/medicaments/61234567");
+    expect(mockPush).toHaveBeenCalledWith("/medicaments/doliprane-1000-mg-61234567");
   });
 
   it("should navigate to the medicament page for a spécialité even when onSearch is provided", () => {
@@ -213,7 +213,7 @@ describe("AutocompleteSearchInput", () => {
       .find((o) => o.textContent?.includes("Doliprane 1000 mg"))!;
     fireEvent.mouseDown(option);
 
-    expect(mockPush).toHaveBeenCalledWith("/medicaments/61234567");
+    expect(mockPush).toHaveBeenCalledWith("/medicaments/doliprane-1000-mg-61234567");
     expect(onSearch).not.toHaveBeenCalled();
   });
 

@@ -6,6 +6,7 @@ import { getLetters } from "@/db/utils/letters";
 import { getGenericsResumeWithLetter } from "@/db/utils/generics";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { withStaticParamFallback } from "@/utils/staticParams";
+import { Metadata } from "next";
 
 export async function generateStaticParams() {
   const letters = await getLetters("generiques");
@@ -15,6 +16,13 @@ export async function generateStaticParams() {
   );
 }
 const PAGE_LABEL: string = "Liste des groupes génériques";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: PAGE_LABEL,
+    description: "Découvrez leur définition, leurs caractéristiques, leur équivalence avec les médicaments de référence et les informations utiles.",
+  }
+}
 
 export default async function Page(props: {
   params: Promise<{ letter: string }>;

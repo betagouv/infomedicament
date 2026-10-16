@@ -6,15 +6,12 @@ import {
 } from "@/db/utils";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import React from "react";
-
 import { formatSpecName } from "@/displayUtils";
-import { getAtc2 } from "@/db/utils/atc";
+import { getAtc2, getAtcCode } from "@/db/utils/atc";
 import { notFound } from "next/navigation";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
-import { getAtcCode } from "@/utils/atc";
 import MedicamentGeneriqueContainer from "@/components/medicamentsGeneriques/MedicamentGeneriqueContainer";
 import { getGenericGroup } from "@/db/utils/generics";
 import { getComposants } from "@/db/utils/composants";

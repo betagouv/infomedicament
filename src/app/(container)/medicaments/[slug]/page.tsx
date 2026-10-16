@@ -5,7 +5,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { withStaticParamFallback } from "@/utils/staticParams";
-import { getWarmupCISCodes } from "@/db/utils/warmup";
+import { getWarmupSpecsSlugs } from "@/db/utils/warmup";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
@@ -16,23 +16,26 @@ import {
 import MedicamentContent from "@/components/medicaments/MedicamentContent";
 import ShareButtons from "@/components/generic/ShareButtons";
 import { getMedicamentPageData } from "@/db/utils/medicamentPage";
+import { getIdFromSlug } from "@/utils/slug";
+import { getAtcSlug } from "@/utils/atc";
 
 // Prerender the top ~500 medicaments at build time so they are served as static
 // HTML before the first request. Other CIS are still rendered on-demand
 // Cache Components also validates one fallback path on unseeded review-app builds.
 export async function generateStaticParams() {
-  const cisCodes = await getWarmupCISCodes();
+  const slugs = await getWarmupSpecsSlugs();
   return withStaticParamFallback(
-    cisCodes.map((CIS) => ({ CIS })),
-    { CIS: "60234100" },
+    slugs.map((slug) => ({ slug })),
+    { slug: "" },
   );
 }
 
 export async function generateMetadata(
-  props: { params: Promise<{ CIS: string }> },
+  props: { params: Promise<{ slug: string }> },
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const { CIS } = await props.params;
+  const { slug } = await props.params;
+  const CIS = getIdFromSlug(slug);
 
   const metadata = await getSpecialiteMetadata(Number(CIS.trim()));
 
@@ -49,7 +52,7 @@ export async function generateMetadata(
   };
 }
 
-export default function Page(props: { params: Promise<{ CIS: string }> }) {
+export default function Page(props: { params: Promise<{ slug: string }> }) {
   return (
     <Suspense fallback={<MedicamentPageLoading />}>
       <ResolvedMedicamentPage params={props.params} />
@@ -60,13 +63,14 @@ export default function Page(props: { params: Promise<{ CIS: string }> }) {
 async function ResolvedMedicamentPage({
   params,
 }: {
-  params: Promise<{ CIS: string }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { CIS } = await params;
-  return <MedicamentPage CIS={CIS} />;
+  const { slug } = await params;
+  return <MedicamentPage slug={slug} />;
 }
 
-async function MedicamentPage({ CIS }: { CIS: string }) {
+async function MedicamentPage({ slug }: { slug: string }) {
+  const CIS = getIdFromSlug(slug);
   const {
     specialite,
     composants,
@@ -82,13 +86,13 @@ async function MedicamentPage({ CIS }: { CIS: string }) {
   if (atc1) {
     breadcrumb.push({
       label: atc1.label,
-      linkProps: { href: `/atc/${atc1.code}` },
+      linkProps: { href: `/atc/${getAtcSlug(atc1.code, atc1.label)}` },
     });
   }
   if (atc2) {
     breadcrumb.push({
       label: atc2.label,
-      linkProps: { href: `/atc/${atc2.code}` },
+      linkProps: { href: `/atc/${getAtcSlug(atc2.code, atc2.label)}` },
     });
   }
 

@@ -24,7 +24,7 @@ import QuestionsBox from "./notice/QuestionsBox";
 import NoticeChunkResultsBox from "./notice/NoticeChunkResultsBox";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { questionsList } from "@/data/pages/notices_anchors";
-import { NoticeChunkHit } from "@/app/(container)/medicaments/[CIS]/notice-search/route";
+import { NoticeChunkHit } from "@/app/(container)/medicaments/[slug]/notice-search/route";
 import { QuestionAnchors } from "@/types/NoticesAnchors";
 import NoticeBlock from "./notice/NoticeBlock";
 import PregnancyMentionTag from "../tags/PregnancyMentionTag";
@@ -32,6 +32,7 @@ import PregnancyPlanTag from "../tags/PregnancyPlanTag";
 import { ATC } from "@/types/ATCTypes";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import {
+  getSpecSlug,
   isAIP,
   isCentralisee,
   isHospitalDelivrance,
@@ -144,7 +145,7 @@ function NoticeContent({
     setNoticeHits(null);
     if (question.queryText && specialite) {
       const res = await fetch(
-        `/medicaments/${specialite.SpecId}/notice-search?q=${encodeURIComponent(question.queryText)}`,
+        `/medicaments/${getSpecSlug(specialite.SpecId, specialite.SpecDenom01)}/notice-search?q=${encodeURIComponent(question.queryText)}`,
       );
       const data = await res.json();
       setNoticeHits(data.hits ?? []);
@@ -158,7 +159,7 @@ function NoticeContent({
     setHitsLoading(true);
     setNoticeHits(null);
     const res = await fetch(
-      `/medicaments/${specialite.SpecId}/notice-search?q=${encodeURIComponent(query)}`,
+      `/medicaments/${getSpecSlug(specialite.SpecId, specialite.SpecDenom01)}/notice-search?q=${encodeURIComponent(query)}`,
     );
     const data = await res.json();
     setNoticeHits(data.hits ?? []);

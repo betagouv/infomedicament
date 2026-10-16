@@ -15,14 +15,15 @@ import { AdvancedATCClass } from "@/types/DataTypes";
 import { getSubstancesResume } from "@/db/utils/substances";
 import { ResumeSubstance } from "@/db/types";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
+import { getAtcCodeFromSlug, getAtcSlug } from "@/utils/atc";
 
 
 export async function generateMetadata(
-  props: { params: Promise<{ code: string }> },
+  props: { params: Promise<{ slug: string }> },
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
   
-  const { code } = await props.params;
+  const code = getAtcCodeFromSlug((await props.params).slug);
 
   const atc1 = await getAtc1(code);
   const atc2 = code.length === 3 ? await getAtc2(code) : undefined;
@@ -70,18 +71,19 @@ async function fetchATC2Data(atc2: ATC): Promise<{ articles: ArticleCardResume[]
   return { articles, dataList };
 }
 
-export default function Page(props: { params: Promise<{ code: string }> }) {
+export default function Page(props: { params: Promise<{ slug: string }> }) {
   return <Suspense fallback={<PageLoadingFallback />}><ResolvedATCPage params={props.params} /></Suspense>;
 }
 
-async function ResolvedATCPage({ params }: { params: Promise<{ code: string }> }) {
-  const { code } = await params;
-  return <CachedATCPage code={code} />;
+async function ResolvedATCPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  return <CachedATCPage slug={slug} />;
 }
 
-async function CachedATCPage({ code }: { code: string }) {
+async function CachedATCPage({ slug }: { slug: string }) {
   "use cache: remote";
 
+  const code = getAtcCodeFromSlug(slug);
   const atc1 = await getAtc1(code);
   const atc2 = code.length === 3 ? await getAtc2(code) : undefined;
   const currentAtc = atc2 || atc1 || undefined;
@@ -102,7 +104,7 @@ async function CachedATCPage({ code }: { code: string }) {
                 ? [
                   {
                     label: atc1.label,
-                    linkProps: { href: `/atc/${atc1.code}` },
+                    linkProps: { href: `/atc/${getAtcSlug(atc1.code, atc1.label)}` },
                   },
                 ]
                 : []),

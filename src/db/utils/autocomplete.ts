@@ -17,6 +17,8 @@ import {
 import { computeSortScore } from "./searchScoring";
 import { autocompleteQuerySchema } from "@/schemas/autocomplete";
 import { normalizeString } from "@/utils/alphabeticNav";
+import { getSpecSlug } from "@/utils/specialites";
+import { getIndicationSlug } from "@/utils/indications";
 
 const AUTOCOMPLETE_MEDICINE_LIMIT = 5;
 const AUTOCOMPLETE_ENTITY_LIMIT = 3;
@@ -58,7 +60,7 @@ async function getMedicineSuggestions(
       suggestion: {
         type: "specialite" as const,
         label: formatSpecName(spec.specName),
-        href: `/medicaments/${spec.specId}`,
+        href: `/medicaments/${getSpecSlug(spec.specId, spec.specName)}`,
         matchReasons: groupMap.get(spec.groupName)?.reasons ?? [],
         score: groupMap.get(spec.groupName)?.score ?? 0,
       },
@@ -161,7 +163,7 @@ async function getCachedAutocompleteSuggestions(
     .map((indication) => ({
       type: "indication" as const,
       label: indication.nomIndication,
-      href: `/indications/${indication.idIndication}`,
+      href: `/indications/${getIndicationSlug(indication.idIndication, indication.nomIndication)}`,
       score:
         indicationScore.get(normalizeString(indication.nomIndication)) ?? 0,
     }))

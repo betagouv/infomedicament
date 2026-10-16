@@ -8,6 +8,7 @@ import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 import { useTracking } from "@/services/tracking";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import { Suspense, useEffect, useState } from "react";
+import { getAtcSlug } from "@/utils/atc";
 
 function HeaderSearchVisibility({
   onChange,
@@ -90,7 +91,7 @@ export default function ClientHeader({
           {
             text: "Classes de médicament",
             menuLinks: atcs.map((atc) => ({
-              linkProps: { href: `/atc/${atc.code}`, prefetch: false },
+              linkProps: { href: `${getAtcSlug(atc.code, atc.label)}`, prefetch: false },
               text: atc.label,
             })),
           },
@@ -120,7 +121,7 @@ export default function ClientHeader({
             linkProps: { href: "/interactions", prefetch: false },
           },
           {
-            text: "Articles",
+            text: "Vos questions",
             linkProps: { href: "/articles", prefetch: false },
           },
           {

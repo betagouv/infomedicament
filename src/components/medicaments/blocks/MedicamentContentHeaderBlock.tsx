@@ -5,7 +5,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes } from "react";
 import Link from "next/link";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
-import { isAIP, isAlerteSecurite, getAvailabilityWarning, isHomeopathie } from "@/utils/specialites";
+import { getSpecSlug, isAIP, isAlerteSecurite, getAvailabilityWarning, isHomeopathie } from "@/utils/specialites";
 import Alert from "@codegouvfr/react-dsfr/Alert";
 import Image from "next/image";
 import { FicheInfos } from "@/types/FicheInfoTypes";
@@ -160,7 +160,7 @@ function MedicamentContentHeaderBlock({
               <>
                 {" "}du médicament{" "}
                 <Link
-                  href={`/medicaments/${specialite.referenceSpecialite.cis}`}
+                  href={`/medicaments/${getSpecSlug(specialite.referenceSpecialite.cis, specialite.referenceSpecialite.name)}`}
                   aria-description="Lien vers le médicament"
                 >
                   {specialite.referenceSpecialite.name}

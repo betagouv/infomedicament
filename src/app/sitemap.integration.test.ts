@@ -16,7 +16,7 @@ describe("sitemap (Integration)", () => {
     expect(urls.some((u) => u.includes("/articles/"))).toBe(true);
     expect(urls.some((u) => u.includes("/generiques/"))).toBe(true);
     expect(urls.some((u) => u.includes("/glossaire/"))).toBe(true);
-    expect(urls.some((u) => /\/atc\/[A-Z]$/.test(u))).toBe(true);
-    expect(urls.some((u) => /\/atc\/[A-Z]\d{2}$/.test(u))).toBe(true);
+    expect(urls.some((u) => /\/atc\/[a-z0-9-]+-[a-z]$/.test(u))).toBe(true);
+    expect(urls.some((u) => /\/atc\/[a-z0-9-]+-[a-z]\d{2}$/.test(u))).toBe(true);
   });
 });
