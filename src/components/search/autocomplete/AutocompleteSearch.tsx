@@ -13,6 +13,19 @@ import {
   MatchReason,
 } from "@/types/SearchTypes";
 import { useIsHydrated } from "@/hooks/useIsHydrated";
+import { useDebounceValue } from "usehooks-ts";
+import { autocompleteResponseSchema } from "@/schemas/autocomplete";
+
+const EMPTY_AUTOCOMPLETE_SECTIONS: readonly AutocompleteSection[] = [];
+
+async function fetchAutocomplete(url: string): Promise<AutocompleteSection[]> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Autocomplete request failed: ${response.status}`);
+  }
+
+  return autocompleteResponseSchema.parse(await response.json());
+}
 
 type SearchInputProps = {
   name: string;
@@ -55,18 +68,26 @@ export function AutocompleteSearchInput({
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const isHydrated = useIsHydrated();
+  const [debouncedSearch] = useDebounceValue(inputValue.trim(), 300);
 
-  const { data: autocompleteSections } = useSWR(
-    !disableSuggestions && inputValue.trim() ? inputValue : null,
-    async (search) =>
-      fetch(`/rechercher/autocomplete?s=${encodeURIComponent(search)}`).then((res) => res.json()),
+  const { data, error } = useSWR<AutocompleteSection[], Error>(
+    !disableSuggestions &&
+      debouncedSearch &&
+      inputValue.trim() === debouncedSearch
+      ? `/rechercher/autocomplete?s=${encodeURIComponent(debouncedSearch)}`
+      : null,
+    fetchAutocomplete,
     {
       keepPreviousData: true,
-      revalidateOnMount: false,
       revalidateOnReconnect: false,
-      fallbackData: [],
+      revalidateOnFocus: false,
+      shouldRetryOnError: false,
     },
-  ) as { data: AutocompleteSection[] };
+  );
+  const autocompleteSections =
+    error || !inputValue.trim()
+      ? EMPTY_AUTOCOMPLETE_SECTIONS
+      : (data ?? EMPTY_AUTOCOMPLETE_SECTIONS);
 
   const options = useMemo(
     () =>
@@ -113,8 +134,11 @@ export function AutocompleteSearchInput({
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setActiveIndex((i) => Math.max(i - 1, 0));
-    } else if (e.key === "Enter" && activeIndex >= 0) {
+    } else if (e.key === "Enter" && activeIndex >= 0 && options[activeIndex]) {
       e.preventDefault();
+      // DSFR listens for Enter directly on the input. Stop it in capture so
+      // selecting a suggestion cannot also submit the full search.
+      e.stopPropagation();
       selectOption(options[activeIndex]);
     }
   }
@@ -134,6 +158,9 @@ export function AutocompleteSearchInput({
           activeIndex >= 0 ? `${id}-option-${activeIndex}` : undefined
         }
         aria-autocomplete={disableSuggestions ? undefined : "list"}
+        aria-describedby={
+          !disableSuggestions && isOpen && error ? `${id}-error` : undefined
+        }
         name={name}
         className={className}
         placeholder={placeholder}
@@ -148,12 +175,18 @@ export function AutocompleteSearchInput({
           setIsOpen(e.target.value.trim().length > 0);
           setActiveIndex(-1);
         }}
-        onKeyDown={handleKeyDown}
+        onKeyDownCapture={handleKeyDown}
         onBlur={() => {
           setIsOpen(false);
           setActiveIndex(-1);
         }}
       />
+      {!disableSuggestions && isOpen && error && (
+        <p id={`${id}-error`} role="status" className={fr.cx("fr-text--sm")}>
+          Les suggestions sont momentanément indisponibles. Vous pouvez lancer
+          votre recherche.
+        </p>
+      )}
       {isOpen && options.length > 0 && (
         <ul
           id={listboxId}
@@ -173,7 +206,7 @@ export function AutocompleteSearchInput({
             boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
           }}
         >
-          {(autocompleteSections ?? []).map((section, sectionIndex) => (
+          {autocompleteSections.map((section, sectionIndex) => (
             <li key={section.type} role="presentation">
               <div
                 style={{

@@ -3,7 +3,6 @@
 import { HTMLAttributes, useEffect, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from "styled-components";
-import Link from "next/link";
 import Button from "@codegouvfr/react-dsfr/Button";
 import { SortType } from "@/types/SearchTypes";
 import SearchFilterLabel from "./SearchFilterLabel";
@@ -46,9 +45,13 @@ function SearchSortBlock({
       >
         Trier par{" "}
         {sortType !== "alphabetic" ? (
-          <Link href="" onClick={() => setSortType("alphabetic")}>
+          <button
+            type="button"
+            className={fr.cx("fr-link")}
+            onClick={() => setSortType("alphabetic")}
+          >
             ordre alphabétique
-          </Link>
+          </button>
         ) : (
           <span className={fr.cx("fr-text--bold")}>ordre alphabétique</span>
         )}
@@ -57,9 +60,13 @@ function SearchSortBlock({
             {" "}
             /{" "}
             {sortType !== "score" ? (
-              <Link href="" onClick={() => setSortType("score")}>
+              <button
+                type="button"
+                className={fr.cx("fr-link")}
+                onClick={() => setSortType("score")}
+              >
                 pertinence
-              </Link>
+              </button>
             ) : (
               <span className={fr.cx("fr-text--bold")}>pertinence</span>
             )}

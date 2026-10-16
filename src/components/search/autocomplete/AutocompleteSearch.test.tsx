@@ -1,7 +1,9 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { AutocompleteSearchInput } from "./AutocompleteSearch";
+import AutocompleteSearch, {
+  AutocompleteSearchInput,
+} from "./AutocompleteSearch";
 
 // mock router
 const mockPush = vi.fn();
@@ -141,6 +143,42 @@ describe("AutocompleteSearchInput", () => {
     fireEvent.keyDown(input, { key: "Enter" });
     expect(mockPush).toHaveBeenCalledWith("/substances/123");
   });
+
+  it("selects a suggestion without also submitting the DSFR search bar", () => {
+    const onSearch = vi.fn();
+    render(<AutocompleteSearch inputName="s" onSearch={onSearch} />);
+    const input = screen.getByRole("combobox");
+    input.focus();
+    fireEvent.change(input, { target: { value: "para" } });
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    expect(mockPush).toHaveBeenCalledExactlyOnceWith("/medicaments/61234567");
+    expect(onSearch).not.toHaveBeenCalled();
+  });
+
+  it.each([false, true])(
+    "submits plain Enter without a selected suggestion (literal input: %s)",
+    (disableSuggestions) => {
+      const onSearch = vi.fn();
+      render(
+        <AutocompleteSearch
+          inputName="s"
+          onSearch={onSearch}
+          disableSuggestions={disableSuggestions}
+        />,
+      );
+      const input = screen.getByRole(
+        disableSuggestions ? "searchbox" : "combobox",
+      );
+      fireEvent.change(input, { target: { value: "para" } });
+      fireEvent.keyDown(input, { key: "Enter" });
+
+      expect(onSearch).toHaveBeenCalledExactlyOnceWith("para");
+      expect(mockPush).not.toHaveBeenCalled();
+    },
+  );
 
   it("should close dropdown on Escape", () => {
     renderAutocomplete();
