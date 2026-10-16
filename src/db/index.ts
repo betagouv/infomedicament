@@ -3,6 +3,7 @@ import "server-cli-only";
 import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
 import { Database } from "@/db/types";
+import { PHASE_PRODUCTION_BUILD } from "next/constants";
 
 const db = new Kysely<Database>({
   dialect: new PostgresDialect({
@@ -19,7 +20,8 @@ const db = new Kysely<Database>({
             password: "postgres",
             port: 5432,
           }),
-      max: 10,
+      // Prerender workers each create a pool; keep their combined usage lower.
+      max: process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD ? 3 : 10,
       connectionTimeoutMillis: 10000, // 10s to establish connection
       idleTimeoutMillis: 30000, // close idle connections after 30s
       keepAlive: true, // enable TCP keepalive
