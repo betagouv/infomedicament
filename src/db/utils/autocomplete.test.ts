@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getAutocompleteSuggestions } from "./autocomplete";
 import { getSynonymMap } from "./searchSynonyms";
 import { getResumeSpecsATCLabels } from "./atc";
-import { formatSpecialitesResume } from "@/utils/specialites";
+import { formatSpecialitesResume, getSpecSlug } from "@/utils/specialites";
 import { getSearchResultsFromMatches } from "./search";
 import { computeSortScore } from "./searchScoring";
 import { formatSpecName } from "@/displayUtils";
@@ -167,7 +167,7 @@ describe("Autocomplete suggestions", () => {
     ]).mockResolvedValueOnce([
       { specId: "123", specName: "DOLIPRANE", groupName: "DOLIPRANE", composants: "Paracétamol" },
     ]);
-    expect((await getAutocompleteSuggestions("doli"))[0].items[0].href).toBe("/medicaments/123");
+    expect((await getAutocompleteSuggestions("doli"))[0].items[0].href).toBe("/medicaments/doliprane-123");
     expect(dbMock.select).toHaveBeenCalledWith(["specId", "specName", "groupName", "composants"]);
     expect(mockExecute).toHaveBeenCalledTimes(2);
     expect(getResumeSpecsATCLabels).not.toHaveBeenCalled();
@@ -202,7 +202,7 @@ describe("Autocomplete suggestions", () => {
     const sections = await getAutocompleteSuggestions("migraine");
     expect(sections.map((section) => section.type)).toEqual(["specialite", "substance", "indication"]);
     expect(sections.flatMap((section) => section.items.map((item) => item.href)))
-      .toEqual(["/medicaments/123", "/substances/1", "/indications/2"]);
+      .toEqual(["/medicaments/migraine-123", "/substances/1", "/indications/migraine-2"]);
   });
 
   it("deduplicates accented and case variants within a category and retains the best score", async () => {
@@ -228,7 +228,7 @@ describe("Autocomplete suggestions", () => {
     mockExecute.mockResolvedValueOnce(rows);
     const legacy = await getSearchResultsFromMatches("ingredient", matches);
     const expected = legacy.map((spec) => ({
-      type: "specialite", label: formatSpecName(spec.specName), href: `/medicaments/${spec.specId}`,
+      type: "specialite", label: formatSpecName(spec.specName), href: `/medicaments/${getSpecSlug(spec.specId, spec.specName)}`,
       matchReasons: spec.matchReasons, score: spec.groupName === "DRUG" ? 0.9 : 0.6,
     })).sort((a, b) => b.score - a.score || a.label.localeCompare(b.label, "fr")).slice(0, 5);
 

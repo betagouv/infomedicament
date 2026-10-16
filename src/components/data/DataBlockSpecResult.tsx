@@ -101,7 +101,7 @@ function DataBlockSpecResult({
     specialite.specName && (
       <DataBlockSpecResultContainer>
         <ResultLink
-          href={`medicaments/${getSpecSlug(specialite.specId, specialite.specName)}`}
+          href={`/medicaments/${getSpecSlug(specialite.specId, specialite.specName)}`}
           className={[fr.cx("fr-px-1w", "fr-py-2w")].join(" ")}
         >
           <span>

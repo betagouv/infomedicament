@@ -154,7 +154,7 @@ describe("AutocompleteSearchInput", () => {
     fireEvent.keyDown(input, { key: "ArrowDown" });
     fireEvent.keyDown(input, { key: "Enter" });
 
-    expect(mockPush).toHaveBeenCalledExactlyOnceWith("/medicaments/61234567");
+    expect(mockPush).toHaveBeenCalledExactlyOnceWith("/medicaments/doliprane-1000-mg-61234567");
     expect(onSearch).not.toHaveBeenCalled();
   });
 
