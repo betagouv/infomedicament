@@ -1,42 +1,23 @@
 import { Suspense } from "react";
-import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
+import MedicamentPageLoading from "@/components/medicaments/MedicamentPageLoading";
 import { Metadata, ResolvingMetadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
 import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import { getAtc1, getAtc2, getAtcCode } from "@/db/utils/atc";
-import { getSpecialite } from "@/db/utils";
 import { withStaticParamFallback } from "@/utils/staticParams";
 import { getWarmupSpecsSlugs } from "@/db/utils/warmup";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
-import { getIdFromSlug } from "@/utils/slug";
-import { getSpecialiteMetadata, getSpecialiteName } from "@/db/utils/specialities";
-import { isGenericSpecialite, isPrincepsSpecialite } from "@/db/utils/generics";
+import {
+  getSpecialiteMetadata,
+  getSpecialiteName,
+} from "@/db/utils/specialities";
 import MedicamentContent from "@/components/medicaments/MedicamentContent";
 import ShareButtons from "@/components/generic/ShareButtons";
-import {
-  getSpecialitesIndications,
-  getSpecialitePathologies,
-} from "@/db/utils/indications";
-import { getNotice } from "@/db/utils/notice";
-import {
-  getAllPregnancyPlanAlerts,
-  getPregnancyMentionAlert,
-} from "@/db/utils/pregnancy";
-import { findPregnancyPlanAlert } from "@/db/utils/pregnancyCatalog";
-import { getPediatrics } from "@/db/utils/pediatrics";
-import { getMarr } from "@/db/utils/marr";
-import { getArticlesFromFilters } from "@/db/utils/articles";
-import { getFicheInfos } from "@/db/utils/ficheInfos";
-import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
-import type { CompositionComponent } from "@/types/SubstanceTypes";
-import { getIndicationsBlock } from "@/utils/noticeHtml";
-import { getVideosFromCIS } from "@/db/utils/videos";
-import { getStockFromCIS } from "@/db/utils/stocks";
+import { getMedicamentPageData } from "@/db/utils/medicamentPage";
+import { getIdFromSlug } from "@/utils/slug";
 import { getAtcSlug } from "@/utils/atc";
-
 
 // Prerender the top ~500 medicaments at build time so they are served as static
 // HTML before the first request. Other CIS are still rendered on-demand
@@ -47,64 +28,6 @@ export async function generateStaticParams() {
     slugs.map((slug) => ({ slug })),
     { slug: "" },
   );
-}
-
-async function fetchMedicamentData(
-  CIS: string,
-  composants: CompositionComponent[],
-  atcList: string[],
-) {
-  const [
-    notice,
-    ficheInfos,
-    definitions,
-    pregnancyMentionAlert,
-    pediatrics,
-    marr,
-    allPregnancyPlanAlerts,
-    specialitePathologies,
-    videos,
-    stocks
-  ] = await Promise.all([
-    getNotice(CIS),
-    getFicheInfos(CIS),
-    getHighlightedGlossaryDefinitions(),
-    getPregnancyMentionAlert(CIS),
-    getPediatrics(CIS),
-    getMarr(CIS),
-    getAllPregnancyPlanAlerts(),
-    getSpecialitePathologies(CIS),
-    getVideosFromCIS(CIS),
-    getStockFromCIS(CIS)
-  ]);
-
-  const pregnancyPlanAlert = findPregnancyPlanAlert(
-    composants.map((component) => component.SubsId),
-    allPregnancyPlanAlerts,
-  );
-  const indicationsBlock = notice
-    ? getIndicationsBlock(notice.contentHtml)
-    : undefined;
-  const articles = await getArticlesFromFilters({
-    ATCList: atcList,
-    substancesList: composants.map((c) => c.SubsId.trim()),
-    specialitesList: [CIS],
-    pathologiesList: specialitePathologies,
-  });
-
-  return {
-    notice,
-    ficheInfos,
-    definitions,
-    pregnancyMentionAlert,
-    pediatrics,
-    marr,
-    pregnancyPlanAlert,
-    indicationsBlock,
-    articles,
-    videos,
-    stocks
-  };
 }
 
 export async function generateMetadata(
@@ -130,51 +53,48 @@ export async function generateMetadata(
 }
 
 export default function Page(props: { params: Promise<{ slug: string }> }) {
-  return <Suspense fallback={<PageLoadingFallback />}><ResolvedMedicamentPage params={props.params} /></Suspense>;
+  return (
+    <Suspense fallback={<MedicamentPageLoading />}>
+      <ResolvedMedicamentPage params={props.params} />
+    </Suspense>
+  );
 }
 
-async function ResolvedMedicamentPage({ params }: { params: Promise<{ slug: string }> }) {
+async function ResolvedMedicamentPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
-  return <CachedMedicamentPage slug={slug} />;
+  return <MedicamentPage slug={slug} />;
 }
 
-async function CachedMedicamentPage({ slug }: { slug: string }) {
-  "use cache: remote";
+async function MedicamentPage({ slug }: { slug: string }) {
   const CIS = getIdFromSlug(slug);
-
-  const { specialite, composants, presentations, delivrance } =
-    await getSpecialite(CIS);
-  const indications = await getSpecialitesIndications([CIS]);
-
-  const atcCode = await getAtcCode(CIS);
-  const atc1 = atcCode ? await getAtc1(atcCode) : undefined;
-  const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
-
-  const [isPrinceps, isGeneric] = await Promise.all([
-    isPrincepsSpecialite(CIS),
-    isGenericSpecialite(CIS),
-  ]);
-
-  const atcList: string[] = [];
+  const {
+    specialite,
+    composants,
+    presentations,
+    delivrance,
+    atcCode,
+    atc1,
+    atc2,
+    atcList,
+    medData,
+  } = await getMedicamentPageData(CIS);
   const breadcrumb = [{ label: "Accueil", linkProps: { href: "/" } }];
   if (atc1) {
-    atcList.push(atc1.code.trim());
     breadcrumb.push({
       label: atc1.label,
       linkProps: { href: `/atc/${getAtcSlug(atc1.code, atc1.label)}` },
     });
   }
   if (atc2) {
-    atcList.push(atc2.code.trim());
     breadcrumb.push({
       label: atc2.label,
       linkProps: { href: `/atc/${getAtcSlug(atc2.code, atc2.label)}` },
     });
   }
-
-  const medData = specialite
-    ? await fetchMedicamentData(CIS, composants, atcList)
-    : undefined;
 
   if (composants.length > 0) {
     breadcrumb.push({
@@ -229,13 +149,14 @@ async function CachedMedicamentPage({ slug }: { slug: string }) {
           backgroundColor: fr.colors.decisions.background.alt.grey.default,
         }}
       >
-        {!specialite || !medData ? (
+        {!specialite ? (
           <ContentContainer frContainer>
             Le médicament demandé n'existe pas ou il n'entre pas dans le
             périmètre d'Info Médicament.
           </ContentContainer>
         ) : (
           <MedicamentContent
+            data={medData!}
             atcList={atcList}
             atc2={atc2}
             atcCode={atcCode}
@@ -243,21 +164,7 @@ async function CachedMedicamentPage({ slug }: { slug: string }) {
             composants={composants}
             delivrance={delivrance}
             presentations={presentations}
-            isPrinceps={isPrinceps}
-            isGeneric={isGeneric}
             title={pageLabel}
-            indications={indications}
-            indicationsBlock={medData.indicationsBlock}
-            notice={medData.notice}
-            ficheInfos={medData.ficheInfos}
-            definitions={medData.definitions}
-            pregnancyPlanAlert={medData.pregnancyPlanAlert}
-            isPregnancyMentionAlert={medData.pregnancyMentionAlert}
-            pediatrics={medData.pediatrics}
-            marr={medData.marr}
-            articles={medData.articles}
-            videos={medData.videos}
-            stocks={medData.stocks}
           />
         )}
       </ContentContainer>

@@ -35,6 +35,7 @@ const FiltersTitleContainer = styled.div`
 `;
 
 interface SearchFiltersContainerProps extends HTMLAttributes<HTMLDivElement> {
+  advanced?: boolean;
   allSubsFilters: SearchFilter[];
   allAtcFilters: SearchFilter[];
   allIndicationsFilters: SearchFilter[];
@@ -46,6 +47,7 @@ interface SearchFiltersContainerProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function SearchFiltersContainer({
+  advanced = false,
   allSubsFilters,
   allAtcFilters,
   allIndicationsFilters,
@@ -160,7 +162,8 @@ function SearchFiltersContainer({
           </div>
         )}
       </FiltersTitleContainer>
-      <SearchSortBlock 
+      <SearchSortBlock
+        advanced={advanced}
         className={fr.cx("fr-hidden-md")}
         onUpdateSortType={setSortType}
         onUpdateIsSortAsc={setIsSortAsc}

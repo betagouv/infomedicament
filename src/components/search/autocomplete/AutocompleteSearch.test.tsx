@@ -1,7 +1,9 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { AutocompleteSearchInput } from "./AutocompleteSearch";
+import AutocompleteSearch, {
+  AutocompleteSearchInput,
+} from "./AutocompleteSearch";
 
 // mock router
 const mockPush = vi.fn();
@@ -76,7 +78,9 @@ describe("AutocompleteSearchInput", () => {
     expect(serverMarkup).toMatch(/<input[^>]+disabled=""/);
 
     renderAutocomplete();
-    expect((screen.getByRole("combobox") as HTMLInputElement).disabled).toBe(false);
+    expect((screen.getByRole("combobox") as HTMLInputElement).disabled).toBe(
+      false,
+    );
   });
 
   it("should navigate to the suggestion href", () => {
@@ -114,7 +118,9 @@ describe("AutocompleteSearchInput", () => {
 
   it("should show dropdown options when user types", () => {
     renderAutocomplete();
-    fireEvent.change(screen.getByRole("combobox"), { target: { value: "doli" } });
+    fireEvent.change(screen.getByRole("combobox"), {
+      target: { value: "doli" },
+    });
     expect(screen.getByRole("listbox")).toBeDefined();
     expect(screen.getAllByRole("option").length).toBeGreaterThan(0);
   });
@@ -124,7 +130,9 @@ describe("AutocompleteSearchInput", () => {
     const input = screen.getByRole("combobox");
     fireEvent.change(input, { target: { value: "doli" } });
     fireEvent.keyDown(input, { key: "ArrowDown" });
-    expect(screen.getAllByRole("option")[0].getAttribute("aria-selected")).toBe("true");
+    expect(screen.getAllByRole("option")[0].getAttribute("aria-selected")).toBe(
+      "true",
+    );
   });
 
   it("should select highlighted option on Enter", () => {
@@ -135,6 +143,42 @@ describe("AutocompleteSearchInput", () => {
     fireEvent.keyDown(input, { key: "Enter" });
     expect(mockPush).toHaveBeenCalledWith("/substances/123");
   });
+
+  it("selects a suggestion without also submitting the DSFR search bar", () => {
+    const onSearch = vi.fn();
+    render(<AutocompleteSearch inputName="s" onSearch={onSearch} />);
+    const input = screen.getByRole("combobox");
+    input.focus();
+    fireEvent.change(input, { target: { value: "para" } });
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    expect(mockPush).toHaveBeenCalledExactlyOnceWith("/medicaments/61234567");
+    expect(onSearch).not.toHaveBeenCalled();
+  });
+
+  it.each([false, true])(
+    "submits plain Enter without a selected suggestion (literal input: %s)",
+    (disableSuggestions) => {
+      const onSearch = vi.fn();
+      render(
+        <AutocompleteSearch
+          inputName="s"
+          onSearch={onSearch}
+          disableSuggestions={disableSuggestions}
+        />,
+      );
+      const input = screen.getByRole(
+        disableSuggestions ? "searchbox" : "combobox",
+      );
+      fireEvent.change(input, { target: { value: "para" } });
+      fireEvent.keyDown(input, { key: "Enter" });
+
+      expect(onSearch).toHaveBeenCalledExactlyOnceWith("para");
+      expect(mockPush).not.toHaveBeenCalled();
+    },
+  );
 
   it("should close dropdown on Escape", () => {
     renderAutocomplete();
@@ -175,10 +219,48 @@ describe("AutocompleteSearchInput", () => {
 
   it("should display sections and match reasons", () => {
     renderAutocomplete();
-    fireEvent.change(screen.getByRole("combobox"), { target: { value: "para" } });
+    fireEvent.change(screen.getByRole("combobox"), {
+      target: { value: "para" },
+    });
 
     expect(screen.getByText("Substances actives")).toBeDefined();
     expect(screen.getByText("Médicaments")).toBeDefined();
     expect(screen.getByText("contient Paracétamol")).toBeDefined();
+  });
+
+  it("closes cached suggestions when clearing the query before using advanced criteria", () => {
+    renderAutocomplete();
+    const input = screen.getByRole("combobox");
+    fireEvent.change(input, { target: { value: "para" } });
+    expect(screen.queryByRole("listbox")).not.toBeNull();
+    fireEvent.change(input, { target: { value: "" } });
+    expect(screen.queryByRole("listbox")).toBeNull();
+  });
+
+  it("dismisses suggestions with Escape without clearing the main query", () => {
+    renderAutocomplete();
+    const input = screen.getByRole("combobox") as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "para" } });
+    expect(fireEvent.keyDown(input, { key: "Escape" })).toBe(false);
+    expect(input.value).toBe("para");
+    expect(screen.queryByRole("listbox")).toBeNull();
+  });
+
+  it("keeps the advanced input literal without normal-search suggestions", () => {
+    render(
+      <AutocompleteSearchInput
+        id="advanced-input"
+        name="s"
+        type="search"
+        placeholder="Recherche précise"
+        disableSuggestions
+      />,
+    );
+    const input = screen.getByRole("searchbox");
+    fireEvent.change(input, { target: { value: "para" } });
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    expect(screen.queryByRole("listbox")).toBeNull();
+    expect(screen.queryByRole("option")).toBeNull();
+    expect(mockPush).not.toHaveBeenCalled();
   });
 });

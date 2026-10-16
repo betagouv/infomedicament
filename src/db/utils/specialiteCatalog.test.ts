@@ -8,6 +8,7 @@ import {
   mapDetailedSpecialite,
   statutAmmToCompatibilityId,
   statutAmmToDisplayStatus,
+  getAuthorizationSourceStatuses,
 } from "./specialiteCatalog";
 import { SpecialiteStat } from "@/types/SpecialiteTypes";
 
@@ -34,11 +35,35 @@ describe("specialite catalog mappings", () => {
     expect(disponibiliteToDisplayStatus("PARTIELLE")).toBe("Non communiquée");
   });
 
+  it("preserves the distinction between unavailable and soon unavailable medicines", () => {
+    expect(
+      mapCatalogSpecialite({ ...postgresRow, disponibilite: "INDISPONIBLE" })
+        .availability,
+    ).toBe("INDISPONIBLE");
+    expect(
+      mapCatalogSpecialite({ ...postgresRow, disponibilite: "PARTIELLE" })
+        .availability,
+    ).toBe("PARTIELLE");
+  });
+
   it("maps authorization status representations", () => {
     expect(statutAmmToDisplayStatus("ABROGEE")).toBe("Abrogée");
     expect(statutAmmToCompatibilityId("ABROGEE")).toBe(SpecialiteStat.Abrogée);
     expect(statutAmmToDisplayStatus("ARCHIVEE")).toBe("Archivée");
-    expect(statutAmmToCompatibilityId("ARCHIVEE")).toBe(SpecialiteStat.Archivée);
+    expect(statutAmmToCompatibilityId("ARCHIVEE")).toBe(
+      SpecialiteStat.Archivée,
+    );
+  });
+
+  it("uses the display mapping to match both archived source statuses", () => {
+    expect(getAuthorizationSourceStatuses("Archivée")).toEqual([
+      "INACTIVE",
+      "ARCHIVEE",
+    ]);
+    expect(getAuthorizationSourceStatuses("Valide")).toEqual(["ACTIVE"]);
+    expect(getAuthorizationSourceStatuses("unknown")).toEqual([]);
+    expect(statutAmmToDisplayStatus(null)).toBeNull();
+    expect(statutAmmToCompatibilityId(null)).toBeNull();
   });
 
   it("does not expose the EEN status as an excipient label", () => {
@@ -50,28 +75,30 @@ describe("specialite catalog mappings", () => {
   });
 
   it("maps PostgreSQL rows without leaking their snake_case shape", () => {
-    expect(mapDetailedSpecialite(
-      postgresRow,
-      "JANSSEN BIOLOGICS BV",
-      123,
-      { cis: "61234567", name: "PRINCEPS" },
-      new Date("2021-10-22"),
-      "Latex",
-    ))
-      .toEqual({
-        SpecId: "60035714",
-        SpecDenom01: "SIMPONI 50 mg",
-        ProcId: "CENTRALISEE",
-        StatutBdm: 3,
-        Een: "Latex",
-        StatId: SpecialiteStat.Abrogée,
-        SpecDateAMM: new Date("2009-10-01"),
-        SpecStatDate: new Date("2021-10-22"),
-        statutAutorisation: "Abrogée",
-        statutComm: "Non communiquée",
-        titulairesList: "JANSSEN BIOLOGICS BV",
-        genericGroupCode: 123,
-        referenceSpecialite: { cis: "61234567", name: "PRINCEPS" },
-      });
+    expect(
+      mapDetailedSpecialite(
+        postgresRow,
+        "JANSSEN BIOLOGICS BV",
+        123,
+        { cis: "61234567", name: "PRINCEPS" },
+        new Date("2021-10-22"),
+        "Latex",
+      ),
+    ).toEqual({
+      availability: "ALERTE",
+      SpecId: "60035714",
+      SpecDenom01: "SIMPONI 50 mg",
+      ProcId: "CENTRALISEE",
+      StatutBdm: 3,
+      Een: "Latex",
+      StatId: SpecialiteStat.Abrogée,
+      SpecDateAMM: new Date("2009-10-01"),
+      SpecStatDate: new Date("2021-10-22"),
+      statutAutorisation: "Abrogée",
+      statutComm: "Non communiquée",
+      titulairesList: "JANSSEN BIOLOGICS BV",
+      genericGroupCode: 123,
+      referenceSpecialite: { cis: "61234567", name: "PRINCEPS" },
+    });
   });
 });

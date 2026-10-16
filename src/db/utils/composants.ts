@@ -4,6 +4,7 @@ import "server-cli-only";
 import db from "@/db";
 import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { toCompositionComponents } from "./substanceCatalog";
+import { getElementsList } from "./elements";
 
 export async function getComposants(CIS: string) {
   "use cache: remote";
@@ -20,11 +21,7 @@ export async function getComposantsList(CISList: string[]): Promise<CompositionC
         .where("cis", "in", CISList)
         .selectAll()
         .execute(),
-      db
-        .selectFrom("ansm_element")
-        .where("cis", "in", CISList)
-        .selectAll()
-        .execute(),
+      getElementsList(CISList),
     ]);
     const codes = [
       ...new Set(

@@ -68,7 +68,6 @@ export async function getDetailedSpecialite(CIS: string): Promise<DetailedSpecia
     const row = await db
       .selectFrom("ansm_specialite")
       .where("cis", "=", CIS)
-      .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
       .selectAll()
       .executeTakeFirst();
 
@@ -144,37 +143,44 @@ export async function getDetailedSpecialite(CIS: string): Promise<DetailedSpecia
     );
   }
 
-export async function getSpecialite(CIS: string) {
+export async function getSpecialite(CIS: string): Promise<{
+  specialite: DetailedSpecialite | undefined;
+  composants: CompositionComponent[];
+  presentations: Presentation[];
+  delivrance: DelivranceCondition[];
+}> {
   "use cache: remote";
   const specialite: DetailedSpecialite | undefined =
     await getDetailedSpecialite(CIS);
 
-  const composants: CompositionComponent[] = specialite
-    ? await getComposants(CIS)
-    : [];
+  if (!specialite) {
+    return {
+      specialite,
+      composants: [],
+      presentations: [],
+      delivrance: [],
+    };
+  }
 
-  const presentations: Presentation[] = specialite
-    ? await getFullPresentations(CIS)
-    : [];
-
-  const delivrance: DelivranceCondition[] =
-    specialite
-      ? await db
-        .selectFrom("ansm_specialite_delivrance")
-        .where("ansm_specialite_delivrance.cis", "=", CIS)
-        .innerJoin(
-          "ansm_delivrance",
-          "ansm_specialite_delivrance.code_delivrance",
-          "ansm_delivrance.code",
-        )
-        .select([
-          "ansm_delivrance.code as code",
-          "ansm_delivrance.libelle_court as shortLabel",
-          "ansm_delivrance.libelle_long as longLabel",
-        ])
-        .orderBy("ansm_delivrance.libelle_long")
-        .execute()
-      : [];
+  const [composants, presentations, delivrance] = await Promise.all([
+    getComposants(CIS),
+    getFullPresentations(CIS),
+    db
+      .selectFrom("ansm_specialite_delivrance")
+      .where("ansm_specialite_delivrance.cis", "=", CIS)
+      .innerJoin(
+        "ansm_delivrance",
+        "ansm_specialite_delivrance.code_delivrance",
+        "ansm_delivrance.code",
+      )
+      .select([
+        "ansm_delivrance.code as code",
+        "ansm_delivrance.libelle_court as shortLabel",
+        "ansm_delivrance.libelle_long as longLabel",
+      ])
+      .orderBy("ansm_delivrance.libelle_long")
+      .execute(),
+  ]);
 
   return {
     specialite,

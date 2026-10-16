@@ -1,49 +1,62 @@
 "use client";
 
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, useEffect, useMemo, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
-import styled from 'styled-components';
+import styled from "styled-components";
 import { SearchFilter, SearchResultItem, SortType } from "@/types/SearchTypes";
 import SearchResultsPagination from "./blocks/SearchResultsPagination";
 import SearchFiltersContainer from "./blocks/SearchFiltersContainer";
 import SearchSortBlock from "./blocks/SearchSortBlock";
 import SearchFiltersSubMenu from "./blocks/SearchFiltersSubMenu";
 
-const SearchResultsListContainer = styled.div `
-  .display-inline {
+const SearchResultsListContainer = styled.div`
+  & .display-inline {
     display: inline;
   }
-  .search-results-list-accordion > .fr-collapse--expanded {
-    padding-top: 0px;
+  & .search-results-list-accordion > .fr-collapse--expanded {
+    padding-top: 0;
   }
 `;
-const ResultsContainer = styled.div`
-  @media (min-width: 48em) {
-    flex: 1 1 auto !important;
-    width: calc(100% - 260px - 2rem) !important;
-  }
-`;
+
 const FiltersTitle = styled.h1`
   font-weight: normal;
 `;
 
+const FiltersColumn = styled.div`
+  @media (min-width: 48em) {
+    flex: 0 0 292px;
+    width: 292px;
+  }
+`;
+
+const ResultsContainer = styled.div`
+  @media (min-width: 48em) {
+    flex: 1 1 auto !important;
+    min-width: 0;
+    width: calc(100% - 260px - 2rem) !important;
+  }
+`;
+
 interface SearchResultsListProps extends HTMLAttributes<HTMLDivElement> {
+  advanced?: boolean;
   resultsList: SearchResultItem[];
   search?: string;
 }
 
 function SearchResultsList({
+  advanced = false,
   resultsList,
   search,
 }: SearchResultsListProps) {
-
-  const [filteredResultsList, setFilteredResultsList] = useState<SearchResultItem[]>([]);
-
   const [allSubsFilters, setAllSubsFilters] = useState<SearchFilter[]>([]);
   const [allAtcFilters, setAllAtcFilters] = useState<SearchFilter[]>([]);
-  const [allIndicationsFilters, setAllIndicationsFilters] = useState<SearchFilter[]>([]);
+  const [allIndicationsFilters, setAllIndicationsFilters] = useState<
+    SearchFilter[]
+  >([]);
 
-  const [sortType, setSortType] = useState<SortType>("score");
+  const [sortType, setSortType] = useState<SortType>(
+    advanced ? "alphabetic" : "score",
+  );
   const [isSortAsc, setIsSortAsc] = useState<boolean>(true);
 
   //Loading
@@ -52,12 +65,14 @@ function SearchResultsList({
     const newATCFilters: SearchFilter[] = [];
     const newIndicationsFilters: SearchFilter[] = [];
     resultsList.forEach((result) => {
-      if(result.composants) {
-        const indexSubs = newSubsFilters.findIndex((filter: SearchFilter) => result.composants.trim() === filter.id);
-        if(indexSubs === -1) {
+      if (result.composants) {
+        const indexSubs = newSubsFilters.findIndex(
+          (filter: SearchFilter) => result.composants.trim() === filter.id,
+        );
+        if (indexSubs === -1) {
           newSubsFilters.push({
             id: result.composants.trim(),
-            name: result.composants.trim(), 
+            name: result.composants.trim(),
             count: 1,
             selected: false,
           });
@@ -66,28 +81,42 @@ function SearchResultsList({
         }
       }
       //ATC 1 & 2 List
-      const indexATC = newATCFilters.findIndex((filter: SearchFilter) => result.atc1Code && result.atc1Code.trim() === filter.id);
-      if(indexATC === -1) {
-        if(result.atc1Label && result.atc1Code){
+      const indexATC = newATCFilters.findIndex(
+        (filter: SearchFilter) =>
+          result.atc1Code && result.atc1Code.trim() === filter.id,
+      );
+      if (indexATC === -1) {
+        if (result.atc1Label && result.atc1Code) {
           //New ATC in the list
           newATCFilters.push({
             id: result.atc1Code.trim(),
             name: result.atc1Label.trim(),
             count: 1,
             selected: false,
-            children: (result.atc2Code && result.atc2Label) ? [{
-              id: result.atc2Code.trim(),
-              name: result.atc2Label.trim(),
-              count: 1,
-              selected: false,
-            }] : [],
+            children:
+              result.atc2Code && result.atc2Label
+                ? [
+                    {
+                      id: result.atc2Code.trim(),
+                      name: result.atc2Label.trim(),
+                      count: 1,
+                      selected: false,
+                    },
+                  ]
+                : [],
           });
         }
       } else {
-        if(result.atc2Label && result.atc2Code && newATCFilters[indexATC].children) {
+        if (
+          result.atc2Label &&
+          result.atc2Code &&
+          newATCFilters[indexATC].children
+        ) {
           //ATC 1 exists, test for ATC2
-          const indexATC2 = newATCFilters[indexATC].children.findIndex((filter) => result.atc2Code && result.atc2Code.trim() === filter.id);
-          if(indexATC2 === -1) {
+          const indexATC2 = newATCFilters[indexATC].children.findIndex(
+            (filter) => result.atc2Code && result.atc2Code.trim() === filter.id,
+          );
+          if (indexATC2 === -1) {
             newATCFilters[indexATC].children.unshift({
               id: result.atc2Code.trim(),
               name: result.atc2Label.trim(),
@@ -100,10 +129,14 @@ function SearchResultsList({
           newATCFilters[indexATC].count += 1;
         }
       }
-      if(result.indicationsDetails && result.indicationsDetails.length > 0) {
+      if (result.indicationsDetails && result.indicationsDetails.length > 0) {
         result.indicationsDetails.forEach((indicationDetail) => {
-          const indexIndication = newIndicationsFilters.findIndex((filter: SearchFilter) => indicationDetail.idIndication.toString() === filter.id && indicationDetail.nomIndication.trim() === filter.name);
-          if(indexIndication === -1) {
+          const indexIndication = newIndicationsFilters.findIndex(
+            (filter: SearchFilter) =>
+              indicationDetail.idIndication.toString() === filter.id &&
+              indicationDetail.nomIndication.trim() === filter.name,
+          );
+          if (indexIndication === -1) {
             newIndicationsFilters.push({
               id: indicationDetail.idIndication.toString(),
               name: indicationDetail.nomIndication.trim(),
@@ -119,53 +152,72 @@ function SearchResultsList({
     setAllSubsFilters(newSubsFilters);
     setAllAtcFilters(newATCFilters);
     setAllIndicationsFilters(newIndicationsFilters);
-  }, [resultsList, setAllSubsFilters, setAllAtcFilters, setAllIndicationsFilters]);
+  }, [
+    resultsList,
+    setAllSubsFilters,
+    setAllAtcFilters,
+    setAllIndicationsFilters,
+  ]);
 
   //Update the results list after filters updates
-  useEffect(() => {
+  const filteredResultsList = useMemo(() => {
     const subsFilters = allSubsFilters.filter((filter) => filter.selected);
     const atcsFilters = allAtcFilters.filter((filter) => filter.selected);
-    const indicationsFilters = allIndicationsFilters.filter((filter) => filter.selected);
+    const indicationsFilters = allIndicationsFilters.filter(
+      (filter) => filter.selected,
+    );
     const newResultsList = resultsList
       .filter((result) => {
-        if(subsFilters.length > 0) {
+        if (subsFilters.length > 0) {
           //Filter on composants only if there is composants
-          const findComposant = subsFilters.find((filter: SearchFilter) => filter.id === result.composants.trim());
-          if(!findComposant) return false;
+          const findComposant = subsFilters.find(
+            (filter: SearchFilter) => filter.id === result.composants.trim(),
+          );
+          if (!findComposant) return false;
         }
-        if(atcsFilters.length > 0){
+        if (atcsFilters.length > 0) {
           //Filter on atc only if there is atc
           const findATC = atcsFilters.find((filter: SearchFilter) => {
-            if(filter.id === result.atc1Code?.trim() && filter.children) {
-              return filter.children.find((childrenFilter) => childrenFilter.selected && childrenFilter.id === result.atc2Code?.trim());
+            if (filter.id === result.atc1Code?.trim() && filter.children) {
+              return filter.children.find(
+                (childrenFilter) =>
+                  childrenFilter.selected &&
+                  childrenFilter.id === result.atc2Code?.trim(),
+              );
             } else return false;
           });
-          if(!findATC) return false;
+          if (!findATC) return false;
         }
-        if(indicationsFilters.length > 0) {
+        if (indicationsFilters.length > 0) {
           //Filter on indication only if there is indication
           let find: boolean = false;
-          if(result.indicationsDetails && result.indicationsDetails.length > 0){
+          if (
+            result.indicationsDetails &&
+            result.indicationsDetails.length > 0
+          ) {
             result.indicationsDetails.forEach((indicationDetail) => {
               const findIndication = indicationsFilters.findIndex(
-                (filter: SearchFilter) => filter.id === indicationDetail.idIndication.toString() && filter.name === indicationDetail.nomIndication.trim()
+                (filter: SearchFilter) =>
+                  filter.id === indicationDetail.idIndication.toString() &&
+                  filter.name === indicationDetail.nomIndication.trim(),
               );
-              if(findIndication !== -1){
+              if (findIndication !== -1) {
                 find = true;
-              } 
+              }
             });
           }
           return find;
         }
         return true;
       })
-      .sort((a, b) => { 
-        if(sortType === "alphabetic") {
-          if(isSortAsc) return a.groupName.localeCompare(b.groupName, "fr")
-          else return b.groupName.localeCompare(a.groupName, "fr")
-        }
-        else {
-          if(isSortAsc) {
+      .sort((a, b) => {
+        if (advanced || sortType === "alphabetic") {
+          const nameA = advanced ? a.specName : a.groupName;
+          const nameB = advanced ? b.specName : b.groupName;
+          if (isSortAsc) return nameA.localeCompare(nameB, "fr");
+          else return nameB.localeCompare(nameA, "fr");
+        } else {
+          if (isSortAsc) {
             if (a.score !== b.score) return b.score - a.score;
             return a.groupName.localeCompare(b.groupName, "fr");
           } else {
@@ -174,26 +226,45 @@ function SearchResultsList({
           }
         }
       });
-    setFilteredResultsList(newResultsList);
-  }, [resultsList, sortType, isSortAsc, allSubsFilters, allAtcFilters, allIndicationsFilters, setFilteredResultsList]);
+    return newResultsList;
+  }, [
+    resultsList,
+    advanced,
+    sortType,
+    isSortAsc,
+    allSubsFilters,
+    allAtcFilters,
+    allIndicationsFilters,
+  ]);
 
   const getSelectedFiltersCount = (): number => {
-    return allSubsFilters.filter((filter) => filter.selected).length 
-      + allAtcFilters.filter((filter) => filter.selected).length 
-      + allIndicationsFilters.filter((filter) => filter.selected).length;
-  }
+    return (
+      allSubsFilters.filter((filter) => filter.selected).length +
+      allAtcFilters.filter((filter) => filter.selected).length +
+      allIndicationsFilters.filter((filter) => filter.selected).length
+    );
+  };
 
   return (
-    <SearchResultsListContainer className={fr.cx("fr-grid-row")}>
+    <SearchResultsListContainer className={[fr.cx("fr-grid-row")].join(" ")}>
       <div className={fr.cx("fr-col-12")}>
         <FiltersTitle className={fr.cx("fr-mb-3w", "fr-text--md")}>
-          {filteredResultsList.length} résultat{filteredResultsList.length > 1 && 's'}
-          {" "}pour{" "}:{" "}
-          <strong>“{search}“</strong>
+          {filteredResultsList.length} résultat
+          {filteredResultsList.length > 1 && "s"}
+          {search && (
+            <>
+              {" "}
+              pour : <strong>“{search}“</strong>
+            </>
+          )}
         </FiltersTitle>
       </div>
-      <div className={fr.cx("fr-hidden-md", "fr-mb-2w")} style={{width: "100%"}}>
+      <div
+        className={fr.cx("fr-hidden-md", "fr-mb-2w")}
+        style={{ width: "100%" }}
+      >
         <SearchFiltersSubMenu
+          advanced={advanced}
           allSubsFilters={allSubsFilters}
           allAtcFilters={allAtcFilters}
           allIndicationsFilters={allIndicationsFilters}
@@ -204,9 +275,14 @@ function SearchResultsList({
           setIsSortAsc={setIsSortAsc}
           selectedFiltersCount={getSelectedFiltersCount()}
         />
-      </div> 
-      <div className={fr.cx("fr-hidden", "fr-unhidden-md", "fr-py-2w", "fr-pr-4w")}>
+      </div>
+      <FiltersColumn
+        className={[
+          fr.cx("fr-hidden", "fr-unhidden-md", "fr-py-2w", "fr-pr-4w"),
+        ].join(" ")}
+      >
         <SearchFiltersContainer
+          advanced={advanced}
           allSubsFilters={allSubsFilters}
           allAtcFilters={allAtcFilters}
           allIndicationsFilters={allIndicationsFilters}
@@ -215,10 +291,11 @@ function SearchResultsList({
           setAllIndicationsFilters={setAllIndicationsFilters}
           setSortType={setSortType}
           setIsSortAsc={setIsSortAsc}
-        />   
-      </div>     
-      <ResultsContainer className={fr.cx("fr-col-12")}>
-        <SearchSortBlock 
+        />
+      </FiltersColumn>
+      <ResultsContainer className={[fr.cx("fr-col-12")].join(" ")}>
+        <SearchSortBlock
+          advanced={advanced}
           onUpdateSortType={setSortType}
           onUpdateIsSortAsc={setIsSortAsc}
           className={fr.cx("fr-hidden", "fr-unhidden-md")}
@@ -234,6 +311,6 @@ function SearchResultsList({
       </ResultsContainer>
     </SearchResultsListContainer>
   );
-};
+}
 
 export default SearchResultsList;
