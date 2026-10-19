@@ -52,10 +52,8 @@ const FULL_COPY_TABLES = [
   "ansm_substance_groupe_substance",
   "ansm_substance_nom",
   "ansm_videos",
-  "classes_cliniques",
   "has_url_has",
   "letters",
-  "presentations",
   "ref_articles",
   "ref_atc_friendly_niveau_1",
   "ref_atc_friendly_niveau_2",
@@ -69,7 +67,6 @@ const FULL_COPY_TABLES = [
   "resume_indications",
   "resume_substances",
   "search_synonyms",
-  "vu_classes_cliniques",
 ];
 
 // Tables with a bigint codeCIS column

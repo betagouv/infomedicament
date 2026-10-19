@@ -40,8 +40,6 @@ export interface Database {
   triam_classe_grp_subst: TriamClasseGrpSubstTable;
   triam_interactions: TriamInteractionsTable;
   interactions_search: InteractionsSearchTable;
-  classes_cliniques: ClassesCliniquesTable;
-  vu_classes_cliniques: VUClassesCliniquesTable;
   indications: IndicationsTable;
   specialites_metadata: SpecialiteMetadataTable;
   ansm_specialite: AnsmSpecialiteTable;
@@ -400,31 +398,6 @@ interface InteractionsSearchTable {
   type: "substance" | "medicament" | "class";
   subst_ids: string[];
   class_ids: string[];
-}
-
-interface ClassesCliniquesTable {
-  codeTerme: number,
-  libAbr?: string,
-  libCourt: string,
-  libLong: string,
-  libLongAnglais?: string,
-  libRech?: string,
-  numOrdreEdit: number,
-  dateCreationTerme: Date,
-  dateModifTerme?: Date,
-  dateInactivTerme?: Date,
-  textSourceRef?: string,
-  remTerme?: string,
-};
-
-interface VUClassesCliniquesTable {
-  codeVU: string,
-  codeClasClinique: number,
-  indicValide: number,
-  remCommentaire?: string,
-  dateCreation: Date,
-  dateDernModif?: Date,
-  codeModif?: number,
 }
 
 interface IndicationsTable {
