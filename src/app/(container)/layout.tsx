@@ -48,7 +48,11 @@ export default async function ContainerLayout({
             href: "/",
             title: "Accueil",
           }}
-          accessibility={"non compliant"}
+          accessibility="non compliant"
+          accessibilityLinkProps={{
+            href: "/accessibilite",
+            title: "Accessibilité : non conforme",
+          }}
           termsLinkProps={{
             href: "/mentions-legales",
             title: "Mentions légales",

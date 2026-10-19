@@ -14,6 +14,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 const STATIC_ROUTES = [
   "/",
   "/a-propos",
+  "/accessibilite",
   "/donnees",
   "/articles",
   "/interactions",
