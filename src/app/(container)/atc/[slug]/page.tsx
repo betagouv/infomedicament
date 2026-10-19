@@ -9,7 +9,7 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import ATC1DefinitionContent from "@/components/definition/ATC1DefinitionContent";
 import ATC2DefinitionContent from "@/components/definition/ATC2DefinitionContent";
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 import { getArticlesFromATC } from "@/db/utils/articles";
 import { AdvancedATCClass } from "@/types/DataTypes";
 import { getSubstancesResume } from "@/db/utils/substances";
@@ -20,7 +20,6 @@ import { getAtcCodeFromSlug, getAtcSlug } from "@/utils/atc";
 
 export async function generateMetadata(
   props: { params: Promise<{ slug: string }> },
-  parent: ResolvingMetadata,
 ): Promise<Metadata> {
   
   const code = getAtcCodeFromSlug((await props.params).slug);
@@ -30,7 +29,7 @@ export async function generateMetadata(
 
   if (!atc1 && !atc2){
     return {
-      title: `Classe de médicaments ${code} - ${(await parent).title?.absolute}`,
+      title: `Classe de médicaments ${code}`,
     };
   }
   let title = "";
@@ -42,7 +41,7 @@ export async function generateMetadata(
   }
 
   return {
-    title: `${title} - ${(await parent).title?.absolute}`,
+    title: `${title}`,
     description: atc2 ? atc2.description : atc1 ? atc1.description : "",
   };
 };

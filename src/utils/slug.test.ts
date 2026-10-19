@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getIdFromSlug, getSlug } from "./slug";
+import { getIdFromSlug, getNumericIdFromSlug, getSlug } from "./slug";
 
 describe("slug", () => {
   it("builds a slug from the name and the identifier", () => {
@@ -20,5 +20,14 @@ describe("slug", () => {
   it("extracts the identifier from slugs and identifier-only URLs", () => {
     expect(getIdFromSlug("hypertension-arterielle-42")).toBe("42");
     expect(getIdFromSlug("42")).toBe("42");
+  });
+
+  it("extracts numeric identifiers and rejects invalid ones", () => {
+    expect(getNumericIdFromSlug("hypertension-arterielle-42")).toBe(42);
+    expect(getNumericIdFromSlug("42")).toBe(42);
+    expect(getNumericIdFromSlug("foo-abc")).toBeUndefined();
+    expect(getNumericIdFromSlug("foo-")).toBeUndefined();
+    expect(getNumericIdFromSlug("foo-0")).toBeUndefined();
+    expect(getNumericIdFromSlug("foo-12.5")).toBeUndefined();
   });
 });

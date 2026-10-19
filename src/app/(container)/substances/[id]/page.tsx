@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 import { getSubstances, getSubstanceDefinition } from "@/db/utils/substances";
 import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinitionContent";
 import { getArticlesFromSubstances } from "@/db/utils/articles";
@@ -16,7 +16,6 @@ import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 
 export async function generateMetadata(
   props: { params: Promise<{ id: string }> },
-  parent: ResolvingMetadata,
 ): Promise<Metadata> {
 
   const { id } = await props.params;
@@ -32,7 +31,7 @@ export async function generateMetadata(
   const definitionString = definitionsRaw.map(d => `${d.SA} : ${d.Definition}`).join(" - ")
 
   return {
-    title: `${substances.map((s) => s.NomLib).join(", ")} - ${(await parent).title?.absolute}`,
+    title: `${substances.map((s) => s.NomLib).join(", ")}`,
     description: definitionString,
   };
 }

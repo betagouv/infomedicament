@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import MedicamentPageLoading from "@/components/medicaments/MedicamentPageLoading";
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 import { fr } from "@codegouvfr/react-dsfr";
 import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
@@ -16,7 +16,7 @@ import {
 import MedicamentContent from "@/components/medicaments/MedicamentContent";
 import ShareButtons from "@/components/generic/ShareButtons";
 import { getMedicamentPageData } from "@/db/utils/medicamentPage";
-import { getIdFromSlug } from "@/utils/slug";
+import { getIdFromSlug, getNumericIdFromSlug } from "@/utils/slug";
 import { getAtcSlug } from "@/utils/atc";
 
 // Prerender the top ~500 medicaments at build time so they are served as static
@@ -32,22 +32,21 @@ export async function generateStaticParams() {
 
 export async function generateMetadata(
   props: { params: Promise<{ slug: string }> },
-  parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const { slug } = await props.params;
-  const CIS = getIdFromSlug(slug);
+  const CIS = getNumericIdFromSlug(slug);
 
-  const metadata = await getSpecialiteMetadata(Number(CIS.trim()));
+  const metadata = CIS ? await getSpecialiteMetadata(CIS) : undefined;
 
   if (!metadata) {
     return {
-      title: `Médicament ${CIS}`,
+      title: `Médicament ${getIdFromSlug(slug)}`,
     };
   }
 
   const name = formatSpecName(metadata.title);
   return {
-    title: `${name} - ${(await parent).title?.absolute}`,
+    title: `${name}`,
     description: metadata.description,
   };
 }

@@ -17,7 +17,7 @@ test("homepage renders the main search experience", async ({ page }) => {
   await expect(
     page.getByRole("combobox", { name: /que cherchez-vous/i }),
   ).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Articles" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Vos questions" })).toBeVisible();
 });
 
 test("searching a medicament from autocomplete opens its detail page", async ({

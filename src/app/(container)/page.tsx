@@ -10,7 +10,7 @@ import { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Info Médicament",
+    title: { absolute: "Info Médicament" },
     description: "Accédez aux informations officielles sur les médicaments, aux notices, aux RCP, aux interactions médicamenteuses et aux ressources pour les professionnels de santé.",
   }
 }

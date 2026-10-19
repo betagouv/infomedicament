@@ -7,27 +7,29 @@ import { getIndications } from "@/db/utils/indications";
 import { getResumeSpecsGroupsWithIndication } from "@/db/utils/specialities";
 import IndicationDefinitionContent from "@/components/definition/IndicationDefinitionContent";
 import { Indication } from "@/db/types";
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 import { getArticlesFromPatho } from "@/db/utils/articles";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { Suspense } from "react";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
-import { getIdFromSlug } from "@/utils/slug";
+import { getIdFromSlug, getNumericIdFromSlug } from "@/utils/slug";
 
 export async function generateMetadata(
   props: { params: Promise<{ slug: string }> },
-  parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const code = getIdFromSlug((await props.params).slug);
-  const indication: Indication | undefined = await getIndications(Number(code));
+  const { slug } = await props.params;
+  const code = getNumericIdFromSlug(slug);
+  const indication: Indication | undefined = code
+    ? await getIndications(code)
+    : undefined;
   if (!indication) {
     return {
-      title: `Indication ${code}- ${(await parent).title?.absolute}`,
+      title: `Indication ${getIdFromSlug(slug)}`,
     };
   }
 
   return {
-    title: `${indication.nom} - ${(await parent).title?.absolute}`,
+    title: `${indication.nom}`,
     description: indication.definition || "",
   };
 }
@@ -54,8 +56,9 @@ async function ResolvedIndicationPage({
 async function CachedIndicationPage({ slug }: { slug: string }) {
   "use cache: remote";
 
-  const code = getIdFromSlug(slug);
-  const indication: Indication | undefined = await getIndications(Number(code));
+  const code = getNumericIdFromSlug(slug);
+  if (!code) return notFound();
+  const indication: Indication | undefined = await getIndications(code);
   if (!indication) return notFound();
 
   const [articles, allSpecsGroups] = await Promise.all([

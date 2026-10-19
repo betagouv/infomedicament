@@ -7,6 +7,7 @@ import { getResumeSpecsGroupsWithLetter } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { withStaticParamFallback } from "@/utils/staticParams";
+import { Metadata } from "next";
 
 export async function generateStaticParams() {
   const letters = await getLetters("medicaments");
@@ -16,6 +17,13 @@ export async function generateStaticParams() {
   );
 }
 const PAGE_LABEL: string = "Liste des médicaments";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: PAGE_LABEL,
+    description: "Retrouvez les listes de médicaments classées par ordre alphabétique pour accéder rapidement aux informations recherchées.",
+  }
+}
 
 export default async function Page(props: {
   params: Promise<{ letter: string }>;

@@ -12,7 +12,10 @@ import ThemeProvider from "@/components/ThemeProvider";
 import StyledComponentsRegistry from "@/components/StyledComponentsRegistry";
 
 export const metadata: Metadata = {
-  title: "Info Médicament",
+  title: {
+    default: "Info Médicament",
+    template: "%s | Info Médicament",
+  },
 };
 
 export default function RootLayout({

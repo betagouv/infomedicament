@@ -27,3 +27,13 @@ export function getSlug(id: string | number, name: string): string {
 export function getIdFromSlug(slug: string): string {
   return decodeURIComponent(slug).split("-").pop()?.trim() ?? "";
 }
+
+/**
+ * Extracts a numeric identifier from a slug.
+ * Returns undefined when the identifier is not a positive integer
+ * (e.g. a malformed URL typed by hand).
+ */
+export function getNumericIdFromSlug(slug: string): number | undefined {
+  const id = Number(getIdFromSlug(slug));
+  return Number.isSafeInteger(id) && id > 0 ? id : undefined;
+}
