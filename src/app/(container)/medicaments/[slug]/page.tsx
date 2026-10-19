@@ -8,7 +8,7 @@ import { withStaticParamFallback } from "@/utils/staticParams";
 import { getWarmupSpecsSlugs } from "@/db/utils/warmup";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { getSpecialiteGroupName } from "@/utils/specialites";
+import { getSpecialiteGroupName, getSpecSlug } from "@/utils/specialites";
 import {
   getSpecialiteMetadata,
   getSpecialiteName,
@@ -48,6 +48,9 @@ export async function generateMetadata(
   return {
     title: `${name}`,
     description: metadata.description,
+    alternates: {
+      canonical: `/medicaments/${getSpecSlug(metadata.CIS.toString(), metadata.title)}`,
+    },
   };
 }
 

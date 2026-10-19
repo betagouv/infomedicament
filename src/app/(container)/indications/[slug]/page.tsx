@@ -13,6 +13,7 @@ import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { Suspense } from "react";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { getIdFromSlug, getNumericIdFromSlug } from "@/utils/slug";
+import { getIndicationSlug } from "@/utils/indications";
 
 export async function generateMetadata(
   props: { params: Promise<{ slug: string }> },
@@ -31,6 +32,9 @@ export async function generateMetadata(
   return {
     title: `${indication.nom}`,
     description: indication.definition || "",
+    alternates: {
+      canonical: `/indications/${getIndicationSlug(indication.id, indication.nom)}`,
+    },
   };
 }
 

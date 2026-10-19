@@ -40,9 +40,13 @@ export async function generateMetadata(
     title += atc1.label;
   }
 
+  const currentAtc = atc2 || atc1;
   return {
     title: `${title}`,
     description: atc2 ? atc2.description : atc1 ? atc1.description : "",
+    alternates: {
+      canonical: `/atc/${getAtcSlug(currentAtc.code, currentAtc.label)}`,
+    },
   };
 };
 

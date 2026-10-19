@@ -17,6 +17,7 @@ import { GenericGroup, getGenericGroup } from "@/db/utils/generics";
 import { getComposants } from "@/db/utils/composants";
 import { getReinforcedSurveillanceEvents } from "@/db/utils/safety";
 import { getIdFromSlug, getNumericIdFromSlug } from "@/utils/slug";
+import { getGenericSlug } from "@/utils/generics";
 import { Metadata } from "next";
 
 export async function generateMetadata(
@@ -27,10 +28,16 @@ export async function generateMetadata(
   const group: GenericGroup | undefined = genericGroupCode
     ? await getGenericGroup(genericGroupCode)
     : undefined;
+  if (!group) {
+    return {
+      title: `Groupe générique ${getIdFromSlug(slug)}`,
+    };
+  }
   return {
-    title: group
-      ? formatSpecName(groupGeneNameToDCI(group.libelle))
-      : `Groupe générique ${getIdFromSlug(slug)}`,
+    title: formatSpecName(groupGeneNameToDCI(group.libelle)),
+    alternates: {
+      canonical: `/generiques/${getGenericSlug(group.codeGroupe, group.libelle)}`,
+    },
   };
 }
 
