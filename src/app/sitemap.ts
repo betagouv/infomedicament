@@ -6,7 +6,8 @@ import { getLetters } from "@/db/utils/letters";
 import { getArticles } from "@/db/utils/articles";
 import { getGlossaryLetters } from "@/db/utils/glossary";
 import { getAllIndications } from "@/db/utils/indications";
-import { getAllGenericGroupCodes } from "@/db/utils/generics";
+import { getAllGenericGroups } from "@/db/utils/generics";
+import { getGenericSlug } from "@/utils/generics";
 import { getSpecSlug } from "@/utils/specialites";
 import { getIndicationSlug } from "@/utils/indications";
 import { getAtcSlug } from "@/utils/atc";
@@ -55,7 +56,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getLetters("substances"),
     getLetters("indications"),
     getLetters("generiques"),
-    getAllGenericGroupCodes(),
+    getAllGenericGroups(),
   ]);
 
   const staticEntries: MetadataRoute.Sitemap = STATIC_ROUTES.map((path) => ({
@@ -85,8 +86,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ),
   ];
 
-  const genericEntries: MetadataRoute.Sitemap = genericGroups.map((groupCode) => ({
-    url: `${BASE_URL}/generiques/${groupCode}`,
+  const genericEntries: MetadataRoute.Sitemap = genericGroups.map((group) => ({
+    url: `${BASE_URL}/generiques/${getGenericSlug(group.codeGroupe, group.libelle)}`,
   }));
 
   const glossaireEntries: MetadataRoute.Sitemap = glossaryLetters.map((l) => ({

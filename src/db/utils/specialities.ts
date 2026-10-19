@@ -137,6 +137,7 @@ export async function getDetailedSpecialite(CIS: string): Promise<DetailedSpecia
         ? [...new Set(titulaireNames)].join(", ")
         : null,
       genericGroupMembership?.codeGroupe ?? null,
+      genericGroupMembership?.groupName ?? null,
       referenceSpecialite,
       statusEvent?.date_evenement ?? null,
       excipientsEffetNotoire,

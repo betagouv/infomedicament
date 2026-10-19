@@ -10,13 +10,11 @@ export function getSlug(id: string | number, name: string): string {
   // - "/" between dosages and substances (e.g. "500 mg/25 mg")
   // - parentheses, sometimes not preceded by a space (e.g. "injectable(vaccin")
   // - apostrophes (e.g. "l'acidité" -> "l-acidite", not "lacidite")
+  // - periods (e.g. "0.5 mg", "XBB.1.5", "injectable.Vaccin", "L.P." -> "l-p")
   // - the decimal comma (e.g. "11,25 mg" -> "11-25-mg", not "1125-mg")
-  // - the period, except in uppercase abbreviations like "L.P." or "U.I."
-  //   (e.g. "0.5 mg", "XBB.1.5", "injectable.Vaccin")
   const separatedName = name
-    .replace(/[/()'’]/g, "-")
-    .replace(/(\d),(\d)/g, "$1-$2")
-    .replace(/(?<![A-ZÀ-Ý])\.|\.(?![A-ZÀ-Ý\s/]|$)/g, "-");
+    .replace(/[/()'’.]/g, "-")
+    .replace(/(\d),(\d)/g, "$1-$2");
   const nameSlug = slugify(separatedName, { lower: true, strict: true, locale: "fr" });
   const trimmedId = id.toString().trim();
   return nameSlug ? `${nameSlug}-${trimmedId}` : trimmedId;

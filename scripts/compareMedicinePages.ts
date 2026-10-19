@@ -8,7 +8,7 @@ const DEFAULT_MEDICINE_SLUGS = [
   "luteran-5-mg-comprime-65701038",
   "comirnaty-10-microgrammes-dose-dispersion-a-diluer-pour-dispersion-injectable-vaccin-a-arnm-a-nucleoside-modifie-contre-la-covid-19-69174918",
   "ventoline-100-microgrammes-dose-suspension-pour-inhalation-en-flacon-pressurise-60928110",
-  "decapeptyl-lp-11-25-mg-poudre-et-solvant-pour-suspension-injectable-im-ou-sc-forme-a-liberation-prolongee-sur-3-mois-64460075",
+  "decapeptyl-l-p-11-25-mg-poudre-et-solvant-pour-suspension-injectable-im-ou-sc-forme-a-liberation-prolongee-sur-3-mois-64460075",
   "neupogen-30-mu-0-5-ml-0-6-mg-ml-solution-injectable-en-seringue-preremplie-66663761",
   "humira-40-mg-solution-injectable-en-stylo-prerempli-0-4-ml-64783769",
   "combigan-2-mg-ml-5-mg-ml-collyre-en-solution-60657189",

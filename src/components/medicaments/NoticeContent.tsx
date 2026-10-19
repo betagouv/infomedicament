@@ -33,6 +33,7 @@ import { ATC } from "@/types/ATCTypes";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import {
   getSpecSlug,
+  hasGenericGroup,
   isAIP,
   isCentralisee,
   isHospitalDelivrance,
@@ -282,10 +283,10 @@ function NoticeContent({
                           )}
                           {specialite &&
                             isPrinceps &&
-                            specialite.genericGroupCode !== null &&
+                            hasGenericGroup(specialite) &&
                             !isAIP(specialite) && (
                               <GenericPrincepsTag
-                                genericGroupCode={specialite.genericGroupCode}
+                                genericSpecialite={specialite}
                                 type="princeps"
                                 fromMedicament
                                 hideIcon
@@ -293,11 +294,11 @@ function NoticeContent({
                               />
                             )}
                           {specialite &&
-                            specialite.genericGroupCode !== null &&
+                            hasGenericGroup(specialite) &&
                             !isPrinceps &&
                             !isAIP(specialite) && (
                               <GenericPrincepsTag
-                                genericGroupCode={specialite.genericGroupCode}
+                                genericSpecialite={specialite}
                                 type="generic"
                                 fromMedicament
                                 hideIcon

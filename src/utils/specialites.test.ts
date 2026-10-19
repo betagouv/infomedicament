@@ -18,6 +18,7 @@ const detailedSpec: DetailedSpecialite = {
   statutComm: "Commercialisée",
   titulairesList: 'JANSSEN BIOLOGICS BV',
   genericGroupCode: null,
+  genericGroupName: null,
   referenceSpecialite: null,
 }
 
@@ -238,11 +239,11 @@ describe("specialities slugs", () => {
 
   it("keeps decimal commas as separators", () => {
     expect(getSpecSlug("64460075", "DECAPEPTYL L.P. 11,25 mg, poudre")).toBe(
-      "decapeptyl-lp-11-25-mg-poudre-64460075",
+      "decapeptyl-l-p-11-25-mg-poudre-64460075",
     );
   });
 
-  it("replaces periods with dashes, except in uppercase abbreviations", () => {
+  it("replaces periods with dashes", () => {
     expect(getSpecSlug("1", "COMIRNATY OMICRON XBB.1.5, dispersion injectable.Vaccin")).toBe(
       "comirnaty-omicron-xbb-1-5-dispersion-injectable-vaccin-1",
     );
@@ -250,7 +251,7 @@ describe("specialities slugs", () => {
       "dutasteride-biogaran-0-5-mg-capsule-molle-2",
     );
     expect(getSpecSlug("3", "TRAMADOL ARROW L.P. 200 mg, gélule")).toBe(
-      "tramadol-arrow-lp-200-mg-gelule-3",
+      "tramadol-arrow-l-p-200-mg-gelule-3",
     );
   });
 

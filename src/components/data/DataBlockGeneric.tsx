@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { AdvancedATC, AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import { ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
 import { getIndicationSlug } from "@/utils/indications";
+import { getGenericSlug } from "@/utils/generics";
 import { getAtcSlug } from "@/utils/atc";
 
 const Container = styled.div`
@@ -64,7 +65,7 @@ function DataBlockGeneric({
       } else if(dataType === DataTypeEnum.MEDICAMENT){
         const genericGroupCode = Number((data as ResumeGeneric).SpecId);
         setCurrentLink(Number.isSafeInteger(genericGroupCode) && genericGroupCode > 0
-          ? `/generiques/${genericGroupCode}`
+          ? `/generiques/${getGenericSlug(genericGroupCode, (data as ResumeGeneric).SpecName)}`
           : "#");
       } else 
         setCurrentLink("#");

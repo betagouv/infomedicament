@@ -16,19 +16,21 @@ import MedicamentGeneriqueContainer from "@/components/medicamentsGeneriques/Med
 import { getGenericGroup } from "@/db/utils/generics";
 import { getComposants } from "@/db/utils/composants";
 import { getReinforcedSurveillanceEvents } from "@/db/utils/safety";
+import { getIdFromSlug } from "@/utils/slug";
 
 
-export default function Page(props: { params: Promise<{ codeGroupe: string }> }) {
+export default function Page(props: { params: Promise<{ slug: string }> }) {
   return <Suspense fallback={<PageLoadingFallback />}><ResolvedGenericPage params={props.params} /></Suspense>;
 }
 
-async function ResolvedGenericPage({ params }: { params: Promise<{ codeGroupe: string }> }) {
-  const { codeGroupe } = await params;
-  return <CachedGenericPage codeGroupe={codeGroupe} />;
+async function ResolvedGenericPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  return <CachedGenericPage slug={slug} />;
 }
 
-async function CachedGenericPage({ codeGroupe }: { codeGroupe: string }) {
+async function CachedGenericPage({ slug }: { slug: string }) {
   "use cache: remote";
+  const codeGroupe = getIdFromSlug(slug);
   const genericGroupCode = Number(codeGroupe);
   if (!Number.isSafeInteger(genericGroupCode) || genericGroupCode <= 0) notFound();
 
