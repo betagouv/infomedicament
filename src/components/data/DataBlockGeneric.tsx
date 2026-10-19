@@ -9,6 +9,7 @@ import { ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
 import { getIndicationSlug } from "@/utils/indications";
 import { getGenericSlug } from "@/utils/generics";
 import { getAtcSlug } from "@/utils/atc";
+import { getSubstanceSlug } from "@/utils/substances";
 
 const Container = styled.div`
   border: var(--border-open-blue-france) 1px solid;
@@ -57,7 +58,7 @@ function DataBlockGeneric({
       data: ResumeSubstance | ResumeIndication | AdvancedATCClass | ResumeGeneric
     ){
       if(dataType === DataTypeEnum.SUBSTANCE){
-        setCurrentLink(`/substances/${(data as ResumeSubstance).NomId}`);
+        setCurrentLink(`/substances/${getSubstanceSlug([data as ResumeSubstance])}`);
       } else if(dataType === DataTypeEnum.INDICATION){
         setCurrentLink(`/indications/${getIndicationSlug((data as ResumeIndication).idIndication, (data as ResumeIndication).nomIndication)}`);
       } else if(dataType === DataTypeEnum.ATCCLASS){

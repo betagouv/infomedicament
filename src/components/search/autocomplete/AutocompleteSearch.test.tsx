@@ -24,7 +24,7 @@ const mockAutocompleteSections = [
       {
         type: "substance",
         label: "Paracétamol",
-        href: "/substances/123",
+        href: "/substances/paracetamol-123",
         score: 300,
       },
     ],
@@ -93,7 +93,7 @@ describe("AutocompleteSearchInput", () => {
       .find((o) => o.textContent === "Paracétamol")!;
     fireEvent.mouseDown(option);
 
-    expect(mockPush).toHaveBeenCalledWith("/substances/123");
+    expect(mockPush).toHaveBeenCalledWith("/substances/paracetamol-123");
   });
 
   it("should navigate to the suggestion href even when onSearch is provided", () => {
@@ -107,7 +107,7 @@ describe("AutocompleteSearchInput", () => {
       .find((o) => o.textContent === "Paracétamol")!;
     fireEvent.mouseDown(option);
 
-    expect(mockPush).toHaveBeenCalledWith("/substances/123");
+    expect(mockPush).toHaveBeenCalledWith("/substances/paracetamol-123");
     expect(onSearch).not.toHaveBeenCalled();
   });
 
@@ -141,7 +141,7 @@ describe("AutocompleteSearchInput", () => {
     fireEvent.change(input, { target: { value: "para" } });
     fireEvent.keyDown(input, { key: "ArrowDown" });
     fireEvent.keyDown(input, { key: "Enter" });
-    expect(mockPush).toHaveBeenCalledWith("/substances/123");
+    expect(mockPush).toHaveBeenCalledWith("/substances/paracetamol-123");
   });
 
   it("selects a suggestion without also submitting the DSFR search bar", () => {

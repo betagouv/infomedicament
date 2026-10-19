@@ -19,6 +19,7 @@ import { autocompleteQuerySchema } from "@/schemas/autocomplete";
 import { normalizeString } from "@/utils/alphabeticNav";
 import { getSpecSlug } from "@/utils/specialites";
 import { getIndicationSlug } from "@/utils/indications";
+import { getSubstanceSlug } from "@/utils/substances";
 
 const AUTOCOMPLETE_MEDICINE_LIMIT = 5;
 const AUTOCOMPLETE_ENTITY_LIMIT = 3;
@@ -147,7 +148,7 @@ async function getCachedAutocompleteSuggestions(
     .map((substance) => ({
       type: "substance" as const,
       label: substance.NomLib,
-      href: `/substances/${substance.NomId}`,
+      href: `/substances/${getSubstanceSlug([substance])}`,
       score: substanceScore.get(normalizeString(substance.NomLib)) ?? 0,
     }))
     .sort((a, b) => {

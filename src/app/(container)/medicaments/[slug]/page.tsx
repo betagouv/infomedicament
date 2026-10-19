@@ -18,6 +18,7 @@ import ShareButtons from "@/components/generic/ShareButtons";
 import { getMedicamentPageData } from "@/db/utils/medicamentPage";
 import { getIdFromSlug, getNumericIdFromSlug } from "@/utils/slug";
 import { getAtcSlug } from "@/utils/atc";
+import { getSubstanceSlug } from "@/utils/substances";
 
 // Prerender the top ~500 medicaments at build time so they are served as static
 // HTML before the first request. Other CIS are still rendered on-demand
@@ -104,9 +105,7 @@ async function MedicamentPage({ slug }: { slug: string }) {
         .map((s) => s.NomLib.trim())
         .join(", "),
       linkProps: {
-        href: `/substances/${displaySimpleComposants(composants)
-          .map((s) => s.NomId.trim())
-          .join(",")}`,
+        href: `/substances/${getSubstanceSlug(displaySimpleComposants(composants))}`,
       },
     });
   }

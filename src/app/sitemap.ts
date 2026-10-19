@@ -11,6 +11,7 @@ import { getGenericSlug } from "@/utils/generics";
 import { getSpecSlug } from "@/utils/specialites";
 import { getIndicationSlug } from "@/utils/indications";
 import { getAtcSlug } from "@/utils/atc";
+import { getSubstanceSlug } from "@/utils/substances";
 
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
@@ -72,7 +73,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const substanceEntries: MetadataRoute.Sitemap = substances.map((s) => ({
-    url: `${BASE_URL}/substances/${s.NomId.trim()}`,
+    url: `${BASE_URL}/substances/${getSubstanceSlug([s])}`,
   }));
 
   const indicationsEntries: MetadataRoute.Sitemap = indications.map((i) => ({

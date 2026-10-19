@@ -651,11 +651,11 @@ export const searchTerms = [
 ];
 
 export const canonicalPaths = [
-  "/substances/48905",
-  "/substances/46056",
-  "/substances/53118",
-  "/substances/65799",
-  "/substances/77742",
+  "/substances/s-malate-de-cabozantinib-48905",
+  "/substances/6-fluoro-18f-l-dihydroxyphenylalanine-46056",
+  "/substances/6-iodomethylnorcholesterol-131-i-53118",
+  "/substances/abacavir-65799",
+  "/substances/abacavir-sulfate-d-77742",
   "/indications/acne-1",
   "/indications/alcoolisme-2",
   "/indications/alopecie-3",

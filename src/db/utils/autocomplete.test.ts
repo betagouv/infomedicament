@@ -98,7 +98,7 @@ describe("Autocomplete suggestions", () => {
 
     expect(substanceSection?.items[0]).toMatchObject({
       label: "Paracétamol",
-      href: "/substances/123",
+      href: "/substances/paracetamol-123",
     });
     expect(medicineSection?.items[0]).toMatchObject({
       href: "/medicaments/doliprane-1000-mg-61234567",
@@ -202,7 +202,7 @@ describe("Autocomplete suggestions", () => {
     const sections = await getAutocompleteSuggestions("migraine");
     expect(sections.map((section) => section.type)).toEqual(["specialite", "substance", "indication"]);
     expect(sections.flatMap((section) => section.items.map((item) => item.href)))
-      .toEqual(["/medicaments/migraine-123", "/substances/1", "/indications/migraine-2"]);
+      .toEqual(["/medicaments/migraine-123", "/substances/migraine-1", "/indications/migraine-2"]);
   });
 
   it("deduplicates accented and case variants within a category and retains the best score", async () => {
@@ -211,7 +211,7 @@ describe("Autocomplete suggestions", () => {
       { match_type: "substance", group_name: "DRUG", match_label: "PARACETAMOL", sml: 0.8 },
     ]).mockResolvedValueOnce([]).mockResolvedValueOnce([{ NomId: "1", NomLib: "Paracétamol" }]);
     expect((await getAutocompleteSuggestions("para"))[0].items).toEqual([
-      { type: "substance", label: "Paracétamol", href: "/substances/1", score: 1 },
+      { type: "substance", label: "Paracétamol", href: "/substances/paracetamol-1", score: 1 },
     ]);
   });
 
