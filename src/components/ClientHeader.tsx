@@ -91,7 +91,7 @@ export default function ClientHeader({
           {
             text: "Classes de médicament",
             menuLinks: atcs.map((atc) => ({
-              linkProps: { href: `${getAtcSlug(atc.code, atc.label)}`, prefetch: false },
+              linkProps: { href: `/atc/${getAtcSlug(atc.code, atc.label)}`, prefetch: false },
               text: atc.label,
             })),
           },
