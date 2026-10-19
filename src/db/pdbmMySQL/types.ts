@@ -10,8 +10,6 @@ export interface PdbmMySQL {
   CNAM_AgreColl: CNAMAgreCollTable;
   Spec_Delivrance: SpecDelivranceTable;
   DicoDelivrance: DicoDelivranceTable;
-  StatutComm: StatutCommTable;
-  StatutAdm: StatutAdmTable;
   Patho: PathoTable;
   Spec_Patho: Spec_PathoTable;
   Spec_Titu: Spec_TituTable; //Titulaire date + id table Titulaire
@@ -113,20 +111,6 @@ interface DicoDelivranceTable {
   DelivLong: string;
 }
 
-interface StatutAdmTable {
-  StatId: number;
-  StatLibCourt: string;
-  StatLibLong: string;
-  StatDomaine: "P" | "S";
-}
-
-interface StatutCommTable {
-  CommId: number;
-  CommLibCourt: string;
-  CommLibLong: string;
-  CommDomaine: "P" | "S";
-}
-
 interface PathoTable {
   codePatho: string;
   NomPatho: string;
@@ -208,13 +192,7 @@ export type SpecDelivrance = Selectable<SpecDelivranceTable> &
 export type Patho = Selectable<PathoTable>;
 export type PresentationRetro = Selectable<CNAMRetroTable>;
 
-// Those enums are store as small dictionary tables in the database
-// but to benefit from TypeScript type checking
-// we define them here as well and check that they match the database
-// at runtime
-
-// Should match StatutAdm table
-
+// Legacy status IDs retained for the legacy row types.
 export enum SpecialiteStat {
   "Valide" = 10,
   "Abrogée" = 20,
@@ -226,8 +204,6 @@ export enum SpecialiteStat {
 export enum PresentationStat {
   Abrogation = 50,
 }
-
-// Should match StatutComm table
 
 export enum SpecialiteComm {
   "Commercialisée" = 50,
