@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getAtc, getAtc1, getAtc2, getAtc1DefinitionData, getSubstancesByAtc } from "./atc";
+import { getAtcCode } from "@/utils/atc";
 import type { ATC, ATC1 } from "@/types/ATCTypes";
 
 const mocks = vi.hoisted(() => ({
@@ -12,20 +13,46 @@ vi.mock("@/db/", () => ({
   default: {
     selectFrom(table: string) {
       const predicates: ((row: Record<string, unknown>) => boolean)[] = [];
+      const orders: string[] = [];
+      let selection: string[] = [];
       const run = () => {
         mocks.execute(table);
-        return (mocks.tables[table] ?? []).filter((row) => predicates.every((test) => test(row)));
+        return (mocks.tables[table] ?? [])
+          .filter((row) => predicates.every((test) => test(row)))
+          .sort((a, b) => {
+            for (const key of orders) {
+              const compared = String(a[key]).localeCompare(String(b[key]));
+              if (compared) return compared;
+            }
+            return 0;
+          })
+          .map((row) => Object.fromEntries(selection.map((column) => {
+            const [source, alias] = column.split(" as ");
+            const key = source.split(".").at(-1)!;
+            return [alias ?? key, row[key]];
+          })));
       };
       const query = {
-        select: () => query,
+        select(columns: string | string[]) {
+          selection = typeof columns === "string" ? [columns] : columns;
+          return query;
+        },
         innerJoin: () => query,
-        where(column: string, operator: string, value: string | string[]) {
-          const key = column === "atc.code" ? "atc_code" : column;
+        orderBy(column: string) {
+          orders.push(column.split(".").at(-1)!);
+          return query;
+        },
+        where(column: string, operator: string, value: string | string[] | null) {
+          const key = column.split(".").at(-1)!;
           predicates.push((row) => operator === "in"
             ? (value as string[]).includes(row[key] as string)
             : operator === "like"
               ? typeof row[key] === "string" && (row[key] as string).startsWith((value as string).slice(0, -1))
-              : row[key] === value);
+              : operator === "is not"
+                ? row[key] !== value
+                : operator === "!="
+                  ? row[key] !== value
+                  : row[key] === value);
           return query;
         },
         execute: async () => run(),
@@ -46,14 +73,14 @@ describe("batched ATC loading", () => {
     mocks.tables = {
       ref_atc_friendly_niveau_1: [{ code: "A", libelle: "A class", definition_classe: "A description" }, { code: "B", libelle: "B class", definition_classe: "B description" }],
       ref_atc_friendly_niveau_2: ["A01", "A02", "A03", "B01"].map((code) => ({ code, libelle: code, definition_sous_classe: `${code} description` })),
-      atc: ["A01", "A01AA", "A02BB", "B01CC"].map((code) => ({ code, label_court: `${code} label` })),
-      cis_atc: [
-        { atc_code: "A01AA", code_cis: "shared" },
-        { atc_code: "A01AA", code_cis: "shared" },
-        { atc_code: "A01AA", code_cis: "hidden" },
-        { atc_code: "A01AA", code_cis: null },
-        { atc_code: "A02BB", code_cis: "shared" },
-        { atc_code: "A02BB", code_cis: "second" },
+      ansm_atc: ["A01", "A01AA", "A02BB", "B01CC"].map((code, id) => ({ code: id, libelle_abr: code, libelle_court: `${code} label` })),
+      ansm_specialite_atc: [
+        { libelle_abr: "A01AA", cis: "shared" },
+        { libelle_abr: "A01AA", cis: "shared" },
+        { libelle_abr: "A01AA", cis: "hidden" },
+        { libelle_abr: "A01AA", cis: null },
+        { libelle_abr: "A02BB", cis: "shared" },
+        { libelle_abr: "A02BB", cis: "second" },
       ],
       ansm_specialite: [
         { cis: "shared", disponibilite: "DISPONIBLE" },
@@ -99,9 +126,22 @@ describe("batched ATC loading", () => {
     expect(result.map((entry) => [entry.atc.code, entry.substances.map((substance) => substance.NomId)])).toEqual([
       ["A01", ["n1"]], ["A02", ["n2", "n1"]], ["A03", []],
     ]);
-    expect(mocks.execute.mock.calls.filter(([table]) => table === "cis_atc")).toHaveLength(1);
+    expect(mocks.execute.mock.calls.filter(([table]) => table === "ansm_specialite_atc")).toHaveLength(1);
     expect(mocks.components).toHaveBeenCalledExactlyOnceWith(["shared", "second"]);
     expect(mocks.resumes).toHaveBeenCalledExactlyOnceWith(["n1", "n2"]);
+  });
+
+  it("uses public ATC strings instead of numeric keys and chooses a stable primary code", async () => {
+    mocks.tables.ansm_specialite_atc = [
+      { cis: "multi", code: 1, libelle_abr: "Z01AB01" },
+      { cis: "multi", code: 99, libelle_abr: "A01AA01" },
+      { cis: "multi", code: 0, libelle_abr: null },
+      { cis: "multi", code: 2, libelle_abr: "" },
+      { cis: "contraceptive", code: 0, libelle_abr: "G03AA07" },
+    ];
+    expect(await getAtcCode("multi")).toBe("A01AA01");
+    expect(await getAtcCode("contraceptive")).toBe("G03AA07");
+    expect(await getAtcCode("missing")).toBeUndefined();
   });
 
   it("does not query for parents without descendant codes", async () => {
@@ -112,7 +152,7 @@ describe("batched ATC loading", () => {
   });
 
   it("keeps the single-subclass lookup limited to its exact descendants", async () => {
-    mocks.tables.cis_atc.push({ atc_code: "A01ZZ", code_cis: "unrelated" });
+    mocks.tables.ansm_specialite_atc.push({ libelle_abr: "A01ZZ", cis: "unrelated" });
     mocks.components.mockResolvedValue([
       { SubsId: "s1", NomId: "n1", NomLib: "First" },
       { SubsId: "s1", NomId: "n1", NomLib: "First" },
@@ -124,10 +164,10 @@ describe("batched ATC loading", () => {
   });
 
   it("stops after membership lookup when no medicine matches", async () => {
-    mocks.tables.cis_atc = [];
+    mocks.tables.ansm_specialite_atc = [];
     const parent: ATC1 = { ...atc("A"), children: [atc("A01", [atc("A01AA")])] };
     expect((await getAtc1DefinitionData(parent))[0].substances).toEqual([]);
-    expect(mocks.execute).toHaveBeenCalledExactlyOnceWith("cis_atc");
+    expect(mocks.execute).toHaveBeenCalledExactlyOnceWith("ansm_specialite_atc");
     expect(mocks.components).not.toHaveBeenCalled();
     expect(mocks.resumes).not.toHaveBeenCalled();
   });

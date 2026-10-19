@@ -28,10 +28,13 @@ async function getCISCodesForAtcs(
   if (childCodes.length === 0) return cisByParent;
 
   const rows = await db
-    .selectFrom("cis_atc")
-    .innerJoin("atc", "atc.code_terme", "cis_atc.code_terme_atc")
-    .select(["cis_atc.code_cis", "atc.code as atc_code"])
-    .where("atc.code", "in", childCodes)
+    .selectFrom("ansm_specialite_atc")
+    .innerJoin("ansm_atc", "ansm_atc.code", "ansm_specialite_atc.code_atc")
+    .select([
+      "ansm_specialite_atc.cis as code_cis",
+      "ansm_atc.libelle_abr as atc_code",
+    ])
+    .where("ansm_atc.libelle_abr", "in", childCodes)
     .execute();
 
   for (const row of rows) {
@@ -49,9 +52,9 @@ async function getCISCodesForAtcs(
 async function buildFullAtcChildren(atc2Code: string): Promise<ATC[]> {
   "use cache: remote";
   const rows = await db
-    .selectFrom("atc")
-    .select(["code", "label_court"])
-    .where("code", "like", `${atc2Code}%`)
+    .selectFrom("ansm_atc")
+    .select(["libelle_abr as code", "libelle_court as label_court"])
+    .where("libelle_abr", "like", `${atc2Code}%`)
     .execute();
 
   return rows.map((row) => ({
@@ -144,7 +147,10 @@ export async function getAtc(): Promise<ATC1[]> {
       .selectFrom("ref_atc_friendly_niveau_2")
       .select(["code", "definition_sous_classe", "libelle"])
       .execute(),
-    db.selectFrom("atc").select(["code", "label_court"]).execute(),
+    db
+      .selectFrom("ansm_atc")
+      .select(["libelle_abr as code", "libelle_court as label_court"])
+      .execute(),
   ]);
   const descendants = groupAtcDescendants(descendantRows);
 
@@ -175,9 +181,9 @@ export async function getAtc1(code: string): Promise<ATC1> {
       .where("code", "like", `${parentCode}%`)
       .execute(),
     db
-      .selectFrom("atc")
-      .select(["code", "label_court"])
-      .where("code", "like", `${parentCode}%`)
+      .selectFrom("ansm_atc")
+      .select(["libelle_abr as code", "libelle_court as label_court"])
+      .where("libelle_abr", "like", `${parentCode}%`)
       .execute(),
   ]);
   if (!record) throw new ATCError(parentCode);

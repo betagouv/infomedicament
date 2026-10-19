@@ -10,11 +10,17 @@ export class ATCError extends Error {
 export async function getAtcCode(CIS: string): Promise<string | undefined> {
   "use cache: remote";
 
+  // A specialty can have several ATC mappings. Keep the same stable primary
+  // code as the summary builder and pediatric RCP reader in dataeng.
   const result = await db
-    .selectFrom("cis_atc")
-    .innerJoin("atc", "atc.code_terme", "cis_atc.code_terme_atc")
-    .select("atc.code")
-    .where("cis_atc.code_cis", "=", CIS)
+    .selectFrom("ansm_specialite_atc")
+    .innerJoin("ansm_atc", "ansm_atc.code", "ansm_specialite_atc.code_atc")
+    .select("ansm_atc.libelle_abr as code")
+    .where("ansm_specialite_atc.cis", "=", CIS)
+    .where("ansm_atc.libelle_abr", "is not", null)
+    .where("ansm_atc.libelle_abr", "!=", "")
+    .orderBy("ansm_atc.libelle_abr", "asc")
+    .orderBy("ansm_atc.code", "asc")
     .executeTakeFirst();
 
   return result?.code ?? undefined;

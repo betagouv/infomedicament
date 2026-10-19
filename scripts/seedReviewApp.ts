@@ -37,7 +37,6 @@ const cisBigints = cisCodes.map(Number);
 
 // Reference catalogs and interaction data: copied in full (no CIS key).
 const FULL_COPY_TABLES = [
-  "atc",
   "ansm_atc",
   "ansm_classe_clinique",
   "ansm_classe_clinique_pathologie",
@@ -88,7 +87,6 @@ const CIS_TEXT_TABLES: Array<[string, string]> = [
   ["ansm_specialite_titulaire", "cis"],
   ["ansm_videos_cis", "CIS"],
   ["ansm_stock", "CIS"],
-  ["cis_atc", "code_cis"],
   ["has_asmr", "code_cis"],
   ["has_smr", "code_cis"],
   ["has_documents_bon_usage", "code_cis"],

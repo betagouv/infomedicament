@@ -5,8 +5,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   // Load all reference data from PostgreSQL into memory for fast lookups
   console.log("Loading reference data from PostgreSQL...");
 
-  // NB: you must run updateResumeData.ts in order for those tables to be
-  // up-to-date when recieving a new BDPM mysql dump. 
+  // Rebuild summaries with dataeng build-resume before refreshing this index.
   const groups = await db
     .selectFrom("resume_medicaments")
     .selectAll()
@@ -23,10 +22,10 @@ export async function seed(db: Kysely<any>): Promise<void> {
     .execute();
 
   const atcRows = await db
-    .selectFrom("atc")
-    .select(["code", "label_court"])
-    .where("code", "is not", null)
-    .where("label_court", "is not", null)
+    .selectFrom("ansm_atc")
+    .select(["libelle_abr as code", "libelle_court as label_court"])
+    .where("libelle_abr", "is not", null)
+    .where("libelle_court", "is not", null)
     .execute();
 
   const atcFriendly1 = await db
@@ -46,7 +45,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   );
 
   if (groups.length === 0 || substances.length === 0) {
-    throw new Error("No groups found in resume_medicaments or in resume_substances — run updateResumeData first");
+    throw new Error("No groups found in resume_medicaments or in resume_substances — run dataeng build-resume first");
   }
 
   // Build lookup maps
