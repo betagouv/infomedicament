@@ -51,7 +51,7 @@ export default function Page() {
                 infomedicament-team@beta.gouv.fr
               </a>
             </li>
-            <li>Adresse&nbsp;: DINUM, 20 avenue de Ségur, 75007 Paris</li>
+            <li>Adresse&nbsp;: Agence Nationale de Sécurité du Médicament et des produits de santé (ANSM), 143 Bd Anatole France, 93200 Saint-Denis</li>
           </ul>
           <p>Nous essayons de répondre dans les 5 jours ouvrés.</p>
 
