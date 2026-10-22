@@ -239,16 +239,28 @@ export async function getSubstanceDefinition(subsIds: string[]) {
   const rows = await db.selectFrom("ref_substance_active_definitions")
     .select(["subs_id", "sa", "definition"])
     .where("subs_id", "in", subsIds)
+    .orderBy("id")
     .execute();
 
-  // Map to the expected format (matching Grist structure)
-  return rows.map((row) => (
-    {
-      SubsId: row.subs_id?.trim() || "",
-      SA: row.sa?.trim() || "",
-      Definition: row.definition?.trim() || "",
-    }
-  ));
+  // A substance can have several definitions (one per name):
+  // keep only the first one (lowest id) for each subsId
+  const firstBySubsId = new Map<string, (typeof rows)[number]>();
+  for (const row of rows) {
+    const subsId = row.subs_id?.trim() || "";
+    if (!firstBySubsId.has(subsId)) firstBySubsId.set(subsId, row);
+  }
+
+  // Map to the expected format (matching Grist structure), in the order of subsIds
+  return [...new Set(subsIds.map((subsId) => subsId.trim()))].flatMap((subsId) => {
+    const row = firstBySubsId.get(subsId);
+    return row
+      ? [{
+        SubsId: row.subs_id?.trim() || "",
+        SA: row.sa?.trim() || "",
+        Definition: row.definition?.trim() || "",
+      }]
+      : [];
+  });
 };
 
 export async function getAllSubstancesResumes(): Promise<ResumeSubstance[]> {

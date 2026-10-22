@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import db from "@/db";
-import { getAllSubsWithSpecialites, getCisMatchingSubstanceSet, getSubstancesNames, getSubstancesResumeWithLetter } from "./substances";
+import { getAllSubsWithSpecialites, getCisMatchingSubstanceSet, getSubstanceDefinition, getSubstancesNames, getSubstancesResumeWithLetter } from "./substances";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
 
 // Substances list from the letter of this name
@@ -147,5 +147,20 @@ describe("getCisMatchingSubstanceSet", () => {
 
     expect(byNomId.length).toBeGreaterThan(0);
     expect(byNomId.sort()).toEqual(bySubsId.sort());
+  });
+
+  it("getSubstanceDefinition - should return only the first definition of each subsId", async () => {
+    // 00093 (potassium chloride) has several definitions, one per name
+    const definitions = await getSubstanceDefinition(["00093", "00093"]);
+    const first = await db
+      .selectFrom("ref_substance_active_definitions")
+      .select(["sa"])
+      .where("subs_id", "=", "00093")
+      .orderBy("id")
+      .executeTakeFirstOrThrow();
+
+    expect(definitions).toHaveLength(1);
+    expect(definitions[0].SubsId).toBe("00093");
+    expect(definitions[0].SA).toBe(first.sa?.trim());
   });
 });
