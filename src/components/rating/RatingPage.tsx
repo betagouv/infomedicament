@@ -34,6 +34,9 @@ const AlertContainer = styled.div`
   .fr-alert{
     width: 400px;
     max-width: 80%;
+    @media (max-width: 48em) {
+      width: auto;
+    }
   }
 `;
 

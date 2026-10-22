@@ -13,6 +13,13 @@ const RatingToasterContainer = styled.div<{ $isDark?: boolean }>`
     color: var(--text-default-grey);
     font-family: inherit;
     max-height: 100%;
+    max-width: 490px;
+    width: 490px;
+    @media (max-width: 48em) {
+      max-width: 100% !important;
+      width: 100% !important;
+
+    }
   }
 `;
 
@@ -37,7 +44,6 @@ function RatingToaster({
       const theme = isDark ? "dark" : "light";
       toast(<RatingPage pageId={pageId} />, {
         delay: 10000,
-        style: {width: "490px"},
         theme: theme,
       });
     }
