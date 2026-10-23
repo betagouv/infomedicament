@@ -140,13 +140,9 @@ describe("getCisMatchingSubstanceSet", () => {
     expect(CISList).not.toContain("69601081"); // CIS containing only 40182
   });
 
-  it("resolves a NomId which is not a SubsId", async () => {
+  it("does not resolve a NomId which is not a SubsId", async () => {
     // 61187: NomId "acétaminophène" of the SubsId 02202 (paracétamol)
-    const byNomId = await getCisMatchingSubstanceSet(["61187"]);
-    const bySubsId = await getCisMatchingSubstanceSet(["02202"]);
-
-    expect(byNomId.length).toBeGreaterThan(0);
-    expect(byNomId.sort()).toEqual(bySubsId.sort());
+    expect(await getCisMatchingSubstanceSet(["61187"])).toEqual([]);
   });
 
   it("getSubstanceDefinition - should return only the first definition of each subsId", async () => {

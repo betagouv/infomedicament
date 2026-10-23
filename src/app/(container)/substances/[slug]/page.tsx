@@ -10,7 +10,8 @@ import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinit
 import { getArticlesFromSubstances } from "@/db/utils/articles";
 import { getSubstanceSpecsGroups } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
-import { getSubstanceIdsFromSlug, getSubstanceMainName, getSubstanceSlug, getSubstancesNamesList } from "@/utils/substances";
+import { getSubstanceIdsFromSlug, getSubstanceMainName, getSubstancesNamesList } from "@/utils/substances";
+import { getSlug } from "@/utils/slug";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 import { Substance, SubstancesName } from "@/types/SubstanceTypes";
 import { notFound } from "next/navigation";
@@ -71,12 +72,13 @@ export async function generateMetadata(
   const { title } = getSubstancesPageNames(subsIds, substances, allSpecsGroups);
 
   return {
-    title: formatFrenchList(substances.map((s) => s.NomLib)),
+    title,
     // Fallback when no definition is available for these substances
     description: definitionString
-      || `Retrouvez les médicaments contenant ${substances.length > 1 ? "les substances" : "la substance"} ${formatFrenchList(substances.map((s) => s.NomLib))}.`,
+      || `Retrouvez les médicaments contenant ${subsIds.length > 1 ? "les substances" : "la substance"} ${title}.`,
     alternates: {
-      canonical: `/substances/${getSubstanceSlug(substances)}`,
+      // Page title, followed by the SubsIds
+      canonical: `/substances/${getSlug(subsIds.join(","), title)}`,
     },
   };
 }

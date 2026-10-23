@@ -24,24 +24,19 @@ type SubstanceSetComponent = Pick<
 async function resolveSubstances(subsIds: string[]): Promise<Substance[]> {
   if (subsIds.length === 0) return [];
 
+  // Ids are SubsIds only, never NomIds (a SubsId can also be the code_nom of another substance, e.g. 00140)
   const ansmNames = await db
     .selectFrom("ansm_substance_nom")
-    .where((eb) =>
-      eb.or([eb("code_nom", "in", subsIds), eb("code_substance", "in", subsIds)]),
-    )
+    .where("code_substance", "in", subsIds)
     .selectAll()
     .execute();
 
   const resolveFromAnsm = (id: string): Substance | undefined => {
-    // Ids are SubsId first: a SubsId can also be the code_nom of another substance (e.g. 00140)
     const canonical =
       ansmNames.find(
         (row) => row.code_substance === id && row.type === "CANONIQUE",
       ) ?? ansmNames.find((row) => row.code_substance === id);
-    if (canonical) return toSubstance(canonical);
-
-    const exactName = ansmNames.find((row) => row.code_nom === id);
-    return exactName ? toSubstance(exactName) : undefined;
+    return canonical ? toSubstance(canonical) : undefined;
   };
 
   // Fallback on the substances list only for the ids not found in the ANSM names
@@ -49,7 +44,7 @@ async function resolveSubstances(subsIds: string[]): Promise<Substance[]> {
   const resumeFallbacks = missingIds.length > 0
     ? await db
       .selectFrom("resume_substances")
-      .where((eb) => eb.or([eb("NomId", "in", missingIds), eb("SubsId", "in", missingIds)]))
+      .where("SubsId", "in", missingIds)
       .select(["SubsId", "NomId", "NomLib", "type"])
       .execute()
     : [];
@@ -58,9 +53,7 @@ async function resolveSubstances(subsIds: string[]): Promise<Substance[]> {
     const substance = resolveFromAnsm(id);
     if (substance) return [substance];
 
-    const fallback = resumeFallbacks.find(
-      (row) => row.NomId.trim() === id || row.SubsId.trim() === id,
-    );
+    const fallback = resumeFallbacks.find((row) => row.SubsId.trim() === id);
     return fallback
       ? [
           {

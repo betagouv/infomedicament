@@ -70,7 +70,7 @@ describe("db utils specialities", () => {
 
   it("requires the complete requested substance set", async () => {
     const paracetamolOnly = await getSubstanceSpecialitesCIS("02202");
-    const paracetamolAndCodeine = await getSubstanceSpecialitesCIS(["02202", "90530"]);
+    const paracetamolAndCodeine = await getSubstanceSpecialitesCIS(["02202", "74765"]);
 
     expect(paracetamolOnly).not.toContain("60009573");
     expect(paracetamolAndCodeine).toContain("60009573");
