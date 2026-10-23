@@ -34,12 +34,14 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug } = await props.params;
 
-  const { title, description, canonicalUrl } = await getArticle(slug);
+  const article = await getArticle(slug);
   return {
-    title: `${title}`,
-    description,
+    title: `${article.title}`,
+    description: article.description,
     alternates: {
-      canonical: canonicalUrl,
+      // The article page itself: its "lien" points to the external source
+      // it is based on, which would make search engines index that page instead
+      canonical: `/articles/${article.slug}`,
     },
   };
 }
