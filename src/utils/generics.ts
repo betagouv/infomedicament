@@ -1,4 +1,4 @@
-import { GenericGroup } from "@/db/utils/generics";
+import type { GenericGroup } from "@/db/utils/generics";
 import { formatFrenchList, formatSpecName, groupGeneNameToDCI } from "@/displayUtils";
 import { getSlug } from "@/utils/slug";
 
