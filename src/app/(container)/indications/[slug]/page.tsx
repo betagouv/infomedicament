@@ -31,7 +31,9 @@ export async function generateMetadata(
 
   return {
     title: `${indication.nom}`,
-    description: indication.definition || "",
+    // Fallback when the indication has no definition
+    description: indication.definition
+      || `Retrouvez les médicaments associés à l'indication : ${indication.nom}.`,
     alternates: {
       canonical: `/indications/${getIndicationSlug(indication.id, indication.nom)}`,
     },

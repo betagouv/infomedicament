@@ -13,6 +13,7 @@ import { getArticlesFromSubstances } from "@/db/utils/articles";
 import { getResumeSpecsGroupsWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { getSubstanceIdsFromSlug, getSubstanceSlug } from "@/utils/substances";
+import { formatFrenchList } from "@/displayUtils";
 
 
 export async function generateMetadata(
@@ -31,8 +32,10 @@ export async function generateMetadata(
   const definitionString = definitionsRaw.map(d => `${d.SA} : ${d.Definition}`).join(" - ")
 
   return {
-    title: `${substances.map((s) => s.NomLib).join(", ")}`,
-    description: definitionString,
+    title: formatFrenchList(substances.map((s) => s.NomLib)),
+    // Fallback when no definition is available for these substances
+    description: definitionString
+      || `Retrouvez les médicaments contenant ${substances.length > 1 ? "les substances" : "la substance"} ${formatFrenchList(substances.map((s) => s.NomLib))}.`,
     alternates: {
       canonical: `/substances/${getSubstanceSlug(substances)}`,
     },

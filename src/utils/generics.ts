@@ -1,5 +1,5 @@
 import { GenericGroup } from "@/db/utils/generics";
-import { formatSpecName, groupGeneNameToDCI } from "@/displayUtils";
+import { formatFrenchList, formatSpecName, groupGeneNameToDCI } from "@/displayUtils";
 import { getSlug } from "@/utils/slug";
 
 /**
@@ -10,8 +10,6 @@ export function getGenericSlug(codeGroupe: number | string, name: string): strin
   return getSlug(codeGroupe, groupGeneNameToDCI(name));
 }
 
-const listFormat = new Intl.ListFormat("fr", { style: "long", type: "conjunction" });
-
 /**
  * Builds the meta description of a generic group page: its princeps and the number
  * of its equivalent generic medicines, e.g. "Le princeps de ce groupe générique
@@ -20,7 +18,7 @@ const listFormat = new Intl.ListFormat("fr", { style: "long", type: "conjunction
 export function getGenericGroupDescription(group: GenericGroup): string {
   const { princeps, generiques } = group;
 
-  const princepsNames = listFormat.format(princeps.map((p) => formatSpecName(p.SpecDenom01.trim())));
+  const princepsNames = formatFrenchList(princeps.map((p) => formatSpecName(p.SpecDenom01.trim())));
 
   const princepsPart =
     princeps.length > 1

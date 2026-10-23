@@ -20,7 +20,7 @@ const PAGE_LABEL: string = "Liste des groupes génériques";
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: PAGE_LABEL,
-    description: "Découvrez leur définition, leurs caractéristiques, leur équivalence avec les médicaments de référence et les informations utiles.",
+    description: "Retrouvez les groupes génériques classés par ordre alphabétique : leurs spécialités et leur équivalence avec les médicaments de référence.",
   }
 }
 
