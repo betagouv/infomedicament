@@ -15,6 +15,7 @@ import { PediatricsInfo } from "@/types/PediatricTypes";
 import DataBlockGenericIcons from "./DataBlockGenericIcons";
 import { ShortIndication } from "@/types/IndicationsTypes";
 import { MatchReason } from "@/types/SearchTypes";
+import { getSpecSlug } from "@/utils/specialites";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
   ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
@@ -257,7 +258,7 @@ function DataBlockAccordion({
             {specialites.map((specialite, i) => (
               <SpecialiteLine key={i} className={fr.cx("fr-mb-1v")}>
                 <Link
-                  href={`/medicaments/${specialite.SpecId}`}
+                  href={`/medicaments/${getSpecSlug(specialite.SpecId, specialite.SpecDenom01)}`}
                   className={fr.cx("fr-text--sm", "fr-link")}
                 >
                   {formatSpecName(specialite.SpecDenom01)}

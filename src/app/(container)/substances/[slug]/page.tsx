@@ -4,16 +4,17 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 import { getSubstanceDefinition, getSubstancesNames } from "@/db/utils/substances";
 import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinitionContent";
 import { getArticlesFromSubstances } from "@/db/utils/articles";
 import { getSubstanceSpecsGroups } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
-import { getSubstanceMainName, getSubstancesNamesList } from "@/utils/substances";
+import { getSubstanceIdsFromSlug, getSubstanceMainName, getSubstanceSlug, getSubstancesNamesList } from "@/utils/substances";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 import { Substance, SubstancesName } from "@/types/SubstanceTypes";
 import { notFound } from "next/navigation";
+import { formatFrenchList } from "@/displayUtils";
 
 
 // Check if all the requested substances are loaded
@@ -51,16 +52,14 @@ const getSubstancesPageNames = (
 };
 
 export async function generateMetadata(
-  props: { params: Promise<{ id: string }> },
-  parent: ResolvingMetadata,
+  props: { params: Promise<{ slug: string }> },
 ): Promise<Metadata> {
 
-  const { id } = await props.params;
-  const subsIds = decodeURIComponent(id).split(",");
+  const subsIds = getSubstanceIdsFromSlug((await props.params).slug);
   const substances: Substance[] = await getSubstancesNames(subsIds) ?? [];
   if (!hasAllSubstances(subsIds, substances)) {
     return {
-      title: `Substance ${id}`,
+      title: `Substance ${formatFrenchList(subsIds)}`,
     };
   }
 
@@ -72,24 +71,29 @@ export async function generateMetadata(
   const { title } = getSubstancesPageNames(subsIds, substances, allSpecsGroups);
 
   return {
-    title: `${title} - ${(await parent).title?.absolute}`,
-    description: definitionString,
+    title: formatFrenchList(substances.map((s) => s.NomLib)),
+    // Fallback when no definition is available for these substances
+    description: definitionString
+      || `Retrouvez les médicaments contenant ${substances.length > 1 ? "les substances" : "la substance"} ${formatFrenchList(substances.map((s) => s.NomLib))}.`,
+    alternates: {
+      canonical: `/substances/${getSubstanceSlug(substances)}`,
+    },
   };
 }
 
-export default function Page(props: { params: Promise<{ id: string }> }) {
+export default function Page(props: { params: Promise<{ slug: string }> }) {
   return <Suspense fallback={<PageLoadingFallback />}><ResolvedSubstancePage params={props.params} /></Suspense>;
 }
 
-async function ResolvedSubstancePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  return <CachedSubstancePage id={id} />;
+async function ResolvedSubstancePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  return <CachedSubstancePage slug={slug} />;
 }
 
-async function CachedSubstancePage({ id }: { id: string }) {
+async function CachedSubstancePage({ slug }: { slug: string }) {
   "use cache: remote";
-  const subsIds = decodeURIComponent(id).split(",");
-  
+
+  const subsIds = getSubstanceIdsFromSlug(slug);
   const substances: Substance[] = await getSubstancesNames(subsIds) ?? [];
   if (!hasAllSubstances(subsIds, substances)) notFound();
 

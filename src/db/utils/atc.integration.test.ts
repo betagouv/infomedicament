@@ -1,12 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
-import {
-  getAtc1,
-  getAtc1DefinitionData,
-  getAtc2,
-  getAtcMenuItems,
-  getResumeSubstancesByAtc,
-  getSubstancesByAtc,
-} from "./atc";
+import { describe, expect, it } from "vitest";
+import { getAtc1, getAtc1DefinitionData, getAtc2, getAtcMenuItems, getResumeSubstancesByAtc, getSubstancesByAtc } from "./atc";
 import { getResumeSubstancesByNomId } from "./substances";
 
 describe("PostgreSQL ATC projections", () => {

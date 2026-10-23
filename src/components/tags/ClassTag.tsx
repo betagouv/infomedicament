@@ -6,6 +6,7 @@ import { HTMLAttributes } from "react";
 import "./dsfr-custom-tags.css";
 import { ATC } from "@/types/ATCTypes";
 import { trackEvent } from "@/services/tracking";
+import { getAtcSlug } from "@/utils/atc";
 
 interface ClassTagProps extends HTMLAttributes<HTMLDivElement> {
   atc2: ATC;
@@ -20,7 +21,7 @@ function ClassTag({ atc2, fromMedicament }: ClassTagProps) {
   return (
     <Tag
       linkProps={{
-        href: `/atc/${atc2.code}`,
+        href: `/atc/${getAtcSlug(atc2.code, atc2.label)}`,
         className: cx("fr-tag--custom-alt-class"),
         target: "_blank",
         onClick: () => onTrackEvent(),

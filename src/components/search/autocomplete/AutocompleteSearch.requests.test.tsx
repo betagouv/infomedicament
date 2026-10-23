@@ -10,7 +10,7 @@ const suggestions = [{
   type: "substance",
   title: "Substances actives",
   highestScore: 1,
-  items: [{ type: "substance", label: "Paracétamol", href: "/substances/123", score: 1 }],
+  items: [{ type: "substance", label: "Paracétamol", href: "/substances/paracetamol-123", score: 1 }],
 }];
 
 describe("autocomplete requests", () => {
@@ -86,7 +86,7 @@ describe("autocomplete requests", () => {
     ["invalid section", () => new Response(JSON.stringify([{ title: "Invalid", items: null }]))],
     ["missing score", () => new Response(JSON.stringify([{
       ...suggestions[0],
-      items: [{ type: "substance", label: "Paracétamol", href: "/substances/123" }],
+      items: [{ type: "substance", label: "Paracétamol", href: "/substances/paracetamol-123" }],
     }]))],
     ["invalid category", () => new Response(JSON.stringify([{
       ...suggestions[0], type: "unknown",

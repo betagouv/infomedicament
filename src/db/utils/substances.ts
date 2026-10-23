@@ -205,16 +205,19 @@ export async function getAllSubsWithSpecialites() {
     .sort((left, right) => left.NomLib.localeCompare(right.NomLib, "fr"));
 }
 
-// SubsIds of the substances list (one per substance, whatever its names)
-export async function getAllResumeSubstancesIds(): Promise<string[]> {
+// Substances list, one row per substance name
+export async function getAllResumeSubstances(): Promise<ResumeSubstance[]> {
   "use cache: remote";
   const rows = await db
     .selectFrom("resume_substances")
-    .select("SubsId")
+    .selectAll()
     .distinct()
     .orderBy("SubsId")
     .execute();
-  return rows.map((row) => row.SubsId.trim());
+  return rows.map((row) => ({
+    ...row,
+    SubsId: row.SubsId.trim(),
+  }));
 };
 
 export async function getSubstancesResumeWithLetter(letter: string): Promise<ResumeSubstance[]> {

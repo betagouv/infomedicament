@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { cleanSubstanceName, getSubstanceMainName, getSubstancesNamesList } from "./substances";
+import { cleanSubstanceName, getSubstanceMainName, getSubstancesNamesList, getSubstanceIdsFromSlug, getSubstanceSlug } from "./substances";
 
 describe("utils/substance - cleanSubstanceName", () => {
   it("decodes named HTML entities", () => {
@@ -189,6 +189,35 @@ describe("utils/substance - getSubstancesNamesList", () => {
   });
 
   it("returns no names without medicament", () => {
-    expect(getSubstancesNamesList([substance("49632", "49632", "ranitidine base", true)], [])).toEqual([]);
+    expect(getSubstancesNamesList([substance("49632", "49632", "ranitidine base", true)], [])).toEqual([]);  });
+});
+
+describe("utils substances - slug", () => {
+  it("builds a slug from a single substance", () => {
+    expect(getSubstanceSlug([{ SubsId: "02202", NomLib: "paracétamol" }])).toBe(
+      "paracetamol-02202",
+    );
+  });
+
+  it("builds a slug from several substances, ids separated by commas", () => {
+    expect(
+      getSubstanceSlug([
+        { SubsId: "02202", NomLib: "paracétamol" },
+        { SubsId: "74765 ", NomLib: "codéine (phosphate de) hémihydraté" },
+      ]),
+    ).toBe("paracetamol-codeine-phosphate-de-hemihydrate-02202,74765");
+  });
+
+  it("keeps parentheses as word separators", () => {
+    expect(getSubstanceSlug([{ SubsId: "00005", NomLib: "acétylsalicylique (acide)" }])).toBe(
+      "acetylsalicylique-acide-00005",
+    );
+  });
+
+  it("extracts ids from slugs, encoded slugs and id-only URLs", () => {
+    expect(getSubstanceIdsFromSlug("paracetamol-02202")).toEqual(["02202"]);
+    expect(getSubstanceIdsFromSlug("paracetamol-codeine-02202,74765")).toEqual(["02202", "74765"]);
+    expect(getSubstanceIdsFromSlug("paracetamol-codeine-02202%2C74765")).toEqual(["02202", "74765"]);
+    expect(getSubstanceIdsFromSlug("02202,74765")).toEqual(["02202", "74765"]);
   });
 });

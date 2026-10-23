@@ -1,9 +1,7 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-
 import {
   canonicalPaths,
-  longTailCisCodes,
+  longTailMedicineSlugs,
+  popularMedicineSlugs,
   searchTerms,
 } from "./test-data";
 
@@ -47,14 +45,6 @@ function nonNegativeNumber(name: string, fallback: number) {
   }
   return value;
 }
-
-const popularCisCodes = readFileSync(
-  resolve(process.cwd(), "scripts/seed_cis_codes.txt"),
-  "utf8",
-)
-  .split("\n")
-  .map((line) => line.trim())
-  .filter(Boolean);
 
 const arrivalRate = nonNegativeNumber("ARRIVAL_RATE", 0);
 const rampTo = positiveNumber("RAMP_TO", 50);
@@ -108,8 +98,8 @@ export const config = {
     },
   },
   variables: {
-    popularCisCode: popularCisCodes,
-    longTailCisCode: longTailCisCodes,
+    popularMedicineSlug: popularMedicineSlugs,
+    longTailMedicineSlug: longTailMedicineSlugs,
     searchTerm: searchTerms,
     canonicalPath: canonicalPaths,
   },
@@ -119,12 +109,12 @@ export const scenarios = [
   {
     name: "Popular medicine page",
     weight: positiveInteger("POPULAR_MEDICINE_WEIGHT", 40),
-    flow: [{ get: { url: "/medicaments/{{ popularCisCode }}" } }],
+    flow: [{ get: { url: "/medicaments/{{ popularMedicineSlug }}" } }],
   },
   {
     name: "Long-tail medicine page",
     weight: positiveInteger("LONG_TAIL_MEDICINE_WEIGHT", 40),
-    flow: [{ get: { url: "/medicaments/{{ longTailCisCode }}" } }],
+    flow: [{ get: { url: "/medicaments/{{ longTailMedicineSlug }}" } }],
   },
   {
     name: "Search endpoint",

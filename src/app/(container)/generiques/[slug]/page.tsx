@@ -6,34 +6,56 @@ import {
 } from "@/db/utils";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
-import React from "react";
-
 import { formatSpecName } from "@/displayUtils";
-import { getAtc2 } from "@/db/utils/atc";
+import { getAtc2, getAtcCode } from "@/db/utils/atc";
 import { notFound } from "next/navigation";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getSpecialiteGroupName } from "@/utils/specialites";
-import { getAtcCode } from "@/utils/atc";
 import MedicamentGeneriqueContainer from "@/components/medicamentsGeneriques/MedicamentGeneriqueContainer";
-import { getGenericGroup } from "@/db/utils/generics";
+import { GenericGroup, getGenericGroup } from "@/db/utils/generics";
 import { getComposants } from "@/db/utils/composants";
 import { getReinforcedSurveillanceEvents } from "@/db/utils/safety";
+import { getIdFromSlug, getNumericIdFromSlug } from "@/utils/slug";
+import { getGenericGroupDescription, getGenericSlug } from "@/utils/generics";
+import { Metadata } from "next";
 
+export async function generateMetadata(
+  props: { params: Promise<{ slug: string }> },
+): Promise<Metadata> {
+  const { slug } = await props.params;
+  const genericGroupCode = getNumericIdFromSlug(slug);
+  const group: GenericGroup | undefined = genericGroupCode
+    ? await getGenericGroup(genericGroupCode)
+    : undefined;
+    
+  if (!group) {
+    return {
+      title: `Groupe générique ${getIdFromSlug(slug)}`,
+    };
+  }
+  return {
+    title: formatSpecName(groupGeneNameToDCI(group.libelle)),
+    description: getGenericGroupDescription(group),
+    alternates: {
+      canonical: `/generiques/${getGenericSlug(group.codeGroupe, group.libelle)}`,
+    },
+  };
+}
 
-export default function Page(props: { params: Promise<{ codeGroupe: string }> }) {
+export default function Page(props: { params: Promise<{ slug: string }> }) {
   return <Suspense fallback={<PageLoadingFallback />}><ResolvedGenericPage params={props.params} /></Suspense>;
 }
 
-async function ResolvedGenericPage({ params }: { params: Promise<{ codeGroupe: string }> }) {
-  const { codeGroupe } = await params;
-  return <CachedGenericPage codeGroupe={codeGroupe} />;
+async function ResolvedGenericPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  return <CachedGenericPage slug={slug} />;
 }
 
-async function CachedGenericPage({ codeGroupe }: { codeGroupe: string }) {
+async function CachedGenericPage({ slug }: { slug: string }) {
   "use cache: remote";
-  const genericGroupCode = Number(codeGroupe);
-  if (!Number.isSafeInteger(genericGroupCode) || genericGroupCode <= 0) notFound();
+  const genericGroupCode = getNumericIdFromSlug(slug);
+  if (!genericGroupCode) notFound();
 
   const group = await getGenericGroup(genericGroupCode);
   if (!group) notFound();

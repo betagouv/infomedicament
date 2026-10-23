@@ -17,7 +17,7 @@ import styles from "./page.module.scss";
 const title = "Réutiliser les données : migrer depuis la BDPM";
 
 export const metadata: Metadata = {
-  title: `${title} | Info Médicament`,
+  title,
   description:
     "Retrouvez les sources ANSM et HAS, les correspondances avec les anciens fichiers BDPM et les données encore en cours de publication.",
 };

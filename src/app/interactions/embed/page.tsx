@@ -1,4 +1,4 @@
-import InteractionsPage from "@/app/(container)/interactions/InteractionsPage";
+import InteractionsPage from "@/components/interactions/InteractionsBlock";
 import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
 
 export default function Page() {

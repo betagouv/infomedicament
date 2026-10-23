@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { filterSpecsGroupsByCIS, formatIndicationsDetails, formatSpecialitesResume, getProcedureLibLong, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isHospitalDelivrance, isSurveillanceRenforcee } from "./specialites";
+import { filterSpecsGroupsByCIS, formatIndicationsDetails, formatSpecialitesResume, getProcedureLibLong, getSpecSlug, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isHospitalDelivrance, isSurveillanceRenforcee } from "./specialites";
 import { DelivranceCondition, DetailedSpecialite, ResumeSpecGroup, SpecialiteStat } from "@/types/SpecialiteTypes";
 import type { SafetyEvent } from "@/types/FicheInfoTypes";
 import { ShortIndication } from "@/types/IndicationsTypes";
@@ -18,6 +18,7 @@ const detailedSpec: DetailedSpecialite = {
   statutComm: "Commercialisée",
   titulairesList: 'JANSSEN BIOLOGICS BV',
   genericGroupCode: null,
+  genericGroupName: null,
   referenceSpecialite: null,
 }
 
@@ -272,5 +273,50 @@ describe("filterSpecsGroupsByCIS", () => {
 
   it("keeps a medicamentgroup unchanged when all its specialites are in the CIS list", () => {
     expect(filterSpecsGroupsByCIS([fucidine], ["65070886", "60330586"])).toEqual([fucidine]);
+  });
+});
+
+describe("specialities slugs", () => {
+  it("builds a slug from the name and the CIS code", () => {
+    expect(getSpecSlug("60234100", "DOLIPRANE 1000 mg, comprimé")).toBe(
+      "doliprane-1000-mg-comprime-60234100",
+    );
+  });
+
+  it("replaces slashes with dashes", () => {
+    expect(getSpecSlug("67613291", "IZALGI 500 mg/25 mg, gélule")).toBe(
+      "izalgi-500-mg-25-mg-gelule-67613291",
+    );
+    expect(getSpecSlug("64976070", "TRIZIVIR 300 mg / 150 mg / 300 mg, comprimé pelliculé")).toBe(
+      "trizivir-300-mg-150-mg-300-mg-comprime-pellicule-64976070",
+    );
+  });
+
+  it("replaces parentheses with dashes", () => {
+    expect(getSpecSlug("69174918", "COMIRNATY, dispersion injectable(vaccin à ARNm)")).toBe(
+      "comirnaty-dispersion-injectable-vaccin-a-arnm-69174918",
+    );
+  });
+
+  it("keeps decimal commas as separators", () => {
+    expect(getSpecSlug("64460075", "DECAPEPTYL L.P. 11,25 mg, poudre")).toBe(
+      "decapeptyl-l-p-11-25-mg-poudre-64460075",
+    );
+  });
+
+  it("replaces periods with dashes", () => {
+    expect(getSpecSlug("1", "COMIRNATY OMICRON XBB.1.5, dispersion injectable.Vaccin")).toBe(
+      "comirnaty-omicron-xbb-1-5-dispersion-injectable-vaccin-1",
+    );
+    expect(getSpecSlug("2", "DUTASTERIDE BIOGARAN 0.5 mg, capsule molle")).toBe(
+      "dutasteride-biogaran-0-5-mg-capsule-molle-2",
+    );
+    expect(getSpecSlug("3", "TRAMADOL ARROW L.P. 200 mg, gélule")).toBe(
+      "tramadol-arrow-l-p-200-mg-gelule-3",
+    );
+  });
+
+  it("falls back to the CIS code when the name is empty", () => {
+    expect(getSpecSlug("60234100", "")).toBe("60234100");
   });
 });

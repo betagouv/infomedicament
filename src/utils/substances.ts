@@ -1,5 +1,6 @@
 import { Substance, SubstancesName } from "@/types/SubstanceTypes";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
+import { getIdFromSlug, getSlug } from "@/utils/slug";
 
 // ANSM names that must not be used, e.g. "(NE PAS UTILISER)- LEVOGLUTAMIDE"
 const isDeprecatedName = (subs: Substance): boolean => subs.NomLib.trim().startsWith("(NE PAS UTILISER)");
@@ -111,4 +112,26 @@ export function getSubstancesNamesList(
       };
     })
     .sort((a, b) => b.nbSpecsGroups - a.nbSpecsGroups || a.name.localeCompare(b.name, "fr"));
+}
+
+/**
+ * Builds the substance page slug: slugified substance names followed by
+ * their comma-separated SubsIds, e.g. paracétamol (02202) and codéine (phosphate de) hémihydraté (74765):
+ * "paracetamol-codeine-phosphate-de-hemihydrate-02202,74765" (see getSlug).
+ */
+export function getSubstanceSlug(
+  substances: Pick<Substance, "SubsId" | "NomLib">[],
+): string {
+  return getSlug(
+    substances.map((s) => s.SubsId.trim()).join(","),
+    substances.map((s) => s.NomLib.trim()).join(" "),
+  );
+}
+
+/** Extracts the substance ids (SubsId) from a substance page slug. */
+export function getSubstanceIdsFromSlug(slug: string): string[] {
+  return getIdFromSlug(slug)
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean);
 }

@@ -6,6 +6,10 @@ import { formatSpecName } from "@/displayUtils";
 import styled from 'styled-components';
 import { AdvancedATC, AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import { ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
+import { getIndicationSlug } from "@/utils/indications";
+import { getGenericSlug } from "@/utils/generics";
+import { getAtcSlug } from "@/utils/atc";
+import { getSubstanceSlug } from "@/utils/substances";
 
 const Container = styled.div`
   border: var(--border-open-blue-france) 1px solid;
@@ -54,15 +58,15 @@ function DataBlockGeneric({
       data: ResumeSubstance | ResumeIndication | AdvancedATCClass | ResumeGeneric
     ){
       if(dataType === DataTypeEnum.SUBSTANCE){
-        setCurrentLink(`/substances/${(data as ResumeSubstance).SubsId}`);
+        setCurrentLink(`/substances/${getSubstanceSlug([data as ResumeSubstance])}`);
       } else if(dataType === DataTypeEnum.INDICATION){
-        setCurrentLink(`/indications/${(data as ResumeIndication).idIndication}`);
+        setCurrentLink(`/indications/${getIndicationSlug((data as ResumeIndication).idIndication, (data as ResumeIndication).nomIndication)}`);
       } else if(dataType === DataTypeEnum.ATCCLASS){
-        setCurrentLink(`/atc/${(data as AdvancedATCClass).class.code}`);
+        setCurrentLink(`/atc/${getAtcSlug((data as AdvancedATCClass).class.code, (data as AdvancedATCClass).class.label)}`);
       } else if(dataType === DataTypeEnum.MEDICAMENT){
         const genericGroupCode = Number((data as ResumeGeneric).SpecId);
         setCurrentLink(Number.isSafeInteger(genericGroupCode) && genericGroupCode > 0
-          ? `/generiques/${genericGroupCode}`
+          ? `/generiques/${getGenericSlug(genericGroupCode, (data as ResumeGeneric).SpecName)}`
           : "#");
       } else 
         setCurrentLink("#");
@@ -129,7 +133,7 @@ function DataBlockGeneric({
             key={index}
           >
             <Link
-              href={`/atc/${subclass.code}`}
+              href={`/atc/${getAtcSlug(subclass.code, subclass.label)}`}
               className={["result-link", fr.cx("fr-p-1w")].join(" ")}
             >
               <ClassTitle className={fr.cx("fr-text--md")}>{currentFormatSpecName}{" > "}</ClassTitle>

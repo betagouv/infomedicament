@@ -42,7 +42,7 @@ describe("search result rendering", () => {
     container.innerHTML = html;
     expect(container.querySelector("h1")?.textContent).toContain("1 résultat");
     expect(
-      container.querySelector('a[href="medicaments/1"]')?.textContent,
+      container.querySelector('a[href="/medicaments/test-1-comprime-1"]')?.textContent,
     ).toContain("Test 1, comprimé");
   });
 
@@ -82,7 +82,7 @@ it("sorts advanced results by full name and reverses them", () => {
   const names = () =>
     screen
       .getAllByRole("link")
-      .filter((link) => link.getAttribute("href")?.startsWith("medicaments/"))
+      .filter((link) => link.getAttribute("href")?.startsWith("/medicaments/"))
       .map((link) => link.textContent?.trim());
   expect(names()).toEqual(["Test A", "Test B"]);
   fireEvent.click(screen.getAllByTitle("Trier par ordre décroissant").at(-1)!);
@@ -103,13 +103,13 @@ it("preserves the selected substance and matching medicines when changing sort",
     screen
       .getAllByRole("link")
       .map((link) => link.getAttribute("href"))
-      .filter((href) => href?.startsWith("medicaments/"));
-  expect(medicineLinks()).toEqual(["medicaments/2", "medicaments/1"]);
+      .filter((href) => href?.startsWith("/medicaments/"));
+  expect(medicineLinks()).toEqual(["/medicaments/test-2-comprime-2", "/medicaments/test-1-comprime-1"]);
 
   fireEvent.click(
     screen.getAllByRole("button", { name: "ordre alphabétique" }).at(-1)!,
   );
-  expect(medicineLinks()).toEqual(["medicaments/1", "medicaments/2"]);
+  expect(medicineLinks()).toEqual(["/medicaments/test-1-comprime-1", "/medicaments/test-2-comprime-2"]);
   expect(
     substanceFilters().every((input) => (input as HTMLInputElement).checked),
   ).toBe(true);
@@ -120,7 +120,7 @@ it("preserves the selected substance and matching medicines when changing sort",
   fireEvent.click(
     screen.getAllByRole("button", { name: "pertinence" }).at(-1)!,
   );
-  expect(medicineLinks()).toEqual(["medicaments/2", "medicaments/1"]);
+  expect(medicineLinks()).toEqual(["/medicaments/test-2-comprime-2", "/medicaments/test-1-comprime-1"]);
   expect(
     substanceFilters().every((input) => (input as HTMLInputElement).checked),
   ).toBe(true);

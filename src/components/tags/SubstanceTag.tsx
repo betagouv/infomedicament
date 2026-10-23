@@ -7,6 +7,7 @@ import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import { HTMLAttributes } from "react";
 import "./dsfr-custom-tags.css";
 import { trackEvent } from "@/services/tracking";
+import { getSubstanceSlug } from "@/utils/substances";
 
 interface SubstanceTagProps extends HTMLAttributes<HTMLDivElement> {
   composants: CompositionComponent[];
@@ -14,6 +15,7 @@ interface SubstanceTagProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function SubstanceTag({ composants, fromMedicament }: SubstanceTagProps) {
+  const substances = displaySimpleComposants(composants);
   const onTrackEvent = () => {
     if (fromMedicament) trackEvent("Page médicament", "Tag Substance");
   };
@@ -21,17 +23,13 @@ function SubstanceTag({ composants, fromMedicament }: SubstanceTagProps) {
   return (
     <Tag
       linkProps={{
-        href: `/substances/${displaySimpleComposants(composants)
-          .map((s) => s.SubsId.trim())
-          .join(",")}`,
+        href: `/substances/${getSubstanceSlug(substances)}`,
         className: cx("fr-tag--custom-alt-substance"),
         target: "_blank",
         onClick: () => onTrackEvent(),
       }}
     >
-      {displaySimpleComposants(composants)
-        .map((s) => s.NomLib.trim())
-        .join(", ")}
+      {substances.map((s) => s.NomLib.trim()).join(", ")}
     </Tag>
   );
 }

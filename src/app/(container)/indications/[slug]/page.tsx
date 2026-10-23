@@ -7,32 +7,41 @@ import { getIndications } from "@/db/utils/indications";
 import { getResumeSpecsGroupsWithIndication } from "@/db/utils/specialities";
 import IndicationDefinitionContent from "@/components/definition/IndicationDefinitionContent";
 import { Indication } from "@/db/types";
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 import { getArticlesFromPatho } from "@/db/utils/articles";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { Suspense } from "react";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
+import { getIdFromSlug, getNumericIdFromSlug } from "@/utils/slug";
+import { getIndicationSlug } from "@/utils/indications";
 
 export async function generateMetadata(
-  props: { params: Promise<{ code: `${number}` }> },
-  parent: ResolvingMetadata,
+  props: { params: Promise<{ slug: string }> },
 ): Promise<Metadata> {
-  const { code } = await props.params;
-  const indication: Indication | undefined = await getIndications(Number(code));
+  const { slug } = await props.params;
+  const code = getNumericIdFromSlug(slug);
+  const indication: Indication | undefined = code
+    ? await getIndications(code)
+    : undefined;
   if (!indication) {
     return {
-      title: `Indication ${code}- ${(await parent).title?.absolute}`,
+      title: `Indication ${getIdFromSlug(slug)}`,
     };
   }
 
   return {
-    title: `${indication.nom} - ${(await parent).title?.absolute}`,
-    description: indication.definition || "",
+    title: `${indication.nom}`,
+    // Fallback when the indication has no definition
+    description: indication.definition
+      || `Retrouvez les médicaments associés à l'indication : ${indication.nom}.`,
+    alternates: {
+      canonical: `/indications/${getIndicationSlug(indication.id, indication.nom)}`,
+    },
   };
 }
 
 export default function Page(props: {
-  params: Promise<{ code: `${number}` }>;
+  params: Promise<{ slug: string }>;
 }) {
   return (
     <Suspense fallback={<PageLoadingFallback />}>
@@ -44,16 +53,18 @@ export default function Page(props: {
 async function ResolvedIndicationPage({
   params,
 }: {
-  params: Promise<{ code: `${number}` }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { code } = await params;
-  return <CachedIndicationPage code={code} />;
+  const { slug } = await params;
+  return <CachedIndicationPage slug={slug} />;
 }
 
-async function CachedIndicationPage({ code }: { code: `${number}` }) {
+async function CachedIndicationPage({ slug }: { slug: string }) {
   "use cache: remote";
 
-  const indication: Indication | undefined = await getIndications(Number(code));
+  const code = getNumericIdFromSlug(slug);
+  if (!code) return notFound();
+  const indication: Indication | undefined = await getIndications(code);
   if (!indication) return notFound();
 
   const [articles, allSpecsGroups] = await Promise.all([

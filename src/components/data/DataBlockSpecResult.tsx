@@ -12,6 +12,7 @@ import {
   SearchFilter,
   SearchResultItem,
 } from "@/types/SearchTypes";
+import { getSpecSlug } from "@/utils/specialites";
 
 const DataBlockSpecResultContainer = styled.div`
   border-bottom: 2px solid var(--border-open-blue-france);
@@ -61,6 +62,7 @@ function DataBlockSpecResult({
   atcsFilters,
   indicationsFilters,
 }: DataBlockSpecResultProps) {
+
   const indexGroupName = specialite.specName.indexOf(specialite.groupName);
   const prefixName = formatSpecName(
     indexGroupName === 0 ? specialite.groupName : specialite.specName,
@@ -102,7 +104,7 @@ function DataBlockSpecResult({
     specialite.specName && (
       <DataBlockSpecResultContainer>
         <ResultLink
-          href={`medicaments/${specialite.specId}`}
+          href={`/medicaments/${getSpecSlug(specialite.specId, specialite.specName)}`}
           className={[fr.cx("fr-px-1w", "fr-py-2w")].join(" ")}
         >
           <span>

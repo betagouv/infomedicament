@@ -6,6 +6,14 @@ import { getArticles } from "@/db/utils/articles";
 import { getMarketedMedicamentCount } from "@/db/utils/specialities";
 import { getLastSuccessfulPipelineRunDate } from "@/db/utils/pipeline";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
+import { Metadata } from "next";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: { absolute: "Info Médicament" },
+    description: "Accédez aux informations officielles sur les médicaments : notices, RCP, interactions médicamenteuses et ressources pour les professionnels de santé.",
+  }
+}
 
 export default async function Page() {
   const [articles, marketedCount, lastUpdated] = await Promise.all([
@@ -70,7 +78,7 @@ export default async function Page() {
               "fr-mt-4w",
             )}
           >
-            <h2 className={fr.cx("fr-h4")}>Articles</h2>
+            <h2 className={fr.cx("fr-h4")}>Vos questions</h2>
             <Image
               src="/img/homepage_illu.svg"
               alt="Un dessin d'une personne regardant une boîte de médicaments."
