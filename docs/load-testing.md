@@ -11,16 +11,18 @@ request distribution directly:
 
 | Traffic                                         | Default weight | Data source                                        |
 | ----------------------------------------------- | -------------: | -------------------------------------------------- |
-| Popular medicine pages                          |            40% | `scripts/seed_cis_codes.txt`                       |
+| Popular medicine pages                          |            40% | Warmup list slugs in `load-tests/test-data.ts`     |
 | Long-tail medicine pages                        |            40% | Stable sitemap sample in `load-tests/test-data.ts` |
 | Search endpoint                                 |            10% | Representative search terms                        |
 | Homepage                                        |             5% | `/`                                                |
 | Substance, indication, or groupe generique page |             5% | Canonical paths in `load-tests/test-data.ts`       |
 
-The popular CIS codes are also prerendered by the application. The long-tail
-sample deliberately excludes those codes to exercise pages outside that warmup
-set. Scalingo review apps only seed the popular CIS codes, so use a fully
-populated staging or performance environment to test the 40/40 distribution.
+The popular medicines are also prerendered by the application. The long-tail
+sample deliberately excludes them to exercise pages outside that warmup set.
+Both lists use the medicine slugs (name + CIS), so they must be regenerated if
+`scripts/seed_cis_codes.txt` changes. Scalingo review apps only seed the
+popular CIS codes, so use a fully populated staging or performance environment
+to test the 40/40 distribution.
 
 ## Running a test
 

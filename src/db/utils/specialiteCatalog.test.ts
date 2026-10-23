@@ -80,6 +80,7 @@ describe("specialite catalog mappings", () => {
         postgresRow,
         "JANSSEN BIOLOGICS BV",
         123,
+        "PRINCEPS 10 mg - PRINCEPS 10 mg, comprimé",
         { cis: "61234567", name: "PRINCEPS" },
         new Date("2021-10-22"),
         "Latex",
@@ -98,6 +99,7 @@ describe("specialite catalog mappings", () => {
       statutComm: "Non communiquée",
       titulairesList: "JANSSEN BIOLOGICS BV",
       genericGroupCode: 123,
+      genericGroupName: "PRINCEPS 10 mg - PRINCEPS 10 mg, comprimé",
       referenceSpecialite: { cis: "61234567", name: "PRINCEPS" },
     });
   });

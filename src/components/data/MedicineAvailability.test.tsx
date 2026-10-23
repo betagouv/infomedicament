@@ -24,6 +24,7 @@ const specialite: DetailedSpecialite = {
   statutComm: null,
   titulairesList: null,
   genericGroupCode: null,
+  genericGroupName: null,
   referenceSpecialite: null,
 };
 

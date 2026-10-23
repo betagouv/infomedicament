@@ -1,6 +1,6 @@
 "use client";
 
-import React, { HTMLAttributes } from "react";
+import { HTMLAttributes } from "react";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import type { Substance } from "@/types/SubstanceTypes";

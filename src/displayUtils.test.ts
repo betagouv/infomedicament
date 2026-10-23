@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { CompositionNature, type CompositionComponent } from "./types/SubstanceTypes";
-import { displayCompleteComposants, formatSpecName } from "./displayUtils";
+import { displayCompleteComposants, formatFrenchList, formatSpecName } from "./displayUtils";
 
 describe("formatSpecName", () => {
   it("should lowercase words that start with uppercase", () => {
@@ -36,5 +36,13 @@ describe("displayCompleteComposants", () => {
     expect(displayCompleteComposants([component])).toBe(
       "tozinaméran (10 microgrammes)",
     );
+  });
+});
+
+describe("formatFrenchList", () => {
+  it("joins the last two items with \"et\"", () => {
+    expect(formatFrenchList(["paracétamol"])).toBe("paracétamol");
+    expect(formatFrenchList(["paracétamol", "codéine"])).toBe("paracétamol et codéine");
+    expect(formatFrenchList(["paracétamol", "codéine", "caféine"])).toBe("paracétamol, codéine et caféine");
   });
 });

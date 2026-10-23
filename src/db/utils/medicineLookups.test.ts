@@ -74,7 +74,13 @@ describe("generic membership reuse", () => {
   it("preserves membership and classification for mixed roles", async () => {
     mocks.tables.ansm_specialite_groupe_generique = [
       { cis: "123", code_groupe: 20, role: "REFERENCE", rang: 2 },
-      { cis: "123", code_groupe: 10, role: "GENERIQUE", rang: 1 },
+      {
+        cis: "123",
+        code_groupe: 10,
+        role: "GENERIQUE",
+        rang: 1,
+        libelle: "REFERENCE 10 mg - REFERENCE 10 mg, comprimé",
+      },
       {
         cis: "reference",
         denomination: "Reference medicine",
@@ -90,6 +96,7 @@ describe("generic membership reuse", () => {
     ]);
     expect(membership).toEqual({
       codeGroupe: 10,
+      groupName: "REFERENCE 10 mg - REFERENCE 10 mg, comprimé",
       referenceCis: "reference",
       referenceName: "Reference medicine",
     });

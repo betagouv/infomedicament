@@ -10,6 +10,7 @@ import { Fragment } from "react";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { withStaticParamFallback } from "@/utils/staticParams";
+import { Metadata } from "next";
 
 export async function generateStaticParams() {
   const letters = await getGlossaryLetters();
@@ -19,6 +20,13 @@ export async function generateStaticParams() {
   );
 }
 const PAGE_LABEL: string = "Glossaire";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: PAGE_LABEL,
+    description: "Retrouvez les définitions des termes médicaux et pharmaceutiques pour mieux comprendre l’information sur les médicaments.",
+  }
+}
 
 export default async function Page(props: {
   params: Promise<{ letter: string }>;

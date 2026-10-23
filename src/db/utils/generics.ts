@@ -121,10 +121,19 @@ async function getGenericMemberships(CIS: string) {
   "use cache: remote";
   return db
     .selectFrom("ansm_specialite_groupe_generique")
-    .where("cis", "=", CIS)
-    .where("role", "in", VISIBLE_GENERIC_GROUP_ROLES)
-    .select(["code_groupe", "role"])
-    .orderBy("code_groupe")
+    .leftJoin(
+      "ansm_groupe_generique",
+      "ansm_groupe_generique.code_groupe",
+      "ansm_specialite_groupe_generique.code_groupe",
+    )
+    .where("ansm_specialite_groupe_generique.cis", "=", CIS)
+    .where("ansm_specialite_groupe_generique.role", "in", VISIBLE_GENERIC_GROUP_ROLES)
+    .select([
+      "ansm_specialite_groupe_generique.code_groupe",
+      "ansm_specialite_groupe_generique.role",
+      "ansm_groupe_generique.libelle",
+    ])
+    .orderBy("ansm_specialite_groupe_generique.code_groupe")
     .execute();
 }
 
@@ -154,12 +163,15 @@ export async function getGenericGroupMembership(CIS: string) {
 
   return {
     codeGroupe: membership.code_groupe,
+    groupName: membership.libelle ?? null,
     referenceCis: reference?.cis,
     referenceName: reference?.denomination,
   };
 }
 
-export async function getAllGenericGroupCodes(): Promise<number[]> {
+export async function getAllGenericGroups(): Promise<
+  { codeGroupe: number; libelle: string }[]
+> {
   "use cache: remote";
 
   const groups = await db
@@ -168,6 +180,11 @@ export async function getAllGenericGroupCodes(): Promise<number[]> {
       "ansm_specialite",
       "ansm_specialite.cis",
       "ansm_specialite_groupe_generique.cis",
+    )
+    .innerJoin(
+      "ansm_groupe_generique",
+      "ansm_groupe_generique.code_groupe",
+      "ansm_specialite_groupe_generique.code_groupe",
     )
     .where(
       "ansm_specialite_groupe_generique.role",
@@ -179,12 +196,18 @@ export async function getAllGenericGroupCodes(): Promise<number[]> {
       "in",
       VISIBLE_SPECIALITE_AVAILABILITIES,
     )
-    .select("ansm_specialite_groupe_generique.code_groupe")
+    .select([
+      "ansm_specialite_groupe_generique.code_groupe",
+      "ansm_groupe_generique.libelle",
+    ])
     .distinct()
     .orderBy("ansm_specialite_groupe_generique.code_groupe")
     .execute();
 
-  return groups.map(({ code_groupe }) => code_groupe);
+  return groups.map(({ code_groupe, libelle }) => ({
+    codeGroupe: code_groupe,
+    libelle: libelle ?? "",
+  }));
 }
 
 export async function isPrincepsSpecialite(CIS: string): Promise<boolean> {

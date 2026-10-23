@@ -12,6 +12,7 @@ import {
   Specialite,
   SpecialiteProcedure,
 } from "@/types/SpecialiteTypes";
+import { getSlug } from "@/utils/slug";
 
 export function getSpecialiteGroupName(
   specialite: Specialite | string,
@@ -214,4 +215,20 @@ export function isHospitalDelivrance(
   delivrances: DelivranceCondition[],
 ): boolean {
   return delivrances.some((delivrance) => delivrance.code === 3);
+}
+
+/**
+ * Builds the speciality page slug: slugified name followed by the CIS code,
+ * e.g. "doliprane-1000-mg-comprime-60234100" (see getSlug).
+ */
+export function getSpecSlug(cis: string, name: string): string {
+  return getSlug(cis, name);
+}
+
+export type SpecialiteWithGenericGroup = DetailedSpecialite & { genericGroupCode: number };
+
+export function hasGenericGroup(
+  specialite: DetailedSpecialite,
+): specialite is SpecialiteWithGenericGroup {
+  return specialite.genericGroupCode !== null;
 }

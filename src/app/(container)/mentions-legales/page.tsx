@@ -1,12 +1,19 @@
 import ContentContainer from "@/components/generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
+import { Metadata } from "next";
+
+const PAGE_LABEL: string = "Mentions légales";
+
+export const metadata: Metadata = {
+  title: PAGE_LABEL,
+};
 
 export default async function Page() {
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
-          <h1>Mentions légales de Info Médicament</h1>
+          <h1>{PAGE_LABEL} de Info Médicament</h1>
           <h2>Éditeur de la Plateforme</h2>
           <p>
             La Plateforme Info Médicament est éditée par la Direction

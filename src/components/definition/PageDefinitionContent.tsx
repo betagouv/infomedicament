@@ -1,7 +1,7 @@
 "use client";
 
 import { fr } from "@codegouvfr/react-dsfr";
-import React, { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, useEffect, useState } from "react";
 import DefinitionBanner from "@/components/DefinitionBanner";
 import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import DataList from "@/components/data/DataList";

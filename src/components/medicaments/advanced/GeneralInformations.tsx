@@ -29,6 +29,7 @@ import { PediatricsInfo } from "@/types/PediatricTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import {
   getProcedureLibLong,
+  hasGenericGroup,
   isAIP,
   isHospitalDelivrance,
 } from "@/utils/specialites";
@@ -247,17 +248,17 @@ function GeneralInformations({
           <SummaryLine categoryName="Statut générique">
             <>
               {isPrinceps &&
-              specialite.genericGroupCode !== null &&
+              hasGenericGroup(specialite) &&
               !isAIP(specialite) ? (
                 <GenericPrincepsTag
-                  genericGroupCode={specialite.genericGroupCode}
+                  genericSpecialite={specialite}
                   type="princeps"
                   hideIcon
                 />
-              ) : specialite.genericGroupCode !== null && !isAIP(specialite) ? (
+              ) : hasGenericGroup(specialite) && !isAIP(specialite) ? (
                 <>
                   <GenericPrincepsTag
-                    genericGroupCode={specialite.genericGroupCode}
+                    genericSpecialite={specialite}
                     type="generic"
                     hideIcon
                   />

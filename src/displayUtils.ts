@@ -16,6 +16,12 @@ export const formatSpecName = (name: string): string =>
     )
     .join(" ");
 
+const frenchListFormat = new Intl.ListFormat("fr", { style: "long", type: "conjunction" });
+
+/** Joins items as a French list: "a", "a et b", "a, b et c" */
+export const formatFrenchList = (items: string[]): string =>
+  frenchListFormat.format(items);
+
 export function displaySimpleComposants(
   composants: CompositionComponent[],
 ): Substance[] {

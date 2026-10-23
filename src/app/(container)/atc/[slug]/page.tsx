@@ -9,27 +9,27 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import ATC1DefinitionContent from "@/components/definition/ATC1DefinitionContent";
 import ATC2DefinitionContent from "@/components/definition/ATC2DefinitionContent";
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 import { getArticlesFromATC } from "@/db/utils/articles";
 import { AdvancedATCClass } from "@/types/DataTypes";
 import { getSubstancesResume } from "@/db/utils/substances";
 import { ResumeSubstance } from "@/db/types";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
+import { getAtcCodeFromSlug, getAtcSlug } from "@/utils/atc";
 
 
 export async function generateMetadata(
-  props: { params: Promise<{ code: string }> },
-  parent: ResolvingMetadata,
+  props: { params: Promise<{ slug: string }> },
 ): Promise<Metadata> {
   
-  const { code } = await props.params;
+  const code = getAtcCodeFromSlug((await props.params).slug);
 
   const atc1 = await getAtc1(code);
   const atc2 = code.length === 3 ? await getAtc2(code) : undefined;
 
   if (!atc1 && !atc2){
     return {
-      title: `Classe de médicaments ${code} - ${(await parent).title?.absolute}`,
+      title: `Classe de médicaments ${code}`,
     };
   }
   let title = "";
@@ -40,9 +40,13 @@ export async function generateMetadata(
     title += atc1.label;
   }
 
+  const currentAtc = atc2 || atc1;
   return {
-    title: `${title} - ${(await parent).title?.absolute}`,
+    title: `${title}`,
     description: atc2 ? atc2.description : atc1 ? atc1.description : "",
+    alternates: {
+      canonical: `/atc/${getAtcSlug(currentAtc.code, currentAtc.label)}`,
+    },
   };
 };
 
@@ -70,18 +74,19 @@ async function fetchATC2Data(atc2: ATC): Promise<{ articles: ArticleCardResume[]
   return { articles, dataList };
 }
 
-export default function Page(props: { params: Promise<{ code: string }> }) {
+export default function Page(props: { params: Promise<{ slug: string }> }) {
   return <Suspense fallback={<PageLoadingFallback />}><ResolvedATCPage params={props.params} /></Suspense>;
 }
 
-async function ResolvedATCPage({ params }: { params: Promise<{ code: string }> }) {
-  const { code } = await params;
-  return <CachedATCPage code={code} />;
+async function ResolvedATCPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  return <CachedATCPage slug={slug} />;
 }
 
-async function CachedATCPage({ code }: { code: string }) {
+async function CachedATCPage({ slug }: { slug: string }) {
   "use cache: remote";
 
+  const code = getAtcCodeFromSlug(slug);
   const atc1 = await getAtc1(code);
   const atc2 = code.length === 3 ? await getAtc2(code) : undefined;
   const currentAtc = atc2 || atc1 || undefined;
@@ -102,7 +107,7 @@ async function CachedATCPage({ code }: { code: string }) {
                 ? [
                   {
                     label: atc1.label,
-                    linkProps: { href: `/atc/${atc1.code}` },
+                    linkProps: { href: `/atc/${getAtcSlug(atc1.code, atc1.label)}` },
                   },
                 ]
                 : []),
