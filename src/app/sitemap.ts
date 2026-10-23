@@ -14,7 +14,17 @@ import { getAtcSlug } from "@/utils/atc";
 import { getSubstanceSlug } from "@/utils/substances";
 
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+// Sitemap URLs must be absolute: never publish localhost URLs in production
+function getBaseUrl(): string {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  if (baseUrl) return baseUrl.replace(/\/$/, "");
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("NEXT_PUBLIC_BASE_URL must be set to generate the sitemap in production");
+  }
+  return "http://localhost:3000";
+}
+
+const BASE_URL = getBaseUrl();
 
 const STATIC_ROUTES = [
   "/",
