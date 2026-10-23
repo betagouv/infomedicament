@@ -16,6 +16,7 @@ function result(index: number): SearchResultItem {
     groupName: `TEST ${index}`,
     composants: "substance",
     subsIds: [],
+    subsMainNames: null,
     indicationsIds: [],
     indicationsIdsNames: [],
     atc1Code: undefined,
@@ -90,9 +91,9 @@ it("sorts advanced results by full name and reverses them", () => {
 
 it("preserves the selected substance and matching medicines when changing sort", () => {
   const results = [
-    { ...result(2), composants: "included", score: 10 },
-    { ...result(1), composants: "included", score: 1 },
-    { ...result(3), composants: "excluded", score: 20 },
+    { ...result(2), composants: "included", subsIds: ["1"], score: 10 },
+    { ...result(1), composants: "included", subsIds: ["1"], score: 1 },
+    { ...result(3), composants: "excluded", subsIds: ["2"], score: 20 },
   ];
   render(<SearchResultsList resultsList={results} search="test" />);
   const substanceFilters = () =>

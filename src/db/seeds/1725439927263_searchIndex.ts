@@ -6,7 +6,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   console.log("Loading reference data from PostgreSQL...");
 
   // NB: you must run updateResumeData.ts in order for those tables to be
-  // up-to-date when recieving a new BDPM mysql dump. 
+  // up-to-date when receiving a new BDPM mysql dump.
   const groups = await db
     .selectFrom("resume_medicaments")
     .selectAll()
@@ -14,7 +14,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
 
   const substances = await db
     .selectFrom("resume_substances")
-    .select(["NomId", "NomLib"])
+    .select(["SubsId", "NomLib"])
     .execute();
 
   const indications = await db
@@ -50,7 +50,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   }
 
   // Build lookup maps
-  const substanceMap = new Map(substances.map((s) => [s.NomId.trim(), s.NomLib]));
+  const substanceMap = new Map(substances.map((s) => [s.SubsId.trim(), s.NomLib]));
   const indicationsMap = new Map(indications.map((p) => [p.idIndication, p.nomIndication.trim()]));
 
   // Build ATC label map: code → labels (may have both friendly and technical labels)
