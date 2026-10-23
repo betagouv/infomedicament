@@ -27,8 +27,6 @@ export interface Database {
   ref_pediatrie: RefPediatrie;
   ref_substance_active: RefSubstanceActive;
   ref_substance_active_definitions: RefSubstanceActiveDefinitions;
-  atc: Atc;
-  cis_atc: CisAtc;
   has_asmr: AsmrTable;
   has_smr: SmrTable;
   has_url_has: UrlHasTable;
@@ -40,8 +38,6 @@ export interface Database {
   triam_classe_grp_subst: TriamClasseGrpSubstTable;
   triam_interactions: TriamInteractionsTable;
   interactions_search: InteractionsSearchTable;
-  classes_cliniques: ClassesCliniquesTable;
-  vu_classes_cliniques: VUClassesCliniquesTable;
   indications: IndicationsTable;
   specialites_metadata: SpecialiteMetadataTable;
   ansm_specialite: AnsmSpecialiteTable;
@@ -271,23 +267,6 @@ export interface RefSubstanceActiveDefinitions {
   subs_id: string | null;
 }
 
-export interface Atc {
-  id: Generated<number>;
-  code_terme: number | null;
-  code_terme_pere: number | null;
-  code: string | null;
-  label_court: string | null;
-  label_long: string | null;
-  label_anglais: string | null;
-  label_recherche: string | null;
-  num_ordre_edit: number | null;
-  date_creation: Date | null;
-  date_modification: Date | null;
-  date_inactivation: Date | null;
-  source_ref: string | null;
-  remarque: string | null;
-}
-
 export interface AsmrTable {
   code_evamed: string | null;
   motif_demande: string | null;
@@ -324,18 +303,6 @@ export interface HasDocumentsBonUsageTable {
   date_mise_a_jour: string | null;
   titre: string | null;
   url: string | null;
-}
-
-export interface CisAtc {
-  id: Generated<number>;
-  code_cis: string | null;
-  code_terme_atc: number | null;
-  est_valide: boolean | null;
-  est_certain: boolean | null;
-  commentaire: string | null;
-  date_creation: Date | null;
-  date_modification: Date | null;
-  code_modif: number | null;
 }
 
 interface TriamGtiamTable {
@@ -402,31 +369,6 @@ interface InteractionsSearchTable {
   class_ids: string[];
 }
 
-interface ClassesCliniquesTable {
-  codeTerme: number,
-  libAbr?: string,
-  libCourt: string,
-  libLong: string,
-  libLongAnglais?: string,
-  libRech?: string,
-  numOrdreEdit: number,
-  dateCreationTerme: Date,
-  dateModifTerme?: Date,
-  dateInactivTerme?: Date,
-  textSourceRef?: string,
-  remTerme?: string,
-};
-
-interface VUClassesCliniquesTable {
-  codeVU: string,
-  codeClasClinique: number,
-  indicValide: number,
-  remCommentaire?: string,
-  dateCreation: Date,
-  dateDernModif?: Date,
-  codeModif?: number,
-}
-
 interface IndicationsTable {
   id: Generated<number>,
   codePatho?: number,
@@ -486,8 +428,6 @@ export type ResumeSpecGroupDB = Selectable<ResumeMedicamentsTable>;
 export type ResumeSpecialiteDB = Selectable<ResumeSpecialitesTable>;
 export type ResumeGeneric = Selectable<ResumeGenericsTable>;
 export type Letters = Selectable<LettersTable>;
-export type ATC = Selectable<Atc>;
-export type CIS_ATC = Selectable<CisAtc>;
 export type RefArticles = Selectable<RefArticles>;
 export type RefAtcFriendlyNiveau1 = Selectable<RefAtcFriendlyNiveau1>;
 export type RefAtcFriendlyNiveau2 = Selectable<RefAtcFriendlyNiveau2>;
