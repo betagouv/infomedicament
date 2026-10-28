@@ -12,6 +12,7 @@ import {
   Specialite,
   SpecialiteProcedure,
 } from "@/types/SpecialiteTypes";
+import { getSlug } from "@/utils/slug";
 
 export function getSpecialiteGroupName(
   specialite: Specialite | string,
@@ -57,6 +58,31 @@ export function isCommercialisee(
 ): boolean {
   if (specialite.StatutBdm.toString() === "2") return false;
   return true;
+}
+
+// Summary rows only contain the legacy status; status 2 retains the pending
+// unavailability warning until catalogue availability is supplied.
+export function getAvailabilityWarning(
+  specialite: Specialite | ShortSpecialite | ResumeSpecialite,
+) {
+  if (specialite.availability === "INDISPONIBLE") {
+    return {
+      title: "Ce médicament n'est plus disponible sur le marché.",
+      severity: "error" as const,
+      color: "var(--text-default-error)",
+    };
+  }
+  if (
+    specialite.availability === "PARTIELLE" ||
+    (specialite.availability == null && !isCommercialisee(specialite))
+  ) {
+    return {
+      title: "Ce médicament ne sera bientôt plus disponible sur le marché.",
+      severity: "info" as const,
+      color: "var(--text-action-high-blue-france)",
+    };
+  }
+  return null;
 }
 
 export function isAIP(
@@ -189,4 +215,20 @@ export function isHospitalDelivrance(
   delivrances: DelivranceCondition[],
 ): boolean {
   return delivrances.some((delivrance) => delivrance.code === 3);
+}
+
+/**
+ * Builds the speciality page slug: slugified name followed by the CIS code,
+ * e.g. "doliprane-1000-mg-comprime-60234100" (see getSlug).
+ */
+export function getSpecSlug(cis: string, name: string): string {
+  return getSlug(cis, name);
+}
+
+export type SpecialiteWithGenericGroup = DetailedSpecialite & { genericGroupCode: number };
+
+export function hasGenericGroup(
+  specialite: DetailedSpecialite,
+): specialite is SpecialiteWithGenericGroup {
+  return specialite.genericGroupCode !== null;
 }

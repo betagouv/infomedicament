@@ -1,13 +1,14 @@
 "use server";
 
 import "server-only";
-import { unstable_cache } from "next/cache";
 import db from "@/db/"
 import slugify from "slugify";
 import { SearchArticlesFilters, SearchResultItem } from "@/types/SearchTypes";
 import { Article, ArticleCardResume } from "@/types/ArticlesTypes";
+import type { RefArticles } from "@/db/types";
 
-export const getArticles = unstable_cache(async function(): Promise<Article[]> {
+export async function getArticles(): Promise<Article[]> {
+  "use cache: remote";
 
     const rows = await db.selectFrom("ref_articles")
         .select(["titre", "source", "contenu", "theme", "lien", "metadescription", "homepage", "image"])
@@ -28,59 +29,45 @@ export const getArticles = unstable_cache(async function(): Promise<Article[]> {
                 : {}),
         };
     });
-}, ["articles"], { revalidate: 3600 });
+}
+
+function parseArticleIds(value: string | null): string[] {
+    return (value ?? "").split(",").map((id) => id.trim()).filter(Boolean);
+}
+
+type ArticleCardRow = Pick<RefArticles,
+    "titre" | "lien" | "metadescription" | "substances" | "specialites" | "pathologies" | "atc_classe"
+>;
+
+function mapArticleCard(row: ArticleCardRow): ArticleCardResume {
+    const title = row.titre ?? "";
+    return {
+        slug: slugify(title, { lower: true, strict: true }),
+        title,
+        canonicalUrl: row.lien ?? "",
+        description: row.metadescription ?? "",
+        substances: parseArticleIds(row.substances),
+        specialites: parseArticleIds(row.specialites),
+        pathologies: parseArticleIds(row.pathologies),
+        atc: parseArticleIds(row.atc_classe),
+    };
+}
 
 export async function getArticlesFromFilters(articlesFilters: SearchArticlesFilters): Promise<ArticleCardResume[]> {
-    const rows = await db.selectFrom("ref_articles")
-        .select(["titre", "lien", "metadescription", "homepage", "atc_classe", "substances", "specialites", "pathologies"])
-        .execute();
+    const rows = await getArticleFilterRows();
 
-    const articles: any[] = [];
+    const substances = new Set(articlesFilters.substancesList);
+    const specialites = new Set(articlesFilters.specialitesList);
+    const pathologies = new Set(articlesFilters.pathologiesList.map(String));
+    const atc = new Set(articlesFilters.ATCList);
 
-    rows.map((row) => {
-        let find = false;
-        // We check if any article matches the substance filter
-        if (row.substances && articlesFilters.substancesList.length > 0) {
-            const substancesArticle = (row.substances as string).split(",");
-            const index = substancesArticle.find((articleSubsId: string) => articlesFilters.substancesList.find((subsId: string) => subsId === articleSubsId.trim()));
-            if (index) find = true;
-        }
-        // else, we check if there's a pathologies filter match
-        if (!find && row.pathologies && articlesFilters.pathologiesList.length > 0) {
-            const pathosArticle = (row.pathologies as string).split(",");
-            const index = pathosArticle.find((articleCodePatho: string) => articlesFilters.pathologiesList.find((codePatho: number) => codePatho.toString() === articleCodePatho.trim()));
-            if (index) find = true;
-        }
-        // else, we check for specialites match
-        if (!find && row.specialites && articlesFilters.specialitesList.length > 0) {
-            const specsArticle = (row.specialites as string).split(",");
-            const index = specsArticle.find((articleCodeCIS: string) => articlesFilters.specialitesList.find((codeCIS: string) => codeCIS === articleCodeCIS.trim()));
-            if (index) find = true;
-        }
-        // finally, we look for an ATC match
-        if (!find && row.atc_classe && articlesFilters.ATCList.length > 0) {
-            const atcArticle = (row.atc_classe as string).split(",");
-            const index = atcArticle.find((articleCodeATC: string) => articlesFilters.ATCList.find((codeATC: string) => codeATC === articleCodeATC.trim()));
-            if (index) find = true;
-        }
-        if (find) articles.push(row);
-    })
-
-    const articlesList = articles.map(article => {
-        const substances: string[] = article.substances.split(',').map((subsID: string) => subsID.trim());
-        const specialites: string[] = article.specialites.split(',').map((subsID: string) => subsID.trim());
-        return {
-            slug: slugify(article.titre as string, { lower: true, strict: true }),
-            title: article.titre as string,
-            canonicalUrl: article.lien as string,
-            description: article.metadescription as string,
-            substances: substances,
-            specialites: specialites,
-            pathologies: article.pathologies as string[],
-            atc: article.atc_classe as string[],
-        };
-    });
-    return articlesList;
+    // Normalize once so matching and returned cards use the same relationship IDs.
+    return rows.map(mapArticleCard).filter((article) =>
+        article.substances.some((id) => substances.has(id)) ||
+        article.pathologies.some((id) => pathologies.has(id)) ||
+        article.specialites.some((id) => specialites.has(id)) ||
+        article.atc.some((code) => atc.has(code)),
+    );
 }
 
 export async function getArticlesFromSearchResults(results: SearchResultItem[]): Promise<ArticleCardResume[]> {
@@ -144,4 +131,11 @@ export async function getArticlesFromSubstances(ids: string[]): Promise<ArticleC
     };
 
     return getArticlesFromFilters(articlesFilters);
+}
+
+async function getArticleFilterRows() {
+  "use cache: remote";
+  return db.selectFrom("ref_articles")
+        .select(["titre", "lien", "metadescription", "homepage", "atc_classe", "substances", "specialites", "pathologies"])
+        .execute();
 }

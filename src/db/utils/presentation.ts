@@ -1,27 +1,18 @@
 import "server-cli-only";
-import { cache } from "react";
+
 import { pdbmMySQL } from "@/db/pdbmMySQL";
 import {
   Presentation,
   PresentationAdministrativeStatus,
-  PresentationCommercialStatus,
   PresentationPackagingDetail,
 } from "@/types/PresentationTypes";
 import { isPresentationVisible } from "@/utils/presentations";
 import db from "..";
+import { mapCommercialStatus } from "./presentationCatalog";
+import { getElementsList } from "./elements";
 
 const PRESENTATION_VISIBILITY_DAYS = 730;
 const ABROGATION_EVENT_CODES = [18, 90];
-
-function mapCommercialStatus(status: string | null): PresentationCommercialStatus {
-  switch (status) {
-    case "COMMERCIALISEE": return "commercialised";
-    case "ARRETEE": return "stopped";
-    case "SUSPENDUE": return "suspended";
-    case "RETIREE": return "withdrawn";
-    default: return "unknown";
-  }
-}
 
 function mapAdministrativeStatus(status: string | null): PresentationAdministrativeStatus {
   switch (status) {
@@ -65,7 +56,8 @@ function preserveDispositifCount(dispositif: string | null, denomination: string
   return countedDevice?.[0].replace(/^\+\s*/, "avec ") ?? dispositif;
 }
 
-export const getPresentations = cache(async (CIS: string): Promise<Presentation[]> => {
+export async function getPresentations(CIS: string): Promise<Presentation[]> {
+  "use cache: remote";
   const rows = await db
     .selectFrom("ansm_presentation")
     .where("cis", "=", CIS)
@@ -154,11 +146,10 @@ export const getPresentations = cache(async (CIS: string): Promise<Presentation[
     .sort((a, b) => a.retailPrice !== null && b.retailPrice !== null
       ? a.retailPrice - b.retailPrice
       : a.retailPrice !== null ? -1 : b.retailPrice !== null ? 1 : a.cip13.localeCompare(b.cip13));
-});
+}
 
-export const getPresentationsDetails = cache(async (
-  codeCIP13List: string[],
-): Promise<PresentationPackagingDetail[]> => {
+export async function getPresentationsDetails(codeCIP13List: string[]): Promise<PresentationPackagingDetail[]> {
+  "use cache: remote";
   if (codeCIP13List.length === 0) return [];
 
   const presentationRows = await db
@@ -186,11 +177,7 @@ export const getPresentationsDetails = cache(async (
       .where("cip", "in", cips)
       .selectAll()
       .execute(),
-    db
-      .selectFrom("ansm_element")
-      .where("cis", "in", cisList)
-      .selectAll()
-      .execute(),
+    getElementsList(cisList),
   ]);
 
   const characteristicsByRecipient = new Map<string, typeof characteristics>();
@@ -240,9 +227,10 @@ export const getPresentationsDetails = cache(async (
       })),
     );
   });
-});
+}
 
-export const getFullPresentations = cache(async (CIS: string): Promise<Presentation[]> => {
+export async function getFullPresentations(CIS: string): Promise<Presentation[]> {
+  "use cache: remote";
   const presentations = await getPresentations(CIS);
   const cips = presentations.map((presentation) => presentation.cip13);
   const [details, retroRows] = cips.length > 0
@@ -267,4 +255,4 @@ export const getFullPresentations = cache(async (CIS: string): Promise<Presentat
       ivgPricing: mapYesNo(retro?.IVG),
     };
   });
-});
+}

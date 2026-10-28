@@ -6,27 +6,41 @@ import { getLetters } from "@/db/utils/letters";
 import { getResumeSpecsGroupsWithLetter } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { DataTypeEnum } from "@/types/DataTypes";
-
-export const dynamic = "error";
-export const dynamicParams = true;
+import { withStaticParamFallback } from "@/utils/staticParams";
+import { Metadata } from "next";
 
 export async function generateStaticParams() {
   const letters = await getLetters("medicaments");
-  return letters.map((letter) => ({ letter }));
+  return withStaticParamFallback(
+    letters.map((letter) => ({ letter })),
+    { letter: "A" },
+  );
 }
 const PAGE_LABEL: string = "Liste des médicaments";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: PAGE_LABEL,
+    description: "Retrouvez les médicaments classés par ordre alphabétique pour accéder rapidement aux informations recherchées.",
+  }
+}
 
 export default async function Page(props: {
   params: Promise<{ letter: string }>;
 }) {
   const { letter } = await props.params;
+  return <CachedMedicamentsList letter={letter} />;
+}
+
+async function CachedMedicamentsList({ letter }: { letter: string }) {
+  "use cache: remote";
 
   const [letters, specsGroups] = await Promise.all([
     getLetters("medicaments"),
     getResumeSpecsGroupsWithLetter(letter),
   ]);
-  const dataList = (await getResumeSpecsGroupsATCLabels(specsGroups)).sort((a, b) =>
-    a.groupName.localeCompare(b.groupName)
+  const dataList = (await getResumeSpecsGroupsATCLabels(specsGroups)).sort(
+    (a, b) => a.groupName.localeCompare(b.groupName),
   );
 
   return (

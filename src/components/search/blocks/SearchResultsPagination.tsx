@@ -3,7 +3,7 @@
 import DataBlockSpecResult from "@/components/data/DataBlockSpecResult";
 import DataListPagination from "@/components/data/DataListPagination";
 import { SearchFilter, SearchResultItem } from "@/types/SearchTypes";
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, useCallback, useState } from "react";
 
 interface SearchResultsPaginationProps extends HTMLAttributes<HTMLDivElement> {
   resultsList: SearchResultItem[];
@@ -16,54 +16,44 @@ function SearchResultsPagination({
   resultsList,
   allSubsFilters,
   allAtcFilters,
-  allIndicationsFilters
-}: SearchResultsPaginationProps) {  
-  
+  allIndicationsFilters,
+}: SearchResultsPaginationProps) {
   const PAGINATION_LENGTH: number = 50;
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [currentResultsList, setCurrentResultsList] = useState<SearchResultItem[]>([]);
-
-  function getCurrentResultList(
-    list: SearchResultItem[],
-    currentPage: number,
-  ){
-    if(list && list.length > 0) {
-      const newList = list.slice(
-        (currentPage - 1) * PAGINATION_LENGTH,
-        currentPage * PAGINATION_LENGTH,
-      );
-      return newList;
-    }
-    return [];
-  }
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [resultsList, setCurrentPage]);
-
-  useEffect(() => {
-    const list = getCurrentResultList(resultsList, currentPage);
-    setCurrentResultsList(list);
-  }, [resultsList, currentPage, setCurrentResultsList]);
-
-  return currentResultsList && (
-    <>
-      {currentResultsList.map((result, index) => (
-        <DataBlockSpecResult
-          key={index}
-          specialite={result}
-          subsFilters={allSubsFilters.filter((filter) => filter.selected)}
-          atcsFilters={allAtcFilters.filter((filter) => filter.selected)}
-          indicationsFilters={allIndicationsFilters.filter((filter) => filter.selected)}
-        />
-      ))}
-      <DataListPagination 
-        dataLength={resultsList.length}
-        paginationLength={PAGINATION_LENGTH}
-        updateCurrentPage={setCurrentPage}
-      />
-    </>
+  const [pagination, setPagination] = useState({ list: resultsList, page: 1 });
+  const currentPage = pagination.list === resultsList ? pagination.page : 1;
+  const updateCurrentPage = useCallback(
+    (page: number) => {
+      setPagination({ list: resultsList, page });
+    },
+    [resultsList],
   );
-};
+  const currentResultsList = resultsList.slice(
+    (currentPage - 1) * PAGINATION_LENGTH,
+    currentPage * PAGINATION_LENGTH,
+  );
+
+  return (
+    currentResultsList && (
+      <>
+        {currentResultsList.map((result, index) => (
+          <DataBlockSpecResult
+            key={index}
+            specialite={result}
+            subsFilters={allSubsFilters.filter((filter) => filter.selected)}
+            atcsFilters={allAtcFilters.filter((filter) => filter.selected)}
+            indicationsFilters={allIndicationsFilters.filter(
+              (filter) => filter.selected,
+            )}
+          />
+        ))}
+        <DataListPagination
+          dataLength={resultsList.length}
+          paginationLength={PAGINATION_LENGTH}
+          updateCurrentPage={updateCurrentPage}
+        />
+      </>
+    )
+  );
+}
 
 export default SearchResultsPagination;

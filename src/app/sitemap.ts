@@ -6,16 +6,30 @@ import { getLetters } from "@/db/utils/letters";
 import { getArticles } from "@/db/utils/articles";
 import { getGlossaryLetters } from "@/db/utils/glossary";
 import { getAllIndications } from "@/db/utils/indications";
-import { getAllGenericGroupCodes } from "@/db/utils/generics";
+import { getAllGenericGroups } from "@/db/utils/generics";
+import { getGenericSlug } from "@/utils/generics";
+import { getSpecSlug } from "@/utils/specialites";
+import { getIndicationSlug } from "@/utils/indications";
+import { getAtcSlug } from "@/utils/atc";
+import { getSubstanceSlug } from "@/utils/substances";
 
-export const dynamic = "force-static";
-export const revalidate = 86400;
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+// Sitemap URLs must be absolute: never publish localhost URLs in production
+function getBaseUrl(): string {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  if (baseUrl) return baseUrl.replace(/\/$/, "");
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("NEXT_PUBLIC_BASE_URL must be set to generate the sitemap in production");
+  }
+  return "http://localhost:3000";
+}
+
+const BASE_URL = getBaseUrl();
 
 const STATIC_ROUTES = [
   "/",
   "/a-propos",
+  "/accessibilite",
   "/donnees",
   "/articles",
   "/interactions",
@@ -30,6 +44,7 @@ const STATIC_ROUTES = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  "use cache: remote";
   const [
     specialites,
     substances,
@@ -53,7 +68,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getLetters("substances"),
     getLetters("indications"),
     getLetters("generiques"),
-    getAllGenericGroupCodes(),
+    getAllGenericGroups(),
   ]);
 
   const staticEntries: MetadataRoute.Sitemap = STATIC_ROUTES.map((path) => ({
@@ -61,7 +76,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const medicamentEntries: MetadataRoute.Sitemap = specialites.map((s) => ({
-    url: `${BASE_URL}/medicaments/${s.SpecId.trim()}`,
+    url: `${BASE_URL}/medicaments/${getSpecSlug(s.SpecId, s.SpecDenom01)}`,
   }));
 
   const articleEntries: MetadataRoute.Sitemap = articles.map((a) => ({
@@ -69,22 +84,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const substanceEntries: MetadataRoute.Sitemap = substances.map((s) => ({
-    url: `${BASE_URL}/substances/${s.NomId.trim()}`,
+    url: `${BASE_URL}/substances/${getSubstanceSlug([s])}`,
   }));
 
   const indicationsEntries: MetadataRoute.Sitemap = indications.map((i) => ({
-    url: `${BASE_URL}/indications/${i.id}`,
+    url: `${BASE_URL}/indications/${getIndicationSlug(i.id, i.nom)}`,
   }));
 
   const atcEntries: MetadataRoute.Sitemap = [
-    ...atcData.map((a) => ({ url: `${BASE_URL}/atc/${a.code}` })),
+    ...atcData.map((a) => ({ url: `${BASE_URL}/atc/${getAtcSlug(a.code, a.label)}` })),
     ...atcData.flatMap((a) =>
-      a.children.map((c) => ({ url: `${BASE_URL}/atc/${c.code}` }))
+      a.children.map((c) => ({ url: `${BASE_URL}/atc/${getAtcSlug(c.code, c.label)}` }))
     ),
   ];
 
-  const genericEntries: MetadataRoute.Sitemap = genericGroups.map((groupCode) => ({
-    url: `${BASE_URL}/generiques/${groupCode}`,
+  const genericEntries: MetadataRoute.Sitemap = genericGroups.map((group) => ({
+    url: `${BASE_URL}/generiques/${getGenericSlug(group.codeGroupe, group.libelle)}`,
   }));
 
   const glossaireEntries: MetadataRoute.Sitemap = glossaryLetters.map((l) => ({

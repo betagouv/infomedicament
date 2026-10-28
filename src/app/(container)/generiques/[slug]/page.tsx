@@ -1,0 +1,113 @@
+import { Suspense } from "react";
+import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
+import Badge from "@codegouvfr/react-dsfr/Badge";
+import {
+  groupGeneNameToDCI,
+} from "@/db/utils";
+import { fr } from "@codegouvfr/react-dsfr";
+import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import { formatSpecName } from "@/displayUtils";
+import { getAtc2, getAtcCode } from "@/db/utils/atc";
+import { notFound } from "next/navigation";
+import ContentContainer from "@/components/generic/ContentContainer";
+import RatingToaster from "@/components/rating/RatingToaster";
+import { getSpecialiteGroupName } from "@/utils/specialites";
+import MedicamentGeneriqueContainer from "@/components/medicamentsGeneriques/MedicamentGeneriqueContainer";
+import { GenericGroup, getGenericGroup } from "@/db/utils/generics";
+import { getComposants } from "@/db/utils/composants";
+import { getReinforcedSurveillanceEvents } from "@/db/utils/safety";
+import { getIdFromSlug, getNumericIdFromSlug } from "@/utils/slug";
+import { getGenericGroupDescription, getGenericSlug } from "@/utils/generics";
+import { Metadata } from "next";
+
+export async function generateMetadata(
+  props: { params: Promise<{ slug: string }> },
+): Promise<Metadata> {
+  const { slug } = await props.params;
+  const genericGroupCode = getNumericIdFromSlug(slug);
+  const group: GenericGroup | undefined = genericGroupCode
+    ? await getGenericGroup(genericGroupCode)
+    : undefined;
+    
+  if (!group) {
+    return {
+      title: `Groupe générique ${getIdFromSlug(slug)}`,
+    };
+  }
+  return {
+    title: formatSpecName(groupGeneNameToDCI(group.libelle)),
+    description: getGenericGroupDescription(group),
+    alternates: {
+      canonical: `/generiques/${getGenericSlug(group.codeGroupe, group.libelle)}`,
+    },
+  };
+}
+
+export default function Page(props: { params: Promise<{ slug: string }> }) {
+  return <Suspense fallback={<PageLoadingFallback />}><ResolvedGenericPage params={props.params} /></Suspense>;
+}
+
+async function ResolvedGenericPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  return <CachedGenericPage slug={slug} />;
+}
+
+async function CachedGenericPage({ slug }: { slug: string }) {
+  "use cache: remote";
+  const genericGroupCode = getNumericIdFromSlug(slug);
+  if (!genericGroupCode) notFound();
+
+  const group = await getGenericGroup(genericGroupCode);
+  if (!group) notFound();
+
+  const displaySpecialite = group.princeps[0] ?? group.generiques[0];
+  if (!displaySpecialite) notFound();
+  const composants = await getComposants(displaySpecialite.SpecId);
+
+  const CISList = [...group.princeps, ...group.generiques].map((specialite) => specialite.SpecId);
+  const events = await getReinforcedSurveillanceEvents(CISList);
+
+  let atcCode = await getAtcCode(displaySpecialite.SpecId);
+  if (!atcCode) {
+    for (const specialite of [...group.princeps, ...group.generiques]) {
+      atcCode = await getAtcCode(specialite.SpecId);
+      if (atcCode) break;
+    }
+  }
+  const atc2 = atcCode ? await getAtc2(atcCode) : undefined;
+
+  const pageLabel = formatSpecName(groupGeneNameToDCI(group.libelle));
+  const groupName = getSpecialiteGroupName(groupGeneNameToDCI(group.libelle));
+
+  return (
+    <>
+      <ContentContainer frContainer>
+        <Breadcrumb
+          segments={[
+            { label: "Accueil", linkProps: { href: "/" } },
+            {
+              label: "Liste des groupes génériques",
+              linkProps: { href: "/generiques/A" },
+            },
+          ]}
+          currentPageLabel={pageLabel}
+        />
+        <Badge className="fr-badge--purple-glycine">Groupe générique</Badge>
+        <h1 className={fr.cx("fr-h1", "fr-mt-1w", "fr-mb-6w")}>
+          {pageLabel}
+        </h1>
+      </ContentContainer>
+      <MedicamentGeneriqueContainer
+        atc2={atc2}
+        composants={composants}
+        groupName={groupName}
+        princeps={group.princeps}
+        generiques={group.generiques}
+        events={events}
+      />
+      <RatingToaster
+        pageId={pageLabel}
+      />
+    </>
+  );
+}

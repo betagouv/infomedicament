@@ -1,3 +1,4 @@
+
 import "server-cli-only";
 import db from "@/db";
 import { InteractionsSearchEntry } from "@/db/types";
@@ -36,6 +37,8 @@ export async function lookupInteractions(
   substIds2: string[],
   directClassIds2: string[],
 ): Promise<InteractionResult[]> {
+  "use cache: remote";
+
   if (substIds1.length === 0 && directClassIds1.length === 0) return [];
   if (substIds2.length === 0 && directClassIds2.length === 0) return [];
 

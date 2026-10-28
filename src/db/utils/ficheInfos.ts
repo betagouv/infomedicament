@@ -1,5 +1,6 @@
 "use server";
 
+
 import {
   Asmr,
   ComposantComposition,
@@ -20,6 +21,7 @@ import { mapImportantInformation } from "./safetyCatalog";
 import { mapAsmr, mapDocBonUsage, mapSmr, sortHasHistory } from "./hasCatalog";
 import { CompositionNature } from "@/types/SubstanceTypes";
 import { getComposants } from "./composants";
+import { getElements } from "./elements";
 
 async function getImportantInformation(
   CIS: string,
@@ -37,6 +39,8 @@ function formatElementName(name: string): string {
 export async function getFicheInfos(
   CIS: string,
 ): Promise<FicheInfos | undefined> {
+  "use cache: remote";
+
   const eventsPromise = getReinforcedSurveillanceEvents([CIS]);
   const infosImportantesPromise = getImportantInformation(CIS);
 
@@ -83,19 +87,16 @@ export async function getFicheInfos(
     .execute()
     .then((rows) => rows.map(mapDocBonUsage));
 
-  const elementsRaw = await db
-    .selectFrom("ansm_element")
-    .where("cis", "=", CIS)
-    .selectAll()
-    .execute();
-  elementsRaw.sort(
+  const [elements, composantsRaw] = await Promise.all([
+    getElements(CIS),
+    getComposants(CIS),
+  ]);
+  const elementsRaw = [...elements].sort(
     (left, right) =>
       (left.ordre ?? left.numero_element) -
         (right.ordre ?? right.numero_element) ||
       left.numero_element - right.numero_element,
   );
-
-  const composantsRaw = await getComposants(CIS);
 
   const elementsComposition: ElementComposition[] = [];
   elementsRaw.forEach((element) => {

@@ -5,11 +5,20 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
+import { Metadata } from "next";
 
-export const dynamic = "error";
 const PAGE_LABEL: string = "Liste des articles";
 
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: PAGE_LABEL,
+    description: "Retrouvez nos articles sur les médicaments et leur utilisation : grossesse, allaitement, génériques, interactions, précautions et autres sujets de santé.",
+  }
+}
+
 export default async function Page() {
+  "use cache: remote";
+
   const articles = await getArticles();
 
   const categories = Array.from(
@@ -28,7 +37,7 @@ export default async function Page() {
       />
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
-          <h1>Articles</h1>
+          <h1>Vos questions</h1>
           {categories.map((category) => (
             <Fragment key={category}>
               <h2 className={fr.cx("fr-h4", "fr-mb-1w")}>{category}</h2>

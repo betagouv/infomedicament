@@ -5,26 +5,42 @@ import PageListContent from "@/components/list/PageListContent";
 import { getLetters } from "@/db/utils/letters";
 import { getIndicationsResumeWithLetter } from "@/db/utils/indications";
 import { DataTypeEnum } from "@/types/DataTypes";
-
-export const dynamic = "error";
-export const dynamicParams = true;
+import { withStaticParamFallback } from "@/utils/staticParams";
+import { Metadata } from "next";
 
 export async function generateStaticParams() {
   const letters = await getLetters("indications");
-  return letters.map((letter) => ({ letter }));
+  return withStaticParamFallback(
+    letters.map((letter) => ({ letter })),
+    { letter: "A" },
+  );
 }
 const PAGE_LABEL: string = "Liste des indications";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: PAGE_LABEL,
+    description: "Retrouvez les indications classées par ordre alphabétique pour accéder rapidement aux informations recherchées.",
+  }
+}
 
 export default async function Page(props: {
   params: Promise<{ letter: string }>;
 }) {
   const { letter } = await props.params;
+  return <CachedIndicationsList letter={letter} />;
+}
+
+async function CachedIndicationsList({ letter }: { letter: string }) {
+  "use cache: remote";
 
   const [letters, rawData] = await Promise.all([
     getLetters("indications"),
     getIndicationsResumeWithLetter(letter),
   ]);
-  const dataList = rawData.sort((a, b) => a.nomIndication.localeCompare(b.nomIndication));
+  const dataList = rawData.sort((a, b) =>
+    a.nomIndication.localeCompare(b.nomIndication),
+  );
 
   return (
     <ContentContainer frContainer>

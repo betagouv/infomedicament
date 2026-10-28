@@ -6,8 +6,7 @@ import { getAtc } from "@/db/utils/atc";
 import { AtcOption, SubstanceOption } from "@/types/ExportTypes";
 import { getAllSubstancesResumes } from "@/db/utils/substances";
 
-export const dynamic = "error";
-export const dynamicParams = true;
+export const ensureStatic = "navigation";
 
 const PAGE_LABEL = "Export des données des spécialités";
 

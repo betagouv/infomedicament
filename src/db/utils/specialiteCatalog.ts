@@ -10,32 +10,33 @@ export const VISIBLE_SPECIALITE_AVAILABILITIES: Exclude<
   "INDISPONIBLE" | null
 >[] = ["DISPONIBLE", "PARTIELLE", "ALERTE"];
 
+type AuthorizationSourceStatus = NonNullable<AnsmSpecialite["statut_amm"]>;
+
+const authorizationStatusMap: Record<AuthorizationSourceStatus, SpecialiteStat> = {
+  ACTIVE: SpecialiteStat.Valide,
+  ABROGEE: SpecialiteStat.Abrogée,
+  SUSPENDUE: SpecialiteStat.Suspendue,
+  RETIREE: SpecialiteStat.Retirée,
+  INACTIVE: SpecialiteStat.Archivée,
+  ARCHIVEE: SpecialiteStat.Archivée,
+};
+
 export function statutAmmToDisplayStatus(
   statut: AnsmSpecialite["statut_amm"],
 ): string | null {
-  switch (statut) {
-    case "ACTIVE": return "Valide";
-    case "ABROGEE": return "Abrogée";
-    case "SUSPENDUE": return "Suspendue";
-    case "RETIREE": return "Retirée";
-    case "INACTIVE":
-    case "ARCHIVEE": return "Archivée";
-    default: return null;
-  }
+  const id = statutAmmToCompatibilityId(statut);
+  return id === null ? null : SpecialiteStat[id];
+}
+
+export function getAuthorizationSourceStatuses(label: string): AuthorizationSourceStatus[] {
+  return (Object.keys(authorizationStatusMap) as AuthorizationSourceStatus[])
+    .filter((status) => statutAmmToDisplayStatus(status) === label);
 }
 
 export function statutAmmToCompatibilityId(
   statut: AnsmSpecialite["statut_amm"],
 ): SpecialiteStat | null {
-  switch (statut) {
-    case "ACTIVE": return SpecialiteStat.Valide;
-    case "ABROGEE": return SpecialiteStat.Abrogée;
-    case "SUSPENDUE": return SpecialiteStat.Suspendue;
-    case "RETIREE": return SpecialiteStat.Retirée;
-    case "INACTIVE":
-    case "ARCHIVEE": return SpecialiteStat.Archivée;
-    default: return null;
-  }
+  return statut === null ? null : authorizationStatusMap[statut] ?? null;
 }
 
 export function disponibiliteToDisplayStatus(
@@ -49,14 +50,15 @@ export function disponibiliteToStatutBdm(
   disponibilite: AnsmSpecialite["disponibilite"],
 ): number {
   if (disponibilite === "ALERTE") return 3;
-  // PARTIELLE medicines remain addressable but must display the public
-  // unavailable/soon-unavailable warning. INDISPONIBLE rows are not routed.
+  // Keep the legacy summary code; availability preserves the distinction
+  // between PARTIELLE and INDISPONIBLE for catalogue-backed displays.
   if (disponibilite === "PARTIELLE" || disponibilite === "INDISPONIBLE") return 2;
   return 1;
 }
 
 export function mapCatalogSpecialite(row: AnsmSpecialite): Specialite {
   return {
+    availability: row.disponibilite,
     SpecId: row.cis,
     SpecDenom01: row.denomination ?? "",
     ProcId: row.procedure ?? "NON_COMMUNIQUEE",
@@ -79,6 +81,7 @@ export function mapDetailedSpecialite(
   row: AnsmSpecialite,
   titulairesList: string | null,
   genericGroupCode: number | null,
+  genericGroupName: string | null,
   referenceSpecialite: DetailedSpecialite["referenceSpecialite"],
   statusDate: Date | null,
   een: string | null,
@@ -92,6 +95,7 @@ export function mapDetailedSpecialite(
     statutComm: disponibiliteToDisplayStatus(row.disponibilite),
     titulairesList,
     genericGroupCode,
+    genericGroupName,
     referenceSpecialite,
   };
 }

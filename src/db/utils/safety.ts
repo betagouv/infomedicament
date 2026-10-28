@@ -1,4 +1,5 @@
 "use server";
+
 import "server-cli-only";
 
 import db from "@/db";
@@ -13,6 +14,8 @@ async function queryEvents(
   CISList: string[],
   code?: number,
 ): Promise<SafetyEvent[]> {
+  "use cache: remote";
+
   if (CISList.length === 0) return [];
 
   let query = db

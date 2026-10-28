@@ -1,26 +1,29 @@
 "use client";
 
+import MedicamentContentLoading from "./MedicamentContentLoading";
+import { WithMedicamentData, type MedicamentData } from "./MedicamentData";
 import ContentContainer from "../generic/ContentContainer";
 import type { CompositionComponent } from "@/types/SubstanceTypes";
-import { HTMLAttributes, lazy, Suspense, useCallback, useEffect, useState } from "react";
-import { Marr } from "@/types/MarrTypes";
+import {
+  HTMLAttributes,
+  lazy,
+  startTransition,
+  Suspense,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { ATC } from "@/types/ATCTypes";
-import { DelivranceCondition, DetailedSpecialite, NoticeData } from "@/types/SpecialiteTypes";
-import { PregnancyAlert } from "@/types/PregancyTypes";
-import { PediatricsInfo } from "@/types/PediatricTypes";
+import {
+  DelivranceCondition,
+  DetailedSpecialite,
+} from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { trackEvent } from "@/services/tracking";
-import { FicheInfos } from "@/types/FicheInfoTypes";
 const AdvancedContent = lazy(() => import("./AdvancedContent"));
 import NoticeContent from "./NoticeContent";
 import { AnchorMenu } from "./advanced/DetailedSubMenu";
-import { Definition } from "@/types/GlossaireTypes";
 import GoTopButton from "../generic/GoTopButton";
-import { ShortIndication } from "@/types/IndicationsTypes";
-import { ArticleCardResume } from "@/types/ArticlesTypes";
-import { AnsmVideos } from "@/db/types";
-import { AnsmStock } from "@/types/StockTypes";
-
 
 interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   atcList: string[];
@@ -28,23 +31,10 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
   atcCode?: string;
   specialite?: DetailedSpecialite;
   composants: CompositionComponent[];
-  isPrinceps: boolean;
-  isGeneric: boolean;
   delivrance: DelivranceCondition[];
   presentations: Presentation[];
   title: string;
-  indications: ShortIndication[];
-  indicationsBlock?: string;
-  notice?: NoticeData;
-  ficheInfos?: FicheInfos;
-  definitions: Definition[];
-  pregnancyPlanAlert?: PregnancyAlert;
-  isPregnancyMentionAlert: boolean;
-  pediatrics?: PediatricsInfo;
-  marr?: Marr;
-  articles: ArticleCardResume[];
-  videos?: AnsmVideos[];
-  stocks: AnsmStock[];
+  data: Promise<MedicamentData>;
 }
 
 function MedicamentContent({
@@ -53,45 +43,30 @@ function MedicamentContent({
   atcCode,
   specialite,
   composants,
-  isPrinceps,
-  isGeneric,
   delivrance,
   presentations,
   title,
-  indications,
-  indicationsBlock,
-  notice,
-  ficheInfos,
-  definitions,
-  pregnancyPlanAlert,
-  isPregnancyMentionAlert,
-  pediatrics,
-  marr,
-  articles,
-  videos,
-  stocks,
+  data,
   ...props
 }: MedicamentContentProps) {
-
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
   const [advancedAnchor, setAdvancedAnchor] = useState<AnchorMenu>();
 
   const onGoToAdvanced = useCallback(
     (enabled: boolean) => {
-      setIsAdvanced(enabled);
-      if(!enabled)
-        setAdvancedAnchor(undefined);
+      startTransition(() => setIsAdvanced(enabled));
+      if (!enabled) setAdvancedAnchor(undefined);
     },
-    [setIsAdvanced]
+    [setIsAdvanced],
   );
   const onGoToAdvancedAnchor = useCallback(
     (anchor?: AnchorMenu) => {
       if (anchor) {
         setAdvancedAnchor(anchor);
       }
-      setIsAdvanced(true);
+      startTransition(() => setIsAdvanced(true));
     },
-    [setIsAdvanced, setAdvancedAnchor]
+    [setIsAdvanced, setAdvancedAnchor],
   );
 
   useEffect(() => {
@@ -107,59 +82,45 @@ function MedicamentContent({
 
   return (
     <ContentContainer frContainer {...props}>
-      {isAdvanced
-        ? (
-          <Suspense fallback={null}>
-            <AdvancedContent
-              atcCode={atcCode}
-              specialite={specialite}
-              composants={composants}
-              isPrinceps={isPrinceps}
-              isGeneric={isGeneric}
-              delivrance={delivrance}
-              pregnancyPlanAlert={pregnancyPlanAlert}
-              isPregnancyMentionAlert={isPregnancyMentionAlert}
-              pediatrics={pediatrics}
-              presentations={presentations}
-              marr={marr}
-              ficheInfos={ficheInfos}
-              definitions={definitions}
-              indications={indications}
-              indicationsBlock={indicationsBlock}
-              advancedAnchor={advancedAnchor}
-              title={title}
-              stocks={stocks}
-              onGoToAdvanced={onGoToAdvanced}
-            />
-          </Suspense>
-        ) : (
-          <NoticeContent
-            atcList={atcList}
-            atc2={atc2}
-            specialite={specialite}
-            composants={composants}
-            isPrinceps={isPrinceps}
-            delivrance={delivrance}
-            pregnancyPlanAlert={pregnancyPlanAlert}
-            isPregnancyMentionAlert={isPregnancyMentionAlert}
-            pediatrics={pediatrics}
-            presentations={presentations}
-            marr={marr}
-            notice={notice}
-            ficheInfos={ficheInfos}
-            definitions={definitions}
-            title={title}
-            indications={indications}
-            indicationsBlock={indicationsBlock}
-            articles={articles}
-            videos={videos}
-            onGoToAdvanced={onGoToAdvanced}
-            onGoToAdvancedAnchor={onGoToAdvancedAnchor}
-          />
-        )}
-        <GoTopButton />
+      {isAdvanced ? (
+        <Suspense
+          fallback={<MedicamentContentLoading title={title} contained />}
+        >
+          <WithMedicamentData data={data}>
+            {(loaded) => (
+              <AdvancedContent
+                {...loaded}
+                pregnancyPlanAlert={loaded.pregnancyPlanAlert}
+                pediatrics={loaded.pediatrics}
+                atcCode={atcCode}
+                specialite={specialite}
+                composants={composants}
+                delivrance={delivrance}
+                presentations={presentations}
+                advancedAnchor={advancedAnchor}
+                title={title}
+                onGoToAdvanced={onGoToAdvanced}
+              />
+            )}
+          </WithMedicamentData>
+        </Suspense>
+      ) : (
+        <NoticeContent
+          data={data}
+          atcList={atcList}
+          atc2={atc2}
+          specialite={specialite}
+          composants={composants}
+          delivrance={delivrance}
+          presentations={presentations}
+          title={title}
+          onGoToAdvanced={onGoToAdvanced}
+          onGoToAdvancedAnchor={onGoToAdvancedAnchor}
+        />
+      )}
+      <GoTopButton />
     </ContentContainer>
   );
-};
+}
 
 export default MedicamentContent;

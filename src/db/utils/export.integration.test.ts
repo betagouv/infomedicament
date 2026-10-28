@@ -1,11 +1,10 @@
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { sql } from "kysely";
 import db from "..";
 import { getSpecialitesExport } from "./export";
 import { ExportSpecs } from "@/types/ExportTypes";
 import { isAIP } from "@/utils/specialites";
 
-vi.mock("next/cache", () => ({ unstable_cache: (fn: unknown) => fn }));
 
 const ATC2_CODE = "A03";
 

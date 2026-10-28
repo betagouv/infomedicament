@@ -8,6 +8,8 @@ import { trackEvent } from "@/services/tracking";
 import Link from "next/link";
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import styled from 'styled-components';
+import { getGenericSlug } from "@/utils/generics";
+import { SpecialiteWithGenericGroup } from "@/utils/specialites";
 
 type GenericPrinceps = "generic" | "princeps";
 
@@ -23,7 +25,7 @@ const ModalContent = styled.div`
 `;
 
 interface GenericPrincepsTagProps extends HTMLAttributes<HTMLDivElement> {
-  genericGroupCode: number;
+  genericSpecialite: SpecialiteWithGenericGroup;
   type: GenericPrinceps;
   hideIcon?: boolean;
   fromMedicament?: boolean;
@@ -31,7 +33,7 @@ interface GenericPrincepsTagProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function GenericPrincepsTag({ 
-  genericGroupCode,
+  genericSpecialite,
   type,
   hideIcon,
   fromMedicament,
@@ -44,6 +46,8 @@ function GenericPrincepsTag({
     if(fromMedicament)
       trackEvent("Page médicament", action);
   };
+
+  const genericHref = `/generiques/${getGenericSlug(genericSpecialite.genericGroupCode, genericSpecialite.genericGroupName ?? "")}`;
 
   return (
     !noLink ? (
@@ -80,7 +84,7 @@ function GenericPrincepsTag({
         </Tag>
         <div style={{display: "inline"}}>
           <Link
-            href={`/generiques/${genericGroupCode}`}
+            href={genericHref}
             className={cx("fr-text--sm", "fr-link", "fr-ml-0-5v")}
             onClick={() => onTrackEvent()}
             style={{whiteSpace: "nowrap"}}
@@ -93,7 +97,7 @@ function GenericPrincepsTag({
       <Tag
         iconId={!hideIcon ? "fr-icon-capsule-fill" : undefined}
         linkProps= {{
-          href:`/generiques/${genericGroupCode}`,
+          href: genericHref,
           target: "_blank",
           className: cx("fr-tag--custom-alt-blue"),
           onClick: () => onTrackEvent(),

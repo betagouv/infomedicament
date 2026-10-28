@@ -5,7 +5,7 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes } from "react";
 import Link from "next/link";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
-import { isAIP, isAlerteSecurite, isCommercialisee, isHomeopathie } from "@/utils/specialites";
+import { getSpecSlug, isAIP, isAlerteSecurite, getAvailabilityWarning, isHomeopathie } from "@/utils/specialites";
 import Alert from "@codegouvfr/react-dsfr/Alert";
 import Image from "next/image";
 import { FicheInfos } from "@/types/FicheInfoTypes";
@@ -33,6 +33,7 @@ function MedicamentContentHeaderBlock({
   pediatrics,
   ...props
 }: MedicamentContentHeaderBlockProps) {
+  const availabilityWarning = specialite && getAvailabilityWarning(specialite);
 
 
   return (
@@ -134,12 +135,12 @@ function MedicamentContentHeaderBlock({
           />
         </ContentContainer>
       )}
-      {(specialite && !isCommercialisee(specialite)) && (
+      {availabilityWarning && (
         <ContentContainer whiteContainer className={fr.cx("fr-mb-2w")}>
           <Alert
             description="Si vous prenez actuellement ce médicament, il vous est recommandé d'en parler avec votre médecin ou avec votre pharmacien qui pourra vous orienter vers un autre traitement."
-            severity="info"
-            title="Ce médicament n'est ou ne sera bientôt plus disponible sur le marché."
+            severity={availabilityWarning.severity}
+            title={availabilityWarning.title}
             small
           />
         </ContentContainer>
@@ -159,7 +160,7 @@ function MedicamentContentHeaderBlock({
               <>
                 {" "}du médicament{" "}
                 <Link
-                  href={`/medicaments/${specialite.referenceSpecialite.cis}`}
+                  href={`/medicaments/${getSpecSlug(specialite.referenceSpecialite.cis, specialite.referenceSpecialite.name)}`}
                   aria-description="Lien vers le médicament"
                 >
                   {specialite.referenceSpecialite.name}

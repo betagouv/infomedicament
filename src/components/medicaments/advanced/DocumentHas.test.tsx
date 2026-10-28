@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import DocumentHas from "./DocumentHas";
+import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 import { mapAsmr, mapDocBonUsage, mapSmr, sortHasHistory } from "@/db/utils/hasCatalog";
 
 vi.mock("@/components/generic/ContentContainer", () => ({
@@ -23,6 +24,22 @@ vi.mock("@/components/glossary/WithDefinition", () => ({
   default: ({ word }: { word: string }) => <span>{word}</span>,
 }));
 
+const genericSpecialite: DetailedSpecialite = {
+  SpecId: "62869109",
+  SpecDenom01: "OMEPRAZOLE BIOGARAN 20 mg, gélule gastro-résistante",
+  ProcId: "NATIONALE",
+  StatutBdm: 1,
+  Een: null,
+  StatId: null,
+  SpecDateAMM: null,
+  SpecStatDate: null,
+  statutAutorisation: null,
+  statutComm: null,
+  titulairesList: null,
+  genericGroupCode: 123,
+  genericGroupName: "OMEPRAZOLE 20 mg - MOPRAL 20 mg, gélule gastro-résistante",
+  referenceSpecialite: null,
+};
 const ficheInfos = {
   listeElements: [],
   listeSMR: [],
@@ -72,7 +89,7 @@ describe("DocumentHas", () => {
     render(
       <DocumentHas
         ficheInfos={ficheInfos}
-        genericGroupCode={123}
+        genericSpecialite={genericSpecialite}
         isGeneric={false}
       />,
     );
@@ -85,13 +102,13 @@ describe("DocumentHas", () => {
     render(
       <DocumentHas
         ficheInfos={ficheInfos}
-        genericGroupCode={123}
+        genericSpecialite={genericSpecialite}
         isGeneric
       />,
     );
 
     const guidance = screen.getAllByText(/Ce médicament étant un générique/);
     expect(guidance).toHaveLength(2);
-    expect(guidance[0].querySelector("a")?.getAttribute("href")).toBe("/generiques/123");
+    expect(guidance[0].querySelector("a")?.getAttribute("href")).toBe("/generiques/omeprazole-20-mg-123");
   });
 });

@@ -133,6 +133,41 @@ confirmation et joue ensuite les migrations Kysely. Consultez
 
 L'application est déployée sur Scalingo.
 
+### Cache Next.js
+
+Au démarrage, l'application utilise Redis pour partager le cache Next.js entre
+les conteneurs lorsque `SCALINGO_REDIS_URL` ou `REDIS_URL` est définie. Si Redis
+est configuré mais inaccessible, le démarrage échoue afin d'éviter que les
+instances utilisent des caches locaux incohérents. Sans URL Redis, le cache
+local standard de Next.js est conservé.
+
+Les lectures partagées utilisent `"use cache: remote"` et le profil global `default`
+(revalidation après 24 heures, expiration après sept jours). Grist utilise
+également le cache partagé. Les recherches en texte libre restent sans cache
+persistant. Voir [la politique de cache](docs/cache-policy.md).
+
+### Invalidation après un import
+
+Configurer `CACHE_INVALIDATION_TOKEN` avec un secret aléatoire dans l’application
+et dans le workflow d’import. Après validation de l’import et mise à jour des
+index dérivés, appeler :
+
+```sh
+curl --fail-with-body --request POST \
+  --header "Authorization: Bearer ${CACHE_INVALIDATION_TOKEN}" \
+  "${APP_URL}/api/invalidate"
+```
+
+Aucun corps de requête n’est nécessaire. Cette route invalide toutes les pages et
+leurs données en cache ; elles sont régénérées lors des prochaines requêtes,
+sans nouveau build. Le warmup des pages au build est conservé. La route retourne
+503 sans secret configuré, 401 si l’authentification échoue, et 200 lorsque
+l’invalidation est demandée. Voir [la politique de cache](docs/cache-policy.md)
+pour les conditions de déploiement et les limites du cache local.
+
+Définir `HOSTNAME` et `PORT` dans l’environnement de déploiement. Le lanceur
+`start.mjs` conserve ces valeurs sans les modifier.
+
 ### Review Apps
 
 Chaque pull request déploie automatiquement une review app sur Scalingo.
