@@ -112,7 +112,7 @@ async function getCachedAutocompleteSuggestions(
     substanceLabels.length > 0
       ? db
           .selectFrom("resume_substances")
-          .select(["NomId", "NomLib"])
+          .select(["SubsId", "NomLib"])
           .where(({ eb, ref }) =>
             eb(
               sql<string>`lower(unaccent(${ref("NomLib")}))`,

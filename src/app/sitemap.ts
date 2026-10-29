@@ -1,6 +1,5 @@
 import { MetadataRoute } from "next";
 import { getAllSpecialites } from "@/db/utils/specialities";
-import { getAllSubsWithSpecialites } from "@/db/utils/substances";
 import { getAtc } from "@/db/utils/atc";
 import { getLetters } from "@/db/utils/letters";
 import { getArticles } from "@/db/utils/articles";
@@ -12,6 +11,7 @@ import { getSpecSlug } from "@/utils/specialites";
 import { getIndicationSlug } from "@/utils/indications";
 import { getAtcSlug } from "@/utils/atc";
 import { getSubstanceSlug } from "@/utils/substances";
+import { getAllResumeSubstances } from "@/db/utils/substances";
 
 
 // Sitemap URLs must be absolute: never publish localhost URLs in production
@@ -59,7 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     genericGroups,
   ] = await Promise.all([
     getAllSpecialites(),
-    getAllSubsWithSpecialites(),
+    getAllResumeSubstances(),
     getAllIndications(),
     getAtc(),
     getArticles(),
@@ -83,8 +83,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${BASE_URL}/articles/${a.slug}`,
   }));
 
-  const substanceEntries: MetadataRoute.Sitemap = substances.map((s) => ({
-    url: `${BASE_URL}/substances/${getSubstanceSlug([s])}`,
+  const substanceEntries: MetadataRoute.Sitemap = substances.map((substance) => ({
+    url: `${BASE_URL}/substances/${getSubstanceSlug([substance])}`,
   }));
 
   const indicationsEntries: MetadataRoute.Sitemap = indications.map((i) => ({

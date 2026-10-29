@@ -9,7 +9,7 @@ function normalizeName(value: string | null): string {
   return (value ?? "").trim().toLocaleLowerCase("fr-FR");
 }
 
-function displayName(value: string): string {
+export function displayName(value: string): string {
   // ANSM component labels may append the cell source of a biological substance.
   // Keep it in the source data, but use the shorter substance label in the UI.
   return value.trim().replace(/\s+\(\([^()]+\)\)$/, "");
@@ -38,6 +38,7 @@ export function toSubstance(row: AnsmSubstanceNom): Substance {
     SubsId: row.code_substance.trim(),
     NomId: row.code_nom.trim(),
     NomLib: row.nom?.trim() ?? "",
+    isCanonical: row.type === "CANONIQUE",
   };
 }
 
@@ -115,6 +116,7 @@ export function toCompositionComponents(
         SubsId: code,
         NomId: name?.code_nom.trim() ?? code,
         NomLib: displayName(row.substance || name?.nom || ""),
+        isCanonical: name?.type === "CANONIQUE",
         CompDosage: row.dosage?.trim() ?? "",
         CompRem: "",
       };
@@ -130,51 +132,57 @@ export function toCompositionComponents(
 }
 
 /**
- * Verifies that all requested substance codes are present across the composition's
- * components, without accepting duplicates or missing entries.
+ * Verifies that the substances displayed for the composition are exactly the requested substance codes:
+ * for each component, its active fractions if any, otherwise its active substances
+ * (same as the substances displayed on the medicament page, see displaySimpleComposants).
+ * A code requested twice needs to be displayed twice (e.g. a kit of two tablets of the same substance).
  */
 export function compositionMatchesSubstanceSet(
   components: Pick<
     AnsmComposant,
-    "numero_element" | "numero_composant" | "ordre" | "code_substance"
+    "numero_element" | "numero_composant" | "ordre" | "code_substance" | "nature"
   >[],
   substanceCodes: string[],
 ): boolean {
-  const requestedCodes = [...new Set(substanceCodes)];
-  if (
-    requestedCodes.length === 0 ||
-    requestedCodes.length !== substanceCodes.length
-  ) {
-    return false;
-  }
+  if (substanceCodes.length === 0) return false;
 
-  const requestedCodeSet = new Set(requestedCodes);
-  const matchedCodes = new Set<string>();
-  const codesByComponent = new Map<string, Set<string>>();
+  const rowsByComponent = new Map<string, typeof components>();
   for (const component of components) {
-    const codes =
-      codesByComponent.get(componentKey(component)) ?? new Set<string>();
-    if (component.code_substance) codes.add(component.code_substance);
-    codesByComponent.set(componentKey(component), codes);
+    const key = componentKey(component);
+    rowsByComponent.set(key, [...(rowsByComponent.get(key) ?? []), component]);
   }
+  const displayedCodes = [...rowsByComponent.values()].flatMap((rows) => {
+    const fractions = rows.filter((row) => row.nature === "Fraction active");
+    const displayed = fractions.length > 0 ? fractions : rows;
+    return [...new Set(displayed.flatMap((row) => row.code_substance ? [row.code_substance.trim()] : []))];
+  });
 
-  for (const codes of codesByComponent.values()) {
-    const requestedMatches = [...codes].filter((code) =>
-      requestedCodeSet.has(code),
-    );
-    if (requestedMatches.length === 0) return false;
-    requestedMatches.forEach((code) => matchedCodes.add(code));
-  }
-  return matchedCodes.size === requestedCodes.length;
+  const sortedCodes = (codes: string[]) => [...codes].sort().join(",");
+  return sortedCodes(displayedCodes) === sortedCodes(substanceCodes.map((code) => code.trim()));
 }
 
+/**
+ * A single component, with a single active substance and at most a single active fraction
+ * (e.g. not N(2)-L-alanyl-L-glutamine and its two active fractions alanine and glutamine).
+ */
 export function hasExactlyOneComponent(
   components: Pick<
     AnsmComposant,
-    "numero_element" | "numero_composant" | "ordre"
+    "numero_element" | "numero_composant" | "ordre" | "code_substance" | "nature"
   >[],
 ): boolean {
+  const codes = (nature: AnsmComposant["nature"]) =>
+    new Set(
+      components
+        .filter((component) => component.nature === nature)
+        .map((component) => component.code_substance?.trim()),
+    );
+  const substances = codes("Substance active");
+  const fractions = codes("Fraction active");
   return (
-    components.length > 0 && new Set(components.map(componentKey)).size === 1
+    components.length > 0 &&
+    new Set(components.map(componentKey)).size === 1 &&
+    (substances.size === 0 || substances.size === 1) &&
+    (fractions.size === 0 || fractions.size === 1)
   );
 }
