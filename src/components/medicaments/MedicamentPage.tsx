@@ -3,15 +3,17 @@ import { displaySimpleComposants, formatSpecName } from "@/displayUtils";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
-import { getSpecialiteGroupName } from "@/utils/specialites";
+import { getSpecSlug } from "@/utils/specialites";
+import { getAtcSlug } from "@/utils/atc";
+import { getSubstanceSlug } from "@/utils/substances";
 import { getSpecialiteName } from "@/db/utils/specialities";
 import MedicamentContent from "@/components/medicaments/MedicamentContent";
 import ShareButtons from "@/components/generic/ShareButtons";
 import { getMedicamentPageData } from "@/db/utils/medicamentPage";
 
 /**
- * Medicament page, shared by the notice (/medicaments/[CIS])
- * and the detailed version (/medicaments/[CIS]/details).
+ * Medicament page, shared by the notice (/medicaments/[slug])
+ * and the detailed version (/medicaments/[slug]/details).
  */
 export default async function MedicamentPage({
   CIS,
@@ -35,13 +37,13 @@ export default async function MedicamentPage({
   if (atc1) {
     breadcrumb.push({
       label: atc1.label,
-      linkProps: { href: `/atc/${atc1.code}` },
+      linkProps: { href: `/atc/${getAtcSlug(atc1.code, atc1.label)}` },
     });
   }
   if (atc2) {
     breadcrumb.push({
       label: atc2.label,
-      linkProps: { href: `/atc/${atc2.code}` },
+      linkProps: { href: `/atc/${getAtcSlug(atc2.code, atc2.label)}` },
     });
   }
 
@@ -51,17 +53,7 @@ export default async function MedicamentPage({
         .map((s) => s.NomLib.trim())
         .join(", "),
       linkProps: {
-        href: `/substances/${displaySimpleComposants(composants)
-          .map((s) => s.NomId.trim())
-          .join(",")}`,
-      },
-    });
-  }
-  if (specialite) {
-    breadcrumb.push({
-      label: formatSpecName(getSpecialiteGroupName(specialite)),
-      linkProps: {
-        href: `/rechercher?s=${formatSpecName(getSpecialiteGroupName(specialite))}`,
+        href: `/substances/${getSubstanceSlug(displaySimpleComposants(composants))}`,
       },
     });
   }
@@ -77,10 +69,7 @@ export default async function MedicamentPage({
           segments={breadcrumb}
           currentPageLabel={
             specialite
-              ? formatSpecName(specialite.SpecDenom01).replace(
-                  formatSpecName(getSpecialiteGroupName(specialite)),
-                  "",
-                )
+              ? formatSpecName(specialite.SpecDenom01).trim()
               : ""
           }
           className={fr.cx("fr-mb-2w")}
@@ -105,7 +94,7 @@ export default async function MedicamentPage({
           </ContentContainer>
         ) : (
           <MedicamentContent
-            CIS={CIS}
+            slug={getSpecSlug(specialite.SpecId, specialite.SpecDenom01)}
             isAdvanced={isAdvanced}
             data={medData!}
             atcList={atcList}

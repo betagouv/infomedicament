@@ -149,7 +149,7 @@ function AdvancedContent({
         <DetailedNoticeContainer id="document-has" $visible={currentPart === DetailsNoticePartsEnum.HAS}>
           <DocumentHas 
             ficheInfos={ficheInfos}
-            genericGroupCode={specialite?.genericGroupCode}
+            genericSpecialite={specialite}
             isGeneric={isGeneric}
             definitions={definitions}
           />

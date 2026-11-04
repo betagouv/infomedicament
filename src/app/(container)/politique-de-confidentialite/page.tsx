@@ -1,13 +1,20 @@
 import ContentContainer from "@/components/generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import Table from "@codegouvfr/react-dsfr/Table";
+import { Metadata } from "next";
+
+const PAGE_LABEL: string = "Politique de confidentialité";
+
+export const metadata: Metadata = {
+  title: PAGE_LABEL,
+};
 
 export default async function Page() {
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
-          <h1>Politique de confidentialité de Info Médicament</h1>
+          <h1>{PAGE_LABEL} de Info Médicament</h1>
           <h2>Qui est responsable de Info Médicament&nbsp;?</h2>
           <p>
             Info Médicament est développé par la Direction interministérielle du

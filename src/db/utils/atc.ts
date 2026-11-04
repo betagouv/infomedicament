@@ -10,6 +10,19 @@ import { getComposantsList } from "./composants";
 import { getSubstancesResume } from "./substances";
 import { VISIBLE_SPECIALITE_AVAILABILITIES } from "./specialiteCatalog";
 
+export async function getAtcCode(CIS: string): Promise<string | undefined> {
+  "use cache: remote";
+
+  const result = await db
+    .selectFrom("cis_atc")
+    .innerJoin("atc", "atc.code_terme", "cis_atc.code_terme_atc")
+    .select("atc.code")
+    .where("cis_atc.code_cis", "=", CIS)
+    .executeTakeFirst();
+
+  return result?.code ?? undefined;
+}
+
 /** Fetch exact descendant memberships once across all requested ATC classes. */
 async function getCISCodesForAtcs(
   atcs: ATC[],

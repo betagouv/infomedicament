@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import db from "..";
 import {
-  getAllGenericGroupCodes,
+  getAllGenericGroups,
   getGenericGroup,
   getGenericGroupMembership,
   getGenericGroupsLabelsByCIS,
@@ -42,8 +42,8 @@ describe("db utils generics", () => {
   });
 
   it("only emits sitemap IDs for groups with visible public members", async () => {
-    const ids = await getAllGenericGroupCodes();
-    expect(ids).toContain("14");
+    const ids = (await getAllGenericGroups()).map((group) => group.codeGroupe);
+    expect(ids).toContain(14);
     await expect(Promise.all(ids.slice(0, 25).map(getGenericGroup))).resolves
       .not.toContain(undefined);
   });

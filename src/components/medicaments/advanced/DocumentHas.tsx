@@ -11,6 +11,8 @@ import { Asmr, FicheInfos, Smr } from "@/types/FicheInfoTypes";
 import WithDefinition from "@/components/glossary/WithDefinition";
 import { getDefinition } from "@/utils/glossary";
 import { Definition } from "@/types/GlossaireTypes";
+import { getGenericSlug } from "@/utils/generics";
+import { DetailedSpecialite } from "@/types/SpecialiteTypes";
 
 const DocBonUsage = styled.div`
   border: var(--border-open-blue-france) 1px solid;
@@ -51,18 +53,22 @@ function getSmrAsmrFormattedAvis(date?: string | null, link?: string | null) {
 
 interface DocumentHasProps extends HTMLAttributes<HTMLDivElement> {
   ficheInfos?: FicheInfos;
-  genericGroupCode?: number | null;
+  genericSpecialite?: DetailedSpecialite;
   isGeneric: boolean;
   definitions?: Definition[];
 }
 
 function DocumentHas({ 
   ficheInfos,
-  genericGroupCode,
+  genericSpecialite,
   isGeneric,
   definitions,
   ...props 
 }: DocumentHasProps) {
+  const genericHref = genericSpecialite && genericSpecialite.genericGroupCode !== null
+    ? `/generiques/${getGenericSlug(genericSpecialite.genericGroupCode, genericSpecialite.genericGroupName ?? "")}`
+    : undefined;
+
   return (
     <div {...props}>
       <ContentContainer id="document-has-bon-usage" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
@@ -135,12 +141,12 @@ function DocumentHas({
             </div>
           ) : (
             <>
-              {isGeneric && genericGroupCode !== null && genericGroupCode !== undefined
+              {isGeneric && genericHref
                 ? <span>
                     Ce médicament étant un générique, le SMR n'a pas été évalué par la commission de la transparence (CT), 
                     il est possible de se référer à la /aux spécialité(s) de référence du groupe générique auquel appartient ce médicament (
                     <Link
-                      href={`/generiques/${genericGroupCode}`}
+                      href={genericHref}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={fr.cx("fr-link")}
@@ -193,12 +199,12 @@ function DocumentHas({
             </div>
           ) : (
             <>
-              {isGeneric && genericGroupCode !== null && genericGroupCode !== undefined
+              {isGeneric && genericHref
                 ? <span>
                     Ce médicament étant un générique, l&rsquo;ASMR n'a pas été évalué par la commission de la transparence (CT), 
                     il est possible de se référer à la /aux spécialité(s) de référence du groupe générique auquel appartient ce médicament (
                     <Link
-                      href={`/generiques/${genericGroupCode}`}
+                      href={genericHref}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={fr.cx("fr-link")}

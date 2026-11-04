@@ -1,45 +1,50 @@
 import { Suspense } from "react";
 import MedicamentPageLoading from "@/components/medicaments/MedicamentPageLoading";
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 import { formatSpecName } from "@/displayUtils";
 import { withStaticParamFallback } from "@/utils/staticParams";
-import { getWarmupCISCodes } from "@/db/utils/warmup";
+import { getWarmupSpecsSlugs } from "@/db/utils/warmup";
+import { getSpecSlug } from "@/utils/specialites";
 import { getSpecialiteMetadata } from "@/db/utils/specialities";
-import MedicamentPage from "../../../../components/medicaments/MedicamentPage";
+import { getIdFromSlug, getNumericIdFromSlug } from "@/utils/slug";
+import MedicamentPage from "@/components/medicaments/MedicamentPage";
 
 // Prerender the top ~500 medicaments at build time so they are served as static
 // HTML before the first request. Other CIS are still rendered on-demand
 // Cache Components also validates one fallback path on unseeded review-app builds.
 export async function generateStaticParams() {
-  const cisCodes = await getWarmupCISCodes();
+  const slugs = await getWarmupSpecsSlugs();
   return withStaticParamFallback(
-    cisCodes.map((CIS) => ({ CIS })),
-    { CIS: "60234100" },
+    slugs.map((slug) => ({ slug })),
+    { slug: "" },
   );
 }
 
 export async function generateMetadata(
-  props: { params: Promise<{ CIS: string }> },
-  parent: ResolvingMetadata,
+  props: { params: Promise<{ slug: string }> },
 ): Promise<Metadata> {
-  const { CIS } = await props.params;
+  const { slug } = await props.params;
+  const CIS = getNumericIdFromSlug(slug);
 
-  const metadata = await getSpecialiteMetadata(Number(CIS.trim()));
+  const metadata = CIS ? await getSpecialiteMetadata(CIS) : undefined;
 
   if (!metadata) {
     return {
-      title: `Médicament ${CIS}`,
+      title: `Médicament ${getIdFromSlug(slug)}`,
     };
   }
 
   const name = formatSpecName(metadata.title);
   return {
-    title: `${name} - ${(await parent).title?.absolute}`,
+    title: `${name}`,
     description: metadata.description,
+    alternates: {
+      canonical: `/medicaments/${getSpecSlug(metadata.CIS.toString(), metadata.title)}`,
+    },
   };
 }
 
-export default function Page(props: { params: Promise<{ CIS: string }> }) {
+export default function Page(props: { params: Promise<{ slug: string }> }) {
   return (
     <Suspense fallback={<MedicamentPageLoading />}>
       <ResolvedMedicamentPage params={props.params} />
@@ -50,8 +55,8 @@ export default function Page(props: { params: Promise<{ CIS: string }> }) {
 async function ResolvedMedicamentPage({
   params,
 }: {
-  params: Promise<{ CIS: string }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { CIS } = await params;
-  return <MedicamentPage CIS={CIS} isAdvanced={false} />;
+  const { slug } = await params;
+  return <MedicamentPage CIS={getIdFromSlug(slug)} isAdvanced={false} />;
 }

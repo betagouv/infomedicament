@@ -14,6 +14,19 @@ import {
   type AdvancedSearchCriteria,
 } from "@/utils/advancedSearch";
 import { Suspense } from "react";
+import { Metadata } from "next";
+
+export async function generateMetadata(props: {
+  searchParams?: Promise<Record<string, string | string[]>>;
+}): Promise<Metadata> {
+  // Result pages (any query param) are not indexed, but their links are followed.
+  const hasQuery = Object.keys((await props.searchParams) ?? {}).length > 0;
+  return {
+    title: "Recherche",
+    description: "Recherchez un médicament par nom, substance active et / ou indication et accédez à sa notice, son RCP et ses informations.",
+    ...(hasQuery && { robots: { index: false, follow: true } }),
+  };
+}
 
 export default function Page(props: {
   searchParams?: Promise<Record<string, string | string[]>>;

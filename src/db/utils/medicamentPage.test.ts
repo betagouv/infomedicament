@@ -20,8 +20,7 @@ vi.mock("./specialities", () => ({
   getSpecialite: mocks.specialite,
 }));
 vi.mock("./composants", () => ({ getComposants: mocks.composants }));
-vi.mock("@/utils/atc", () => ({ getAtcCode: mocks.atcCode }));
-vi.mock("./atc", () => ({ getAtc1: mocks.atc1, getAtc2: mocks.atc2 }));
+vi.mock("./atc", () => ({ getAtc1: mocks.atc1, getAtc2: mocks.atc2, getAtcCode: mocks.atcCode }));
 vi.mock("./indications", () => ({
   getSpecialitesIndications: mocks.indications,
   getSpecialitePathologies: mocks.pathologies,

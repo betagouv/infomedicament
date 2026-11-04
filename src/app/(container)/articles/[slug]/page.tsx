@@ -4,7 +4,7 @@ import { getArticles } from "@/db/utils/articles";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 import ContentContainer from "@/components/generic/ContentContainer";
 import ShareButtons from "@/components/generic/ShareButtons";
 import RatingToaster from "@/components/rating/RatingToaster";
@@ -31,16 +31,17 @@ async function getArticle(slug: string) {
 
 export async function generateMetadata(
   props: { params: Promise<{ slug: string }> },
-  parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const { slug } = await props.params;
 
-  const { title, description, canonicalUrl } = await getArticle(slug);
+  const article = await getArticle(slug);
   return {
-    title: `${title} - ${(await parent).title?.absolute}`,
-    description,
+    title: `${article.title}`,
+    description: article.description,
     alternates: {
-      canonical: canonicalUrl,
+      // The article page itself: its "lien" points to the external source
+      // it is based on, which would make search engines index that page instead
+      canonical: `/articles/${article.slug}`,
     },
   };
 }

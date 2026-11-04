@@ -3,8 +3,7 @@ import type { MedicamentData } from "@/components/medicaments/MedicamentData";
 
 import { getDetailedSpecialite, getSpecialite } from "./specialities";
 import { getComposants } from "./composants";
-import { getAtc1, getAtc2 } from "./atc";
-import { getAtcCode } from "@/utils/atc";
+import { getAtc1, getAtc2, getAtcCode } from "./atc";
 import { isGenericSpecialite, isPrincepsSpecialite } from "./generics";
 import {
   getSpecialitesIndications,

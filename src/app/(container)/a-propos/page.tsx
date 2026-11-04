@@ -6,8 +6,16 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ShareButtons from "@/components/generic/ShareButtons";
 import Image from "next/image";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { Metadata } from "next";
 
 const PAGE_LABEL:string = "À propos";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: PAGE_LABEL,
+    description: "Découvrez Info Médicament, le service public d’information sur les médicaments : sources, données, fonctionnement et objectifs du site.",
+  }
+}
 
 export default async function Page() {
 

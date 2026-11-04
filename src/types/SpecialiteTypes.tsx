@@ -79,6 +79,7 @@ export type DetailedSpecialite = Specialite & {
   statutComm: string | null,
   titulairesList: string | null,
   genericGroupCode: number | null,
+  genericGroupName: string | null,
   referenceSpecialite: {
     cis: string;
     name: string;

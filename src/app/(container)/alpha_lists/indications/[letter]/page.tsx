@@ -6,6 +6,7 @@ import { getLetters } from "@/db/utils/letters";
 import { getIndicationsResumeWithLetter } from "@/db/utils/indications";
 import { DataTypeEnum } from "@/types/DataTypes";
 import { withStaticParamFallback } from "@/utils/staticParams";
+import { Metadata } from "next";
 
 export async function generateStaticParams() {
   const letters = await getLetters("indications");
@@ -15,6 +16,13 @@ export async function generateStaticParams() {
   );
 }
 const PAGE_LABEL: string = "Liste des indications";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: PAGE_LABEL,
+    description: "Retrouvez les indications classées par ordre alphabétique pour accéder rapidement aux informations recherchées.",
+  }
+}
 
 export default async function Page(props: {
   params: Promise<{ letter: string }>;

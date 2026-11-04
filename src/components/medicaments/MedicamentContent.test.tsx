@@ -22,7 +22,7 @@ describe("medicine loading", () => {
     await act(async () => {
       render(
         <MedicamentContent
-          CIS="60234100"
+          slug="doliprane-1000-mg-comprime-60234100"
           isAdvanced={false}
           title="Médicament de test"
           data={data}
@@ -80,7 +80,7 @@ describe("medicine loading", () => {
     await act(async () => {
       render(
         <MedicamentContent
-          CIS="60234100"
+          slug="doliprane-1000-mg-comprime-60234100"
           isAdvanced={false}
           title="Médicament de test"
           data={new Promise<MedicamentData>(() => {})}
@@ -94,6 +94,6 @@ describe("medicine loading", () => {
 
     fireEvent.click(screen.getAllByLabelText("Version détaillée")[0]);
 
-    expect(mockPush).toHaveBeenCalledWith("/medicaments/60234100/details");
+    expect(mockPush).toHaveBeenCalledWith("/medicaments/doliprane-1000-mg-comprime-60234100/details");
   });
 });

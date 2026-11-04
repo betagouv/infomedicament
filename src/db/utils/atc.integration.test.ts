@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { getAtc1, getAtc1DefinitionData, getAtc2, getSubstancesByAtc } from "./atc";
 import { getSubstancesResume } from "./substances";
 

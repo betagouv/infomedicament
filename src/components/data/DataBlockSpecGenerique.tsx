@@ -6,6 +6,7 @@ import { formatSpecName } from "@/displayUtils";
 import styled from 'styled-components';
 import { Specialite } from "@/types/SpecialiteTypes";
 import DataBlockGenericIcons from "./DataBlockGenericIcons";
+import { getSpecSlug } from "@/utils/specialites";
 
 const Container = styled.div`
   border: var(--border-open-blue-france) 1px solid;
@@ -49,7 +50,7 @@ function DataBlockSpecGenerique({
   return (
     <Container className={fr.cx("fr-mb-1w")}>
       <Link
-        href={`/medicaments/${specialite.SpecId}`}
+        href={`/medicaments/${getSpecSlug(specialite.SpecId, specialite.SpecDenom01)}`}
         className={["result-link", "fr-link", fr.cx("fr-p-1w")].join(" ")}
       >
         <GenericMain>

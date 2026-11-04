@@ -1,7 +1,6 @@
 "use server";
 
 import "server-only";
-import { cacheLife } from "next/cache";
 import db from "@/db";
 
 export async function getLastSuccessfulPipelineRunDate(): Promise<string | null> {

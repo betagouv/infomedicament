@@ -1,5 +1,3 @@
-import { ImageProps } from "next/image";
-
 export type ArticleCardResume = {
   slug: string,
   title: string,

@@ -81,6 +81,7 @@ export function mapDetailedSpecialite(
   row: AnsmSpecialite,
   titulairesList: string | null,
   genericGroupCode: number | null,
+  genericGroupName: string | null,
   referenceSpecialite: DetailedSpecialite["referenceSpecialite"],
   statusDate: Date | null,
   een: string | null,
@@ -94,6 +95,7 @@ export function mapDetailedSpecialite(
     statutComm: disponibiliteToDisplayStatus(row.disponibilite),
     titulairesList,
     genericGroupCode,
+    genericGroupName,
     referenceSpecialite,
   };
 }

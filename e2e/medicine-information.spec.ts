@@ -16,7 +16,7 @@ async function openDetailedView(page: Page) {
 test("FI_015: a medicine under reinforced monitoring explains the warning", async ({
   page,
 }) => {
-  await page.goto("/medicaments/60184188");
+  await page.goto("/medicaments/depakine-500-mg-comprime-gastro-resistant-60184188");
 
   await expect(
     page.getByRole("heading", {
@@ -36,7 +36,7 @@ test("FI_015: a medicine under reinforced monitoring explains the warning", asyn
 test("FI_018: a withdrawn medicine displays the public-health warning", async ({
   page,
 }) => {
-  await page.goto("/medicaments/69730375");
+  await page.goto("/medicaments/broncalene-enfants-sirop-69730375");
 
   await expect(
     page.getByRole("heading", {
@@ -55,7 +55,7 @@ test("FI_018: a withdrawn medicine displays the public-health warning", async ({
 test("FI_017: an unavailable medicine recommends discussing alternatives", async ({
   page,
 }) => {
-  await page.goto("/medicaments/61651634");
+  await page.goto("/medicaments/imodium-2-mg-gelule-61651634");
 
   await expect(
     page.getByRole("heading", {
@@ -72,7 +72,7 @@ test("FI_017: an unavailable medicine recommends discussing alternatives", async
 test("FI_001–FI_008: the authorization date is exposed in detailed information", async ({
   page,
 }) => {
-  await page.goto("/medicaments/68495013");
+  await page.goto("/medicaments/paracetamol-benta-500-mg-comprime-pellicule-68495013");
   await openDetailedView(page);
 
   await expect(
@@ -84,7 +84,7 @@ test("FI_001–FI_008: the authorization date is exposed in detailed information
 test("FI_020: therapeutic indications are visible on the medicine page", async ({
   page,
 }) => {
-  await page.goto("/medicaments/65231460");
+  await page.goto("/medicaments/omeprazole-teva-conseil-20-mg-gelule-gastro-resistante-65231460");
   await openDetailedView(page);
 
   await expect(
@@ -100,7 +100,7 @@ test("FI_020: therapeutic indications are visible on the medicine page", async (
 test("FI_011: the generic tag explains what a generic medicine is", async ({
   page,
 }) => {
-  await page.goto("/medicaments/65231460");
+  await page.goto("/medicaments/omeprazole-teva-conseil-20-mg-gelule-gastro-resistante-65231460");
   await openDetailedView(page);
 
   await page
@@ -122,7 +122,7 @@ test("FI_011: the generic tag explains what a generic medicine is", async ({
 test("FI_026–FI_027: a generic medicine links to its generic group", async ({
   page,
 }) => {
-  await page.goto("/medicaments/65231460");
+  await page.goto("/medicaments/omeprazole-teva-conseil-20-mg-gelule-gastro-resistante-65231460");
   await openDetailedView(page);
 
   const alternatives = page
@@ -140,7 +140,7 @@ test("FI_026–FI_027: a generic medicine links to its generic group", async ({
 test("FI_028–FI_042: composition and presentation details are complete", async ({
   page,
 }) => {
-  await page.goto("/medicaments/65231460");
+  await page.goto("/medicaments/omeprazole-teva-conseil-20-mg-gelule-gastro-resistante-65231460");
   await openDetailedView(page);
 
   await expect(
@@ -168,7 +168,7 @@ test("FI_028–FI_042: composition and presentation details are complete", async
 test("FI_044–FI_045: available good-use documents are shown as external links", async ({
   page,
 }) => {
-  await page.goto("/medicaments/60059081");
+  await page.goto("/medicaments/ritaline-10-mg-comprime-secable-60059081");
   await openDetailedView(page);
   await page
     .getByRole("link", { name: "Documents HAS (Bon usage, SMR, ASMR)" })
@@ -192,7 +192,7 @@ test("FI_044–FI_045: available good-use documents are shown as external links"
 test("FI_046: a generic without an SMR links to its generic group", async ({
   page,
 }) => {
-  await page.goto("/medicaments/65231460");
+  await page.goto("/medicaments/omeprazole-teva-conseil-20-mg-gelule-gastro-resistante-65231460");
   await openDetailedView(page);
   await page
     .getByRole("link", { name: "Documents HAS (Bon usage, SMR, ASMR)" })
@@ -213,7 +213,7 @@ test("FI_046: a generic without an SMR links to its generic group", async ({
 test("FI_047–FI_048: complete SMR and ASMR histories are displayed", async ({
   page,
 }) => {
-  await page.goto("/medicaments/67613291");
+  await page.goto("/medicaments/izalgi-500-mg-25-mg-gelule-67613291");
   await openDetailedView(page);
   await page
     .getByRole("link", { name: "Documents HAS (Bon usage, SMR, ASMR)" })

@@ -1,8 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { getIndications, getSpecialiteIndications, getSpecialitePathologies, getSpecialitesIndications } from "./indications";
 import { ShortIndication } from "@/types/IndicationsTypes";
-
-// disable cache for testing
 
 describe("db utils indications", () => {
 

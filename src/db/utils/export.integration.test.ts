@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { sql } from "kysely";
 import db from "..";
 import { getSpecialitesExport } from "./export";

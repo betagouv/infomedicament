@@ -21,6 +21,6 @@ jobs:
         with:
           urls: |
             ${{ github.event.target_url }}/
-            ${{ github.event.target_url }}/medicaments/60234100
+            ${{ github.event.target_url }}/medicaments/doliprane-1000-mg-comprime-60234100
           uploadArtifacts: true
           temporaryPublicStorage: true

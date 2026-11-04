@@ -1,23 +1,10 @@
+import { getIdFromSlug, getSlug } from "@/utils/slug";
 
-import db from "@/db";
 
 export class ATCError extends Error {
   constructor(code: string) {
     super(`ATC code not found: ${code}`);
   }
-}
-
-export async function getAtcCode(CIS: string): Promise<string | undefined> {
-  "use cache: remote";
-
-  const result = await db
-    .selectFrom("cis_atc")
-    .innerJoin("atc", "atc.code_terme", "cis_atc.code_terme_atc")
-    .select("atc.code")
-    .where("cis_atc.code_cis", "=", CIS)
-    .executeTakeFirst();
-
-  return result?.code ?? undefined;
 }
 
 //From ATC Code
@@ -28,4 +15,17 @@ export function getAtc1Code (atcCode:string): string {
 //From ATC Code
 export function getAtc2Code (atcCode:string): string {
   return atcCode.slice(0, 3);
+}
+
+/**
+ * Builds the ATC class page slug: slugified label followed by the lowercase ATC code,
+ * e.g. "systeme-digestif-et-metabolisme-a" (see getSlug).
+ */
+export function getAtcSlug(code: string, label: string): string {
+  return getSlug(code.trim().toLowerCase(), label);
+}
+
+// ATC codes are uppercase in the database
+export function getAtcCodeFromSlug(slug: string): string {
+  return getIdFromSlug(slug).toUpperCase();
 }

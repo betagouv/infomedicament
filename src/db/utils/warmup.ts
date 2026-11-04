@@ -3,6 +3,7 @@ import "server-cli-only";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import db from "@/db";
+import { getSpecSlug } from "@/utils/specialites";
 
 /**
  * CIS codes of the top ~500 medicaments to prerender at build time (warmup).
@@ -20,15 +21,15 @@ function readSeedCISCodes(): string[] {
 }
 
 /**
- * Returns the CIS codes to statically prerender for the warmup, or an empty
- * array when the Postgres DB has no data yet.
+ * Returns the speciality slugs to statically prerender for the warmup, or an
+ * empty array when the Postgres DB has no data yet.
  *
  * Review apps build *before* their Postgres is seeded from staging, so the DB
- * is empty at build time. Prerendering the medicament pages then would bake
+ * is empty at build time. Prerendering the speciality pages then would bake
  * empty/fallback HTML (or break the build). We therefore only warm up when
  * `resume_medicaments` is non-empty (i.e. on populated staging/prod builds).
  */
-export async function getWarmupCISCodes(): Promise<string[]> {
+export async function getWarmupSpecsSlugs(): Promise<string[]> {
   const row = await db
     .selectFrom("resume_medicaments")
     .select(({ fn }) => fn.countAll<number>().as("count"))
@@ -36,5 +37,14 @@ export async function getWarmupCISCodes(): Promise<string[]> {
 
   if (!row || Number(row.count) === 0) return [];
 
-  return readSeedCISCodes();
+  const cisCodes = readSeedCISCodes();
+  const specialites = await db
+    .selectFrom("ansm_specialite")
+    .where("cis", "in", cisCodes)
+    .select(["cis", "denomination"])
+    .execute();
+
+  return specialites.map((spec) =>
+    getSpecSlug(spec.cis, spec.denomination ?? ""),
+  );
 }

@@ -5,8 +5,16 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import Statistics from "@/components/statistics/Statistics";
 import ShareButtons from "@/components/generic/ShareButtons";
 import RatingToaster from "@/components/rating/RatingToaster";
+import { Metadata } from "next";
 
 const PAGE_LABEL:string = "Nos statistiques";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: PAGE_LABEL,
+    description: "Consultez les statistiques du site Info Médicament : données d’usage et d’impact.",
+  }
+}
 
 export default async function Page() {
   "use cache: remote";

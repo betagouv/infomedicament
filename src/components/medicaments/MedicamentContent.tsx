@@ -24,8 +24,8 @@ import NoticeContent from "./NoticeContent";
 import GoTopButton from "../generic/GoTopButton";
 
 interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
-  CIS: string;
-  /** Detailed version (RCP, advanced data), served at /medicaments/[CIS]/details */
+  slug: string; // Slug of the medicament pages
+  /** Detailed version (RCP, advanced data), served at /medicaments/[slug]/details */
   isAdvanced: boolean;
   atcList: string[];
   atc2?: ATC;
@@ -39,7 +39,7 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function MedicamentContent({
-  CIS,
+  slug,
   isAdvanced,
   atcList,
   atc2,
@@ -56,14 +56,14 @@ function MedicamentContent({
 
   const onGoToAdvanced = useCallback(
     (enabled: boolean) => {
-      router.push(enabled ? `/medicaments/${CIS}/details` : `/medicaments/${CIS}`);
+      router.push(enabled ? `/medicaments/${slug}/details` : `/medicaments/${slug}`);
     },
-    [router, CIS],
+    [router, slug],
   );
   // The anchor is not handled yet: opens the detailed version at its top
   const onGoToAdvancedAnchor = useCallback(
-    () => router.push(`/medicaments/${CIS}/details`),
-    [router, CIS],
+    () => router.push(`/medicaments/${slug}/details`),
+    [router, slug],
   );
 
   useEffect(() => {
