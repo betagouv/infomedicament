@@ -3,6 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 import MedicamentContent from "./MedicamentContent";
 import type { MedicamentData } from "./MedicamentData";
 
+const mockPush = vi.fn();
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: mockPush }),
+}));
 vi.mock("@/services/tracking", () => ({ trackEvent: vi.fn() }));
 vi.mock("@codegouvfr/react-dsfr/useIsDark", () => ({
   useIsDark: () => ({ isDark: false }),
@@ -18,6 +22,8 @@ describe("medicine loading", () => {
     await act(async () => {
       render(
         <MedicamentContent
+          CIS="60234100"
+          isAdvanced={false}
           title="Médicament de test"
           data={data}
           atcList={[]}
@@ -67,5 +73,27 @@ describe("medicine loading", () => {
     expect(
       screen.getByText("La notice n’est pas disponible pour ce médicament."),
     ).not.toBeNull();
+  });
+
+  it("opens the detailed version on its own page when switching", async () => {
+    mockPush.mockClear();
+    await act(async () => {
+      render(
+        <MedicamentContent
+          CIS="60234100"
+          isAdvanced={false}
+          title="Médicament de test"
+          data={new Promise<MedicamentData>(() => {})}
+          atcList={[]}
+          composants={[]}
+          delivrance={[]}
+          presentations={[]}
+        />,
+      );
+    });
+
+    fireEvent.click(screen.getAllByLabelText("Version détaillée")[0]);
+
+    expect(mockPush).toHaveBeenCalledWith("/medicaments/60234100/details");
   });
 });

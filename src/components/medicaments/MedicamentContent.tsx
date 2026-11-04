@@ -7,12 +7,11 @@ import type { CompositionComponent } from "@/types/SubstanceTypes";
 import {
   HTMLAttributes,
   lazy,
-  startTransition,
   Suspense,
   useCallback,
   useEffect,
-  useState,
 } from "react";
+import { useRouter } from "next/navigation";
 import { ATC } from "@/types/ATCTypes";
 import {
   DelivranceCondition,
@@ -22,10 +21,12 @@ import { Presentation } from "@/types/PresentationTypes";
 import { trackEvent } from "@/services/tracking";
 const AdvancedContent = lazy(() => import("./AdvancedContent"));
 import NoticeContent from "./NoticeContent";
-import { AnchorMenu } from "./advanced/DetailedSubMenu";
 import GoTopButton from "../generic/GoTopButton";
 
 interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
+  CIS: string;
+  /** Detailed version (RCP, advanced data), served at /medicaments/[CIS]/details */
+  isAdvanced: boolean;
   atcList: string[];
   atc2?: ATC;
   atcCode?: string;
@@ -38,6 +39,8 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function MedicamentContent({
+  CIS,
+  isAdvanced,
   atcList,
   atc2,
   atcCode,
@@ -49,24 +52,18 @@ function MedicamentContent({
   data,
   ...props
 }: MedicamentContentProps) {
-  const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
-  const [advancedAnchor, setAdvancedAnchor] = useState<AnchorMenu>();
+  const router = useRouter();
 
   const onGoToAdvanced = useCallback(
     (enabled: boolean) => {
-      startTransition(() => setIsAdvanced(enabled));
-      if (!enabled) setAdvancedAnchor(undefined);
+      router.push(enabled ? `/medicaments/${CIS}/details` : `/medicaments/${CIS}`);
     },
-    [setIsAdvanced],
+    [router, CIS],
   );
+  // The anchor is not handled yet: opens the detailed version at its top
   const onGoToAdvancedAnchor = useCallback(
-    (anchor?: AnchorMenu) => {
-      if (anchor) {
-        setAdvancedAnchor(anchor);
-      }
-      startTransition(() => setIsAdvanced(true));
-    },
-    [setIsAdvanced, setAdvancedAnchor],
+    () => router.push(`/medicaments/${CIS}/details`),
+    [router, CIS],
   );
 
   useEffect(() => {
@@ -97,7 +94,6 @@ function MedicamentContent({
                 composants={composants}
                 delivrance={delivrance}
                 presentations={presentations}
-                advancedAnchor={advancedAnchor}
                 title={title}
                 onGoToAdvanced={onGoToAdvanced}
               />
