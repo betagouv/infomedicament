@@ -7,6 +7,7 @@ const spec: ExportSpecs = {
   specName: "SIMPONI 50 mg, solution injectable",
   groupName: "SIMPONI",
   composants: "GOLIMUMAB",
+  subsMainNames: null,
   subsIds: [],
   indicationsIds: [],
   indicationsIdsNames: [],

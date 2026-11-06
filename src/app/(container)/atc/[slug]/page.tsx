@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { fr } from "@codegouvfr/react-dsfr";
-import { getAtc1, getAtc2, getAtc1DefinitionData, getSubstancesByAtc } from "@/db/utils/atc";
-import { ATC, ATC1 } from "@/types/ATCTypes";
+import { getAtc1, getAtc2, getAtc1DefinitionData, getResumeSubstancesByAtc } from "@/db/utils/atc";
+import { ATC, ATC1, ATCSubstances,  } from "@/types/ATCTypes";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
 import ContentContainer from "@/components/generic/ContentContainer";
@@ -12,7 +12,6 @@ import ATC2DefinitionContent from "@/components/definition/ATC2DefinitionContent
 import { Metadata } from "next";
 import { getArticlesFromATC } from "@/db/utils/articles";
 import { AdvancedATCClass } from "@/types/DataTypes";
-import { getSubstancesResume } from "@/db/utils/substances";
 import { ResumeSubstance } from "@/db/types";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import { getAtcCodeFromSlug, getAtcSlug } from "@/utils/atc";
@@ -55,22 +54,22 @@ async function fetchATC1Data(atc1: ATC1): Promise<{ articles: ArticleCardResume[
     getArticlesFromATC(atc1.code),
     getAtc1DefinitionData(atc1),
   ]);
-  const dataList = allATC.map(({ atc, substances }) => {
-    return {
-      class: { nbSubstances: substances.length, ...atc, children: atc.children ?? [] },
-      subclasses: [],
-    };
-  }).filter((data) => data.class.nbSubstances > 0);
+  const dataList = (allATC as ATCSubstances[]).map((atcSubsSpecs) => ({
+    class: { 
+      nbSubstances: atcSubsSpecs.substances.length, 
+      ...atcSubsSpecs.atc, 
+      children: atcSubsSpecs.atc.children ?? [] 
+    },
+    subclasses: [],
+  })).filter((data) => data.class.nbSubstances > 0);
   return { articles, dataList };
 }
 
 async function fetchATC2Data(atc2: ATC): Promise<{ articles: ArticleCardResume[]; dataList: ResumeSubstance[] }> {
-  const [articles, substances] = await Promise.all([
+  const [articles, dataList] = await Promise.all([
     getArticlesFromATC(atc2.code),
-    getSubstancesByAtc(atc2),
+    getResumeSubstancesByAtc(atc2),
   ]);
-  const subsNomIDs = [...new Set(substances.map((s) => s.NomId.trim()))];
-  const dataList = await getSubstancesResume(subsNomIDs);
   return { articles, dataList };
 }
 

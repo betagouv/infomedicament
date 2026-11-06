@@ -28,6 +28,7 @@ describe("displayCompleteComposants", () => {
       SubsId: "34560",
       NomId: "38937",
       NomLib: "tozinaméran",
+      isCanonical: true,
       CompDosage:
         "10 microgrammes pour une dose de 0,2 mL après dilution (un flacon contient 10 doses après dilution)",
       CompRem: "",

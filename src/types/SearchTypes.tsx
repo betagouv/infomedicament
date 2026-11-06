@@ -16,7 +16,8 @@ export type SearchArticlesFilters = {
 
 export type SearchFilter = {
   id: string,
-  name: string, 
+  name: string,
+  secondaryName?: string,
   children?: SearchFilter[],
   count: number,
   selected: boolean,

@@ -67,12 +67,13 @@ function SearchResultsList({
     resultsList.forEach((result) => {
       if (result.composants) {
         const indexSubs = newSubsFilters.findIndex(
-          (filter: SearchFilter) => result.composants.trim() === filter.id,
+          (filter: SearchFilter) => result.subsIds.join() === filter.id,
         );
         if (indexSubs === -1) {
           newSubsFilters.push({
-            id: result.composants.trim(),
-            name: result.composants.trim(),
+            id: result.subsIds.join(),
+            name: result.subsMainNames ? result.subsMainNames : result.composants,
+            secondaryName: result.subsMainNames ? result.composants : undefined,
             count: 1,
             selected: false,
           });
@@ -169,9 +170,9 @@ function SearchResultsList({
     const newResultsList = resultsList
       .filter((result) => {
         if (subsFilters.length > 0) {
-          //Filter on composants only if there is composants
+          //Filter on the substance set only if there is one
           const findComposant = subsFilters.find(
-            (filter: SearchFilter) => filter.id === result.composants.trim(),
+            (filter: SearchFilter) => filter.id === result.subsIds.join(),
           );
           if (!findComposant) return false;
         }

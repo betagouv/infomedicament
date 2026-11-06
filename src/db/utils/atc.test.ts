@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({
   tables: {} as Record<string, Record<string, unknown>[]>,
 }));
 vi.mock("./composants", () => ({ getComposantsList: mocks.components }));
-vi.mock("./substances", () => ({ getSubstancesResume: mocks.resumes }));
+vi.mock("./substances", () => ({ getResumeSubstancesByNomId: mocks.resumes }));
 vi.mock("@/db/", () => ({
   default: {
     selectFrom(table: string) {
