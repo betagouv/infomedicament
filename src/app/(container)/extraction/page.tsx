@@ -11,14 +11,15 @@ export const ensureStatic = "navigation";
 const PAGE_LABEL = "Export des données des spécialités";
 
 export default async function Page() {
-
   const [substances, atc1List] = await Promise.all([
     getAllSubstancesResumes(),
     getAtc(),
   ]);
 
-  const substancesOptions: SubstanceOption[] = substances
-    .map((subs) => ({ subsId: subs.SubsId.trim(), nomLib: subs.NomLib.trim() }));
+  const substancesOptions: SubstanceOption[] = substances.map((subs) => ({
+    subsId: subs.SubsId.trim(),
+    nomLib: subs.NomLib.trim(),
+  }));
 
   const atcsOptions: AtcOption[] = atc1List.map((atc1) => ({
     atc1Code: atc1.code,

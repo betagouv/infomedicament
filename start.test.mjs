@@ -4,10 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
-import {
-  assertRedisCacheAvailable,
-  getRedisCacheUrl,
-} from "./start.mjs";
+import { assertRedisCacheAvailable, getRedisCacheUrl } from "./start.mjs";
 
 const execFileAsync = promisify(execFile);
 
@@ -50,20 +47,24 @@ describe("Redis cache startup selection", () => {
         join(deploymentDirectory, ".next/standalone/server.js"),
         'console.log("binding:" + process.env.HOSTNAME + ":" + process.env.PORT);',
       );
-      const { stdout } = await execFileAsync(process.execPath, [
-        "--input-type=module",
-        "--eval",
-        `const launcher = await import(${JSON.stringify(deployedLauncher)});
+      const { stdout } = await execFileAsync(
+        process.execPath,
+        [
+          "--input-type=module",
+          "--eval",
+          `const launcher = await import(${JSON.stringify(deployedLauncher)});
          await launcher.start();`,
-      ], {
-        env: {
-          ...process.env,
-          REDIS_URL: "redis://cache",
-          SCALINGO_REDIS_URL: "redis://cache",
-          HOSTNAME: "127.0.0.1",
-          PORT: "4321",
+        ],
+        {
+          env: {
+            ...process.env,
+            REDIS_URL: "redis://cache",
+            SCALINGO_REDIS_URL: "redis://cache",
+            HOSTNAME: "127.0.0.1",
+            PORT: "4321",
+          },
         },
-      });
+      );
       expect(stdout).toContain("cache-ready");
       expect(stdout).toContain("binding:127.0.0.1:4321");
     } finally {

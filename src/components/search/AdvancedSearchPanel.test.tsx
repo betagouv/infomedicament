@@ -32,9 +32,7 @@ it("validates an empty submission locally without navigating", () => {
       onSearch={onSearch}
     />,
   );
-  fireEvent.click(
-    screen.getByRole("button", { name: "Rechercher" }),
-  );
+  fireEvent.click(screen.getByRole("button", { name: "Rechercher" }));
   expect(screen.getByRole("alert").textContent).toContain(
     "au moins un critère",
   );
@@ -47,8 +45,6 @@ it("submits only the criteria, without a submission marker", () => {
   render(
     <AdvancedSearchPanel initialCriteria={criteria} onSearch={onSearch} />,
   );
-  fireEvent.click(
-    screen.getByRole("button", { name: "Rechercher" }),
-  );
+  fireEvent.click(screen.getByRole("button", { name: "Rechercher" }));
   expect(onSearch.mock.calls).toEqual([[criteria]]);
 });

@@ -57,7 +57,10 @@ import HospitalTag from "@/components/tags/HospitalTag";
 import ReimbursableTag from "@/components/tags/ReimbursableTag";
 import StockTag from "@/components/tags/StockTag";
 import { AnsmStock } from "@/types/StockTypes";
-import { infosGeneralesMenuMarr, infosGeneralesMenuStock } from "./DetailedSubMenu";
+import {
+  infosGeneralesMenuMarr,
+  infosGeneralesMenuStock,
+} from "./DetailedSubMenu";
 
 const SummaryLineContainer = styled.div<{ $hideBorder?: boolean }>`
   display: flex;
@@ -643,7 +646,10 @@ function GeneralInformations({
                 />
               )}
               {oldPresentations.length > 0 && (
-                <Accordion label="Voir les présentations non commercialisées" titleAs="h3">
+                <Accordion
+                  label="Voir les présentations non commercialisées"
+                  titleAs="h3"
+                >
                   <PresentationDetailsList
                     presentations={oldPresentations}
                     definitions={definitions}

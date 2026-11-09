@@ -32,9 +32,7 @@ export default function ContainerLayout({
           }
         />
         <InfoMedicamentHeader />
-        <main>
-          {children}
-        </main>
+        <main>{children}</main>
         <Footer
           brandTop={
             <>

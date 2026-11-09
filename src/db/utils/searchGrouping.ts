@@ -37,7 +37,10 @@ export function groupMatches(matches: SearchIndexMatch[]) {
         matchGroup.reasons.push(reason);
       }
     } else {
-      reasonKeysByGroup.set(match.group_name, new Set([JSON.stringify([reason.type, reason.label])]));
+      reasonKeysByGroup.set(
+        match.group_name,
+        new Set([JSON.stringify([reason.type, reason.label])]),
+      );
       groupMap.set(match.group_name, {
         score: match.sml,
         reasons: [reason],
@@ -54,7 +57,9 @@ export function groupMatches(matches: SearchIndexMatch[]) {
 }
 
 // Both projections use the same candidate pool before their own ranking.
-export function getCandidateGroupNames(groupMap: Map<string, GroupMatch>): string[] {
+export function getCandidateGroupNames(
+  groupMap: Map<string, GroupMatch>,
+): string[] {
   return [...groupMap.entries()]
     .sort((a, b) => b[1].score - a[1].score)
     .slice(0, 500)

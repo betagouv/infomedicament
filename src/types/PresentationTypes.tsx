@@ -5,7 +5,10 @@ export type PresentationCommercialStatus =
   | "withdrawn"
   | "unknown";
 
-export type PresentationAdministrativeStatus = "active" | "abrogated" | "unknown";
+export type PresentationAdministrativeStatus =
+  | "active"
+  | "abrogated"
+  | "unknown";
 
 export const presentationCommercialStatusLabels: Record<
   Exclude<PresentationCommercialStatus, "unknown">,
@@ -62,12 +65,12 @@ export type PresentationPackagingDetail = {
 export type AggregateDispositifDetails = {
   numdispositif: number;
   dispositif: string;
-}
+};
 
 export type AggregateCaraccomplrecipsDetails = {
   caraccomplrecip: string;
   numordreedit: number;
-}
+};
 
 export type AggregateRecipientDetails = {
   recipient: string;
@@ -76,15 +79,15 @@ export type AggregateRecipientDetails = {
   qtecontenance: number;
   unitecontenance: string;
   caraccomplrecips: AggregateCaraccomplrecipsDetails[];
-}
+};
 
 export type AggregatePresentationDetails = {
   codecip13: string;
   recipients: AggregateRecipientDetails[];
   dispositifs: AggregateDispositifDetails[];
-}
+};
 
 export type PresentationRecipientsDetails = {
   contenance: string;
   recipient: string;
-}
+};

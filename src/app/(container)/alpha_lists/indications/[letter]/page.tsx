@@ -20,8 +20,9 @@ const PAGE_LABEL: string = "Liste des indications";
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: PAGE_LABEL,
-    description: "Retrouvez les indications classées par ordre alphabétique pour accéder rapidement aux informations recherchées.",
-  }
+    description:
+      "Retrouvez les indications classées par ordre alphabétique pour accéder rapidement aux informations recherchées.",
+  };
 }
 
 export default async function Page(props: {

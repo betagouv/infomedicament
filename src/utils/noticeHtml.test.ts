@@ -12,7 +12,7 @@ describe("getIndicationsBlock", () => {
     `;
 
     expect(getIndicationsBlock(contentHtml)).toBe(
-      '<p>Classe pharmacothérapeutique : antalgique.</p><p>Ce médicament est utilisé pour traiter la douleur.</p>',
+      "<p>Classe pharmacothérapeutique : antalgique.</p><p>Ce médicament est utilisé pour traiter la douleur.</p>",
     );
   });
 
@@ -51,6 +51,8 @@ describe("truncateHtml", () => {
 
   it("keeps inline markup and escapes the cut text", () => {
     const html = "<p>A &amp; B <strong>très long texte ici</strong> fin</p>";
-    expect(truncateHtml(html, 15)).toBe("<p>A &amp; B <strong>très…</strong></p>");
+    expect(truncateHtml(html, 15)).toBe(
+      "<p>A &amp; B <strong>très…</strong></p>",
+    );
   });
 });

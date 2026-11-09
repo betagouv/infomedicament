@@ -1,22 +1,31 @@
 import { describe, it, expect } from "vitest";
-import { getAllSpecialites, getDetailedSpecialite, getSpecialite, getSubstanceSpecialitesCIS, getSubstanceSpecsGroups } from "./specialities";
+import {
+  getAllSpecialites,
+  getDetailedSpecialite,
+  getSpecialite,
+  getSubstanceSpecialitesCIS,
+  getSubstanceSpecsGroups,
+} from "./specialities";
 import { isPrincepsSpecialite } from "./generics";
 import { isHospitalDelivrance } from "@/utils/specialites";
 import db from "@/db";
 
 describe("db utils specialities", () => {
-
   it("getAllSpecialites - should return only actives specialities", async () => {
     const allSpecs = await getAllSpecialites();
 
     //DOLIPRANE 500 mg, comprimé orodispersible
-    const isInactiveSpec = allSpecs.findIndex((spec) => spec.SpecId.trim() === "61933092");
+    const isInactiveSpec = allSpecs.findIndex(
+      (spec) => spec.SpecId.trim() === "61933092",
+    );
     //DOLIPRANE 1000 mg, comprimé
-    const isActiveSpec = allSpecs.findIndex((spec) => spec.SpecId.trim() === "60234100"); 
+    const isActiveSpec = allSpecs.findIndex(
+      (spec) => spec.SpecId.trim() === "60234100",
+    );
 
     expect(isInactiveSpec).toBe(-1);
     expect(isActiveSpec).not.toBe(-1);
-  })
+  });
 
   it("getDetailedSpecialite - should also return historical specialites", async () => {
     const inactiveSpec = await getDetailedSpecialite("61933092");
@@ -24,34 +33,39 @@ describe("db utils specialities", () => {
 
     const activeSpec = await getDetailedSpecialite("60234100");
     expect(activeSpec).not.toBeUndefined();
-  })
+  });
 
   it("getSpecialite - should return the record and composition for historical specialites", async () => {
     const { specialite, composants, presentations, delivrance } =
-        await getSpecialite("61933092");
+      await getSpecialite("61933092");
     expect(specialite).toBeDefined();
     expect(composants.length).toBeGreaterThan(0);
     expect(Array.isArray(presentations)).toBe(true);
     expect(Array.isArray(delivrance)).toBe(true);
-  })
+  });
 
   it("getSpecialite - should return data for active specialite", async () => {
     //Spasfon, solution injectable en ampoule
     const { specialite, composants, presentations, delivrance } =
-        await getSpecialite("62998997");
+      await getSpecialite("62998997");
     expect(specialite).toBeDefined();
     expect(composants).not.toHaveLength(0);
     expect(presentations).not.toHaveLength(0);
     expect(delivrance).not.toHaveLength(0);
-  })
+  });
 
   it("reads delivery conditions and hospital use from PostgreSQL", async () => {
     const { delivrance } = await getSpecialite("60199966");
 
-    expect(delivrance).toEqual(expect.arrayContaining([
-      expect.objectContaining({ code: 120, longLabel: "liste I" }),
-      expect.objectContaining({ code: 3, longLabel: "réservé à l'usage HOSPITALIER" }),
-    ]));
+    expect(delivrance).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 120, longLabel: "liste I" }),
+        expect.objectContaining({
+          code: 3,
+          longLabel: "réservé à l'usage HOSPITALIER",
+        }),
+      ]),
+    );
     expect(isHospitalDelivrance(delivrance)).toBe(true);
   });
 
@@ -60,17 +74,22 @@ describe("db utils specialities", () => {
     const CISList = await getSubstanceSpecialitesCIS("02202");
 
     //DOLIPRANE 500 mg, comprimé orodispersible
-    const isInactiveSpec = CISList.findIndex((CIS) => CIS.trim() === "61933092");
+    const isInactiveSpec = CISList.findIndex(
+      (CIS) => CIS.trim() === "61933092",
+    );
     //DOLIPRANE 1000 mg, comprimé
-    const isActiveSpec = CISList.findIndex((CIS) => CIS.trim() === "60234100"); 
-    
+    const isActiveSpec = CISList.findIndex((CIS) => CIS.trim() === "60234100");
+
     expect(isInactiveSpec).toBe(-1);
     expect(isActiveSpec).not.toBe(-1);
-  })
+  });
 
   it("requires the complete requested substance set", async () => {
     const paracetamolOnly = await getSubstanceSpecialitesCIS("02202");
-    const paracetamolAndCodeine = await getSubstanceSpecialitesCIS(["02202", "74765"]);
+    const paracetamolAndCodeine = await getSubstanceSpecialitesCIS([
+      "02202",
+      "74765",
+    ]);
 
     expect(paracetamolOnly).not.toContain("60009573");
     expect(paracetamolAndCodeine).toContain("60009573");
@@ -92,8 +111,12 @@ describe("db utils specialities", () => {
   });
 
   it("uses textual procedure values", async () => {
-    expect((await getDetailedSpecialite("60928110"))?.ProcId).toBe("IMPORTATION_PARALLELE");
-    expect((await getDetailedSpecialite("60123598"))?.ProcId).toBe("HOMEOPATHIQUE_NATIONALE");
+    expect((await getDetailedSpecialite("60928110"))?.ProcId).toBe(
+      "IMPORTATION_PARALLELE",
+    );
+    expect((await getDetailedSpecialite("60123598"))?.ProcId).toBe(
+      "HOMEOPATHIQUE_NATIONALE",
+    );
   });
 
   it("uses the authorization abrogation event date", async () => {
@@ -160,7 +183,9 @@ describe("substance page : specialites list", () => {
     const fucidine = groups.find((group) => group.groupName === "FUCIDINE");
 
     expect(fucidine?.CISList).toEqual(["60330586"]); // FUCIDINE 2 POUR CENT, crème
-    expect(fucidine?.shortSpecialites.map((spec) => spec.SpecId)).toEqual(["60330586"]);
+    expect(fucidine?.shortSpecialites.map((spec) => spec.SpecId)).toEqual([
+      "60330586",
+    ]);
   });
 
   it("removes from a medicament group the specialites with other substances", async () => {
@@ -186,7 +211,8 @@ describe("substance page : specialites list", () => {
 //run `npm run db:update-resume substances` then `npm run db:seed-substances-title` first
 describe("substance page and substances list: substances displayed on the medicaments", () => {
   // Medicaments groups on the substance page
-  const getPageMedicaments = async (subsIds: string[]) => (await getSubstanceSpecsGroups(subsIds)).length;
+  const getPageMedicaments = async (subsIds: string[]) =>
+    (await getSubstanceSpecsGroups(subsIds)).length;
   // Medicaments groups of the substance in the substances list (0 if not listed), undefined without row
   const getListMedicaments = async (subsId: string) => {
     const row = await db
@@ -238,8 +264,11 @@ describe("substance page and substances list: substances displayed on the medica
     ["00031", 1, 1],
     // estradiol anhydre: no ANSM name
     ["63787", 3, 3],
-  ])("substance %s: %i medicament(s), %s in resume_substances", async (subsId, nbMedicaments, nbListMedicaments) => {
-    expect(await getPageMedicaments([subsId])).toBe(nbMedicaments);
-    expect(await getListMedicaments(subsId)).toBe(nbListMedicaments);
-  });
+  ])(
+    "substance %s: %i medicament(s), %s in resume_substances",
+    async (subsId, nbMedicaments, nbListMedicaments) => {
+      expect(await getPageMedicaments([subsId])).toBe(nbMedicaments);
+      expect(await getListMedicaments(subsId)).toBe(nbListMedicaments);
+    },
+  );
 });

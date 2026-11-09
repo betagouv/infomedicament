@@ -4,14 +4,26 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
 import { HTMLAttributes, useEffect, useState } from "react";
-import { AggregatePresentationDetails, Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
-import { cleanPresentationsDetails, getPresentationName, getPresentationNonCommercializedBadgeLabel, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isAbrogee, getAggregatePresentationRecipientsTexts } from "@/utils/presentations";
+import {
+  AggregatePresentationDetails,
+  Presentation,
+  PresentationRecipientsDetails,
+} from "@/types/PresentationTypes";
+import {
+  cleanPresentationsDetails,
+  getPresentationName,
+  getPresentationNonCommercializedBadgeLabel,
+  getPresentationPriceText,
+  getPresentationTauxPriseEnChargeText,
+  isAbrogee,
+  getAggregatePresentationRecipientsTexts,
+} from "@/utils/presentations";
 import styled from "styled-components";
 
 type PresentationToDisplay = {
   presentation: Presentation;
   detailsLines: PresentationRecipientsDetails[][];
-}
+};
 
 const PriceContainer = styled.span`
   font-size: 1.25rem;
@@ -50,92 +62,112 @@ interface PresentationsListProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function PresentationsList({
-  presentations, 
+  presentations,
   ...props
 }: PresentationsListProps) {
-
-const [presentationsDetails, setPresentationsDetails] = useState<PresentationToDisplay[]>([]);
-
+  const [presentationsDetails, setPresentationsDetails] = useState<
+    PresentationToDisplay[]
+  >([]);
 
   useEffect(() => {
-    const newPresentationsDetails:PresentationToDisplay[] = [];
-    if(presentations){
-      presentations.filter(presentation => presentation.commercialStatus === "commercialised").forEach((presentation) => {
-        const newPresentationDetails: PresentationToDisplay = {
-          presentation: presentation,
-          detailsLines: [],
-        }
-        if(presentation.details) {
-          const aggregateDetails: AggregatePresentationDetails[] = cleanPresentationsDetails(presentation.details);
-          aggregateDetails.forEach((details) => {
-            const recipientsTexts = getAggregatePresentationRecipientsTexts(details);
-            newPresentationDetails.detailsLines.push(recipientsTexts);
-          });
-        }
-        newPresentationsDetails.push(newPresentationDetails);
-      })
+    const newPresentationsDetails: PresentationToDisplay[] = [];
+    if (presentations) {
+      presentations
+        .filter(
+          (presentation) => presentation.commercialStatus === "commercialised",
+        )
+        .forEach((presentation) => {
+          const newPresentationDetails: PresentationToDisplay = {
+            presentation: presentation,
+            detailsLines: [],
+          };
+          if (presentation.details) {
+            const aggregateDetails: AggregatePresentationDetails[] =
+              cleanPresentationsDetails(presentation.details);
+            aggregateDetails.forEach((details) => {
+              const recipientsTexts =
+                getAggregatePresentationRecipientsTexts(details);
+              newPresentationDetails.detailsLines.push(recipientsTexts);
+            });
+          }
+          newPresentationsDetails.push(newPresentationDetails);
+        });
     }
     setPresentationsDetails(newPresentationsDetails);
   }, [presentations, setPresentationsDetails]);
 
   return (
     <PresentationsContainer {...props}>
-      {(presentationsDetails && presentationsDetails.length > 0) ? (
+      {presentationsDetails && presentationsDetails.length > 0 ? (
         <ul className={fr.cx("fr-raw-list")}>
           {presentationsDetails.map((presDetails, index) => (
-            <li 
+            <li
               key={`${presDetails.presentation.cip13}-${index}`}
               className={fr.cx("fr-mb-1w", "fr-col-md-12", "fr-text--sm")}
             >
               <div>
                 <div>
-                  <PriceContainer 
+                  <PriceContainer
                     className={fr.cx("fr-text--bold", "fr-mr-1w")}
                   >
                     {getPresentationPriceText(presDetails.presentation)}
                     <br className={fr.cx("fr-hidden-md")} />
                   </PriceContainer>
-                  <span>{getPresentationTauxPriseEnChargeText(presDetails.presentation)}</span>
+                  <span>
+                    {getPresentationTauxPriseEnChargeText(
+                      presDetails.presentation,
+                    )}
+                  </span>
                 </div>
                 <div>
-                  {presDetails.detailsLines.length === 0 && (getPresentationName(presDetails.presentation) || `Présentation CIP ${presDetails.presentation.cip13}`)}
+                  {presDetails.detailsLines.length === 0 &&
+                    (getPresentationName(presDetails.presentation) ||
+                      `Présentation CIP ${presDetails.presentation.cip13}`)}
                   {presDetails.detailsLines.map((details, i) => {
                     return details.map((line, j) => (
                       <span key={`${i}-${j}`}>
                         {(i > 0 || j > 0) && " - "}
-                        {line.contenance && (
-                          <strong>{line.contenance}</strong>
-                        )}
+                        {line.contenance && <strong>{line.contenance}</strong>}
                         {line.recipient && (
                           <span>
-                            {line.contenance && ' - '}
+                            {line.contenance && " - "}
                             {line.recipient}
                           </span>
                         )}
                       </span>
-                    ))
+                    ));
                   })}
                 </div>
               </div>
-              {getPresentationNonCommercializedBadgeLabel(presDetails.presentation) && (
-                <Badge severity="warning" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
-                  {getPresentationNonCommercializedBadgeLabel(presDetails.presentation)}
-                  {presDetails.presentation.commercialisationEndDate && ` (${dateShortFormat(presDetails.presentation.commercialisationEndDate)})`}
+              {getPresentationNonCommercializedBadgeLabel(
+                presDetails.presentation,
+              ) && (
+                <Badge
+                  severity="warning"
+                  className={fr.cx("fr-ml-1v", "fr-mt-1v")}
+                >
+                  {getPresentationNonCommercializedBadgeLabel(
+                    presDetails.presentation,
+                  )}
+                  {presDetails.presentation.commercialisationEndDate &&
+                    ` (${dateShortFormat(presDetails.presentation.commercialisationEndDate)})`}
                 </Badge>
               )}
               {isAbrogee(presDetails.presentation) && (
-                <Badge severity="error" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
+                <Badge
+                  severity="error"
+                  className={fr.cx("fr-ml-1v", "fr-mt-1v")}
+                >
                   Abrogée
-                  {presDetails.presentation.administrativeStatusDate && ` (${dateShortFormat(presDetails.presentation.administrativeStatusDate)})`}
+                  {presDetails.presentation.administrativeStatusDate &&
+                    ` (${dateShortFormat(presDetails.presentation.administrativeStatusDate)})`}
                 </Badge>
               )}
             </li>
           ))}
         </ul>
       ) : (
-        <span
-          className={fr.cx("fr-text--sm")}
-        >
+        <span className={fr.cx("fr-text--sm")}>
           Aucune présentation commercialisée.
         </span>
       )}

@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
 import db from "@/db";
-import { getAllSubsWithSpecialites, getCisMatchingSubstanceSet, getSubstanceDefinition, getSubstancesNames, getSubstancesResumeWithLetter } from "./substances";
+import {
+  getAllSubsWithSpecialites,
+  getCisMatchingSubstanceSet,
+  getSubstanceDefinition,
+  getSubstancesNames,
+  getSubstancesResumeWithLetter,
+} from "./substances";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
 import { getSubstanceSpecsGroups } from "./specialities";
 import { getSubstancesPageNames } from "@/utils/substances";
@@ -15,18 +21,22 @@ describe("db utils substances", () => {
     const allSubs = await getAllSubsWithSpecialites();
 
     //61933092
-    const isInactiveSpec = allSubs.findIndex((subs) => subs.SpecDenom01.trim() === "DOLIPRANE 500 mg, comprimé orodispersible");
+    const isInactiveSpec = allSubs.findIndex(
+      (subs) =>
+        subs.SpecDenom01.trim() === "DOLIPRANE 500 mg, comprimé orodispersible",
+    );
     //60234100
-    const isActiveSpec = allSubs.findIndex((subs) => subs.SpecDenom01.trim() === "DOLIPRANE 1000 mg, comprimé");
+    const isActiveSpec = allSubs.findIndex(
+      (subs) => subs.SpecDenom01.trim() === "DOLIPRANE 1000 mg, comprimé",
+    );
 
     expect(isInactiveSpec).toBe(-1);
     expect(isActiveSpec).not.toBe(-1);
-  })
+  });
 });
 
 //run `npm run db:update-resume substances` is necessary first
 describe("substances list (resume_substances)", () => {
-
   it("returns substance with visible specialites", async () => {
     const substances = await getSubstancesList("paracétamol");
     const paracetamol = substances.find((subs) => subs.SubsId === "02202");
@@ -37,11 +47,22 @@ describe("substances list (resume_substances)", () => {
 
   it("does not return the canonical names if it's not used by any specialite", async () => {
     // Nitrate d'éconazole (03929): canonical name "éconazole (nitrate d')" is not used by any specialite
-    const canonicalSubstances = await getSubstancesList("éconazole (nitrate d')");
+    const canonicalSubstances = await getSubstancesList(
+      "éconazole (nitrate d')",
+    );
     const synonymSubstances = await getSubstancesList("nitrate d'éconazole");
 
-    expect(canonicalSubstances.some((subs) => subs.NomLib === "éconazole (nitrate d')")).toBe(false);
-    expect(synonymSubstances.some((subs) => subs.SubsId === "03929" && subs.NomLib === "nitrate d'éconazole")).toBe(true);
+    expect(
+      canonicalSubstances.some(
+        (subs) => subs.NomLib === "éconazole (nitrate d')",
+      ),
+    ).toBe(false);
+    expect(
+      synonymSubstances.some(
+        (subs) =>
+          subs.SubsId === "03929" && subs.NomLib === "nitrate d'éconazole",
+      ),
+    ).toBe(true);
   });
 
   it("does not list substances without visible specialites", async () => {
@@ -54,7 +75,11 @@ describe("substances list (resume_substances)", () => {
     // Escitalopram (89971) is the active fraction of escitalopram oxalate (78924)
     const fractionSubstances = await getSubstancesList("escitalopram");
 
-    expect(fractionSubstances.some((subs) => subs.SubsId === "89971" && subs.NomLib === "escitalopram")).toBe(true);
+    expect(
+      fractionSubstances.some(
+        (subs) => subs.SubsId === "89971" && subs.NomLib === "escitalopram",
+      ),
+    ).toBe(true);
   });
 
   it("does not list a substance always displayed as its active fraction, and its page has no medicament", async () => {
@@ -70,7 +95,11 @@ describe("substances list (resume_substances)", () => {
     const substances = await getSubstancesList("pantoprazole");
 
     expect(substances.some((subs) => subs.SubsId === "67373")).toBe(false);
-    expect(substances.some((subs) => subs.SubsId === "38524" && subs.NomLib === "pantoprazole")).toBe(true);
+    expect(
+      substances.some(
+        (subs) => subs.SubsId === "38524" && subs.NomLib === "pantoprazole",
+      ),
+    ).toBe(true);
   });
 
   it("does not list a substance with combination (more than one component)", async () => {
@@ -100,9 +129,17 @@ describe("substances list (resume_substances)", () => {
 
   it("removes double spaces in names", async () => {
     // 09692: ANSM name is "antigène  de surface de l'hépatite B recombinant  ((LEVURE/SACCHAROMYCES CEREVISIAE))"
-    const substances = await getSubstancesList("antigène de surface de l'hépatite B recombinant");
+    const substances = await getSubstancesList(
+      "antigène de surface de l'hépatite B recombinant",
+    );
 
-    expect(substances.some((subs) => subs.SubsId === "09692" && subs.NomLib === "antigène de surface de l'hépatite B recombinant")).toBe(true);
+    expect(
+      substances.some(
+        (subs) =>
+          subs.SubsId === "09692" &&
+          subs.NomLib === "antigène de surface de l'hépatite B recombinant",
+      ),
+    ).toBe(true);
     const withDoubleSpaces = await db
       .selectFrom("resume_substances")
       .select("NomLib")
@@ -126,7 +163,12 @@ describe("getSubstancesNames", () => {
   it("names a substance without ANSM name from its compositions labels", async () => {
     // Estradiol anhydre (63787): no row in ansm_substance_nom
     expect(await getSubstancesNames(["63787"])).toEqual([
-      { SubsId: "63787", NomId: "63787", NomLib: "estradiol anhydre", isCanonical: false },
+      {
+        SubsId: "63787",
+        NomId: "63787",
+        NomLib: "estradiol anhydre",
+        isCanonical: false,
+      },
     ]);
   });
 
@@ -136,7 +178,6 @@ describe("getSubstancesNames", () => {
 });
 
 describe("getCisMatchingSubstanceSet", () => {
-
   it("resolves SubsId before a NomId", async () => {
     // 00140 is the SubsId of "chiendent" and the NomId of "CHIENDENT OFFICINAL" (SubsId 40182)
     const CISList = await getCisMatchingSubstanceSet(["00140"]);
@@ -167,7 +208,11 @@ describe("getCisMatchingSubstanceSet", () => {
 describe("substances pages titles", () => {
   // Title computed as on the substances page
   const getPageTitle = async (subsIds: string[]) =>
-    getSubstancesPageNames(subsIds, await getSubstancesNames(subsIds), await getSubstanceSpecsGroups(subsIds)).title;
+    getSubstancesPageNames(
+      subsIds,
+      await getSubstancesNames(subsIds),
+      await getSubstanceSpecsGroups(subsIds),
+    ).title;
 
   it("resume_substances.title - is the title of the substance page, for each name of the substance", async () => {
     for (const subsId of ["00628", "31844", "02245", "02202"]) {
@@ -192,7 +237,9 @@ describe("substances pages titles", () => {
       .execute();
 
     expect(rows.length).toBeGreaterThan(1);
-    expect(new Set(rows.map((row) => row.title))).toEqual(new Set(["cétylpyridinium (chlorure de)"]));
+    expect(new Set(rows.map((row) => row.title))).toEqual(
+      new Set(["cétylpyridinium (chlorure de)"]),
+    );
   });
 
   it("resume_specialites.subsTitle - is the title of the page of the substances of the specialite", async () => {
@@ -200,12 +247,16 @@ describe("substances pages titles", () => {
     const rows = await db
       .selectFrom("resume_specialites")
       .select(["subsIds", "subsTitle"])
-      .where(sql<boolean>`"subsIds"::text[] @> ARRAY['02202', '74765'] and cardinality("subsIds") = 2`)
+      .where(
+        sql<boolean>`"subsIds"::text[] @> ARRAY['02202', '74765'] and cardinality("subsIds") = 2`,
+      )
       .execute();
 
     expect(rows.length).toBeGreaterThan(0);
     for (const row of rows) {
-      expect(row.subsTitle).toBe(await getPageTitle(row.subsIds.map((subsId) => subsId.trim())));
+      expect(row.subsTitle).toBe(
+        await getPageTitle(row.subsIds.map((subsId) => subsId.trim())),
+      );
     }
   });
 });

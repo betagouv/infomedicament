@@ -12,7 +12,10 @@ export const VISIBLE_SPECIALITE_AVAILABILITIES: Exclude<
 
 type AuthorizationSourceStatus = NonNullable<AnsmSpecialite["statut_amm"]>;
 
-const authorizationStatusMap: Record<AuthorizationSourceStatus, SpecialiteStat> = {
+const authorizationStatusMap: Record<
+  AuthorizationSourceStatus,
+  SpecialiteStat
+> = {
   ACTIVE: SpecialiteStat.Valide,
   ABROGEE: SpecialiteStat.Abrogée,
   SUSPENDUE: SpecialiteStat.Suspendue,
@@ -28,15 +31,18 @@ export function statutAmmToDisplayStatus(
   return id === null ? null : SpecialiteStat[id];
 }
 
-export function getAuthorizationSourceStatuses(label: string): AuthorizationSourceStatus[] {
-  return (Object.keys(authorizationStatusMap) as AuthorizationSourceStatus[])
-    .filter((status) => statutAmmToDisplayStatus(status) === label);
+export function getAuthorizationSourceStatuses(
+  label: string,
+): AuthorizationSourceStatus[] {
+  return (
+    Object.keys(authorizationStatusMap) as AuthorizationSourceStatus[]
+  ).filter((status) => statutAmmToDisplayStatus(status) === label);
 }
 
 export function statutAmmToCompatibilityId(
   statut: AnsmSpecialite["statut_amm"],
 ): SpecialiteStat | null {
-  return statut === null ? null : authorizationStatusMap[statut] ?? null;
+  return statut === null ? null : (authorizationStatusMap[statut] ?? null);
 }
 
 export function disponibiliteToDisplayStatus(
@@ -52,7 +58,8 @@ export function disponibiliteToStatutBdm(
   if (disponibilite === "ALERTE") return 3;
   // Keep the legacy summary code; availability preserves the distinction
   // between PARTIELLE and INDISPONIBLE for catalogue-backed displays.
-  if (disponibilite === "PARTIELLE" || disponibilite === "INDISPONIBLE") return 2;
+  if (disponibilite === "PARTIELLE" || disponibilite === "INDISPONIBLE")
+    return 2;
   return 1;
 }
 

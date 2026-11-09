@@ -29,7 +29,7 @@ function cleanup(windowMs: number) {
 export function isRateLimited(
   identifier: string, // the IP adress of the visitor
   limit: number,
-  windowMs: number
+  windowMs: number,
 ): { limited: boolean; remaining: number } {
   cleanup(windowMs);
 

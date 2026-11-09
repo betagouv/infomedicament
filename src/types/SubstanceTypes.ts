@@ -25,9 +25,9 @@ export type CompositionComponent = Substance & {
 };
 
 export type SubstancesName = {
-  name: string,
-  isCanonical: boolean,
-  nbSpecsGroups: number,
+  name: string;
+  isCanonical: boolean;
+  nbSpecsGroups: number;
   // Name of each substance; empty with a single substance
-  details: { subsId: string, name: string }[],
+  details: { subsId: string; name: string }[];
 };

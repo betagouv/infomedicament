@@ -14,13 +14,14 @@ import { getSlug } from "@/utils/slug";
 import { getAllSubstancesTitles } from "@/db/utils/substances";
 import { getSubstanceSlug } from "@/utils/substances";
 
-
 // Sitemap URLs must be absolute: never publish localhost URLs in production
 function getBaseUrl(): string {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   if (baseUrl) return baseUrl.replace(/\/$/, "");
   if (process.env.NODE_ENV === "production") {
-    throw new Error("NEXT_PUBLIC_BASE_URL must be set to generate the sitemap in production");
+    throw new Error(
+      "NEXT_PUBLIC_BASE_URL must be set to generate the sitemap in production",
+    );
   }
   return "http://localhost:3000";
 }
@@ -80,27 +81,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${BASE_URL}/medicaments/${getSpecSlug(s.SpecId, s.SpecDenom01)}`,
   }));
 
-  const medicamentDetailsEntries: MetadataRoute.Sitemap = specialites.map((s) => ({
-    url: `${BASE_URL}/medicaments/${getSpecSlug(s.SpecId, s.SpecDenom01)}/details`,
-  }));
+  const medicamentDetailsEntries: MetadataRoute.Sitemap = specialites.map(
+    (s) => ({
+      url: `${BASE_URL}/medicaments/${getSpecSlug(s.SpecId, s.SpecDenom01)}/details`,
+    }),
+  );
 
   const articleEntries: MetadataRoute.Sitemap = articles.map((a) => ({
     url: `${BASE_URL}/articles/${a.slug}`,
   }));
 
   // One URL per substance, the canonical URL of its page
-  const substanceEntries: MetadataRoute.Sitemap = substances.map((substance) => ({
-    url: `${BASE_URL}/substances/${getSubstanceSlug([substance])}`,
-  }));
+  const substanceEntries: MetadataRoute.Sitemap = substances.map(
+    (substance) => ({
+      url: `${BASE_URL}/substances/${getSubstanceSlug([substance])}`,
+    }),
+  );
 
   const indicationsEntries: MetadataRoute.Sitemap = indications.map((i) => ({
     url: `${BASE_URL}/indications/${getIndicationSlug(i.id, i.nom)}`,
   }));
 
   const atcEntries: MetadataRoute.Sitemap = [
-    ...atcData.map((a) => ({ url: `${BASE_URL}/atc/${getAtcSlug(a.code, a.label)}` })),
+    ...atcData.map((a) => ({
+      url: `${BASE_URL}/atc/${getAtcSlug(a.code, a.label)}`,
+    })),
     ...atcData.flatMap((a) =>
-      a.children.map((c) => ({ url: `${BASE_URL}/atc/${getAtcSlug(c.code, c.label)}` }))
+      a.children.map((c) => ({
+        url: `${BASE_URL}/atc/${getAtcSlug(c.code, c.label)}`,
+      })),
     ),
   ];
 
@@ -113,10 +122,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const alphaListEntries: MetadataRoute.Sitemap = [
-    ...medLetters.map((l) => ({ url: `${BASE_URL}/alpha_lists/medicaments/${l}` })),
-    ...subsLetters.map((l) => ({ url: `${BASE_URL}/alpha_lists/substances/${l}` })),
-    ...indicationsLetters.map((l) => ({ url: `${BASE_URL}/alpha_lists/indications/${l}` })),
-    ...genLetters.map((l) => ({ url: `${BASE_URL}/alpha_lists/generiques/${l}` })),
+    ...medLetters.map((l) => ({
+      url: `${BASE_URL}/alpha_lists/medicaments/${l}`,
+    })),
+    ...subsLetters.map((l) => ({
+      url: `${BASE_URL}/alpha_lists/substances/${l}`,
+    })),
+    ...indicationsLetters.map((l) => ({
+      url: `${BASE_URL}/alpha_lists/indications/${l}`,
+    })),
+    ...genLetters.map((l) => ({
+      url: `${BASE_URL}/alpha_lists/generiques/${l}`,
+    })),
   ];
 
   return [

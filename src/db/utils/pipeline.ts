@@ -3,7 +3,9 @@
 import "server-only";
 import db from "@/db";
 
-export async function getLastSuccessfulPipelineRunDate(): Promise<string | null> {
+export async function getLastSuccessfulPipelineRunDate(): Promise<
+  string | null
+> {
   "use cache: remote";
 
   const result = await db

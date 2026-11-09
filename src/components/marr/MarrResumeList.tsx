@@ -1,9 +1,9 @@
 "use client";
 
 import { HTMLAttributes } from "react";
-import { fr } from "@codegouvfr/react-dsfr"; 
+import { fr } from "@codegouvfr/react-dsfr";
 import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
-import styled, { css } from 'styled-components';
+import styled, { css } from "styled-components";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import Link from "next/link";
 import { Marr, MarrPdf } from "@/types/MarrTypes";
@@ -19,23 +19,27 @@ const MarrContainer = styled.div`
   }
 `;
 
-const MarrBlockContainer = styled.div<{ $isDark: boolean; $inLine?: boolean; }>`
+const MarrBlockContainer = styled.div<{ $isDark: boolean; $inLine?: boolean }>`
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
-  ${props => props.$inLine && css`
-    @media (min-width: 48em) {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      a {
-        margin-bottom: 0px;
+  ${(props) =>
+    props.$inLine &&
+    css`
+      @media (min-width: 48em) {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        a {
+          margin-bottom: 0px;
+        }
       }
-    }
-  `}
-  ${props => css`
-    background-color: ${props.$isDark ? 'var(--background-default-grey)' : '#FFF'};
+    `}
+  ${(props) => css`
+    background-color: ${props.$isDark
+      ? "var(--background-default-grey)"
+      : "#FFF"};
   `}
   @media (max-width: 48em) {
     margin-right: 1rem;
@@ -53,21 +57,16 @@ interface MarrResumeListProps extends HTMLAttributes<HTMLDivElement> {
   hiddenTag?: boolean;
 }
 
-function MarrResumeList({
-  marr,
-  inLine,
-  hiddenTag,
-}: MarrResumeListProps) {
-
+function MarrResumeList({ marr, inLine, hiddenTag }: MarrResumeListProps) {
   const { isDark } = useIsDark();
 
   return (
     marr.pdf.length > 0 && (
       <MarrContainer>
-        {marr.pdf.map((marr:MarrPdf, index) => {
+        {marr.pdf.map((marr: MarrPdf, index) => {
           return (
             <MarrBlockContainer $isDark={isDark} key={index} $inLine={inLine}>
-              <Link 
+              <Link
                 href={marr.fileUrl}
                 className={fr.cx("fr-text--sm", "fr-link")}
                 target="_blank"
@@ -77,7 +76,7 @@ function MarrResumeList({
               </Link>
               {!hiddenTag && (
                 <BadgeContainer>
-                  <Badge 
+                  <Badge
                     className={fr.cx("fr-badge--purple-glycine")}
                     noIcon={true}
                   >
@@ -91,6 +90,6 @@ function MarrResumeList({
       </MarrContainer>
     )
   );
-};
+}
 
 export default MarrResumeList;

@@ -35,9 +35,9 @@ async function getArticle(slug: string) {
   return article;
 }
 
-export async function generateMetadata(
-  props: { params: Promise<{ slug: string }> },
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await props.params;
 
   const article = await getArticle(slug);
@@ -70,13 +70,11 @@ async function ResolvedArticlePage({
 }
 
 async function ArticlePageContent({ slug }: { slug: string }) {
-  const [{ title, source, content, image }, glossaryDefinitions] = await Promise.all([
-    getArticle(slug),
-    getHighlightedGlossaryDefinitions(),
-  ]);
-  const definitions = ARTICLES_GLOSSARY_WORDS
-    .map((word) => getDefinition(glossaryDefinitions, word))
-    .filter((definition): definition is Definition => definition !== undefined);
+  const [{ title, source, content, image }, glossaryDefinitions] =
+    await Promise.all([getArticle(slug), getHighlightedGlossaryDefinitions()]);
+  const definitions = ARTICLES_GLOSSARY_WORDS.map((word) =>
+    getDefinition(glossaryDefinitions, word),
+  ).filter((definition): definition is Definition => definition !== undefined);
   return (
     <ContentContainer frContainer>
       <Breadcrumb
@@ -135,8 +133,12 @@ async function ArticlePageContent({ slug }: { slug: string }) {
           <MDXRemote
             source={content}
             components={{
-              p: (props) => <p>{withDefinitions(props.children, definitions)}</p>,
-              li: (props) => <li>{withDefinitions(props.children, definitions)}</li>,
+              p: (props) => (
+                <p>{withDefinitions(props.children, definitions)}</p>
+              ),
+              li: (props) => (
+                <li>{withDefinitions(props.children, definitions)}</li>
+              ),
               blockquote: (props) => (
                 <div className={fr.cx("fr-callout")}>
                   <p>{props.children}</p>

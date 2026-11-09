@@ -14,7 +14,6 @@ async function getGroupCode(CIS: string): Promise<number> {
 }
 
 describe("db utils generics", () => {
-
   it("identifies the reference specialite from its group role", async () => {
     const group = await getGenericGroup(await getGroupCode("68556562"));
 
@@ -30,8 +29,9 @@ describe("db utils generics", () => {
   it("only emits sitemap IDs for groups with visible public members", async () => {
     const ids = (await getAllGenericGroups()).map((group) => group.codeGroupe);
     expect(ids).toContain(14);
-    await expect(Promise.all(ids.slice(0, 25).map(getGenericGroup))).resolves
-      .not.toContain(undefined);
+    await expect(
+      Promise.all(ids.slice(0, 25).map(getGenericGroup)),
+    ).resolves.not.toContain(undefined);
   });
 });
 
@@ -52,7 +52,10 @@ describe("getGenericGroupsLabelsByCIS", () => {
         "ansm_groupe_generique.code_groupe",
         "ansm_specialite_groupe_generique.code_groupe",
       )
-      .select(["ansm_specialite_groupe_generique.cis", "ansm_groupe_generique.libelle"])
+      .select([
+        "ansm_specialite_groupe_generique.cis",
+        "ansm_groupe_generique.libelle",
+      ])
       .where("ansm_groupe_generique.libelle", "is not", null)
       .limit(1)
       .executeTakeFirstOrThrow();

@@ -1,12 +1,12 @@
 export type AdvancedRating = {
-  question1: string,
-  question2: string,
+  question1: string;
+  question2: string;
 };
 
 export type SimpleRating = {
-  rating: number,
-  pageId: string,
-}
+  rating: number;
+  pageId: string;
+};
 
 export const QUESTION_1_OPTIONS: string[] = [
   "Oui, immédiatement et clairement",

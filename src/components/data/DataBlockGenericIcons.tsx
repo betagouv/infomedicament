@@ -2,8 +2,16 @@
 import { HTMLAttributes } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import { Tooltip } from "@codegouvfr/react-dsfr/Tooltip";
-import { isAIP, isAlerteSecurite, getAvailabilityWarning } from "@/utils/specialites";
-import { ResumeSpecialite, ShortSpecialite, Specialite } from "@/types/SpecialiteTypes";
+import {
+  isAIP,
+  isAlerteSecurite,
+  getAvailabilityWarning,
+} from "@/utils/specialites";
+import {
+  ResumeSpecialite,
+  ShortSpecialite,
+  Specialite,
+} from "@/types/SpecialiteTypes";
 
 interface DataBlockGenericIconsProps extends HTMLAttributes<HTMLDivElement> {
   specialite: Specialite | ShortSpecialite | ResumeSpecialite;
@@ -17,7 +25,7 @@ function DataBlockGenericIcons({
   withAlerts,
 }: DataBlockGenericIconsProps) {
   const availabilityWarning = getAvailabilityWarning(specialite);
-  
+
   return (
     <div>
       {isAIP(specialite) && (
@@ -25,19 +33,19 @@ function DataBlockGenericIcons({
           title="Ce médicament est en Autorisation d'Importation parallèle."
           kind="hover"
         >
-          <b className={fr.cx("fr-ml-1v", "fr-text--sm")} style={{color: "#89BA12"}}>
+          <b
+            className={fr.cx("fr-ml-1v", "fr-text--sm")}
+            style={{ color: "#89BA12" }}
+          >
             AIP
           </b>
         </Tooltip>
       )}
       {availabilityWarning && (
-        <Tooltip
-          title={availabilityWarning.title}
-          kind="hover"
-        >
-          <i 
-            className={fr.cx("fr-icon-close-circle-line", "fr-ml-1v")} 
-            style={{color: availabilityWarning.color}}
+        <Tooltip title={availabilityWarning.title} kind="hover">
+          <i
+            className={fr.cx("fr-icon-close-circle-line", "fr-ml-1v")}
+            style={{ color: availabilityWarning.color }}
           />
         </Tooltip>
       )}
@@ -46,9 +54,9 @@ function DataBlockGenericIcons({
           title="Alerte de sécurité sanitaire sur ce médicament, veuillez consulter la notice pour en savoir plus."
           kind="hover"
         >
-          <i 
-            className={fr.cx("fr-icon-alert-line", "fr-ml-1v")} 
-            style={{color: "var(--red-marianne-main-472)"}}
+          <i
+            className={fr.cx("fr-icon-alert-line", "fr-ml-1v")}
+            style={{ color: "var(--red-marianne-main-472)" }}
           />
         </Tooltip>
       )}
@@ -57,40 +65,50 @@ function DataBlockGenericIcons({
           title="Ce médicament fait l'objet d'une information importante ou il est sous surveillance renforcée."
           kind="hover"
         >
-          <i 
-            className={fr.cx("fr-icon-information-line", "fr-ml-1v")} 
-            style={{color: "var(--warning-425-625)"}}
+          <i
+            className={fr.cx("fr-icon-information-line", "fr-ml-1v")}
+            style={{ color: "var(--warning-425-625)" }}
           />
         </Tooltip>
       )}
-      {(withAlerts && (specialite as ResumeSpecialite).isAlertPregnancyPlan) && (
-        <Tooltip
-          title="Plan de prévention grossesse"
-          kind="hover"
-        >
-          <i className={["fr-icon--custom-pregnancy-alert", fr.cx("fr-ml-1v")].join(" ")} />
+      {withAlerts && (specialite as ResumeSpecialite).isAlertPregnancyPlan && (
+        <Tooltip title="Plan de prévention grossesse" kind="hover">
+          <i
+            className={[
+              "fr-icon--custom-pregnancy-alert",
+              fr.cx("fr-ml-1v"),
+            ].join(" ")}
+          />
         </Tooltip>
       )}
-      {(withAlerts 
-        && (specialite as ResumeSpecialite).isAlertPregnancyMention 
-        && !(specialite as ResumeSpecialite).isAlertPregnancyPlan) && (
-        <Tooltip
-          title="Mention contre-indication grossesse"
-          kind="hover"
-        >
-          <i className={["fr-icon--custom-pregnancy-alert", fr.cx("fr-ml-1v")].join(" ")} />
-        </Tooltip>
-      )}
-      {(withAlerts && (specialite as ResumeSpecialite).isAlertPediatricContraindication) && (
-        <Tooltip
-          title="Contre-indication chez l'enfant selon l'âge"
-          kind="hover"
-        >
-          <i className={["fr-icon--custom-pediatric-alert", fr.cx("fr-ml-1v")].join(" ")} />
-        </Tooltip>
-      )}
+      {withAlerts &&
+        (specialite as ResumeSpecialite).isAlertPregnancyMention &&
+        !(specialite as ResumeSpecialite).isAlertPregnancyPlan && (
+          <Tooltip title="Mention contre-indication grossesse" kind="hover">
+            <i
+              className={[
+                "fr-icon--custom-pregnancy-alert",
+                fr.cx("fr-ml-1v"),
+              ].join(" ")}
+            />
+          </Tooltip>
+        )}
+      {withAlerts &&
+        (specialite as ResumeSpecialite).isAlertPediatricContraindication && (
+          <Tooltip
+            title="Contre-indication chez l'enfant selon l'âge"
+            kind="hover"
+          >
+            <i
+              className={[
+                "fr-icon--custom-pediatric-alert",
+                fr.cx("fr-ml-1v"),
+              ].join(" ")}
+            />
+          </Tooltip>
+        )}
     </div>
   );
-};
+}
 
 export default DataBlockGenericIcons;

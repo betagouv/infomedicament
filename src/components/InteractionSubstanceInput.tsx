@@ -77,8 +77,11 @@ export default function InteractionSubstanceInput({
 
   const { data: options } = useSWR(
     inputValue.length >= 2 ? inputValue : null,
-    (q) => fetchJSON<InteractionsSearchEntry[]>(`/interactions/search?q=${encodeURIComponent(q)}`),
-    { keepPreviousData: true, fallbackData: [] }
+    (q) =>
+      fetchJSON<InteractionsSearchEntry[]>(
+        `/interactions/search?q=${encodeURIComponent(q)}`,
+      ),
+    { keepPreviousData: true, fallbackData: [] },
   );
 
   function selectOption(entry: InteractionsSearchEntry) {
@@ -132,45 +135,45 @@ export default function InteractionSubstanceInput({
   return (
     <Container>
       <StyledInput
-          ref={inputRef}
-          id={id}
-          role="combobox"
-          aria-expanded={isOpen && options.length > 0}
-          aria-controls={listboxId}
-          aria-activedescendant={
-            activeIndex >= 0 ? `${id}-option-${activeIndex}` : undefined
-          }
-          aria-autocomplete="list"
-          autoComplete="off"
-          placeholder="Nom de médicament ou de substance active"
-          type="text"
-          value={displayValue}
-          $hasValue={!!value}
-          className={fr.cx("fr-input")}
-          onChange={handleChange}
-          onFocus={handleFocus}
-          onKeyDown={handleKeyDown}
-          onBlur={() => {
-            setIsOpen(false);
-            setActiveIndex(-1);
-          }}
-        />
-        {value && (
-          <ClearButton>
-            <Button
-              type="button"
-              priority="tertiary no outline"
-              iconId="fr-icon-close-line"
-              title="Effacer"
-              size="small"
-              onClick={() => {
-                onClear();
-                setInputValue("");
-                inputRef.current?.focus();
-              }}
-            />
-          </ClearButton>
-        )}
+        ref={inputRef}
+        id={id}
+        role="combobox"
+        aria-expanded={isOpen && options.length > 0}
+        aria-controls={listboxId}
+        aria-activedescendant={
+          activeIndex >= 0 ? `${id}-option-${activeIndex}` : undefined
+        }
+        aria-autocomplete="list"
+        autoComplete="off"
+        placeholder="Nom de médicament ou de substance active"
+        type="text"
+        value={displayValue}
+        $hasValue={!!value}
+        className={fr.cx("fr-input")}
+        onChange={handleChange}
+        onFocus={handleFocus}
+        onKeyDown={handleKeyDown}
+        onBlur={() => {
+          setIsOpen(false);
+          setActiveIndex(-1);
+        }}
+      />
+      {value && (
+        <ClearButton>
+          <Button
+            type="button"
+            priority="tertiary no outline"
+            iconId="fr-icon-close-line"
+            title="Effacer"
+            size="small"
+            onClick={() => {
+              onClear();
+              setInputValue("");
+              inputRef.current?.focus();
+            }}
+          />
+        </ClearButton>
+      )}
       {isOpen && options.length > 0 && (
         <Listbox id={listboxId} role="listbox">
           {options.map((option, index) => (
@@ -180,7 +183,9 @@ export default function InteractionSubstanceInput({
               role="option"
               aria-selected={index === activeIndex}
               $active={index === activeIndex}
-              onMouseEnter={() => index !== activeIndex && setActiveIndex(index)}
+              onMouseEnter={() =>
+                index !== activeIndex && setActiveIndex(index)
+              }
               onMouseLeave={() => setActiveIndex(-1)}
               onMouseDown={(e) => {
                 e.preventDefault();

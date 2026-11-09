@@ -11,14 +11,18 @@ describe("sitemap (Integration)", () => {
 
     expect(urls.length).toBeGreaterThan(1000);
     expect(urls.some((u) => u.includes("/medicaments/"))).toBe(true);
-    expect(urls.some((u) => /\/medicaments\/[a-z0-9-]+-\d+\/details$/.test(u))).toBe(true);
+    expect(
+      urls.some((u) => /\/medicaments\/[a-z0-9-]+-\d+\/details$/.test(u)),
+    ).toBe(true);
     expect(urls.some((u) => u.includes("/substances/"))).toBe(true);
     expect(urls.some((u) => u.includes("/indications/"))).toBe(true);
     expect(urls.some((u) => u.includes("/articles/"))).toBe(true);
     expect(urls.some((u) => u.includes("/generiques/"))).toBe(true);
     expect(urls.some((u) => u.includes("/glossaire/"))).toBe(true);
     expect(urls.some((u) => /\/atc\/[a-z0-9-]+-[a-z]$/.test(u))).toBe(true);
-    expect(urls.some((u) => /\/atc\/[a-z0-9-]+-[a-z]\d{2}$/.test(u))).toBe(true);
+    expect(urls.some((u) => /\/atc\/[a-z0-9-]+-[a-z]\d{2}$/.test(u))).toBe(
+      true,
+    );
   });
 
   it("returns one URL per substance, not one per name", async () => {

@@ -60,7 +60,9 @@ function MedicamentContent({
 
   const onGoToAdvanced = useCallback(
     (enabled: boolean) => {
-      router.push(enabled ? `/medicaments/${slug}/details` : `/medicaments/${slug}`);
+      router.push(
+        enabled ? `/medicaments/${slug}/details` : `/medicaments/${slug}`,
+      );
     },
     [router, slug],
   );

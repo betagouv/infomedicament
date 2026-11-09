@@ -3,13 +3,16 @@ import { buildIndications } from "./indicationCatalog";
 
 describe("buildIndications", () => {
   it("maps specialities to pathologies through their clinical class", () => {
-    const rows = buildIndications({
-      pathologies: [{ code: 10, nom: "Douleur" }],
-      clinicalClasses: [{ code: 20, name: "ANTALGIQUES" }],
-      specialiteClasses: [{ cis: "60000001", classCode: 20 }],
-      classPathologies: [{ classCode: 20, pathologyCode: 10 }],
-      definitions: [],
-    }, []);
+    const rows = buildIndications(
+      {
+        pathologies: [{ code: 10, nom: "Douleur" }],
+        clinicalClasses: [{ code: 20, name: "ANTALGIQUES" }],
+        specialiteClasses: [{ cis: "60000001", classCode: 20 }],
+        classPathologies: [{ classCode: 20, pathologyCode: 10 }],
+        definitions: [],
+      },
+      [],
+    );
 
     expect(rows).toEqual([
       {

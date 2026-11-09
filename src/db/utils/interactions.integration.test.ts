@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeAll } from "vitest";
-import { searchInteractions, lookupInteractions } from "@/db/utils/interactions";
+import {
+  searchInteractions,
+  lookupInteractions,
+} from "@/db/utils/interactions";
 import { InteractionsSearchEntry } from "@/db/types";
 
 vi.mock("server-only", () => ({}));
@@ -82,13 +85,13 @@ describe("lookupInteractions", () => {
 
   it("returns [] when only side 1 has IDs", async () => {
     expect(
-      await lookupInteractions(ibuprofeneEntry.subst_ids, [], [], [])
+      await lookupInteractions(ibuprofeneEntry.subst_ids, [], [], []),
     ).toEqual([]);
   });
 
   it("returns [] when only side 2 has IDs", async () => {
     expect(
-      await lookupInteractions([], [], sertralineEntry.subst_ids, [])
+      await lookupInteractions([], [], sertralineEntry.subst_ids, []),
     ).toEqual([]);
   });
 
@@ -138,7 +141,7 @@ describe("lookupInteractions", () => {
       sertralineEntry.class_ids,
     );
     const keys = results.map(
-      (r) => `${r.niveau}|${r.risque}|${r.conduite}|${r.commentaire}`
+      (r) => `${r.niveau}|${r.risque}|${r.conduite}|${r.commentaire}`,
     );
     const uniqueKeys = new Set(keys);
     expect(uniqueKeys.size).toBe(results.length);

@@ -19,10 +19,10 @@ export async function up(db: Kysely<any>): Promise<void> {
     .ifNotExists()
     .addColumn("cis", "varchar", (col) => col.notNull())
     .addColumn("code_excipient", "integer", (col) => col.notNull())
-    .addPrimaryKeyConstraint(
-      "ansm_specialite_excipient_effet_notoire_pkey",
-      ["cis", "code_excipient"],
-    )
+    .addPrimaryKeyConstraint("ansm_specialite_excipient_effet_notoire_pkey", [
+      "cis",
+      "code_excipient",
+    ])
     .execute();
 }
 

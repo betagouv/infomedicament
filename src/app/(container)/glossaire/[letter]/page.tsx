@@ -24,8 +24,9 @@ const PAGE_LABEL: string = "Glossaire";
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: PAGE_LABEL,
-    description: "Retrouvez les définitions des termes médicaux et pharmaceutiques pour mieux comprendre l’information sur les médicaments.",
-  }
+    description:
+      "Retrouvez les définitions des termes médicaux et pharmaceutiques pour mieux comprendre l’information sur les médicaments.",
+  };
 }
 
 export default async function Page(props: {

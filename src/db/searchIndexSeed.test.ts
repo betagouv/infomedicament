@@ -10,12 +10,18 @@ const namesByNomId = new Map([
 
 describe("search index - getGroupSubstancesNames", () => {
   it("returns only the substances names displayed on the medicaments of the group", () => {
-    expect(getGroupSubstancesNames(["65799"], namesByNomId)).toEqual(["abacavir"]);
-    expect(getGroupSubstancesNames(["31844 "], namesByNomId)).toEqual(["abacavir base"]);
+    expect(getGroupSubstancesNames(["65799"], namesByNomId)).toEqual([
+      "abacavir",
+    ]);
+    expect(getGroupSubstancesNames(["31844 "], namesByNomId)).toEqual([
+      "abacavir base",
+    ]);
   });
 
   it("returns the names of each substance of the group, once", () => {
-    expect(getGroupSubstancesNames(["31844", "02202", "02202"], namesByNomId)).toEqual(["abacavir base", "paracétamol"]);
+    expect(
+      getGroupSubstancesNames(["31844", "02202", "02202"], namesByNomId),
+    ).toEqual(["abacavir base", "paracétamol"]);
   });
 
   it("ignores the names not in the substances list", () => {
