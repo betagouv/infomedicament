@@ -128,7 +128,9 @@ describe("GeneralInformations presentations", () => {
     expect(screen.getByText("Code CIP : 34009 490 047 5 1")).not.toBeNull();
     expect(screen.getByText("Prix libre - non remboursable")).not.toBeNull();
     expect(
-      screen.getByText("Cette présentation n'est pas agréée aux collectivités."),
+      screen.getByText(
+        "Cette présentation n'est pas agréée aux collectivités.",
+      ),
     ).not.toBeNull();
 
     rerender(
@@ -140,11 +142,13 @@ describe("GeneralInformations presentations", () => {
         isPregnancyPlanAlert={false}
         isPregnancyMentionAlert={false}
         pediatrics={undefined}
-        presentations={[{
-          ...presentation,
-          commercialStatus: "stopped",
-          commercialisationEndDate: new Date("2024-12-12"),
-        }]}
+        presentations={[
+          {
+            ...presentation,
+            commercialStatus: "stopped",
+            commercialisationEndDate: new Date("2024-12-12"),
+          },
+        ]}
         ficheInfos={ficheInfos}
         delivrance={[]}
         definitions={[]}
@@ -153,6 +157,8 @@ describe("GeneralInformations presentations", () => {
       />,
     );
     expect(screen.queryByText(/Déclaration de commercialisation/)).toBeNull();
-    expect(screen.getByText("Déclaration d'arrêt de commercialisation : 12/12/2024")).not.toBeNull();
+    expect(
+      screen.getByText("Déclaration d'arrêt de commercialisation : 12/12/2024"),
+    ).not.toBeNull();
   });
 });

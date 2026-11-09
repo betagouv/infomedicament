@@ -12,7 +12,11 @@ interface ATC1DefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
   dataList: AdvancedATCClass[];
 }
 
-function ATC1DefinitionContent({ atc, articles, dataList }: ATC1DefinitionContentProps) {
+function ATC1DefinitionContent({
+  atc,
+  articles,
+  dataList,
+}: ATC1DefinitionContentProps) {
   const title = `${dataList.length} ${dataList.length > 1 ? "sous-classes de médicament" : "sous-classe de médicament"}`;
 
   return (
@@ -27,6 +31,6 @@ function ATC1DefinitionContent({ atc, articles, dataList }: ATC1DefinitionConten
       articleTrackingFrom="Page ATC1"
     />
   );
-};
+}
 
 export default ATC1DefinitionContent;

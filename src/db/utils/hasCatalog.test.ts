@@ -10,11 +10,14 @@ describe("HAS calendar dates", () => {
     ["29/02/2024", "2024-02-29"],
     [" 12/02/2015 ", "2015-02-12"],
   ])("parses %s explicitly", (source, expected) => {
-    expect(parseHasDate(source)?.toISOString()).toBe(`${expected}T00:00:00.000Z`);
+    expect(parseHasDate(source)?.toISOString()).toBe(
+      `${expected}T00:00:00.000Z`,
+    );
   });
 
   it.each([null, "", "Invalid Date", "31/04/2023", "29/02/2023", "12/13/2016"])(
-    "returns null for an absent or impossible date (%s)", (source) => {
+    "returns null for an absent or impossible date (%s)",
+    (source) => {
       expect(parseHasDate(source)).toBeNull();
     },
   );
@@ -27,20 +30,25 @@ describe("HAS calendar dates", () => {
       { opinionDate: "2018-10-03", id: "second" },
     ];
     expect(sortHasHistory(history).map((entry) => entry.id)).toEqual([
-      "first", "second", "older", "undated",
+      "first",
+      "second",
+      "older",
+      "undated",
     ]);
   });
 });
 
 describe("HAS history mappings", () => {
   it("preserves the complete SMR history entry and commission URL", () => {
-    expect(mapSmr({
-      date_avis_definitif: "2026-01-15",
-      valeur_smr: "Important",
-      motif_demande: "Inscription",
-      libelle_smr: "Résumé complet de l'avis SMR",
-      url: "https://www.has-sante.fr/jcms/example-smr",
-    })).toEqual({
+    expect(
+      mapSmr({
+        date_avis_definitif: "2026-01-15",
+        valeur_smr: "Important",
+        motif_demande: "Inscription",
+        libelle_smr: "Résumé complet de l'avis SMR",
+        url: "https://www.has-sante.fr/jcms/example-smr",
+      }),
+    ).toEqual({
       opinionDate: "2026-01-15",
       value: "Important",
       evaluationReason: "Inscription",
@@ -50,13 +58,15 @@ describe("HAS history mappings", () => {
   });
 
   it("preserves the complete ASMR history entry and commission URL", () => {
-    expect(mapAsmr({
-      date_avis_definitif: "2026-02-20",
-      valeur_asmr: "III",
-      motif_demande: "Extension d'indication",
-      libelle_asmr: "Résumé complet de l'avis ASMR",
-      url: "https://www.has-sante.fr/jcms/example-asmr",
-    })).toEqual({
+    expect(
+      mapAsmr({
+        date_avis_definitif: "2026-02-20",
+        valeur_asmr: "III",
+        motif_demande: "Extension d'indication",
+        libelle_asmr: "Résumé complet de l'avis ASMR",
+        url: "https://www.has-sante.fr/jcms/example-asmr",
+      }),
+    ).toEqual({
       opinionDate: "2026-02-20",
       value: "III",
       evaluationReason: "Extension d'indication",

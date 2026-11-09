@@ -32,7 +32,9 @@ describe("getNiveauBadges", () => {
     expect(getNiveauBadges("asdec/dcn")).toHaveLength(1);
     expect(getNiveauBadges("dcn/dnc")).toHaveLength(1);
     expect(getNiveauBadges("asdec/dcn/dnc")).toHaveLength(1);
-    expect(getNiveauBadges("asdec/dcn")[0].label).toBe("Association déconseillée");
+    expect(getNiveauBadges("asdec/dcn")[0].label).toBe(
+      "Association déconseillée",
+    );
   });
 
   it("falls back to the raw code as label for unknown codes", () => {

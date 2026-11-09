@@ -1,4 +1,13 @@
-import { AggregateCaraccomplrecipsDetails, AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation, PresentationCommercialStatus, PresentationPackagingDetail, PresentationRecipientsDetails } from "@/types/PresentationTypes";
+import {
+  AggregateCaraccomplrecipsDetails,
+  AggregateDispositifDetails,
+  AggregatePresentationDetails,
+  AggregateRecipientDetails,
+  Presentation,
+  PresentationCommercialStatus,
+  PresentationPackagingDetail,
+  PresentationRecipientsDetails,
+} from "@/types/PresentationTypes";
 import { capitalize } from "tsafe";
 
 const unitesMesures = [
@@ -25,190 +34,272 @@ export function isPresentationVisible(
   },
   cutoff: Date,
 ): boolean {
-  const commercialStatusVisible = presentation.commercialStatus === "commercialised"
-    || (["stopped", "suspended", "withdrawn"].includes(presentation.commercialStatus)
-      && presentation.commercialisationEndDate !== null
-      && presentation.commercialisationEndDate >= cutoff);
-  const administrativeStatusVisible = presentation.administrativeStatus !== "abrogated"
-    || (presentation.administrativeStatusDate !== null
-      && presentation.administrativeStatusDate !== undefined
-      && presentation.administrativeStatusDate >= cutoff);
+  const commercialStatusVisible =
+    presentation.commercialStatus === "commercialised" ||
+    (["stopped", "suspended", "withdrawn"].includes(
+      presentation.commercialStatus,
+    ) &&
+      presentation.commercialisationEndDate !== null &&
+      presentation.commercialisationEndDate >= cutoff);
+  const administrativeStatusVisible =
+    presentation.administrativeStatus !== "abrogated" ||
+    (presentation.administrativeStatusDate !== null &&
+      presentation.administrativeStatusDate !== undefined &&
+      presentation.administrativeStatusDate >= cutoff);
 
   return commercialStatusVisible && administrativeStatusVisible;
 }
 
-export function replacePluralSingular(textToReplace: string, nb: number, shortName?: boolean){
+export function replacePluralSingular(
+  textToReplace: string,
+  nb: number,
+  shortName?: boolean,
+) {
   let newText = "";
-  if(nb > 1){
-    newText = textToReplace.replaceAll("(s)", "s")
+  if (nb > 1) {
+    newText = textToReplace
+      .replaceAll("(s)", "s")
       .replaceAll("stylo prérempli", "stylos préremplis")
       .replaceAll("al(aux)", "aux")
-      .replaceAll("(x)", "x")
+      .replaceAll("(x)", "x");
   } else {
-    newText = textToReplace.replaceAll("(s)", "")
+    newText = textToReplace
+      .replaceAll("(s)", "")
       .replaceAll("al(aux)", "al")
-      .replaceAll("(x)", "")
+      .replaceAll("(x)", "");
   }
-  if(shortName)
-    newText = newText.replaceAll("thermoformée", "");
+  if (shortName) newText = newText.replaceAll("thermoformée", "");
   return newText;
 }
 
-export function totalDisplay(recipientDetails: AggregateRecipientDetails): string {
-  if(recipientDetails.nbrrecipient && recipientDetails.qtecontenance && recipientDetails.qtecontenance > 1 && recipientDetails.unitecontenance && !unitesMesures.includes(recipientDetails.unitecontenance)) {
-    const total: number = recipientDetails.nbrrecipient * recipientDetails.qtecontenance;
+export function totalDisplay(
+  recipientDetails: AggregateRecipientDetails,
+): string {
+  if (
+    recipientDetails.nbrrecipient &&
+    recipientDetails.qtecontenance &&
+    recipientDetails.qtecontenance > 1 &&
+    recipientDetails.unitecontenance &&
+    !unitesMesures.includes(recipientDetails.unitecontenance)
+  ) {
+    const total: number =
+      recipientDetails.nbrrecipient * recipientDetails.qtecontenance;
     return `${total} ${replacePluralSingular(recipientDetails.unitecontenance, total)}`;
-  }
-  else return "";
+  } else return "";
 }
 
-export function contenanceDisplay(recipientDetails: AggregateRecipientDetails): string {
-  if(recipientDetails.qtecontenance && recipientDetails.unitecontenance){  
-    return `${recipientDetails.qtecontenance.toLocaleString('fr-FR')} ${replacePluralSingular(recipientDetails.unitecontenance, recipientDetails.qtecontenance)}`;
-  }
-  else return "";
+export function contenanceDisplay(
+  recipientDetails: AggregateRecipientDetails,
+): string {
+  if (recipientDetails.qtecontenance && recipientDetails.unitecontenance) {
+    return `${recipientDetails.qtecontenance.toLocaleString("fr-FR")} ${replacePluralSingular(recipientDetails.unitecontenance, recipientDetails.qtecontenance)}`;
+  } else return "";
 }
 
-export function caracCompDisplay(caraccomplrecipDetails: AggregateCaraccomplrecipsDetails[], nbRecipient: number, shortName?: boolean): string {
+export function caracCompDisplay(
+  caraccomplrecipDetails: AggregateCaraccomplrecipsDetails[],
+  nbRecipient: number,
+  shortName?: boolean,
+): string {
   let detailsText: string = "";
-  caraccomplrecipDetails.forEach((details: AggregateCaraccomplrecipsDetails) => {
-    if(details.caraccomplrecip && 
-      (!shortName || (shortName && details.caraccomplrecip.startsWith("avec")))
-    )
-      detailsText += ` ${replacePluralSingular(details.caraccomplrecip, nbRecipient)}`;
-  })
+  caraccomplrecipDetails.forEach(
+    (details: AggregateCaraccomplrecipsDetails) => {
+      if (
+        details.caraccomplrecip &&
+        (!shortName ||
+          (shortName && details.caraccomplrecip.startsWith("avec")))
+      )
+        detailsText += ` ${replacePluralSingular(details.caraccomplrecip, nbRecipient)}`;
+    },
+  );
   return detailsText;
 }
 
-export function dispositifDisplay(dispositifDetails: AggregateDispositifDetails[]): string {
+export function dispositifDisplay(
+  dispositifDetails: AggregateDispositifDetails[],
+): string {
   let detailsText: string = "";
   dispositifDetails.forEach((details: AggregateDispositifDetails) => {
-    if(details.numdispositif) {
+    if (details.numdispositif) {
       //Singular all the time
       detailsText += ` ${replacePluralSingular(details.dispositif, 0)}`;
     }
-  })
+  });
   return detailsText;
 }
 
-function isCaraccomplrecipDetails(details: PresentationPackagingDetail): boolean {
+function isCaraccomplrecipDetails(
+  details: PresentationPackagingDetail,
+): boolean {
   if (!details.caraccomplrecip) return false;
-  const normalize = (text: string) => text.toLowerCase().replaceAll("(s)", "")
-    .replace(/\s+/g, " ").trim();
+  const normalize = (text: string) =>
+    text.toLowerCase().replaceAll("(s)", "").replace(/\s+/g, " ").trim();
   const source = normalize(details.nom_presentation);
   const characteristic = normalize(details.caraccomplrecip);
   // Source denominations sometimes use a different expanded name for the same material.
   const acronym = details.caraccomplrecip.match(/\(([A-Z]{2,})\)/)?.[0];
-  return source.includes(characteristic) || (acronym !== undefined && source.includes(acronym.toLowerCase()));
+  return (
+    source.includes(characteristic) ||
+    (acronym !== undefined && source.includes(acronym.toLowerCase()))
+  );
 }
 
-function cleanRecipientDetails(details: PresentationPackagingDetail): AggregateRecipientDetails {
+function cleanRecipientDetails(
+  details: PresentationPackagingDetail,
+): AggregateRecipientDetails {
   return {
-      recipient: details.recipient,
-      numrecipient: details.numrecipient,
-      nbrrecipient: details.nbrrecipient,
-      qtecontenance: details.qtecontenance,
-      unitecontenance: details.unitecontenance,
-      caraccomplrecips : isCaraccomplrecipDetails(details)
-        ? [{
-          caraccomplrecip: details.caraccomplrecip,
-          numordreedit: details.numordreedit,
-        }]
-        : [],
-    };
+    recipient: details.recipient,
+    numrecipient: details.numrecipient,
+    nbrrecipient: details.nbrrecipient,
+    qtecontenance: details.qtecontenance,
+    unitecontenance: details.unitecontenance,
+    caraccomplrecips: isCaraccomplrecipDetails(details)
+      ? [
+          {
+            caraccomplrecip: details.caraccomplrecip,
+            numordreedit: details.numordreedit,
+          },
+        ]
+      : [],
+  };
 }
 
-function sortCleanPresentationsDetails(cleanPresDetails: AggregatePresentationDetails[]): AggregatePresentationDetails[] {
-  return cleanPresDetails
-    .map((presDetails) => {
-      //Sort recipients details
-      presDetails.recipients = presDetails.recipients
-        .map((presRecipient) => {
-          //Sort caraccomplrecips
-          presRecipient.caraccomplrecips = presRecipient.caraccomplrecips
-            .sort((a, b) => a.numordreedit - b.numordreedit)
-            .filter((detailA: AggregateCaraccomplrecipsDetails, indexA: number) => {
+function sortCleanPresentationsDetails(
+  cleanPresDetails: AggregatePresentationDetails[],
+): AggregatePresentationDetails[] {
+  return cleanPresDetails.map((presDetails) => {
+    //Sort recipients details
+    presDetails.recipients = presDetails.recipients
+      .map((presRecipient) => {
+        //Sort caraccomplrecips
+        presRecipient.caraccomplrecips = presRecipient.caraccomplrecips
+          .sort((a, b) => a.numordreedit - b.numordreedit)
+          .filter(
+            (detailA: AggregateCaraccomplrecipsDetails, indexA: number) => {
               //Only one of each caraccomplrecips
               const findIndex = presRecipient.caraccomplrecips.findIndex(
-                (detailB) => detailB.caraccomplrecip.toLowerCase().trim() === detailA.caraccomplrecip.toLowerCase().trim()
+                (detailB) =>
+                  detailB.caraccomplrecip.toLowerCase().trim() ===
+                  detailA.caraccomplrecip.toLowerCase().trim(),
               );
-              if(detailA.caraccomplrecip.toLowerCase().trim() === "pvc"){
+              if (detailA.caraccomplrecip.toLowerCase().trim() === "pvc") {
                 //if PVC-Aluminium is in the list and also PVC : PVC-Aluminium win
-                const findIndexPVC = presRecipient.caraccomplrecips.findIndex((detailB) => detailB.caraccomplrecip.toLowerCase().trim() === "pvc-aluminium");
-                if(findIndexPVC !== -1)
-                  return false;
+                const findIndexPVC = presRecipient.caraccomplrecips.findIndex(
+                  (detailB) =>
+                    detailB.caraccomplrecip.toLowerCase().trim() ===
+                    "pvc-aluminium",
+                );
+                if (findIndexPVC !== -1) return false;
               }
               return findIndex === indexA;
-            })
-            .sort((a,b) => 
-              a.numordreedit && b.numordreedit ? a.numordreedit - b.numordreedit : a.numordreedit ? -1 : b.numordreedit ? 1 : 0
-            )
-          return presRecipient;
-        })
-        .sort((a, b) => 
-          a.numrecipient && b.numrecipient ? a.numrecipient - b.numrecipient : a.numrecipient ? -1 : b.numrecipient ? 1 : 0,
-        );
-      //Sort dispositifs
-      presDetails.dispositifs = presDetails.dispositifs
-        .filter((detailA: AggregateDispositifDetails, index: number) => {
-          //Only one of each dispositifs
-          const findIndex = presDetails.dispositifs.findIndex(
-            (detailB) => detailB.dispositif.toLowerCase().trim() === detailA.dispositif.toLowerCase().trim()
+            },
+          )
+          .sort((a, b) =>
+            a.numordreedit && b.numordreedit
+              ? a.numordreedit - b.numordreedit
+              : a.numordreedit
+                ? -1
+                : b.numordreedit
+                  ? 1
+                  : 0,
           );
-          if(findIndex === index || findIndex === -1 
-            || (findIndex !== -1 && presDetails.dispositifs[findIndex].numdispositif > detailA.numdispositif)) return true;
-          return false;
-        })
-        .sort((a,b) => 
-          a.numdispositif && b.numdispositif ? a.numdispositif - b.numdispositif : a.numdispositif ? -1 : b.numdispositif ? 1 : 0
+        return presRecipient;
+      })
+      .sort((a, b) =>
+        a.numrecipient && b.numrecipient
+          ? a.numrecipient - b.numrecipient
+          : a.numrecipient
+            ? -1
+            : b.numrecipient
+              ? 1
+              : 0,
+      );
+    //Sort dispositifs
+    presDetails.dispositifs = presDetails.dispositifs
+      .filter((detailA: AggregateDispositifDetails, index: number) => {
+        //Only one of each dispositifs
+        const findIndex = presDetails.dispositifs.findIndex(
+          (detailB) =>
+            detailB.dispositif.toLowerCase().trim() ===
+            detailA.dispositif.toLowerCase().trim(),
         );
-      return presDetails;
-    });
+        if (
+          findIndex === index ||
+          findIndex === -1 ||
+          (findIndex !== -1 &&
+            presDetails.dispositifs[findIndex].numdispositif >
+              detailA.numdispositif)
+        )
+          return true;
+        return false;
+      })
+      .sort((a, b) =>
+        a.numdispositif && b.numdispositif
+          ? a.numdispositif - b.numdispositif
+          : a.numdispositif
+            ? -1
+            : b.numdispositif
+              ? 1
+              : 0,
+      );
+    return presDetails;
+  });
 }
 
-export function cleanPresentationsDetails(presDetails: PresentationPackagingDetail[]): AggregatePresentationDetails[]{
-  const cleanPresDetails:AggregatePresentationDetails[] = [];
+export function cleanPresentationsDetails(
+  presDetails: PresentationPackagingDetail[],
+): AggregatePresentationDetails[] {
+  const cleanPresDetails: AggregatePresentationDetails[] = [];
   presDetails.forEach((details: PresentationPackagingDetail) => {
-    const index = cleanPresDetails.findIndex((cleanDetails) => cleanDetails.codecip13 === details.codecip13);
-    if(index === -1){
+    const index = cleanPresDetails.findIndex(
+      (cleanDetails) => cleanDetails.codecip13 === details.codecip13,
+    );
+    if (index === -1) {
       //New element in the presentations
       cleanPresDetails.push({
         codecip13: details.codecip13,
-        recipients: [
-          cleanRecipientDetails(details),
-        ],
+        recipients: [cleanRecipientDetails(details)],
         dispositifs: details.numdispositif
-          ? [{
-            dispositif: details.dispositif,
-            numdispositif: details.numdispositif,
-          }] : [],
+          ? [
+              {
+                dispositif: details.dispositif,
+                numdispositif: details.numdispositif,
+              },
+            ]
+          : [],
       });
     } else {
-      //Maj content of the recipient 
-      const indexRecipient = cleanPresDetails[index].recipients.findIndex((recipientDetails) => recipientDetails.numrecipient === details.numrecipient);
-      if(indexRecipient === -1){
+      //Maj content of the recipient
+      const indexRecipient = cleanPresDetails[index].recipients.findIndex(
+        (recipientDetails) =>
+          recipientDetails.numrecipient === details.numrecipient,
+      );
+      if (indexRecipient === -1) {
         //New recipient in the presentations
-        cleanPresDetails[index].recipients.push(
-          cleanRecipientDetails(details)
-        )
+        cleanPresDetails[index].recipients.push(cleanRecipientDetails(details));
       } else {
-        if(isCaraccomplrecipDetails(details)) {
+        if (isCaraccomplrecipDetails(details)) {
           //Maj content of the caraccomplrecip
-          cleanPresDetails[index].recipients[indexRecipient].caraccomplrecips.push({
+          cleanPresDetails[index].recipients[
+            indexRecipient
+          ].caraccomplrecips.push({
             caraccomplrecip: details.caraccomplrecip,
             numordreedit: details.numordreedit,
           });
         }
       }
       //Maj content of the dispositif
-      if(details.numdispositif) {
-        const indexDispositif = cleanPresDetails[index].dispositifs.findIndex((dispositifDetails) => dispositifDetails.numdispositif === details.numdispositif);
-        if(indexDispositif === -1){
+      if (details.numdispositif) {
+        const indexDispositif = cleanPresDetails[index].dispositifs.findIndex(
+          (dispositifDetails) =>
+            dispositifDetails.numdispositif === details.numdispositif,
+        );
+        if (indexDispositif === -1) {
           //New recipient in the presentations
           cleanPresDetails[index].dispositifs.push({
             dispositif: details.dispositif,
             numdispositif: details.numdispositif,
-          })
+          });
         }
       }
     }
@@ -218,35 +309,70 @@ export function cleanPresentationsDetails(presDetails: PresentationPackagingDeta
 
 function sourcePresentationName(presentation: Presentation): string {
   // Resolve ANSM's optional plurals locally: recipient counts and content counts differ.
-  let name = (presentation.name ?? "").replaceAll("\u001a", "’")
-    .split(" - ").map((recipientPart) => {
+  let name = (presentation.name ?? "")
+    .replaceAll("\u001a", "’")
+    .split(" - ")
+    .map((recipientPart) => {
       let count = 1;
-      return recipientPart.split(/(\d+(?:[.,]\d+)?)/).map((part) => {
-        if (/^\d+(?:[.,]\d+)?$/.test(part)) {
-          count = Number(part.replace(",", "."));
-          return part;
-        }
-        return part.replaceAll("(s)", count > 1 ? "s" : "")
-          .replaceAll("al(aux)", count > 1 ? "aux" : "al")
-          .replaceAll("(x)", count > 1 ? "x" : "");
-      }).join("");
-    }).join(" - ").replace(/\s+/g, " ").trim();
+      return recipientPart
+        .split(/(\d+(?:[.,]\d+)?)/)
+        .map((part) => {
+          if (/^\d+(?:[.,]\d+)?$/.test(part)) {
+            count = Number(part.replace(",", "."));
+            return part;
+          }
+          return part
+            .replaceAll("(s)", count > 1 ? "s" : "")
+            .replaceAll("al(aux)", count > 1 ? "aux" : "al")
+            .replaceAll("(x)", count > 1 ? "x" : "");
+        })
+        .join("");
+    })
+    .join(" - ")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  const recipients = cleanPresentationsDetails(presentation.details ?? []).flatMap((detail) => detail.recipients);
+  const recipients = cleanPresentationsDetails(
+    presentation.details ?? [],
+  ).flatMap((detail) => detail.recipients);
   // Only replace a measured quantity when one recipient and one matching quantity
   // identify it unambiguously. Mixed packs retain the source's composition.
   if (recipients.length === 1) {
     const recipient = recipients[0];
-    const recipientName = replacePluralSingular(recipient.recipient, recipient.nbrrecipient || 1);
-    const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const sourceRecipient = name.match(new RegExp(`^(?:(\\d+)\\s+)?${escape(recipientName)}\\b`, "i"));
-    const sameCount = !sourceRecipient?.[1] || Number(sourceRecipient[1]) === recipient.nbrrecipient;
-    if (sourceRecipient && sameCount && Number.isFinite(recipient.qtecontenance) && recipient.qtecontenance > 0 && unitesMesures.includes(recipient.unitecontenance)) {
-      const quantity = new RegExp(`\\bde\\s+\\d+(?:[.,]\\d+)?\\s+(${escape(recipient.unitecontenance)})(?![\\p{L}\\d/])`, "giu");
+    const recipientName = replacePluralSingular(
+      recipient.recipient,
+      recipient.nbrrecipient || 1,
+    );
+    const escape = (text: string) =>
+      text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const sourceRecipient = name.match(
+      new RegExp(`^(?:(\\d+)\\s+)?${escape(recipientName)}\\b`, "i"),
+    );
+    const sameCount =
+      !sourceRecipient?.[1] ||
+      Number(sourceRecipient[1]) === recipient.nbrrecipient;
+    if (
+      sourceRecipient &&
+      sameCount &&
+      Number.isFinite(recipient.qtecontenance) &&
+      recipient.qtecontenance > 0 &&
+      unitesMesures.includes(recipient.unitecontenance)
+    ) {
+      const quantity = new RegExp(
+        `\\bde\\s+\\d+(?:[.,]\\d+)?\\s+(${escape(recipient.unitecontenance)})(?![\\p{L}\\d/])`,
+        "giu",
+      );
       const quantities = [...name.matchAll(quantity)];
       const accessoryStart = name.search(/\b(?:avec|dans|et)\b|\+| - /i);
-      if (quantities.length === 1 && (accessoryStart === -1 || quantities[0].index! < accessoryStart)) {
-        name = name.replace(quantity, (_, unit: string) => `de ${recipient.qtecontenance.toLocaleString("fr-FR")} ${unit}`);
+      if (
+        quantities.length === 1 &&
+        (accessoryStart === -1 || quantities[0].index! < accessoryStart)
+      ) {
+        name = name.replace(
+          quantity,
+          (_, unit: string) =>
+            `de ${recipient.qtecontenance.toLocaleString("fr-FR")} ${unit}`,
+        );
       }
     }
   }
@@ -259,58 +385,68 @@ export function getPresentationName(
 ): string {
   // The denomination carries accessories, materials and mixed-pack composition
   // that normalized recipient/device rows cannot fully represent.
-  if (!shortName && presentation.name?.trim()) return sourcePresentationName(presentation);
-  if(presentation.details && presentation.details.length > 0){
-    const allPresDetails: AggregatePresentationDetails[] = cleanPresentationsDetails(presentation.details);
+  if (!shortName && presentation.name?.trim())
+    return sourcePresentationName(presentation);
+  if (presentation.details && presentation.details.length > 0) {
+    const allPresDetails: AggregatePresentationDetails[] =
+      cleanPresentationsDetails(presentation.details);
     let allPresNames: string = "";
     allPresDetails.forEach((presDetails: AggregatePresentationDetails) => {
-      if(presDetails.recipients.length === 0) return;
+      if (presDetails.recipients.length === 0) return;
       let name = "";
-      presDetails.recipients.forEach((recipientDetails: AggregateRecipientDetails) => {
-        if(!recipientDetails.recipient) return;
+      presDetails.recipients.forEach(
+        (recipientDetails: AggregateRecipientDetails) => {
+          if (!recipientDetails.recipient) return;
 
-        const nbRecipient: number = (recipientDetails.nbrrecipient !== 0 &&recipientDetails.nbrrecipient)
-          ? recipientDetails.nbrrecipient
-          : 1;
+          const nbRecipient: number =
+            recipientDetails.nbrrecipient !== 0 && recipientDetails.nbrrecipient
+              ? recipientDetails.nbrrecipient
+              : 1;
 
-        const recipient: string = replacePluralSingular(recipientDetails.recipient, nbRecipient, shortName);
-        const contenance: string = contenanceDisplay(recipientDetails);
-        const caraccomplrecip: string = caracCompDisplay(recipientDetails.caraccomplrecips, nbRecipient, shortName);
+          const recipient: string = replacePluralSingular(
+            recipientDetails.recipient,
+            nbRecipient,
+            shortName,
+          );
+          const contenance: string = contenanceDisplay(recipientDetails);
+          const caraccomplrecip: string = caracCompDisplay(
+            recipientDetails.caraccomplrecips,
+            nbRecipient,
+            shortName,
+          );
 
-        if(name !== "")
-          name += " - ";
-        if (nbRecipient > 1) {
-          const total: string = totalDisplay(recipientDetails);
-          if (total !== "") 
-            name += `${total} - `;
-          name += `${nbRecipient.toString()} ${recipient}${caraccomplrecip}${contenance && ` de ${contenance}`}`;
-        } else {
-          if(!shortName) name += `1 ${recipient}${caraccomplrecip}${contenance && ` de ${contenance}`}`;
-          else name += capitalize(`${recipient}${caraccomplrecip}${contenance && ` de ${contenance}`}`);
-        }
-
-      });
+          if (name !== "") name += " - ";
+          if (nbRecipient > 1) {
+            const total: string = totalDisplay(recipientDetails);
+            if (total !== "") name += `${total} - `;
+            name += `${nbRecipient.toString()} ${recipient}${caraccomplrecip}${contenance && ` de ${contenance}`}`;
+          } else {
+            if (!shortName)
+              name += `1 ${recipient}${caraccomplrecip}${contenance && ` de ${contenance}`}`;
+            else
+              name += capitalize(
+                `${recipient}${caraccomplrecip}${contenance && ` de ${contenance}`}`,
+              );
+          }
+        },
+      );
       const dispositif: string = dispositifDisplay(presDetails.dispositifs);
-      if(!shortName && dispositif)
-        name += `${dispositif}`;
-      
-      if(allPresNames !== "")
-        allPresNames += " - ";
+      if (!shortName && dispositif) name += `${dispositif}`;
+
+      if (allPresNames !== "") allPresNames += " - ";
       allPresNames += name;
-      
     });
-    if(allPresNames !== "")
-      return allPresNames;
+    if (allPresNames !== "") return allPresNames;
   }
 
   const name = presentation.name ?? "";
   const index = name.indexOf("stylo prérempli");
-  if(index !== -1){
-    if(index === 0){
+  if (index !== -1) {
+    if (index === 0) {
       return capitalize(name);
     }
     const qt = name.substring(0, index).trim();
-    if(!isNaN(Number(qt)) && Number(qt) > 1){
+    if (!isNaN(Number(qt)) && Number(qt) > 1) {
       return name.replaceAll("stylo prérempli", "stylos préremplis");
     }
   }
@@ -321,65 +457,70 @@ export function getPresentationName(
 export function getAggregatePresentationRecipientsTexts(
   presentationDetails: AggregatePresentationDetails,
 ): PresentationRecipientsDetails[] {
-  const details: PresentationRecipientsDetails[]= [];
+  const details: PresentationRecipientsDetails[] = [];
 
-  if(presentationDetails.recipients.length === 0) return [];
-  presentationDetails.recipients.forEach((recipientDetails: AggregateRecipientDetails) => {
-    if(!recipientDetails.recipient) return;
-    const nbRecipient: number = (recipientDetails.nbrrecipient !== 0 &&recipientDetails.nbrrecipient)
-      ? recipientDetails.nbrrecipient
-      : 1;
+  if (presentationDetails.recipients.length === 0) return [];
+  presentationDetails.recipients.forEach(
+    (recipientDetails: AggregateRecipientDetails) => {
+      if (!recipientDetails.recipient) return;
+      const nbRecipient: number =
+        recipientDetails.nbrrecipient !== 0 && recipientDetails.nbrrecipient
+          ? recipientDetails.nbrrecipient
+          : 1;
 
-    const recipient: string = replacePluralSingular(recipientDetails.recipient, nbRecipient);
-    const contenance: string = contenanceDisplay(recipientDetails);
+      const recipient: string = replacePluralSingular(
+        recipientDetails.recipient,
+        nbRecipient,
+      );
+      const contenance: string = contenanceDisplay(recipientDetails);
 
-    const detail: PresentationRecipientsDetails = {
-      contenance: contenance,
-      recipient: nbRecipient > 1 ? `${nbRecipient.toString()} ${recipient}` : recipient,
-    }
-    details.push(detail);
-  });
+      const detail: PresentationRecipientsDetails = {
+        contenance: contenance,
+        recipient:
+          nbRecipient > 1
+            ? `${nbRecipient.toString()} ${recipient}`
+            : recipient,
+      };
+      details.push(detail);
+    },
+  );
   return details;
 }
 
 export function getPresentationFullPriceText(
-  presentation: Presentation
+  presentation: Presentation,
 ): string {
-  if(presentation.retailPrice && presentation.reimbursementRate) {
-    const price: string = Intl.NumberFormat(
-      "fr-FR", {
-        style: "currency",
-        currency: "EUR",
-      }).format(presentation.retailPrice);
+  if (presentation.retailPrice && presentation.reimbursementRate) {
+    const price: string = Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: "EUR",
+    }).format(presentation.retailPrice);
     return `Prix ${price} - remboursé à ${presentation.reimbursementRate}`;
   } else {
     return "Prix libre - non remboursable";
-  }                 
+  }
 }
 
 export function getPresentationTauxPriseEnChargeText(
-  presentation: Presentation
+  presentation: Presentation,
 ): string {
-  if(presentation.reimbursementRate) {
+  if (presentation.reimbursementRate) {
     return `remboursé à ${presentation.reimbursementRate}`;
   } else {
     return "non remboursable";
-  }                 
+  }
 }
 
-export function getPresentationPriceText(
-  presentation: Presentation
-): string {
-  if(presentation.retailPrice) {
-    const price: string = Intl.NumberFormat(
-      "fr-FR", {
-        style: "currency",
-        currency: "EUR",
-      }).format(presentation.retailPrice);
+export function getPresentationPriceText(presentation: Presentation): string {
+  if (presentation.retailPrice) {
+    const price: string = Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: "EUR",
+    }).format(presentation.retailPrice);
     return price;
   } else {
     return "Prix libre";
-  }                 
+  }
 }
 
 export function isAbrogee(presentation: Presentation): boolean {
@@ -414,10 +555,12 @@ export function isReimbursable(presentations: Presentation[]): boolean {
   return presentations.some((pres) => pres.reimbursementRate);
 }
 
-export function formatPresentationCip(presentation: Pick<Presentation, "cip7" | "cip13">): string {
+export function formatPresentationCip(
+  presentation: Pick<Presentation, "cip7" | "cip13">,
+): string {
   const cip13 = presentation.cip13.trim();
   const cip7 = presentation.cip7?.trim() ?? "";
-  // Exemple: 325 047-6 
+  // Exemple: 325 047-6
   const formattedCip13 = /^\d{13}$/.test(cip13)
     ? `${cip13.slice(0, 5)} ${cip13.slice(5, 8)} ${cip13.slice(8, 11)} ${cip13.slice(11, 12)} ${cip13.slice(12)}`
     : cip13;
@@ -425,19 +568,28 @@ export function formatPresentationCip(presentation: Pick<Presentation, "cip7" | 
   const formattedCip7 = /^\d{7}$/.test(cip7)
     ? `${cip7.slice(0, 3)} ${cip7.slice(3, 6)}-${cip7.slice(6)}`
     : cip7;
-  return formattedCip7 ? `${formattedCip7} ou ${formattedCip13}` : formattedCip13;
+  return formattedCip7
+    ? `${formattedCip7} ou ${formattedCip13}`
+    : formattedCip13;
 }
 
-export function getPresentationNonCommercializedStatusLabel(presentation: Presentation): string | null {
+export function getPresentationNonCommercializedStatusLabel(
+  presentation: Presentation,
+): string | null {
   if (isArret(presentation)) return "Déclaration d'arrêt de commercialisation";
-  if (presentation.commercialStatus === "suspended") return "Suspension de commercialisation";
-  if (isNotAuthorized(presentation)) return "Arrêt de commercialisation (le médicament n'a plus d'autorisation)";
+  if (presentation.commercialStatus === "suspended")
+    return "Suspension de commercialisation";
+  if (isNotAuthorized(presentation))
+    return "Arrêt de commercialisation (le médicament n'a plus d'autorisation)";
   return null;
 }
 
-export function getPresentationNonCommercializedBadgeLabel(presentation: Presentation): string | null {
+export function getPresentationNonCommercializedBadgeLabel(
+  presentation: Presentation,
+): string | null {
   if (isArret(presentation)) return "Arrêt";
-  if (presentation.commercialStatus === "suspended") return "Commercialisation suspendue";
+  if (presentation.commercialStatus === "suspended")
+    return "Commercialisation suspendue";
   if (isNotAuthorized(presentation)) return "Autorisation retirée";
   return null;
 }

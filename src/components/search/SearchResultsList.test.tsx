@@ -41,7 +41,8 @@ describe("search result rendering", () => {
     container.innerHTML = html;
     expect(container.querySelector("h1")?.textContent).toContain("1 résultat");
     expect(
-      container.querySelector('a[href="/medicaments/test-1-comprime-1"]')?.textContent,
+      container.querySelector('a[href="/medicaments/test-1-comprime-1"]')
+        ?.textContent,
     ).toContain("Test 1, comprimé");
   });
 
@@ -103,12 +104,18 @@ it("preserves the selected substance and matching medicines when changing sort",
       .getAllByRole("link")
       .map((link) => link.getAttribute("href"))
       .filter((href) => href?.startsWith("/medicaments/"));
-  expect(medicineLinks()).toEqual(["/medicaments/test-2-comprime-2", "/medicaments/test-1-comprime-1"]);
+  expect(medicineLinks()).toEqual([
+    "/medicaments/test-2-comprime-2",
+    "/medicaments/test-1-comprime-1",
+  ]);
 
   fireEvent.click(
     screen.getAllByRole("button", { name: "ordre alphabétique" }).at(-1)!,
   );
-  expect(medicineLinks()).toEqual(["/medicaments/test-1-comprime-1", "/medicaments/test-2-comprime-2"]);
+  expect(medicineLinks()).toEqual([
+    "/medicaments/test-1-comprime-1",
+    "/medicaments/test-2-comprime-2",
+  ]);
   expect(
     substanceFilters().every((input) => (input as HTMLInputElement).checked),
   ).toBe(true);
@@ -119,7 +126,10 @@ it("preserves the selected substance and matching medicines when changing sort",
   fireEvent.click(
     screen.getAllByRole("button", { name: "pertinence" }).at(-1)!,
   );
-  expect(medicineLinks()).toEqual(["/medicaments/test-2-comprime-2", "/medicaments/test-1-comprime-1"]);
+  expect(medicineLinks()).toEqual([
+    "/medicaments/test-2-comprime-2",
+    "/medicaments/test-1-comprime-1",
+  ]);
   expect(
     substanceFilters().every((input) => (input as HTMLInputElement).checked),
   ).toBe(true);

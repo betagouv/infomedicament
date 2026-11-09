@@ -9,7 +9,8 @@ describe("PostgreSQL safety events", () => {
 
     expect(surveillanceEvent).toMatchObject({
       specialiteId: "68852725",
-      typeLabel: "Médicament soumis à une surveillance renforcée (triangle noir)",
+      typeLabel:
+        "Médicament soumis à une surveillance renforcée (triangle noir)",
     });
     expect(surveillanceEvent?.eventDate).toBeInstanceOf(Date);
     expect(surveillanceEvent?.expiryDate).toBeInstanceOf(Date);

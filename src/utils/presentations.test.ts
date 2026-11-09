@@ -1,13 +1,38 @@
-import { AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation, PresentationPackagingDetail } from "@/types/PresentationTypes";
+import {
+  AggregateDispositifDetails,
+  AggregatePresentationDetails,
+  AggregateRecipientDetails,
+  Presentation,
+  PresentationPackagingDetail,
+} from "@/types/PresentationTypes";
 import { describe, it, expect } from "vitest";
-import { caracCompDisplay, cleanPresentationsDetails, contenanceDisplay, dispositifDisplay, formatPresentationCip, getAggregatePresentationRecipientsTexts, getPresentationNonCommercializedBadgeLabel, getPresentationNonCommercializedStatusLabel, getPresentationFullPriceText, getPresentationName, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isPresentationVisible, isReimbursable, replacePluralSingular, totalDisplay } from "./presentations";
+import {
+  caracCompDisplay,
+  cleanPresentationsDetails,
+  contenanceDisplay,
+  dispositifDisplay,
+  formatPresentationCip,
+  getAggregatePresentationRecipientsTexts,
+  getPresentationNonCommercializedBadgeLabel,
+  getPresentationNonCommercializedStatusLabel,
+  getPresentationFullPriceText,
+  getPresentationName,
+  getPresentationPriceText,
+  getPresentationTauxPriseEnChargeText,
+  isPresentationVisible,
+  isReimbursable,
+  replacePluralSingular,
+  totalDisplay,
+} from "./presentations";
 
 describe("presentation identifiers and statuses", () => {
   it("formats the CIP7 only when supplied and always formats the CIP13", () => {
-    expect(formatPresentationCip({ cip7: "3412559", cip13: "3400934125591" }))
-      .toBe("341 255-9 ou 34009 341 255 9 1");
-    expect(formatPresentationCip({ cip7: null, cip13: "3400934125591" }))
-      .toBe("34009 341 255 9 1");
+    expect(
+      formatPresentationCip({ cip7: "3412559", cip13: "3400934125591" }),
+    ).toBe("341 255-9 ou 34009 341 255 9 1");
+    expect(formatPresentationCip({ cip7: null, cip13: "3400934125591" })).toBe(
+      "34009 341 255 9 1",
+    );
   });
 
   it("uses short badge labels and detailed status labels", () => {
@@ -15,22 +40,61 @@ describe("presentation identifiers and statuses", () => {
     const suspended = { commercialStatus: "suspended" } as Presentation;
     const withdrawn = { commercialStatus: "withdrawn" } as Presentation;
     expect(getPresentationNonCommercializedBadgeLabel(stopped)).toBe("Arrêt");
-    expect(getPresentationNonCommercializedBadgeLabel(suspended)).toBe("Commercialisation suspendue");
-    expect(getPresentationNonCommercializedBadgeLabel(withdrawn)).toBe("Autorisation retirée");
-    expect(getPresentationNonCommercializedStatusLabel(stopped)).toBe("Déclaration d'arrêt de commercialisation");
-    expect(getPresentationNonCommercializedStatusLabel(withdrawn))
-      .toBe("Arrêt de commercialisation (le médicament n'a plus d'autorisation)");
+    expect(getPresentationNonCommercializedBadgeLabel(suspended)).toBe(
+      "Commercialisation suspendue",
+    );
+    expect(getPresentationNonCommercializedBadgeLabel(withdrawn)).toBe(
+      "Autorisation retirée",
+    );
+    expect(getPresentationNonCommercializedStatusLabel(stopped)).toBe(
+      "Déclaration d'arrêt de commercialisation",
+    );
+    expect(getPresentationNonCommercializedStatusLabel(withdrawn)).toBe(
+      "Arrêt de commercialisation (le médicament n'a plus d'autorisation)",
+    );
   });
 
   it("preserves the device location in a multi-recipient ANSM presentation", () => {
     const details = [
-      { codecip13: "3400949003938", nom_presentation: "", numelement: 1, nomelement: "", recipient: "flacon(s)", numrecipient: 1, nbrrecipient: 1, qtecontenance: 4, unitecontenance: "ml", caraccomplrecip: "en verre", numordreedit: 1, numdispositif: 1, dispositif: "avec seringue(s) avec aiguille(s)" },
-      { codecip13: "3400949003938", nom_presentation: "", numelement: 2, nomelement: "", recipient: "ampoule(s)", numrecipient: 2, nbrrecipient: 1, qtecontenance: 2, unitecontenance: "ml", caraccomplrecip: "en verre", numordreedit: 1, numdispositif: 1, dispositif: "avec seringue(s) avec aiguille(s)" },
+      {
+        codecip13: "3400949003938",
+        nom_presentation: "",
+        numelement: 1,
+        nomelement: "",
+        recipient: "flacon(s)",
+        numrecipient: 1,
+        nbrrecipient: 1,
+        qtecontenance: 4,
+        unitecontenance: "ml",
+        caraccomplrecip: "en verre",
+        numordreedit: 1,
+        numdispositif: 1,
+        dispositif: "avec seringue(s) avec aiguille(s)",
+      },
+      {
+        codecip13: "3400949003938",
+        nom_presentation: "",
+        numelement: 2,
+        nomelement: "",
+        recipient: "ampoule(s)",
+        numrecipient: 2,
+        nbrrecipient: 1,
+        qtecontenance: 2,
+        unitecontenance: "ml",
+        caraccomplrecip: "en verre",
+        numordreedit: 1,
+        numdispositif: 1,
+        dispositif: "avec seringue(s) avec aiguille(s)",
+      },
     ];
-    expect(getPresentationName({
-      name: "1 flacon(s) en verre de 4 ml - 1 ampoule(s) en verre avec seringue(s) avec aiguille(s) de 2 ml",
-      details,
-    } as Presentation)).toBe("1 flacon en verre de 4 ml - 1 ampoule en verre avec seringue avec aiguille de 2 ml");
+    expect(
+      getPresentationName({
+        name: "1 flacon(s) en verre de 4 ml - 1 ampoule(s) en verre avec seringue(s) avec aiguille(s) de 2 ml",
+        details,
+      } as Presentation),
+    ).toBe(
+      "1 flacon en verre de 4 ml - 1 ampoule en verre avec seringue avec aiguille de 2 ml",
+    );
   });
 });
 
@@ -46,125 +110,144 @@ describe("utils presentations - commercial visibility", () => {
   ] as const)(
     "keeps %s with end date %s: %s",
     (commercialStatus, commercialisationEndDate, expected) => {
-      expect(isPresentationVisible({ commercialStatus, commercialisationEndDate }, cutoff)).toBe(expected);
+      expect(
+        isPresentationVisible(
+          { commercialStatus, commercialisationEndDate },
+          cutoff,
+        ),
+      ).toBe(expected);
     },
   );
 
   it("does not use the commercialisation start date as the stop date", () => {
-    expect(isPresentationVisible({
-      commercialStatus: "stopped",
-      commercialisationEndDate: null,
-    }, cutoff)).toBe(false);
+    expect(
+      isPresentationVisible(
+        {
+          commercialStatus: "stopped",
+          commercialisationEndDate: null,
+        },
+        cutoff,
+      ),
+    ).toBe(false);
   });
 
   it("keeps only recent abrogations", () => {
-    expect(isPresentationVisible({
-      commercialStatus: "commercialised",
-      commercialisationEndDate: null,
-      administrativeStatus: "abrogated",
-      administrativeStatusDate: new Date("2025-01-01T00:00:00.000Z"),
-    }, cutoff)).toBe(true);
-    expect(isPresentationVisible({
-      commercialStatus: "commercialised",
-      commercialisationEndDate: null,
-      administrativeStatus: "abrogated",
-      administrativeStatusDate: new Date("2024-09-13T00:00:00.000Z"),
-    }, cutoff)).toBe(false);
+    expect(
+      isPresentationVisible(
+        {
+          commercialStatus: "commercialised",
+          commercialisationEndDate: null,
+          administrativeStatus: "abrogated",
+          administrativeStatusDate: new Date("2025-01-01T00:00:00.000Z"),
+        },
+        cutoff,
+      ),
+    ).toBe(true);
+    expect(
+      isPresentationVisible(
+        {
+          commercialStatus: "commercialised",
+          commercialisationEndDate: null,
+          administrativeStatus: "abrogated",
+          administrativeStatusDate: new Date("2024-09-13T00:00:00.000Z"),
+        },
+        cutoff,
+      ),
+    ).toBe(false);
   });
 });
 
- 
-  //CIS : 69174918
-  const recipientDetails: AggregateRecipientDetails = {
-    caraccomplrecips: [
-      {
-        caraccomplrecip: "multidose(s)",
-        numordreedit: 1,
-      },
-      {
-        caraccomplrecip: "en verre",
-        numordreedit: 2,
-      }
-    ],
-    nbrrecipient: 10,
-    numrecipient: 1,
-    qtecontenance: 10,
-    recipient: "flacon(s)",
-    unitecontenance: "dose(s)"
-  };
-  const dispositifDetails: AggregateDispositifDetails[] = [];
-  //CIS : 63886766
-  const recipientDetails2: AggregateRecipientDetails = {
-    caraccomplrecips: [],
-    nbrrecipient: 4,
-    numrecipient: 2,
-    qtecontenance: 0,
-    recipient: "seringue(s) préremplie(s)",
-    unitecontenance: ""
-  };
-  const dispositifDetails2: AggregateDispositifDetails[] = [
+//CIS : 69174918
+const recipientDetails: AggregateRecipientDetails = {
+  caraccomplrecips: [
     {
-      dispositif: "avec aiguille(s)",
-      numdispositif: 1,
+      caraccomplrecip: "multidose(s)",
+      numordreedit: 1,
     },
     {
-      dispositif: "avec adaptateur(s) pour flacon",
-      numdispositif: 2,
+      caraccomplrecip: "en verre",
+      numordreedit: 2,
+    },
+  ],
+  nbrrecipient: 10,
+  numrecipient: 1,
+  qtecontenance: 10,
+  recipient: "flacon(s)",
+  unitecontenance: "dose(s)",
+};
+const dispositifDetails: AggregateDispositifDetails[] = [];
+//CIS : 63886766
+const recipientDetails2: AggregateRecipientDetails = {
+  caraccomplrecips: [],
+  nbrrecipient: 4,
+  numrecipient: 2,
+  qtecontenance: 0,
+  recipient: "seringue(s) préremplie(s)",
+  unitecontenance: "",
+};
+const dispositifDetails2: AggregateDispositifDetails[] = [
+  {
+    dispositif: "avec aiguille(s)",
+    numdispositif: 1,
+  },
+  {
+    dispositif: "avec adaptateur(s) pour flacon",
+    numdispositif: 2,
+  },
+  {
+    dispositif: "avec tampon(s) alcoolisé(s)",
+    numdispositif: 3,
+  },
+];
+//CIS : 60052222
+const recipientDetails3: AggregateRecipientDetails = {
+  caraccomplrecips: [
+    {
+      caraccomplrecip: "en verre",
+      numordreedit: 1,
     },
     {
-      dispositif: "avec tampon(s) alcoolisé(s)",
-      numdispositif: 3,
-    }
-  ];
-  //CIS : 60052222
-  const recipientDetails3: AggregateRecipientDetails = {
-    caraccomplrecips: [
-      {
-        caraccomplrecip: "en verre",
-        numordreedit: 1,
-      },
-      {
-        caraccomplrecip: "brun",
-        numordreedit: 2,
-      }
-    ],
-    nbrrecipient: 2,
-    numrecipient: 1,
-    qtecontenance: 13.19999981,
-    recipient: "flacon(s)",
-    unitecontenance: "ml"
-  };
-  const dispositifDetails3: AggregateDispositifDetails[] = [
+      caraccomplrecip: "brun",
+      numordreedit: 2,
+    },
+  ],
+  nbrrecipient: 2,
+  numrecipient: 1,
+  qtecontenance: 13.19999981,
+  recipient: "flacon(s)",
+  unitecontenance: "ml",
+};
+const dispositifDetails3: AggregateDispositifDetails[] = [
+  {
+    dispositif: "avec dispositif(s) pulvérisateur(s)",
+    numdispositif: 3,
+  },
+];
+//CIS : 60928110
+const recipientDetails4: AggregateRecipientDetails = {
+  caraccomplrecips: [
     {
-      dispositif: "avec dispositif(s) pulvérisateur(s)",
-      numdispositif: 3,
-    }
-  ];
-  //CIS : 60928110
-  const recipientDetails4: AggregateRecipientDetails = {
-    caraccomplrecips: [
-      {
-        caraccomplrecip: "aluminium",
-        numordreedit: 1,
-      },
-      {
-        caraccomplrecip: "avec valve(s) doseuse(s)",
-        numordreedit: 2,
-      },
-      {
-        caraccomplrecip: "avec embout(s) buccal(aux)",
-        numordreedit: 3,
-      }
-    ],
-    nbrrecipient: 1,
-    numrecipient: 1,
-    qtecontenance: 200,
-    recipient: "flacon(s) pressurisé(s)",
-    unitecontenance: "dose(s)"
-  };
-  const dispositifDetails4: AggregateDispositifDetails[] = [];
+      caraccomplrecip: "aluminium",
+      numordreedit: 1,
+    },
+    {
+      caraccomplrecip: "avec valve(s) doseuse(s)",
+      numordreedit: 2,
+    },
+    {
+      caraccomplrecip: "avec embout(s) buccal(aux)",
+      numordreedit: 3,
+    },
+  ],
+  nbrrecipient: 1,
+  numrecipient: 1,
+  qtecontenance: 200,
+  recipient: "flacon(s) pressurisé(s)",
+  unitecontenance: "dose(s)",
+};
+const dispositifDetails4: AggregateDispositifDetails[] = [];
 
-  const presentations: Presentation[] = [
+const presentations: Presentation[] = [
   {
     cis: "60234100",
     cip13: "3400935955838",
@@ -191,7 +274,8 @@ describe("utils presentations - commercial visibility", () => {
         codecip13: "3400935955838",
         dispositif: "",
         nbrrecipient: 0,
-        nom_presentation: "plaquette(s) thermoformée(s) PVC-aluminium de 8 comprimé(s)",
+        nom_presentation:
+          "plaquette(s) thermoformée(s) PVC-aluminium de 8 comprimé(s)",
         nomelement: "comprimé",
         numdispositif: 0,
         numelement: 1,
@@ -199,8 +283,8 @@ describe("utils presentations - commercial visibility", () => {
         numrecipient: 1,
         qtecontenance: 8,
         recipient: "plaquette(s) thermoformée(s)",
-        unitecontenance: "comprimé(s)"
-      }
+        unitecontenance: "comprimé(s)",
+      },
     ],
   },
   {
@@ -229,7 +313,8 @@ describe("utils presentations - commercial visibility", () => {
         codecip13: "3400956369553",
         dispositif: "",
         nbrrecipient: 0,
-        nom_presentation: "plaquette(s) thermoformée(s) PVC-aluminium de 100 comprimé(s)",
+        nom_presentation:
+          "plaquette(s) thermoformée(s) PVC-aluminium de 100 comprimé(s)",
         nomelement: "comprimé",
         numdispositif: 0,
         numelement: 1,
@@ -237,10 +322,11 @@ describe("utils presentations - commercial visibility", () => {
         numrecipient: 1,
         qtecontenance: 100,
         recipient: "plaquette(s) thermoformée(s)",
-        unitecontenance: "comprimé(s)"
-      }
+        unitecontenance: "comprimé(s)",
+      },
     ],
-  }];
+  },
+];
 
 describe("utils presentations - cleanPresentationsDetails", () => {
   it("cleanPresentationsDetails - PVC-Alumium and PVC - multiple caraccomplrecip with the same value ", async () => {
@@ -251,7 +337,8 @@ describe("utils presentations - cleanPresentationsDetails", () => {
         codecip13: "3400930101001",
         dispositif: "",
         nbrrecipient: 30,
-        nom_presentation: "30 plaquette(s) prédécoupées unitaires aluminium OPA : polyamide orienté PVC-Aluminium de 1 comprimé(s)",
+        nom_presentation:
+          "30 plaquette(s) prédécoupées unitaires aluminium OPA : polyamide orienté PVC-Aluminium de 1 comprimé(s)",
         nomelement: "comprimé",
         numdispositif: 0,
         numelement: 1,
@@ -266,7 +353,8 @@ describe("utils presentations - cleanPresentationsDetails", () => {
         codecip13: "3400930101001",
         dispositif: "",
         nbrrecipient: 30,
-        nom_presentation: "30 plaquette(s) prédécoupées unitaires aluminium OPA : polyamide orienté PVC-Aluminium de 1 comprimé(s)",
+        nom_presentation:
+          "30 plaquette(s) prédécoupées unitaires aluminium OPA : polyamide orienté PVC-Aluminium de 1 comprimé(s)",
         nomelement: "comprimé",
         numdispositif: 0,
         numelement: 1,
@@ -281,7 +369,8 @@ describe("utils presentations - cleanPresentationsDetails", () => {
         codecip13: "3400930101001",
         dispositif: "",
         nbrrecipient: 30,
-        nom_presentation: "30 plaquette(s) prédécoupées unitaires aluminium OPA : polyamide orienté PVC-Aluminium de 1 comprimé(s)",
+        nom_presentation:
+          "30 plaquette(s) prédécoupées unitaires aluminium OPA : polyamide orienté PVC-Aluminium de 1 comprimé(s)",
         nomelement: "comprimé",
         numdispositif: 0,
         numelement: 1,
@@ -296,7 +385,8 @@ describe("utils presentations - cleanPresentationsDetails", () => {
         codecip13: "3400930101001",
         dispositif: "",
         nbrrecipient: 30,
-        nom_presentation: "30 plaquette(s) prédécoupées unitaires aluminium OPA : polyamide orienté PVC-Aluminium de 1 comprimé(s)",
+        nom_presentation:
+          "30 plaquette(s) prédécoupées unitaires aluminium OPA : polyamide orienté PVC-Aluminium de 1 comprimé(s)",
         nomelement: "comprimé",
         numdispositif: 0,
         numelement: 1,
@@ -311,7 +401,8 @@ describe("utils presentations - cleanPresentationsDetails", () => {
         codecip13: "3400930101001",
         dispositif: "",
         nbrrecipient: 30,
-        nom_presentation: "30 plaquette(s) prédécoupées unitaires aluminium OPA : polyamide orienté PVC-Aluminium de 1 comprimé(s)",
+        nom_presentation:
+          "30 plaquette(s) prédécoupées unitaires aluminium OPA : polyamide orienté PVC-Aluminium de 1 comprimé(s)",
         nomelement: "comprimé",
         numdispositif: 0,
         numelement: 1,
@@ -326,7 +417,8 @@ describe("utils presentations - cleanPresentationsDetails", () => {
         codecip13: "3400930101001",
         dispositif: "",
         nbrrecipient: 30,
-        nom_presentation: "30 plaquette(s) prédécoupées unitaires aluminium OPA : polyamide orienté PVC-Aluminium de 1 comprimé(s)",
+        nom_presentation:
+          "30 plaquette(s) prédécoupées unitaires aluminium OPA : polyamide orienté PVC-Aluminium de 1 comprimé(s)",
         nomelement: "comprimé",
         numdispositif: 0,
         numelement: 1,
@@ -335,7 +427,7 @@ describe("utils presentations - cleanPresentationsDetails", () => {
         qtecontenance: 1,
         recipient: "plaquette(s)",
         unitecontenance: "comprimé(s)",
-      }
+      },
     ];
     const cleanPresDetails: AggregatePresentationDetails[] = [
       {
@@ -346,7 +438,7 @@ describe("utils presentations - cleanPresentationsDetails", () => {
             caraccomplrecips: [
               {
                 caraccomplrecip: "aluminium",
-                numordreedit: 1
+                numordreedit: 1,
               },
               {
                 caraccomplrecip: "OPA : polyamide orienté",
@@ -355,18 +447,19 @@ describe("utils presentations - cleanPresentationsDetails", () => {
               {
                 caraccomplrecip: "PVC-Aluminium",
                 numordreedit: 3,
-              }
+              },
             ],
             nbrrecipient: 30,
             numrecipient: 1,
             qtecontenance: 1,
             recipient: "plaquette(s)",
             unitecontenance: "comprimé(s)",
-          }
+          },
         ],
-      }
+      },
     ];
-    const cleanResult: AggregatePresentationDetails[] = cleanPresentationsDetails(presDetails);
+    const cleanResult: AggregatePresentationDetails[] =
+      cleanPresentationsDetails(presDetails);
     expect(cleanResult).toStrictEqual(cleanPresDetails);
   });
 
@@ -378,7 +471,8 @@ describe("utils presentations - cleanPresentationsDetails", () => {
         codecip13: "3400930276419",
         dispositif: "avec dispositif(s) pulvérisateur(s)",
         nbrrecipient: 1,
-        nom_presentation: "1 flacon en verre brun de 13,2 mL (150 pulvérisations) avec pompe pour pulvérisation PEBD polypropylène",
+        nom_presentation:
+          "1 flacon en verre brun de 13,2 mL (150 pulvérisations) avec pompe pour pulvérisation PEBD polypropylène",
         nomelement: "solution",
         numdispositif: 3,
         numelement: 1,
@@ -393,7 +487,8 @@ describe("utils presentations - cleanPresentationsDetails", () => {
         codecip13: "3400930276419",
         dispositif: "avec dispositif(s) pulvérisateur(s)",
         nbrrecipient: 1,
-        nom_presentation: "1 flacon en verre brun de 13,2 mL (150 pulvérisations) avec pompe pour pulvérisation PEBD polypropylène",
+        nom_presentation:
+          "1 flacon en verre brun de 13,2 mL (150 pulvérisations) avec pompe pour pulvérisation PEBD polypropylène",
         nomelement: "solution",
         numdispositif: 3,
         numelement: 1,
@@ -411,14 +506,14 @@ describe("utils presentations - cleanPresentationsDetails", () => {
           {
             dispositif: "avec dispositif(s) pulvérisateur(s)",
             numdispositif: 3,
-          }
+          },
         ],
         recipients: [
           {
             caraccomplrecips: [
               {
                 caraccomplrecip: "en verre",
-                numordreedit: 1
+                numordreedit: 1,
               },
               {
                 caraccomplrecip: "brun",
@@ -430,11 +525,12 @@ describe("utils presentations - cleanPresentationsDetails", () => {
             qtecontenance: 13.19999981,
             recipient: "flacon(s)",
             unitecontenance: "ml",
-          }
+          },
         ],
-      }
+      },
     ];
-    const cleanResult: AggregatePresentationDetails[] = cleanPresentationsDetails(presDetails);
+    const cleanResult: AggregatePresentationDetails[] =
+      cleanPresentationsDetails(presDetails);
     expect(cleanResult).toStrictEqual(cleanPresDetails);
   });
 
@@ -446,7 +542,8 @@ describe("utils presentations - cleanPresentationsDetails", () => {
         codecip13: "3400935753274",
         dispositif: "",
         nbrrecipient: 0,
-        nom_presentation: "plaquette(s) PVC-Aluminium PVDC de 12 comprimé(s) - plaquette(s) PVC-Aluminium de 4 comprimé(s)",
+        nom_presentation:
+          "plaquette(s) PVC-Aluminium PVDC de 12 comprimé(s) - plaquette(s) PVC-Aluminium de 4 comprimé(s)",
         nomelement: "comprimé blanc",
         numdispositif: 0,
         numelement: 1,
@@ -461,7 +558,8 @@ describe("utils presentations - cleanPresentationsDetails", () => {
         codecip13: "3400935753274",
         dispositif: "",
         nbrrecipient: 0,
-        nom_presentation: "plaquette(s) PVC-Aluminium PVDC de 12 comprimé(s) - plaquette(s) PVC-Aluminium de 4 comprimé(s)",
+        nom_presentation:
+          "plaquette(s) PVC-Aluminium PVDC de 12 comprimé(s) - plaquette(s) PVC-Aluminium de 4 comprimé(s)",
         nomelement: "comprimé blanc",
         numdispositif: 0,
         numelement: 1,
@@ -476,7 +574,8 @@ describe("utils presentations - cleanPresentationsDetails", () => {
         codecip13: "3400935753274",
         dispositif: "",
         nbrrecipient: 0,
-        nom_presentation: "plaquette(s) PVC-Aluminium PVDC de 12 comprimé(s) - plaquette(s) PVC-Aluminium de 4 comprimé(s)",
+        nom_presentation:
+          "plaquette(s) PVC-Aluminium PVDC de 12 comprimé(s) - plaquette(s) PVC-Aluminium de 4 comprimé(s)",
         nomelement: "comprimé bleu",
         numdispositif: 0,
         numelement: 2,
@@ -491,7 +590,8 @@ describe("utils presentations - cleanPresentationsDetails", () => {
         codecip13: "3400935753274",
         dispositif: "",
         nbrrecipient: 0,
-        nom_presentation: "plaquette(s) PVC-Aluminium PVDC de 12 comprimé(s) - plaquette(s) PVC-Aluminium de 4 comprimé(s)",
+        nom_presentation:
+          "plaquette(s) PVC-Aluminium PVDC de 12 comprimé(s) - plaquette(s) PVC-Aluminium de 4 comprimé(s)",
         nomelement: "comprimé bleu",
         numdispositif: 0,
         numelement: 2,
@@ -511,7 +611,7 @@ describe("utils presentations - cleanPresentationsDetails", () => {
             caraccomplrecips: [
               {
                 caraccomplrecip: "PVC-Aluminium",
-                numordreedit: 1
+                numordreedit: 1,
               },
               {
                 caraccomplrecip: "PVDC",
@@ -528,7 +628,7 @@ describe("utils presentations - cleanPresentationsDetails", () => {
             caraccomplrecips: [
               {
                 caraccomplrecip: "PVC-Aluminium",
-                numordreedit: 1
+                numordreedit: 1,
               },
               {
                 caraccomplrecip: "PVDC",
@@ -540,25 +640,31 @@ describe("utils presentations - cleanPresentationsDetails", () => {
             qtecontenance: 4,
             recipient: "plaquette(s)",
             unitecontenance: "comprimé(s)",
-          }
+          },
         ],
-      }
+      },
     ];
-    const cleanResult: AggregatePresentationDetails[] = cleanPresentationsDetails(presDetails);
+    const cleanResult: AggregatePresentationDetails[] =
+      cleanPresentationsDetails(presDetails);
     expect(cleanResult).toStrictEqual(cleanPresDetails);
   });
 });
 
 describe("utils presentations - text utilities", () => {
-
   it("replacePluralSingular", async () => {
     expect(replacePluralSingular("comprimé(s)", 2)).toBe("comprimés");
     expect(replacePluralSingular("comprimé(s)", 1)).toBe("comprimé");
-    expect(replacePluralSingular("embout(s) nasal(aux)", 2)).toBe("embouts nasaux");
-    expect(replacePluralSingular("embout(s) nasal(aux)", 1)).toBe("embout nasal");
+    expect(replacePluralSingular("embout(s) nasal(aux)", 2)).toBe(
+      "embouts nasaux",
+    );
+    expect(replacePluralSingular("embout(s) nasal(aux)", 1)).toBe(
+      "embout nasal",
+    );
     expect(replacePluralSingular("anneau(x)", 2)).toBe("anneaux");
     expect(replacePluralSingular("anneau(x)", 1)).toBe("anneau");
-    expect(replacePluralSingular("stylo prérempli", 2)).toBe("stylos préremplis");
+    expect(replacePluralSingular("stylo prérempli", 2)).toBe(
+      "stylos préremplis",
+    );
     expect(replacePluralSingular("stylo prérempli", 1)).toBe("stylo prérempli");
   });
 
@@ -577,86 +683,159 @@ describe("utils presentations - text utilities", () => {
   });
 
   it("caracCompDisplay", async () => {
-    expect(caracCompDisplay(recipientDetails.caraccomplrecips, recipientDetails.nbrrecipient, false)).toBe(" multidoses en verre");
-    expect(caracCompDisplay(recipientDetails.caraccomplrecips, recipientDetails.nbrrecipient, true)).toBe("");
-    expect(caracCompDisplay(recipientDetails2.caraccomplrecips, recipientDetails2.nbrrecipient, false)).toBe("");
-    expect(caracCompDisplay(recipientDetails2.caraccomplrecips, recipientDetails2.nbrrecipient, true)).toBe("");
-    expect(caracCompDisplay(recipientDetails3.caraccomplrecips, recipientDetails3.nbrrecipient, false)).toBe(" en verre brun");
-    expect(caracCompDisplay(recipientDetails3.caraccomplrecips, recipientDetails3.nbrrecipient, true)).toBe("");
-    expect(caracCompDisplay(recipientDetails4.caraccomplrecips, recipientDetails4.nbrrecipient, false)).toBe(" aluminium avec valve doseuse avec embout buccal");
-    expect(caracCompDisplay(recipientDetails4.caraccomplrecips, recipientDetails4.nbrrecipient, true)).toBe(" avec valve doseuse avec embout buccal");
+    expect(
+      caracCompDisplay(
+        recipientDetails.caraccomplrecips,
+        recipientDetails.nbrrecipient,
+        false,
+      ),
+    ).toBe(" multidoses en verre");
+    expect(
+      caracCompDisplay(
+        recipientDetails.caraccomplrecips,
+        recipientDetails.nbrrecipient,
+        true,
+      ),
+    ).toBe("");
+    expect(
+      caracCompDisplay(
+        recipientDetails2.caraccomplrecips,
+        recipientDetails2.nbrrecipient,
+        false,
+      ),
+    ).toBe("");
+    expect(
+      caracCompDisplay(
+        recipientDetails2.caraccomplrecips,
+        recipientDetails2.nbrrecipient,
+        true,
+      ),
+    ).toBe("");
+    expect(
+      caracCompDisplay(
+        recipientDetails3.caraccomplrecips,
+        recipientDetails3.nbrrecipient,
+        false,
+      ),
+    ).toBe(" en verre brun");
+    expect(
+      caracCompDisplay(
+        recipientDetails3.caraccomplrecips,
+        recipientDetails3.nbrrecipient,
+        true,
+      ),
+    ).toBe("");
+    expect(
+      caracCompDisplay(
+        recipientDetails4.caraccomplrecips,
+        recipientDetails4.nbrrecipient,
+        false,
+      ),
+    ).toBe(" aluminium avec valve doseuse avec embout buccal");
+    expect(
+      caracCompDisplay(
+        recipientDetails4.caraccomplrecips,
+        recipientDetails4.nbrrecipient,
+        true,
+      ),
+    ).toBe(" avec valve doseuse avec embout buccal");
   });
 
   it("dispositifDisplay", async () => {
     expect(dispositifDisplay(dispositifDetails)).toBe("");
-    expect(dispositifDisplay(dispositifDetails2)).toBe(" avec aiguille avec adaptateur pour flacon avec tampon alcoolisé");
-    expect(dispositifDisplay(dispositifDetails3)).toBe(" avec dispositif pulvérisateur");
+    expect(dispositifDisplay(dispositifDetails2)).toBe(
+      " avec aiguille avec adaptateur pour flacon avec tampon alcoolisé",
+    );
+    expect(dispositifDisplay(dispositifDetails3)).toBe(
+      " avec dispositif pulvérisateur",
+    );
     expect(dispositifDisplay(dispositifDetails4)).toBe("");
   });
 
   it("getPresentationFullPriceText", async () => {
-    expect(getPresentationFullPriceText(presentations[0])).toBe("Prix 2,18 € - remboursé à 65%");
-    expect(getPresentationFullPriceText(presentations[1])).toBe("Prix libre - non remboursable");
+    expect(getPresentationFullPriceText(presentations[0])).toBe(
+      "Prix 2,18 € - remboursé à 65%",
+    );
+    expect(getPresentationFullPriceText(presentations[1])).toBe(
+      "Prix libre - non remboursable",
+    );
   });
 
   it("getPresentationTauxPriseEnChargeText", async () => {
-    expect(getPresentationTauxPriseEnChargeText(presentations[0])).toBe("remboursé à 65%");
-    expect(getPresentationTauxPriseEnChargeText(presentations[1])).toBe("non remboursable");
+    expect(getPresentationTauxPriseEnChargeText(presentations[0])).toBe(
+      "remboursé à 65%",
+    );
+    expect(getPresentationTauxPriseEnChargeText(presentations[1])).toBe(
+      "non remboursable",
+    );
   });
 
   it("getPresentationPriceText", async () => {
     expect(getPresentationPriceText(presentations[0])).toBe("2,18 €");
     expect(getPresentationPriceText(presentations[1])).toBe("Prix libre");
   });
-
 });
 
 describe("utils presentations - aggregate", () => {
-
   it("getAggregatePresentationRecipientsTexts", async () => {
     const presentationsDetails: AggregatePresentationDetails[] = [
       {
         codecip13: "3400935955838",
         dispositifs: [],
-        recipients: [{
-          caraccomplrecips: [{
-            caraccomplrecip: "PVC-Aluminium",
-            numordreedit: 1,
-          }],
-          nbrrecipient: 0,
-          numrecipient: 1,
-          qtecontenance: 8,
-          recipient: "plaquette(s) thermoformée(s)",
-          unitecontenance: "comprimé(s)"
-        }],
+        recipients: [
+          {
+            caraccomplrecips: [
+              {
+                caraccomplrecip: "PVC-Aluminium",
+                numordreedit: 1,
+              },
+            ],
+            nbrrecipient: 0,
+            numrecipient: 1,
+            qtecontenance: 8,
+            recipient: "plaquette(s) thermoformée(s)",
+            unitecontenance: "comprimé(s)",
+          },
+        ],
       },
       {
         codecip13: "3400956369553",
         dispositifs: [],
-        recipients: [{
-          caraccomplrecips: [{
-            caraccomplrecip: "PVC-Aluminium",
-            numordreedit: 1,
-          }],
-          nbrrecipient: 0,
-          numrecipient: 1,
-          qtecontenance: 100,
-          recipient: "plaquette(s) thermoformée(s)",
-          unitecontenance: "comprimé(s)"
-        }],
-      }
+        recipients: [
+          {
+            caraccomplrecips: [
+              {
+                caraccomplrecip: "PVC-Aluminium",
+                numordreedit: 1,
+              },
+            ],
+            nbrrecipient: 0,
+            numrecipient: 1,
+            qtecontenance: 100,
+            recipient: "plaquette(s) thermoformée(s)",
+            unitecontenance: "comprimé(s)",
+          },
+        ],
+      },
     ];
 
-    expect(getAggregatePresentationRecipientsTexts(presentationsDetails[0])).toStrictEqual([{
-      contenance: "8 comprimés",
-      recipient: "plaquette thermoformée"
-    }]);
-    expect(getAggregatePresentationRecipientsTexts(presentationsDetails[1])).toStrictEqual([{
-      contenance: "100 comprimés",
-      recipient: "plaquette thermoformée"
-    }]);
+    expect(
+      getAggregatePresentationRecipientsTexts(presentationsDetails[0]),
+    ).toStrictEqual([
+      {
+        contenance: "8 comprimés",
+        recipient: "plaquette thermoformée",
+      },
+    ]);
+    expect(
+      getAggregatePresentationRecipientsTexts(presentationsDetails[1]),
+    ).toStrictEqual([
+      {
+        contenance: "100 comprimés",
+        recipient: "plaquette thermoformée",
+      },
+    ]);
   });
-
 });
 
 describe("utils presentations", () => {
@@ -664,4 +843,4 @@ describe("utils presentations", () => {
     expect(isReimbursable(presentations)).toBe(true);
     expect(isReimbursable([presentations[1]])).toBe(false);
   });
-})
+});

@@ -1,6 +1,5 @@
 "use server";
 
-
 import { ResumeGeneric } from "../types";
 import db from "..";
 import { sql } from "kysely";
@@ -36,7 +35,9 @@ export type GenericGroup = {
   generiques: Specialite[];
 };
 
-export async function getGenericsResumeWithLetter(letter: string): Promise<ResumeGeneric[]> {
+export async function getGenericsResumeWithLetter(
+  letter: string,
+): Promise<ResumeGeneric[]> {
   "use cache: remote";
   const result: ResumeGeneric[] = await db
     .selectFrom("resume_generiques")
@@ -127,7 +128,11 @@ async function getGenericMemberships(CIS: string) {
       "ansm_specialite_groupe_generique.code_groupe",
     )
     .where("ansm_specialite_groupe_generique.cis", "=", CIS)
-    .where("ansm_specialite_groupe_generique.role", "in", VISIBLE_GENERIC_GROUP_ROLES)
+    .where(
+      "ansm_specialite_groupe_generique.role",
+      "in",
+      VISIBLE_GENERIC_GROUP_ROLES,
+    )
     .select([
       "ansm_specialite_groupe_generique.code_groupe",
       "ansm_specialite_groupe_generique.role",
@@ -229,7 +234,9 @@ export async function getGeneriques(codeGroupe: number): Promise<Specialite[]> {
 }
 
 // Labels of the generic groups of each specialite (a specialite can belong to several groups)
-export async function getGenericGroupsLabelsByCIS(CISList: string[]): Promise<Record<string, string>> {
+export async function getGenericGroupsLabelsByCIS(
+  CISList: string[],
+): Promise<Record<string, string>> {
   if (CISList.length === 0) return {};
   const rows = await db
     .selectFrom("ansm_specialite_groupe_generique")
@@ -239,8 +246,15 @@ export async function getGenericGroupsLabelsByCIS(CISList: string[]): Promise<Re
       "ansm_specialite_groupe_generique.code_groupe",
     )
     .where("ansm_specialite_groupe_generique.cis", "in", CISList)
-    .where("ansm_specialite_groupe_generique.role", "in", VISIBLE_GENERIC_GROUP_ROLES)
-    .select(["ansm_specialite_groupe_generique.cis", "ansm_groupe_generique.libelle"])
+    .where(
+      "ansm_specialite_groupe_generique.role",
+      "in",
+      VISIBLE_GENERIC_GROUP_ROLES,
+    )
+    .select([
+      "ansm_specialite_groupe_generique.cis",
+      "ansm_groupe_generique.libelle",
+    ])
     .orderBy("ansm_specialite_groupe_generique.code_groupe")
     .execute();
 
@@ -251,6 +265,9 @@ export async function getGenericGroupsLabelsByCIS(CISList: string[]): Promise<Re
     labelsByCIS[cis] = [...(labelsByCIS[cis] ?? []), row.libelle.trim()];
   }
   return Object.fromEntries(
-    Object.entries(labelsByCIS).map(([cis, labels]) => [cis, labels.join(" ; ")]),
+    Object.entries(labelsByCIS).map(([cis, labels]) => [
+      cis,
+      labels.join(" ; "),
+    ]),
   );
 }

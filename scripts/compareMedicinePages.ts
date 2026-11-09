@@ -353,7 +353,9 @@ async function main() {
     );
   }
   const slugs = [
-    ...new Set(requestedSlugs.length > 0 ? requestedSlugs : DEFAULT_MEDICINE_SLUGS),
+    ...new Set(
+      requestedSlugs.length > 0 ? requestedSlugs : DEFAULT_MEDICINE_SLUGS,
+    ),
   ];
 
   await mkdir(reportDirectory, { recursive: true });

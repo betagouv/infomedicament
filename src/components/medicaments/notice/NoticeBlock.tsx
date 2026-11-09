@@ -1,7 +1,7 @@
 "use client";
 
 import { HTMLAttributes } from "react";
-import styled from 'styled-components';
+import styled from "styled-components";
 import { fr } from "@codegouvfr/react-dsfr";
 import ContentContainer from "@/components/generic/ContentContainer";
 import DocumentHtml from "../DocumentHtml";
@@ -23,9 +23,9 @@ const NoticeBlockContainer = styled.div`
 `;
 
 interface NoticeBlockProps extends HTMLAttributes<HTMLDivElement> {
-  notice?: NoticeData,
-  specialite?: DetailedSpecialite,
-  definitions?: Definition[],
+  notice?: NoticeData;
+  specialite?: DetailedSpecialite;
+  definitions?: Definition[];
 }
 
 function NoticeBlock({
@@ -34,7 +34,6 @@ function NoticeBlock({
   definitions,
   ...props
 }: NoticeBlockProps) {
-
   return (
     <NoticeBlockContainer
       {...props}
@@ -42,13 +41,16 @@ function NoticeBlock({
     >
       <ContentContainer id="noticeContainer">
         {notice ? (
-          <DocumentHtml contentHtml={notice.contentHtml} definitions={definitions} />
-        ) : (specialite && isCentralisee(specialite)) ? (
+          <DocumentHtml
+            contentHtml={notice.contentHtml}
+            definitions={definitions}
+          />
+        ) : specialite && isCentralisee(specialite) ? (
           <CentraliseBlock />
         ) : null}
       </ContentContainer>
     </NoticeBlockContainer>
   );
-};
+}
 
 export default NoticeBlock;

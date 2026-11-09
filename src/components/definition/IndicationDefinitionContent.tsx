@@ -7,13 +7,18 @@ import PageDefinitionContent from "./PageDefinitionContent";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 import { Indication } from "@/db/types";
 
-interface IndicationDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
+interface IndicationDefinitionContentProps
+  extends HTMLAttributes<HTMLDivElement> {
   indication: Indication;
   articles: ArticleCardResume[];
   dataList: ResumeSpecGroup[];
 }
 
-function IndicationDefinitionContent({ indication, articles, dataList }: IndicationDefinitionContentProps) {
+function IndicationDefinitionContent({
+  indication,
+  articles,
+  dataList,
+}: IndicationDefinitionContentProps) {
   const title = `${dataList.length} ${dataList.length > 1 ? "médicaments" : "médicament"} traitant l'indication « ${indication.nom} »`;
 
   return (
@@ -28,6 +33,6 @@ function IndicationDefinitionContent({ indication, articles, dataList }: Indicat
       articleTrackingFrom="Page indication"
     />
   );
-};
+}
 
 export default IndicationDefinitionContent;

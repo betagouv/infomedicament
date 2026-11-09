@@ -23,7 +23,8 @@ export async function generateMetadata(props: {
   const hasQuery = Object.keys((await props.searchParams) ?? {}).length > 0;
   return {
     title: "Recherche",
-    description: "Recherchez un médicament par nom, substance active et / ou indication et accédez à sa notice, son RCP et ses informations.",
+    description:
+      "Recherchez un médicament par nom, substance active et / ou indication et accédez à sa notice, son RCP et ses informations.",
     ...(hasQuery && { robots: { index: false, follow: true } }),
   };
 }

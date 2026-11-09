@@ -28,14 +28,16 @@ describe("getRcpSectionText", () => {
 
   it("keeps the sub-titles of the section", () => {
     expect(getRcpSectionText(ansmRcp, "RcpMisesEnGarde")).toBe(
-      "4.4. Mises en garde spéciales et précautions d'emploi "
-      + "En cas d'hépatite virale aiguë, il convient d'arrêter le traitement. "
-      + "Précautions d'emploi Adulte de poids inférieur à 50 kg.",
+      "4.4. Mises en garde spéciales et précautions d'emploi " +
+        "En cas d'hépatite virale aiguë, il convient d'arrêter le traitement. " +
+        "Précautions d'emploi Adulte de poids inférieur à 50 kg.",
     );
   });
 
   it("stops the last sub-section at the next higher level title", () => {
-    expect(getRcpSectionText(ansmRcp, "RcpInteractionsMed")).toBe("4.5. Interactions Aucune.");
+    expect(getRcpSectionText(ansmRcp, "RcpInteractionsMed")).toBe(
+      "4.5. Interactions Aucune.",
+    );
   });
 
   it("extracts a section anchored by an id on a heading", () => {
@@ -60,7 +62,9 @@ describe("getRcpSectionText", () => {
       <p class="AmmAnnexeTitre2"><a id="RcpMisesEnGarde">4.4. Mises en garde</a></p>
     `;
 
-    expect(getRcpSectionText(html, "RcpContreindications")).toBe("4.3. Contre-indications Hypersensibilité.");
+    expect(getRcpSectionText(html, "RcpContreindications")).toBe(
+      "4.3. Contre-indications Hypersensibilité.",
+    );
   });
 
   it("finds a title without anchor by its section number", () => {

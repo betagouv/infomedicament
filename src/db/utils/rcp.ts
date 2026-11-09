@@ -1,6 +1,5 @@
 "use server";
 
-
 import db from "@/db";
 import { RcpData } from "@/types/SpecialiteTypes";
 

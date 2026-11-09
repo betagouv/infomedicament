@@ -11,33 +11,35 @@ export async function getComposants(CIS: string) {
   return getComposantsList([CIS]);
 }
 
-export async function getComposantsList(CISList: string[]): Promise<CompositionComponent[]> {
+export async function getComposantsList(
+  CISList: string[],
+): Promise<CompositionComponent[]> {
   "use cache: remote";
-    if (CISList.length === 0) return [];
+  if (CISList.length === 0) return [];
 
-    const [components, elements] = await Promise.all([
-      db
-        .selectFrom("ansm_composant")
-        .where("cis", "in", CISList)
-        .selectAll()
-        .execute(),
-      getElementsList(CISList),
-    ]);
-    const codes = [
-      ...new Set(
-        components.flatMap((component) =>
-          component.code_substance ? [component.code_substance] : [],
-        ),
+  const [components, elements] = await Promise.all([
+    db
+      .selectFrom("ansm_composant")
+      .where("cis", "in", CISList)
+      .selectAll()
+      .execute(),
+    getElementsList(CISList),
+  ]);
+  const codes = [
+    ...new Set(
+      components.flatMap((component) =>
+        component.code_substance ? [component.code_substance] : [],
       ),
-    ];
-    const names =
-      codes.length === 0
-        ? []
-        : await db
-            .selectFrom("ansm_substance_nom")
-            .where("code_substance", "in", codes)
-            .selectAll()
-            .execute();
+    ),
+  ];
+  const names =
+    codes.length === 0
+      ? []
+      : await db
+          .selectFrom("ansm_substance_nom")
+          .where("code_substance", "in", codes)
+          .selectAll()
+          .execute();
 
-    return toCompositionComponents(components, names, elements);
-  }
+  return toCompositionComponents(components, names, elements);
+}

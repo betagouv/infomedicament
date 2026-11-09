@@ -1,5 +1,5 @@
 "use client";
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const RcpNoticeHtmlContainer = styled.div.attrs({
   className: "rcp-notice-html-content",
@@ -12,7 +12,8 @@ export const RcpNoticeHtmlContainer = styled.div.attrs({
     border-collapse: collapse;
     margin-bottom: 1rem;
     margin-top: 1rem;
-    tr, th {
+    tr,
+    th {
       border: gray 1px solid;
       td {
         padding: 0.4rem;
@@ -82,9 +83,13 @@ export const RcpNoticeHtmlContainer = styled.div.attrs({
 
   &.document-html--definitions [data-definition] {
     background-image: var(--underline-img), var(--underline-img);
-    background-position: var(--underline-x) 100%, var(--underline-x) calc(100% - var(--underline-thickness));
+    background-position:
+      var(--underline-x) 100%,
+      var(--underline-x) calc(100% - var(--underline-thickness));
     background-repeat: no-repeat, no-repeat;
-    background-size: var(--underline-hover-width) calc(var(--underline-thickness) * 2), var(--underline-idle-width) var(--underline-thickness);
+    background-size:
+      var(--underline-hover-width) calc(var(--underline-thickness) * 2),
+      var(--underline-idle-width) var(--underline-thickness);
     cursor: pointer;
     transition: background-size 0s;
   }

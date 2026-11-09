@@ -13,7 +13,11 @@ vi.mock("@codegouvfr/react-dsfr/tools/cx", () => ({
   cx: (...classNames: string[]) => classNames.join(" "),
 }));
 vi.mock("@/components/generic/ContentContainer", () => ({
-  default: ({ children, whiteContainer: _whiteContainer, ...props }: React.HTMLAttributes<HTMLDivElement> & { whiteContainer?: boolean }) => (
+  default: ({
+    children,
+    whiteContainer: _whiteContainer,
+    ...props
+  }: React.HTMLAttributes<HTMLDivElement> & { whiteContainer?: boolean }) => (
     <div {...props}>{children}</div>
   ),
 }));
@@ -37,7 +41,9 @@ describe("IndicationsBlock", () => {
     expect(screen.getByRole("list")).not.toBeNull();
     expect(screen.getByText("la douleur").tagName).toBe("STRONG");
     expect(
-      screen.queryByText("Les indications thérapeutiques ne sont pas disponibles."),
+      screen.queryByText(
+        "Les indications thérapeutiques ne sont pas disponibles.",
+      ),
     ).toBeNull();
   });
 

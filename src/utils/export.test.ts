@@ -23,12 +23,17 @@ const spec: ExportSpecs = {
 
 describe("buildExportCsv", () => {
   it("builds a header and one row per specialite", () => {
-    const csv = buildExportCsv([spec, { ...spec, specId: "60000001" }], ["specId", "composants"]);
-    expect(csv).toBe([
-      '"CIS";"Substances actives"',
-      '"60035714";"GOLIMUMAB"',
-      '"60000001";"GOLIMUMAB"',
-    ].join("\n"));
+    const csv = buildExportCsv(
+      [spec, { ...spec, specId: "60000001" }],
+      ["specId", "composants"],
+    );
+    expect(csv).toBe(
+      [
+        '"CIS";"Substances actives"',
+        '"60035714";"GOLIMUMAB"',
+        '"60000001";"GOLIMUMAB"',
+      ].join("\n"),
+    );
   });
 
   it("keeps the fields definition order, not the selection order", () => {
@@ -37,7 +42,10 @@ describe("buildExportCsv", () => {
   });
 
   it("escapes double quotes and keeps separators inside values", () => {
-    const csv = buildExportCsv([{ ...spec, specName: 'Nom "spécial"; avec ;' }], ["specName"]);
+    const csv = buildExportCsv(
+      [{ ...spec, specName: 'Nom "spécial"; avec ;' }],
+      ["specName"],
+    );
     expect(csv.split("\n")[1]).toBe('"Nom ""spécial""; avec ;"');
   });
 

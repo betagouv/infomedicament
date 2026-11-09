@@ -1,21 +1,30 @@
 import { describe, it, expect } from "vitest";
-import { getAllSpecialites, getDetailedSpecialite, getSpecialite, getSubstanceSpecialites, getSubstanceSpecialitesCIS } from "./specialities";
+import {
+  getAllSpecialites,
+  getDetailedSpecialite,
+  getSpecialite,
+  getSubstanceSpecialites,
+  getSubstanceSpecialitesCIS,
+} from "./specialities";
 import { isPrincepsSpecialite } from "./generics";
 import { isHospitalDelivrance } from "@/utils/specialites";
 
 describe("db utils specialities", () => {
-
   it("getAllSpecialites - should return only actives specialities", async () => {
     const allSpecs = await getAllSpecialites();
 
     //DOLIPRANE 500 mg, comprimé orodispersible
-    const isInactiveSpec = allSpecs.findIndex((spec) => spec.SpecId.trim() === "61933092");
+    const isInactiveSpec = allSpecs.findIndex(
+      (spec) => spec.SpecId.trim() === "61933092",
+    );
     //DOLIPRANE 1000 mg, comprimé
-    const isActiveSpec = allSpecs.findIndex((spec) => spec.SpecId.trim() === "60234100"); 
+    const isActiveSpec = allSpecs.findIndex(
+      (spec) => spec.SpecId.trim() === "60234100",
+    );
 
     expect(isInactiveSpec).toBe(-1);
     expect(isActiveSpec).not.toBe(-1);
-  })
+  });
 
   it("getDetailedSpecialite - should also return historical specialites", async () => {
     const inactiveSpec = await getDetailedSpecialite("61933092");
@@ -23,34 +32,39 @@ describe("db utils specialities", () => {
 
     const activeSpec = await getDetailedSpecialite("60234100");
     expect(activeSpec).not.toBeUndefined();
-  })
+  });
 
   it("getSpecialite - should return the record and composition for historical specialites", async () => {
     const { specialite, composants, presentations, delivrance } =
-        await getSpecialite("61933092");
+      await getSpecialite("61933092");
     expect(specialite).toBeDefined();
     expect(composants.length).toBeGreaterThan(0);
     expect(Array.isArray(presentations)).toBe(true);
     expect(Array.isArray(delivrance)).toBe(true);
-  })
+  });
 
   it("getSpecialite - should return data for active specialite", async () => {
     //Spasfon, solution injectable en ampoule
     const { specialite, composants, presentations, delivrance } =
-        await getSpecialite("62998997");
+      await getSpecialite("62998997");
     expect(specialite).toBeDefined();
     expect(composants).not.toHaveLength(0);
     expect(presentations).not.toHaveLength(0);
     expect(delivrance).not.toHaveLength(0);
-  })
+  });
 
   it("reads delivery conditions and hospital use from PostgreSQL", async () => {
     const { delivrance } = await getSpecialite("60199966");
 
-    expect(delivrance).toEqual(expect.arrayContaining([
-      expect.objectContaining({ code: 120, longLabel: "liste I" }),
-      expect.objectContaining({ code: 3, longLabel: "réservé à l'usage HOSPITALIER" }),
-    ]));
+    expect(delivrance).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 120, longLabel: "liste I" }),
+        expect.objectContaining({
+          code: 3,
+          longLabel: "réservé à l'usage HOSPITALIER",
+        }),
+      ]),
+    );
     expect(isHospitalDelivrance(delivrance)).toBe(true);
   });
 
@@ -59,30 +73,39 @@ describe("db utils specialities", () => {
     const CISList = await getSubstanceSpecialitesCIS("02202");
 
     //DOLIPRANE 500 mg, comprimé orodispersible
-    const isInactiveSpec = CISList.findIndex((CIS) => CIS.trim() === "61933092");
+    const isInactiveSpec = CISList.findIndex(
+      (CIS) => CIS.trim() === "61933092",
+    );
     //DOLIPRANE 1000 mg, comprimé
-    const isActiveSpec = CISList.findIndex((CIS) => CIS.trim() === "60234100"); 
-    
+    const isActiveSpec = CISList.findIndex((CIS) => CIS.trim() === "60234100");
+
     expect(isInactiveSpec).toBe(-1);
     expect(isActiveSpec).not.toBe(-1);
-  })
+  });
 
   it("getSubstanceSpecialites - should return only actives specialities", async () => {
     //Paracétamol
     const specs = await getSubstanceSpecialites("02202");
 
     //DOLIPRANE 500 mg, comprimé orodispersible
-    const isInactiveSpec = specs.findIndex((spec) => spec.SpecId.trim() === "61933092");
+    const isInactiveSpec = specs.findIndex(
+      (spec) => spec.SpecId.trim() === "61933092",
+    );
     //DOLIPRANE 1000 mg, comprimé
-    const isActiveSpec = specs.findIndex((spec) => spec.SpecId.trim() === "60234100"); 
-    
+    const isActiveSpec = specs.findIndex(
+      (spec) => spec.SpecId.trim() === "60234100",
+    );
+
     expect(isInactiveSpec).toBe(-1);
     expect(isActiveSpec).not.toBe(-1);
-  })
+  });
 
   it("requires the complete requested substance set", async () => {
     const paracetamolOnly = await getSubstanceSpecialitesCIS("02202");
-    const paracetamolAndCodeine = await getSubstanceSpecialitesCIS(["02202", "90530"]);
+    const paracetamolAndCodeine = await getSubstanceSpecialitesCIS([
+      "02202",
+      "90530",
+    ]);
 
     expect(paracetamolOnly).not.toContain("60009573");
     expect(paracetamolAndCodeine).toContain("60009573");
@@ -104,8 +127,12 @@ describe("db utils specialities", () => {
   });
 
   it("uses textual procedure values", async () => {
-    expect((await getDetailedSpecialite("60928110"))?.ProcId).toBe("IMPORTATION_PARALLELE");
-    expect((await getDetailedSpecialite("60123598"))?.ProcId).toBe("HOMEOPATHIQUE_NATIONALE");
+    expect((await getDetailedSpecialite("60928110"))?.ProcId).toBe(
+      "IMPORTATION_PARALLELE",
+    );
+    expect((await getDetailedSpecialite("60123598"))?.ProcId).toBe(
+      "HOMEOPATHIQUE_NATIONALE",
+    );
   });
 
   it("uses the authorization abrogation event date", async () => {

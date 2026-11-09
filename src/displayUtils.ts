@@ -9,14 +9,18 @@ import { Specialite } from "@/types/SpecialiteTypes";
 export type MedicamentGroup<T extends Specialite = Specialite> = [string, T[]];
 
 export const formatSpecName = (name: string): string =>
-  name && name
+  name &&
+  name
     .split(" ")
     .map((word) =>
       /[A-Z]/.test(word[0]) ? word[0] + word.slice(1).toLowerCase() : word,
     )
     .join(" ");
 
-const frenchListFormat = new Intl.ListFormat("fr", { style: "long", type: "conjunction" });
+const frenchListFormat = new Intl.ListFormat("fr", {
+  style: "long",
+  type: "conjunction",
+});
 
 /** Joins items as a French list: "a", "a et b", "a, b et c" */
 export const formatFrenchList = (items: string[]): string =>

@@ -1,5 +1,5 @@
 export interface MatomoErrorResult {
-  result: 'error';
+  result: "error";
   message: string;
 }
 

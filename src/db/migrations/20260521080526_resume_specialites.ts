@@ -1,7 +1,7 @@
-import { sql, type Kysely } from 'kysely'
+import { sql, type Kysely } from "kysely";
 
 export async function up(db: Kysely<any>): Promise<void> {
-	await db.schema
+  await db.schema
     .createTable("resume_specialites")
     .ifNotExists()
     .addColumn("specId", "varchar", (col) => col.notNull())
@@ -22,24 +22,28 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn("isAlertPediatricContraindication", "boolean")
     .execute();
 
-	await db.schema.createIndex('resume_specialites_specName_idx').ifNotExists().on('resume_specialites').column('specName').execute();
+  await db.schema
+    .createIndex("resume_specialites_specName_idx")
+    .ifNotExists()
+    .on("resume_specialites")
+    .column("specName")
+    .execute();
 
-	//Rename type for medicaments letters 
-	await db
-		.updateTable('letters')
-		.set({ type: "medicaments" })
-		.where('type', '=', "specialites")
-		.executeTakeFirstOrThrow();
+  //Rename type for medicaments letters
+  await db
+    .updateTable("letters")
+    .set({ type: "medicaments" })
+    .where("type", "=", "specialites")
+    .executeTakeFirstOrThrow();
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable('resume_specialites').ifExists().execute();
+  await db.schema.dropTable("resume_specialites").ifExists().execute();
 
-	//Rename type for medicaments letters 
-	await db
-		.updateTable('letters')
-		.set({ type: "specialites" })
-		.where('type', '=', "medicaments")
-		.executeTakeFirstOrThrow();
-
+  //Rename type for medicaments letters
+  await db
+    .updateTable("letters")
+    .set({ type: "specialites" })
+    .where("type", "=", "medicaments")
+    .executeTakeFirstOrThrow();
 }

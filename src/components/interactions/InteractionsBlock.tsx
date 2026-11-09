@@ -83,7 +83,7 @@ function FormattedText({ text }: { text: string }) {
           {listItems.map((item, i) => (
             <li key={i}>{item.replace(/^-\s*/, "")}</li>
           ))}
-        </ul>
+        </ul>,
       );
       listItems = [];
     }
@@ -109,7 +109,8 @@ const ChapeauLabel = styled.p`
 `;
 
 const ChapeauText = styled.div`
-  p, li {
+  p,
+  li {
     font-size: 0.875rem;
     color: var(--text-mention-grey);
     font-style: italic;
@@ -280,7 +281,11 @@ export default function InteractionsBlock() {
                       <strong>{slot2!.label}</strong>
                     </span>
                     {badges.map((b) => (
-                      <NiveauBadge key={b.label} $color={b.color} $textColor={b.textColor}>
+                      <NiveauBadge
+                        key={b.label}
+                        $color={b.color}
+                        $textColor={b.textColor}
+                      >
                         {b.label}
                       </NiveauBadge>
                     ))}
@@ -297,23 +302,34 @@ export default function InteractionsBlock() {
                   {(r.subst1ClassName || r.subst2ClassName) && (
                     <ClassExplanation>
                       {r.subst1ClassName && slot1!.class_ids.length === 0 && (
-                        <><strong>{slot1!.label}</strong>{` dans ${r.subst1ClassName}`}<br /></>
+                        <>
+                          <strong>{slot1!.label}</strong>
+                          {` dans ${r.subst1ClassName}`}
+                          <br />
+                        </>
                       )}
                       {r.subst2ClassName && slot2!.class_ids.length === 0 && (
-                        <><strong>{slot2!.label}</strong>{` dans ${r.subst2ClassName}`}</>
+                        <>
+                          <strong>{slot2!.label}</strong>
+                          {` dans ${r.subst2ClassName}`}
+                        </>
                       )}
                     </ClassExplanation>
                   )}
                   {r.subst1Chapeau && (
                     <>
                       <ChapeauLabel>{r.subst1ClassName}</ChapeauLabel>
-                      <ChapeauText><FormattedText text={r.subst1Chapeau} /></ChapeauText>
+                      <ChapeauText>
+                        <FormattedText text={r.subst1Chapeau} />
+                      </ChapeauText>
                     </>
                   )}
                   {r.subst2Chapeau && (
                     <>
                       <ChapeauLabel>{r.subst2ClassName}</ChapeauLabel>
-                      <ChapeauText><FormattedText text={r.subst2Chapeau} /></ChapeauText>
+                      <ChapeauText>
+                        <FormattedText text={r.subst2Chapeau} />
+                      </ChapeauText>
                     </>
                   )}
                 </div>

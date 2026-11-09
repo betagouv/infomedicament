@@ -1,9 +1,7 @@
 import { Suspense } from "react";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import {
-  groupGeneNameToDCI,
-} from "@/db/utils";
+import { groupGeneNameToDCI } from "@/db/utils";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { formatSpecName } from "@/displayUtils";
@@ -20,15 +18,15 @@ import { getIdFromSlug, getNumericIdFromSlug } from "@/utils/slug";
 import { getGenericGroupDescription, getGenericSlug } from "@/utils/generics";
 import { Metadata } from "next";
 
-export async function generateMetadata(
-  props: { params: Promise<{ slug: string }> },
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await props.params;
   const genericGroupCode = getNumericIdFromSlug(slug);
   const group: GenericGroup | undefined = genericGroupCode
     ? await getGenericGroup(genericGroupCode)
     : undefined;
-    
+
   if (!group) {
     return {
       title: `Groupe générique ${getIdFromSlug(slug)}`,
@@ -44,10 +42,18 @@ export async function generateMetadata(
 }
 
 export default function Page(props: { params: Promise<{ slug: string }> }) {
-  return <Suspense fallback={<PageLoadingFallback />}><ResolvedGenericPage params={props.params} /></Suspense>;
+  return (
+    <Suspense fallback={<PageLoadingFallback />}>
+      <ResolvedGenericPage params={props.params} />
+    </Suspense>
+  );
 }
 
-async function ResolvedGenericPage({ params }: { params: Promise<{ slug: string }> }) {
+async function ResolvedGenericPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   return <CachedGenericPage slug={slug} />;
 }
@@ -64,7 +70,9 @@ async function CachedGenericPage({ slug }: { slug: string }) {
   if (!displaySpecialite) notFound();
   const composants = await getComposants(displaySpecialite.SpecId);
 
-  const CISList = [...group.princeps, ...group.generiques].map((specialite) => specialite.SpecId);
+  const CISList = [...group.princeps, ...group.generiques].map(
+    (specialite) => specialite.SpecId,
+  );
   const events = await getReinforcedSurveillanceEvents(CISList);
 
   let atcCode = await getAtcCode(displaySpecialite.SpecId);
@@ -93,9 +101,7 @@ async function CachedGenericPage({ slug }: { slug: string }) {
           currentPageLabel={pageLabel}
         />
         <Badge className="fr-badge--purple-glycine">Groupe générique</Badge>
-        <h1 className={fr.cx("fr-h1", "fr-mt-1w", "fr-mb-6w")}>
-          {pageLabel}
-        </h1>
+        <h1 className={fr.cx("fr-h1", "fr-mt-1w", "fr-mb-6w")}>{pageLabel}</h1>
       </ContentContainer>
       <MedicamentGeneriqueContainer
         atc2={atc2}
@@ -105,9 +111,7 @@ async function CachedGenericPage({ slug }: { slug: string }) {
         generiques={group.generiques}
         events={events}
       />
-      <RatingToaster
-        pageId={pageLabel}
-      />
+      <RatingToaster pageId={pageLabel} />
     </>
   );
 }

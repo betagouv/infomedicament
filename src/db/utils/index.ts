@@ -1,8 +1,6 @@
 import "server-cli-only";
 
-export {
-  getSpecialite,
-} from "./specialities";
+export { getSpecialite } from "./specialities";
 export { getPresentations } from "./presentation";
 export { getAutocompleteSuggestions } from "./autocomplete";
 export { getSearchResults } from "./search";

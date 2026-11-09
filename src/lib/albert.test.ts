@@ -4,7 +4,11 @@ vi.mock("server-only", () => ({}));
 
 import { parseAlbertJson } from "./albert";
 
-const PAYLOAD = { answer: "Twice daily.", section_anchor: "Ann3b", block_id: "block-123" };
+const PAYLOAD = {
+  answer: "Twice daily.",
+  section_anchor: "Ann3b",
+  block_id: "block-123",
+};
 
 describe("parseAlbertJson", () => {
   it("parses raw JSON", () => {
@@ -12,11 +16,15 @@ describe("parseAlbertJson", () => {
   });
 
   it("parses ```json fenced output", () => {
-    expect(parseAlbertJson("```json\n" + JSON.stringify(PAYLOAD) + "\n```")).toEqual(PAYLOAD);
+    expect(
+      parseAlbertJson("```json\n" + JSON.stringify(PAYLOAD) + "\n```"),
+    ).toEqual(PAYLOAD);
   });
 
   it("parses plain ``` fenced output", () => {
-    expect(parseAlbertJson("```\n" + JSON.stringify(PAYLOAD) + "\n```")).toEqual(PAYLOAD);
+    expect(
+      parseAlbertJson("```\n" + JSON.stringify(PAYLOAD) + "\n```"),
+    ).toEqual(PAYLOAD);
   });
 
   it("throws on invalid JSON", () => {

@@ -6,7 +6,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   console.log("Loading reference data from PostgreSQL...");
 
   // NB: you must run updateResumeData.ts in order for those tables to be
-  // up-to-date when recieving a new BDPM mysql dump. 
+  // up-to-date when recieving a new BDPM mysql dump.
   const groups = await db
     .selectFrom("resume_medicaments")
     .selectAll()
@@ -41,17 +41,23 @@ export async function seed(db: Kysely<any>): Promise<void> {
 
   console.log(
     `Loaded ${groups.length} groups, ${substances.length} substances, ` +
-    `${indications.length} indications, ${atcRows.length} ATC codes, ` +
-    `${atcFriendly1.length + atcFriendly2.length} friendly ATC labels`
+      `${indications.length} indications, ${atcRows.length} ATC codes, ` +
+      `${atcFriendly1.length + atcFriendly2.length} friendly ATC labels`,
   );
 
   if (groups.length === 0 || substances.length === 0) {
-    throw new Error("No groups found in resume_medicaments or in resume_substances — run updateResumeData first");
+    throw new Error(
+      "No groups found in resume_medicaments or in resume_substances — run updateResumeData first",
+    );
   }
 
   // Build lookup maps
-  const substanceMap = new Map(substances.map((s) => [s.NomId.trim(), s.NomLib]));
-  const indicationsMap = new Map(indications.map((p) => [p.idIndication, p.nomIndication.trim()]));
+  const substanceMap = new Map(
+    substances.map((s) => [s.NomId.trim(), s.NomLib]),
+  );
+  const indicationsMap = new Map(
+    indications.map((p) => [p.idIndication, p.nomIndication.trim()]),
+  );
 
   // Build ATC label map: code → labels (may have both friendly and technical labels)
   const atcLabelMap = new Map<string, Set<string>>();

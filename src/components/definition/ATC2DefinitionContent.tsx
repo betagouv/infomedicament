@@ -13,7 +13,11 @@ interface ATC2DefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
   dataList: ResumeSubstance[];
 }
 
-function ATC2DefinitionContent({ atc, articles, dataList }: ATC2DefinitionContentProps) {
+function ATC2DefinitionContent({
+  atc,
+  articles,
+  dataList,
+}: ATC2DefinitionContentProps) {
   const title = `${dataList.length} ${dataList.length > 1 ? "substances actives" : "substance active"}`;
 
   return (
@@ -28,6 +32,6 @@ function ATC2DefinitionContent({ atc, articles, dataList }: ATC2DefinitionConten
       articleTrackingFrom="Page ATC2"
     />
   );
-};
+}
 
 export default ATC2DefinitionContent;

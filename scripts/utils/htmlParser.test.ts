@@ -8,7 +8,8 @@ describe("getCleanHTML", () => {
   });
 
   it("should remove <a name=> tags while keeping their content", () => {
-    const html = '<p class="AmmAnnexeTitre"><a name="Ann3bNotice">NOTICE</a></p>';
+    const html =
+      '<p class="AmmAnnexeTitre"><a name="Ann3bNotice">NOTICE</a></p>';
     const expected = '<p class="AmmAnnexeTitre">NOTICE</p>';
     expect(getCleanHTML(html)).toBe(expected);
   });
@@ -42,8 +43,7 @@ describe("getCleanHTML", () => {
   it("should handle real-world example from notices JSONL", () => {
     const html =
       '<p class="AmmAnnexeTitre"><a name="Ann3bNotice">NOTICE</a></p>';
-    const expected =
-      '<p class="AmmAnnexeTitre">NOTICE</p>';
+    const expected = '<p class="AmmAnnexeTitre">NOTICE</p>';
     expect(getCleanHTML(html)).toBe(expected);
   });
 

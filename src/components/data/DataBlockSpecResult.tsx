@@ -62,7 +62,6 @@ function DataBlockSpecResult({
   atcsFilters,
   indicationsFilters,
 }: DataBlockSpecResultProps) {
-
   const indexGroupName = specialite.specName.indexOf(specialite.groupName);
   const prefixName = formatSpecName(
     indexGroupName === 0 ? specialite.groupName : specialite.specName,

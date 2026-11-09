@@ -14,11 +14,16 @@ import { getElementsList } from "./elements";
 const PRESENTATION_VISIBILITY_DAYS = 730;
 const ABROGATION_EVENT_CODES = [18, 90];
 
-function mapAdministrativeStatus(status: string | null): PresentationAdministrativeStatus {
+function mapAdministrativeStatus(
+  status: string | null,
+): PresentationAdministrativeStatus {
   switch (status) {
-    case "ACTIVE": return "active";
-    case "ABROGEE": return "abrogated";
-    default: return "unknown";
+    case "ACTIVE":
+      return "active";
+    case "ABROGEE":
+      return "abrogated";
+    default:
+      return "unknown";
   }
 }
 
@@ -37,21 +42,38 @@ function numericValue(value: number | null): number {
 // Example 1: "avec aiguille(s)" becomes "avec 2 aiguilles" if the denomination says so.
 // Example 2: "avec tampon(s) alcoolisé(s)" stays unchanged if the denomination does not
 // contain a matching counted form.
-function preserveDispositifCount(dispositif: string | null, denomination: string | null): string {
-  if (!dispositif || !denomination || !dispositif.toLowerCase().startsWith("avec ")) return dispositif ?? "";
+function preserveDispositifCount(
+  dispositif: string | null,
+  denomination: string | null,
+): string {
+  if (
+    !dispositif ||
+    !denomination ||
+    !dispositif.toLowerCase().startsWith("avec ")
+  )
+    return dispositif ?? "";
 
   const pluralDispositif = dispositif
     .replaceAll("(s)", "s")
     .replaceAll("al(aux)", "aux")
     .replaceAll("(x)", "x");
   const dispositifWithoutAvec = pluralDispositif.slice("avec ".length);
-  const escapedDispositif = dispositifWithoutAvec.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const singularDispositif = dispositif.slice("avec ".length)
-    .replaceAll("(s)", "").replaceAll("al(aux)", "al").replaceAll("(x)", "")
+  const escapedDispositif = dispositifWithoutAvec.replace(
+    /[.*+?^${}()|[\]\\]/g,
+    "\\$&",
+  );
+  const singularDispositif = dispositif
+    .slice("avec ".length)
+    .replaceAll("(s)", "")
+    .replaceAll("al(aux)", "al")
+    .replaceAll("(x)", "")
     .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const countedDevice = denomination.match(new RegExp(
-    `(?:avec\\s+|\\+\\s*)\\d+\\s+(?:${escapedDispositif}|${singularDispositif})(?!\\p{L})`, "iu",
-  ));
+  const countedDevice = denomination.match(
+    new RegExp(
+      `(?:avec\\s+|\\+\\s*)\\d+\\s+(?:${escapedDispositif}|${singularDispositif})(?!\\p{L})`,
+      "iu",
+    ),
+  );
 
   return countedDevice?.[0].replace(/^\+\s*/, "avec ") ?? dispositif;
 }
@@ -70,16 +92,17 @@ export async function getPresentations(CIS: string): Promise<Presentation[]> {
   const abrogatedCips = rows
     .filter((row) => row.statut === "ABROGEE")
     .map((row) => row.cip);
-  const abrogationEvents = abrogatedCips.length > 0
-    ? await db
-      .selectFrom("ansm_presentation_evenement")
-      .where("cip", "in", abrogatedCips)
-      .where("code_evenement", "in", ABROGATION_EVENT_CODES)
-      .where("date_evenement", "is not", null)
-      .select(["cip", "date_evenement"])
-      .orderBy("date_evenement", "desc")
-      .execute()
-    : [];
+  const abrogationEvents =
+    abrogatedCips.length > 0
+      ? await db
+          .selectFrom("ansm_presentation_evenement")
+          .where("cip", "in", abrogatedCips)
+          .where("code_evenement", "in", ABROGATION_EVENT_CODES)
+          .where("date_evenement", "is not", null)
+          .select(["cip", "date_evenement"])
+          .orderBy("date_evenement", "desc")
+          .execute()
+      : [];
   const administrativeStatusDateByCip = new Map<string, Date>();
   for (const event of abrogationEvents) {
     if (event.date_evenement && !administrativeStatusDateByCip.has(event.cip)) {
@@ -87,31 +110,42 @@ export async function getPresentations(CIS: string): Promise<Presentation[]> {
     }
   }
 
-  const visibleRows = rows.filter((row) => isPresentationVisible({
-    commercialStatus: mapCommercialStatus(row.statut_commercialisation),
-    commercialisationEndDate: row.date_arret_commercialisation,
-    administrativeStatus: mapAdministrativeStatus(row.statut),
-    administrativeStatusDate: administrativeStatusDateByCip.get(row.cip) ?? null,
-  }, cutoff));
+  const visibleRows = rows.filter((row) =>
+    isPresentationVisible(
+      {
+        commercialStatus: mapCommercialStatus(row.statut_commercialisation),
+        commercialisationEndDate: row.date_arret_commercialisation,
+        administrativeStatus: mapAdministrativeStatus(row.statut),
+        administrativeStatusDate:
+          administrativeStatusDateByCip.get(row.cip) ?? null,
+      },
+      cutoff,
+    ),
+  );
   const cips = visibleRows.map((row) => row.cip.trim());
 
-  const [prices, approvals] = cips.length > 0
-    ? await Promise.all([
-      pdbmMySQL
-        .selectFrom("CEPS_Prix")
-        .where("Cip13", "in", cips)
-        .selectAll()
-        .execute(),
-      pdbmMySQL
-        .selectFrom("CNAM_AgreColl")
-        .where("Cip13", "in", cips)
-        .selectAll()
-        .execute(),
-    ])
-    : [[], []];
+  const [prices, approvals] =
+    cips.length > 0
+      ? await Promise.all([
+          pdbmMySQL
+            .selectFrom("CEPS_Prix")
+            .where("Cip13", "in", cips)
+            .selectAll()
+            .execute(),
+          pdbmMySQL
+            .selectFrom("CNAM_AgreColl")
+            .where("Cip13", "in", cips)
+            .selectAll()
+            .execute(),
+        ])
+      : [[], []];
 
-  const priceByCip = new Map(prices.map((price) => [price.Cip13.trim(), price]));
-  const approvalByCip = new Map(approvals.map((approval) => [approval.Cip13.trim(), approval]));
+  const priceByCip = new Map(
+    prices.map((price) => [price.Cip13.trim(), price]),
+  );
+  const approvalByCip = new Map(
+    approvals.map((approval) => [approval.Cip13.trim(), approval]),
+  );
 
   return visibleRows
     .map((row): Presentation => {
@@ -128,14 +162,19 @@ export async function getPresentations(CIS: string): Promise<Presentation[]> {
         commercialisationDate: row.date_commercialisation,
         commercialisationEndDate: row.date_arret_commercialisation,
         administrativeStatus: mapAdministrativeStatus(row.statut),
-        administrativeStatusDate: administrativeStatusDateByCip.get(row.cip) ?? null,
+        administrativeStatusDate:
+          administrativeStatusDateByCip.get(row.cip) ?? null,
         pricingKnown: price !== undefined,
         retailPrice: price?.PPF ?? null,
         priceExcludingDispensingFee: price?.Ppttc ?? null,
         dispensingFee: price?.HonoDisp ?? null,
         reimbursementRate: price?.TauxPriseEnCharge ?? null,
         communityApproval: approval
-          ? approval.AgreColl === 1 ? true : approval.AgreColl === 0 ? false : null
+          ? approval.AgreColl === 1
+            ? true
+            : approval.AgreColl === 0
+              ? false
+              : null
           : null,
         communityApprovalDate: approval?.DateJO ?? null,
         additionalList: null,
@@ -143,12 +182,20 @@ export async function getPresentations(CIS: string): Promise<Presentation[]> {
         ivgPricing: null,
       };
     })
-    .sort((a, b) => a.retailPrice !== null && b.retailPrice !== null
-      ? a.retailPrice - b.retailPrice
-      : a.retailPrice !== null ? -1 : b.retailPrice !== null ? 1 : a.cip13.localeCompare(b.cip13));
+    .sort((a, b) =>
+      a.retailPrice !== null && b.retailPrice !== null
+        ? a.retailPrice - b.retailPrice
+        : a.retailPrice !== null
+          ? -1
+          : b.retailPrice !== null
+            ? 1
+            : a.cip13.localeCompare(b.cip13),
+    );
 }
 
-export async function getPresentationsDetails(codeCIP13List: string[]): Promise<PresentationPackagingDetail[]> {
+export async function getPresentationsDetails(
+  codeCIP13List: string[],
+): Promise<PresentationPackagingDetail[]> {
   "use cache: remote";
   if (codeCIP13List.length === 0) return [];
 
@@ -190,12 +237,20 @@ export async function getPresentationsDetails(codeCIP13List: string[]): Promise<
   }
   const devicesByCip = new Map<string, typeof devices>();
   for (const device of devices) {
-    devicesByCip.set(device.cip, [...(devicesByCip.get(device.cip) ?? []), device]);
+    devicesByCip.set(device.cip, [
+      ...(devicesByCip.get(device.cip) ?? []),
+      device,
+    ]);
   }
   const elementByPresentationAndNumber = new Map(
-    elements.map((element) => [`${element.cis}:${element.numero_element}`, element]),
+    elements.map((element) => [
+      `${element.cis}:${element.numero_element}`,
+      element,
+    ]),
   );
-  const presentationByCip = new Map(presentationRows.map((presentation) => [presentation.cip, presentation]));
+  const presentationByCip = new Map(
+    presentationRows.map((presentation) => [presentation.cip, presentation]),
+  );
 
   return recipients.flatMap((recipient): PresentationPackagingDetail[] => {
     const presentation = presentationByCip.get(recipient.cip);
@@ -205,51 +260,66 @@ export async function getPresentationsDetails(codeCIP13List: string[]): Promise<
       `${recipient.cip}:${recipient.numero_recipient}`,
     ) ?? [null];
     const presentationDevices = devicesByCip.get(recipient.cip) ?? [null];
-    const element = recipient.numero_element === null
-      ? undefined
-      : elementByPresentationAndNumber.get(`${presentation.cis}:${recipient.numero_element}`);
+    const element =
+      recipient.numero_element === null
+        ? undefined
+        : elementByPresentationAndNumber.get(
+            `${presentation.cis}:${recipient.numero_element}`,
+          );
 
     return recipientCharacteristics.flatMap((characteristic) =>
-      presentationDevices.map((device): PresentationPackagingDetail => ({
-        codecip13: recipient.cip,
-        nom_presentation: presentation.denomination ?? "",
-        numelement: element?.ordre ?? recipient.numero_element ?? 0,
-        nomelement: element?.denomination ?? "",
-        recipient: recipient.nature_recipient ?? "",
-        numrecipient: recipient.numero_recipient,
-        nbrrecipient: numericValue(recipient.nombre),
-        qtecontenance: numericValue(recipient.quantite_contenance),
-        unitecontenance: recipient.unite_contenance ?? "",
-        caraccomplrecip: characteristic?.libelle ?? "",
-        numordreedit: characteristic?.ordre ?? 0,
-        numdispositif: device?.numero_dispositif ?? 0,
-        dispositif: preserveDispositifCount(device?.nature_dispositif ?? null, presentation.denomination),
-      })),
+      presentationDevices.map(
+        (device): PresentationPackagingDetail => ({
+          codecip13: recipient.cip,
+          nom_presentation: presentation.denomination ?? "",
+          numelement: element?.ordre ?? recipient.numero_element ?? 0,
+          nomelement: element?.denomination ?? "",
+          recipient: recipient.nature_recipient ?? "",
+          numrecipient: recipient.numero_recipient,
+          nbrrecipient: numericValue(recipient.nombre),
+          qtecontenance: numericValue(recipient.quantite_contenance),
+          unitecontenance: recipient.unite_contenance ?? "",
+          caraccomplrecip: characteristic?.libelle ?? "",
+          numordreedit: characteristic?.ordre ?? 0,
+          numdispositif: device?.numero_dispositif ?? 0,
+          dispositif: preserveDispositifCount(
+            device?.nature_dispositif ?? null,
+            presentation.denomination,
+          ),
+        }),
+      ),
     );
   });
 }
 
-export async function getFullPresentations(CIS: string): Promise<Presentation[]> {
+export async function getFullPresentations(
+  CIS: string,
+): Promise<Presentation[]> {
   "use cache: remote";
   const presentations = await getPresentations(CIS);
   const cips = presentations.map((presentation) => presentation.cip13);
-  const [details, retroRows] = cips.length > 0
-    ? await Promise.all([
-      getPresentationsDetails(cips),
-      pdbmMySQL
-        .selectFrom("CNAM_Retro")
-        .where("Cip13", "in", cips)
-        .selectAll()
-        .execute(),
-    ])
-    : [[], []];
-  const retroByCip = new Map(retroRows.map((retro) => [retro.Cip13.trim(), retro]));
+  const [details, retroRows] =
+    cips.length > 0
+      ? await Promise.all([
+          getPresentationsDetails(cips),
+          pdbmMySQL
+            .selectFrom("CNAM_Retro")
+            .where("Cip13", "in", cips)
+            .selectAll()
+            .execute(),
+        ])
+      : [[], []];
+  const retroByCip = new Map(
+    retroRows.map((retro) => [retro.Cip13.trim(), retro]),
+  );
 
   return presentations.map((presentation) => {
     const retro = retroByCip.get(presentation.cip13);
     return {
       ...presentation,
-      details: details.filter((detail) => detail.codecip13.trim() === presentation.cip13),
+      details: details.filter(
+        (detail) => detail.codecip13.trim() === presentation.cip13,
+      ),
       additionalList: mapYesNo(retro?.ListSus),
       retrocessionList: mapYesNo(retro?.Retro),
       ivgPricing: mapYesNo(retro?.IVG),

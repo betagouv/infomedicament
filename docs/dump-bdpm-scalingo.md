@@ -23,13 +23,13 @@ pousser vers Scalingo.
 
 ## Vue d'ensemble
 
-| Étape | Objectif |
-|-------|----------|
-| 1 | Importer le dump BDPM en local |
-| 2 | Ajouter les clés primaires (requises par Scalingo) |
-| 3 | Exporter la base locale |
-| 4 | Importer sur Scalingo |
-| 5 | Régénérer les données dérivées |
+| Étape | Objectif                                           |
+| ----- | -------------------------------------------------- |
+| 1     | Importer le dump BDPM en local                     |
+| 2     | Ajouter les clés primaires (requises par Scalingo) |
+| 3     | Exporter la base locale                            |
+| 4     | Importer sur Scalingo                              |
+| 5     | Régénérer les données dérivées                     |
 
 ---
 
@@ -116,8 +116,7 @@ node .next/standalone/scripts/seedSearchIndex.js
 node .next/standalone/scripts/populateSpecMetadataTable.js
 ```
 
-
-
 Puis, à réaliser également :
-- re-produire la classification pédiatrique (dans le projet *data-eng*, e.g. `poetry run infomedicament-dataeng classify-pediatric --s3 --since 2
+
+- re-produire la classification pédiatrique (dans le projet _data-eng_, e.g. `poetry run infomedicament-dataeng classify-pediatric --s3 --since 2
 026-07-20 -o predictions_260720.csv`, puis update dans le document Grist, puis executer le script de synchronisation avec Grist)

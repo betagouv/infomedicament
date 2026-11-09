@@ -1,10 +1,9 @@
 "use server";
 
-
-import db from '@/db';
-import { NoticeData } from '@/types/SpecialiteTypes';
-import { NoticeDB } from '../types';
-import { formatNoticeDateNotif } from '@/utils/notices';
+import db from "@/db";
+import { NoticeData } from "@/types/SpecialiteTypes";
+import { NoticeDB } from "../types";
+import { formatNoticeDateNotif } from "@/utils/notices";
 
 export async function getNotice(CIS: string): Promise<NoticeData | undefined> {
   "use cache: remote";
@@ -15,7 +14,7 @@ export async function getNotice(CIS: string): Promise<NoticeData | undefined> {
     .where("codeCIS", "=", parseInt(CIS))
     .executeTakeFirst();
 
-  if(!noticeRaw) return undefined;
+  if (!noticeRaw) return undefined;
 
   return {
     codeCIS: noticeRaw.codeCIS,
@@ -23,7 +22,7 @@ export async function getNotice(CIS: string): Promise<NoticeData | undefined> {
     dateNotif: formatNoticeDateNotif(noticeRaw.dateNotif),
     contentHtml: noticeRaw.content_html ?? "",
   };
-};
+}
 
 export async function getNoticesByCIS(
   CISList: number[],
@@ -35,4 +34,4 @@ export async function getNoticesByCIS(
     .select(["codeCIS", "content_html"])
     .where("codeCIS", "in", CISList)
     .execute();
-};
+}

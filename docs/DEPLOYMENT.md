@@ -17,11 +17,11 @@ On ne **commit jamais directement** sur `staging` ou `production`. Tout passe pa
 
 ## Branches
 
-| Branche | Rôle | Déploiement |
-|---------|------|-------------|
-| `main` | Branche de développement, source de vérité | - |
-| `staging` | Environnement de test/recette | Auto-déployé sur Scalingo staging |
-| `production` | Environnement de production | Auto-déployé sur Scalingo production (branche protégée sur GitHub) |
+| Branche      | Rôle                                       | Déploiement                                                        |
+| ------------ | ------------------------------------------ | ------------------------------------------------------------------ |
+| `main`       | Branche de développement, source de vérité | -                                                                  |
+| `staging`    | Environnement de test/recette              | Auto-déployé sur Scalingo staging                                  |
+| `production` | Environnement de production                | Auto-déployé sur Scalingo production (branche protégée sur GitHub) |
 
 ## Review Apps
 
@@ -110,6 +110,7 @@ git push -u origin hotfix/mon-fix
 Pour les PRs vers `staging` et `production`, utiliser **"Create a merge commit"** (pas rebase, pas squash).
 
 Cela garantit :
+
 - Un commit de merge daté = date exacte du déploiement
 - Pas de réécriture d'historique = pas de divergence de branches
 - Traçabilité complète

@@ -2,7 +2,7 @@
 
 import { HTMLAttributes } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
-import styled from 'styled-components';
+import styled from "styled-components";
 import Checkbox from "@codegouvfr/react-dsfr/Checkbox";
 import SearchFilterLabel from "./SearchFilterLabel";
 import { SearchFilter } from "@/types/SearchTypes";
@@ -13,7 +13,7 @@ const FilterListContainer = styled.div`
       margin-bottom: 0px;
     }
     margin-bottom: 1rem;
-  } 
+  }
   @media (min-width: 48em) {
     margin-top: 1rem;
   }
@@ -24,7 +24,11 @@ interface SearchFilterBlockContentProps extends HTMLAttributes<HTMLDivElement> {
   isFullList: boolean;
   small?: boolean;
   onClickFilter: (filter: SearchFilter, checked: boolean) => void;
-  onClickChildFilter?: (filter: SearchFilter, childrenFilter: SearchFilter, checked: boolean) => void;
+  onClickChildFilter?: (
+    filter: SearchFilter,
+    childrenFilter: SearchFilter,
+    checked: boolean,
+  ) => void;
 }
 
 function SearchFilterBlockContent({
@@ -34,34 +38,38 @@ function SearchFilterBlockContent({
   onClickFilter,
   onClickChildFilter,
 }: SearchFilterBlockContentProps) {
-
   return (
     <FilterListContainer>
       {filtersList.map((filter: SearchFilter, index: number) => {
-        if(filter.selected || (!isFullList && index < 5) || isFullList) {
+        if (filter.selected || (!isFullList && index < 5) || isFullList) {
           return (
             <div key={index} className="search-filter-cb-container">
               <Checkbox
                 key={index}
-                options={[{
-                  label: (
-                    <SearchFilterLabel
-                      name={filter.name}
-                      count={filter.count}
-                    />
-                  ),
-                  nativeInputProps: {
-                    checked: filter.selected,
-                    onChange: (e) => onClickFilter(filter, (e.target as any).checked),
+                options={[
+                  {
+                    label: (
+                      <SearchFilterLabel
+                        name={filter.name}
+                        count={filter.count}
+                      />
+                    ),
+                    nativeInputProps: {
+                      checked: filter.selected,
+                      onChange: (e) =>
+                        onClickFilter(filter, (e.target as any).checked),
+                    },
                   },
-                }]}
+                ]}
                 small={small ? true : false}
               />
-              {(filter.children && filter.children.length > 0) && (
+              {filter.children && filter.children.length > 0 && (
                 <Checkbox
-                  className={["search-filter-cb-child", fr.cx("fr-ml-2w")].join(" ")}
-                  options={filter.children.map((childrenFilter: SearchFilter, i: number) => 
-                    ({
+                  className={["search-filter-cb-child", fr.cx("fr-ml-2w")].join(
+                    " ",
+                  )}
+                  options={filter.children.map(
+                    (childrenFilter: SearchFilter, i: number) => ({
                       key: `${index}-${i}`,
                       label: (
                         <SearchFilterLabel
@@ -71,18 +79,24 @@ function SearchFilterBlockContent({
                       ),
                       nativeInputProps: {
                         checked: childrenFilter.selected,
-                        onChange: (e) => onClickChildFilter && onClickChildFilter(filter, childrenFilter, (e.target as any).checked),
+                        onChange: (e) =>
+                          onClickChildFilter &&
+                          onClickChildFilter(
+                            filter,
+                            childrenFilter,
+                            (e.target as any).checked,
+                          ),
                       },
-                    })
+                    }),
                   )}
                   small={small ? true : false}
                 />
               )}
             </div>
-          )
+          );
         }
       })}
     </FilterListContainer>
-  )
-};
+  );
+}
 export default SearchFilterBlockContent;

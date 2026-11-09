@@ -31,9 +31,9 @@ export async function generateStaticParams() {
   );
 }
 
-export async function generateMetadata(
-  props: { params: Promise<{ slug: string }> },
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await props.params;
   const CIS = getNumericIdFromSlug(slug);
 
@@ -120,9 +120,7 @@ async function MedicamentPage({ slug }: { slug: string }) {
         <Breadcrumb
           segments={breadcrumb}
           currentPageLabel={
-            specialite
-              ? formatSpecName(specialite.SpecDenom01).trim()
-              : ""
+            specialite ? formatSpecName(specialite.SpecDenom01).trim() : ""
           }
           className={fr.cx("fr-mb-2w")}
         />

@@ -2,14 +2,12 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import RatingStars from "./RatingStars";
 
-function renderRatingStars(props: Partial<Parameters<typeof RatingStars>[0]> = {}) {
+function renderRatingStars(
+  props: Partial<Parameters<typeof RatingStars>[0]> = {},
+) {
   const onSaveRating = props.onSaveRating ?? vi.fn();
   render(
-    <RatingStars
-      readOnly={false}
-      onSaveRating={onSaveRating}
-      {...props}
-    />
+    <RatingStars readOnly={false} onSaveRating={onSaveRating} {...props} />,
   );
   return { onSaveRating };
 }

@@ -3,7 +3,7 @@
 import ContentContainer from "../../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes } from "react";
-import styled from 'styled-components';
+import styled from "styled-components";
 import Link from "next/link";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { Table } from "@codegouvfr/react-dsfr/Table";
@@ -26,27 +26,27 @@ const DocBonUsage = styled.div`
 `;
 
 function getSmrAsmrFormattedValeur(value: string) {
-  if(value.trim() === "V")
-    return (<span>V&nbsp;(Inexistant)</span>);
+  if (value.trim() === "V") return <span>V&nbsp;(Inexistant)</span>;
   return value;
 }
 
 function getSmrAsmrFormattedAvis(date?: string | null, link?: string | null) {
   const formattedDate = date ? new Date(date) : "";
-  if(formattedDate){
-    if(link)
+  if (formattedDate) {
+    if (link)
       return (
-        <Link 
+        <Link
           href={link}
           target="_blank"
           rel="noopener noreferrer"
-          title={`Lien vers l'avis complet de la commission de la transparence du ${formattedDate.toLocaleDateString('fr-FR', { timeZone: 'UTC' })} - nouvelle fenêtre vers le site de la HAS`}
+          title={`Lien vers l'avis complet de la commission de la transparence du ${formattedDate.toLocaleDateString("fr-FR", { timeZone: "UTC" })} - nouvelle fenêtre vers le site de la HAS`}
           className={fr.cx("fr-link", "fr-link--sm")}
         >
-          Avis&nbsp;du {formattedDate.toLocaleDateString('fr-FR', { timeZone: 'UTC' })}
+          Avis&nbsp;du{" "}
+          {formattedDate.toLocaleDateString("fr-FR", { timeZone: "UTC" })}
         </Link>
       );
-    return formattedDate.toLocaleDateString('fr-FR', { timeZone: 'UTC' });
+    return formattedDate.toLocaleDateString("fr-FR", { timeZone: "UTC" });
   }
   return "";
 }
@@ -58,30 +58,42 @@ interface DocumentHasProps extends HTMLAttributes<HTMLDivElement> {
   definitions?: Definition[];
 }
 
-function DocumentHas({ 
+function DocumentHas({
   ficheInfos,
   genericSpecialite,
   isGeneric,
   definitions,
-  ...props 
+  ...props
 }: DocumentHasProps) {
-  const genericHref = genericSpecialite && genericSpecialite.genericGroupCode !== null
-    ? `/generiques/${getGenericSlug(genericSpecialite.genericGroupCode, genericSpecialite.genericGroupName ?? "")}`
-    : undefined;
+  const genericHref =
+    genericSpecialite && genericSpecialite.genericGroupCode !== null
+      ? `/generiques/${getGenericSlug(genericSpecialite.genericGroupCode, genericSpecialite.genericGroupName ?? "")}`
+      : undefined;
 
   return (
     <div {...props}>
-      <ContentContainer id="document-has-bon-usage" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
+      <ContentContainer
+        id="document-has-bon-usage"
+        whiteContainer
+        className={fr.cx("fr-mb-2w", "fr-p-2w")}
+      >
         <h2 className={fr.cx("fr-h6")}>Documents de bon usage</h2>
-        {(ficheInfos && ficheInfos.listeDocumentsBonUsage && ficheInfos.listeDocumentsBonUsage.length > 0) 
-          ? (
-            <>
-              {ficheInfos && ficheInfos.listeDocumentsBonUsage.map((document, index) => {
-                const date = document.updatedAt ? new Date(document.updatedAt) : "";
+        {ficheInfos &&
+        ficheInfos.listeDocumentsBonUsage &&
+        ficheInfos.listeDocumentsBonUsage.length > 0 ? (
+          <>
+            {ficheInfos &&
+              ficheInfos.listeDocumentsBonUsage.map((document, index) => {
+                const date = document.updatedAt
+                  ? new Date(document.updatedAt)
+                  : "";
                 return (
-                  <DocBonUsage key={index} className={fr.cx("fr-text--sm", "fr-mb-1w")}>
+                  <DocBonUsage
+                    key={index}
+                    className={fr.cx("fr-text--sm", "fr-mb-1w")}
+                  >
                     {document.url && (
-                      <Link 
+                      <Link
                         href={document.url}
                         target="_blank"
                         className={fr.cx("fr-mb-2w")}
@@ -91,136 +103,188 @@ function DocumentHas({
                       </Link>
                     )}
                     <div className={fr.cx("fr-mt-1w")}>
-                      {date && (<i className={fr.cx("fr-text--xs", "fr-mb-0")} style={{textTransform:"capitalize"}}>{date.toLocaleDateString('fr-FR', {month: 'long', year: 'numeric', timeZone: 'UTC'})}</i>)}
-                      {document.type && (<Badge className={fr.cx("fr-badge--purple-glycine")} small>{document.type}</Badge>)}
+                      {date && (
+                        <i
+                          className={fr.cx("fr-text--xs", "fr-mb-0")}
+                          style={{ textTransform: "capitalize" }}
+                        >
+                          {date.toLocaleDateString("fr-FR", {
+                            month: "long",
+                            year: "numeric",
+                            timeZone: "UTC",
+                          })}
+                        </i>
+                      )}
+                      {document.type && (
+                        <Badge
+                          className={fr.cx("fr-badge--purple-glycine")}
+                          small
+                        >
+                          {document.type}
+                        </Badge>
+                      )}
                     </div>
                   </DocBonUsage>
                 );
               })}
-            </>
-          ) : (
-            <span>Il n&rsquo;y a pas de documents de bon usage disponible pour ce médicament.</span>
-          )
-        }
+          </>
+        ) : (
+          <span>
+            Il n&rsquo;y a pas de documents de bon usage disponible pour ce
+            médicament.
+          </span>
+        )}
       </ContentContainer>
 
-      <ContentContainer id="document-has-smr" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
+      <ContentContainer
+        id="document-has-smr"
+        whiteContainer
+        className={fr.cx("fr-mb-2w", "fr-p-2w")}
+      >
         <h2 className={fr.cx("fr-h6")}>
           Service médical rendu (
           <WithDefinition
             definition={definitions && getDefinition(definitions, "SMR")}
             word="SMR"
-          />)
-        </h2>
-        {(ficheInfos && ficheInfos.listeSMR && ficheInfos.listeSMR.length > 0) 
-          ? (
-            <div className={fr.cx("fr-mb-0")}>
-              {" Les libellés affichés ci-dessous ne sont que des résumés ou extraits issus des avis rendus par la Commission de la Transparence. Seul l'avis complet de la Commission de la Transparence fait référence."}
-              <br/><br/>
-              {"Cet avis est consultable à partir du lien \"Avis du jj/mm/aaaa\" ou encore sur demande auprès de la HAS. Les avis et synthèses d'avis contiennent un paragraphe sur la place du médicament dans la stratégie thérapeutique."}
-              <br/>
-              <Table
-                headers={[
-                  "Valeur du SMR",
-                  "Avis",
-                  "Motif de l'évaluation",
-                  "Résumé de l'avis"
-                ]}
-                data={
-                  ficheInfos.listeSMR.map((smr: Smr, index) => {
-                    return [
-                      getSmrAsmrFormattedValeur(smr.value),
-                      getSmrAsmrFormattedAvis(smr.opinionDate, smr.hasUrl),
-                      smr.evaluationReason,
-                      (<div key={index} dangerouslySetInnerHTML={{__html: smr.opinionSummary}} className={fr.cx("fr-text--sm", "fr-mb-0")}></div>)
-                    ];
-                  })
-                }
-                className={fr.cx("fr-mb-0")}
-              />
-            </div>
-          ) : (
-            <>
-              {isGeneric && genericHref
-                ? <span>
-                    Ce médicament étant un générique, le SMR n'a pas été évalué par la commission de la transparence (CT), 
-                    il est possible de se référer à la /aux spécialité(s) de référence du groupe générique auquel appartient ce médicament (
-                    <Link
-                      href={genericHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={fr.cx("fr-link")}
-                    >
-                      cliquez ici pour accéder au groupe générique
-                    </Link>
-                    ).
-                  </span>
-                : <span>Il n&rsquo;y a pas de SMR disponible pour ce médicament.</span>
-              }
-            </>
+          />
           )
-        }
+        </h2>
+        {ficheInfos && ficheInfos.listeSMR && ficheInfos.listeSMR.length > 0 ? (
+          <div className={fr.cx("fr-mb-0")}>
+            {
+              " Les libellés affichés ci-dessous ne sont que des résumés ou extraits issus des avis rendus par la Commission de la Transparence. Seul l'avis complet de la Commission de la Transparence fait référence."
+            }
+            <br />
+            <br />
+            {
+              'Cet avis est consultable à partir du lien "Avis du jj/mm/aaaa" ou encore sur demande auprès de la HAS. Les avis et synthèses d\'avis contiennent un paragraphe sur la place du médicament dans la stratégie thérapeutique.'
+            }
+            <br />
+            <Table
+              headers={[
+                "Valeur du SMR",
+                "Avis",
+                "Motif de l'évaluation",
+                "Résumé de l'avis",
+              ]}
+              data={ficheInfos.listeSMR.map((smr: Smr, index) => {
+                return [
+                  getSmrAsmrFormattedValeur(smr.value),
+                  getSmrAsmrFormattedAvis(smr.opinionDate, smr.hasUrl),
+                  smr.evaluationReason,
+                  <div
+                    key={index}
+                    dangerouslySetInnerHTML={{ __html: smr.opinionSummary }}
+                    className={fr.cx("fr-text--sm", "fr-mb-0")}
+                  ></div>,
+                ];
+              })}
+              className={fr.cx("fr-mb-0")}
+            />
+          </div>
+        ) : (
+          <>
+            {isGeneric && genericHref ? (
+              <span>
+                Ce médicament étant un générique, le SMR n'a pas été évalué par
+                la commission de la transparence (CT), il est possible de se
+                référer à la /aux spécialité(s) de référence du groupe générique
+                auquel appartient ce médicament (
+                <Link
+                  href={genericHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={fr.cx("fr-link")}
+                >
+                  cliquez ici pour accéder au groupe générique
+                </Link>
+                ).
+              </span>
+            ) : (
+              <span>
+                Il n&rsquo;y a pas de SMR disponible pour ce médicament.
+              </span>
+            )}
+          </>
+        )}
       </ContentContainer>
-      
-      <ContentContainer id="document-has-asmr" whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
+
+      <ContentContainer
+        id="document-has-asmr"
+        whiteContainer
+        className={fr.cx("fr-mb-2w", "fr-p-2w")}
+      >
         <h2 className={fr.cx("fr-h6")}>
           Amélioration du service médical rendu (
           <WithDefinition
             definition={definitions && getDefinition(definitions, "ASMR")}
             word="ASMR"
-          />)
-        </h2>
-        {(ficheInfos && ficheInfos.listeASMR && ficheInfos.listeASMR.length > 0) 
-          ? (
-            <div className={fr.cx("fr-mb-0")}>
-              {" Les libellés affichés ci-dessous ne sont que des résumés ou extraits issus des avis rendus par la Commission de la Transparence. Seul l'avis complet de la Commission de la Transparence fait référence."}
-              <br/><br/>
-              {"Cet avis est consultable à partir du lien \"Avis du jj/mm/aaaa\" ou encore sur demande auprès de la HAS. Les avis et synthèses d'avis contiennent un paragraphe sur la place du médicament dans la stratégie thérapeutique."}
-              <br/>
-              <Table
-                headers={[
-                  "Valeur de l'ASMR",
-                  "Avis",
-                  "Motif de l'évaluation",
-                  "Résumé de l'avis"
-                ]}
-                data={
-                  ficheInfos.listeASMR.map((asmr: Asmr, index) => {
-                    return [
-                      getSmrAsmrFormattedValeur(asmr.value),
-                      getSmrAsmrFormattedAvis(asmr.opinionDate, asmr.hasUrl),
-                      asmr.evaluationReason,
-                      (<div key={index} dangerouslySetInnerHTML={{__html: asmr.opinionSummary}} className={fr.cx("fr-text--sm", "fr-mb-0")}></div>)
-                    ];
-                  })
-                }
-                className={fr.cx("fr-mb-0")}
-              />
-            </div>
-          ) : (
-            <>
-              {isGeneric && genericHref
-                ? <span>
-                    Ce médicament étant un générique, l&rsquo;ASMR n'a pas été évalué par la commission de la transparence (CT), 
-                    il est possible de se référer à la /aux spécialité(s) de référence du groupe générique auquel appartient ce médicament (
-                    <Link
-                      href={genericHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={fr.cx("fr-link")}
-                    >
-                      cliquez ici pour accéder au groupe générique
-                    </Link>
-                    ).
-                  </span>
-                : <span>Il n&rsquo;y a pas d&rsquo;ASMR disponible pour ce médicament.</span>
-              }
-            </>
+          />
           )
-        }
+        </h2>
+        {ficheInfos &&
+        ficheInfos.listeASMR &&
+        ficheInfos.listeASMR.length > 0 ? (
+          <div className={fr.cx("fr-mb-0")}>
+            {
+              " Les libellés affichés ci-dessous ne sont que des résumés ou extraits issus des avis rendus par la Commission de la Transparence. Seul l'avis complet de la Commission de la Transparence fait référence."
+            }
+            <br />
+            <br />
+            {
+              'Cet avis est consultable à partir du lien "Avis du jj/mm/aaaa" ou encore sur demande auprès de la HAS. Les avis et synthèses d\'avis contiennent un paragraphe sur la place du médicament dans la stratégie thérapeutique.'
+            }
+            <br />
+            <Table
+              headers={[
+                "Valeur de l'ASMR",
+                "Avis",
+                "Motif de l'évaluation",
+                "Résumé de l'avis",
+              ]}
+              data={ficheInfos.listeASMR.map((asmr: Asmr, index) => {
+                return [
+                  getSmrAsmrFormattedValeur(asmr.value),
+                  getSmrAsmrFormattedAvis(asmr.opinionDate, asmr.hasUrl),
+                  asmr.evaluationReason,
+                  <div
+                    key={index}
+                    dangerouslySetInnerHTML={{ __html: asmr.opinionSummary }}
+                    className={fr.cx("fr-text--sm", "fr-mb-0")}
+                  ></div>,
+                ];
+              })}
+              className={fr.cx("fr-mb-0")}
+            />
+          </div>
+        ) : (
+          <>
+            {isGeneric && genericHref ? (
+              <span>
+                Ce médicament étant un générique, l&rsquo;ASMR n'a pas été
+                évalué par la commission de la transparence (CT), il est
+                possible de se référer à la /aux spécialité(s) de référence du
+                groupe générique auquel appartient ce médicament (
+                <Link
+                  href={genericHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={fr.cx("fr-link")}
+                >
+                  cliquez ici pour accéder au groupe générique
+                </Link>
+                ).
+              </span>
+            ) : (
+              <span>
+                Il n&rsquo;y a pas d&rsquo;ASMR disponible pour ce médicament.
+              </span>
+            )}
+          </>
+        )}
       </ContentContainer>
     </div>
   );
-};
+}
 
 export default DocumentHas;

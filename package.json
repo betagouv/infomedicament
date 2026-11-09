@@ -7,6 +7,8 @@
     "build": "next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/ && node esbuild.scripts.mjs",
     "start": "node start.mjs",
     "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "predev": "only-include-used-icons",
     "prebuild": "only-include-used-icons && kysely migrate:latest",
     "test": "npm run test:unit",

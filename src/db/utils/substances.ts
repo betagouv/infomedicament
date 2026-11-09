@@ -1,8 +1,6 @@
 "use server";
 import "server-cli-only";
 
-
-
 import type { SpecialiteWithSubstance } from "@/types/SpecialiteTypes";
 import type { ResumeSubstance, AnsmComposant } from "../types";
 import db from "..";
@@ -192,46 +190,52 @@ export async function getAllSubsWithSpecialites() {
     .sort((left, right) => left.NomLib.localeCompare(right.NomLib, "fr"));
 }
 
-export async function getSubstanceAllSpecialites(substanceIDs: string[]): Promise<SpecialiteWithSubstance[]> {
+export async function getSubstanceAllSpecialites(
+  substanceIDs: string[],
+): Promise<SpecialiteWithSubstance[]> {
   "use cache: remote";
-    if (substanceIDs.length === 0) return [];
-    const substances = await resolveSubstances(substanceIDs);
-    const codeToNomIds = new Map<string, string[]>();
-    for (const substance of substances) {
-      const ids = codeToNomIds.get(substance.SubsId) ?? [];
-      ids.push(substance.NomId);
-      codeToNomIds.set(substance.SubsId, ids);
-    }
-    const byCis = await componentsForCandidateCis([...codeToNomIds.keys()]);
-    const cisToNomIds = new Map<string, string[]>();
-    for (const [cis, components] of byCis) {
-      if (!hasExactlyOneComponent(components)) continue;
-      // Preserve every requested name, including active fractions in the same
-      // component, rather than letting one name overwrite another in a batch.
-      const ids = new Set(components.flatMap((component) =>
-        component.code_substance
-          ? codeToNomIds.get(component.code_substance) ?? []
-          : [],
-      ));
-      if (ids.size > 0) cisToNomIds.set(cis, [...ids]);
-    }
-    if (cisToNomIds.size === 0) return [];
-
-    const rows = await db
-      .selectFrom("ansm_specialite")
-      .where("cis", "in", [...cisToNomIds.keys()])
-      .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
-      .selectAll()
-      .execute();
-    return rows.flatMap((row) =>
-      (cisToNomIds.get(row.cis) ?? []).map((NomId) => ({
-        ...mapCatalogSpecialite(row),
-        NomId,
-      })),
-    );
+  if (substanceIDs.length === 0) return [];
+  const substances = await resolveSubstances(substanceIDs);
+  const codeToNomIds = new Map<string, string[]>();
+  for (const substance of substances) {
+    const ids = codeToNomIds.get(substance.SubsId) ?? [];
+    ids.push(substance.NomId);
+    codeToNomIds.set(substance.SubsId, ids);
   }
+  const byCis = await componentsForCandidateCis([...codeToNomIds.keys()]);
+  const cisToNomIds = new Map<string, string[]>();
+  for (const [cis, components] of byCis) {
+    if (!hasExactlyOneComponent(components)) continue;
+    // Preserve every requested name, including active fractions in the same
+    // component, rather than letting one name overwrite another in a batch.
+    const ids = new Set(
+      components.flatMap((component) =>
+        component.code_substance
+          ? (codeToNomIds.get(component.code_substance) ?? [])
+          : [],
+      ),
+    );
+    if (ids.size > 0) cisToNomIds.set(cis, [...ids]);
+  }
+  if (cisToNomIds.size === 0) return [];
 
-export async function getSubstancesResumeWithLetter(letter: string): Promise<ResumeSubstance[]> {
+  const rows = await db
+    .selectFrom("ansm_specialite")
+    .where("cis", "in", [...cisToNomIds.keys()])
+    .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
+    .selectAll()
+    .execute();
+  return rows.flatMap((row) =>
+    (cisToNomIds.get(row.cis) ?? []).map((NomId) => ({
+      ...mapCatalogSpecialite(row),
+      NomId,
+    })),
+  );
+}
+
+export async function getSubstancesResumeWithLetter(
+  letter: string,
+): Promise<ResumeSubstance[]> {
   "use cache: remote";
   return db
     .selectFrom("resume_substances")
@@ -247,7 +251,9 @@ export async function getSubstancesResumeWithLetter(letter: string): Promise<Res
     .execute();
 }
 
-export async function getSubstancesResume(substanceIDs: string[]): Promise<ResumeSubstance[]> {
+export async function getSubstancesResume(
+  substanceIDs: string[],
+): Promise<ResumeSubstance[]> {
   "use cache: remote";
   if (substanceIDs.length === 0) return [];
   return db

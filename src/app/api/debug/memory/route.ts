@@ -29,7 +29,7 @@ export async function GET(request: Request) {
   try {
     const v8 = require("v8");
     heapStats = v8.getHeapStatistics();
-  } catch { }
+  } catch {}
 
   return NextResponse.json({
     timestamp: new Date().toISOString(),
@@ -43,14 +43,16 @@ export async function GET(request: Request) {
       external: formatMB(memUsage.external),
       arrayBuffers: formatMB(memUsage.arrayBuffers),
     },
-    heapStats: heapStats ? {
-      totalHeapSize: formatMB(heapStats.total_heap_size),
-      usedHeapSize: formatMB(heapStats.used_heap_size),
-      heapSizeLimit: formatMB(heapStats.heap_size_limit),
-      mallocedMemory: formatMB(heapStats.malloced_memory),
-      numberOfNativeContexts: heapStats.number_of_native_contexts,
-      numberOfDetachedContexts: heapStats.number_of_detached_contexts,
-    } : null,
+    heapStats: heapStats
+      ? {
+          totalHeapSize: formatMB(heapStats.total_heap_size),
+          usedHeapSize: formatMB(heapStats.used_heap_size),
+          heapSizeLimit: formatMB(heapStats.heap_size_limit),
+          mallocedMemory: formatMB(heapStats.malloced_memory),
+          numberOfNativeContexts: heapStats.number_of_native_contexts,
+          numberOfDetachedContexts: heapStats.number_of_detached_contexts,
+        }
+      : null,
     raw: memUsage,
   });
 }

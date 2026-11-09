@@ -1,5 +1,5 @@
 "use client";
- 
+
 import { HTMLAttributes } from "react";
 import styled from "styled-components";
 
@@ -13,17 +13,13 @@ interface SearchFilterLabelProps extends HTMLAttributes<HTMLDivElement> {
   name: string;
   count?: number;
 }
- 
-function SearchFilterLabel({
-  name,
-  count
-}: SearchFilterLabelProps) {
 
+function SearchFilterLabel({ name, count }: SearchFilterLabelProps) {
   return (
-  <LabelContainer>
-    <span>{name}</span>
-    {count && (<span>({count})</span>)}
-  </LabelContainer>
-  )
-};
+    <LabelContainer>
+      <span>{name}</span>
+      {count && <span>({count})</span>}
+    </LabelContainer>
+  );
+}
 export default SearchFilterLabel;

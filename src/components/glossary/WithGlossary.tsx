@@ -46,11 +46,7 @@ function withKeyword(
   const { before, word, after } = match.groups;
   return [
     before,
-    <QuestionKeyword
-      key={word}
-      keyword={word}
-      questionId={questionId}
-    />,
+    <QuestionKeyword key={word} keyword={word} questionId={questionId} />,
     ...withKeyword(after, keyword, questionId),
   ];
 }
@@ -60,10 +56,14 @@ function withHeaderAnchor(
   headerId: string,
   questionDetails: QuestionAnchors,
 ): (React.JSX.Element | string)[] {
-
-  if (questionDetails.headerId && (headerId === questionDetails.headerId)) {
+  if (questionDetails.headerId && headerId === questionDetails.headerId) {
     return [
-      <span key={questionDetails.headerId} className={`highlight-keyword-${questionDetails.id} highlight-header scroll-m-150`}>{text}</span>,
+      <span
+        key={questionDetails.headerId}
+        className={`highlight-keyword-${questionDetails.id} highlight-header scroll-m-150`}
+      >
+        {text}
+      </span>,
     ];
   }
   return [text];
@@ -78,7 +78,6 @@ function WithGlossary({
   definitions?: Definition[];
   headerId?: string;
 }): React.JSX.Element {
-
   let elements: (React.JSX.Element | string)[] = text;
 
   if (headerId) {
@@ -94,14 +93,15 @@ function WithGlossary({
   } else {
     //Find keywords for questions
     questionKeys.forEach((key: string) => {
-      questionsList[key].keywords && questionsList[key].keywords.forEach((keyword: string) => {
-        elements = elements
-          .map((element) => {
-            if (typeof element !== "string") return element;
-            return withKeyword(element, keyword, key);
-          })
-          .flat();
-      });
+      questionsList[key].keywords &&
+        questionsList[key].keywords.forEach((keyword: string) => {
+          elements = elements
+            .map((element) => {
+              if (typeof element !== "string") return element;
+              return withKeyword(element, keyword, key);
+            })
+            .flat();
+        });
     });
 
     if (definitions) {

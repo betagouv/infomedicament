@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SimpleRating, QUESTION_1_OPTIONS, QUESTION_2_OPTIONS } from "@/types/RatingTypes";
+import {
+  SimpleRating,
+  QUESTION_1_OPTIONS,
+  QUESTION_2_OPTIONS,
+} from "@/types/RatingTypes";
 import axios from "axios";
 import { randomUUID } from "crypto";
 import { isValidPageId } from "@/utils/rating";
@@ -21,14 +25,14 @@ export async function POST(req: NextRequest) {
     }
 
     const gristData = {
-      "records": [
+      records: [
         {
-          "fields": {
-            "Identifiant_de_la_page": data.pageId,
-            "Note_globale": data.rating,
-          }
+          fields: {
+            Identifiant_de_la_page: data.pageId,
+            Note_globale: data.rating,
+          },
         },
-      ]
+      ],
     };
 
     const result = await axios.post(
@@ -36,13 +40,19 @@ export async function POST(req: NextRequest) {
       gristData,
       {
         headers: {
-          "Authorization": `Bearer ${process.env.GRIST_API_KEY}`,
+          Authorization: `Bearer ${process.env.GRIST_API_KEY}`,
           Accept: "application/json",
         },
       },
     );
 
-    const id: number = (result.data.records && result.data.records.length > 0 && result.data.records[0] && result.data.records[0].id !== undefined) ? result.data.records[0].id : -1;
+    const id: number =
+      result.data.records &&
+      result.data.records.length > 0 &&
+      result.data.records[0] &&
+      result.data.records[0].id !== undefined
+        ? result.data.records[0].id
+        : -1;
     if (id === -1) return NextResponse.json(-1);
     const token = randomUUID();
     pendingTokens.set(id, token);
@@ -53,7 +63,7 @@ export async function POST(req: NextRequest) {
       { status: 500 },
     );
   }
-};
+}
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -62,7 +72,10 @@ export async function PATCH(req: NextRequest) {
     if (!Number.isInteger(data.id) || data.id <= 0) {
       return NextResponse.json({ error: "Invalid id" }, { status: 400 });
     }
-    if (typeof data.token !== "string" || pendingTokens.get(data.id) !== data.token) {
+    if (
+      typeof data.token !== "string" ||
+      pendingTokens.get(data.id) !== data.token
+    ) {
       return NextResponse.json({ error: "Invalid token" }, { status: 403 });
     }
     pendingTokens.delete(data.id);
@@ -74,15 +87,15 @@ export async function PATCH(req: NextRequest) {
     }
 
     const gristData = {
-      "records": [
+      records: [
         {
-          "id": data.id,
-          "fields": {
-            "Question_1": data.advancedRating.question1,
-            "Question_2": data.advancedRating.question2,
-          }
+          id: data.id,
+          fields: {
+            Question_1: data.advancedRating.question1,
+            Question_2: data.advancedRating.question2,
+          },
         },
-      ]
+      ],
     };
 
     const result = await axios.patch(
@@ -90,7 +103,7 @@ export async function PATCH(req: NextRequest) {
       gristData,
       {
         headers: {
-          "Authorization": `Bearer ${process.env.GRIST_API_KEY}`,
+          Authorization: `Bearer ${process.env.GRIST_API_KEY}`,
           Accept: "application/json",
         },
       },
@@ -104,4 +117,4 @@ export async function PATCH(req: NextRequest) {
       { status: 500 },
     );
   }
-};
+}

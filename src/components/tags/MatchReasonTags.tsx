@@ -10,7 +10,11 @@ const config: Record<string, { prefix: string; className: string }> = {
   indication: { prefix: "Indication : ", className: "fr-tag--custom-alt-blue" },
 };
 
-export default function MatchReasonTags({ reasons }: { reasons: MatchReason[] }) {
+export default function MatchReasonTags({
+  reasons,
+}: {
+  reasons: MatchReason[];
+}) {
   // Keep only the first reason per type (the highest-scoring match)
   const seen = new Set<string>();
   const filtered = reasons.filter((r) => {
@@ -29,7 +33,8 @@ export default function MatchReasonTags({ reasons }: { reasons: MatchReason[] })
           nativeButtonProps={{ className: cx(config[reason.type].className) }}
           className={fr.cx("fr-mr-1v")}
         >
-          {config[reason.type].prefix}{reason.label}
+          {config[reason.type].prefix}
+          {reason.label}
         </Tag>
       ))}
     </div>
