@@ -109,14 +109,6 @@ async function MedicamentPage({ slug }: { slug: string }) {
       },
     });
   }
-  if (specialite) {
-    breadcrumb.push({
-      label: formatSpecName(getSpecialiteGroupName(specialite)),
-      linkProps: {
-        href: `/rechercher?s=${formatSpecName(getSpecialiteGroupName(specialite))}`,
-      },
-    });
-  }
 
   const pageLabel = specialite
     ? formatSpecName(specialite.SpecDenom01)
@@ -129,10 +121,7 @@ async function MedicamentPage({ slug }: { slug: string }) {
           segments={breadcrumb}
           currentPageLabel={
             specialite
-              ? formatSpecName(specialite.SpecDenom01).replace(
-                  formatSpecName(getSpecialiteGroupName(specialite)),
-                  "",
-                )
+              ? formatSpecName(specialite.SpecDenom01).trim()
               : ""
           }
           className={fr.cx("fr-mb-2w")}
