@@ -141,6 +141,7 @@ interface ResumeSubstancesTable {
   NomLib: string;
   specialites: number;
   type: "CANONIQUE" | "SYNONYME" | null; // ansm_substance_nom.type
+  title: string | null; // Title of the substance page
 }
 
 interface ResumeMedicamentsTable {
@@ -163,7 +164,7 @@ interface ResumeSpecialitesTable {
   groupName: string;
   composants: string;
   subsIds: string[];
-  // Filled only when composants uses a secondary substance name
+  // Title of the substances page of subsIds
   subsMainNames: string | null;
   indicationsIds: number[];
   indicationsIdsNames: string[][]; //idIndication, nomIndication

@@ -2,6 +2,9 @@ import { describe, it, expect } from "vitest";
 import db from "@/db";
 import { getAllSubsWithSpecialites, getCisMatchingSubstanceSet, getSubstanceDefinition, getSubstancesNames, getSubstancesResumeWithLetter } from "./substances";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
+import { getSpecialiteSubstancesTitle, getSubstanceSpecsGroups } from "./specialities";
+import { getSubstancesPageNames } from "@/utils/substances";
+import { sql } from "kysely";
 
 // Substances list from the letter of this name
 const getSubstancesList = async (nomLib: string) =>
@@ -158,5 +161,56 @@ describe("getCisMatchingSubstanceSet", () => {
     expect(definitions).toHaveLength(1);
     expect(definitions[0].SubsId).toBe("00093");
     expect(definitions[0].SA).toBe(first.sa?.trim());
+  });
+});
+
+describe("substances pages titles", () => {
+  // Title computed as on the substances page
+  const getPageTitle = async (subsIds: string[]) =>
+    getSubstancesPageNames(subsIds, await getSubstancesNames(subsIds), await getSubstanceSpecsGroups(subsIds)).title;
+
+  it("resume_substances.title - is the title of the substance page, for each name of the substance", async () => {
+    for (const subsId of ["00628", "31844", "02245", "02202"]) {
+      const rows = await db
+        .selectFrom("resume_substances")
+        .select(["NomLib", "title"])
+        .where(sql<string>`trim("SubsId")`, "=", subsId)
+        .execute();
+      const pageTitle = await getPageTitle([subsId]);
+
+      expect(rows.length).toBeGreaterThan(0);
+      expect(rows.map((row) => row.title)).toEqual(rows.map(() => pageTitle));
+    }
+  });
+
+  it("resume_substances.title - same title for the canonical and the synonym names", async () => {
+    // Cetylpyridinium chloride (00628): listed as "cétylpyridinium (chlorure de)" and "chlorure de cétylpyridinium"
+    const rows = await db
+      .selectFrom("resume_substances")
+      .select("title")
+      .where(sql<string>`trim("SubsId")`, "=", "00628")
+      .execute();
+
+    expect(rows.length).toBeGreaterThan(1);
+    expect(new Set(rows.map((row) => row.title))).toEqual(new Set(["chlorure de cétylpyridinium"]));
+  });
+
+  it("resume_specialites.subsMainNames - is the title of the page of the substances of the specialite", async () => {
+    // Paracetamol (02202) and codeine phosphate (74765), in the order of each specialite
+    const rows = await db
+      .selectFrom("resume_specialites")
+      .select(["subsIds", "subsMainNames"])
+      .where(sql<boolean>`"subsIds"::text[] @> ARRAY['02202', '74765'] and cardinality("subsIds") = 2`)
+      .execute();
+
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) {
+      expect(row.subsMainNames).toBe(await getPageTitle(row.subsIds.map((subsId) => subsId.trim())));
+    }
+  });
+
+  it("getSpecialiteSubstancesTitle - is the title of the page of the substances of the specialite", async () => {
+    // DOLIPRANE 1000 mg, comprimé (60234100): paracetamol (02202)
+    expect(await getSpecialiteSubstancesTitle("60234100")).toBe(await getPageTitle(["02202"]));
   });
 });

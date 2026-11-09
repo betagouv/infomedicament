@@ -8,6 +8,7 @@ import SearchResultsPagination from "./blocks/SearchResultsPagination";
 import SearchFiltersContainer from "./blocks/SearchFiltersContainer";
 import SearchSortBlock from "./blocks/SearchSortBlock";
 import SearchFiltersSubMenu from "./blocks/SearchFiltersSubMenu";
+import { cleanSubstanceName } from "@/utils/substances";
 
 const SearchResultsListContainer = styled.div`
   & .display-inline {
@@ -73,7 +74,10 @@ function SearchResultsList({
           newSubsFilters.push({
             id: result.subsIds.join(),
             name: result.subsMainNames ? result.subsMainNames : result.composants,
-            secondaryName: result.subsMainNames ? result.composants : undefined,
+            // Composants only if different from the title of the substances page
+            secondaryName: result.subsMainNames && result.subsMainNames.trim() !== cleanSubstanceName(result.composants)
+              ? result.composants
+              : undefined,
             count: 1,
             selected: false,
           });

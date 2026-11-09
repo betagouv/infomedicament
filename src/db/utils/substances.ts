@@ -199,17 +199,20 @@ export async function getAllSubsWithSpecialites() {
 }
 
 // Substances list, one row per substance name
-export async function getAllResumeSubstances(): Promise<ResumeSubstance[]> {
+// Substances pages, one row per substance with the title of its page (first name if the title is not seeded)
+export async function getAllSubstancesTitles(): Promise<{ SubsId: string, title: string }[]> {
   "use cache: remote";
   const rows = await db
     .selectFrom("resume_substances")
-    .selectAll()
-    .distinct()
+    .select(["SubsId", "title", "NomLib"])
+    .distinctOn("SubsId")
     .orderBy("SubsId")
+    .orderBy("title")
+    .orderBy("NomLib")
     .execute();
   return rows.map((row) => ({
-    ...row,
     SubsId: row.SubsId.trim(),
+    title: (row.title ?? row.NomLib).trim(),
   }));
 };
 
@@ -267,22 +270,6 @@ export async function getAllSubstancesResumes(): Promise<ResumeSubstance[]> {
     .orderBy("NomLib")
     .execute();
 }
-
-export async function getAllMainSubstancesNames(): Promise<Substance[]> {
-  "use cache: remote";
-  const rows = await db
-    .selectFrom("ansm_substance_nom")
-    .where("type", "=", "CANONIQUE")
-    .selectAll()
-    .execute();
-
-  return rows.map((row) => ({
-    SubsId: row.code_substance?.trim() || "",
-    NomId: row.code_nom?.trim() || "",
-    NomLib: row.nom?.trim() || "",
-    isCanonical: true,
-  })) ?? [];
-};
 
 export async function getSubstancesNames(
   subsIds: string[]

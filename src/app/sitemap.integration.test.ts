@@ -19,4 +19,16 @@ describe("sitemap (Integration)", () => {
     expect(urls.some((u) => /\/atc\/[a-z0-9-]+-[a-z]$/.test(u))).toBe(true);
     expect(urls.some((u) => /\/atc\/[a-z0-9-]+-[a-z]\d{2}$/.test(u))).toBe(true);
   });
+
+  it("returns one URL per substance, not one per name", async () => {
+    const entries = await sitemap();
+    const subsIds = entries
+      .map((e) => e.url.match(/\/substances\/.+-(\d+)$/)?.[1])
+      .filter((subsId) => subsId !== undefined);
+
+    expect(subsIds.length).toBeGreaterThan(0);
+    expect(new Set(subsIds).size).toBe(subsIds.length);
+    // Cetylpyridinium chloride (00628) has two names
+    expect(subsIds.filter((subsId) => subsId === "00628")).toHaveLength(1);
+  });
 });

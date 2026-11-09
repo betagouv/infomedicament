@@ -115,16 +115,18 @@ export function getSubstancesNamesList(
 }
 
 /**
- * Builds the substance page slug: slugified substance names followed by
- * their comma-separated SubsIds, e.g. paracétamol (02202) and codéine (phosphate de) hémihydraté (74765):
+ * Builds the substance page slug: slugified title of the page (the substance names without title)
+ * followed by their comma-separated SubsIds, e.g. paracétamol (02202) and codéine (phosphate de) hémihydraté (74765):
  * "paracetamol-codeine-phosphate-de-hemihydrate-02202,74765" (see getSlug).
+ * With the title, this is the canonical URL of the page.
  */
 export function getSubstanceSlug(
   substances: Pick<Substance, "SubsId" | "NomLib">[],
+  title?: string | null,
 ): string {
   return getSlug(
     substances.map((s) => s.SubsId.trim()).join(","),
-    substances.map((s) => s.NomLib.trim()).join(" "),
+    title?.trim() || substances.map((s) => s.NomLib.trim()).join(" "),
   );
 }
 
@@ -135,3 +137,37 @@ export function getSubstanceIdsFromSlug(slug: string): string[] {
     .map((id) => id.trim())
     .filter(Boolean);
 }
+
+// Check if all the requested substances are loaded
+// Usefull when the page are for multiple substances and some of them are the same
+export const hasAllSubstances = (subsIds: string[], substances: Substance[]): boolean =>
+  subsIds.every((subsId) => substances.some((subs) => subs.SubsId.trim() === subsId));
+
+// Title and subtitle of the substances page: only the substances names from specsGroups
+export const getSubstancesPageNames = (
+  subsIds: string[],
+  substances: Substance[],
+  specsGroups: Pick<ResumeSpecGroup, "subsIds" | "subsNamesIds">[],
+): { title: string, subtitle: string, titleDetails: SubstancesName["details"] } => {
+  // Title: the canonical names if displayed on the medicaments, otherwise the names displayed on the most medicaments
+  // Title and subtitle: the substances in the order of the page ids
+  const namesList = getSubstancesNamesList(substances, specsGroups, subsIds);
+  const titleNames = namesList.find((names) => names.isCanonical) ?? namesList[0];
+  if (titleNames) {
+    // Subtitle: the other names
+    const secondaryNames = namesList
+      .filter((names) => names !== titleNames)
+      .map((names) => names.name);
+    return {
+      title: titleNames.name,
+      subtitle: secondaryNames.join(subsIds.length > 1 ? " ; " : ", "),
+      titleDetails: titleNames.details,
+    };
+  }
+  // No medicament: main name of each substance
+  return {
+    title: subsIds.map((subsId) => getSubstanceMainName(substances.filter((subs) => subs.SubsId.trim() === subsId))).join(", "),
+    subtitle: "",
+    titleDetails: [],
+  };
+};
