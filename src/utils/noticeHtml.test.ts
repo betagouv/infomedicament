@@ -12,7 +12,7 @@ describe("getIndicationsBlock", () => {
     `;
 
     expect(getIndicationsBlock(contentHtml)).toBe(
-      '<p>Classe pharmacothérapeutique : antalgique.</p><p>Ce médicament est utilisé pour traiter la douleur.</p>',
+      "<p>Classe pharmacothérapeutique : antalgique.</p><p>Ce médicament est utilisé pour traiter la douleur.</p>",
     );
   });
 

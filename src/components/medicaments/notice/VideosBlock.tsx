@@ -16,21 +16,16 @@ interface VideosBlockProps extends HTMLAttributes<HTMLDivElement> {
   videos: AnsmVideos[];
 }
 
-export function VideosBlock({
-  videos, 
-  ...props
-}: VideosBlockProps) {
-
-
+export function VideosBlock({ videos, ...props }: VideosBlockProps) {
   return (
     <div {...props}>
       <VideoTitle className={fr.cx("fr-h6", "fr-mb-1w")}>
-        Vidéo{videos.length > 1 && 's'} de bon usage
+        Vidéo{videos.length > 1 && "s"} de bon usage
       </VideoTitle>
       {videos.map((video, index) => (
-        <iframe 
-          key={index} 
-          src={video.url} 
+        <iframe
+          key={index}
+          src={video.url}
           title={video.title}
           width="100%"
           height="250px"

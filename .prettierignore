@@ -1,0 +1,2 @@
+# Keep the externally supplied site verification file unchanged.
+public/google*.html

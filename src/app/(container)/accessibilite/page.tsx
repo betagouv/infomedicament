@@ -24,7 +24,8 @@ export default function Page() {
           </p>
           <p>
             Cette déclaration d’accessibilité s’applique à{" "}
-            <strong>Info Médicament</strong> (https://infomedicament.beta.gouv.fr/).
+            <strong>Info Médicament</strong>{" "}
+            (https://infomedicament.beta.gouv.fr/).
           </p>
 
           <h2>État de conformité</h2>
@@ -51,7 +52,10 @@ export default function Page() {
                 infomedicament-team@beta.gouv.fr
               </a>
             </li>
-            <li>Adresse&nbsp;: Agence Nationale de Sécurité du Médicament et des produits de santé (ANSM), 143 Bd Anatole France, 93200 Saint-Denis</li>
+            <li>
+              Adresse&nbsp;: Agence Nationale de Sécurité du Médicament et des
+              produits de santé (ANSM), 143 Bd Anatole France, 93200 Saint-Denis
+            </li>
           </ul>
           <p>Nous essayons de répondre dans les 5 jours ouvrés.</p>
 

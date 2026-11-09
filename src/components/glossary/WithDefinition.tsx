@@ -19,20 +19,20 @@ export default function WithDefinition({
     useState<ReturnType<typeof getDefinitionModalAndUpdateGlossary>>();
 
   useEffect(() => {
-    if(definition)
-      setModal(getDefinitionModalAndUpdateGlossary(definition));
+    if (definition) setModal(getDefinitionModalAndUpdateGlossary(definition));
   }, [definition, getDefinitionModalAndUpdateGlossary]);
 
-  return definition 
-    ? (
-      <a
-        key={definition.nom}
-        href={`#Definition-${slugify(definition.nom)}`}
-        aria-describedby={`Definition-${slugify(definition.nom)}`}
-        role="button"
-        {...(modal ? { onClick: modal.open } : {})}
-      >
-        {word}
-      </a>
-    ) : (<span>{word}</span>);
+  return definition ? (
+    <a
+      key={definition.nom}
+      href={`#Definition-${slugify(definition.nom)}`}
+      aria-describedby={`Definition-${slugify(definition.nom)}`}
+      role="button"
+      {...(modal ? { onClick: modal.open } : {})}
+    >
+      {word}
+    </a>
+  ) : (
+    <span>{word}</span>
+  );
 }

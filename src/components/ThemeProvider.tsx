@@ -1,7 +1,7 @@
 "use client";
 
-import React from 'react';
-import { createGlobalStyle } from 'styled-components';
+import React from "react";
+import { createGlobalStyle } from "styled-components";
 
 export const AppGlobalStyle = createGlobalStyle`
   html {
@@ -29,7 +29,6 @@ export const AppGlobalStyle = createGlobalStyle`
 `;
 
 function ThemeProvider({ children }: { children: React.ReactNode }) {
-
   return (
     <>
       <AppGlobalStyle />

@@ -141,7 +141,6 @@ interface Spec_PathoTable {
   codePatho: string;
 }
 
-
 interface Spec_TituTable {
   SpecId: string;
   TituId: string;

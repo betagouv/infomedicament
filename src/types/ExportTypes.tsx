@@ -1,5 +1,8 @@
 import { ResumeSpecialiteDB } from "@/db/types";
-import { formatIndicationsDetails, getProcedureLibLong } from "@/utils/specialites";
+import {
+  formatIndicationsDetails,
+  getProcedureLibLong,
+} from "@/utils/specialites";
 import { SpecialiteProcedure } from "@/types/SpecialiteTypes";
 
 export const RCP_EXPORT_FIELD_KEYS = ["rcp43", "rcp44", "rcp45"] as const;
@@ -30,7 +33,10 @@ export const RCP_ANCHOR_BY_FIELD_KEY: Record<RcpExportFieldKey, string> = {
   rcp44: "RcpMisesEnGarde",
   rcp45: "RcpInteractionsMed",
 };
-export const RCP_SECTION_NUMBER_BY_FIELD_KEY: Record<RcpExportFieldKey, string> = {
+export const RCP_SECTION_NUMBER_BY_FIELD_KEY: Record<
+  RcpExportFieldKey,
+  string
+> = {
   rcp43: "4.3",
   rcp44: "4.4",
   rcp45: "4.5",
@@ -55,8 +61,16 @@ const boolLabel = (value: boolean) => (value ? "Oui" : "Non");
 export const EXPORT_FIELDS: ExportField[] = [
   { key: "specId", label: "CIS", format: (s) => s.specId },
   { key: "specName", label: "Nom de la spécialité", format: (s) => s.specName },
-  { key: "genericGroup", label: "Groupe générique", format: (s) => s.genericGroup ?? "" },
-  { key: "composants", label: "Substances actives", format: (s) => s.composants },
+  {
+    key: "genericGroup",
+    label: "Groupe générique",
+    format: (s) => s.genericGroup ?? "",
+  },
+  {
+    key: "composants",
+    label: "Substances actives",
+    format: (s) => s.composants,
+  },
   { key: "atc1Code", label: "Code ATC1", format: (s) => s.atc1Code ?? "" },
   { key: "atc2Code", label: "Code ATC2", format: (s) => s.atc2Code ?? "" },
   { key: "atc5Code", label: "Code ATC5", format: (s) => s.atc5Code ?? "" },
@@ -68,7 +82,11 @@ export const EXPORT_FIELDS: ExportField[] = [
         .map((i) => i.nomIndication)
         .join(", "),
   },
-  { key: "statutBdm", label: "Statut BDM (code)", format: (s) => s.StatutBdm.toString() },
+  {
+    key: "statutBdm",
+    label: "Statut BDM (code)",
+    format: (s) => s.StatutBdm.toString(),
+  },
   {
     key: "isSurveillanceRenforcee",
     label: "Surveillance renforcée",
@@ -92,7 +110,8 @@ export const EXPORT_FIELDS: ExportField[] = [
   {
     key: "ammActiveFrance",
     label: "AMM active en France",
-    format: (s) => (s.ammActiveFrance === undefined ? "" : boolLabel(s.ammActiveFrance)),
+    format: (s) =>
+      s.ammActiveFrance === undefined ? "" : boolLabel(s.ammActiveFrance),
   },
   {
     key: "typeProcedure",
@@ -111,7 +130,8 @@ export const EXPORT_FIELDS: ExportField[] = [
   },
   {
     key: "rcp45",
-    label: "RCP 4.5 - Interactions avec d'autres médicaments et autres formes d'interactions",
+    label:
+      "RCP 4.5 - Interactions avec d'autres médicaments et autres formes d'interactions",
     format: (s) => s.rcp45 ?? "",
   },
 ];
@@ -131,7 +151,7 @@ export interface SubstanceOption {
 export interface AtcOption {
   atc1Code: string;
   atc1Label: string;
-  atc2 : {
+  atc2: {
     atc2Code: string;
     atc2Label: string;
   }[];

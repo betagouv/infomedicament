@@ -1,7 +1,12 @@
 import { Suspense } from "react";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { fr } from "@codegouvfr/react-dsfr";
-import { getAtc1, getAtc2, getAtc1DefinitionData, getSubstancesByAtc } from "@/db/utils/atc";
+import {
+  getAtc1,
+  getAtc2,
+  getAtc1DefinitionData,
+  getSubstancesByAtc,
+} from "@/db/utils/atc";
 import { ATC, ATC1 } from "@/types/ATCTypes";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { notFound } from "next/navigation";
@@ -17,26 +22,24 @@ import { ResumeSubstance } from "@/db/types";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import { getAtcCodeFromSlug, getAtcSlug } from "@/utils/atc";
 
-
-export async function generateMetadata(
-  props: { params: Promise<{ slug: string }> },
-): Promise<Metadata> {
-  
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const code = getAtcCodeFromSlug((await props.params).slug);
 
   const atc1 = await getAtc1(code);
   const atc2 = code.length === 3 ? await getAtc2(code) : undefined;
 
-  if (!atc1 && !atc2){
+  if (!atc1 && !atc2) {
     return {
       title: `Classe de médicaments ${code}`,
     };
   }
   let title = "";
-  if(atc2) {
-    title += atc2.label + (atc1 && ' - ');
-  } 
-  if(atc1) {
+  if (atc2) {
+    title += atc2.label + (atc1 && " - ");
+  }
+  if (atc1) {
     title += atc1.label;
   }
 
@@ -48,23 +51,33 @@ export async function generateMetadata(
       canonical: `/atc/${getAtcSlug(currentAtc.code, currentAtc.label)}`,
     },
   };
-};
+}
 
-async function fetchATC1Data(atc1: ATC1): Promise<{ articles: ArticleCardResume[]; dataList: AdvancedATCClass[] }> {
+async function fetchATC1Data(
+  atc1: ATC1,
+): Promise<{ articles: ArticleCardResume[]; dataList: AdvancedATCClass[] }> {
   const [articles, allATC] = await Promise.all([
     getArticlesFromATC(atc1.code),
     getAtc1DefinitionData(atc1),
   ]);
-  const dataList = allATC.map(({ atc, substances }) => {
-    return {
-      class: { nbSubstances: substances.length, ...atc, children: atc.children ?? [] },
-      subclasses: [],
-    };
-  }).filter((data) => data.class.nbSubstances > 0);
+  const dataList = allATC
+    .map(({ atc, substances }) => {
+      return {
+        class: {
+          nbSubstances: substances.length,
+          ...atc,
+          children: atc.children ?? [],
+        },
+        subclasses: [],
+      };
+    })
+    .filter((data) => data.class.nbSubstances > 0);
   return { articles, dataList };
 }
 
-async function fetchATC2Data(atc2: ATC): Promise<{ articles: ArticleCardResume[]; dataList: ResumeSubstance[] }> {
+async function fetchATC2Data(
+  atc2: ATC,
+): Promise<{ articles: ArticleCardResume[]; dataList: ResumeSubstance[] }> {
   const [articles, substances] = await Promise.all([
     getArticlesFromATC(atc2.code),
     getSubstancesByAtc(atc2),
@@ -75,10 +88,18 @@ async function fetchATC2Data(atc2: ATC): Promise<{ articles: ArticleCardResume[]
 }
 
 export default function Page(props: { params: Promise<{ slug: string }> }) {
-  return <Suspense fallback={<PageLoadingFallback />}><ResolvedATCPage params={props.params} /></Suspense>;
+  return (
+    <Suspense fallback={<PageLoadingFallback />}>
+      <ResolvedATCPage params={props.params} />
+    </Suspense>
+  );
 }
 
-async function ResolvedATCPage({ params }: { params: Promise<{ slug: string }> }) {
+async function ResolvedATCPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   return <CachedATCPage slug={slug} />;
 }
@@ -105,11 +126,13 @@ async function CachedATCPage({ slug }: { slug: string }) {
               },
               ...(atc2
                 ? [
-                  {
-                    label: atc1.label,
-                    linkProps: { href: `/atc/${getAtcSlug(atc1.code, atc1.label)}` },
-                  },
-                ]
+                    {
+                      label: atc1.label,
+                      linkProps: {
+                        href: `/atc/${getAtcSlug(atc1.code, atc1.label)}`,
+                      },
+                    },
+                  ]
                 : []),
             ]}
             currentPageLabel={currentAtc.label}
@@ -121,9 +144,7 @@ async function CachedATCPage({ slug }: { slug: string }) {
       ) : (
         <ATC1DefinitionContent atc={atc1} {...await fetchATC1Data(atc1)} />
       )}
-      <RatingToaster
-        pageId={currentAtc.label}
-      />
+      <RatingToaster pageId={currentAtc.label} />
     </ContentContainer>
   );
 }

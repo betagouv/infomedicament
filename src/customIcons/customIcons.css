@@ -1,48 +1,48 @@
 .fr-icon--custom-bedroom-baby::before,
 .fr-icon--custom-bedroom-baby::after {
-    mask-image:url('bedroom-baby.svg')
+  mask-image: url("bedroom-baby.svg");
 }
 
 .fr-icon--custom-molecule::before,
 .fr-icon--custom-molecule::after {
-    mask-image:url('molecule.svg')
+  mask-image: url("molecule.svg");
 }
 
 .fr-icon--custom-box::before,
 .fr-icon--custom-box::after {
-    mask-image:url('box.svg')
+  mask-image: url("box.svg");
 }
 
 .fr-icon--custom-pill::before,
 .fr-icon--custom-pill::after {
-    mask-image:url('pill.svg')
+  mask-image: url("pill.svg");
 }
 
 .fr-icon--custom-pregnancy::before,
 .fr-icon--custom-pregnancy::after {
-    mask-image:url('pregnancy.svg')
+  mask-image: url("pregnancy.svg");
 }
 
 .fr-icon--custom-notice::before,
 .fr-icon--custom-notice::after {
-    mask-image:url('notice.svg');
-    --icon-size: 2rem;
+  mask-image: url("notice.svg");
+  --icon-size: 2rem;
 }
 .fr-icon--custom-pregnancy-alert::before,
 .fr-icon--custom-pregnancy-alert::after {
-    background-color: unset;
-    background-image:url('pregnancy_alert.svg');
-    --icon-size: 22px;
+  background-color: unset;
+  background-image: url("pregnancy_alert.svg");
+  --icon-size: 22px;
 }
 .fr-icon--custom-pediatric-alert::before,
 .fr-icon--custom-pediatric-alert::after {
-    background-color: unset;
-    background-image:url('pediatric_alert.svg');
-    --icon-size: 22px;
+  background-color: unset;
+  background-image: url("pediatric_alert.svg");
+  --icon-size: 22px;
 }
 .fr-icon--custom-filters::before,
 .fr-icon--custom-filters::after {
-    background-image:url('filters.svg');
-    background-color: unset;
-    /*background-color: var(--yellow-tournesol-950-100);*/
+  background-image: url("filters.svg");
+  background-color: unset;
+  /*background-color: var(--yellow-tournesol-950-100);*/
 }

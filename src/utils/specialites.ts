@@ -225,7 +225,9 @@ export function getSpecSlug(cis: string, name: string): string {
   return getSlug(cis, name);
 }
 
-export type SpecialiteWithGenericGroup = DetailedSpecialite & { genericGroupCode: number };
+export type SpecialiteWithGenericGroup = DetailedSpecialite & {
+  genericGroupCode: number;
+};
 
 export function hasGenericGroup(
   specialite: DetailedSpecialite,

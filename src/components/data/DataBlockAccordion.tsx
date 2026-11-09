@@ -4,7 +4,7 @@ import { HTMLAttributes, useEffect, useState } from "react";
 import Link from "next/link";
 import { fr } from "@codegouvfr/react-dsfr";
 import { formatSpecName } from "@/displayUtils";
-import styled, {css} from 'styled-components';
+import styled, { css } from "styled-components";
 import Button from "@codegouvfr/react-dsfr/Button";
 import MatchReasonTags from "../tags/MatchReasonTags";
 import PediatricsTags from "../tags/PediatricsTags";
@@ -17,17 +17,20 @@ import { ShortIndication } from "@/types/IndicationsTypes";
 import { MatchReason } from "@/types/SearchTypes";
 import { getSpecSlug } from "@/utils/specialites";
 
-const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
-  ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
-    border-bottom: var(--border-open-blue-france) 1px solid;
-    background-color: var(--background-alt-grey);
-    border-radius: 8px 8px 0 0;
-  `}
+const GreyContainer = styled.div<{ $isDetailsVisible?: boolean }>`
+  ${(props) =>
+    props.$isDetailsVisible &&
+    props.$isDetailsVisible &&
+    css`
+      border-bottom: var(--border-open-blue-france) 1px solid;
+      background-color: var(--background-alt-grey);
+      border-radius: 8px 8px 0 0;
+    `}
 `;
 const Container = styled.div`
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
-  ${GreyContainer}:hover{
+  ${GreyContainer}:hover {
     background-color: var(--background-alt-grey);
     border-radius: 8px;
     cursor: pointer;
@@ -42,7 +45,8 @@ const RowToColumnContainer = styled.div`
   @media (max-width: 48em) {
     display: flex;
     flex-direction: column;
-    .fr-text--sm, .fr-text--md {
+    .fr-text--sm,
+    .fr-text--md {
       margin-bottom: 0px;
     }
   }
@@ -67,7 +71,7 @@ const FiltersTagContainer = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  a{
+  a {
     margin-right: 0.5rem;
     margin-top: 0.2rem;
   }
@@ -86,10 +90,9 @@ interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
 function DataBlockAccordion({
   item,
   matchReasons,
-  withAlert
+  withAlert,
 }: DataBlockAccordionProps) {
-
-  const [specialitesGroup, setSpecialitesGroup] = useState< ResumeSpecGroup>();
+  const [specialitesGroup, setSpecialitesGroup] = useState<ResumeSpecGroup>();
   const [groupName, setGroupName] = useState<string>("");
   const [specialites, setSpecialites] = useState<ShortSpecialite[]>();
 
@@ -102,59 +105,83 @@ function DataBlockAccordion({
 
   //withAlert
   const [pregnancyPlanAlert, setPregnancyPlanAlert] = useState<boolean>(false);
-  const [pregnancyMentionAlert, setPregnancyMentionAlert] = useState<boolean>(false);
+  const [pregnancyMentionAlert, setPregnancyMentionAlert] =
+    useState<boolean>(false);
   const [pediatricsInfo, setPediatricsInfo] = useState<PediatricsInfo>();
 
   const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(false);
-  const [composantsTruncLength, setComposantsTruncLength] = useState<number>(250);
+  const [composantsTruncLength, setComposantsTruncLength] =
+    useState<number>(250);
 
   useEffect(() => {
     setSpecialitesGroup(item);
     setGroupName(formatSpecName(item.groupName));
     setSpecialites(item.shortSpecialites);
     setFullListeComposants(item.composants);
-    setListeComposants(item.composants.slice(0, composantsTruncLength) + (item.composants.length > composantsTruncLength ? "..." : ""));
+    setListeComposants(
+      item.composants.slice(0, composantsTruncLength) +
+        (item.composants.length > composantsTruncLength ? "..." : ""),
+    );
     setAtc1Label(item.atc1Label);
     setAtc2Label(item.atc2Label);
     setListIndications(item.indicationsDetails ? item.indicationsDetails : []);
-  }, [item, composantsTruncLength, setSpecialitesGroup, setGroupName, setSpecialites, setListeComposants, setAtc1Label, setAtc2Label, setListIndications]);
+  }, [
+    item,
+    composantsTruncLength,
+    setSpecialitesGroup,
+    setGroupName,
+    setSpecialites,
+    setListeComposants,
+    setAtc1Label,
+    setAtc2Label,
+    setListIndications,
+  ]);
 
   useEffect(() => {
-    if(withAlert 
-      && specialitesGroup 
-      && specialitesGroup.alerts 
-      && (specialitesGroup.alerts.pregnancyPlanAlert || specialitesGroup.alerts.pregnancyMentionAlert)
-    ){
-      if (specialitesGroup.alerts.pregnancyPlanAlert) setPregnancyPlanAlert(true)
+    if (
+      withAlert &&
+      specialitesGroup &&
+      specialitesGroup.alerts &&
+      (specialitesGroup.alerts.pregnancyPlanAlert ||
+        specialitesGroup.alerts.pregnancyMentionAlert)
+    ) {
+      if (specialitesGroup.alerts.pregnancyPlanAlert)
+        setPregnancyPlanAlert(true);
       else setPregnancyPlanAlert(false);
 
-      if (specialitesGroup.alerts.pregnancyMentionAlert) setPregnancyMentionAlert(true);
+      if (specialitesGroup.alerts.pregnancyMentionAlert)
+        setPregnancyMentionAlert(true);
       else setPregnancyMentionAlert(false);
     } else {
       setPregnancyPlanAlert(false);
       setPregnancyMentionAlert(false);
     }
-
-  }, [withAlert, specialitesGroup, setPregnancyPlanAlert, setPregnancyMentionAlert]);
+  }, [
+    withAlert,
+    specialitesGroup,
+    setPregnancyPlanAlert,
+    setPregnancyMentionAlert,
+  ]);
 
   useEffect(() => {
-    if(withAlert 
-      && specialitesGroup 
-      && specialitesGroup.alerts
-      && specialitesGroup.alerts.pediatrics
+    if (
+      withAlert &&
+      specialitesGroup &&
+      specialitesGroup.alerts &&
+      specialitesGroup.alerts.pediatrics
     )
       setPediatricsInfo(specialitesGroup.alerts.pediatrics);
-    else
-      setPediatricsInfo(undefined);
-
+    else setPediatricsInfo(undefined);
   }, [withAlert, specialitesGroup, setPediatricsInfo]);
 
   function onDetailsVisibles(isVisible: boolean) {
     setIsDetailsVisible(isVisible);
-    if(isVisible)
-      setListeComposants(fullListeComposants);
+    if (isVisible) setListeComposants(fullListeComposants);
     else {
-      setListeComposants(fullListeComposants.slice(0, composantsTruncLength) + (fullListeComposants.length > composantsTruncLength ? "..." : ""));
+      setListeComposants(
+        fullListeComposants.slice(0, composantsTruncLength) +
+          (fullListeComposants.length > composantsTruncLength ? "..." : ""),
+      );
     }
   }
 
@@ -168,126 +195,162 @@ function DataBlockAccordion({
 
   useEffect(() => {
     updateComposantsTruncLength();
-    window.addEventListener('resize', updateComposantsTruncLength);
+    window.addEventListener("resize", updateComposantsTruncLength);
     return () => {
-      window.removeEventListener('resize', updateComposantsTruncLength);
+      window.removeEventListener("resize", updateComposantsTruncLength);
     };
   }, []);
 
   function getIndicationsText(indicationsDetails: ShortIndication[]) {
     let newListIndications: string = "";
     indicationsDetails.forEach((indication) => {
-      newListIndications += (newListIndications !== "" ? ", " : "") + indication.nomIndication;
-    })
+      newListIndications +=
+        (newListIndications !== "" ? ", " : "") + indication.nomIndication;
+    });
     return newListIndications;
   }
 
-
-  return specialitesGroup && (
-    <Container className={fr.cx("fr-mb-1w")}>
-      <GreyContainer 
-        className={fr.cx("fr-p-1w")}
-        $isDetailsVisible={isDetailsVisible}        
-        onClick={() => onDetailsVisibles(!isDetailsVisible)}
-      >
-        <RowToColumnContainer>
-          <SpecName className={fr.cx("fr-text--md", "fr-mr-2w")}>{groupName}</SpecName>
-          {(specialites && specialites.length > 0) && (
-            <SpecLength className={fr.cx("fr-text--sm")}>{specialites.length} {specialites.length > 1 ? "formats de médicament" : " format de médicament"}</SpecLength>
-          )}
-        </RowToColumnContainer>
-        {matchReasons && <MatchReasonTags reasons={matchReasons} />}
-        <DetailsContainer>
-          <div style={{width: "100%"}}>
-            <RowToColumnContainer>
-              {(atc1Label || atc2Label) && (
-                <span className={fr.cx("fr-text--sm", "fr-mr-2w")}>
-                  <GreyText>Classe</GreyText>&nbsp;
-                  <DarkGreyText>
-                    {atc1Label && atc1Label}
-                    {(atc1Label && atc2Label) && ' > '}
-                    {atc2Label && atc2Label}
-                  </DarkGreyText>
-                </span>
-              )}
-              <span className={fr.cx("fr-text--sm")}>
-                <GreyText>Substance&nbsp;active</GreyText>&nbsp;
-                <DarkGreyText>
-                  {listeComposants}
-                </DarkGreyText>
-              </span>
-               {listIndications.length > 0 && (
-                <span className={fr.cx("fr-text--sm", "fr-ml-2w")}>
-                  <GreyText>Indication{listIndications.length > 1 && 's'}</GreyText>&nbsp;
-                  <DarkGreyText>
-                    {getIndicationsText(listIndications)}
-                  </DarkGreyText>
-                </span>
-              )}
-            </RowToColumnContainer>
-            {(withAlert && (pregnancyPlanAlert || pregnancyMentionAlert || pediatricsInfo)) && (
-              <div>
-                {pregnancyPlanAlert && (
-                  <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Plan de prévention grossesse pour certains des médicaments</RedText>
-                )}
-                {(!pregnancyPlanAlert && pregnancyMentionAlert) && (
-                  <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Mention contre-indication grossesse pour certains des médicaments</RedText>
-                )}
-                {(pediatricsInfo && pediatricsInfo.contraindication) && (
-                  <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>Contre-indiqué pour un enfant selon l&apos;âge</RedText>                    
-                )}
-              </div>
+  return (
+    specialitesGroup && (
+      <Container className={fr.cx("fr-mb-1w")}>
+        <GreyContainer
+          className={fr.cx("fr-p-1w")}
+          $isDetailsVisible={isDetailsVisible}
+          onClick={() => onDetailsVisibles(!isDetailsVisible)}
+        >
+          <RowToColumnContainer>
+            <SpecName className={fr.cx("fr-text--md", "fr-mr-2w")}>
+              {groupName}
+            </SpecName>
+            {specialites && specialites.length > 0 && (
+              <SpecLength className={fr.cx("fr-text--sm")}>
+                {specialites.length}{" "}
+                {specialites.length > 1
+                  ? "formats de médicament"
+                  : " format de médicament"}
+              </SpecLength>
             )}
-          </div>
-          <Button
-            iconId={isDetailsVisible ? "fr-icon-arrow-up-s-line" : "fr-icon-arrow-down-s-line"}
-            onClick={() => onDetailsVisibles(!isDetailsVisible)}
-            priority="tertiary no outline"
-            title="Liens vers les notices"
-            style={{width: "100%"}}
-          />
-        </DetailsContainer>
-      </GreyContainer>
-      {(isDetailsVisible && specialites && specialites.length > 0) && (
-        <div className={fr.cx("fr-p-1w")}>
-          <GreyText className={fr.cx("fr-text--sm")}>Consultez la notice de :</GreyText>
-          <ul className={fr.cx("fr-raw-list", "fr-pl-0")}>
-            {specialites.map((specialite, i) => (
-              <SpecLine key={i} className={fr.cx("fr-mb-1v")}>
-                <Link
-                  href={`/medicaments/${getSpecSlug(specialite.SpecId, specialite.SpecDenom01)}`}
-                  className={fr.cx("fr-text--sm", "fr-link")}
-                >
-                  {formatSpecName(specialite.SpecDenom01)}
-                </Link>
-                <DataBlockGenericIcons
-                  specialite={specialite}
-                  isSurveillanceRenforcee={specialite.isSurveillanceRenforcee}
-                />
-                {(withAlert 
-                  && (pregnancyPlanAlert && specialite.alerts && specialite.alerts.pregnancyPlanAlert) 
-                  || (pregnancyMentionAlert && specialite.alerts && specialite.alerts.pregnancyMentionAlert)
-                  || (pediatricsInfo && specialite.alerts && specialite.alerts.pediatrics)
-                ) && (
-                  <FiltersTagContainer>
-                    {(pregnancyPlanAlert && specialite.alerts.pregnancyPlanAlert) && (
-                      <PregnancyPlanTag />
-                    )}
-                    {((!pregnancyPlanAlert && !specialite.alerts.pregnancyPlanAlert) && pregnancyMentionAlert && specialite.alerts.pregnancyMentionAlert) && (
-                      <PregnancyMentionTag />
-                    )}
-                    {(pediatricsInfo && specialite.alerts.pediatrics) && (
-                      <PediatricsTags info={specialite.alerts.pediatrics} />
-                    )}
-                  </FiltersTagContainer>
+          </RowToColumnContainer>
+          {matchReasons && <MatchReasonTags reasons={matchReasons} />}
+          <DetailsContainer>
+            <div style={{ width: "100%" }}>
+              <RowToColumnContainer>
+                {(atc1Label || atc2Label) && (
+                  <span className={fr.cx("fr-text--sm", "fr-mr-2w")}>
+                    <GreyText>Classe</GreyText>&nbsp;
+                    <DarkGreyText>
+                      {atc1Label && atc1Label}
+                      {atc1Label && atc2Label && " > "}
+                      {atc2Label && atc2Label}
+                    </DarkGreyText>
+                  </span>
                 )}
-              </SpecLine>
-            ))}
-          </ul>
-        </div>
-      )}
-    </Container>
+                <span className={fr.cx("fr-text--sm")}>
+                  <GreyText>Substance&nbsp;active</GreyText>&nbsp;
+                  <DarkGreyText>{listeComposants}</DarkGreyText>
+                </span>
+                {listIndications.length > 0 && (
+                  <span className={fr.cx("fr-text--sm", "fr-ml-2w")}>
+                    <GreyText>
+                      Indication{listIndications.length > 1 && "s"}
+                    </GreyText>
+                    &nbsp;
+                    <DarkGreyText>
+                      {getIndicationsText(listIndications)}
+                    </DarkGreyText>
+                  </span>
+                )}
+              </RowToColumnContainer>
+              {withAlert &&
+                (pregnancyPlanAlert ||
+                  pregnancyMentionAlert ||
+                  pediatricsInfo) && (
+                  <div>
+                    {pregnancyPlanAlert && (
+                      <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>
+                        Plan de prévention grossesse pour certains des
+                        médicaments
+                      </RedText>
+                    )}
+                    {!pregnancyPlanAlert && pregnancyMentionAlert && (
+                      <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>
+                        Mention contre-indication grossesse pour certains des
+                        médicaments
+                      </RedText>
+                    )}
+                    {pediatricsInfo && pediatricsInfo.contraindication && (
+                      <RedText className={fr.cx("fr-text--sm", "fr-mr-2w")}>
+                        Contre-indiqué pour un enfant selon l&apos;âge
+                      </RedText>
+                    )}
+                  </div>
+                )}
+            </div>
+            <Button
+              iconId={
+                isDetailsVisible
+                  ? "fr-icon-arrow-up-s-line"
+                  : "fr-icon-arrow-down-s-line"
+              }
+              onClick={() => onDetailsVisibles(!isDetailsVisible)}
+              priority="tertiary no outline"
+              title="Liens vers les notices"
+              style={{ width: "100%" }}
+            />
+          </DetailsContainer>
+        </GreyContainer>
+        {isDetailsVisible && specialites && specialites.length > 0 && (
+          <div className={fr.cx("fr-p-1w")}>
+            <GreyText className={fr.cx("fr-text--sm")}>
+              Consultez la notice de :
+            </GreyText>
+            <ul className={fr.cx("fr-raw-list", "fr-pl-0")}>
+              {specialites.map((specialite, i) => (
+                <SpecLine key={i} className={fr.cx("fr-mb-1v")}>
+                  <Link
+                    href={`/medicaments/${getSpecSlug(specialite.SpecId, specialite.SpecDenom01)}`}
+                    className={fr.cx("fr-text--sm", "fr-link")}
+                  >
+                    {formatSpecName(specialite.SpecDenom01)}
+                  </Link>
+                  <DataBlockGenericIcons
+                    specialite={specialite}
+                    isSurveillanceRenforcee={specialite.isSurveillanceRenforcee}
+                  />
+                  {((withAlert &&
+                    pregnancyPlanAlert &&
+                    specialite.alerts &&
+                    specialite.alerts.pregnancyPlanAlert) ||
+                    (pregnancyMentionAlert &&
+                      specialite.alerts &&
+                      specialite.alerts.pregnancyMentionAlert) ||
+                    (pediatricsInfo &&
+                      specialite.alerts &&
+                      specialite.alerts.pediatrics)) && (
+                    <FiltersTagContainer>
+                      {pregnancyPlanAlert &&
+                        specialite.alerts.pregnancyPlanAlert && (
+                          <PregnancyPlanTag />
+                        )}
+                      {!pregnancyPlanAlert &&
+                        !specialite.alerts.pregnancyPlanAlert &&
+                        pregnancyMentionAlert &&
+                        specialite.alerts.pregnancyMentionAlert && (
+                          <PregnancyMentionTag />
+                        )}
+                      {pediatricsInfo && specialite.alerts.pediatrics && (
+                        <PediatricsTags info={specialite.alerts.pediatrics} />
+                      )}
+                    </FiltersTagContainer>
+                  )}
+                </SpecLine>
+              ))}
+            </ul>
+          </div>
+        )}
+      </Container>
+    )
   );
-};
+}
 
 export default DataBlockAccordion;

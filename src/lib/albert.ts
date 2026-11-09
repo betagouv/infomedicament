@@ -10,16 +10,21 @@ function headers(): Record<string, string> {
   };
 }
 
-
 export function parseAlbertJson(content: string): Record<string, string> {
-  const raw = content.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+  const raw = content.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
   return JSON.parse(raw);
 }
 
 export async function answerNoticeQuestion(
   noticeText: string,
   question: string,
-): Promise<{ answer: string; section_anchor: string; sub_header: string; block_id: string; quote: string }> {
+): Promise<{
+  answer: string;
+  section_anchor: string;
+  sub_header: string;
+  block_id: string;
+  quote: string;
+}> {
   const res = await fetch(`${BASE_URL}/chat/completions`, {
     method: "POST",
     headers: headers(),
@@ -40,10 +45,10 @@ export async function answerNoticeQuestion(
   const data = await res.json();
   const parsed = parseAlbertJson(data.choices[0].message.content as string);
   return {
-    answer: parsed.answer ?? '',
-    section_anchor: parsed.section_anchor ?? '',
-    sub_header: parsed.sub_header ?? '',
-    block_id: parsed.block_id ?? '',
-    quote: parsed.quote ?? '',
+    answer: parsed.answer ?? "",
+    section_anchor: parsed.section_anchor ?? "",
+    sub_header: parsed.sub_header ?? "",
+    block_id: parsed.block_id ?? "",
+    quote: parsed.quote ?? "",
   };
 }

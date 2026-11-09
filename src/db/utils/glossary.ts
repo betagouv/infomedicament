@@ -1,6 +1,6 @@
 "use server";
 
-import db from '@/db';
+import db from "@/db";
 import { Definition } from "@/types/GlossaireTypes";
 import { sql } from "kysely";
 import sanitizeHtml from "sanitize-html";
@@ -10,63 +10,75 @@ const ALLOWED_TAGS = { allowedTags: ["p", "br", "ul", "ol", "li"] as string[] };
 export default async function getGlossaryDefinitions(): Promise<Definition[]> {
   "use cache: remote";
 
-    const rows = await db.
-        selectFrom("ref_glossaire").
-        select(["nom", "definition", "source", "a_souligner"])
-        .distinct()
-        .execute();
+  const rows = await db
+    .selectFrom("ref_glossaire")
+    .select(["nom", "definition", "source", "a_souligner"])
+    .distinct()
+    .execute();
 
-    // Map database fields to Definition interface which does not allow nulls
-    const typedRows = rows.map((row) => mapDataBaseToDefinition(row));
+  // Map database fields to Definition interface which does not allow nulls
+  const typedRows = rows.map((row) => mapDataBaseToDefinition(row));
 
-    // Return sorted by nom (case insensitive, French locale)
-    return typedRows.sort((a, b) => a.nom.localeCompare(b.nom, 'fr', { sensitivity: 'base' }));
-};
-
-export async function getHighlightedGlossaryDefinitions(): Promise<Definition[]> {
-  "use cache: remote";
-
-    const rows = await db.selectFrom("ref_glossaire")
-        .select(["nom", "definition", "source", "a_souligner"])
-        .where("a_souligner", "=", true)
-        .distinct()
-        .execute();
-    return rows.map((row) => mapDataBaseToDefinition(row))
-        .sort((a, b) => a.nom.localeCompare(b.nom, 'fr', { sensitivity: 'base' }));
+  // Return sorted by nom (case insensitive, French locale)
+  return typedRows.sort((a, b) =>
+    a.nom.localeCompare(b.nom, "fr", { sensitivity: "base" }),
+  );
 }
 
-export async function getGlossaryDefinitionsByFirstLetter(firstLetter: string): Promise<Definition[]> {
+export async function getHighlightedGlossaryDefinitions(): Promise<
+  Definition[]
+> {
   "use cache: remote";
 
-    const rows = await db.selectFrom("ref_glossaire")
-        .select(["nom", "definition", "source", "a_souligner"])
-        .where("nom", "ilike", `${firstLetter}%`)
-        .execute();
+  const rows = await db
+    .selectFrom("ref_glossaire")
+    .select(["nom", "definition", "source", "a_souligner"])
+    .where("a_souligner", "=", true)
+    .distinct()
+    .execute();
+  return rows
+    .map((row) => mapDataBaseToDefinition(row))
+    .sort((a, b) => a.nom.localeCompare(b.nom, "fr", { sensitivity: "base" }));
+}
 
-    // Map database fields to Definition interface which does not allow nulls
-    const typedRows = rows.map((row) => mapDataBaseToDefinition(row));
+export async function getGlossaryDefinitionsByFirstLetter(
+  firstLetter: string,
+): Promise<Definition[]> {
+  "use cache: remote";
 
-    // Return sorted by nom (case insensitive, French locale)
-    return typedRows.sort((a, b) => a.nom.localeCompare(b.nom, 'fr', { sensitivity: 'base' }));
-};
+  const rows = await db
+    .selectFrom("ref_glossaire")
+    .select(["nom", "definition", "source", "a_souligner"])
+    .where("nom", "ilike", `${firstLetter}%`)
+    .execute();
+
+  // Map database fields to Definition interface which does not allow nulls
+  const typedRows = rows.map((row) => mapDataBaseToDefinition(row));
+
+  // Return sorted by nom (case insensitive, French locale)
+  return typedRows.sort((a, b) =>
+    a.nom.localeCompare(b.nom, "fr", { sensitivity: "base" }),
+  );
+}
 
 export async function getGlossaryLetters() {
   "use cache: remote";
 
-    const letters = await db.selectFrom("ref_glossaire")
-        .select(sql<string>`upper(substring(nom, 1, 1))`.as("letter"))
-        .distinct()
-        .orderBy("letter")
-        .execute();
+  const letters = await db
+    .selectFrom("ref_glossaire")
+    .select(sql<string>`upper(substring(nom, 1, 1))`.as("letter"))
+    .distinct()
+    .orderBy("letter")
+    .execute();
 
-    return letters.map((row) => row.letter);
+  return letters.map((row) => row.letter);
 }
 
 function mapDataBaseToDefinition(row: any): Definition {
-    return {
-        nom: row.nom || "",
-        definition: sanitizeHtml(row.definition || "", ALLOWED_TAGS),
-        source: row.source || "",
-        a_souligner: row.a_souligner || false,
-    };
+  return {
+    nom: row.nom || "",
+    definition: sanitizeHtml(row.definition || "", ALLOWED_TAGS),
+    source: row.source || "",
+    a_souligner: row.a_souligner || false,
+  };
 }

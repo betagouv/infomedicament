@@ -15,7 +15,11 @@ export function getSlug(id: string | number, name: string): string {
   const separatedName = name
     .replace(/[/()'’.]/g, "-")
     .replace(/(\d),(\d)/g, "$1-$2");
-  const nameSlug = slugify(separatedName, { lower: true, strict: true, locale: "fr" });
+  const nameSlug = slugify(separatedName, {
+    lower: true,
+    strict: true,
+    locale: "fr",
+  });
   const trimmedId = id.toString().trim();
   return nameSlug ? `${nameSlug}-${trimmedId}` : trimmedId;
 }

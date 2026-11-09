@@ -1,4 +1,3 @@
-
 import "server-cli-only";
 import db from "@/db";
 import { InteractionsSearchEntry } from "@/db/types";
@@ -61,10 +60,16 @@ export async function lookupInteractions(
       : Promise.resolve([]),
   ]);
   let classes1 = [
-    ...new Set([...directClassIds1.map(Number), ...classes1Rows.map((r) => r.num_classe)]),
+    ...new Set([
+      ...directClassIds1.map(Number),
+      ...classes1Rows.map((r) => r.num_classe),
+    ]),
   ];
   let classes2 = [
-    ...new Set([...directClassIds2.map(Number), ...classes2Rows.map((r) => r.num_classe)]),
+    ...new Set([
+      ...directClassIds2.map(Number),
+      ...classes2Rows.map((r) => r.num_classe),
+    ]),
   ];
 
   // Include "autres X" siblings (e.g. 758 "autres hyperkaliémiants" when 133 is present)
@@ -79,11 +84,16 @@ export async function lookupInteractions(
             "in",
             db
               .selectFrom("triam_classes as p")
-              .select(sql<string>`unaccent(lower('autres ' || p.nom))`.as("nom"))
+              .select(
+                sql<string>`unaccent(lower('autres ' || p.nom))`.as("nom"),
+              )
               .where("p.num_classe", "in", ids),
           )
           .execute();
-  const [a1, a2] = await Promise.all([autresIds(classes1), autresIds(classes2)]);
+  const [a1, a2] = await Promise.all([
+    autresIds(classes1),
+    autresIds(classes2),
+  ]);
   classes1 = [...new Set([...classes1, ...a1.map((r) => r.num_classe)])];
   classes2 = [...new Set([...classes2, ...a2.map((r) => r.num_classe)])];
 
@@ -103,8 +113,16 @@ export async function lookupInteractions(
       "triam_interactions.code_groupe_subst2",
     )
     // Step 3: also join triam_classes so we can resolve class names for class-based slots
-    .leftJoin("triam_classes as c1", "c1.num_classe", "triam_interactions.classe")
-    .leftJoin("triam_classes as c2", "c2.num_classe", "triam_interactions.classe1")
+    .leftJoin(
+      "triam_classes as c1",
+      "c1.num_classe",
+      "triam_interactions.classe",
+    )
+    .leftJoin(
+      "triam_classes as c2",
+      "c2.num_classe",
+      "triam_interactions.classe1",
+    )
     .select([
       "triam_interactions.niveau",
       "triam_interactions.risque",
@@ -116,16 +134,24 @@ export async function lookupInteractions(
       sql<string>`CASE WHEN triam_interactions.classe1 = 0 THEN gs2.nom_groupe_subst ELSE c2.nom END`.as(
         "subst2Name",
       ),
-      sql<string | null>`CASE WHEN triam_interactions.classe = 0 THEN NULL ELSE c1.nom END`.as(
+      sql<
+        string | null
+      >`CASE WHEN triam_interactions.classe = 0 THEN NULL ELSE c1.nom END`.as(
         "subst1ClassName",
       ),
-      sql<string | null>`CASE WHEN triam_interactions.classe1 = 0 THEN NULL ELSE c2.nom END`.as(
+      sql<
+        string | null
+      >`CASE WHEN triam_interactions.classe1 = 0 THEN NULL ELSE c2.nom END`.as(
         "subst2ClassName",
       ),
-      sql<string | null>`CASE WHEN triam_interactions.classe = 0 THEN NULL ELSE c1.chapeau END`.as(
+      sql<
+        string | null
+      >`CASE WHEN triam_interactions.classe = 0 THEN NULL ELSE c1.chapeau END`.as(
         "subst1Chapeau",
       ),
-      sql<string | null>`CASE WHEN triam_interactions.classe1 = 0 THEN NULL ELSE c2.chapeau END`.as(
+      sql<
+        string | null
+      >`CASE WHEN triam_interactions.classe1 = 0 THEN NULL ELSE c2.chapeau END`.as(
         "subst2Chapeau",
       ),
     ])
@@ -177,7 +203,10 @@ export async function lookupInteractions(
       // direction always finds the correctly-oriented row without needing a swap.
       return eb.and([
         eb("triam_interactions.historique", "=", false),
-        eb.and([slot1Matches(substIds1, classes1), slot2Matches(substIds2, classes2)]),
+        eb.and([
+          slot1Matches(substIds1, classes1),
+          slot2Matches(substIds2, classes2),
+        ]),
       ]);
     })
     // TRIAM stores each interaction bidirectionally. Without this ordering,

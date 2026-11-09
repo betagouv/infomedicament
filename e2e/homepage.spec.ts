@@ -17,7 +17,9 @@ test("homepage renders the main search experience", async ({ page }) => {
   await expect(
     page.getByRole("combobox", { name: /que cherchez-vous/i }),
   ).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Vos questions" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Vos questions" }),
+  ).toBeVisible();
 });
 
 test("searching a medicament from autocomplete opens its detail page", async ({
@@ -35,7 +37,9 @@ test("searching a medicament from autocomplete opens its detail page", async ({
     .getByRole("option", { name: "Doliprane 1000 mg, comprimé", exact: true })
     .click();
 
-  await expect(page).toHaveURL(/\/medicaments\/doliprane-1000-mg-comprime-60234100$/);
+  await expect(page).toHaveURL(
+    /\/medicaments\/doliprane-1000-mg-comprime-60234100$/,
+  );
   await expect(
     page.getByRole("heading", {
       level: 1,

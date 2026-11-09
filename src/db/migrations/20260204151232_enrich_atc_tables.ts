@@ -20,8 +20,16 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute();
 
   // Create indexes for atc
-  await db.schema.createIndex("atc_code_idx").on("atc").column("code").execute();
-  await db.schema.createIndex("atc_code_terme_pere_idx").on("atc").column("code_terme_pere").execute();
+  await db.schema
+    .createIndex("atc_code_idx")
+    .on("atc")
+    .column("code")
+    .execute();
+  await db.schema
+    .createIndex("atc_code_terme_pere_idx")
+    .on("atc")
+    .column("code_terme_pere")
+    .execute();
 
   // Enrich cis_atc table with Codex columns, and drop columns that don't exist
   await db.schema
@@ -38,8 +46,16 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute();
 
   // Create indexes for cis_atc
-  await db.schema.createIndex("cis_atc_code_cis_idx").on("cis_atc").column("code_cis").execute();
-  await db.schema.createIndex("cis_atc_code_terme_atc_idx").on("cis_atc").column("code_terme_atc").execute();
+  await db.schema
+    .createIndex("cis_atc_code_cis_idx")
+    .on("cis_atc")
+    .column("code_cis")
+    .execute();
+  await db.schema
+    .createIndex("cis_atc_code_terme_atc_idx")
+    .on("cis_atc")
+    .column("code_terme_atc")
+    .execute();
 }
 
 export async function down(db: Kysely<any>): Promise<void> {

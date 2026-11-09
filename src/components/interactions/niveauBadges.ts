@@ -24,7 +24,11 @@ export const CODE_COLORS: Record<string, string> = {
 // Light backgrounds need dark text
 export const LIGHT_CODES = new Set(["pe", "apec", "neg", "texte"]);
 
-export type NiveauBadgeData = { label: string; color: string; textColor: string };
+export type NiveauBadgeData = {
+  label: string;
+  color: string;
+  textColor: string;
+};
 
 export function getNiveauBadges(niveau: string): NiveauBadgeData[] {
   const seen = new Set<string>();

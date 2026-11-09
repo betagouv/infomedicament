@@ -3,15 +3,15 @@
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import Card from "@codegouvfr/react-dsfr/Card";
-import styled from 'styled-components';
+import styled from "styled-components";
 import ShareButtons from "./generic/ShareButtons";
 
 const Container = styled.div`
-  .fr-card__detail.fr-icon-information-line{
+  .fr-card__detail.fr-icon-information-line {
     font-style: italic;
   }
   @media (max-width: 48em) {
-    h1{
+    h1 {
       margin-bottom: 1rem;
     }
   }
@@ -34,9 +34,9 @@ export default function DefinitionBanner({
         <div className={fr.cx("fr-col-12")}>
           <Badge className={fr.cx("fr-badge--purple-glycine")}>{type}</Badge>
           <h1 className={fr.cx("fr-h1", "fr-mt-1w", "fr-mb-0")}>{title}</h1>
-          <ShareButtons 
+          <ShareButtons
             pageName={title}
-            className={fr.cx("fr-mb-6w", "fr-mt-2w")} 
+            className={fr.cx("fr-mb-6w", "fr-mt-2w")}
           />
         </div>
         {definition && (
@@ -44,13 +44,14 @@ export default function DefinitionBanner({
             {typeof definition === "string" ? (
               <div className={fr.cx("fr-grid-row")}>
                 <div className={fr.cx("fr-col")}>
-                  <Card 
-                    title="Définition" 
-                    titleAs={"h6"} 
+                  <Card
+                    title="Définition"
+                    titleAs={"h6"}
                     desc={definition}
                     endDetail={disclaimer && disclaimer}
                     classes={{
-                      endDetail: disclaimer && fr.cx("fr-icon-information-line")
+                      endDetail:
+                        disclaimer && fr.cx("fr-icon-information-line"),
                     }}
                   />
                 </div>
@@ -59,13 +60,14 @@ export default function DefinitionBanner({
               definition.map(({ title, desc }) => (
                 <div key={title} className={fr.cx("fr-grid-row", "fr-mb-1w")}>
                   <div className={fr.cx("fr-col")}>
-                    <Card 
+                    <Card
                       title={title}
                       titleAs={"h6"}
                       desc={desc}
                       endDetail={disclaimer && disclaimer}
                       classes={{
-                        endDetail: disclaimer && fr.cx("fr-icon-information-line")
+                        endDetail:
+                          disclaimer && fr.cx("fr-icon-information-line"),
                       }}
                     />
                   </div>

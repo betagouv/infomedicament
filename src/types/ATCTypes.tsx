@@ -14,9 +14,9 @@ export interface ATC {
 export type ATCSubstances = {
   atc: ATC;
   substances: ResumeSubstance[];
-}
+};
 
 export type ATCLabels = {
   atc1Label: string;
   atc2Label: string;
-}
+};

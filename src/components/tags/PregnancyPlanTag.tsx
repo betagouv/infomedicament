@@ -8,13 +8,13 @@ import { fr } from "@codegouvfr/react-dsfr";
 import "./dsfr-custom-tags.css";
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import Link from "next/link";
-import styled from 'styled-components';
+import styled from "styled-components";
 import TagContainer from "./TagContainer";
 import { trackEvent } from "@/services/tracking";
 
 const modal = createModal({
-  id: "pregnancy-subs-modal", 
-  isOpenedByDefault: false
+  id: "pregnancy-subs-modal",
+  isOpenedByDefault: false,
 });
 
 const ModalContent = styled.div`
@@ -27,12 +27,9 @@ interface PregnancyPlanTagProps extends HTMLAttributes<HTMLDivElement> {
   fromMedicament?: boolean;
 }
 
-function PregnancyPlanTag({
-  fromMedicament,
-}: PregnancyPlanTagProps) {
-
+function PregnancyPlanTag({ fromMedicament }: PregnancyPlanTagProps) {
   const onTrackEvent = () => {
-    if(fromMedicament)
+    if (fromMedicament)
       trackEvent("Page médicament", "Tag Plan de prévention grossesse");
   };
 
@@ -40,25 +37,28 @@ function PregnancyPlanTag({
     <>
       <modal.Component title="">
         <ModalContent>
-          <h4 className={"fr-icon--custom-pregnancy" as FrIconClassName}>Plan de prévention grossesse</h4>
+          <h4 className={"fr-icon--custom-pregnancy" as FrIconClassName}>
+            Plan de prévention grossesse
+          </h4>
           <span>
-            Ce tag signale que ce médicament est concerné par un{" "} 
-            <Link 
-              href="https://ansm.sante.fr/dossiers-thematiques/medicaments-et-grossesse/les-programmes-de-prevention-des-grossesses" 
+            Ce tag signale que ce médicament est concerné par un{" "}
+            <Link
+              href="https://ansm.sante.fr/dossiers-thematiques/medicaments-et-grossesse/les-programmes-de-prevention-des-grossesses"
               target="_blank"
               rel="noopener noreferrer"
             >
               plan de prévention grossesse
-            </Link>.<br/>
-            Il peut présenter des risques pour le fœtus (malformations, effets toxiques).<br/>
-            Lisez attentivement la notice et parlez-en à un professionnel de santé avant toute utilisation.
+            </Link>
+            .<br />
+            Il peut présenter des risques pour le fœtus (malformations, effets
+            toxiques).
+            <br />
+            Lisez attentivement la notice et parlez-en à un professionnel de
+            santé avant toute utilisation.
           </span>
         </ModalContent>
       </modal.Component>
-      <TagContainer 
-        className={fr.cx("fr-mt-1w", "fr-mr-1w")}
-        hideSeparator
-      >
+      <TagContainer className={fr.cx("fr-mt-1w", "fr-mr-1w")} hideSeparator>
         <Tag
           linkProps={{
             href: "#",
@@ -69,7 +69,9 @@ function PregnancyPlanTag({
             className: cx("fr-tag--custom-alt-contraindication"),
           }}
         >
-          <span className={fr.cx("fr-text--sm")}>Plan de prévention grossesse</span>
+          <span className={fr.cx("fr-text--sm")}>
+            Plan de prévention grossesse
+          </span>
         </Tag>
       </TagContainer>
     </>

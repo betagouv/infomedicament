@@ -12,17 +12,28 @@ function getTitleLevel(element: HTMLElement): number | undefined {
   const headingMatch = /^H([1-6])$/.exec(element.tagName);
   if (headingMatch) return Number(headingMatch[1]);
 
-  const classMatch = /\bAmmAnnexeTitre(\d)\b/.exec(element.getAttribute("class") ?? "");
+  const classMatch = /\bAmmAnnexeTitre(\d)\b/.exec(
+    element.getAttribute("class") ?? "",
+  );
   return classMatch ? Number(classMatch[1]) : undefined;
 }
 
 // Some ANSM titles have no anchor (e.g. <p class=AmmAnnexeTitre2>4.5. Interactions…</p>):
 // find the title starting with the section number instead
-function findTitleByNumber(root: HTMLElement, sectionNumber: string): HTMLElement | undefined {
-  const numberPattern = new RegExp(`^${escapeRegExpLiteral(sectionNumber)}\\.?(\\s|$)`);
+function findTitleByNumber(
+  root: HTMLElement,
+  sectionNumber: string,
+): HTMLElement | undefined {
+  const numberPattern = new RegExp(
+    `^${escapeRegExpLiteral(sectionNumber)}\\.?(\\s|$)`,
+  );
   return root
     .querySelectorAll("*")
-    .find((element) => getTitleLevel(element) !== undefined && numberPattern.test(element.textContent.trim()));
+    .find(
+      (element) =>
+        getTitleLevel(element) !== undefined &&
+        numberPattern.test(element.textContent.trim()),
+    );
 }
 
 /**
@@ -40,9 +51,10 @@ export function getRcpSectionBlock(
   if (!contentHtml) return undefined;
 
   const root = parse(contentHtml);
-  const anchor = root.querySelector(`[id="${anchorId}"]`)
-    ?? root.querySelector(`[name="${anchorId}"]`)
-    ?? (sectionNumber ? findTitleByNumber(root, sectionNumber) : undefined);
+  const anchor =
+    root.querySelector(`[id="${anchorId}"]`) ??
+    root.querySelector(`[name="${anchorId}"]`) ??
+    (sectionNumber ? findTitleByNumber(root, sectionNumber) : undefined);
   if (!anchor) return undefined;
 
   // The section title is the anchor or its closest title ancestor
@@ -65,12 +77,16 @@ export function getRcpSectionBlock(
   return elements.map((element) => element.toString()).join("");
 }
 
-export function getRcpSectionText(contentHtml: string, anchorId: string, sectionNumber?: string): string {
+export function getRcpSectionText(
+  contentHtml: string,
+  anchorId: string,
+  sectionNumber?: string,
+): string {
   const block = getRcpSectionBlock(contentHtml, anchorId, sectionNumber);
   if (!block) return "";
   // Separate the paragraphs: textContent would stick the end of one to the start of the next
-  return parse(block).childNodes
-    .map((node) => node.textContent)
+  return parse(block)
+    .childNodes.map((node) => node.textContent)
     .join(" ")
     .trim()
     .replace(/\s+/g, " ");

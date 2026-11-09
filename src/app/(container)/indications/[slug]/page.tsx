@@ -15,9 +15,9 @@ import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { getIdFromSlug, getNumericIdFromSlug } from "@/utils/slug";
 import { getIndicationSlug } from "@/utils/indications";
 
-export async function generateMetadata(
-  props: { params: Promise<{ slug: string }> },
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await props.params;
   const code = getNumericIdFromSlug(slug);
   const indication: Indication | undefined = code
@@ -32,17 +32,16 @@ export async function generateMetadata(
   return {
     title: `${indication.nom}`,
     // Fallback when the indication has no definition
-    description: indication.definition
-      || `Retrouvez les médicaments associés à l'indication : ${indication.nom}.`,
+    description:
+      indication.definition ||
+      `Retrouvez les médicaments associés à l'indication : ${indication.nom}.`,
     alternates: {
       canonical: `/indications/${getIndicationSlug(indication.id, indication.nom)}`,
     },
   };
 }
 
-export default function Page(props: {
-  params: Promise<{ slug: string }>;
-}) {
+export default function Page(props: { params: Promise<{ slug: string }> }) {
   return (
     <Suspense fallback={<PageLoadingFallback />}>
       <ResolvedIndicationPage params={props.params} />

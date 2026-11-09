@@ -10,10 +10,7 @@ interface MarrNoticeAdvancedProps extends HTMLAttributes<HTMLDivElement> {
   marr: Marr;
 }
 
-function MarrNoticeAdvanced({
-  marr,
-}: MarrNoticeAdvancedProps) {
-
+function MarrNoticeAdvanced({ marr }: MarrNoticeAdvancedProps) {
   return (
     marr.pdf.length > 0 && (
       <>
@@ -21,11 +18,17 @@ function MarrNoticeAdvanced({
           Mesures additionnelles de réduction du risque (MARR)
         </h2>
         <div className={fr.cx("fr-mb-1w")}>
-          Voici l&apos;ensemble des documents de mesure additionnelle de réduction du risque mis à disposition par le(s) laboratoire(s) exploitant(s) ce médicament et validés par l&apos;ANSM :
+          Voici l&apos;ensemble des documents de mesure additionnelle de
+          réduction du risque mis à disposition par le(s) laboratoire(s)
+          exploitant(s) ce médicament et validés par l&apos;ANSM :
         </div>
         <div className={fr.cx("fr-mb-2w")}>
-          <Link 
-            className={fr.cx("fr-icon-arrow-right-line", "fr-link--icon-left", "fr-text--sm")} 
+          <Link
+            className={fr.cx(
+              "fr-icon-arrow-right-line",
+              "fr-link--icon-left",
+              "fr-text--sm",
+            )}
             href={marr.ansmUrl}
             target="_blank"
             rel="noopener noreferrer"
@@ -33,10 +36,10 @@ function MarrNoticeAdvanced({
             En savoir plus sur le site de l&apos;ANSM
           </Link>
         </div>
-        <MarrResumeList marr={marr} inLine/>
+        <MarrResumeList marr={marr} inLine />
       </>
     )
   );
-};
+}
 
 export default MarrNoticeAdvanced;

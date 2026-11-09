@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { getAllSubsWithSpecialites, getSubstanceAllSpecialites, getSubstances } from "./substances";
+import {
+  getAllSubsWithSpecialites,
+  getSubstanceAllSpecialites,
+  getSubstances,
+} from "./substances";
 
 describe("db utils substances", () => {
   it.each([
@@ -16,8 +20,12 @@ describe("db utils substances", () => {
       const expectedCis = individually[index].map((s) => s.SpecId).sort();
       expect(expectedCis.length).toBeGreaterThan(0);
       for (const result of [batched, reversed]) {
-        expect(result.filter((s) => s.NomId === id).map((s) => s.SpecId).sort())
-          .toEqual(expectedCis);
+        expect(
+          result
+            .filter((s) => s.NomId === id)
+            .map((s) => s.SpecId)
+            .sort(),
+        ).toEqual(expectedCis);
       }
     });
   });
@@ -26,29 +34,42 @@ describe("db utils substances", () => {
     const allSubs = await getAllSubsWithSpecialites();
 
     //61933092
-    const isInactiveSpec = allSubs.findIndex((subs) => subs.SpecDenom01.trim() === "DOLIPRANE 500 mg, comprimé orodispersible");
+    const isInactiveSpec = allSubs.findIndex(
+      (subs) =>
+        subs.SpecDenom01.trim() === "DOLIPRANE 500 mg, comprimé orodispersible",
+    );
     //60234100
-    const isActiveSpec = allSubs.findIndex((subs) => subs.SpecDenom01.trim() === "DOLIPRANE 1000 mg, comprimé");
+    const isActiveSpec = allSubs.findIndex(
+      (subs) => subs.SpecDenom01.trim() === "DOLIPRANE 1000 mg, comprimé",
+    );
 
     expect(isInactiveSpec).toBe(-1);
     expect(isActiveSpec).not.toBe(-1);
-  })
+  });
 
   it("getSubstanceAllSpecialites - should return only actives specialites", async () => {
     //Paracétamol
     const specs = await getSubstanceAllSpecialites(["02202"]);
 
     //61933092
-    const isInactiveSpec = specs.findIndex((spec) => spec.SpecDenom01.trim() === "DOLIPRANE 500 mg, comprimé orodispersible");
+    const isInactiveSpec = specs.findIndex(
+      (spec) =>
+        spec.SpecDenom01.trim() === "DOLIPRANE 500 mg, comprimé orodispersible",
+    );
     //60234100
-    const isActiveSpec = specs.findIndex((spec) => spec.SpecDenom01.trim() === "DOLIPRANE 1000 mg, comprimé");
+    const isActiveSpec = specs.findIndex(
+      (spec) => spec.SpecDenom01.trim() === "DOLIPRANE 1000 mg, comprimé",
+    );
 
     expect(isInactiveSpec).toBe(-1);
     expect(isActiveSpec).not.toBe(-1);
-  })
+  });
   it("keeps canonical and synonym public IDs addressable", async () => {
     const substances = await getSubstances(["00005", "34911"]);
-    expect(substances.map((substance) => substance.NomId)).toEqual(["00005", "34911"]);
+    expect(substances.map((substance) => substance.NomId)).toEqual([
+      "00005",
+      "34911",
+    ]);
     expect(substances[1].NomLib).toBe("acide acétylsalicylique");
   });
 });

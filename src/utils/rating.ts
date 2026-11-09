@@ -8,9 +8,8 @@ export function isValidPageId(pageId: unknown): boolean {
     pageId.length > 0 &&
     pageId.length <= 150 &&
     VALID_PAGE_ID_RE.test(pageId) &&
-    !pageId.includes("..") &&   // no path traversal
-    !pageId.includes("//") &&   // no URLs
-    !/[^ ]:/.test(pageId)       // colon must be preceded by a space (blocks javascript:, http:, c:/)
+    !pageId.includes("..") && // no path traversal
+    !pageId.includes("//") && // no URLs
+    !/[^ ]:/.test(pageId) // colon must be preceded by a space (blocks javascript:, http:, c:/)
   );
 }
-

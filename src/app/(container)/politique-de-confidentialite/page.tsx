@@ -18,34 +18,37 @@ export default async function Page() {
           <h2>Qui est responsable de Info Médicament&nbsp;?</h2>
           <p>
             Info Médicament est développé par la Direction interministérielle du
-            numérique (DINUM) et par l’Agence nationale de sécurité du médicament
-            et des produits de santé (ANSM). Info Médicament est un service
-            numérique qui permet de mettre à disposition les informations et les
-            données relatives aux médicaments aux patients et aux professionnels
-            de santé afin de favoriser un meilleur usage des médicaments.{" "}
+            numérique (DINUM) et par l’Agence nationale de sécurité du
+            médicament et des produits de santé (ANSM). Info Médicament est un
+            service numérique qui permet de mettre à disposition les
+            informations et les données relatives aux médicaments aux patients
+            et aux professionnels de santé afin de favoriser un meilleur usage
+            des médicaments.{" "}
           </p>
           <p>
-            Le responsable de l’utilisation des données est l’ANSM représentée par
-            Madame Catherine Paugam-Burtz. La DINUM a qualité de sous-traitant.{" "}
+            Le responsable de l’utilisation des données est l’ANSM représentée
+            par Madame Catherine Paugam-Burtz. La DINUM a qualité de
+            sous-traitant.{" "}
           </p>
           <h2>
             Quelles sont les données que nous traitons&nbsp;? Pourquoi&nbsp;?{" "}
           </h2>
           <p>
-            Info Médicament traite l’adresse email des personnes s’inscrivant sur
-            le site Info Médicament en vue uniquement d’informer les personnes sur
-            le service numérique.
+            Info Médicament traite l’adresse email des personnes s’inscrivant
+            sur le site Info Médicament en vue uniquement d’informer les
+            personnes sur le service numérique.
           </p>
           <h2>Qu’est-ce qui nous autorise à traiter ces données&nbsp;?</h2>
           <p>
-            Info Médicament traite des données à caractère personnel en se basant
-            sur&nbsp;:
+            Info Médicament traite des données à caractère personnel en se
+            basant sur&nbsp;:
           </p>
           <ul>
             <li>
-              L’exécution d’une mission d’intérêt public ou relevant de l’exercice
-              de l’autorité publique dont est investi le responsable de traitement
-              au sens de l’article 6-1 e) du RPGD (ou autre base légale).
+              L’exécution d’une mission d’intérêt public ou relevant de
+              l’exercice de l’autorité publique dont est investi le responsable
+              de traitement au sens de l’article 6-1 e) du RPGD (ou autre base
+              légale).
             </li>
           </ul>
           <p>
@@ -78,16 +81,17 @@ export default async function Page() {
           <p>
             Puisque ce sont des droits personnels, nous ne traiterons votre
             demande que si nous sommes en mesure de vous identifier. Dans le cas
-            où nous ne parvenons pas à vous identifier, nous pouvons être amenés à
-            vous demander une preuve de votre identité.
+            où nous ne parvenons pas à vous identifier, nous pouvons être amenés
+            à vous demander une preuve de votre identité.
           </p>
           <p>
             Pour vous aider dans votre démarche, vous pouvez utiliser{" "}
             <a href="https://www.cnil.fr/fr/modele/courrier/exercer-son-droit-dacces">
               un modèle de courrier élaboré par la CNIL
             </a>
-            . Nous nous engageons à vous répondre dans un délai raisonnable qui ne
-            saurait dépasser 1 mois à compter de la réception de votre demande.
+            . Nous nous engageons à vous répondre dans un délai raisonnable qui
+            ne saurait dépasser 1 mois à compter de la réception de votre
+            demande.
           </p>
           <h2>Qui va avoir accès à ces données à caractère personnel&nbsp;?</h2>
           <p>
@@ -97,8 +101,8 @@ export default async function Page() {
           </p>
           <ul>
             <li>
-              Les membres d’Info Médicament qui ont besoin des données dans leurs
-              missions ou qui y ont accès de fait (développeur, etc.).
+              Les membres d’Info Médicament qui ont besoin des données dans
+              leurs missions ou qui y ont accès de fait (développeur, etc.).
             </li>
           </ul>
           <h2>Quelles mesures de sécurité mettons-nous en place&nbsp;?</h2>
@@ -110,7 +114,10 @@ export default async function Page() {
             <li> Cloisonnement des données ;</li>
             <li> Mesures de traçabilité ;</li>
             <li> Surveillance ;</li>
-            <li> Protection contre les virus, malwares et logiciels espions ;</li>
+            <li>
+              {" "}
+              Protection contre les virus, malwares et logiciels espions ;
+            </li>
             <li> Protection des réseaux ;</li>
             <li> Sauvegarde ;</li>
             <li>
@@ -121,9 +128,10 @@ export default async function Page() {
           <h2>Qui nous aide à traiter les données&nbsp;?</h2>
           <p>
             Certaines des données sont envoyées à d’autres acteurs, appelés
-            “sous-traitants de données”, pour qu’ils nous aident à les manipuler.
-            Nous nous assurons qu’ils respectent strictement le RGPD et qu’ils
-            apportent des garanties suffisantes en matière de sécurité.
+            “sous-traitants de données”, pour qu’ils nous aident à les
+            manipuler. Nous nous assurons qu’ils respectent strictement le RGPD
+            et qu’ils apportent des garanties suffisantes en matière de
+            sécurité.
           </p>
           <h2>Cookies</h2>
           <p>
@@ -137,28 +145,28 @@ export default async function Page() {
             concernant le traitement des données à caractère personnel et la
             protection de la vie privée dans le secteur des communications
             électroniques, transposée à l’article 82 de la loi n°78-17 du 6
-            janvier 1978 relative à l’informatique, aux fichiers et aux libertés,
-            les traceurs ou cookies suivent deux régimes distincts.
+            janvier 1978 relative à l’informatique, aux fichiers et aux
+            libertés, les traceurs ou cookies suivent deux régimes distincts.
           </p>
           <p>
-            Les cookies strictement nécessaires au service ou ayant pour finalité
-            exclusive de faciliter la communication par voie électronique sont
-            dispensés de consentement préalable au titre de l’article 82 de la loi
-            n°78-17 du 6 janvier 1978.
+            Les cookies strictement nécessaires au service ou ayant pour
+            finalité exclusive de faciliter la communication par voie
+            électronique sont dispensés de consentement préalable au titre de
+            l’article 82 de la loi n°78-17 du 6 janvier 1978.
           </p>
           <p>
-            Les cookies n’étant pas strictement nécessaires au service ou n’ayant
-            pas pour finalité exclusive de faciliter la communication par voie
-            électronique doivent être consenti par l’utilisateur.
+            Les cookies n’étant pas strictement nécessaires au service ou
+            n’ayant pas pour finalité exclusive de faciliter la communication
+            par voie électronique doivent être consenti par l’utilisateur.
           </p>
           <p>
             Ce consentement de la personne concernée pour une ou plusieurs
             finalités spécifiques constitue une base légale au sens du RGPD et
             doit être entendu au sens de l&apos;article 6-a du Règlement (UE)
-            2016/679 du Parlement européen et du Conseil du 27 avril 2016 relatif
-            à la protection des personnes physiques à l&apos;égard du traitement
-            des données à caractère personnel et à la libre circulation de ces
-            données.
+            2016/679 du Parlement européen et du Conseil du 27 avril 2016
+            relatif à la protection des personnes physiques à l&apos;égard du
+            traitement des données à caractère personnel et à la libre
+            circulation de ces données.
           </p>
           <p>
             Des cookies relatifs aux statistiques publiques et anonymes sont
@@ -168,12 +176,12 @@ export default async function Page() {
             À tout moment, vous pouvez refuser l’utilisation des cookies et
             désactiver le dépôt sur votre ordinateur en utilisant la fonction
             dédiée de votre navigateur (fonction disponible notamment sur
-            Microsoft Internet Explorer 11, Google Chrome, Mozilla Firefox, Apple
-            Safari et Opera).
+            Microsoft Internet Explorer 11, Google Chrome, Mozilla Firefox,
+            Apple Safari et Opera).
           </p>
           <p>
-            Pour aller plus loin, vous pouvez consulter les ﬁches proposées par la
-            Commission Nationale de l&apos;Informatique et des Libertés
+            Pour aller plus loin, vous pouvez consulter les ﬁches proposées par
+            la Commission Nationale de l&apos;Informatique et des Libertés
             (CNIL)&nbsp;:
           </p>
           <ul>

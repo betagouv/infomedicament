@@ -72,9 +72,10 @@ export default function ExportBlock({
   substancesOptions,
   atcsOptions,
 }: ExportBlockProps) {
-
   const [substancesList, setSubstancesList] = useState("");
-  const [selectedSubstances, setSelectedSubstances] = useState<SubstanceOption[]>([]);
+  const [selectedSubstances, setSelectedSubstances] = useState<
+    SubstanceOption[]
+  >([]);
   const [selectedAtc2Codes, setSelectedAtc2Codes] = useState<string[]>([]);
   const [selectedFields, setSelectedField] = useState<ExportFieldKey[]>(
     DEFAULT_EXPORT_FIELD_KEYS,
@@ -93,7 +94,11 @@ export default function ExportBlock({
 
   function addSubstance(subsOption: SubstanceOption) {
     setSelectedSubstances((substances) =>
-      substances.some((subs) => subs.subsId === subsOption.subsId && subs.nomLib === subsOption.nomLib)
+      substances.some(
+        (subs) =>
+          subs.subsId === subsOption.subsId &&
+          subs.nomLib === subsOption.nomLib,
+      )
         ? substances
         : [...substances, subsOption],
     );
@@ -102,7 +107,13 @@ export default function ExportBlock({
 
   function removeSubstance(subsOption: SubstanceOption) {
     setSelectedSubstances((substances) =>
-      substances.filter((subs) => !(subs.subsId === subsOption.subsId && subs.nomLib === subsOption.nomLib)),
+      substances.filter(
+        (subs) =>
+          !(
+            subs.subsId === subsOption.subsId &&
+            subs.nomLib === subsOption.nomLib
+          ),
+      ),
     );
   }
 
@@ -134,7 +145,9 @@ export default function ExportBlock({
       if (!results.ok) throw new Error("La requête a échoué");
       setResults(await results.json());
     } catch {
-      setError("Une erreur est survenue pendant l'extraction. Merci de réessayer.");
+      setError(
+        "Une erreur est survenue pendant l'extraction. Merci de réessayer.",
+      );
       setResults(null);
     } finally {
       setLoading(false);
@@ -154,12 +167,17 @@ export default function ExportBlock({
     URL.revokeObjectURL(url);
   }
 
-  const activeFields = EXPORT_FIELDS.filter((f) => selectedFields.includes(f.key));
+  const activeFields = EXPORT_FIELDS.filter((f) =>
+    selectedFields.includes(f.key),
+  );
 
   return (
     <div>
       <h2 className={fr.cx("fr-h4", "fr-mt-4w")}>Substances actives</h2>
-      <SubstancesSearchContainer className={fr.cx("fr-search-bar")} role="search">
+      <SubstancesSearchContainer
+        className={fr.cx("fr-search-bar")}
+        role="search"
+      >
         <Input
           id="extraction-substance-search"
           label="Rechercher une substance"
@@ -222,15 +240,21 @@ export default function ExportBlock({
           label: field.label,
           nativeInputProps: {
             checked: selectedFields.includes(field.key),
-            onChange: (e) => onChangeSelectedFields(field.key, e.target.checked),
+            onChange: (e) =>
+              onChangeSelectedFields(field.key, e.target.checked),
           },
         }))}
         orientation="horizontal"
         small
       />
 
-      <Button className={fr.cx("fr-mt-4w")} onClick={onExtractData}
-        disabled={loading || (selectedSubstances.length === 0 && selectedAtc2Codes.length === 0)}
+      <Button
+        className={fr.cx("fr-mt-4w")}
+        onClick={onExtractData}
+        disabled={
+          loading ||
+          (selectedSubstances.length === 0 && selectedAtc2Codes.length === 0)
+        }
       >
         {loading ? "Extraction en cours…" : "Extraire"}
       </Button>
@@ -239,13 +263,16 @@ export default function ExportBlock({
 
       {results && (
         <div className={fr.cx("fr-mt-4w")}>
-          <ResultsBlock
-            className={fr.cx("fr-mb-2w")}
-          >
+          <ResultsBlock className={fr.cx("fr-mb-2w")}>
             <p>
-              {results.length} spécialité{results.length > 1 ? "s" : ""} trouvée{results.length > 1 ? "s" : ""}
+              {results.length} spécialité{results.length > 1 ? "s" : ""} trouvée
+              {results.length > 1 ? "s" : ""}
             </p>
-            <Button priority="secondary" onClick={onDownloadCSV} disabled={results.length === 0}>
+            <Button
+              priority="secondary"
+              onClick={onDownloadCSV}
+              disabled={results.length === 0}
+            >
               Télécharger en CSV
             </Button>
           </ResultsBlock>
@@ -254,7 +281,9 @@ export default function ExportBlock({
               <Table
                 bordered
                 headers={activeFields.map((f) => f.label)}
-                data={results.map((spec) => activeFields.map((f) => f.format(spec)))}
+                data={results.map((spec) =>
+                  activeFields.map((f) => f.format(spec)),
+                )}
               />
             </ResultsTable>
           )}

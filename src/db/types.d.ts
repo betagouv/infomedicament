@@ -1,4 +1,7 @@
-import type { NoticeBlockType, SpecialiteProcedure } from "@/types/SpecialiteTypes";
+import type {
+  NoticeBlockType,
+  SpecialiteProcedure,
+} from "@/types/SpecialiteTypes";
 import { StockStatusID } from "@/types/StockTypes";
 import { Selectable } from "kysely";
 
@@ -104,26 +107,30 @@ interface SearchSynonymsTable {
 }
 
 interface RcpTable {
-  codeCIS: number,
-  title?: string,
-  dateNotif?: string,
-  content_html?: string | null,
+  codeCIS: number;
+  title?: string;
+  dateNotif?: string;
+  content_html?: string | null;
 }
 interface NoticeTable {
-  codeCIS: number,
-  title?: string,
-  dateNotif?: string,
-  content_html?: string | null,
+  codeCIS: number;
+  title?: string;
+  dateNotif?: string;
+  content_html?: string | null;
 }
 interface RatingTable {
-  id?: number,
-  pageId: string,
-  rating?: number,
-  question1?: number,
-  question2?: number,
+  id?: number;
+  pageId: string;
+  rating?: number;
+  question1?: number;
+  question2?: number;
 }
 
-export type LetterType = "indications" | "substances" | "medicaments" | "generiques";
+export type LetterType =
+  | "indications"
+  | "substances"
+  | "medicaments"
+  | "generiques";
 interface LettersTable {
   type: LetterType;
   letters: string[];
@@ -145,14 +152,14 @@ interface ResumeSubstancesTable {
 interface ResumeMedicamentsTable {
   groupName: string;
   composants: string;
-  specialites: string[][];//SpecId, SpecDenom01, StatutBdm, ProcId, Surveillance Renforcée
+  specialites: string[][]; //SpecId, SpecDenom01, StatutBdm, ProcId, Surveillance Renforcée
   indicationsIds: number[];
   atc1Code?: string;
   atc2Code?: string;
   atc5Code?: string;
   CISList: string[];
   subsIds: string[];
-  indicationsIdsNames: string[][];//idIndication, nomIndication
+  indicationsIdsNames: string[][]; //idIndication, nomIndication
 }
 
 interface ResumeSpecialitesTable {
@@ -403,43 +410,43 @@ interface InteractionsSearchTable {
 }
 
 interface ClassesCliniquesTable {
-  codeTerme: number,
-  libAbr?: string,
-  libCourt: string,
-  libLong: string,
-  libLongAnglais?: string,
-  libRech?: string,
-  numOrdreEdit: number,
-  dateCreationTerme: Date,
-  dateModifTerme?: Date,
-  dateInactivTerme?: Date,
-  textSourceRef?: string,
-  remTerme?: string,
-};
+  codeTerme: number;
+  libAbr?: string;
+  libCourt: string;
+  libLong: string;
+  libLongAnglais?: string;
+  libRech?: string;
+  numOrdreEdit: number;
+  dateCreationTerme: Date;
+  dateModifTerme?: Date;
+  dateInactivTerme?: Date;
+  textSourceRef?: string;
+  remTerme?: string;
+}
 
 interface VUClassesCliniquesTable {
-  codeVU: string,
-  codeClasClinique: number,
-  indicValide: number,
-  remCommentaire?: string,
-  dateCreation: Date,
-  dateDernModif?: Date,
-  codeModif?: number,
+  codeVU: string;
+  codeClasClinique: number;
+  indicValide: number;
+  remCommentaire?: string;
+  dateCreation: Date;
+  dateDernModif?: Date;
+  codeModif?: number;
 }
 
 interface IndicationsTable {
-  id: Generated<number>,
-  codePatho?: number,
-  codeClasseClinique?: number,
-  nom: string,
-  definition?: string,
-  CIS: string[],
+  id: Generated<number>;
+  codePatho?: number;
+  codeClasseClinique?: number;
+  nom: string;
+  definition?: string;
+  CIS: string[];
 }
 
 interface SpecialiteMetadataTable {
-  CIS: number,
-  title: string,
-  description: string,
+  CIS: number;
+  title: string;
+  description: string;
 }
 
 interface AnsmSpecialiteTable {
@@ -448,9 +455,19 @@ interface AnsmSpecialiteTable {
   denomination: string | null;
   een: "AUCUN_NOTIFIE" | "NON_RENSEIGNE" | "PRESENTS" | null;
   generique: number | null;
-  procedure: Exclude<SpecialiteProcedure, "IMPORTATION" | "NON_COMMUNIQUEE"> | null;
+  procedure: Exclude<
+    SpecialiteProcedure,
+    "IMPORTATION" | "NON_COMMUNIQUEE"
+  > | null;
   date_amm: Date | null;
-  statut_amm: "INACTIVE" | "ACTIVE" | "ABROGEE" | "SUSPENDUE" | "RETIREE" | "ARCHIVEE" | null;
+  statut_amm:
+    | "INACTIVE"
+    | "ACTIVE"
+    | "ABROGEE"
+    | "SUSPENDUE"
+    | "RETIREE"
+    | "ARCHIVEE"
+    | null;
   date_modification: Date | null;
   disponibilite: "INDISPONIBLE" | "DISPONIBLE" | "PARTIELLE" | "ALERTE" | null;
 }
@@ -493,13 +510,15 @@ export type RefAtcFriendlyNiveau1 = Selectable<RefAtcFriendlyNiveau1>;
 export type RefAtcFriendlyNiveau2 = Selectable<RefAtcFriendlyNiveau2>;
 export type RefGlossaire = Selectable<RefGlossaire>;
 export type RefGrossesseMention = Selectable<RefGrossesseMention>;
-export type RefGrossesseSubstancesContreIndiquees = Selectable<RefGrossesseSubstancesContreIndiquees>;
+export type RefGrossesseSubstancesContreIndiquees =
+  Selectable<RefGrossesseSubstancesContreIndiquees>;
 export type RefMarrUrlCis = Selectable<RefMarrUrlCis>;
 export type RefMarrUrlPdf = Selectable<RefMarrUrlPdf>;
 export type RefPathologies = Selectable<RefPathologies>;
 export type RefPediatrie = Selectable<RefPediatrie>;
 export type RefSubstanceActive = Selectable<RefSubstanceActive>;
-export type RefSubstanceActiveDefinitions = Selectable<RefSubstanceActiveDefinitions>;
+export type RefSubstanceActiveDefinitions =
+  Selectable<RefSubstanceActiveDefinitions>;
 export type TriamGtiam = Selectable<TriamGtiamTable>;
 export type TriamClasses = Selectable<TriamClassesTable>;
 export type TriamGroupeSubstance = Selectable<TriamGroupeSubstanceTable>;
@@ -558,7 +577,14 @@ interface AnsmPresentationTable {
   cip7: string | null;
   denomination: string | null;
   date_modification: Date | null;
-  statut_commercialisation: "INCONNUE" | "COMMERCIALISEE" | "ARRETEE" | "SUSPENDUE" | "NON_COMMUNIQUEE" | "RETIREE" | null;
+  statut_commercialisation:
+    | "INCONNUE"
+    | "COMMERCIALISEE"
+    | "ARRETEE"
+    | "SUSPENDUE"
+    | "NON_COMMUNIQUEE"
+    | "RETIREE"
+    | null;
   date_commercialisation: Date | null;
   date_arret_commercialisation: Date | null;
   statut: "ACTIVE" | "ABROGEE" | null;
@@ -587,14 +613,16 @@ interface AnsmSpecialiteClasseCliniqueTable {
   code_classe_clinique: number;
 }
 
-export type AnsmSpecialiteClasseClinique = Selectable<AnsmSpecialiteClasseCliniqueTable>;
+export type AnsmSpecialiteClasseClinique =
+  Selectable<AnsmSpecialiteClasseCliniqueTable>;
 
 interface AnsmClasseGroupeSubstanceTable {
   code_classe: number;
   code_groupe: number;
 }
 
-export type AnsmClasseGroupeSubstance = Selectable<AnsmClasseGroupeSubstanceTable>;
+export type AnsmClasseGroupeSubstance =
+  Selectable<AnsmClasseGroupeSubstanceTable>;
 
 interface AnsmSubstanceGroupeSubstanceTable {
   code_groupe: number;
@@ -602,7 +630,8 @@ interface AnsmSubstanceGroupeSubstanceTable {
   date_modification: Date | null;
 }
 
-export type AnsmSubstanceGroupeSubstance = Selectable<AnsmSubstanceGroupeSubstanceTable>;
+export type AnsmSubstanceGroupeSubstance =
+  Selectable<AnsmSubstanceGroupeSubstanceTable>;
 
 // Each side is identified by either code_groupe_* OR code_classe_* (exactly one non-null per side).
 // No PK constraint — see migration for explanation.
@@ -699,7 +728,8 @@ interface AnsmPresentationEvenementTable {
   date_modification: Date | null;
 }
 
-export type AnsmPresentationEvenement = Selectable<AnsmPresentationEvenementTable>;
+export type AnsmPresentationEvenement =
+  Selectable<AnsmPresentationEvenementTable>;
 
 interface AnsmPathologieTable {
   code: number;
@@ -715,7 +745,8 @@ interface AnsmClasseCliniquePathologieTable {
   code_pathologie: number;
 }
 
-export type AnsmClasseCliniquePathologie = Selectable<AnsmClasseCliniquePathologieTable>;
+export type AnsmClasseCliniquePathologie =
+  Selectable<AnsmClasseCliniquePathologieTable>;
 
 interface AnsmDelivranceTable {
   code: number;
@@ -730,7 +761,8 @@ interface AnsmSpecialiteDelivranceTable {
   code_delivrance: number;
 }
 
-export type AnsmSpecialiteDelivrance = Selectable<AnsmSpecialiteDelivranceTable>;
+export type AnsmSpecialiteDelivrance =
+  Selectable<AnsmSpecialiteDelivranceTable>;
 
 interface AnsmSpecialiteEvenementTable {
   cis: string;

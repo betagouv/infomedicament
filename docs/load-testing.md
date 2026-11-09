@@ -50,22 +50,22 @@ Do not run against production without an agreed test window and traffic ceiling.
 
 Configure a run with environment variables:
 
-| Variable                    |  Default | Meaning                                       |
-| --------------------------- | -------: | --------------------------------------------- |
-| `TARGET_URL`                | Required | Origin to test, without a path                |
-| `ARRIVAL_RATE`              |      `0` | Starting virtual users per second             |
-| `RAMP_TO`                   |     `50` | Arrival rate reached during the ramp          |
-| `RAMP_DURATION_SECONDS`     |     `60` | Ramp duration                                 |
-| `PLATEAU_DURATION_SECONDS`  |    `180` | Duration at the final arrival rate            |
-| `MAX_VUS`                   |    `100` | Maximum concurrent virtual users              |
-| `TIMEOUT_SECONDS`           |     `10` | HTTP request timeout                          |
-| `P95_MS`                    |   `2000` | Maximum accepted aggregate p95 response time  |
-| `MAX_ERROR_RATE_PERCENT`    |      `1` | Maximum accepted scenario error percentage    |
-| `POPULAR_MEDICINE_WEIGHT`   |     `40` | Relative popular-medicine weight              |
-| `LONG_TAIL_MEDICINE_WEIGHT` |     `40` | Relative long-tail-medicine weight            |
-| `SEARCH_WEIGHT`             |     `10` | Relative search weight                        |
-| `HOMEPAGE_WEIGHT`           |      `5` | Relative homepage weight                      |
-| `CANONICAL_PAGE_WEIGHT`     |      `5` | Relative other-page weight                    |
+| Variable                    |  Default | Meaning                                      |
+| --------------------------- | -------: | -------------------------------------------- |
+| `TARGET_URL`                | Required | Origin to test, without a path               |
+| `ARRIVAL_RATE`              |      `0` | Starting virtual users per second            |
+| `RAMP_TO`                   |     `50` | Arrival rate reached during the ramp         |
+| `RAMP_DURATION_SECONDS`     |     `60` | Ramp duration                                |
+| `PLATEAU_DURATION_SECONDS`  |    `180` | Duration at the final arrival rate           |
+| `MAX_VUS`                   |    `100` | Maximum concurrent virtual users             |
+| `TIMEOUT_SECONDS`           |     `10` | HTTP request timeout                         |
+| `P95_MS`                    |   `2000` | Maximum accepted aggregate p95 response time |
+| `MAX_ERROR_RATE_PERCENT`    |      `1` | Maximum accepted scenario error percentage   |
+| `POPULAR_MEDICINE_WEIGHT`   |     `40` | Relative popular-medicine weight             |
+| `LONG_TAIL_MEDICINE_WEIGHT` |     `40` | Relative long-tail-medicine weight           |
+| `SEARCH_WEIGHT`             |     `10` | Relative search weight                       |
+| `HOMEPAGE_WEIGHT`           |      `5` | Relative homepage weight                     |
+| `CANONICAL_PAGE_WEIGHT`     |      `5` | Relative other-page weight                   |
 
 Weights are relative and do not need to total 100. A ramp is followed
 automatically by a plateau. This example ramps from one to two requests per

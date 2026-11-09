@@ -10,17 +10,18 @@ import { Metadata } from "next";
 import { getSubstances, getSubstanceDefinition } from "@/db/utils/substances";
 import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinitionContent";
 import { getArticlesFromSubstances } from "@/db/utils/articles";
-import { getResumeSpecsGroupsWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
+import {
+  getResumeSpecsGroupsWithCIS,
+  getSubstanceSpecialitesCIS,
+} from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
 import { getSubstanceIdsFromSlug, getSubstanceSlug } from "@/utils/substances";
 import { formatFrenchList } from "@/displayUtils";
 
-
-export async function generateMetadata(
-  props: { params: Promise<{ slug: string }> },
-): Promise<Metadata> {
-
-  const ids = getSubstanceIdsFromSlug((await props.params).slug);//NomId
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const ids = getSubstanceIdsFromSlug((await props.params).slug); //NomId
   const substances: Substance[] = await getSubstances(ids);
   if (substances.length === 0 || substances.length < ids.length) {
     return {
@@ -28,14 +29,20 @@ export async function generateMetadata(
     };
   }
 
-  const definitionsRaw = await getSubstanceDefinition(ids, substances.map((subs) => subs.SubsId.trim()));
-  const definitionString = definitionsRaw.map(d => `${d.SA} : ${d.Definition}`).join(" - ")
+  const definitionsRaw = await getSubstanceDefinition(
+    ids,
+    substances.map((subs) => subs.SubsId.trim()),
+  );
+  const definitionString = definitionsRaw
+    .map((d) => `${d.SA} : ${d.Definition}`)
+    .join(" - ");
 
   return {
     title: formatFrenchList(substances.map((s) => s.NomLib)),
     // Fallback when no definition is available for these substances
-    description: definitionString
-      || `Retrouvez les médicaments contenant ${substances.length > 1 ? "les substances" : "la substance"} ${formatFrenchList(substances.map((s) => s.NomLib))}.`,
+    description:
+      definitionString ||
+      `Retrouvez les médicaments contenant ${substances.length > 1 ? "les substances" : "la substance"} ${formatFrenchList(substances.map((s) => s.NomLib))}.`,
     alternates: {
       canonical: `/substances/${getSubstanceSlug(substances)}`,
     },
@@ -43,20 +50,29 @@ export async function generateMetadata(
 }
 
 export default function Page(props: { params: Promise<{ slug: string }> }) {
-  return <Suspense fallback={<PageLoadingFallback />}><ResolvedSubstancePage params={props.params} /></Suspense>;
+  return (
+    <Suspense fallback={<PageLoadingFallback />}>
+      <ResolvedSubstancePage params={props.params} />
+    </Suspense>
+  );
 }
 
-async function ResolvedSubstancePage({ params }: { params: Promise<{ slug: string }> }) {
+async function ResolvedSubstancePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   return <CachedSubstancePage slug={slug} />;
 }
 
 async function CachedSubstancePage({ slug }: { slug: string }) {
   "use cache: remote";
-  const ids = getSubstanceIdsFromSlug(slug);//NomId
+  const ids = getSubstanceIdsFromSlug(slug); //NomId
 
   const substances: Substance[] = await getSubstances(ids);
-  if (substances.length === 0 || substances.length < ids.length) return notFound();
+  if (substances.length === 0 || substances.length < ids.length)
+    return notFound();
 
   const subsIds = substances.map((s) => s.SubsId.trim());
 
@@ -66,12 +82,16 @@ async function CachedSubstancePage({ slug }: { slug: string }) {
     getSubstanceSpecialitesCIS(ids),
   ]);
 
-  const definition = definitions.map((d) => ({ title: d.SA, desc: d.Definition }));
+  const definition = definitions.map((d) => ({
+    title: d.SA,
+    desc: d.Definition,
+  }));
 
   const allSpecsGroups = await getResumeSpecsGroupsWithCIS(CISList);
-  const dataList = allSpecsGroups.length > 0
-    ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
-    : [];
+  const dataList =
+    allSpecsGroups.length > 0
+      ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
+      : [];
 
   return (
     <ContentContainer frContainer>
@@ -98,9 +118,7 @@ async function CachedSubstancePage({ slug }: { slug: string }) {
         definition={definition}
         dataList={dataList}
       />
-      <RatingToaster
-        pageId={substances.map((s) => s.NomLib).join(", ")}
-      />
+      <RatingToaster pageId={substances.map((s) => s.NomLib).join(", ")} />
     </ContentContainer>
   );
 }

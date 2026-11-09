@@ -33,9 +33,7 @@ export default async function ContainerLayout({
           }
         />
         <InfoMedicamentHeader />
-        <main>
-          {children}
-        </main>
+        <main>{children}</main>
         <Footer
           brandTop={
             <>

@@ -29,9 +29,9 @@ async function getArticle(slug: string) {
   return article;
 }
 
-export async function generateMetadata(
-  props: { params: Promise<{ slug: string }> },
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await props.params;
 
   const article = await getArticle(slug);

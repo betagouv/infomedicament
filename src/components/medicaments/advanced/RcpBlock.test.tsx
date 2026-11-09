@@ -36,7 +36,9 @@ describe("RcpBlock", () => {
 
     render(<RcpBlock specialite={specialite} />);
 
-    expect(await screen.findByRole("heading", { name: "Raw RCP section" })).not.toBeNull();
+    expect(
+      await screen.findByRole("heading", { name: "Raw RCP section" }),
+    ).not.toBeNull();
     expect(document.querySelector(".rcp-notice-html-content")).not.toBeNull();
     expect(document.querySelector(".document-html--definitions")).toBeNull();
     expect(screen.getByText("RCP term").getAttribute("role")).toBeNull();

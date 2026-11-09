@@ -14,4 +14,4 @@ export type AnsmStock = {
   date_update: Date;
   date_end?: Date;
   link?: string;
-}
+};

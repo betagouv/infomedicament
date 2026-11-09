@@ -2,26 +2,30 @@
 
 import { HTMLAttributes, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
-import styled, {css} from 'styled-components';
+import styled, { css } from "styled-components";
 import Button from "@codegouvfr/react-dsfr/Button";
 import { SearchFilter, SortType } from "@/types/SearchTypes";
 import SearchFiltersContainer from "./SearchFiltersContainer";
 import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
 
-const SubMenuContainer = styled.div<{ 
+const SubMenuContainer = styled.div<{
   $isOpen: boolean;
   $isDark: boolean;
 }>`
   .fr-accordion__btn {
-    ${props => !props.$isDark && css`
-      color: var(--text-title-grey);
-      background: none;
-    `}
+    ${(props) =>
+      !props.$isDark &&
+      css`
+        color: var(--text-title-grey);
+        background: none;
+      `}
     font-weight: 700;
     padding: 1rem;
   }
   .fr-accordion:before {
-    box-shadow: inset 0 0px,0 1px 0 0 var(--border-default-grey);
+    box-shadow:
+      inset 0 0px,
+      0 1px 0 0 var(--border-default-grey);
   }
   .fr-accordion .fr-collapse--expanded {
     padding-top: 0px;
@@ -37,22 +41,27 @@ const SubMenuContainer = styled.div<{
     background-color: var(--text-action-high-blue-france);
   }
 
-  ${props => props.$isOpen && css`
-    overflow: auto;
-    position: fixed;
-    ${!props.$isDark 
-      ? css `background-color: white;`
-      : css `background-color: var(--background-default-grey);`
-    }
-    width: 100%;
-    height: 100%;
-    margin-left: -1rem;
-    top: 0px;
-    opacity: 1;
-    z-index: 10000;
-  `}
+  ${(props) =>
+    props.$isOpen &&
+    css`
+      overflow: auto;
+      position: fixed;
+      ${!props.$isDark
+        ? css`
+            background-color: white;
+          `
+        : css`
+            background-color: var(--background-default-grey);
+          `}
+      width: 100%;
+      height: 100%;
+      margin-left: -1rem;
+      top: 0px;
+      opacity: 1;
+      z-index: 10000;
+    `}
 `;
-const SubMenuOpenButton = styled.div<{ 
+const SubMenuOpenButton = styled.div<{
   $isOpen: boolean;
 }>`
   button {
@@ -62,31 +71,32 @@ const SubMenuOpenButton = styled.div<{
     display: block;
     border-radius: 4px;
   }
-  ${props => props.$isOpen 
-    ? css`
-      button {
-        border: none;
-        border-radius: 0px;
-        padding-top: 1rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid var(--border-open-blue-france);
-        text-align: left;
-        font-size: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        .fr-icon-close-line {
-          color: var(--text-action-high-blue-france);
-        }
-      }` 
-    : css`
-      button {
-        text-align: center;
-        border: 2px solid var(--border-open-blue-france);
-        text-transform: uppercase;
-      }
-    `
-  }
+  ${(props) =>
+    props.$isOpen
+      ? css`
+          button {
+            border: none;
+            border-radius: 0px;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-open-blue-france);
+            text-align: left;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            .fr-icon-close-line {
+              color: var(--text-action-high-blue-france);
+            }
+          }
+        `
+      : css`
+          button {
+            text-align: center;
+            border: 2px solid var(--border-open-blue-france);
+            text-transform: uppercase;
+          }
+        `}
 `;
 
 interface SearchFiltersSubMenuProps extends HTMLAttributes<HTMLDivElement> {
@@ -114,7 +124,6 @@ function SearchFiltersSubMenu({
   setIsSortAsc,
   selectedFiltersCount,
 }: SearchFiltersSubMenuProps) {
-
   const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false);
   const { isDark } = useIsDark();
 
@@ -126,16 +135,16 @@ function SearchFiltersSubMenu({
           priority="tertiary no outline"
         >
           <span>
-            <span className={["fr-icon--custom-filters", fr.cx("fr-mr-1w")].join(" ")}/>
+            <span
+              className={["fr-icon--custom-filters", fr.cx("fr-mr-1w")].join(
+                " ",
+              )}
+            />
             Filtres
-            {selectedFiltersCount > 0 && (
-              <span>{" "}({selectedFiltersCount})</span>
-            )}
+            {selectedFiltersCount > 0 && <span> ({selectedFiltersCount})</span>}
           </span>
           {isFiltersOpen && (
-            <span 
-              className={fr.cx("fr-icon-close-line", "fr-mr-1w")}
-            />
+            <span className={fr.cx("fr-icon-close-line", "fr-mr-1w")} />
           )}
         </Button>
       </SubMenuOpenButton>
@@ -154,6 +163,6 @@ function SearchFiltersSubMenu({
       </div>
     </SubMenuContainer>
   );
-};
+}
 
 export default SearchFiltersSubMenu;

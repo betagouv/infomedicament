@@ -14,7 +14,11 @@ export function parseHasDate(value: string | null): Date | null {
   const date = new Date(0);
   date.setUTCFullYear(year, month - 1, day);
   // Reject impossible dates rather than silently rolling into another month.
-  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
     return null;
   }
   return date;
@@ -24,9 +28,13 @@ function normalizeHasDate(value: string | null): string | null {
   return parseHasDate(value)?.toISOString().slice(0, 10) ?? null;
 }
 
-export function sortHasHistory<T extends { opinionDate: string | null }>(history: T[]): T[] {
+export function sortHasHistory<T extends { opinionDate: string | null }>(
+  history: T[],
+): T[] {
   // Normalized YYYY-MM-DD dates sort chronologically; undated entries stay last.
-  return history.sort((a, b) => (b.opinionDate ?? "").localeCompare(a.opinionDate ?? ""));
+  return history.sort((a, b) =>
+    (b.opinionDate ?? "").localeCompare(a.opinionDate ?? ""),
+  );
 }
 
 export function mapDocBonUsage(row: {

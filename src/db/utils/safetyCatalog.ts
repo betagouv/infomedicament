@@ -9,9 +9,7 @@ function toDate(value: Date | string | null): Date | null {
   return value instanceof Date ? value : new Date(value);
 }
 
-export function mapAnsmSafetyEvent(
-  row: AnsmSpecialiteEvenement,
-): SafetyEvent {
+export function mapAnsmSafetyEvent(row: AnsmSpecialiteEvenement): SafetyEvent {
   return {
     specialiteId: row.cis,
     code: row.code_evenement,
@@ -27,7 +25,10 @@ export function mapAnsmSafetyEvent(
 export function mapImportantInformation(
   event: SafetyEvent,
 ): ImportantInformation | null {
-  if (event.code !== IMPORTANT_INFORMATION_EVENT_CODE || !event.comment?.trim()) {
+  if (
+    event.code !== IMPORTANT_INFORMATION_EVENT_CODE ||
+    !event.comment?.trim()
+  ) {
     return null;
   }
 
