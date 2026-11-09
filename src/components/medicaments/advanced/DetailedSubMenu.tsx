@@ -37,6 +37,15 @@ const infosGeneralesMenu: SubMenuType[] = [
     text: 'Présentations',
   }
 ];
+// Only displayed when the medicament has MARR or stock issues
+export const infosGeneralesMenuMarr: SubMenuType = {
+  href: 'informations-marr',
+  text: 'Mesures additionnelles de réduction du risque (MARR)',
+};
+export const infosGeneralesMenuStock: SubMenuType = {
+  href: 'informations-stock',
+  text: 'Ruptures de stock ou risques de rupture de stock',
+};
 const RCPDonneesCliniSubMenu: SubMenuType[] = [
   {
     href: 'RcpIndicTherap',
@@ -183,6 +192,41 @@ const documentHASMenu: SubMenuType[] = [
   }
 ];
 
+// Anchors of the three parts of the detailed page (top-level menu items)
+const subMenuAnchors: Record<DetailsNoticePartsEnum, string> = {
+  [DetailsNoticePartsEnum.INFORMATIONS_GENERALES]: "informations-generales",
+  [DetailsNoticePartsEnum.RCP]: "rcp-denomiation",
+  [DetailsNoticePartsEnum.HAS]: "document-has",
+};
+
+function hasAnchor(subMenuList: SubMenuType[], anchor: string): boolean {
+  return subMenuList.some(
+    (subMenu) => subMenu.href === anchor || (subMenu.children && hasAnchor(subMenu.children, anchor)),
+  );
+}
+
+/**
+ * Finds the detailed page part matching a URL hash, so that links to
+ * /medicaments/[slug]/details#anchor open the right part of the menu:
+ * a part ("#rcp-denomiation") or a section of a part ("#informations-marr").
+ */
+export function getAnchorMenuFromHash(hash: string): AnchorMenu | undefined {
+  const anchor = decodeURIComponent(hash.replace(/^#/, ""));
+  if (!anchor) return undefined;
+  const part = (Object.keys(subMenuAnchors) as DetailsNoticePartsEnum[])
+    .find((menuPart) => subMenuAnchors[menuPart] === anchor);
+  // A part opens like a click on its menu item: first section, top of the page
+  if (part) return { menuPart: part };
+  const generalAnchors = [...infosGeneralesMenu, infosGeneralesMenuMarr, infosGeneralesMenuStock];
+  if (hasAnchor(generalAnchors, anchor))
+    return { anchor, menuPart: DetailsNoticePartsEnum.INFORMATIONS_GENERALES };
+  if (hasAnchor(RCPMenu, anchor))
+    return { anchor, menuPart: DetailsNoticePartsEnum.RCP };
+  if (hasAnchor(documentHASMenu, anchor))
+    return { anchor, menuPart: DetailsNoticePartsEnum.HAS };
+  return undefined;
+}
+
 const Container = styled.div `
   display: contents;
   
@@ -223,16 +267,10 @@ function DetailedSubMenu({
 
   const currentInfosGeneralesMenu: SubMenuType[] = isInfosImportantes ? Array.from(infosGeneralesMenu) : infosGeneralesMenu.slice(1);
   if(isMarr){
-    currentInfosGeneralesMenu.push({
-      href: 'informations-marr',
-      text: 'Mesures additionnelles de réduction du risque (MARR)',
-    });
+    currentInfosGeneralesMenu.push(infosGeneralesMenuMarr);
   }
   if(isStock){
-    currentInfosGeneralesMenu.push({
-      href: 'informations-stock',
-      text: 'Ruptures de stock ou risques de rupture de stock',
-    });
+    currentInfosGeneralesMenu.push(infosGeneralesMenuStock);
   }
 
   function getSubMenu(subMenuList: SubMenuType[]): SideMenuProps.Item[] {
@@ -307,7 +345,7 @@ function DetailedSubMenu({
           {
             expandedByDefault: !currentMenuPart || (currentMenuPart && currentMenuPart.menuPart === DetailsNoticePartsEnum.INFORMATIONS_GENERALES),
             linkProps: {
-              href: '#informations-generales',              
+              href: `#${subMenuAnchors[DetailsNoticePartsEnum.INFORMATIONS_GENERALES]}`,              
               onClick: () => setCurrentMenuPart({menuPart: DetailsNoticePartsEnum.INFORMATIONS_GENERALES}),
             },
             text: 'Informations générales',
@@ -316,7 +354,7 @@ function DetailedSubMenu({
           {
             expandedByDefault: (currentMenuPart && currentMenuPart.menuPart === DetailsNoticePartsEnum.RCP),
             linkProps: {
-              href: '#rcp-denomiation',
+              href: `#${subMenuAnchors[DetailsNoticePartsEnum.RCP]}`,
               onClick: () => setCurrentMenuPart({menuPart: DetailsNoticePartsEnum.RCP}),
             },
             text: 'Résumé des caractéristiques du produit (RCP)',
@@ -325,7 +363,7 @@ function DetailedSubMenu({
           {
             expandedByDefault: (currentMenuPart && currentMenuPart.menuPart === DetailsNoticePartsEnum.HAS),
             linkProps: {
-              href: '#document-has',
+              href: `#${subMenuAnchors[DetailsNoticePartsEnum.HAS]}`,
               onClick: () => setCurrentMenuPart({menuPart: DetailsNoticePartsEnum.HAS}),
             },
             text: 'Documents HAS (Bon usage, SMR, ASMR)',

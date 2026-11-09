@@ -3,7 +3,11 @@ import ContentContainer from "../generic/ContentContainer";
 import { SkeletonLine } from "../generic/Skeleton";
 import MedicamentContentLoading from "./MedicamentContentLoading";
 
-export default function MedicamentPageLoading() {
+export default function MedicamentPageLoading({
+  isAdvanced = false,
+}: {
+  isAdvanced?: boolean;
+}) {
   return (
     <>
       <ContentContainer frContainer>
@@ -22,7 +26,7 @@ export default function MedicamentPageLoading() {
         className={fr.cx("fr-pt-1w", "fr-pb-2w")}
         style={{ backgroundColor: "var(--background-alt-grey)" }}
       >
-        <MedicamentContentLoading />
+        <MedicamentContentLoading isAdvanced={isAdvanced} />
       </ContentContainer>
     </>
   );

@@ -2,11 +2,33 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import MedicamentContent from "./MedicamentContent";
 import type { MedicamentData } from "./MedicamentData";
+import type { DetailedSpecialite } from "@/types/SpecialiteTypes";
 
+const mockPush = vi.fn();
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: mockPush }),
+}));
 vi.mock("@/services/tracking", () => ({ trackEvent: vi.fn() }));
 vi.mock("@codegouvfr/react-dsfr/useIsDark", () => ({
   useIsDark: () => ({ isDark: false }),
 }));
+
+const specialite: DetailedSpecialite = {
+  SpecId: "60234100",
+  SpecDenom01: "DOLIPRANE 1000 mg, comprimé",
+  ProcId: "NATIONALE",
+  StatutBdm: 1,
+  Een: null,
+  StatId: null,
+  SpecDateAMM: null,
+  SpecStatDate: null,
+  statutAutorisation: null,
+  statutComm: null,
+  titulairesList: null,
+  genericGroupCode: null,
+  genericGroupName: null,
+  referenceSpecialite: null,
+};
 
 describe("medicine loading", () => {
   it("keeps the title, question controls and typed query mounted while details resolve", async () => {
@@ -18,6 +40,8 @@ describe("medicine loading", () => {
     await act(async () => {
       render(
         <MedicamentContent
+          specialite={specialite}
+          isAdvanced={false}
           title="Médicament de test"
           data={data}
           atcList={[]}
@@ -67,5 +91,27 @@ describe("medicine loading", () => {
     expect(
       screen.getByText("La notice n’est pas disponible pour ce médicament."),
     ).not.toBeNull();
+  });
+
+  it("opens the detailed version on its own page when switching", async () => {
+    mockPush.mockClear();
+    await act(async () => {
+      render(
+        <MedicamentContent
+          specialite={specialite}
+          isAdvanced={false}
+          title="Médicament de test"
+          data={new Promise<MedicamentData>(() => {})}
+          atcList={[]}
+          composants={[]}
+          delivrance={[]}
+          presentations={[]}
+        />,
+      );
+    });
+
+    fireEvent.click(screen.getAllByLabelText("Version détaillée")[0]);
+
+    expect(mockPush).toHaveBeenCalledWith("/medicaments/doliprane-1000-mg-comprime-60234100/details");
   });
 });

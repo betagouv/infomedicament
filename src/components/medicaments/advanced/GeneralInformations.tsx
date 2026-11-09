@@ -56,6 +56,7 @@ import HospitalTag from "@/components/tags/HospitalTag";
 import ReimbursableTag from "@/components/tags/ReimbursableTag";
 import StockTag from "@/components/tags/StockTag";
 import { AnsmStock } from "@/types/StockTypes";
+import { infosGeneralesMenuMarr, infosGeneralesMenuStock } from "./DetailedSubMenu";
 
 const SummaryLineContainer = styled.div<{ $hideBorder?: boolean }>`
   display: flex;
@@ -591,7 +592,7 @@ function GeneralInformations({
 
         {marr && marr.pdf.length > 0 && (
           <ContentContainer
-            id="informations-marr"
+            id={infosGeneralesMenuMarr.href}
             whiteContainer
             className={fr.cx("fr-mb-2w", "fr-p-2w")}
           >
@@ -601,7 +602,7 @@ function GeneralInformations({
 
         {stocks.length > 0 && (
           <ContentContainer
-            id="informations-stock"
+            id={infosGeneralesMenuStock.href}
             whiteContainer
             className={fr.cx("fr-mb-2w", "fr-p-2w")}
           >

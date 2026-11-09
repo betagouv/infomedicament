@@ -79,6 +79,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${BASE_URL}/medicaments/${getSpecSlug(s.SpecId, s.SpecDenom01)}`,
   }));
 
+  const medicamentDetailsEntries: MetadataRoute.Sitemap = specialites.map((s) => ({
+    url: `${BASE_URL}/medicaments/${getSpecSlug(s.SpecId, s.SpecDenom01)}/details`,
+  }));
+
   const articleEntries: MetadataRoute.Sitemap = articles.map((a) => ({
     url: `${BASE_URL}/articles/${a.slug}`,
   }));
@@ -116,6 +120,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticEntries,
     ...medicamentEntries,
+    ...medicamentDetailsEntries,
     ...articleEntries,
     ...substanceEntries,
     ...indicationsEntries,

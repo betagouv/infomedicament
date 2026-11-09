@@ -7,12 +7,12 @@ import type { CompositionComponent } from "@/types/SubstanceTypes";
 import {
   HTMLAttributes,
   lazy,
-  startTransition,
   Suspense,
   useCallback,
   useEffect,
   useState,
 } from "react";
+import { useRouter } from "next/navigation";
 import { ATC } from "@/types/ATCTypes";
 import {
   DelivranceCondition,
@@ -20,16 +20,19 @@ import {
 } from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import { trackEvent } from "@/services/tracking";
+import { getSpecSlug } from "@/utils/specialites";
 const AdvancedContent = lazy(() => import("./AdvancedContent"));
 import NoticeContent from "./NoticeContent";
-import { AnchorMenu } from "./advanced/DetailedSubMenu";
+import { AnchorMenu, getAnchorMenuFromHash } from "./advanced/DetailedSubMenu";
 import GoTopButton from "../generic/GoTopButton";
 
 interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
+  /** Detailed version (RCP, advanced data), served at /medicaments/[slug]/details */
+  isAdvanced: boolean;
   atcList: string[];
   atc2?: ATC;
   atcCode?: string;
-  specialite?: DetailedSpecialite;
+  specialite: DetailedSpecialite;
   composants: CompositionComponent[];
   delivrance: DelivranceCondition[];
   presentations: Presentation[];
@@ -38,6 +41,7 @@ interface MedicamentContentProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function MedicamentContent({
+  isAdvanced,
   atcList,
   atc2,
   atcCode,
@@ -49,25 +53,24 @@ function MedicamentContent({
   data,
   ...props
 }: MedicamentContentProps) {
-  const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
+  const router = useRouter();
+  // Slug of the notice and detailed version pages
+  const slug = getSpecSlug(specialite.SpecId, specialite.SpecDenom01);
   const [advancedAnchor, setAdvancedAnchor] = useState<AnchorMenu>();
 
   const onGoToAdvanced = useCallback(
     (enabled: boolean) => {
-      startTransition(() => setIsAdvanced(enabled));
-      if (!enabled) setAdvancedAnchor(undefined);
+      router.push(enabled ? `/medicaments/${slug}/details` : `/medicaments/${slug}`);
     },
-    [setIsAdvanced],
+    [router, slug],
   );
-  const onGoToAdvancedAnchor = useCallback(
-    (anchor?: AnchorMenu) => {
-      if (anchor) {
-        setAdvancedAnchor(anchor);
-      }
-      startTransition(() => setIsAdvanced(true));
-    },
-    [setIsAdvanced, setAdvancedAnchor],
-  );
+
+  // Opens the part of the detailed version targeted by the URL hash
+  useEffect(() => {
+    if (!isAdvanced) return;
+    const anchor = getAnchorMenuFromHash(window.location.hash);
+    if (anchor) setAdvancedAnchor(anchor);
+  }, [isAdvanced]);
 
   useEffect(() => {
     const handler = () => {
@@ -115,7 +118,6 @@ function MedicamentContent({
           presentations={presentations}
           title={title}
           onGoToAdvanced={onGoToAdvanced}
-          onGoToAdvancedAnchor={onGoToAdvancedAnchor}
         />
       )}
       <GoTopButton />
