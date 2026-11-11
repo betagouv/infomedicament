@@ -12,7 +12,6 @@ import { useRouter } from "next/navigation";
 import {
   advancedSearchParams,
   type AdvancedSearchCriteria,
-  MAX_ADVANCED_SEARCH_RESULTS,
 } from "@/utils/advancedSearch";
 import { ArticleCardResume } from "@/types/ArticlesTypes";
 import { SearchResultItem } from "@/types/SearchTypes";
@@ -44,10 +43,8 @@ function SearchPage({
   const navigate = (
     query: string,
     criteria?: AdvancedSearchCriteria | null,
-    submitted = false,
   ) => {
     const params = advancedSearchParams(query, criteria);
-    if (criteria && submitted) params.set("submitted", "1");
     startSearch(() => router.push(`/rechercher?${params}`));
   };
   return (
@@ -75,7 +72,7 @@ function SearchPage({
       )}
       <AdvancedSearchPanel
         initialCriteria={advancedCriteria}
-        onSearch={(criteria, submitted) => navigate("", criteria, submitted)}
+        onSearch={(criteria) => navigate("", criteria)}
         isSearching={isSearching}
       />
       {isSearching && <p role="status">Recherche en cours…</p>}
@@ -98,15 +95,6 @@ export function SearchResultsContent({
 }: SearchPageProps) {
   return (
     <>
-      {advancedCriteria &&
-        searchResults &&
-        searchResults.length >= MAX_ADVANCED_SEARCH_RESULTS && (
-          <p className={fr.cx("fr-text--sm")} role="status">
-            Affichage limité aux {MAX_ADVANCED_SEARCH_RESULTS} premières
-            spécialités, par ordre alphabétique. Affinez vos critères pour
-            réduire le nombre de résultats.
-          </p>
-        )}
       {synonymTerms && synonymTerms.length > 0 && (
         <div className={fr.cx("fr-grid-row")}>
           <SynonymSuggestion

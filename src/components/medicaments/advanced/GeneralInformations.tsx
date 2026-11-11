@@ -520,14 +520,12 @@ function GeneralInformations({
                   )}
                   {isAbrogee(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
-                      Abrogée
-                      {pres.administrativeStatusDate && ` le ${dateShortFormat(pres.administrativeStatusDate)}`}
+                      <Badge severity="error">Abrogée{pres.administrativeStatusDate && ` le ${dateShortFormat(pres.administrativeStatusDate)}`}</Badge>
                     </div>
                   )}
                   {getPresentationNonCommercializedStatusLabel(pres) && (
                     <div className={fr.cx("fr-mb-0")}>
-                      {getPresentationNonCommercializedStatusLabel(pres)}
-                      {pres.commercialisationEndDate && ` : ${dateShortFormat(pres.commercialisationEndDate)}`}
+                      <Badge severity="warning">{getPresentationNonCommercializedStatusLabel(pres)}{pres.commercialisationEndDate && ` : ${dateShortFormat(pres.commercialisationEndDate)}`}</Badge>
                     </div>
                   )}
                   {isAgree(pres) ? (

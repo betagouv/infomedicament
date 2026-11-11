@@ -18,7 +18,7 @@ const APPLICATION_ENDPOINT_PATTERNS = [
     /^\/api(?:\/|$)/,
     /^\/interactions\/(?:lookup|search)\/?$/,
     /^\/medicaments\/[^/]+\/notice-search\/?$/,
-    /^\/rechercher\/(?:autocomplete|results|advanced\/results)\/?$/,
+    /^\/rechercher\/(?:autocomplete|results|advanced\/(?:results|export))\/?$/,
     /^\/statistiques\/matomo\/(?:actions|visits)\/?$/,
 ];
 

@@ -4,7 +4,7 @@ import type { Presentation } from "@/types/PresentationTypes";
 import { PresentationsList } from "./PresentationsList";
 
 describe("PresentationsList", () => {
-  it("separates recipients and shows the abrogation event date", async () => {
+  it("shows only commercialised presentations and preserves their details", async () => {
     const presentation = {
       cis: "69174918",
       cip13: "3400930243404",
@@ -31,9 +31,25 @@ describe("PresentationsList", () => {
 
     render(<PresentationsList presentations={[presentation, stopped]} />);
 
-    expect(await screen.findByText("Abrogation (12/12/2024)")).not.toBeNull();
-    expect(screen.getByText("Arrêt (12/12/2024)")).not.toBeNull();
+    expect(await screen.findByText("Abrogée (12/12/2024)")).not.toBeNull();
+    expect(screen.queryByText(/Commercialisation arrêtée/)).toBeNull();
     expect(screen.getByText("4 flacons").parentElement?.parentElement?.textContent)
       .toBe("4 flacons - 4 seringues préremplies");
   });
+});
+
+
+it("does not show prices for stopped or unknown presentations", async () => {
+  const stopped: Presentation = {
+    cis: "test", cip13: "1", cip7: null, name: "Stopped packaging", commercialStatus: "stopped",
+    commercialisationDate: null, commercialisationEndDate: null,
+    administrativeStatus: "unknown", administrativeStatusDate: null,
+    pricingKnown: false, retailPrice: null, priceExcludingDispensingFee: null,
+    dispensingFee: null, reimbursementRate: null, communityApproval: null,
+    communityApprovalDate: null, additionalList: null, retrocessionList: null, ivgPricing: null, details: [],
+  };
+  render(<PresentationsList presentations={[stopped, {...stopped, cip13: "2", commercialStatus: "unknown", name: "Unknown packaging"}]} />);
+  expect(await screen.findByText("Aucune présentation commercialisée.")).not.toBeNull();
+  expect(screen.queryByText("Stopped packaging")).toBeNull();
+  expect(screen.queryByText("Unknown packaging")).toBeNull();
 });

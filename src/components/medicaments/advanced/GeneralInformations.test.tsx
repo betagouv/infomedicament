@@ -153,6 +153,7 @@ describe("GeneralInformations presentations", () => {
       />,
     );
     expect(screen.queryByText(/Déclaration de commercialisation/)).toBeNull();
-    expect(screen.getByText("Déclaration d'arrêt de commercialisation : 12/12/2024")).not.toBeNull();
+    expect(screen.getByText("Prix libre - non remboursable")).not.toBeNull();
+    expect(screen.getByText("Commercialisation arrêtée : 12/12/2024")).not.toBeNull();
   });
 });

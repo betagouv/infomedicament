@@ -5,7 +5,8 @@ import Link from "next/link";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from "styled-components";
 import Badge from "@codegouvfr/react-dsfr/Badge";
-import DataBlockGenericIcons from "./DataBlockGenericIcons";
+import dynamic from "next/dynamic";
+
 import { formatSpecName } from "@/displayUtils";
 import {
   MatchReason,
@@ -13,6 +14,11 @@ import {
   SearchResultItem,
 } from "@/types/SearchTypes";
 import { getSpecSlug } from "@/utils/specialites";
+
+// DSFR tooltips mutate their DOM; mount them after hydration of server-paged results.
+const DataBlockGenericIcons = dynamic(() => import("./DataBlockGenericIcons"), {
+  ssr: false,
+});
 
 const DataBlockSpecResultContainer = styled.div`
   border-bottom: 2px solid var(--border-open-blue-france);
@@ -36,8 +42,8 @@ const AdvancedDetails = styled.span`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 1rem;
-  margin-top: 0.75rem;
+  gap: 0.25rem 1rem;
+  margin: 0.5rem 0 0;
   color: var(--text-mention-grey);
   .fr-badge {
     white-space: normal;
@@ -62,7 +68,6 @@ function DataBlockSpecResult({
   atcsFilters,
   indicationsFilters,
 }: DataBlockSpecResultProps) {
-
   const indexGroupName = specialite.specName.indexOf(specialite.groupName);
   const prefixName = formatSpecName(
     indexGroupName === 0 ? specialite.groupName : specialite.specName,
@@ -154,6 +159,16 @@ function DataBlockSpecResult({
                     "RCP indisponible"
                   )}
                 </span>
+                {specialite.officialAtcs && (
+                  <span>
+                    <FilterTitle>ATC : </FilterTitle>
+                    {specialite.officialAtcs.length
+                      ? specialite.officialAtcs
+                          .map((atc) => `${atc.label} (${atc.code})`)
+                          .join(" ; ")
+                      : "Non renseignée"}
+                  </span>
+                )}
               </AdvancedDetails>
             )}
             {subsNames && (

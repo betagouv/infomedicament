@@ -6,12 +6,10 @@ import {
   PresentationAdministrativeStatus,
   PresentationPackagingDetail,
 } from "@/types/PresentationTypes";
-import { isPresentationVisible } from "@/utils/presentations";
 import db from "..";
 import { mapCommercialStatus } from "./presentationCatalog";
 import { getElementsList } from "./elements";
 
-const PRESENTATION_VISIBILITY_DAYS = 730;
 const ABROGATION_EVENT_CODES = [18, 90];
 
 function mapAdministrativeStatus(status: string | null): PresentationAdministrativeStatus {
@@ -64,9 +62,6 @@ export async function getPresentations(CIS: string): Promise<Presentation[]> {
     .selectAll()
     .execute();
 
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - PRESENTATION_VISIBILITY_DAYS);
-
   const abrogatedCips = rows
     .filter((row) => row.statut === "ABROGEE")
     .map((row) => row.cip);
@@ -87,13 +82,7 @@ export async function getPresentations(CIS: string): Promise<Presentation[]> {
     }
   }
 
-  const visibleRows = rows.filter((row) => isPresentationVisible({
-    commercialStatus: mapCommercialStatus(row.statut_commercialisation),
-    commercialisationEndDate: row.date_arret_commercialisation,
-    administrativeStatus: mapAdministrativeStatus(row.statut),
-    administrativeStatusDate: administrativeStatusDateByCip.get(row.cip) ?? null,
-  }, cutoff));
-  const cips = visibleRows.map((row) => row.cip.trim());
+  const cips = rows.map((row) => row.cip.trim());
 
   const [prices, approvals] = cips.length > 0
     ? await Promise.all([
@@ -113,7 +102,7 @@ export async function getPresentations(CIS: string): Promise<Presentation[]> {
   const priceByCip = new Map(prices.map((price) => [price.Cip13.trim(), price]));
   const approvalByCip = new Map(approvals.map((approval) => [approval.Cip13.trim(), approval]));
 
-  return visibleRows
+  return rows
     .map((row): Presentation => {
       const cip13 = row.cip.trim();
       const price = priceByCip.get(cip13);
@@ -143,9 +132,15 @@ export async function getPresentations(CIS: string): Promise<Presentation[]> {
         ivgPricing: null,
       };
     })
-    .sort((a, b) => a.retailPrice !== null && b.retailPrice !== null
-      ? a.retailPrice - b.retailPrice
-      : a.retailPrice !== null ? -1 : b.retailPrice !== null ? 1 : a.cip13.localeCompare(b.cip13));
+    .sort((a, b) => {
+      const commercialOrder = Number(b.commercialStatus === "commercialised") - Number(a.commercialStatus === "commercialised");
+      if (commercialOrder) return commercialOrder;
+      if (a.retailPrice !== null && b.retailPrice !== null)
+        return a.retailPrice - b.retailPrice || a.cip13.localeCompare(b.cip13);
+      if (a.retailPrice !== null) return -1;
+      if (b.retailPrice !== null) return 1;
+      return a.cip13.localeCompare(b.cip13);
+    });
 }
 
 export async function getPresentationsDetails(codeCIP13List: string[]): Promise<PresentationPackagingDetail[]> {

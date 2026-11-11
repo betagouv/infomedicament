@@ -5,7 +5,7 @@ import { formatPresentationCip, getPresentationName, isAbrogee, isAgree, isArret
 
 describe("utils presentations", () => {
 
-  it("selects commercialised and recently stopped presentations", async () => {
+  it("includes commercialised and stopped presentations", async () => {
     expect(await getPresentations("66338465")).toEqual(
       expect.arrayContaining([expect.objectContaining({ cip13: "3400955097891", commercialStatus: "commercialised" })]),
     );
@@ -14,11 +14,17 @@ describe("utils presentations", () => {
     );
   });
 
-  it("excludes presentations stopped outside the 730-day window", async () => {
-    expect((await getPresentations("67066018")).some(({ cip13 }) => cip13 === "3400926978730")).toBe(false);
+  it("retains historically stopped presentations with their stop date", async () => {
+    expect(await getPresentations("67066018")).toEqual(
+      expect.arrayContaining([expect.objectContaining({
+        cip13: "3400926978730",
+        commercialStatus: "stopped",
+        commercialisationEndDate: expect.any(Date),
+      })]),
+    );
   });
 
-  it("keeps recently suspended and withdrawn presentations", async () => {
+  it("includes suspended and withdrawn presentations", async () => {
     expect(await getPresentations("65198334")).toEqual(
       expect.arrayContaining([expect.objectContaining({ cip13: "3400930117583", commercialStatus: "suspended" })]),
     );
@@ -27,7 +33,7 @@ describe("utils presentations", () => {
     );
   });
 
-  it("uses PostgreSQL presentation events for the abrogation window", async () => {
+  it("preserves PostgreSQL abrogation event dates for recent and historical presentations", async () => {
     expect(await getPresentations("65133315")).toEqual(
       expect.arrayContaining([expect.objectContaining({
         cip13: "3400956286775",
@@ -35,7 +41,13 @@ describe("utils presentations", () => {
         administrativeStatusDate: expect.any(Date),
       })]),
     );
-    expect((await getPresentations("60011072")).some(({ cip13 }) => cip13 === "3400955746744")).toBe(false);
+    expect(await getPresentations("60011072")).toEqual(
+      expect.arrayContaining([expect.objectContaining({
+        cip13: "3400955746744",
+        administrativeStatus: "abrogated",
+        administrativeStatusDate: expect.any(Date),
+      })]),
+    );
   });
 
   it("getPresentationName - when PVC-Alumunium + PVC in the details only display PVC-Aluminium", async () => {
