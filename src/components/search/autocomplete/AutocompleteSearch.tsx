@@ -2,7 +2,7 @@
 
 import { fr } from "@codegouvfr/react-dsfr";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SearchBar } from "@codegouvfr/react-dsfr/SearchBar";
 import useSWR from "swr";
 import { useRouter } from "next/navigation";
@@ -68,7 +68,14 @@ export function AutocompleteSearchInput({
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const isHydrated = useIsHydrated();
-  const [debouncedSearch] = useDebounceValue(inputValue.trim(), 300);
+  const [debouncedSearch, updateDebouncedSearch] = useDebounceValue(
+    inputValue.trim(),
+    300,
+  );
+
+  useEffect(() => {
+    return () => updateDebouncedSearch.cancel();
+  }, [updateDebouncedSearch]);
 
   const { data, error } = useSWR<AutocompleteSection[], Error>(
     !disableSuggestions &&
