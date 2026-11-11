@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
 import { Footer } from "@codegouvfr/react-dsfr/Footer";
 import { Notice } from "@codegouvfr/react-dsfr/Notice";
@@ -8,12 +8,11 @@ import GlossaryContextProvider from "@/components/glossary/GlossaryContextProvid
 import GreetingModal from "@/components/GreetingModal";
 import InfoMedicamentHeader from "@/components/InfoMedicamentHeader";
 import { getNoticeRcpLastUpdated } from "@/db/utils/specialities";
-export default async function ContainerLayout({
+export default function ContainerLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const dataLastUpdated = await getNoticeRcpLastUpdated();
   // Start DSFR in this layout's hydration boundary, once the header is ready.
   // Starting it in the root can decorate this HTML before React hydrates it.
   return (
@@ -92,8 +91,15 @@ export default async function ContainerLayout({
           ]}
         />
         <GlossaryModals />
-        <GreetingModal dataLastUpdated={dataLastUpdated} />
+        <Suspense fallback={null}>
+          <GreetingWithData />
+        </Suspense>
       </GlossaryContextProvider>
     </DsfrProvider>
   );
+}
+
+async function GreetingWithData() {
+  const dataLastUpdated = await getNoticeRcpLastUpdated();
+  return <GreetingModal dataLastUpdated={dataLastUpdated} />;
 }
