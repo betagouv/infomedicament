@@ -1,7 +1,7 @@
 "use client";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { SideMenu, SideMenuProps } from "@codegouvfr/react-dsfr/SideMenu";
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes } from "react";
 import styled from "styled-components";
 
 export type AnchorMenu = {
@@ -250,30 +250,31 @@ const Container = styled.div`
 `;
 
 interface DetailedSubMenuProps extends HTMLAttributes<HTMLDivElement> {
-  updateVisiblePart: (visiblePart: DetailsNoticePartsEnum) => void;
+  onNavigate: (navigation: AnchorMenu) => void;
+  navigation: AnchorMenu;
   isMarr?: boolean;
   isInfosImportantes?: boolean;
   isStock: boolean;
-  anchor?: AnchorMenu;
 }
 
 function DetailedSubMenu({
-  updateVisiblePart,
+  onNavigate,
   isMarr,
   isInfosImportantes,
   isStock,
-  anchor,
+  navigation,
   ...props
 }: DetailedSubMenuProps) {
-  const [loaded, setLoaded] = useState<boolean>(false);
-
-  const [currentSubMenu, setCurrentSubMenu] = useState<string>(
-    infosGeneralesMenu[0].href,
-  );
-  const [currentMenuPart, setCurrentMenuPart] = useState<
-    AnchorMenu | undefined
-  >();
-  const [focusAnchor, setFocusAnchor] = useState<string | undefined>();
+  const currentMenuPart = navigation;
+  const currentSubMenu =
+    navigation.anchor ??
+    (navigation.menuPart === DetailsNoticePartsEnum.INFORMATIONS_GENERALES
+      ? isInfosImportantes
+        ? infosGeneralesMenu[0].href
+        : infosGeneralesMenu[1].href
+      : navigation.menuPart === DetailsNoticePartsEnum.RCP
+        ? RCPMenu[0].href
+        : documentHASMenu[0].href);
 
   const currentInfosGeneralesMenu: SubMenuType[] = isInfosImportantes
     ? Array.from(infosGeneralesMenu)
@@ -285,22 +286,28 @@ function DetailedSubMenu({
     currentInfosGeneralesMenu.push(infosGeneralesMenuStock);
   }
 
-  function getSubMenu(subMenuList: SubMenuType[]): SideMenuProps.Item[] {
+  function getSubMenu(
+    subMenuList: SubMenuType[],
+    menuPart: DetailsNoticePartsEnum,
+  ): SideMenuProps.Item[] {
     return subMenuList.map((subMenu: SubMenuType) => {
       const subMenuItem: SideMenuProps.Item = {
         linkProps: {
           href: `#${subMenu.href}`,
           onClick: () => {
-            subMenu.children
-              ? setCurrentSubMenu(subMenu.children[0].href)
-              : setCurrentSubMenu(subMenu.href);
+            onNavigate({
+              menuPart,
+              anchor: subMenu.children
+                ? subMenu.children[0].href
+                : subMenu.href,
+            });
           },
         },
         text: subMenu.text,
         //isActive: isSubMenuActive(subMenu),
       };
       if (subMenu.children) {
-        const childrenSubMenu = getSubMenu(subMenu.children);
+        const childrenSubMenu = getSubMenu(subMenu.children, menuPart);
         (subMenuItem as SideMenuProps.Item.SubMenu).items = childrenSubMenu;
         (subMenuItem as SideMenuProps.Item.SubMenu).isActive =
           childrenSubMenu.find((child) => child.isActive) ? true : false;
@@ -312,109 +319,59 @@ function DetailedSubMenu({
     });
   }
 
-  function goToFocus(anchor: string) {
-    const element = document.getElementById(anchor);
-    if (element) element.scrollIntoView({ block: "start" });
-  }
-
-  useEffect(() => {
-    if (anchor) setCurrentMenuPart(anchor);
-    else
-      setCurrentMenuPart({
-        menuPart: DetailsNoticePartsEnum.INFORMATIONS_GENERALES,
-      });
-    setLoaded(true);
-  }, [anchor, setCurrentMenuPart, setLoaded]);
-
-  useEffect(() => {
-    if (!loaded) return;
-    if (currentMenuPart) {
-      updateVisiblePart(currentMenuPart.menuPart);
-      if (currentMenuPart.anchor) {
-        setCurrentSubMenu(currentMenuPart.anchor);
-        setFocusAnchor(currentMenuPart.anchor);
-      } else {
-        if (
-          currentMenuPart.menuPart ===
-          DetailsNoticePartsEnum.INFORMATIONS_GENERALES
-        ) {
-          setCurrentSubMenu(infosGeneralesMenu[0].href);
-        } else if (currentMenuPart.menuPart === DetailsNoticePartsEnum.RCP) {
-          setCurrentSubMenu(RCPMenu[0].href);
-        } else {
-          setCurrentSubMenu(documentHASMenu[0].href);
-        }
-        window.scrollTo(0, 0);
-      }
-    }
-  }, [
-    loaded,
-    currentMenuPart,
-    setCurrentSubMenu,
-    setFocusAnchor,
-    updateVisiblePart,
-  ]);
-
-  useEffect(() => {
-    if (!loaded) return;
-    if (focusAnchor) {
-      goToFocus(focusAnchor);
-    }
-  }, [loaded, focusAnchor]);
-
   return (
-    loaded && (
-      <Container {...props}>
-        <SideMenu
-          align="left"
-          burgerMenuButtonText="Voir toutes les infos (RCP, HAS, ...)"
-          sticky
-          className="detailed-side-menu"
-          items={[
-            {
-              expandedByDefault:
-                !currentMenuPart ||
-                (currentMenuPart &&
-                  currentMenuPart.menuPart ===
-                    DetailsNoticePartsEnum.INFORMATIONS_GENERALES),
-              linkProps: {
-                href: `#${subMenuAnchors[DetailsNoticePartsEnum.INFORMATIONS_GENERALES]}`,
-                onClick: () =>
-                  setCurrentMenuPart({
-                    menuPart: DetailsNoticePartsEnum.INFORMATIONS_GENERALES,
-                  }),
+    <Container {...props}>
+      <SideMenu
+        align="left"
+        burgerMenuButtonText="Voir toutes les infos (RCP, HAS, ...)"
+        sticky
+        className="detailed-side-menu"
+        items={[
+          {
+            expandedByDefault:
+              currentMenuPart.menuPart ===
+              DetailsNoticePartsEnum.INFORMATIONS_GENERALES,
+            linkProps: {
+              href: `#${subMenuAnchors[DetailsNoticePartsEnum.INFORMATIONS_GENERALES]}`,
+              onClick: () => {
+                onNavigate({
+                  menuPart: DetailsNoticePartsEnum.INFORMATIONS_GENERALES,
+                });
               },
-              text: "Informations générales",
-              items: getSubMenu(currentInfosGeneralesMenu),
             },
-            {
-              expandedByDefault:
-                currentMenuPart &&
-                currentMenuPart.menuPart === DetailsNoticePartsEnum.RCP,
-              linkProps: {
-                href: `#${subMenuAnchors[DetailsNoticePartsEnum.RCP]}`,
-                onClick: () =>
-                  setCurrentMenuPart({ menuPart: DetailsNoticePartsEnum.RCP }),
+            text: "Informations générales",
+            items: getSubMenu(
+              currentInfosGeneralesMenu,
+              DetailsNoticePartsEnum.INFORMATIONS_GENERALES,
+            ),
+          },
+          {
+            expandedByDefault:
+              currentMenuPart.menuPart === DetailsNoticePartsEnum.RCP,
+            linkProps: {
+              href: `#${subMenuAnchors[DetailsNoticePartsEnum.RCP]}`,
+              onClick: () => {
+                onNavigate({ menuPart: DetailsNoticePartsEnum.RCP });
               },
-              text: "Résumé des caractéristiques du produit (RCP)",
-              items: getSubMenu(RCPMenu),
             },
-            {
-              expandedByDefault:
-                currentMenuPart &&
-                currentMenuPart.menuPart === DetailsNoticePartsEnum.HAS,
-              linkProps: {
-                href: `#${subMenuAnchors[DetailsNoticePartsEnum.HAS]}`,
-                onClick: () =>
-                  setCurrentMenuPart({ menuPart: DetailsNoticePartsEnum.HAS }),
+            text: "Résumé des caractéristiques du produit (RCP)",
+            items: getSubMenu(RCPMenu, DetailsNoticePartsEnum.RCP),
+          },
+          {
+            expandedByDefault:
+              currentMenuPart.menuPart === DetailsNoticePartsEnum.HAS,
+            linkProps: {
+              href: `#${subMenuAnchors[DetailsNoticePartsEnum.HAS]}`,
+              onClick: () => {
+                onNavigate({ menuPart: DetailsNoticePartsEnum.HAS });
               },
-              text: "Documents HAS (Bon usage, SMR, ASMR)",
-              items: getSubMenu(documentHASMenu),
             },
-          ]}
-        />
-      </Container>
-    )
+            text: "Documents HAS (Bon usage, SMR, ASMR)",
+            items: getSubMenu(documentHASMenu, DetailsNoticePartsEnum.HAS),
+          },
+        ]}
+      />
+    </Container>
   );
 }
 

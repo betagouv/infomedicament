@@ -2,8 +2,7 @@
 
 import { trackEvent } from "@/services/tracking";
 import { fr } from "@codegouvfr/react-dsfr";
-import Link from "next/link";
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, useState } from "react";
 import styled, { css } from "styled-components";
 
 const ShareContainer = styled.div<{ $alignRight?: boolean }>`
@@ -45,12 +44,7 @@ function ShareButtons({
   alignRight,
   ...props
 }: ShareButtonsProps) {
-  const [currentHref, setCurrentHref] = useState<string>("");
   const [isCopied, setIsCopied] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") setCurrentHref(window.location.href);
-  }, [setCurrentHref]);
 
   return (
     <ShareContainer {...props} $alignRight={alignRight}>
@@ -67,15 +61,18 @@ function ShareButtons({
                 Partager par email
               </button>
             ) : (
-              <Link
-                href={`mailto:?subject=${pageName} - Info Médicament&body=Voici un lien vers la page ${pageName} sur le site Info Médicament : ${currentHref}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
                 className={fr.cx("fr-btn--mail", "fr-btn")}
-                onClick={() => trackEvent("Partage", "Email")}
+                onClick={() => {
+                  const subject = `${pageName} - Info Médicament`;
+                  const body = `Voici un lien vers la page ${pageName} sur le site Info Médicament : ${window.location.href}`;
+                  trackEvent("Partage", "Email");
+                  window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                }}
               >
                 Partager par email
-              </Link>
+              </button>
             )}
           </li>
           <li>
@@ -84,7 +81,7 @@ function ShareButtons({
                 type="button"
                 disabled={disabled || !pageName}
                 onClick={() => {
-                  navigator.clipboard.writeText(currentHref).then(function () {
+                  navigator.clipboard.writeText(window.location.href).then(function () {
                     setIsCopied(true);
                   });
                   trackEvent("Partage", "Copie");
