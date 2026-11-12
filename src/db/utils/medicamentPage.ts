@@ -21,9 +21,11 @@ import { getArticlesFromFilters } from "./articles";
 import { getFicheInfos } from "./ficheInfos";
 import { getHighlightedGlossaryDefinitions } from "./glossary";
 import type { CompositionComponent } from "@/types/SubstanceTypes";
-import { getIndicationsBlock } from "@/utils/noticeHtml";
+import { getIndicationsBlock, truncateHtml } from "@/utils/noticeHtml";
 import { getVideosFromCIS } from "./videos";
 import { getStockFromCIS } from "./stocks";
+
+const INDICATIONS_PREVIEW_MAX_CHARS = 350;
 
 async function getMedicamentAtc(CIS: string) {
   const atcCode = await getAtcCode(CIS);
@@ -81,6 +83,10 @@ async function fetchMedicamentData(
     composantsPromise,
   ]);
 
+  const indicationsBlock = notice
+    ? getIndicationsBlock(notice.contentHtml)
+    : undefined;
+
   return {
     notice,
     ficheInfos,
@@ -92,8 +98,9 @@ async function fetchMedicamentData(
       composants.map((component) => component.SubsId),
       allPregnancyPlanAlerts,
     ),
-    indicationsBlock: notice
-      ? getIndicationsBlock(notice.contentHtml)
+    indicationsBlock,
+    indicationsBlockPreview: indicationsBlock
+      ? truncateHtml(indicationsBlock, INDICATIONS_PREVIEW_MAX_CHARS)
       : undefined,
     articles,
     videos,

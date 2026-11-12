@@ -16,9 +16,10 @@ const QuestionsBoxContainer = styled.div`
 `;
 
 const QuestionsRow = styled.div`
-  display: inline-flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  column-gap: 0.5rem;
+  align-items: start;
   @media (max-width: 48em) {
     width: 100%;
     display: flex;
@@ -29,6 +30,7 @@ const QuestionsRow = styled.div`
 
 const QuestionButton = styled.button`
   cursor: pointer;
+  align-self: stretch;
   border: none;
   background: transparent;
   color: inherit;
@@ -53,6 +55,9 @@ const QuestionLink = styled.span`
   display: block;
   text-align: center;
   padding-top: 4px;
+  @media (min-width: 48em) {
+    margin-right: 0 !important;
+  }
   & img {
     width: 50px;
     height: 50px;

@@ -45,19 +45,33 @@ describe("IndicationsBlock", () => {
     render(
       <IndicationsBlock
         specialite={specialite}
-        indicationsBlock="<p>Une indication longue</p>"
+        indicationsBlock="<p>Une indication longue et complète</p>"
+        indicationsBlockPreview="<p>Une indication…</p>"
         resizable
       />,
     );
 
     const expandButton = screen.getByRole("button", { name: "Lire plus" });
     expect(expandButton.getAttribute("aria-expanded")).toBe("false");
-    expect(screen.getByText("...")).not.toBeNull();
+    expect(screen.getByText("Une indication…")).not.toBeNull();
 
     fireEvent.click(expandButton);
 
     const collapseButton = screen.getByRole("button", { name: "Lire moins" });
     expect(collapseButton.getAttribute("aria-expanded")).toBe("true");
-    expect(screen.queryByText("...")).toBeNull();
+    expect(screen.getByText("Une indication longue et complète")).not.toBeNull();
+  });
+
+  it("shows short indications in full without a toggle", () => {
+    render(
+      <IndicationsBlock
+        specialite={specialite}
+        indicationsBlock="<p>Une indication courte</p>"
+        resizable
+      />,
+    );
+
+    expect(screen.getByText("Une indication courte")).not.toBeNull();
+    expect(screen.queryByRole("button", { name: "Lire plus" })).toBeNull();
   });
 });

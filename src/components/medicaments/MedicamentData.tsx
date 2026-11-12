@@ -18,6 +18,8 @@ export interface MedicamentData {
   definitions: Definition[];
   indications: ShortIndication[];
   indicationsBlock?: string;
+  /** Text-truncated version of indicationsBlock, undefined when it is short enough. */
+  indicationsBlockPreview?: string;
   pregnancyPlanAlert?: PregnancyAlert;
   isPregnancyMentionAlert: boolean;
   pediatrics?: PediatricsInfo;
