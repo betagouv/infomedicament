@@ -3,7 +3,7 @@
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import { fr } from "@codegouvfr/react-dsfr";
 import { useLocalStorage } from "usehooks-ts";
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function GreetingModal({
   dataLastUpdated,
@@ -21,7 +21,7 @@ export default function GreetingModal({
     id: "GreetingModal",
   });
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (new Date().getTime() - lastShowed > 1000 * 60 * 60 * 24 * 30) {
       setDefaultOpen(true);
     }

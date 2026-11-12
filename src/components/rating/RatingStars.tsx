@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 
 type startsNumberType = 3 | 5;
@@ -30,21 +30,10 @@ function RatingStars({
   onSaveRating,
   ...props
 }: RatingStarsProps) {
-  const [currentStarsNumber, setCurrentStarsNumber] =
-    useState<startsNumberType>(5);
-  const [isReadOnly, setIsReadOnly] = useState<boolean>(false);
+  const currentStarsNumber = starsNumber ?? 5;
 
   const [rating, setRating] = useState<number>(0);
   const [ratingHover, setRatingHover] = useState<number>(-1);
-
-  useEffect(() => {
-    if (starsNumber) setCurrentStarsNumber(starsNumber);
-    else setCurrentStarsNumber(5);
-  }, [starsNumber, setCurrentStarsNumber]);
-
-  useEffect(() => {
-    readOnly && setIsReadOnly(readOnly);
-  }, [readOnly]);
 
   function getLabelText(value: number) {
     const label = currentStarsNumber === 3 ? labels3[value] : labels5[value];
@@ -65,10 +54,10 @@ function RatingStars({
           (value) => (
             <label
               key={value}
-              onMouseEnter={() => !isReadOnly && setRatingHover(value)}
-              onMouseLeave={() => !isReadOnly && setRatingHover(-1)}
+              onMouseEnter={() => !readOnly && setRatingHover(value)}
+              onMouseLeave={() => !readOnly && setRatingHover(-1)}
               style={{
-                cursor: isReadOnly ? "default" : "pointer",
+                cursor: readOnly ? "default" : "pointer",
                 fontSize: "1.5rem",
               }}
             >
@@ -77,8 +66,8 @@ function RatingStars({
                 name="rating"
                 value={value}
                 checked={rating === value}
-                onChange={() => !isReadOnly && onChangeRating(value)}
-                disabled={isReadOnly}
+                onChange={() => !readOnly && onChangeRating(value)}
+                disabled={readOnly}
                 aria-label={getLabelText(value)}
                 style={{
                   position: "absolute",

@@ -3,9 +3,8 @@
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes } from "react";
 import {
-  AggregatePresentationDetails,
   Presentation,
   PresentationRecipientsDetails,
 } from "@/types/PresentationTypes";
@@ -65,36 +64,18 @@ export function PresentationsList({
   presentations,
   ...props
 }: PresentationsListProps) {
-  const [presentationsDetails, setPresentationsDetails] = useState<
-    PresentationToDisplay[]
-  >([]);
-
-  useEffect(() => {
-    const newPresentationsDetails: PresentationToDisplay[] = [];
-    if (presentations) {
-      presentations
-        .filter(
-          (presentation) => presentation.commercialStatus === "commercialised",
-        )
-        .forEach((presentation) => {
-          const newPresentationDetails: PresentationToDisplay = {
-            presentation: presentation,
-            detailsLines: [],
-          };
-          if (presentation.details) {
-            const aggregateDetails: AggregatePresentationDetails[] =
-              cleanPresentationsDetails(presentation.details);
-            aggregateDetails.forEach((details) => {
-              const recipientsTexts =
-                getAggregatePresentationRecipientsTexts(details);
-              newPresentationDetails.detailsLines.push(recipientsTexts);
-            });
-          }
-          newPresentationsDetails.push(newPresentationDetails);
-        });
-    }
-    setPresentationsDetails(newPresentationsDetails);
-  }, [presentations, setPresentationsDetails]);
+  const presentationsDetails: PresentationToDisplay[] = presentations
+    .filter(
+      (presentation) => presentation.commercialStatus === "commercialised",
+    )
+    .map((presentation) => ({
+      presentation,
+      detailsLines: presentation.details
+        ? cleanPresentationsDetails(presentation.details).map(
+            getAggregatePresentationRecipientsTexts,
+          )
+        : [],
+    }));
 
   return (
     <PresentationsContainer {...props}>
