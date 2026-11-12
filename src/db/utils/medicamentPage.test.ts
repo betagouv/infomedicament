@@ -48,6 +48,7 @@ vi.mock("./videos", () => ({ getVideosFromCIS: async () => [] }));
 vi.mock("./stocks", () => ({ getStockFromCIS: async () => [] }));
 vi.mock("@/utils/noticeHtml", () => ({
   getIndicationsBlock: () => "indications",
+  truncateHtml: () => undefined,
 }));
 
 function deferred<T>() {
