@@ -2,8 +2,8 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { fr } from "@codegouvfr/react-dsfr";
-import { HTMLAttributes, useCallback, useEffect, useState } from "react";
-import { RcpData } from "@/types/SpecialiteTypes";
+import { HTMLAttributes } from "react";
+import useSWR from "swr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { RcpNoticeHtmlContainer } from "../blocks/GenericBlocks";
 import { getRCP } from "@/db/utils/rcp";
@@ -18,30 +18,17 @@ interface RCPProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function RcpBlock({ specialite, ...props }: RCPProps) {
-  const [currentSpec, setCurrentSpec] = useState<DetailedSpecialite>();
-  const [currentRcp, setCurrentRcp] = useState<RcpData>();
-  const [loaded, setLoaded] = useState<boolean>(false);
-
-  const loadRCP = useCallback(
-    async (spec: DetailedSpecialite) => {
-      try {
-        const newNotice = await getRCP(spec.SpecId);
-        setCurrentRcp(newNotice);
-      } catch (e) {
-        Sentry.captureException(e);
-      } finally {
-        setLoaded(true);
-      }
+  const { data: currentRcp, isLoading } = useSWR(
+    specialite ? ["rcp", specialite.SpecId] : null,
+    ([, id]) => getRCP(id),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      shouldRetryOnError: false,
+      onError: (error) => Sentry.captureException(error),
     },
-    [setCurrentRcp],
   );
-
-  useEffect(() => {
-    if (specialite) {
-      setCurrentSpec(specialite);
-      loadRCP(specialite);
-    }
-  }, [specialite, setCurrentSpec, loadRCP]);
+  const loaded = Boolean(specialite) && !isLoading;
 
   const formattedDateNotif = formatDateNotif(currentRcp?.dateNotif);
 
@@ -59,7 +46,7 @@ function RcpBlock({ specialite, ...props }: RCPProps) {
             dangerouslySetInnerHTML={{ __html: currentRcp.contentHtml }}
           />
         </>
-      ) : loaded && currentSpec && isCentralisee(currentSpec) ? (
+      ) : loaded && specialite && isCentralisee(specialite) ? (
         <CentraliseBlock />
       ) : (
         loaded && (

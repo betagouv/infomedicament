@@ -124,3 +124,39 @@ it("preserves the selected substance and matching medicines when changing sort",
     substanceFilters().every((input) => (input as HTMLInputElement).checked),
   ).toBe(true);
 });
+
+it("resets filter selections when an equally sized result list replaces the search", () => {
+  const first = [
+    { ...result(1), composants: "included" },
+    { ...result(2), composants: "excluded" },
+  ];
+  const { rerender } = render(<SearchResultsList resultsList={first} search="first" />);
+  fireEvent.click(screen.getAllByRole("checkbox", { name: "included (1)" }).at(-1)!);
+  expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("1 résultat");
+  rerender(<SearchResultsList resultsList={[...first]} search="second" />);
+  expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("2 résultats");
+  screen.getAllByRole("checkbox", { name: "included (1)" }).forEach((checkbox) => {
+    expect((checkbox as HTMLInputElement).checked).toBe(false);
+  });
+});
+
+it("keeps all sorting controls synchronized", () => {
+  render(<SearchResultsList resultsList={[result(1)]} />);
+  fireEvent.click(screen.getAllByRole("button", { name: "ordre alphabétique" }).at(-1)!);
+  expect(screen.queryAllByRole("button", { name: "ordre alphabétique" })).toHaveLength(0);
+  fireEvent.click(screen.getAllByTitle("Trier par ordre décroissant").at(-1)!);
+  expect(screen.queryAllByTitle("Trier par ordre décroissant")).toHaveLength(0);
+  expect(screen.getAllByTitle("Trier par ordre croissant")).toHaveLength(3);
+});
+
+it("resets both the displayed results and active pagination for equal-length replacement lists", () => {
+  const props = { allSubsFilters: [], allAtcFilters: [], allIndicationsFilters: [] };
+  const first = Array.from({ length: 51 }, (_, index) => result(index + 1));
+  const second = Array.from({ length: 51 }, (_, index) => result(index + 101));
+  const { rerender } = render(<SearchResultsPagination {...props} resultsList={first} />);
+  fireEvent.click(screen.getByTitle("Page 2"));
+  expect(screen.getByTitle("Page 2").getAttribute("aria-current")).toBe("true");
+  rerender(<SearchResultsPagination {...props} resultsList={second} />);
+  expect(screen.getByRole("link", { name: /^Test 101\s*, comprimé$/ })).not.toBeNull();
+  expect(screen.getByTitle("Page 1").getAttribute("aria-current")).toBe("true");
+});

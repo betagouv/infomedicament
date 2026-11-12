@@ -49,6 +49,7 @@ function SearchResultsPagination({
         <DataListPagination
           dataLength={resultsList.length}
           paginationLength={PAGINATION_LENGTH}
+          currentPage={currentPage}
           updateCurrentPage={updateCurrentPage}
         />
       </>
