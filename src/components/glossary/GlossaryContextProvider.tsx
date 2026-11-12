@@ -1,61 +1,45 @@
 "use client";
 
-import React, { createContext, useCallback, useRef, useState } from "react";
-import { createModal } from "@codegouvfr/react-dsfr/Modal";
-import { Definition } from "@/types/GlossaireTypes";
+import {
+  createContext,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import type { Definition } from "@/types/GlossaireTypes";
+import DefinitionModal from "./DefinitionModal";
 
-// This context provider is used to store which glossary modals should be mounted
-// depending on which words are used in the text.
-// It is used to avoid mounting all modals at once
 export const GlossaryContext = createContext<{
-  definitions: Definition[];
-  getDefinitionModalAndUpdateGlossary: (
-    arg0: Definition,
-  ) => ReturnType<typeof createModal>;
-}>({
-  definitions: [],
-  getDefinitionModalAndUpdateGlossary: (definition: Definition) =>
-    createModal({
-      isOpenedByDefault: false,
-      id: `Definition-${definition.nom}`,
-    }),
-});
+  openDefinition: (definition: Definition, trigger: HTMLElement) => void;
+}>({ openDefinition: () => {} });
 
 export default function GlossaryContextProvider({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
-  const [definitions, setGlossary] = useState<Definition[]>([]);
-  const modals = useRef<
-    Record<string, ReturnType<typeof createModal>>
-  >({});
-
-  // We create modals in the context provider to avoid creating them multiple times
-  // in WithDefinition on one side and in DefinitionModal on the other side
-  // Creating the same modal twice from different places would lead to a bug
-  const getDefinitionModalAndUpdateGlossary = useCallback((
-    definition: Definition,
-  ): ReturnType<typeof createModal> => {
-    if (!modals.current[definition.nom]) {
-      setGlossary((currentDefinitions) => [...currentDefinitions, definition]);
-      modals.current[definition.nom] = createModal({
-        isOpenedByDefault: false,
-        id: `Definition-${definition.nom}`,
-      });
-    }
-
-    return modals.current[definition.nom];
+  const [selection, setSelection] = useState<{ definition: Definition }>();
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const openDefinition = useCallback(
+    (definition: Definition, trigger: HTMLElement) => {
+      triggerRef.current = trigger;
+      setSelection({ definition });
+    },
+    [],
+  );
+  const onClose = useCallback(() => {
+    // Keep the last content mounted while DSFR fades the dialog out.
+    if (triggerRef.current?.isConnected) triggerRef.current.focus();
+    triggerRef.current = null;
   }, []);
+  const value = useMemo(() => ({ openDefinition }), [openDefinition]);
 
   return (
-    <GlossaryContext.Provider
-      value={{
-        definitions,
-        getDefinitionModalAndUpdateGlossary,
-      }}
-    >
+    <GlossaryContext.Provider value={value}>
       {children}
+      <DefinitionModal selection={selection} onClose={onClose} />
     </GlossaryContext.Provider>
   );
 }
