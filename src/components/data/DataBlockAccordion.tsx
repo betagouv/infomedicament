@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, useId, useState } from "react";
 import Link from "next/link";
 import { fr } from "@codegouvfr/react-dsfr";
 import { formatSpecName } from "@/displayUtils";
@@ -17,7 +17,7 @@ import { MatchReason } from "@/types/SearchTypes";
 import { getSpecSlug } from "@/utils/specialites";
 
 const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
-  ${props => props.$isDetailsVisible && props.$isDetailsVisible && css`
+  ${props => props.$isDetailsVisible && css`
     border-bottom: var(--border-open-blue-france) 1px solid;
     background-color: var(--background-alt-grey);
     border-radius: 8px 8px 0 0;
@@ -26,11 +26,6 @@ const GreyContainer = styled.div<{ $isDetailsVisible?: boolean; }>`
 const Container = styled.div`
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
-  ${GreyContainer}:hover{
-    background-color: var(--background-alt-grey);
-    border-radius: 8px;
-    cursor: pointer;
-  }
 `;
 const DetailsContainer = styled.div`
   display: flex;
@@ -81,6 +76,20 @@ interface DataBlockAccordionProps extends HTMLAttributes<HTMLDivElement> {
   withAlert?: boolean;
 }
 
+function getSubstancePreview(text: string) {
+  const maxLength = 250;
+  if (text.length <= maxLength) return text;
+
+  // Keep whole words, even if the first word alone exceeds the preview limit.
+  const words = text.trim().split(/\s+/u);
+  let preview = words[0];
+  for (const word of words.slice(1)) {
+    if (preview.length + word.length + 1 > maxLength) break;
+    preview += ` ${word}`;
+  }
+  return preview.length < text.trim().length ? `${preview}…` : text;
+}
+
 //For now only for type === DataTypeEnum.MEDICAMENT
 function DataBlockAccordion({
   item,
@@ -89,34 +98,17 @@ function DataBlockAccordion({
 }: DataBlockAccordionProps) {
 
   const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(false);
-  const [composantsTruncLength, setComposantsTruncLength] = useState<number>(250);
+  const componentsId = useId();
+  const detailsId = useId();
 
   const groupName = formatSpecName(item.groupName);
   const specialites = item.shortSpecialites;
   const { atc1Label, atc2Label } = item;
   const listIndications = item.indicationsDetails ?? [];
-  const listeComposants = isDetailsVisible
-    ? item.composants
-    : item.composants.slice(0, composantsTruncLength) + (item.composants.length > composantsTruncLength ? "..." : "");
+  const substanceText = isDetailsVisible ? item.composants : getSubstancePreview(item.composants);
   const pregnancyPlanAlert = Boolean(withAlert && item.alerts?.pregnancyPlanAlert);
   const pregnancyMentionAlert = Boolean(withAlert && item.alerts?.pregnancyMentionAlert);
   const pediatricsInfo = withAlert ? item.alerts?.pediatrics : undefined;
-
-  function updateComposantsTruncLength() {
-    if (window.innerWidth <= 768) {
-      setComposantsTruncLength(150);
-    } else {
-      setComposantsTruncLength(250);
-    }
-  }
-
-  useEffect(() => {
-    updateComposantsTruncLength();
-    window.addEventListener('resize', updateComposantsTruncLength);
-    return () => {
-      window.removeEventListener('resize', updateComposantsTruncLength);
-    };
-  }, []);
 
   function getIndicationsText(indicationsDetails: ShortIndication[]) {
     let newListIndications: string = "";
@@ -130,8 +122,7 @@ function DataBlockAccordion({
     <Container className={fr.cx("fr-mb-1w")}>
       <GreyContainer 
         className={fr.cx("fr-p-1w")}
-        $isDetailsVisible={isDetailsVisible}        
-        onClick={() => setIsDetailsVisible(!isDetailsVisible)}
+        $isDetailsVisible={isDetailsVisible}
       >
         <RowToColumnContainer>
           <SpecName className={fr.cx("fr-text--md", "fr-mr-2w")}>{groupName}</SpecName>
@@ -141,7 +132,7 @@ function DataBlockAccordion({
         </RowToColumnContainer>
         {matchReasons && <MatchReasonTags reasons={matchReasons} />}
         <DetailsContainer>
-          <div style={{width: "100%"}}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <RowToColumnContainer>
               {(atc1Label || atc2Label) && (
                 <span className={fr.cx("fr-text--sm", "fr-mr-2w")}>
@@ -153,10 +144,10 @@ function DataBlockAccordion({
                   </DarkGreyText>
                 </span>
               )}
-              <span className={fr.cx("fr-text--sm")}>
+              <span id={componentsId} className={fr.cx("fr-text--sm")}>
                 <GreyText>Substance&nbsp;active</GreyText>&nbsp;
                 <DarkGreyText>
-                  {listeComposants}
+                  {substanceText}
                 </DarkGreyText>
               </span>
                {listIndications.length > 0 && (
@@ -184,51 +175,55 @@ function DataBlockAccordion({
           </div>
           <Button
             iconId={isDetailsVisible ? "fr-icon-arrow-up-s-line" : "fr-icon-arrow-down-s-line"}
-            onClick={() => setIsDetailsVisible(!isDetailsVisible)}
+            onClick={() => setIsDetailsVisible((visible) => !visible)}
             priority="tertiary no outline"
-            title="Liens vers les notices"
-            style={{width: "100%"}}
+            title={isDetailsVisible ? "Réduire les informations" : "Afficher toutes les informations et les liens vers les notices"}
+            aria-expanded={isDetailsVisible}
+            aria-controls={`${componentsId} ${detailsId}`}
+            style={{ flexShrink: 0 }}
           />
         </DetailsContainer>
       </GreyContainer>
-      {(isDetailsVisible && specialites && specialites.length > 0) && (
-        <div className={fr.cx("fr-p-1w")}>
-          <GreyText className={fr.cx("fr-text--sm")}>Consultez la notice de :</GreyText>
-          <ul className={fr.cx("fr-raw-list", "fr-pl-0")}>
-            {specialites.map((specialite, i) => (
-              <SpecLine key={i} className={fr.cx("fr-mb-1v")}>
-                <Link
-                  href={`/medicaments/${getSpecSlug(specialite.SpecId, specialite.SpecDenom01)}`}
-                  className={fr.cx("fr-text--sm", "fr-link")}
-                >
-                  {formatSpecName(specialite.SpecDenom01)}
-                </Link>
-                <DataBlockGenericIcons
-                  specialite={specialite}
-                  isSurveillanceRenforcee={specialite.isSurveillanceRenforcee}
-                />
-                {(withAlert 
-                  && (pregnancyPlanAlert && specialite.alerts && specialite.alerts.pregnancyPlanAlert) 
-                  || (pregnancyMentionAlert && specialite.alerts && specialite.alerts.pregnancyMentionAlert)
-                  || (pediatricsInfo && specialite.alerts && specialite.alerts.pediatrics)
-                ) && (
-                  <FiltersTagContainer>
-                    {(pregnancyPlanAlert && specialite.alerts.pregnancyPlanAlert) && (
-                      <PregnancyPlanTag />
-                    )}
-                    {((!pregnancyPlanAlert && !specialite.alerts.pregnancyPlanAlert) && pregnancyMentionAlert && specialite.alerts.pregnancyMentionAlert) && (
-                      <PregnancyMentionTag />
-                    )}
-                    {(pediatricsInfo && specialite.alerts.pediatrics) && (
-                      <PediatricsTags info={specialite.alerts.pediatrics} />
-                    )}
-                  </FiltersTagContainer>
-                )}
-              </SpecLine>
-            ))}
-          </ul>
-        </div>
-      )}
+      <div id={detailsId} hidden={!isDetailsVisible}>
+        {(specialites && specialites.length > 0) && (
+          <div className={fr.cx("fr-p-1w")}>
+            <GreyText className={fr.cx("fr-text--sm")}>Consultez la notice de :</GreyText>
+            <ul className={fr.cx("fr-raw-list", "fr-pl-0")}>
+              {specialites.map((specialite, i) => (
+                <SpecLine key={i} className={fr.cx("fr-mb-1v")}>
+                  <Link
+                    href={`/medicaments/${getSpecSlug(specialite.SpecId, specialite.SpecDenom01)}`}
+                    className={fr.cx("fr-text--sm", "fr-link")}
+                  >
+                    {formatSpecName(specialite.SpecDenom01)}
+                  </Link>
+                  <DataBlockGenericIcons
+                    specialite={specialite}
+                    isSurveillanceRenforcee={specialite.isSurveillanceRenforcee}
+                  />
+                  {(withAlert
+                    && (pregnancyPlanAlert && specialite.alerts && specialite.alerts.pregnancyPlanAlert)
+                    || (pregnancyMentionAlert && specialite.alerts && specialite.alerts.pregnancyMentionAlert)
+                    || (pediatricsInfo && specialite.alerts && specialite.alerts.pediatrics)
+                  ) && (
+                    <FiltersTagContainer>
+                      {(pregnancyPlanAlert && specialite.alerts.pregnancyPlanAlert) && (
+                        <PregnancyPlanTag />
+                      )}
+                      {((!pregnancyPlanAlert && !specialite.alerts.pregnancyPlanAlert) && pregnancyMentionAlert && specialite.alerts.pregnancyMentionAlert) && (
+                        <PregnancyMentionTag />
+                      )}
+                      {(pediatricsInfo && specialite.alerts.pediatrics) && (
+                        <PediatricsTags info={specialite.alerts.pediatrics} />
+                      )}
+                    </FiltersTagContainer>
+                  )}
+                </SpecLine>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </Container>
   );
 };
