@@ -2,26 +2,31 @@
 
 import { createModal } from "@codegouvfr/react-dsfr/Modal";
 import { fr } from "@codegouvfr/react-dsfr";
-import { useLocalStorage } from "usehooks-ts";
-import { useEffect, useState } from "react";
+import { prDsfrLoaded } from "@codegouvfr/react-dsfr/start";
+import { useEffect } from "react";
+
+const storageKey = "greetingModal";
+const reminderInterval = 1000 * 60 * 60 * 24 * 30;
+const modal = createModal({ isOpenedByDefault: false, id: "GreetingModal" });
+
+function getLastShown() {
+  try {
+    const value = JSON.parse(window.localStorage.getItem(storageKey) ?? "0");
+    return typeof value === "number" && Number.isFinite(value) ? value : 0;
+  } catch {
+    return 0;
+  }
+}
 
 export default function GreetingModal({ dataLastUpdated }: { dataLastUpdated: Date | null }) {
-  const [lastShowed, setLastShowed] = useLocalStorage<number>(
-    "greetingModal",
-    0,
-  );
-  const [defaultOpen, setDefaultOpen] = useState(false);
-
-  const modal = createModal({
-    isOpenedByDefault: defaultOpen,
-    id: "GreetingModal",
-  });
-
   useEffect(() => {
-    if (new Date().getTime() - lastShowed > 1000 * 60 * 60 * 24 * 30) {
-      setDefaultOpen(true);
-    }
-  }, [lastShowed]);
+    let active = true;
+    void prDsfrLoaded.then(() => {
+      // Read storage after initialization, so an acceptance made while loading wins.
+      if (active && Date.now() - getLastShown() > reminderInterval) modal.open();
+    });
+    return () => { active = false; };
+  }, []);
 
   return (
     <modal.Component
@@ -30,7 +35,11 @@ export default function GreetingModal({ dataLastUpdated }: { dataLastUpdated: Da
         {
           children: "Accepter et entrer sur le site",
           onClick: () => {
-            setLastShowed(new Date().getTime());
+            try {
+              window.localStorage.setItem(storageKey, JSON.stringify(Date.now()));
+            } catch (error) {
+              console.warn("Unable to save the greeting acceptance timestamp", error);
+            }
             modal.close();
           },
         },
