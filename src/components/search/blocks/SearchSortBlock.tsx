@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from "styled-components";
 import Button from "@codegouvfr/react-dsfr/Button";
@@ -15,28 +15,22 @@ const SortContainerDesktop = styled.div`
 
 interface SearchSortBlockProps extends HTMLAttributes<HTMLDivElement> {
   advanced?: boolean;
+  sortType: SortType;
+  isSortAsc: boolean;
   onUpdateSortType: (sortType: SortType) => void;
   onUpdateIsSortAsc: (isSortAsc: boolean) => void;
 }
 
 function SearchSortBlock({
   advanced = false,
+  sortType: selectedSortType,
+  isSortAsc,
   onUpdateSortType,
   onUpdateIsSortAsc,
   ...props
 }: SearchSortBlockProps) {
-  const [selectedSortType, setSortType] = useState<SortType>("score");
   const sortType = advanced ? "alphabetic" : selectedSortType;
-  const [isSortAsc, setIsSortAsc] = useState<boolean>(true);
   const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false);
-
-  useEffect(() => {
-    onUpdateSortType(sortType);
-  }, [sortType, onUpdateSortType]);
-
-  useEffect(() => {
-    onUpdateIsSortAsc(isSortAsc);
-  }, [isSortAsc, onUpdateIsSortAsc]);
 
   return (
     <div {...props} className={props.className}>
@@ -48,7 +42,7 @@ function SearchSortBlock({
           <button
             type="button"
             className={fr.cx("fr-link")}
-            onClick={() => setSortType("alphabetic")}
+            onClick={() => onUpdateSortType("alphabetic")}
           >
             ordre alphabétique
           </button>
@@ -63,7 +57,7 @@ function SearchSortBlock({
               <button
                 type="button"
                 className={fr.cx("fr-link")}
-                onClick={() => setSortType("score")}
+                onClick={() => onUpdateSortType("score")}
               >
                 pertinence
               </button>
@@ -76,7 +70,7 @@ function SearchSortBlock({
           iconId={
             isSortAsc ? "fr-icon-arrow-down-line" : "fr-icon-arrow-up-line"
           }
-          onClick={() => setIsSortAsc(!isSortAsc)}
+          onClick={() => onUpdateIsSortAsc(!isSortAsc)}
           priority="tertiary no outline"
           title={`Trier par ordre ${isSortAsc ? "décroissant" : "croissant"}`}
           size="small"
@@ -97,8 +91,8 @@ function SearchSortBlock({
                     nativeInputProps: {
                       checked: sortType === "score" && isSortAsc,
                       onChange: () => {
-                        setSortType("score");
-                        setIsSortAsc(true);
+                        onUpdateSortType("score");
+                        onUpdateIsSortAsc(true);
                       },
                     },
                   },
@@ -107,8 +101,8 @@ function SearchSortBlock({
                     nativeInputProps: {
                       checked: sortType === "score" && !isSortAsc,
                       onChange: () => {
-                        setSortType("score");
-                        setIsSortAsc(false);
+                        onUpdateSortType("score");
+                        onUpdateIsSortAsc(false);
                       },
                     },
                   },
@@ -119,8 +113,8 @@ function SearchSortBlock({
               nativeInputProps: {
                 checked: sortType === "alphabetic" && isSortAsc,
                 onChange: () => {
-                  setSortType("alphabetic");
-                  setIsSortAsc(true);
+                  onUpdateSortType("alphabetic");
+                  onUpdateIsSortAsc(true);
                 },
               },
             },
@@ -129,8 +123,8 @@ function SearchSortBlock({
               nativeInputProps: {
                 checked: sortType === "alphabetic" && !isSortAsc,
                 onChange: () => {
-                  setSortType("alphabetic");
-                  setIsSortAsc(false);
+                  onUpdateSortType("alphabetic");
+                  onUpdateIsSortAsc(false);
                 },
               },
             },

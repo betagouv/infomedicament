@@ -73,7 +73,9 @@ describe("autocomplete requests", () => {
   it("cancels pending debounce work on unmount", async () => {
     const view = renderInput();
     type("para");
+    expect(vi.getTimerCount()).toBeGreaterThan(0);
     view.unmount();
+    expect(vi.getTimerCount()).toBe(0);
     await advance(500);
     expect(fetchMock).not.toHaveBeenCalled();
   });

@@ -21,6 +21,7 @@ import { getArticlesFromFilters } from "./articles";
 import { getFicheInfos } from "./ficheInfos";
 import { getHighlightedGlossaryDefinitions } from "./glossary";
 import type { CompositionComponent } from "@/types/SubstanceTypes";
+import { prepareGlossaryHtml } from "@/utils/glossaryHtml";
 import { getIndicationsBlock } from "@/utils/noticeHtml";
 import { getVideosFromCIS } from "./videos";
 import { getStockFromCIS } from "./stocks";
@@ -81,8 +82,13 @@ async function fetchMedicamentData(
     composantsPromise,
   ]);
 
+  const preparedNotice = notice ? {
+    ...notice,
+    contentHtml: prepareGlossaryHtml(notice.contentHtml, definitions),
+  } : undefined;
+
   return {
-    notice,
+    notice: preparedNotice,
     ficheInfos,
     definitions,
     isPregnancyMentionAlert: pregnancyMentionAlert,
@@ -92,8 +98,8 @@ async function fetchMedicamentData(
       composants.map((component) => component.SubsId),
       allPregnancyPlanAlerts,
     ),
-    indicationsBlock: notice
-      ? getIndicationsBlock(notice.contentHtml)
+    indicationsBlock: preparedNotice
+      ? getIndicationsBlock(preparedNotice.contentHtml)
       : undefined,
     articles,
     videos,

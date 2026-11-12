@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, useEffect, useEffectEvent } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 import RatingPage from "./RatingPage";
 import styled from 'styled-components';
@@ -32,28 +32,22 @@ function RatingToaster({
   ...props
 }: RatingToasterProps) {
 
-  const [readyToOpen, setReadyToOpen] = useState<boolean>(false);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-
   const { isDark } = useIsDark();
-
-  //Hack for setting dark mode
-  useEffect(() => {
-    if(readyToOpen && !isOpen) {
-      setIsOpen(true);
-      const theme = isDark ? "dark" : "light";
-      toast(<RatingPage pageId={pageId} />, {
-        delay: 10000,
-        theme: theme,
-      });
-    }
-  }, [pageId, readyToOpen, isDark, isOpen, setIsOpen])
+  const showRating = useEffectEvent((toastId: string) => {
+    toast(<RatingPage pageId={pageId} />, {
+      toastId,
+      theme: isDark ? "dark" : "light",
+    });
+  });
 
   useEffect(() => {
-    if(!readyToOpen){
-      setReadyToOpen(true);
+    const toastId = `rating:${pageId}`;
+    const timeout = window.setTimeout(() => showRating(toastId), 10000);
+    return () => {
+      window.clearTimeout(timeout);
+      toast.dismiss(toastId);
     };
-  }, [readyToOpen, setReadyToOpen]);
+  }, [pageId]);
 
   return (
     <RatingToasterContainer>

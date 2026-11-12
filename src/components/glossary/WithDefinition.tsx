@@ -1,12 +1,10 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
-import { GlossaryContext } from "@/components/glossary/GlossaryContextProvider";
-import slugify from "slugify";
-import { Definition } from "@/types/GlossaireTypes";
+import { useContext } from "react";
+import { fr } from "@codegouvfr/react-dsfr";
+import { GlossaryContext } from "./GlossaryContextProvider";
+import type { Definition } from "@/types/GlossaireTypes";
 
-// Client component to add a definition to the glossary context
-// and a link to the definition modal
 export default function WithDefinition({
   definition,
   word,
@@ -14,25 +12,18 @@ export default function WithDefinition({
   definition?: Definition;
   word: string;
 }) {
-  const { getDefinitionModalAndUpdateGlossary } = useContext(GlossaryContext);
-  const [modal, setModal] =
-    useState<ReturnType<typeof getDefinitionModalAndUpdateGlossary>>();
+  const { openDefinition } = useContext(GlossaryContext);
 
-  useEffect(() => {
-    if(definition)
-      setModal(getDefinitionModalAndUpdateGlossary(definition));
-  }, [definition, getDefinitionModalAndUpdateGlossary]);
-
-  return definition 
-    ? (
-      <a
-        key={definition.nom}
-        href={`#Definition-${slugify(definition.nom)}`}
-        aria-describedby={`Definition-${slugify(definition.nom)}`}
-        role="button"
-        {...(modal ? { onClick: modal.open } : {})}
-      >
-        {word}
-      </a>
-    ) : (<span>{word}</span>);
+  return definition ? (
+    <button
+      type="button"
+      className={fr.cx("fr-link")}
+      aria-haspopup="dialog"
+      onClick={(event) => openDefinition(definition, event.currentTarget)}
+    >
+      {word}
+    </button>
+  ) : (
+    <span>{word}</span>
+  );
 }

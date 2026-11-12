@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, useEffect, useMemo, useState } from "react";
+import { HTMLAttributes, useCallback, useMemo, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from "styled-components";
 import { SearchFilter, SearchResultItem, SortType } from "@/types/SearchTypes";
@@ -43,24 +43,50 @@ interface SearchResultsListProps extends HTMLAttributes<HTMLDivElement> {
   search?: string;
 }
 
+// Counts and labels come from results; only selected identities are stored.
+function useSelectedFilters(available: SearchFilter[], source: SearchResultItem[]) {
+  const [selection, setSelection] = useState<{ source: SearchResultItem[]; ids: Set<string> }>(
+    () => ({ source, ids: new Set() }),
+  );
+  const filters = useMemo(() => {
+    function apply(items: SearchFilter[], parent = ""): SearchFilter[] {
+      return items.map((item) => {
+        const identity = JSON.stringify([parent, item.id, item.name]);
+        return {
+          ...item,
+          selected: selection.source === source && selection.ids.has(identity),
+          ...(item.children ? { children: apply(item.children, identity) } : {}),
+        };
+      });
+    }
+    return apply(available);
+  }, [available, source, selection]);
+  const update = useCallback((items: SearchFilter[]) => {
+    const ids = new Set<string>();
+    function collect(items: SearchFilter[], parent = "") {
+      items.forEach((item) => {
+        const identity = JSON.stringify([parent, item.id, item.name]);
+        if (item.selected) ids.add(identity);
+        if (item.children) collect(item.children, identity);
+      });
+    }
+    collect(items);
+    setSelection({ source, ids });
+  }, [source]);
+  return [filters, update] as const;
+}
+
 function SearchResultsList({
   advanced = false,
   resultsList,
   search,
 }: SearchResultsListProps) {
-  const [allSubsFilters, setAllSubsFilters] = useState<SearchFilter[]>([]);
-  const [allAtcFilters, setAllAtcFilters] = useState<SearchFilter[]>([]);
-  const [allIndicationsFilters, setAllIndicationsFilters] = useState<
-    SearchFilter[]
-  >([]);
-
   const [sortType, setSortType] = useState<SortType>(
     advanced ? "alphabetic" : "score",
   );
   const [isSortAsc, setIsSortAsc] = useState<boolean>(true);
 
-  //Loading
-  useEffect(() => {
+  const availableFilters = useMemo(() => {
     const newSubsFilters: SearchFilter[] = [];
     const newATCFilters: SearchFilter[] = [];
     const newIndicationsFilters: SearchFilter[] = [];
@@ -149,15 +175,11 @@ function SearchResultsList({
         });
       }
     });
-    setAllSubsFilters(newSubsFilters);
-    setAllAtcFilters(newATCFilters);
-    setAllIndicationsFilters(newIndicationsFilters);
-  }, [
-    resultsList,
-    setAllSubsFilters,
-    setAllAtcFilters,
-    setAllIndicationsFilters,
-  ]);
+    return { substances: newSubsFilters, atcs: newATCFilters, indications: newIndicationsFilters };
+  }, [resultsList]);
+  const [allSubsFilters, setAllSubsFilters] = useSelectedFilters(availableFilters.substances, resultsList);
+  const [allAtcFilters, setAllAtcFilters] = useSelectedFilters(availableFilters.atcs, resultsList);
+  const [allIndicationsFilters, setAllIndicationsFilters] = useSelectedFilters(availableFilters.indications, resultsList);
 
   //Update the results list after filters updates
   const filteredResultsList = useMemo(() => {
@@ -264,6 +286,8 @@ function SearchResultsList({
         style={{ width: "100%" }}
       >
         <SearchFiltersSubMenu
+          sortType={sortType}
+          isSortAsc={isSortAsc}
           advanced={advanced}
           allSubsFilters={allSubsFilters}
           allAtcFilters={allAtcFilters}
@@ -282,6 +306,8 @@ function SearchResultsList({
         ].join(" ")}
       >
         <SearchFiltersContainer
+          sortType={sortType}
+          isSortAsc={isSortAsc}
           advanced={advanced}
           allSubsFilters={allSubsFilters}
           allAtcFilters={allAtcFilters}
@@ -295,6 +321,8 @@ function SearchResultsList({
       </FiltersColumn>
       <ResultsContainer className={[fr.cx("fr-col-12")].join(" ")}>
         <SearchSortBlock
+          sortType={sortType}
+          isSortAsc={isSortAsc}
           advanced={advanced}
           onUpdateSortType={setSortType}
           onUpdateIsSortAsc={setIsSortAsc}

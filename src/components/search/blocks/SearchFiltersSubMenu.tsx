@@ -97,6 +97,8 @@ interface SearchFiltersSubMenuProps extends HTMLAttributes<HTMLDivElement> {
   setAllAtcFilters: (filters: SearchFilter[]) => void;
   setAllSubsFilters: (filters: SearchFilter[]) => void;
   setAllIndicationsFilters: (filters: SearchFilter[]) => void;
+  sortType: SortType;
+  isSortAsc: boolean;
   setSortType: (sortType: SortType) => void;
   setIsSortAsc: (isSortAsc: boolean) => void;
   selectedFiltersCount: number;
@@ -110,6 +112,8 @@ function SearchFiltersSubMenu({
   setAllSubsFilters,
   setAllAtcFilters,
   setAllIndicationsFilters,
+  sortType,
+  isSortAsc,
   setSortType,
   setIsSortAsc,
   selectedFiltersCount,
@@ -141,6 +145,8 @@ function SearchFiltersSubMenu({
       </SubMenuOpenButton>
       <div hidden={!isFiltersOpen}>
         <SearchFiltersContainer
+          sortType={sortType}
+          isSortAsc={isSortAsc}
           advanced={advanced}
           allSubsFilters={allSubsFilters}
           allAtcFilters={allAtcFilters}

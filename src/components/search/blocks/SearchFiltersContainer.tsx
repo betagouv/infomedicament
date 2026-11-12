@@ -42,6 +42,8 @@ interface SearchFiltersContainerProps extends HTMLAttributes<HTMLDivElement> {
   setAllAtcFilters: (filters: SearchFilter[]) => void;
   setAllSubsFilters: (filters: SearchFilter[]) => void;
   setAllIndicationsFilters: (filters: SearchFilter[]) => void;
+  sortType: SortType;
+  isSortAsc: boolean;
   setSortType: (sortType: SortType) => void;
   setIsSortAsc: (isSortAsc: boolean) => void;
 }
@@ -54,6 +56,8 @@ function SearchFiltersContainer({
   setAllSubsFilters,
   setAllAtcFilters,
   setAllIndicationsFilters,
+  sortType,
+  isSortAsc,
   setSortType,
   setIsSortAsc,
   ...props
@@ -163,6 +167,8 @@ function SearchFiltersContainer({
         )}
       </FiltersTitleContainer>
       <SearchSortBlock
+          sortType={sortType}
+          isSortAsc={isSortAsc}
         advanced={advanced}
         className={fr.cx("fr-hidden-md")}
         onUpdateSortType={setSortType}
