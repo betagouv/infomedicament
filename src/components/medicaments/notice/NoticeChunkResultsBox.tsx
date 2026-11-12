@@ -147,13 +147,11 @@ function NoticeChunkResultsBox({
     scrollTarget.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [clearHighlights]);
 
-  // Auto-highlight first hit when hits change
+  // Synchronize highlights with results; clear them before updates and on unmount.
   useEffect(() => {
     if (hits.length > 0) highlightAndScroll(hits[0]);
-  }, [hits, highlightAndScroll]);
-
-  // Clean up highlights on unmount
-  useEffect(() => () => clearHighlights(), [clearHighlights]);
+    return clearHighlights;
+  }, [hits, highlightAndScroll, clearHighlights]);
 
   return (
     <Container className={props.className} {...props}>
