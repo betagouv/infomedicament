@@ -46,6 +46,20 @@ describe("RatingStars", () => {
     });
   });
 
+  it("allows retrying when the parent clears readOnly after a failed save", () => {
+    const onSaveRating = vi.fn();
+    const { rerender } = render(
+      <RatingStars readOnly={false} onSaveRating={onSaveRating} />,
+    );
+    fireEvent.click(screen.getByRole("radio", { name: /3 Stars/i }));
+    rerender(<RatingStars readOnly={true} onSaveRating={onSaveRating} />);
+    expect((screen.getByRole("radio", { name: /4 Stars/i }) as HTMLInputElement).disabled).toBe(true);
+
+    rerender(<RatingStars readOnly={false} onSaveRating={onSaveRating} />);
+    fireEvent.click(screen.getByRole("radio", { name: /4 Stars/i }));
+    expect(onSaveRating.mock.calls).toEqual([[3], [4]]);
+  });
+
   it("displays the hover label when a star is hovered", () => {
     renderRatingStars();
     const labels = screen.getAllByRole("radio").map((r) => r.closest("label")!);

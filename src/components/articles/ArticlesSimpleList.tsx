@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes } from "react";
 import { Article, ArticleTrackingFromType } from "@/types/ArticlesTypes";
 import { fr } from "@codegouvfr/react-dsfr";
 import Link from "next/link";
@@ -24,13 +24,6 @@ function ArticlesSimpleList({
   articleClassName
 }: ArticlesSimpleListProps) {
 
-  const [articlesList, setArticlesList] = useState<Article[]>([]);
-
-  useEffect(() => {
-    if(articles)
-      setArticlesList(articles);
-  },[articles, setArticlesList]); 
-
   return articles.length > 0 && (
     <ul 
       role={listRole ? listRole : ""} 
@@ -40,7 +33,7 @@ function ArticlesSimpleList({
           : fr.cx("fr-raw-list")
       }
     >
-      {articlesList.map(({ title, slug }) => (
+      {articles.map(({ title, slug }) => (
         <li key={slug} className={articleClassName}>
           <Link
             href={`/articles/${slug}`}

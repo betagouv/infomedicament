@@ -3,8 +3,8 @@
 import { fr } from "@codegouvfr/react-dsfr";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
-import { HTMLAttributes, useEffect, useState } from "react";
-import { AggregatePresentationDetails, Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
+import { HTMLAttributes } from "react";
+import { Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
 import { cleanPresentationsDetails, getPresentationNonCommercializedBadgeLabel, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isAbrogee, getAggregatePresentationRecipientsTexts } from "@/utils/presentations";
 import styled from "styled-components";
 
@@ -54,29 +54,12 @@ export function PresentationsList({
   ...props
 }: PresentationsListProps) {
 
-const [presentationsDetails, setPresentationsDetails] = useState<PresentationToDisplay[]>([]);
-
-
-  useEffect(() => {
-    const newPresentationsDetails:PresentationToDisplay[] = [];
-    if(presentations){
-      presentations.forEach((presentation) => {
-        const newPresentationDetails: PresentationToDisplay = {
-          presentation: presentation,
-          detailsLines: [],
-        }
-        if(presentation.details) {
-          const aggregateDetails: AggregatePresentationDetails[] = cleanPresentationsDetails(presentation.details);
-          aggregateDetails.forEach((details) => {
-            const recipientsTexts = getAggregatePresentationRecipientsTexts(details);
-            newPresentationDetails.detailsLines.push(recipientsTexts);
-          });
-        }
-        newPresentationsDetails.push(newPresentationDetails);
-      })
-    }
-    setPresentationsDetails(newPresentationsDetails);
-  }, [presentations, setPresentationsDetails]);
+  const presentationsDetails: PresentationToDisplay[] = presentations.map((presentation) => ({
+    presentation,
+    detailsLines: presentation.details
+      ? cleanPresentationsDetails(presentation.details).map(getAggregatePresentationRecipientsTexts)
+      : [],
+  }));
 
   return (
     <PresentationsContainer {...props}>

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import { formatSpecName } from "@/displayUtils";
 import styled from 'styled-components';
@@ -41,80 +41,66 @@ interface DataBlockGenericProps extends HTMLAttributes<HTMLDivElement> {
   item: ResumeSubstance | ResumeIndication | AdvancedATCClass | ResumeGeneric;
 }
 
+function getDisplayData(type: DataTypeEnum, item: DataBlockGenericProps["item"]): {
+  link: string;
+  name: string;
+  details: string;
+  subClasses: AdvancedATC[];
+} {
+  if (type === DataTypeEnum.SUBSTANCE) {
+    const substance = item as ResumeSubstance;
+    return {
+      link: `/substances/${getSubstanceSlug([substance])}`,
+      name: formatSpecName(substance.NomLib),
+      details: `${substance.specialites} ${substance.specialites > 1 ? "médicaments" : "médicament"}`,
+      subClasses: [],
+    };
+  }
+  if (type === DataTypeEnum.INDICATION) {
+    const indication = item as ResumeIndication;
+    return {
+      link: `/indications/${getIndicationSlug(indication.idIndication, indication.nomIndication)}`,
+      name: formatSpecName(indication.nomIndication),
+      details: `${indication.specialites} ${indication.specialites > 1 ? "médicaments" : "médicament"}`,
+      subClasses: [],
+    };
+  }
+  if (type === DataTypeEnum.ATCCLASS) {
+    const atc = item as AdvancedATCClass;
+    return {
+      link: `/atc/${getAtcSlug(atc.class.code, atc.class.label)}`,
+      name: formatSpecName(atc.class.label),
+      details: `${atc.class.nbSubstances} ${atc.class.nbSubstances > 1 ? "substances actives" : "substance active"}`,
+      subClasses: atc.subclasses,
+    };
+  }
+  if (type === DataTypeEnum.MEDICAMENT) {
+    const generic = item as ResumeGeneric;
+    const genericGroupCode = Number(generic.SpecId);
+    return {
+      link: Number.isSafeInteger(genericGroupCode) && genericGroupCode > 0
+        ? `/generiques/${getGenericSlug(genericGroupCode, generic.SpecName)}`
+        : "#",
+      name: generic.SpecName,
+      details: "",
+      subClasses: [],
+    };
+  }
+  return { link: "#", name: "Autre", details: "", subClasses: [] };
+}
+
 function DataBlockGeneric({
   type,
   item,
 }: DataBlockGenericProps) {
 
-  const [currentType, setCurrentType] = useState<DataTypeEnum>();
-  const [currentLink, setCurrentLink] = useState<string>("#");
-  const [currentFormatSpecName, setCurrentFormatSpecName] = useState<string>("");
-  const [currentDetails, setCurrentDetails] = useState<string>("");
-  const [currentSubClasses, setCurrentSubClasses] = useState<AdvancedATC[]>([]); //Only for type === DataTypeEnum.ATCCLASS
+  const {
+    link: currentLink,
+    name: currentFormatSpecName,
+    details: currentDetails,
+    subClasses: currentSubClasses,
+  } = getDisplayData(type, item);
 
-  useEffect(() => {
-    function getLink(
-      dataType: DataTypeEnum, 
-      data: ResumeSubstance | ResumeIndication | AdvancedATCClass | ResumeGeneric
-    ){
-      if(dataType === DataTypeEnum.SUBSTANCE){
-        setCurrentLink(`/substances/${getSubstanceSlug([data as ResumeSubstance])}`);
-      } else if(dataType === DataTypeEnum.INDICATION){
-        setCurrentLink(`/indications/${getIndicationSlug((data as ResumeIndication).idIndication, (data as ResumeIndication).nomIndication)}`);
-      } else if(dataType === DataTypeEnum.ATCCLASS){
-        setCurrentLink(`/atc/${getAtcSlug((data as AdvancedATCClass).class.code, (data as AdvancedATCClass).class.label)}`);
-      } else if(dataType === DataTypeEnum.MEDICAMENT){
-        const genericGroupCode = Number((data as ResumeGeneric).SpecId);
-        setCurrentLink(Number.isSafeInteger(genericGroupCode) && genericGroupCode > 0
-          ? `/generiques/${getGenericSlug(genericGroupCode, (data as ResumeGeneric).SpecName)}`
-          : "#");
-      } else 
-        setCurrentLink("#");
-    };
-
-    function getFormatSpecName(
-      dataType: DataTypeEnum, 
-      data: ResumeSubstance | ResumeIndication | AdvancedATCClass | ResumeGeneric
-    ){
-      if(dataType === DataTypeEnum.SUBSTANCE){
-        setCurrentFormatSpecName(formatSpecName((data as ResumeSubstance).NomLib));
-      } else if(dataType === DataTypeEnum.INDICATION){
-        setCurrentFormatSpecName(formatSpecName((data as ResumeIndication).nomIndication));
-      } else if(dataType === DataTypeEnum.ATCCLASS){
-        setCurrentFormatSpecName(formatSpecName((data as AdvancedATCClass).class.label));
-      } else if(dataType === DataTypeEnum.MEDICAMENT){
-        setCurrentFormatSpecName((data as ResumeGeneric).SpecName);
-      }  else 
-        setCurrentFormatSpecName("Autre");
-    };
-
-    function getDetails(
-      dataType: DataTypeEnum, 
-      data: ResumeSubstance | ResumeIndication | AdvancedATCClass | ResumeGeneric
-    ){
-      if(dataType === DataTypeEnum.SUBSTANCE){
-        setCurrentDetails(`${(data as ResumeSubstance).specialites} ${(data as ResumeSubstance).specialites > 1 ? "médicaments" : "médicament"}`);
-      } else if(dataType === DataTypeEnum.INDICATION){
-        setCurrentDetails(`${(data as ResumeIndication).specialites} ${(data as ResumeIndication).specialites > 1 ? "médicaments" : "médicament"}`);
-      } else if(dataType === DataTypeEnum.ATCCLASS){
-        setCurrentDetails(`${(data as AdvancedATCClass).class.nbSubstances} ${(data as AdvancedATCClass).class.nbSubstances > 1 ? "substances actives" : "substance active"}`);
-      } else 
-        setCurrentDetails("");
-    }
-
-    if(type){
-      setCurrentType(type);
-      if(item){
-        getLink(type, item);
-        getFormatSpecName(type, item);
-        getDetails(type, item);
-        if(type === DataTypeEnum.ATCCLASS){
-          setCurrentSubClasses((item as AdvancedATCClass).subclasses);
-        }
-      }
-    }
-  }, [type, item, setCurrentType, setCurrentSubClasses]);
-  
   return (
     <>
       <Container className={fr.cx("fr-mb-1w")}>
@@ -126,7 +112,7 @@ function DataBlockGeneric({
           {currentDetails && (<Details className={fr.cx("fr-text--sm")}>{currentDetails}</Details>)}
         </Link>
       </Container>
-      {(currentType === DataTypeEnum.ATCCLASS && currentSubClasses.length > 0) && (
+      {(type === DataTypeEnum.ATCCLASS && currentSubClasses.length > 0) && (
           currentSubClasses.map((subclass: AdvancedATC, index) => (
           <Container 
             className={fr.cx("fr-mb-1w")}

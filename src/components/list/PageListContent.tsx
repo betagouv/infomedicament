@@ -3,7 +3,7 @@
 import { fr } from "@codegouvfr/react-dsfr";
 import AlphabeticNav from "@/components/AlphabeticNav";
 import DataList from "@/components/data/DataList";
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, useState } from "react";
 import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import DataListPagination from "../data/DataListPagination";
 import { ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
@@ -34,12 +34,7 @@ function PageListContent({
 
   const PAGINATION_LENGTH:number = 10;
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumeIndication[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[]>([]);
 
-  useEffect(() => {
-    setCurrentDataList(dataList);
-  }, [dataList, setCurrentDataList]);
-  
   return (
     <div className={fr.cx("fr-grid-row")}>
       <div className={fr.cx("fr-col-md-8")}>
@@ -62,7 +57,7 @@ function PageListContent({
       </div>
       <div className={fr.cx("fr-col-md-8")}>
         <DataList 
-          dataList={currentDataList}
+          dataList={dataList}
           type={type}
           paginationLength={PAGINATION_LENGTH}
           currentPage={currentPage}

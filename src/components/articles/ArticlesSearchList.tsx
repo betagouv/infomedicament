@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes } from "react";
 import styled from 'styled-components';
 import { ArticleCardResume, ArticleTrackingFromType } from "@/types/ArticlesTypes";
 import ArticlesResumeList from "./ArticlesResumeList";
@@ -25,18 +25,11 @@ function ArticlesSearchList({
   trackingFrom,
 }: ArticlesSearchListProps) {
 
-  const [articlesList, setArticlesList] = useState<ArticleCardResume[]>([]);
-
-  useEffect(() => {
-    if(articles)
-      setArticlesList(articles);
-  },[articles, setArticlesList]);  
-
   return (
-    articlesList.length > 0 && (
+    articles.length > 0 && (
       <ArticleSearchListContainer>
         <ArticlesResumeList 
-          articles={articlesList} 
+          articles={articles}
           trackingFrom={trackingFrom}
         />
       </ArticleSearchListContainer>

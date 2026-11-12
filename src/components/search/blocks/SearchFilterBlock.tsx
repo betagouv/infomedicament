@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from 'styled-components';
 import { SearchFilter } from "@/types/SearchTypes";
@@ -47,7 +47,6 @@ function SearchFilterBlock({
   const isFiltersOpenStorageKey = `searchFilterBlock:${title}:isOpen`;
 
   const [isFullList, setIsFullList] = useState<boolean>(false);
-  const [filteredFiltersList, setFilteredFiltersList] = useState<SearchFilter[]>([]);
   const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     return window.sessionStorage.getItem(isFiltersOpenStorageKey) === "true";
@@ -65,17 +64,11 @@ function SearchFilterBlock({
     return b.count - a.count;
   }
 
-  useEffect(() => {
-    const newList = filtersList
-      .map((filter: SearchFilter) => {
-        if(filter.children) {
-          filter.children.sort(sortFilters);
-        }
-        return filter;
-      })
-      .sort(sortFilters);
-    setFilteredFiltersList(newList);
-  }, [filtersList, setFilteredFiltersList]);
+  const filteredFiltersList = filtersList
+    .map((filter) => filter.children
+      ? { ...filter, children: [...filter.children].sort(sortFilters) }
+      : filter)
+    .sort(sortFilters);
 
   const getSelectedFiltersCount = (): number => {
     return filteredFiltersList.filter((filter) => filter.selected).length;
