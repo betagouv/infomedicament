@@ -17,8 +17,8 @@ describe("presentation identifiers and statuses", () => {
   });
 
   it("uses short badge labels and detailed status labels", () => {
-    expect(getPresentationNonCommercializedBadgeLabel({ commercialStatus: "unknown" } as Presentation)).toBe("Non communiquée");
-    expect(getPresentationNonCommercializedStatusLabel({ commercialStatus: "unknown" } as Presentation)).toBe("Non communiquée");
+    expect(getPresentationNonCommercializedBadgeLabel({ commercialStatus: "unknown" } as Presentation)).toBe("Commercialisation non renseignée");
+    expect(getPresentationNonCommercializedStatusLabel({ commercialStatus: "unknown" } as Presentation)).toBe("Commercialisation non renseignée");
     const stopped = { commercialStatus: "stopped" } as Presentation;
     const suspended = { commercialStatus: "suspended" } as Presentation;
     const withdrawn = { commercialStatus: "withdrawn" } as Presentation;

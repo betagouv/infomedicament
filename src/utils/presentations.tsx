@@ -412,7 +412,7 @@ export function getPresentationNonCommercializedStatusLabel(presentation: Presen
   if (isArret(presentation)) return "Commercialisation arrêtée";
   if (presentation.commercialStatus === "suspended") return "Suspension de commercialisation";
   if (isNotAuthorized(presentation)) return "Arrêt (autorisation retirée)";
-  if (presentation.commercialStatus === "unknown") return "Non communiquée";
+  if (presentation.commercialStatus === "unknown") return "Commercialisation non renseignée";
   return null;
 }
 
@@ -420,6 +420,6 @@ export function getPresentationNonCommercializedBadgeLabel(presentation: Present
   if (isArret(presentation)) return "Arrêt";
   if (presentation.commercialStatus === "suspended") return "Commercialisation suspendue";
   if (isNotAuthorized(presentation)) return "Arrêt (autorisation retirée)";
-  if (presentation.commercialStatus === "unknown") return "Non communiquée";
+  if (presentation.commercialStatus === "unknown") return "Commercialisation non renseignée";
   return null;
 }

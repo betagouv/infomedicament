@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { FicheInfos } from "@/types/FicheInfoTypes";
 import type { Presentation } from "@/types/PresentationTypes";
@@ -131,6 +131,8 @@ describe("GeneralInformations presentations", () => {
       screen.getByText("Cette présentation n'est pas agréée aux collectivités."),
     ).not.toBeNull();
 
+    expect(screen.queryByRole("button", { name: "Voir les présentations non commercialisées" })).toBeNull();
+
     rerender(
       <GeneralInformations
         updateVisiblePart={vi.fn()}
@@ -140,8 +142,17 @@ describe("GeneralInformations presentations", () => {
         isPregnancyPlanAlert={false}
         isPregnancyMentionAlert={false}
         pediatrics={undefined}
-        presentations={[{
+        presentations={[presentation, {
           ...presentation,
+          cip13: "3400949004775",
+          commercialStatus: "unknown",
+        }, {
+          ...presentation,
+          cip13: "3400949004782",
+          commercialStatus: "suspended",
+        }, {
+          ...presentation,
+          cip13: "3400949004768",
           commercialStatus: "stopped",
           commercialisationEndDate: new Date("2024-12-12"),
         }]}
@@ -152,8 +163,23 @@ describe("GeneralInformations presentations", () => {
         stocks={[]}
       />,
     );
-    expect(screen.queryByText(/Déclaration de commercialisation/)).toBeNull();
-    expect(screen.getByText("Prix libre - non remboursable")).not.toBeNull();
-    expect(screen.getByText("Commercialisation arrêtée : 12/12/2024")).not.toBeNull();
+    const toggle = screen.getByRole("button", { name: "Voir les présentations non commercialisées" });
+    const panel = document.getElementById(toggle.getAttribute("aria-controls")!);
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(panel).not.toBeNull();
+    expect(panel!.contains(screen.getByText("Code CIP : 34009 490 047 5 1"))).toBe(false);
+    expect(panel!.contains(screen.getByText("Code CIP : 34009 490 047 7 5"))).toBe(true);
+    expect(panel!.contains(screen.getByText("Code CIP : 34009 490 047 8 2"))).toBe(true);
+    expect(screen.getByText("Code CIP : 34009 490 047 5 1").compareDocumentPosition(toggle) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(within(panel!).getAllByRole("listitem")).toHaveLength(3);
+    expect(within(panel!).queryByText(/Déclaration de commercialisation/)).toBeNull();
+
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(within(panel!).getAllByText("Prix libre - non remboursable")[0]).not.toBeNull();
+    expect(within(panel!).getByText("Commercialisation arrêtée : 12/12/2024")).not.toBeNull();
+
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
   });
 });
