@@ -1,8 +1,14 @@
 import { AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation, PresentationPackagingDetail } from "@/types/PresentationTypes";
 import { describe, it, expect } from "vitest";
-import { caracCompDisplay, cleanPresentationsDetails, contenanceDisplay, dispositifDisplay, formatPresentationCip, getAggregatePresentationRecipientsTexts, getPresentationNonCommercializedBadgeLabel, getPresentationNonCommercializedStatusLabel, getPresentationFullPriceText, getPresentationName, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isPresentationVisible, isReimbursable, replacePluralSingular, totalDisplay } from "./presentations";
+import { caracCompDisplay, cleanPresentationsDetails, contenanceDisplay, dispositifDisplay, formatPresentationCip, getAggregatePresentationRecipientsTexts, getPresentationNonCommercializedBadgeLabel, getPresentationNonCommercializedStatusLabel, getPresentationFullPriceText, getPresentationName, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isReimbursable, replacePluralSingular, totalDisplay } from "./presentations";
 
 describe("presentation identifiers and statuses", () => {
+  it("keeps the approved price fallbacks when historical pricing is missing", () => {
+    const presentation = { pricingKnown: false, commercialStatus: "stopped" } as Presentation;
+    expect(getPresentationPriceText(presentation)).toBe("Prix libre");
+    expect(getPresentationTauxPriseEnChargeText(presentation)).toBe("Remboursement non renseigné");
+    expect(getPresentationFullPriceText(presentation)).toBe("Prix libre - non remboursable");
+  });
   it("formats the CIP7 only when supplied and always formats the CIP13", () => {
     expect(formatPresentationCip({ cip7: "3412559", cip13: "3400934125591" }))
       .toBe("341 255-9 ou 34009 341 255 9 1");
@@ -11,15 +17,17 @@ describe("presentation identifiers and statuses", () => {
   });
 
   it("uses short badge labels and detailed status labels", () => {
+    expect(getPresentationNonCommercializedBadgeLabel({ commercialStatus: "unknown" } as Presentation)).toBe("Commercialisation non renseignée");
+    expect(getPresentationNonCommercializedStatusLabel({ commercialStatus: "unknown" } as Presentation)).toBe("Commercialisation non renseignée");
     const stopped = { commercialStatus: "stopped" } as Presentation;
     const suspended = { commercialStatus: "suspended" } as Presentation;
     const withdrawn = { commercialStatus: "withdrawn" } as Presentation;
     expect(getPresentationNonCommercializedBadgeLabel(stopped)).toBe("Arrêt");
     expect(getPresentationNonCommercializedBadgeLabel(suspended)).toBe("Commercialisation suspendue");
-    expect(getPresentationNonCommercializedBadgeLabel(withdrawn)).toBe("Autorisation retirée");
-    expect(getPresentationNonCommercializedStatusLabel(stopped)).toBe("Déclaration d'arrêt de commercialisation");
+    expect(getPresentationNonCommercializedBadgeLabel(withdrawn)).toBe("Arrêt (autorisation retirée)");
+    expect(getPresentationNonCommercializedStatusLabel(stopped)).toBe("Commercialisation arrêtée");
     expect(getPresentationNonCommercializedStatusLabel(withdrawn))
-      .toBe("Arrêt de commercialisation (le médicament n'a plus d'autorisation)");
+      .toBe("Arrêt (autorisation retirée)");
   });
 
   it("preserves the device location in a multi-recipient ANSM presentation", () => {
@@ -34,46 +42,6 @@ describe("presentation identifiers and statuses", () => {
   });
 });
 
-describe("utils presentations - commercial visibility", () => {
-  const cutoff = new Date("2024-09-14T00:00:00.000Z");
-
-  it.each([
-    ["commercialised", null, true],
-    ["stopped", new Date("2024-09-14T00:00:00.000Z"), true],
-    ["stopped", new Date("2024-09-13T00:00:00.000Z"), false],
-    ["suspended", new Date("2025-01-01T00:00:00.000Z"), true],
-    ["withdrawn", new Date("2025-01-01T00:00:00.000Z"), true],
-  ] as const)(
-    "keeps %s with end date %s: %s",
-    (commercialStatus, commercialisationEndDate, expected) => {
-      expect(isPresentationVisible({ commercialStatus, commercialisationEndDate }, cutoff)).toBe(expected);
-    },
-  );
-
-  it("does not use the commercialisation start date as the stop date", () => {
-    expect(isPresentationVisible({
-      commercialStatus: "stopped",
-      commercialisationEndDate: null,
-    }, cutoff)).toBe(false);
-  });
-
-  it("keeps only recent abrogations", () => {
-    expect(isPresentationVisible({
-      commercialStatus: "commercialised",
-      commercialisationEndDate: null,
-      administrativeStatus: "abrogated",
-      administrativeStatusDate: new Date("2025-01-01T00:00:00.000Z"),
-    }, cutoff)).toBe(true);
-    expect(isPresentationVisible({
-      commercialStatus: "commercialised",
-      commercialisationEndDate: null,
-      administrativeStatus: "abrogated",
-      administrativeStatusDate: new Date("2024-09-13T00:00:00.000Z"),
-    }, cutoff)).toBe(false);
-  });
-});
-
- 
   //CIS : 69174918
   const recipientDetails: AggregateRecipientDetails = {
     caraccomplrecips: [

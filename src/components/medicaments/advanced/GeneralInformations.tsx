@@ -33,6 +33,7 @@ import {
   isAIP,
   isHospitalDelivrance,
 } from "@/utils/specialites";
+import Accordion from "@codegouvfr/react-dsfr/Accordion";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import {
   getPresentationName,
@@ -140,6 +141,170 @@ interface GeneralInformationsProps extends HTMLAttributes<HTMLDivElement> {
   stocks: AnsmStock[];
 }
 
+function PresentationDetailsList({
+  presentations,
+  definitions,
+}: {
+  presentations: Presentation[];
+  definitions?: Definition[];
+}) {
+  return (
+    <ul className={fr.cx("fr-raw-list")}>
+      {presentations.map((pres, index) => (
+        <li key={`${pres.cip13}-${index}`} className={fr.cx("fr-mb-1w")}>
+          <div className={fr.cx("fr-mb-0")}>
+            <span
+              className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
+            />
+            <span className={fr.cx("fr-mr-2w")}>
+              <b>{getPresentationName(pres)}</b>
+            </span>
+            <span>{getPresentationFullPriceText(pres)}</span>
+          </div>
+          {(pres.priceExcludingDispensingFee || pres.dispensingFee) && (
+            <div className={fr.cx("fr-mb-0")}>
+              {pres.priceExcludingDispensingFee && (
+                <span className={fr.cx("fr-mr-2w")}>
+                  Prix hors honoraire de dispensation :{" "}
+                  {Intl.NumberFormat("fr-FR", {
+                    style: "currency",
+                    currency: "EUR",
+                  }).format(pres.priceExcludingDispensingFee)}{" "}
+                </span>
+              )}
+              {pres.dispensingFee && (
+                <span>
+                  <WithDefinition
+                    definition={
+                      definitions &&
+                      getDefinition(definitions, "Honoraire de dispensation")
+                    }
+                    word="Honoraire de dispensation"
+                  />
+                  {" : "}
+                  {Intl.NumberFormat("fr-FR", {
+                    style: "currency",
+                    currency: "EUR",
+                  }).format(pres.dispensingFee)}{" "}
+                </span>
+              )}
+            </div>
+          )}
+          {(pres.cip13 ||
+            (pres.commercialStatus === "commercialised" &&
+              pres.commercialisationDate)) && (
+            <div className={fr.cx("fr-mb-0")}>
+              {pres.cip13 && (
+                <span className={fr.cx("fr-mr-2w")}>
+                  Code CIP : {formatPresentationCip(pres)}
+                </span>
+              )}
+              {pres.commercialStatus === "commercialised" &&
+                pres.commercialisationDate && (
+                  <span>
+                    Déclaration de commercialisation :{" "}
+                    {dateShortFormat(pres.commercialisationDate)}
+                  </span>
+                )}
+            </div>
+          )}
+          {isAbrogee(pres) && (
+            <div className={fr.cx("fr-mb-0")}>
+              <Badge severity="error">
+                Abrogée
+                {pres.administrativeStatusDate &&
+                  ` le ${dateShortFormat(pres.administrativeStatusDate)}`}
+              </Badge>
+            </div>
+          )}
+          {getPresentationNonCommercializedStatusLabel(pres) && (
+            <div className={fr.cx("fr-mb-0")}>
+              <Badge severity="warning">
+                {getPresentationNonCommercializedStatusLabel(pres)}
+                {pres.commercialisationEndDate &&
+                  ` : ${dateShortFormat(pres.commercialisationEndDate)}`}
+              </Badge>
+            </div>
+          )}
+          {isAgree(pres) ? (
+            <div className={fr.cx("fr-mb-0")}>
+              Cette présentation est{" "}
+              <WithDefinition
+                definition={
+                  definitions &&
+                  getDefinition(definitions, "Agrément aux collectivités")
+                }
+                word="agréée aux collectivités"
+              />
+              .
+            </div>
+          ) : (
+            <div className={fr.cx("fr-mb-0")}>
+              Cette présentation n'est pas agréée aux collectivités.
+            </div>
+          )}
+          {isListeSus(pres) && (
+            <div>
+              Inscription sur la{" "}
+              <WithDefinition
+                definition={
+                  definitions && getDefinition(definitions, "Liste en sus")
+                }
+                word="liste en sus"
+              />
+              , pour au moins l'une de ses indications.{" "}
+              <WithDefinition
+                definition={
+                  definitions &&
+                  getDefinition(definitions, "Tarif de responsabilité")
+                }
+                word="Tarif de responsabilité"
+              />{" "}
+              publié au Journal Officiel.
+            </div>
+          )}
+          {isListeRetrocession(pres) && (
+            <div>
+              Inscription sur la{" "}
+              <WithDefinition
+                definition={
+                  definitions &&
+                  getDefinition(definitions, "Liste de rétrocession")
+                }
+                word="liste de rétrocession"
+              />{" "}
+              au titre de son AMM, selon les conditions précisées au Journal
+              Officiel.{" "}
+              <WithDefinition
+                definition={
+                  definitions && getDefinition(definitions, "Prix de cession")
+                }
+                word="Prix de cession"
+              />{" "}
+              publié au Journal Officiel.
+            </div>
+          )}
+          {isIVG(pres) && (
+            <div>
+              Tarification particulière en ville : médicament vendu en officine
+              uniquement aux médecins ou sages-femmes - prix fixé par{" "}
+              <Link
+                href="https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000032164949"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                arrêté du 26 juillet 2016
+              </Link>{" "}
+              relatif aux forfaits afférents à l'interruption volontaire de
+              grossesse.
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function GeneralInformations({
   updateVisiblePart,
   specialite,
@@ -159,6 +324,19 @@ function GeneralInformations({
   stocks,
   ...props
 }: GeneralInformationsProps) {
+  const currentPresentations: Presentation[] = [];
+  const oldPresentations: Presentation[] = [];
+  for (const presentation of presentations ?? []) {
+    if (
+      presentation.commercialStatus === "commercialised" &&
+      !isAbrogee(presentation)
+    ) {
+      currentPresentations.push(presentation);
+    } else {
+      oldPresentations.push(presentation);
+    }
+  }
+
   function formatCIS(CIS: string): string {
     const cutting = [1, 3, 3, 1];
     let next = CIS.length - cutting[0];
@@ -457,136 +635,24 @@ function GeneralInformations({
           <h2 className={fr.cx("fr-h6")}>Présentations</h2>
           {presentations && presentations.length > 0 ? (
             <div>
-              <ul className={fr.cx("fr-raw-list")}>
-                {presentations.map((pres, index) => (
-                  <li
-                    key={`${pres.cip13}-${index}`}
-                    className={fr.cx("fr-mb-1w")}
-                  >
-                    <div className={fr.cx("fr-mb-0")}>
-                      <span
-                        className={[
-                          "fr-icon--custom-box",
-                          fr.cx("fr-mr-1w"),
-                        ].join(" ")}
-                      />
-                      <span className={fr.cx("fr-mr-2w")}>
-                        <b>{getPresentationName(pres)}</b>
-                      </span>
-                      <span>{getPresentationFullPriceText(pres)}</span>
-                    </div>
-                    {(pres.priceExcludingDispensingFee ||
-                      pres.dispensingFee) && (
-                      <div className={fr.cx("fr-mb-0")}>
-                        {pres.priceExcludingDispensingFee && (
-                          <span className={fr.cx("fr-mr-2w")}>
-                            Prix hors honoraire de dispensation :{" "}
-                            {Intl.NumberFormat("fr-FR", {
-                              style: "currency",
-                              currency: "EUR",
-                            }).format(pres.priceExcludingDispensingFee)}{" "}
-                          </span>
-                        )}
-                        {pres.dispensingFee && (
-                          <span>
-                            <WithDefinition
-                              definition={
-                                definitions &&
-                                getDefinition(
-                                  definitions,
-                                  "Honoraire de dispensation",
-                                )
-                              }
-                              word="Honoraire de dispensation"
-                            />
-                            {" : "}
-                            {Intl.NumberFormat("fr-FR", {
-                              style: "currency",
-                              currency: "EUR",
-                            }).format(pres.dispensingFee)}{" "}
-                          </span>
-                        )}
-                      </div>
-                  )}
-                  {(pres.cip13 || (pres.commercialStatus === "commercialised" && pres.commercialisationDate)) && (
-                    <div className={fr.cx("fr-mb-0")}>
-                      {pres.cip13 && (
-                        <span className={fr.cx("fr-mr-2w")}>Code CIP : {formatPresentationCip(pres)}</span>
-                      )}
-                      {pres.commercialStatus === "commercialised" && pres.commercialisationDate && (
-                        <span>Déclaration de commercialisation : {dateShortFormat(pres.commercialisationDate)}</span>
-                      )}
-                    </div>
-                  )}
-                  {isAbrogee(pres) && (
-                    <div className={fr.cx("fr-mb-0")}>
-                      Abrogée
-                      {pres.administrativeStatusDate && ` le ${dateShortFormat(pres.administrativeStatusDate)}`}
-                    </div>
-                  )}
-                  {getPresentationNonCommercializedStatusLabel(pres) && (
-                    <div className={fr.cx("fr-mb-0")}>
-                      {getPresentationNonCommercializedStatusLabel(pres)}
-                      {pres.commercialisationEndDate && ` : ${dateShortFormat(pres.commercialisationEndDate)}`}
-                    </div>
-                  )}
-                  {isAgree(pres) ? (
-                    <div className={fr.cx("fr-mb-0")}>
-                      Cette présentation est{" "}
-                      <WithDefinition
-                        definition={definitions && getDefinition(definitions,"Agrément aux collectivités")}
-                        word="agréée aux collectivités"
-                      />.
-                    </div>
-                  ) : (
-                    <div className={fr.cx("fr-mb-0")}>
-                      Cette présentation n'est pas agréée aux collectivités.
-                    </div>
-                  )}
-                  {isListeSus(pres) && (
-                    <div>
-                      Inscription sur la{" "}
-                      <WithDefinition
-                        definition={definitions && getDefinition(definitions, "Liste en sus")}
-                        word="liste en sus"
-                      />, pour au moins l'une de ses indications.{" "}
-                      <WithDefinition
-                        definition={definitions && getDefinition(definitions, "Tarif de responsabilité")}
-                        word="Tarif de responsabilité"
-                      />{" "}publié au Journal Officiel.</div>
-                  )}
-                  {isListeRetrocession(pres) && (
-                    <div>
-                      Inscription sur la{" "}
-                      <WithDefinition
-                        definition={definitions && getDefinition(definitions, "Liste de rétrocession")}
-                        word="liste de rétrocession"
-                      />{" "}
-                      au titre de son AMM, selon les conditions précisées au Journal Officiel.{" "}
-                      <WithDefinition
-                        definition={definitions && getDefinition(definitions, "Prix de cession")}
-                        word="Prix de cession"
-                      />{" "}publié au Journal Officiel.</div>
-                  )}
-                  {isIVG(pres) && (
-                    <div>
-                      Tarification particulière en ville : médicament vendu en officine uniquement aux médecins ou sages-femmes - prix fixé par{" "}
-                      <Link 
-                        href="https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000032164949"
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                      >
-                        arrêté du 26 juillet 2016
-                      </Link>{" "}relatif aux forfaits afférents à l'interruption volontaire de grossesse.
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : (
-          <span>Pas de conditionnement à afficher</span>
-        )}
+              {currentPresentations.length > 0 && (
+                <PresentationDetailsList
+                  presentations={currentPresentations}
+                  definitions={definitions}
+                />
+              )}
+              {oldPresentations.length > 0 && (
+                <Accordion label="Voir les présentations non commercialisées" titleAs="h3">
+                  <PresentationDetailsList
+                    presentations={oldPresentations}
+                    definitions={definitions}
+                  />
+                </Accordion>
+              )}
+            </div>
+          ) : (
+            <span>Pas de conditionnement à afficher</span>
+          )}
         </ContentContainer>
 
         {marr && marr.pdf.length > 0 && (

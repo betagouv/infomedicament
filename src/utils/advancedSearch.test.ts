@@ -3,35 +3,37 @@ import {
   advancedSearchParams,
   initialAdvancedCriteria,
   parseAdvancedSearch,
-  hasAdvancedSearchRequest,
+  hasAdvancedSearchCriteria,
 } from "./advancedSearch";
 
 describe("advanced search URL criteria", () => {
   it("opens advanced mode without searching, including legacy main-search terms", () => {
     for (const query of [
       "advanced=1",
+      "advanced=1&submitted=1",
+      "advanced=1&submitted=1&page=11&order=desc",
+      "advanced=1&specialty=%20%20",
       "advanced=1&s=paracetamol",
       "advanced=1&specialtyMatch=startsWith",
     ]) {
       const params = new URLSearchParams(query);
-      expect(
-        hasAdvancedSearchRequest(params, parseAdvancedSearch(params)!),
-      ).toBe(false);
+      expect(hasAdvancedSearchCriteria(parseAdvancedSearch(params)!)).toBe(
+        false,
+      );
     }
   });
   it("searches submitted forms and directly shared criteria URLs", () => {
     for (const query of [
-      "advanced=1&submitted=1",
       "advanced=1&specialty=doliprane",
       "advanced=1&marketingStatus=Arrêtée",
     ]) {
       const params = new URLSearchParams(query);
-      expect(
-        hasAdvancedSearchRequest(params, parseAdvancedSearch(params)!),
-      ).toBe(true);
+      expect(hasAdvancedSearchCriteria(parseAdvancedSearch(params)!)).toBe(
+        true,
+      );
     }
   });
-  it("keeps ordinary searches ordinary and allows an unrestricted advanced search", () => {
+  it("keeps ordinary searches ordinary and restores an empty advanced form", () => {
     expect(
       parseAdvancedSearch(new URLSearchParams("s=paracetamol")),
     ).toBeUndefined();
@@ -80,5 +82,44 @@ describe("advanced search URL criteria", () => {
       parseAdvancedSearch(new URLSearchParams("documentFrom=2024-02-29"))
         ?.documentFrom,
     ).toBe("2024-02-29");
+  });
+});
+
+describe("advanced result navigation", () => {
+  it("restores all filters, order and page from a shareable URL", async () => {
+    const { advancedResultParams, parseAdvancedResultOptions } = await import(
+      "./advancedSearch"
+    );
+    const options = {
+      page: 12,
+      substances: ["Paracétamol", "Caféine"],
+      atcs: ["N02"],
+      indications: ["1"],
+      descending: true,
+    };
+    const params = advancedResultParams(
+      { ...initialAdvancedCriteria, procedure: "NATIONALE" },
+      options,
+    );
+    expect(params.has("submitted")).toBe(false);
+    expect(parseAdvancedResultOptions(params)).toEqual(options);
+    expect(parseAdvancedSearch(params)?.procedure).toBe("NATIONALE");
+  });
+  it.each([
+    "page=0",
+    "page=-1",
+    "page=1.5",
+    "page=1&page=2",
+    "filterAtc=bad",
+    "filterIndication=oops",
+    "order=bad",
+    "procedure=bad",
+  ])("rejects invalid navigation or procedure: %s", async (query) => {
+    const { parseAdvancedResultOptions } = await import("./advancedSearch");
+    expect(() => {
+      const params = new URLSearchParams(`advanced=1&${query}`);
+      parseAdvancedSearch(params);
+      parseAdvancedResultOptions(params);
+    }).toThrow();
   });
 });
