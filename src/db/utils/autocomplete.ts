@@ -48,7 +48,7 @@ async function getMedicineSuggestions(
 ): Promise<AutocompleteSuggestion[]> {
   const grouped = groupMatches(matches);
   if (!grouped) return [];
-  const { groupMap, specNameSml } = grouped;
+  const { groupMap, specNameSml, getMatchesForSpec } = grouped;
   const rows = await db
     .selectFrom("resume_specialites")
     .where("groupName", "in", getCandidateGroupNames(groupMap))
@@ -56,14 +56,29 @@ async function getMedicineSuggestions(
     .execute();
 
   return rows
+    .filter((spec) => getMatchesForSpec(spec.specId, spec.groupName).length > 0)
     .map((spec) => ({
       spec,
       suggestion: {
         type: "specialite" as const,
         label: formatSpecName(spec.specName),
         href: `/medicaments/${getSpecSlug(spec.specId, spec.specName)}`,
-        matchReasons: groupMap.get(spec.groupName)?.reasons ?? [],
-        score: groupMap.get(spec.groupName)?.score ?? 0,
+        matchReasons: [
+          ...new Map(
+            getMatchesForSpec(spec.specId, spec.groupName).map((match) => {
+              const reason = {
+                type: match.match_type,
+                label: match.match_label,
+              };
+              return [JSON.stringify(reason), reason];
+            }),
+          ).values(),
+        ],
+        score: Math.max(
+          ...getMatchesForSpec(spec.specId, spec.groupName).map(
+            (match) => match.sml,
+          ),
+        ),
       },
     }))
     .sort((a, b) => {
@@ -101,7 +116,7 @@ async function getCachedAutocompleteSuggestions(
   query: string,
 ): Promise<AutocompleteSection[]> {
   "use cache: remote";
-  const matches = await getSearchMatches(query);
+  const matches = await getSearchMatches(query, { autocomplete: true });
   if (matches.length === 0) return [];
 
   const substanceLabels = getEntityLabels(matches, "substance");
