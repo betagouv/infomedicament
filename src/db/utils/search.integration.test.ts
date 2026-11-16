@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { getSearchResults } from "@/db/utils/search";
+import { getAutocompleteSuggestions } from "./autocomplete";
 
 // Disable server-only for tests
 vi.mock("server-only", () => ({}));
@@ -124,6 +125,39 @@ describe("Search engine (Integration) -- Sort Order Tests", () => {
 });
 
 describe("Search engine (Integration) -- Business Logic Tests", () => {
+  it("finds Ventoline 100 without bringing in other strengths", async () => {
+    const results = await getSearchResults("ventolin 100");
+    expect(results.length).toBeGreaterThan(0);
+    expect(
+      results.every((result) => /ventoline 100\s/i.test(result.specName)),
+    ).toBe(true);
+  });
+
+  it("completes a final dosage in autocomplete while keeping submitted numbers exact", async () => {
+    const sections = await getAutocompleteSuggestions("ventoline 10");
+    const medicines =
+      sections.find((section) => section.type === "specialite")?.items ?? [];
+    expect(medicines.length).toBeGreaterThan(0);
+    expect(medicines.every((item) => /ventoline 100\s/i.test(item.label))).toBe(
+      true,
+    );
+    expect(await getSearchResults("ventoline 10")).toEqual([]);
+  });
+
+  it.each(["500", "1000"])(
+    "finds only matching Doliprane %s variants",
+    async (strength) => {
+      const results = await getSearchResults(`doliprane ${strength}`);
+      expect(results.length).toBeGreaterThan(0);
+      expect(
+        results.every((result) =>
+          new RegExp(`\\b${strength}\\s*mg\\b`, "i").test(result.specName),
+        ),
+        results.map((r) => r.specName).join("\n"),
+      ).toBe(true);
+    },
+  );
+
   it("must return results for 'Doliprane'", async () => {
     const results = await getSearchResults("Doliprane");
 

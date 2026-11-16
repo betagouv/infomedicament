@@ -16,14 +16,14 @@ import {
 import {
   rowMatchesRequiredTermsPredicate,
   termsSimilarityExpression,
+  type SearchMatchOptions,
 } from "./searchTerms";
 
 export type { SearchIndexMatch } from "./searchGrouping";
 
-const MIN_SEARCH_SIMILARITY = 0.55;
-
 export async function getSearchMatches(
   query: string,
+  options: SearchMatchOptions = {},
 ): Promise<SearchIndexMatch[]> {
   // empty query returns no results
   if (!query || query.trim().length === 0) {
@@ -45,16 +45,17 @@ export async function getSearchMatches(
     .selectFrom("search_index")
     .selectAll()
     .select((eb) => {
-      const smlExpr = termsSimilarityExpression(eb, queryAndSynonyms);
+      const smlExpr = termsSimilarityExpression(eb, queryAndSynonyms, options);
       return smlExpr.as("sml");
     })
-    .where((eb) => rowMatchesRequiredTermsPredicate(eb, queryAndSynonyms))
+    .where((eb) =>
+      rowMatchesRequiredTermsPredicate(eb, queryAndSynonyms, options),
+    )
     .as("matches");
 
   return await db
     .selectFrom(matchesQuery)
     .selectAll()
-    .where("sml", ">=", MIN_SEARCH_SIMILARITY)
     .orderBy("sml", "desc")
     .orderBy(({ fn }) => fn("length", ["token"]))
     .execute();
@@ -67,7 +68,7 @@ export async function getSearchResultsFromMatches(
   const grouped = groupMatches(matches);
   if (!grouped) return [];
 
-  const { groupMap, specNameSml } = grouped;
+  const { groupMap, specNameSml, getMatchesForSpec } = grouped;
 
   // Fetch up to 500 candidate groups so computeSortScore can rank them properly
   // before trimming to the final 100. A tighter pre-filter here caused well-known
@@ -81,19 +82,30 @@ export async function getSearchResultsFromMatches(
     .execute();
 
   // Enrich with ATC labels + alerts
-  const formatted = formatSpecialitesResume(rawGroups);
+  const formatted = formatSpecialitesResume(
+    rawGroups.filter(
+      (spec) => getMatchesForSpec(spec.specId, spec.groupName).length > 0,
+    ),
+  );
   const withATC = await getResumeSpecsATCLabels(formatted);
 
   // Attach match reasons, score per spécialité, sort, cap output at 200 to keep result payloads bounded
   return withATC
     .map((spec) => {
-      const matchReasons = groupMap.get(spec.groupName)?.reasons ?? [];
+      const specMatches = getMatchesForSpec(spec.specId, spec.groupName);
+      const matchReasons = [
+        ...new Map(
+          specMatches.map((match) => {
+            const reason = { type: match.match_type, label: match.match_label };
+            return [JSON.stringify(reason), reason];
+          }),
+        ).values(),
+      ];
       // Prefer this spécialité's own name similarity so variants rank against the query
       // individually; fall back to the group's best score for substance/atc/indication matches.
       const baseSml =
         specNameSml.get(spec.specId) ??
-        groupMap.get(spec.groupName)?.score ??
-        0;
+        Math.max(...specMatches.map((match) => match.sml));
       return {
         ...spec,
         matchReasons,

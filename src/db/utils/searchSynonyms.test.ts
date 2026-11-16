@@ -42,7 +42,13 @@ describe("expandQuery", () => {
     const terms = expandQuery("doliprane mal de tete", [
       syn("mal de tete", "céphalées"),
     ]);
-    expect(terms).toEqual(["doliprane mal de tete", "cephalees"]);
+    expect(terms).toEqual(["doliprane mal de tete", "cephalees doliprane"]);
+  });
+
+  it("preserves numeric and unit constraints in synonym alternatives", () => {
+    expect(
+      expandQuery("mal de tete 100 mg", [syn("mal de tete", "céphalées")]),
+    ).toEqual(["mal de tete 100 mg", "cephalees 100 mg"]);
   });
 
   it("dedupes canonical terms when several aliases map to the same term", () => {
