@@ -1,7 +1,7 @@
 /**
  * Fills the title of the substances pages:
  * - resume_substances.title: title of the page of the substance
- * - resume_specialites.subsMainNames: title of the page of the substances of the specialite
+ * - resume_specialites.subsTitle: title of the page of the substances of the specialite
  */
 
 import db from "@/db";
@@ -68,7 +68,7 @@ export async function seedTitles(): Promise<void> {
   for (const [key, { specIds }] of specIdsBySubsIds) {
     await db
       .updateTable("resume_specialites")
-      .set({ subsMainNames: specialitesTitles.get(key) ?? null })
+      .set({ subsTitle: specialitesTitles.get(key) ?? null })
       .where("specId", "in", specIds)
       .execute();
   }
