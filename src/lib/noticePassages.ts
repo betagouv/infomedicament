@@ -31,9 +31,9 @@ const selectionSchema = z.discriminatedUnion("status", [
 
 export type NoticeSelection = z.infer<typeof selectionSchema>;
 
-export const MAX_VISIBLE_QUOTE_WORDS = 90;
-export const MAX_VISIBLE_QUOTES = 2;
-export const MAX_VISIBLE_PASSAGES = 2;
+// Derive generation constraints from the same schema used to validate responses.
+export const noticeSelectionJsonSchema = z.toJSONSchema(selectionSchema, { target: "draft-7" });
+
 const sentenceSegmenter = new Intl.Segmenter("fr", { granularity: "sentence" });
 
 function headingLevel(element: HTMLElement): number | undefined {
@@ -180,8 +180,11 @@ function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
       }
       previousParagraph = node;
     } else {
-      // Tables and ordered instructions are indivisible, including numbering.
-      add((/^(TABLE|OL)$/.test(node.tagName) ? previousParagraph?.toString() ?? "" : "") + node.toString());
+      // Keep tables whole, with captions and population/header cells. Their
+      // surrounding prose remains separately selectable instead of making every
+      // table quote include the entire preceding paragraph. Ordered instructions
+      // still retain their introduction and complete sequence.
+      add((node.tagName === "OL" ? previousParagraph?.toString() ?? "" : "") + node.toString());
       previousParagraph = undefined;
     }
   }
@@ -298,9 +301,5 @@ export function resolveNoticeSelection(passages: NoticePassage[], selection: Not
   const superseded = new Set(selected.flatMap((passage) => passage.quotes.flatMap((quote) => quote.supersedes ?? [])));
   const compact = selected.map((passage) => ({ ...passage, quotes: passage.quotes.filter((quote) => !superseded.has(quote.id)) }))
     .filter((passage) => passage.quotes.length > 0);
-  const quotes = compact.flatMap((passage) => passage.quotes);
-  const wordCount = quotes.reduce((total, quote) => total + parse(quote.html).structuredText.trim().split(/\s+/u).length, 0);
-  // Never truncate or drop selected caveats to fit the display budget.
-  if (compact.length > MAX_VISIBLE_PASSAGES || quotes.length > MAX_VISIBLE_QUOTES || wordCount > MAX_VISIBLE_QUOTE_WORDS) return [];
   return compact;
 }
