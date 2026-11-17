@@ -5,8 +5,8 @@ import { fr } from "@codegouvfr/react-dsfr";
 import MarrResumeList from "./MarrResumeList";
 import Link from "next/link";
 import { Marr } from "@/types/MarrTypes";
-import { AnchorMenu } from "../medicaments/advanced/DetailedSubMenu";
-import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
+import { getSpecSlug } from "@/utils/specialites";
+import { infosGeneralesMenuMarr } from "../medicaments/advanced/DetailedSubMenu";
 import styled from "styled-components";
 
 const MarrTitle = styled.h2`
@@ -18,13 +18,16 @@ const MarrTitle = styled.h2`
 
 interface MarrNoticeProps extends HTMLAttributes<HTMLDivElement> {
   marr: Marr;
-  onGoToAdvanced: (anchor: AnchorMenu) => void;
+  // CIS of the specialite (marr.CIS can list all the specialites of the MARR)
+  CIS: string;
+  specName: string;
   hiddenTag?: boolean;
 }
 
 function MarrNotice({
   marr,
-  onGoToAdvanced,
+  CIS,
+  specName,
   hiddenTag,
 }: MarrNoticeProps) {
 
@@ -55,8 +58,7 @@ function MarrNotice({
         <div>
           <Link 
             className={fr.cx("fr-icon-arrow-right-line", "fr-link--icon-left", "fr-text--sm")} 
-            href=""            
-            onClick={() => onGoToAdvanced({anchor: "informations-marr", menuPart: DetailsNoticePartsEnum.INFORMATIONS_GENERALES})}
+            href={`/medicaments/${getSpecSlug(CIS, specName)}/details#${infosGeneralesMenuMarr.href}`}
           >
             Voir les documents pour les professionnels de santé
           </Link>
