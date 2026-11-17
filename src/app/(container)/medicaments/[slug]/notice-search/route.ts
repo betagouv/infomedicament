@@ -17,13 +17,7 @@ async function getCachedSelection(
   const { passages, sourceVersion } = prepareNoticePassages(contentHtml);
   if (passages.length === 0) return { status: "unavailable", passages: [] };
   const selection = await selectNoticePassages(passages, question, model);
-  let selected = resolveNoticeSelection(passages, selection);
-  // A valid over-budget selection is not missing evidence. Give the selector
-  // one chance to choose a concise complete answer; never trim quotes locally.
-  if (selection.status === "supported" && selected.length === 0) {
-    const revised = await selectNoticePassages(passages, question, model, selection);
-    selected = resolveNoticeSelection(passages, revised);
-  }
+  const selected = resolveNoticeSelection(passages, selection);
   return selected.length
     ? { status: "supported", sourceVersion, passages: selected }
     : { status: "insufficient_evidence", passages: [] };

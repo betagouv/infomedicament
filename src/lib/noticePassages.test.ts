@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
+import { parse } from "node-html-parser";
 vi.mock("server-only", () => ({}));
 import { getSelectableNoticeQuotes, parseNoticeSelection, prepareNoticePassages, resolveNoticeSelection } from "./noticePassages";
 
@@ -72,6 +73,23 @@ describe("context-preserving leaflet passages", () => {
 });
 
 describe("short source quotations", () => {
+  it("can select the full CIS 60234100 dosage table independently of its introduction", () => {
+    const { passages } = prepareNoticePassages(readFileSync("src/testsUtils/fixtures/notice-60234100.html", "utf8"));
+    const dosage = passages.find((passage) => passage.target.anchor === "Ann3bCommentPrendre")!;
+    const table = dosage.quotes.find((quote) => quote.html.includes("<table"))!;
+    const text = parse(table.html).structuredText;
+    expect(table.html.startsWith("<table")).toBe(true);
+    expect(text.trim().split(/\s+/u).length).toBeLessThanOrEqual(60);
+    for (const condition of ["Adulte et enfant à partir de 50 kg", "Dose maximale", "Intervalle entre deux doses", "4 heures minimum", "3000 mg par jour"]) {
+      expect(text).toContain(condition);
+    }
+    expect(resolveNoticeSelection(passages, parseNoticeSelection({ status: "supported", selections: [{
+      passage_id: dosage.id, quote_ids: [table.id],
+    }] }))).toHaveLength(1);
+    // The introductory information is still available to the selector, separately.
+    expect(dosage.html).toContain("La dose quotidienne de paracétamol recommandée");
+    expect(getSelectableNoticeQuotes(dosage).some((quote) => !quote.html.includes("<table") && quote.html.includes("La dose quotidienne de paracétamol recommandée"))).toBe(true);
+  });
   it("offers the requested CIS 64720167 dosage and its dependent repetition as one compact source quote", () => {
     const { passages } = prepareNoticePassages(readFileSync("src/testsUtils/fixtures/notice-64720167.html", "utf8"));
     const dosage = passages.find((passage) => passage.target.anchor === "Ann3bCommentPrendre")!;
@@ -137,10 +155,17 @@ describe("selection validation", () => {
     }] }));
     expect(resolved[0].quotes).toEqual([group, restriction]);
   });
-  it("rejects a single 100-word quote instead of letting a page-like answer through", () => {
-    const { passages } = prepareNoticePassages('<h2>Utilisation</h2><p>' + 'mot '.repeat(100) + '</p>');
-    const selection = parseNoticeSelection({ status: "supported", selections: [{ passage_id: passages[0].id, quote_ids: [passages[0].quotes[0].id] }] });
-    expect(resolveNoticeSelection(passages, selection)).toEqual([]);
+  it("allows a paragraph and a table together without imposing a word limit", () => {
+    const { passages } = prepareNoticePassages('<h2>Utilisation</h2><p>' + 'condition '.repeat(120) + '</p><table><tr><th>Population</th><th>Instructions</th></tr><tr><td>Population concernée</td><td>Instructions exactes.</td></tr></table>');
+    const passage = passages[0];
+    const selection = parseNoticeSelection({ status: "supported", selections: [{
+      passage_id: passage.id, quote_ids: passage.quotes.map((quote) => quote.id),
+    }] });
+    const resolved = resolveNoticeSelection(passages, selection);
+    expect(resolved[0].quotes).toEqual(passage.quotes);
+    expect(resolved[0].quotes).toHaveLength(2);
+    expect(resolved[0].quotes[0].html.split('condition').length - 1).toBe(120);
+    expect(resolved[0].quotes[1].html).toContain("<table");
   });
   it("resolves original quote units in source order while keeping the full context separate", () => {
     const { passages } = prepare();
@@ -171,20 +196,20 @@ describe("selection validation", () => {
     }
   });
 
-  it("abstains instead of clipping an overlong quote or dropping selected caveats", () => {
+  it("preserves a longer quotation in full instead of rejecting or clipping it", () => {
     const { passages } = prepareNoticePassages('<h2>Condition</h2><p>' + 'mot '.repeat(201) + '</p>');
     expect(resolveNoticeSelection(passages, { status: "supported", selections: [
       { passage_id: passages[0].id, quote_ids: [passages[0].quotes[0].id] },
-    ] })).toEqual([]);
+    ] })[0].quotes).toEqual(passages[0].quotes);
     expect(passages[0].quotes[0].html.split('mot').length - 1).toBe(201);
   });
 
-  it("checks the distinct source count after schema validation and keeps no partial result", () => {
+  it("preserves all verified selected passages without a source-count cap", () => {
     const { passages } = prepareNoticePassages(Array.from({ length: 4 }, (_, index) => `<h2>Section ${index + 1}</h2><p>Condition ${index + 1}.</p>`).join(""));
     const selection = parseNoticeSelection({ status: "supported", selections: passages.map((passage) => ({
       passage_id: passage.id, quote_ids: [passage.quotes[0].id],
     })) });
-    expect(resolveNoticeSelection(passages, selection)).toEqual([]);
+    expect(resolveNoticeSelection(passages, selection)).toHaveLength(4);
   });
 
   it.each([

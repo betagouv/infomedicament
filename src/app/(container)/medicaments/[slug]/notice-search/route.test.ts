@@ -25,7 +25,24 @@ beforeEach(() => {
 afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
 describe("notice selection endpoint", () => {
-  it("reselects once when the real CIS 64720167 trace exceeds the budget despite explicit dosage evidence", async () => {
+  it("returns the CIS 60234100 dosage table without attaching its long introduction", async () => {
+    const source = readFileSync("src/testsUtils/fixtures/notice-60234100.html", "utf8");
+    vi.mocked(getNotice).mockResolvedValue({ codeCIS: 60234100, title: "NOTICE", dateNotif: "", contentHtml: source });
+    const dosage = prepareNoticePassages(source).passages.find((passage) => passage.target.anchor === "Ann3bCommentPrendre")!;
+    const table = dosage.quotes.find((quote) => quote.html.includes("<table"))!;
+    modelResponse({ status: "supported", selections: [{ passage_id: dosage.id, quote_ids: [table.id] }] });
+    const response = await GET(new NextRequest("http://localhost/medicaments/test-60234100/notice-search?q=Combien%20en%20prendre%20%3F"), { params: Promise.resolve({ slug: "test-60234100" }) });
+    const body = await response.json();
+    expect(body.status).toBe("supported");
+    const visible = body.passages[0].quotes[0].html;
+    expect(visible.startsWith("<table")).toBe(true);
+    expect(parse(visible).structuredText.trim().split(/\s+/u).length).toBe(45);
+    expect(visible).toContain("Adulte et enfant à partir de 50 kg");
+    expect(visible).not.toContain("La posologie dépend du poids");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns the selected connected CIS 64720167 answer directly", async () => {
     const source = readFileSync("src/testsUtils/fixtures/notice-64720167.html", "utf8");
     vi.mocked(getNotice).mockResolvedValue({ codeCIS: 64720167, title: "NOTICE", dateNotif: "", contentHtml:
       source });
@@ -33,7 +50,6 @@ describe("notice selection endpoint", () => {
     modelResponse({ status: "supported", selections: [{ passage_id: "passage-6", quote_ids: [
       compact.id, "passage-6-quote-12",
     ] }] });
-    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify(overBudgetSelection) } }] })));
     const response = await GET(new NextRequest("http://localhost/medicaments/test-64720167/notice-search?q=Combien%20en%20prendre%20%3F"), { params: Promise.resolve({ slug: "test-64720167" }) });
     const body = await response.json();
     expect(body.status).toBe("supported");
@@ -45,9 +61,7 @@ describe("notice selection endpoint", () => {
     expect(visible).not.toContain("prévention de l’asthme d’effort");
     expect(visible).not.toContain("En cas de crise d'asthme sévère");
     expect(body.passages[0].quotes).toHaveLength(2);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    const repairRequest = JSON.parse(fetchMock.mock.calls[1][1].body);
-    expect(repairRequest.messages.at(-1).content).toContain("display_budget_exceeded");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("returns server-resolved excerpts with context, never an answer written by the model", async () => {
@@ -73,7 +87,7 @@ describe("notice selection endpoint", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it("handles a valid but excessive quote count as normal abstention instead of throwing a Zod size error", async () => {
+  it("accepts several verified quotes without imposing a quote-count cap", async () => {
     vi.mocked(getNotice).mockResolvedValue({ codeCIS: 69636399, title: "Test", dateNotif: "", contentHtml:
       '<h2>Précautions</h2>' + Array.from({ length: 5 }, (_, index) => `<p>Condition ${index + 1}.</p>`).join("") });
     modelResponse({ status: "supported", selections: [{ passage_id: "passage-1", quote_ids:
@@ -81,11 +95,12 @@ describe("notice selection endpoint", () => {
     const response = await run();
     expect(response.status).toBe(200);
     const body = await response.json();
-    expect(body).toEqual({ status: "insufficient_evidence", passages: [] });
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(body.status).toBe("supported");
+    expect(body.passages[0].quotes).toHaveLength(5);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it("deduplicates repeated IDs before enforcing display limits", async () => {
+  it("deduplicates repeated source identifiers", async () => {
     modelResponse({ status: "supported", selections: [{ passage_id: "passage-2", quote_ids:
       Array(7).fill("passage-2-quote-2") }] });
     const response = await run();
@@ -96,15 +111,16 @@ describe("notice selection endpoint", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it("abstains normally when all seven quotes are valid but exceed the visible quote budget", async () => {
-    vi.mocked(getNotice).mockResolvedValue({ codeCIS: 69636399, title: "Test", dateNotif: "", contentHtml:
-      '<h2>Précautions</h2>' + Array.from({ length: 7 }, (_, index) => `<p>Condition ${index + 1}.</p>`).join("") });
-    modelResponse({ status: "supported", selections: [{ passage_id: "passage-1", quote_ids:
-      Array.from({ length: 7 }, (_, index) => `passage-1-quote-${index + 1}`) }] });
+  it("does not reject a verified selection because of its length", async () => {
+    vi.mocked(getNotice).mockResolvedValue({ codeCIS: 64720167, title: "NOTICE", dateNotif: "", contentHtml:
+      readFileSync("src/testsUtils/fixtures/notice-64720167.html", "utf8") });
+    modelResponse(overBudgetSelection);
     const response = await run();
+    const body = await response.json();
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ status: "insufficient_evidence", passages: [] });
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(body.status).toBe("supported");
+    expect(body.passages[0].quotes.length).toBeGreaterThan(2);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it.each([
@@ -117,17 +133,6 @@ describe("notice selection endpoint", () => {
     expect(response.status).toBe(502);
     expect(await response.json()).toEqual({ status: "error", passages: [] });
     expect(fetchMock).toHaveBeenCalledTimes(1);
-  });
-
-  it("rejects invalid source references on the repair attempt rather than returning the oversized first answer", async () => {
-    vi.mocked(getNotice).mockResolvedValue({ codeCIS: 64720167, title: "NOTICE", dateNotif: "", contentHtml:
-      readFileSync("src/testsUtils/fixtures/notice-64720167.html", "utf8") });
-    modelResponse({ status: "supported", selections: [{ passage_id: "passage-6", quote_ids: ["invented"] }] });
-    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify(overBudgetSelection) } }] })));
-    const response = await run();
-    expect(response.status).toBe(502);
-    expect(await response.json()).toEqual({ status: "error", passages: [] });
-    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("rejects truncated output even if its JSON parses", async () => {
