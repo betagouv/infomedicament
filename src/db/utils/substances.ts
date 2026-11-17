@@ -4,11 +4,11 @@ import "server-cli-only";
 import type { ResumeSubstance, AnsmComposant } from "../types";
 import db from "..";
 import { sql } from "kysely";
-import type { Substance } from "@/types/SubstanceTypes";
+import type { CompositionComponent, Substance } from "@/types/SubstanceTypes";
+import { displaySimpleComposants } from "@/displayUtils";
 import {
   compositionMatchesSubstanceSet,
   displayName,
-  hasExactlyOneComponent,
   toCompositionComponents,
   toSubstance,
 } from "./substanceCatalog";
@@ -39,13 +39,16 @@ async function resolveSubstances(subsIds: string[]): Promise<Substance[]> {
     return canonical ? toSubstance(canonical) : undefined;
   };
 
-  // Fallback on the substances list only for the ids not found in the ANSM names
+  // Substances without ANSM name (e.g. estradiol anhydre 63787): name from the compositions labels, not canonical
+  // (not from resume_substances: it is filled from this function, see scripts/updateResumeData.ts)
   const missingIds = [...new Set(subsIds.filter((id) => !resolveFromAnsm(id)))];
-  const resumeFallbacks = missingIds.length > 0
+  const labels = missingIds.length > 0
     ? await db
-      .selectFrom("resume_substances")
-      .where("SubsId", "in", missingIds)
-      .select(["SubsId", "NomId", "NomLib", "type"])
+      .selectFrom("ansm_composant")
+      .where("code_substance", "in", missingIds)
+      .select(["code_substance", "substance"])
+      .distinct()
+      .orderBy("substance")
       .execute()
     : [];
 
@@ -53,16 +56,9 @@ async function resolveSubstances(subsIds: string[]): Promise<Substance[]> {
     const substance = resolveFromAnsm(id);
     if (substance) return [substance];
 
-    const fallback = resumeFallbacks.find((row) => row.SubsId.trim() === id);
-    return fallback
-      ? [
-          {
-            SubsId: fallback.SubsId.trim(),
-            NomId: fallback.NomId.trim(),
-            NomLib: fallback.NomLib.trim(),
-            isCanonical: fallback.type === "CANONIQUE",
-          },
-        ]
+    const label = labels.find((row) => row.code_substance?.trim() === id && row.substance?.trim());
+    return label
+      ? [{ SubsId: id, NomId: id, NomLib: displayName(label.substance!), isCanonical: false }]
       : [];
   });
 
@@ -131,6 +127,7 @@ export async function getResumeSubstancesByNomId(subsNomsIds: string[]): Promise
   "use cache: remote";
   const result = await db.selectFrom("resume_substances")
     .selectAll()
+    .where("specialites", ">", 0)
     .where("NomId", "in", subsNomsIds)
     .orderBy("NomLib")
     .execute();
@@ -150,27 +147,22 @@ export async function getAllSubsWithSpecialites() {
       .select(["cis", "denomination"])
       .execute(),
   ]);
-  const byCis = new Map<string, typeof components>();
-  for (const component of components) {
-    const rows = byCis.get(component.cis) ?? [];
-    rows.push(component);
-    byCis.set(component.cis, rows);
-  }
-  // Substances of the single component CIS: the active fractions if any, otherwise the active substances
-  // (same as the substance displayed on the medicament page, see displaySimpleComposants)
-  const singleComponentRows = [...byCis.values()]
-    .filter((rows) => hasExactlyOneComponent(rows))
-    .flatMap((rows) => {
-      const fractions = rows.filter((row) => row.nature === "Fraction active");
-      return fractions.length > 0 ? fractions : rows;
-    });
-  const mappedComponents = toCompositionComponents(singleComponentRows, names, []);
   const denominationByCis = new Map(
     specialites.map((specialite) => [
       specialite.cis,
       specialite.denomination ?? "",
     ]),
   );
+  // All the substances of the visible CIS, alone or in association: for each component the active fractions if any,
+  // otherwise the active substances (same as the substances displayed on the medicament page)
+  const byCis = new Map<string, CompositionComponent[]>();
+  const visibleComponents = components.filter((component) => denominationByCis.has(component.cis));
+  for (const component of toCompositionComponents(visibleComponents, names, [])) {
+    const rows = byCis.get(component.SpecId) ?? [];
+    rows.push(component);
+    byCis.set(component.SpecId, rows);
+  }
+  const mappedComponents = [...byCis.values()].flatMap((rows) => displaySimpleComposants(rows));
   const typeByNomId = new Map(names.map((name) => [name.code_nom.trim(), name.type]));
   const seen = new Set<string>();
 
@@ -198,28 +190,45 @@ export async function getAllSubsWithSpecialites() {
     .sort((left, right) => left.NomLib.localeCompare(right.NomLib, "fr"));
 }
 
-// Substances list, one row per substance name
-// Substances pages, one row per substance with the title of its page (first name if the title is not seeded)
-export async function getAllSubstancesTitles(): Promise<{ SubsId: string, title: string }[]> {
+// Titles of the substances pages (resume_substances.title) by SubsId,
+// also for the substances without specialite (e.g. only in combinations)
+export async function getSubstancesTitles(subsIds: string[]): Promise<Map<string, string>> {
+  "use cache: remote";
+  const ids = [...new Set(subsIds.map((subsId) => subsId.trim()))];
+  if (ids.length === 0) return new Map();
+  const rows = await db
+    .selectFrom("resume_substances")
+    .select(["SubsId", "title"])
+    .where(sql<string>`trim("SubsId")`, "in", ids)
+    .where("title", "is not", null)
+    .distinct()
+    .execute();
+  return new Map(rows.map((row) => [row.SubsId.trim(), row.title!.trim()]));
+}
+
+// Substances pages with at least one specialite, one row per substance with the title of its page
+export async function getAllSubstancesTitles(): Promise<{ SubsId: string, title: string | null }[]> {
   "use cache: remote";
   const rows = await db
     .selectFrom("resume_substances")
-    .select(["SubsId", "title", "NomLib"])
+    .select(["SubsId", "title"])
+    .where("specialites", ">", 0)
     .distinctOn("SubsId")
     .orderBy("SubsId")
     .orderBy("title")
-    .orderBy("NomLib")
     .execute();
   return rows.map((row) => ({
     SubsId: row.SubsId.trim(),
-    title: (row.title ?? row.NomLib).trim(),
+    title: row.title?.trim() ?? null,
   }));
 };
 
+// Substances list of a letter: only the substances with at least one specialite
 export async function getSubstancesResumeWithLetter(letter: string): Promise<ResumeSubstance[]> {
   "use cache: remote";
   return db
     .selectFrom("resume_substances")
+    .where("specialites", ">", 0)
     .where(({ eb, ref }) =>
       eb(
         sql<string>`unaccent(upper(${ref("NomLib")}))`,
@@ -267,6 +276,7 @@ export async function getAllSubstancesResumes(): Promise<ResumeSubstance[]> {
   return db
     .selectFrom("resume_substances")
     .selectAll()
+    .where("specialites", ">", 0)
     .orderBy("NomLib")
     .execute();
 }

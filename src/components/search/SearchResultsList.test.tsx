@@ -16,7 +16,7 @@ function result(index: number): SearchResultItem {
     groupName: `TEST ${index}`,
     composants: "substance",
     subsIds: [],
-    subsMainNames: null,
+    subsTitle: null,
     indicationsIds: [],
     indicationsIdsNames: [],
     atc1Code: undefined,
@@ -124,4 +124,24 @@ it("preserves the selected substance and matching medicines when changing sort",
   expect(
     substanceFilters().every((input) => (input as HTMLInputElement).checked),
   ).toBe(true);
+});
+
+it("names the substance filters with the title of the substances page, and the composants only if different", () => {
+  const results = [
+    // Title different from the composants
+    { ...result(1), composants: "cétylpyridinium (chlorure de)", subsTitle: "chlorure de cétylpyridinium", subsIds: ["00628"] },
+    // Title same as the composants
+    { ...result(2), composants: "paracétamol", subsTitle: "paracétamol", subsIds: ["02202"] },
+    // Title same as the cleaned composants (HTML entity and double spaces)
+    { ...result(3), composants: "codant pour l&rsquo;arylsulfatase  A", subsTitle: "codant pour l’arylsulfatase A", subsIds: ["12345"] },
+    // No title
+    { ...result(4), composants: "caféine", subsTitle: null, subsIds: ["00420"] },
+  ];
+  render(<SearchResultsList resultsList={results} search="test" />);
+  const substanceFilter = (name: RegExp) => screen.queryAllByRole("checkbox", { name });
+
+  expect(substanceFilter(/^chlorure de cétylpyridinium \(cétylpyridinium \(chlorure de\)\)/)).not.toHaveLength(0);
+  expect(substanceFilter(/^paracétamol \(1\)$/)).not.toHaveLength(0);
+  expect(substanceFilter(/^codant pour l’arylsulfatase A \(1\)$/)).not.toHaveLength(0);
+  expect(substanceFilter(/^caféine \(1\)$/)).not.toHaveLength(0);
 });

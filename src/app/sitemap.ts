@@ -12,6 +12,7 @@ import { getIndicationSlug } from "@/utils/indications";
 import { getAtcSlug } from "@/utils/atc";
 import { getSlug } from "@/utils/slug";
 import { getAllSubstancesTitles } from "@/db/utils/substances";
+import { getSubstanceSlug } from "@/utils/substances";
 
 
 // Sitemap URLs must be absolute: never publish localhost URLs in production
@@ -85,7 +86,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // One URL per substance, the canonical URL of its page
   const substanceEntries: MetadataRoute.Sitemap = substances.map((substance) => ({
-    url: `${BASE_URL}/substances/${getSlug(substance.SubsId, substance.title)}`,
+    url: `${BASE_URL}/substances/${getSubstanceSlug([substance])}`,
   }));
 
   const indicationsEntries: MetadataRoute.Sitemap = indications.map((i) => ({

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import db from "@/db";
 import { getAllSubsWithSpecialites, getCisMatchingSubstanceSet, getSubstanceDefinition, getSubstancesNames, getSubstancesResumeWithLetter } from "./substances";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
-import { getSpecialiteSubstancesTitle, getSubstanceSpecsGroups } from "./specialities";
+import { getSubstanceSpecsGroups } from "./specialities";
 import { getSubstancesPageNames } from "@/utils/substances";
 import { sql } from "kysely";
 
@@ -192,25 +192,20 @@ describe("substances pages titles", () => {
       .execute();
 
     expect(rows.length).toBeGreaterThan(1);
-    expect(new Set(rows.map((row) => row.title))).toEqual(new Set(["chlorure de cétylpyridinium"]));
+    expect(new Set(rows.map((row) => row.title))).toEqual(new Set(["cétylpyridinium (chlorure de)"]));
   });
 
-  it("resume_specialites.subsMainNames - is the title of the page of the substances of the specialite", async () => {
+  it("resume_specialites.subsTitle - is the title of the page of the substances of the specialite", async () => {
     // Paracetamol (02202) and codeine phosphate (74765), in the order of each specialite
     const rows = await db
       .selectFrom("resume_specialites")
-      .select(["subsIds", "subsMainNames"])
+      .select(["subsIds", "subsTitle"])
       .where(sql<boolean>`"subsIds"::text[] @> ARRAY['02202', '74765'] and cardinality("subsIds") = 2`)
       .execute();
 
     expect(rows.length).toBeGreaterThan(0);
     for (const row of rows) {
-      expect(row.subsMainNames).toBe(await getPageTitle(row.subsIds.map((subsId) => subsId.trim())));
+      expect(row.subsTitle).toBe(await getPageTitle(row.subsIds.map((subsId) => subsId.trim())));
     }
-  });
-
-  it("getSpecialiteSubstancesTitle - is the title of the page of the substances of the specialite", async () => {
-    // DOLIPRANE 1000 mg, comprimé (60234100): paracetamol (02202)
-    expect(await getSpecialiteSubstancesTitle("60234100")).toBe(await getPageTitle(["02202"]));
   });
 });

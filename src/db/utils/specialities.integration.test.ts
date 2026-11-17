@@ -183,18 +183,18 @@ describe("substance page : specialites list", () => {
   });
 });
 
-//run `npm run db:update-resume substances` is necessary first
+//run `npm run db:update-resume substances` then `npm run db:seed-substances-title` first
 describe("substance page and substances list: substances displayed on the medicaments", () => {
   // Medicaments groups on the substance page
   const getPageMedicaments = async (subsIds: string[]) => (await getSubstanceSpecsGroups(subsIds)).length;
-  // Medicaments groups of the substance in the substances list, undefined if not in the list
+  // Medicaments groups of the substance in the substances list (0 if not listed), undefined without row
   const getListMedicaments = async (subsId: string) => {
     const row = await db
       .selectFrom("resume_substances")
       .where("SubsId", "=", subsId)
-      .select("specialites")
+      .select(({ fn }) => fn.max("specialites").as("specialites"))
       .executeTakeFirst();
-    return row?.specialites;
+    return row?.specialites ?? undefined;
   };
 
   // Substance page with several substances
@@ -216,29 +216,30 @@ describe("substance page and substances list: substances displayed on the medica
   });
 
   // Substance page and substances list with a single substance
+  // Every substance displayed on a medicament has a row in resume_substances, with 0 medicament if not listed
   it.each([
     // sacubitril: only with valsartan
-    ["78789", 0],
+    ["78789", 0, 0],
     // valsartan
-    ["15734", 13],
+    ["15734", 13, 13],
     // paracétamol
-    ["02202", 58],
-    // phosphate de codéine hémihydraté: displayed as its active fraction codéine
-    ["74765", 0],
-    // phosphate de codéine anhydre: displayed as its active fraction codéine
-    ["25936", 0],
+    ["02202", 58, 58],
+    // phosphate de codéine hémihydraté: displayed as its active fraction codéine, or in association
+    ["74765", 0, 0],
+    // phosphate de codéine anhydre: displayed as its active fraction codéine, or in association
+    ["25936", 0, 0],
     // codéine
-    ["00467", 2],
-    // N(2)-L-alanyl-L-glutamine: displayed as its active fractions glutamine and alanine
-    ["89263", 0],
+    ["00467", 2, 2],
+    // N(2)-L-alanyl-L-glutamine: always displayed as its active fractions glutamine and alanine, no row
+    ["89263", 0, undefined],
     // glutamine: only with alanine
-    ["02725", 0],
+    ["02725", 0, 0],
     // alanine
-    ["00031", 1],
+    ["00031", 1, 1],
     // estradiol anhydre: no ANSM name
-    ["63787", 3],
-  ])("substance %s: %i medicament(s), in the substances list if any", async (subsId, nbMedicaments) => {
+    ["63787", 3, 3],
+  ])("substance %s: %i medicament(s), %s in resume_substances", async (subsId, nbMedicaments, nbListMedicaments) => {
     expect(await getPageMedicaments([subsId])).toBe(nbMedicaments);
-    expect(await getListMedicaments(subsId)).toBe(nbMedicaments > 0 ? nbMedicaments : undefined);
+    expect(await getListMedicaments(subsId)).toBe(nbListMedicaments);
   });
 });

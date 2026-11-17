@@ -3,7 +3,7 @@ import { sql, type Kysely } from "kysely";
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .alterTable("resume_specialites")
-    .addColumn("subsMainNames", "varchar")
+    .addColumn("subsTitle", "varchar")
     .execute();
   await db.schema
     .alterTable("resume_medicaments")
@@ -12,13 +12,14 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .alterTable("resume_substances")
     .addColumn("type", "varchar")
+    .addColumn("title", "varchar")
     .execute();
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
   await db.schema
     .alterTable("resume_specialites")
-    .dropColumn("subsMainNames")
+    .dropColumn("subsTitle")
     .execute();
   await db.schema
     .alterTable("resume_medicaments")
@@ -27,5 +28,6 @@ export async function down(db: Kysely<any>): Promise<void> {
   await db.schema
     .alterTable("resume_substances")
     .dropColumn("type")
+    .dropColumn("title")
     .execute();
 }

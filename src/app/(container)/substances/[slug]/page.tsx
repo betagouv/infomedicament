@@ -5,16 +5,16 @@ import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { Metadata } from "next";
-import { getSubstanceDefinition, getSubstancesNames } from "@/db/utils/substances";
+import { getSubstanceDefinition, getSubstancesNames, getSubstancesTitles } from "@/db/utils/substances";
 import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinitionContent";
 import { getArticlesFromSubstances } from "@/db/utils/articles";
 import { getSubstanceSpecsGroups } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
-import { getSubstanceIdsFromSlug, getSubstancesPageNames, hasAllSubstances } from "@/utils/substances";
-import { getSlug } from "@/utils/slug";
+import { getSubstanceIdsFromSlug, getSubstanceSlug, getSubstancesPageNames, hasAllSubstances } from "@/utils/substances";
 import { Substance } from "@/types/SubstanceTypes";
 import { notFound } from "next/navigation";
 import { formatFrenchList } from "@/displayUtils";
+import { getNormalizeLetter } from "@/utils/alphabeticNav";
 
 
 export async function generateMetadata(
@@ -29,12 +29,14 @@ export async function generateMetadata(
     };
   }
 
-  const [definitionsRaw, allSpecsGroups] = await Promise.all([
+  const [definitionsRaw, allSpecsGroups, titles] = await Promise.all([
     getSubstanceDefinition(subsIds),
     getSubstanceSpecsGroups(subsIds),
+    getSubstancesTitles(subsIds),
   ]);
   const definitionString = definitionsRaw.map(d => `${d.SA} : ${d.Definition}`).join(" - ");
-  const { title } = getSubstancesPageNames(subsIds, substances, allSpecsGroups);
+  // Title: the stored titles (resume_substances.title), computed if not seeded
+  const { title } = getSubstancesPageNames(subsIds, substances, allSpecsGroups, titles);
 
   return {
     title,
@@ -42,8 +44,8 @@ export async function generateMetadata(
     description: definitionString
       || `Retrouvez les médicaments contenant ${subsIds.length > 1 ? "les substances" : "la substance"} ${title}.`,
     alternates: {
-      // Page title, followed by the SubsIds
-      canonical: `/substances/${getSlug(subsIds.join(","), title)}`,
+      // Titles of the substances pages (resume_substances), followed by the SubsIds
+      canonical: `/substances/${getSubstanceSlug(subsIds.map((SubsId) => ({ SubsId, title: titles.get(SubsId) })))}`,
     },
   };
 }
@@ -64,17 +66,19 @@ async function CachedSubstancePage({ slug }: { slug: string }) {
   const substances: Substance[] = await getSubstancesNames(subsIds) ?? [];
   if (!hasAllSubstances(subsIds, substances)) notFound();
 
-  const [articles, definitions, allSpecsGroups] = await Promise.all([
+  const [articles, definitions, allSpecsGroups, titles] = await Promise.all([
     getArticlesFromSubstances(subsIds),
     getSubstanceDefinition(subsIds),
     getSubstanceSpecsGroups(subsIds),
+    getSubstancesTitles(subsIds),
   ]);
 
   const dataList = allSpecsGroups.length > 0
     ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
     : [];
 
-  const { title, subtitle, titleDetails } = getSubstancesPageNames(subsIds, substances, allSpecsGroups);
+  // Title: the stored titles (resume_substances.title), computed if not seeded
+  const { title, subtitle, titleDetails } = getSubstancesPageNames(subsIds, substances, allSpecsGroups, titles);
   // Definition title: no title with a single substance, otherwise the name of its substance in the page title
   const definition = definitions
     // Only the definitions with a text
@@ -96,7 +100,8 @@ async function CachedSubstancePage({ slug }: { slug: string }) {
               {
                 label: "Listes des substances",
                 linkProps: {
-                  href: `/substances/${title[0].slice(0, 1)}`,
+                  // Letter of the substances list: without accent and uppercase, as the letters of the lists (e.g. "é" -> "E")
+                  href: `/substances/${getNormalizeLetter(title.slice(0, 1))}`,
                 },
               },
             ]}

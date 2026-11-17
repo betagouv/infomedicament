@@ -165,7 +165,7 @@ interface ResumeSpecialitesTable {
   composants: string;
   subsIds: string[];
   // Title of the substances page of subsIds
-  subsMainNames: string | null;
+  subsTitle: string | null;
   indicationsIds: number[];
   indicationsIdsNames: string[][]; //idIndication, nomIndication
   atc1Code?: string;

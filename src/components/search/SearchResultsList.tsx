@@ -73,9 +73,9 @@ function SearchResultsList({
         if (indexSubs === -1) {
           newSubsFilters.push({
             id: result.subsIds.join(),
-            name: result.subsMainNames ? result.subsMainNames : result.composants,
+            name: result.subsTitle ? result.subsTitle : result.composants,
             // Composants only if different from the title of the substances page
-            secondaryName: result.subsMainNames && result.subsMainNames.trim() !== cleanSubstanceName(result.composants)
+            secondaryName: result.subsTitle && result.subsTitle.trim() !== cleanSubstanceName(result.composants)
               ? result.composants
               : undefined,
             count: 1,

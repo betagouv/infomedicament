@@ -58,8 +58,7 @@ function DataBlockGeneric({
       data: ResumeSubstance | ResumeIndication | AdvancedATCClass | ResumeGeneric
     ){
       if(dataType === DataTypeEnum.SUBSTANCE){
-        // Title of the substance page (the name if the title is not seeded)
-        setCurrentLink(`/substances/${getSubstanceSlug([data as ResumeSubstance], (data as ResumeSubstance).title)}`);
+        setCurrentLink(`/substances/${getSubstanceSlug([data as ResumeSubstance])}`);
       } else if(dataType === DataTypeEnum.INDICATION){
         setCurrentLink(`/indications/${getIndicationSlug((data as ResumeIndication).idIndication, (data as ResumeIndication).nomIndication)}`);
       } else if(dataType === DataTypeEnum.ATCCLASS){

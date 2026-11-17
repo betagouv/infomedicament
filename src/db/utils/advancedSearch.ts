@@ -199,7 +199,7 @@ export async function getAdvancedSearchResults(
           ),
         ),
       ],
-      subsMainNames: null,
+      subsTitle: null,
       indicationsIds: uses.map((i) => i.id),
       indicationsIdsNames: uses.map((i) => [String(i.id), i.nom]),
       indicationsDetails: uses.map((i) => ({

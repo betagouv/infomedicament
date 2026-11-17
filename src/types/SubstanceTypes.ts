@@ -20,6 +20,8 @@ export type CompositionComponent = Substance & {
   CompOrdre: number;
   CompDosage: string;
   CompRem: string;
+  // Title of the substance page (resume_substances.title)
+  title?: string | null;
 };
 
 export type SubstancesName = {

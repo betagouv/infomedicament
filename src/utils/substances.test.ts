@@ -43,10 +43,31 @@ describe("utils/substance - getSubstanceMainName", () => {
     expect(getSubstanceMainName([])).toBe("");
   });
 
+  it("takes the synonym with the lowest NomId without canonical name", () => {
+    // Inhibiteur de C1 humain (54435): names 52103 and 91357
+    const substances = [
+      { SubsId: "54435", NomId: "91357", NomLib: "inhibiteur de la C1 estérase humain", isCanonical: false },
+      { SubsId: "54435", NomId: "52103", NomLib: "inhibiteur de C1 humain", isCanonical: false },
+    ];
+
+    expect(getSubstanceMainName(substances)).toBe("inhibiteur de C1 humain");
+  });
+
+  it("compares the NomId as numbers", () => {
+    const substances = [
+      { SubsId: "1", NomId: "100", NomLib: "cent", isCanonical: false },
+      { SubsId: "1", NomId: "20", NomLib: "vingt", isCanonical: false },
+    ];
+
+    expect(getSubstanceMainName(substances)).toBe("vingt");
+  });
+
   it("does not take a deprecated name, even canonical", () => {
     const substances = [
       { SubsId: "02725", NomId: "02725", NomLib: "(NE PAS UTILISER)- LEVOGLUTAMIDE", isCanonical: true },
       { SubsId: "02725", NomId: "72547", NomLib: "glutamine", isCanonical: false },
+      { SubsId: "02725", NomId: "81000", NomLib: "L-glutamine", isCanonical: false },
+      { SubsId: "02725", NomId: "10000", NomLib: "(NE PAS UTILISER) glutamine", isCanonical: false },
     ];
 
     expect(getSubstanceMainName(substances)).toBe("glutamine");
@@ -193,40 +214,40 @@ describe("utils/substance - getSubstancesNamesList", () => {
 });
 
 describe("utils substances - slug", () => {
-  it("builds a slug from a single substance", () => {
-    expect(getSubstanceSlug([{ SubsId: "02202", NomLib: "paracétamol" }])).toBe(
+  it("builds a slug from the title of a single substance", () => {
+    expect(getSubstanceSlug([{ SubsId: "02202", title: "paracétamol" }])).toBe(
       "paracetamol-02202",
     );
   });
 
-  it("builds a slug from several substances, ids separated by commas", () => {
+  it("builds a slug from the titles in the order of the substances, ids separated by commas", () => {
     expect(
       getSubstanceSlug([
-        { SubsId: "02202", NomLib: "paracétamol" },
-        { SubsId: "74765 ", NomLib: "codéine (phosphate de) hémihydraté" },
+        { SubsId: "02202", title: "paracétamol" },
+        { SubsId: "74765 ", title: "codéine (phosphate de) hémihydraté" },
       ]),
     ).toBe("paracetamol-codeine-phosphate-de-hemihydrate-02202,74765");
-  });
-
-  it("builds a slug from the title of the page, followed by the ids", () => {
     expect(
-      getSubstanceSlug(
-        [
-          { SubsId: "02202", NomLib: "paracétamol" },
-          { SubsId: "74765", NomLib: "phosphate de codéine hémihydraté" },
-        ],
-        "paracétamol, codéine (phosphate de) hémihydraté",
-      ),
-    ).toBe("paracetamol-codeine-phosphate-de-hemihydrate-02202,74765");
+      getSubstanceSlug([
+        { SubsId: "74765", title: "codéine (phosphate de) hémihydraté" },
+        { SubsId: "02202", title: "paracétamol" },
+      ]),
+    ).toBe("codeine-phosphate-de-hemihydrate-paracetamol-74765,02202");
   });
 
-  it("builds a slug from the names without title", () => {
-    expect(getSubstanceSlug([{ SubsId: "02202", NomLib: "acétaminophène" }], null)).toBe("acetaminophene-02202");
-    expect(getSubstanceSlug([{ SubsId: "02202", NomLib: "acétaminophène" }], " ")).toBe("acetaminophene-02202");
+  it("does not use the names of the substances", () => {
+    const substance = { SubsId: "02202", NomLib: "acétaminophène", title: "paracétamol" };
+    expect(getSubstanceSlug([substance])).toBe("paracetamol-02202");
+  });
+
+  it("builds a slug with only the ids without title", () => {
+    expect(getSubstanceSlug([{ SubsId: "02202", title: null }])).toBe("02202");
+    expect(getSubstanceSlug([{ SubsId: "02202", title: " " }])).toBe("02202");
+    expect(getSubstanceSlug([{ SubsId: "02202" }])).toBe("02202");
   });
 
   it("keeps parentheses as word separators", () => {
-    expect(getSubstanceSlug([{ SubsId: "00005", NomLib: "acétylsalicylique (acide)" }])).toBe(
+    expect(getSubstanceSlug([{ SubsId: "00005", title: "acétylsalicylique (acide)" }])).toBe(
       "acetylsalicylique-acide-00005",
     );
   });
@@ -256,7 +277,7 @@ describe("utils/substance - getSubstancesPageNames", () => {
   const group = (subsIds: string[], subsNamesIds: string[]) => ({ subsIds, subsNamesIds });
   const substance = (SubsId: string, NomId: string, NomLib: string, isCanonical: boolean) => ({ SubsId, NomId, NomLib, isCanonical });
 
-  it("takes the canonical name displayed on the medicaments, even on fewer medicaments", () => {
+  it("takes the canonical name, with the other names displayed on the medicaments as subtitle", () => {
     const substances = [
       substance("00628", "00628", "cétylpyridinium (chlorure de)", true),
       substance("00628", "71130", "chlorure de cétylpyridinium", false),
@@ -270,7 +291,7 @@ describe("utils/substance - getSubstancesPageNames", () => {
     });
   });
 
-  it("takes the name displayed on the most medicaments without canonical name displayed", () => {
+  it("takes the canonical name even if not displayed on the medicaments", () => {
     const substances = [
       substance("31844", "31844", "abacavir base", true),
       substance("31844", "65799", "abacavir", false),
@@ -278,10 +299,22 @@ describe("utils/substance - getSubstancesPageNames", () => {
     ];
     const groups = [group(["31844"], ["12345"]), group(["31844"], ["65799"]), group(["31844"], ["65799"])];
 
-    expect(getSubstancesPageNames(["31844"], substances, groups)).toMatchObject({
-      title: "abacavir",
-      subtitle: "abacavir anhydre",
+    expect(getSubstancesPageNames(["31844"], substances, groups)).toEqual({
+      title: "abacavir base",
+      subtitle: "abacavir, abacavir anhydre",
+      titleDetails: [],
     });
+  });
+
+  it("takes the synonym with the lowest NomId without canonical name, even if not displayed", () => {
+    const substances = [
+      substance("96983", "91833", "virus de la varicelle souche Oka (vivant, atténué)", false),
+      substance("96983", "41810", "virus varicelle-zona souche Oka/Merck (vivant, atténué)", false),
+      substance("96983", "10000", "varicelle", false),
+    ];
+    const groups = [group(["96983"], ["91833"]), group(["96983"], ["41810"])];
+
+    expect(getSubstancesPageNames(["96983"], substances, groups)).toMatchObject({ title: "varicelle" });
   });
 
   it("orders the substances of the title as the requested substances", () => {
@@ -314,11 +347,13 @@ describe("utils/substance - getSubstancesPageNames", () => {
       group(["02202", "74765"], ["02202", "90530"]),
     ];
 
-    expect(getSubstancesPageNames(["02202", "74765"], substances, groups).subtitle)
-      .toBe("paracétamol, codéine phosphate ; paracétamol, phosphate de codéine hémihydraté");
+    expect(getSubstancesPageNames(["02202", "74765"], substances, groups)).toMatchObject({
+      title: "paracétamol, codéine (phosphate de) hémihydraté",
+      subtitle: "paracétamol, codéine phosphate ; paracétamol, phosphate de codéine hémihydraté",
+    });
   });
 
-  it("takes the main name of each substance without medicament", () => {
+  it("takes the main name of each substance, also without medicament", () => {
     const substances = [
       substance("02725", "02725", "(NE PAS UTILISER)- LEVOGLUTAMIDE", true),
       substance("02725", "72547", "glutamine", false),
@@ -328,7 +363,30 @@ describe("utils/substance - getSubstancesPageNames", () => {
     expect(getSubstancesPageNames(["49632", "02725"], substances, [])).toEqual({
       title: "ranitidine base, glutamine",
       subtitle: "",
-      titleDetails: [],
+      titleDetails: [
+        { subsId: "49632", name: "ranitidine base" },
+        { subsId: "02725", name: "glutamine" },
+      ],
+    });
+  });
+
+  it("takes the stored title of each substance, computed if not stored", () => {
+    const substances = [
+      substance("02202", "02202", "paracétamol", true),
+      substance("74765", "74765", "codéine (phosphate de) hémihydraté", true),
+      substance("74765", "89219", "phosphate de codéine hémihydraté", false),
+    ];
+    const groups = [group(["02202", "74765"], ["02202", "89219"])];
+    // Only the title of 74765 is stored
+    const storedTitles = new Map([["74765", "phosphate de codéine hémihydraté"]]);
+
+    expect(getSubstancesPageNames(["02202", "74765"], substances, groups, storedTitles)).toEqual({
+      title: "paracétamol, phosphate de codéine hémihydraté",
+      subtitle: "",
+      titleDetails: [
+        { subsId: "02202", name: "paracétamol" },
+        { subsId: "74765", name: "phosphate de codéine hémihydraté" },
+      ],
     });
   });
 });

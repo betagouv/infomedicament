@@ -5,6 +5,7 @@ import db from "@/db";
 import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { toCompositionComponents } from "./substanceCatalog";
 import { getElementsList } from "./elements";
+import { getSubstancesTitles } from "./substances";
 
 export async function getComposants(CIS: string) {
   "use cache: remote";
@@ -39,5 +40,7 @@ export async function getComposantsList(CISList: string[]): Promise<CompositionC
             .selectAll()
             .execute();
 
-    return toCompositionComponents(components, names, elements);
+    const titles = await getSubstancesTitles(codes);
+    return toCompositionComponents(components, names, elements)
+      .map((composant) => ({ ...composant, title: titles.get(composant.SubsId) ?? null }));
   }
