@@ -5,7 +5,7 @@ import Badge from "@codegouvfr/react-dsfr/Badge";
 import { dateShortFormat } from "@/displayUtils";
 import { HTMLAttributes, useEffect, useState } from "react";
 import { AggregatePresentationDetails, Presentation, PresentationRecipientsDetails } from "@/types/PresentationTypes";
-import { cleanPresentationsDetails, getPresentationNonCommercializedBadgeLabel, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isAbrogee, getAggregatePresentationRecipientsTexts } from "@/utils/presentations";
+import { cleanPresentationsDetails, getPresentationName, getPresentationNonCommercializedBadgeLabel, getPresentationPriceText, getPresentationTauxPriseEnChargeText, isAbrogee, getAggregatePresentationRecipientsTexts } from "@/utils/presentations";
 import styled from "styled-components";
 
 type PresentationToDisplay = {
@@ -60,7 +60,7 @@ const [presentationsDetails, setPresentationsDetails] = useState<PresentationToD
   useEffect(() => {
     const newPresentationsDetails:PresentationToDisplay[] = [];
     if(presentations){
-      presentations.forEach((presentation) => {
+      presentations.filter(presentation => presentation.commercialStatus === "commercialised").forEach((presentation) => {
         const newPresentationDetails: PresentationToDisplay = {
           presentation: presentation,
           detailsLines: [],
@@ -98,6 +98,7 @@ const [presentationsDetails, setPresentationsDetails] = useState<PresentationToD
                   <span>{getPresentationTauxPriseEnChargeText(presDetails.presentation)}</span>
                 </div>
                 <div>
+                  {presDetails.detailsLines.length === 0 && (getPresentationName(presDetails.presentation) || `Présentation CIP ${presDetails.presentation.cip13}`)}
                   {presDetails.detailsLines.map((details, i) => {
                     return details.map((line, j) => (
                       <span key={`${i}-${j}`}>
@@ -124,7 +125,7 @@ const [presentationsDetails, setPresentationsDetails] = useState<PresentationToD
               )}
               {isAbrogee(presDetails.presentation) && (
                 <Badge severity="error" className={fr.cx("fr-ml-1v", "fr-mt-1v")}>
-                  Abrogation
+                  Abrogée
                   {presDetails.presentation.administrativeStatusDate && ` (${dateShortFormat(presDetails.presentation.administrativeStatusDate)})`}
                 </Badge>
               )}
@@ -135,7 +136,7 @@ const [presentationsDetails, setPresentationsDetails] = useState<PresentationToD
         <span
           className={fr.cx("fr-text--sm")}
         >
-          Pas de conditionnement à afficher
+          Aucune présentation commercialisée.
         </span>
       )}
     </PresentationsContainer>

@@ -33,9 +33,11 @@ const noop = () => {};
 export default function MedicamentContentLoading({
   title,
   contained = false,
+  isAdvanced = false,
 }: {
   title?: string;
   contained?: boolean;
+  isAdvanced?: boolean;
 }) {
   return (
     <ContentContainer frContainer={!contained}>
@@ -45,12 +47,12 @@ export default function MedicamentContentLoading({
         <div className={fr.cx("fr-col-12", "fr-col-md-5")}>
           <DesktopTitleBlock
             title={title}
-            isAdvanced={false}
+            isAdvanced={isAdvanced}
             onGoToAdvanced={noop}
             loading
           />
           <SwitchNoticeAdvancedBlock
-            isAdvanced={false}
+            isAdvanced={isAdvanced}
             onGoToAdvanced={noop}
             disabled
             className={fr.cx("fr-hidden-md", "fr-mb-2w")}

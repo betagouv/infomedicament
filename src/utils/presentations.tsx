@@ -1,4 +1,4 @@
-import { AggregateCaraccomplrecipsDetails, AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation, PresentationCommercialStatus, PresentationPackagingDetail, PresentationRecipientsDetails } from "@/types/PresentationTypes";
+import { AggregateCaraccomplrecipsDetails, AggregateDispositifDetails, AggregatePresentationDetails, AggregateRecipientDetails, Presentation, PresentationPackagingDetail, PresentationRecipientsDetails } from "@/types/PresentationTypes";
 import { capitalize } from "tsafe";
 
 const unitesMesures = [
@@ -15,27 +15,6 @@ const unitesMesures = [
   "ml",
   "UI",
 ];
-
-export function isPresentationVisible(
-  presentation: {
-    commercialStatus: PresentationCommercialStatus;
-    commercialisationEndDate: Date | null;
-    administrativeStatus?: "active" | "abrogated" | "unknown";
-    administrativeStatusDate?: Date | null;
-  },
-  cutoff: Date,
-): boolean {
-  const commercialStatusVisible = presentation.commercialStatus === "commercialised"
-    || (["stopped", "suspended", "withdrawn"].includes(presentation.commercialStatus)
-      && presentation.commercialisationEndDate !== null
-      && presentation.commercialisationEndDate >= cutoff);
-  const administrativeStatusVisible = presentation.administrativeStatus !== "abrogated"
-    || (presentation.administrativeStatusDate !== null
-      && presentation.administrativeStatusDate !== undefined
-      && presentation.administrativeStatusDate >= cutoff);
-
-  return commercialStatusVisible && administrativeStatusVisible;
-}
 
 export function replacePluralSingular(textToReplace: string, nb: number, shortName?: boolean){
   let newText = "";
@@ -360,6 +339,7 @@ export function getPresentationFullPriceText(
 export function getPresentationTauxPriseEnChargeText(
   presentation: Presentation
 ): string {
+  if (presentation.pricingKnown === false && presentation.commercialStatus !== "commercialised") return "Remboursement non renseigné";
   if(presentation.reimbursementRate) {
     return `remboursé à ${presentation.reimbursementRate}`;
   } else {
@@ -429,15 +409,17 @@ export function formatPresentationCip(presentation: Pick<Presentation, "cip7" | 
 }
 
 export function getPresentationNonCommercializedStatusLabel(presentation: Presentation): string | null {
-  if (isArret(presentation)) return "Déclaration d'arrêt de commercialisation";
+  if (isArret(presentation)) return "Commercialisation arrêtée";
   if (presentation.commercialStatus === "suspended") return "Suspension de commercialisation";
-  if (isNotAuthorized(presentation)) return "Arrêt de commercialisation (le médicament n'a plus d'autorisation)";
+  if (isNotAuthorized(presentation)) return "Arrêt (autorisation retirée)";
+  if (presentation.commercialStatus === "unknown") return "Commercialisation non renseignée";
   return null;
 }
 
 export function getPresentationNonCommercializedBadgeLabel(presentation: Presentation): string | null {
   if (isArret(presentation)) return "Arrêt";
   if (presentation.commercialStatus === "suspended") return "Commercialisation suspendue";
-  if (isNotAuthorized(presentation)) return "Autorisation retirée";
+  if (isNotAuthorized(presentation)) return "Arrêt (autorisation retirée)";
+  if (presentation.commercialStatus === "unknown") return "Commercialisation non renseignée";
   return null;
 }

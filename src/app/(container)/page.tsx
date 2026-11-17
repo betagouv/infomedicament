@@ -127,7 +127,7 @@ export default async function Page() {
             <hr className={fr.cx("fr-pb-4w", "fr-mt-1w")}/>
             <h2 className={fr.cx("fr-h4")}>Pour les pros</h2>
             <p className="fr-text--sm">En janvier 2027, Info Médicament devient le site officiel de référence sur les médicaments.</p>
-            <Link href="/files/Dossier_presse_Info_medicament.pdf" className={fr.cx("fr-btn", "fr-btn--secondary", "fr-mb-3w")}>
+            <Link target="_blank" href="/files/Dossier_presse_Info_medicament.pdf" className={fr.cx("fr-btn", "fr-btn--secondary", "fr-mb-3w")}>
               Télécharger notre dossier de presse 
             </Link>
             <br/>

@@ -1,4 +1,4 @@
-import { parse } from "node-html-parser";
+import { HTMLElement, NodeType, parse, TextNode } from "node-html-parser";
 
 function getHeadingLevel(tagName: string): number | undefined {
   const match = /^H([1-6])$/.exec(tagName);
@@ -36,4 +36,48 @@ export function getIndicationsBlock(contentHtml: string): string | undefined {
   return [...new Set(sectionElements)]
     .map((element) => element.toString())
     .join("");
+}
+
+function escapeText(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/**
+ * Cuts an HTML fragment after `maxChars` characters of text (on a word
+ * boundary), keeping the markup of what remains. Returns undefined when the
+ * text already fits, so callers can tell nothing was cut.
+ */
+export function truncateHtml(html: string, maxChars: number): string | undefined {
+  if (!html) return undefined;
+
+  const root = parse(html);
+  let remaining = maxChars;
+  let truncated = false;
+
+  const walk = (element: HTMLElement) => {
+    for (const child of [...element.childNodes]) {
+      if (truncated) {
+        child.remove();
+        continue;
+      }
+      if (child.nodeType === NodeType.TEXT_NODE) {
+        const text = child.text;
+        if (!text.trim()) continue;
+        if (text.length <= remaining) {
+          remaining -= text.length;
+          continue;
+        }
+        let cut = text.slice(0, remaining);
+        const lastSpace = cut.search(/\s\S*$/);
+        if (lastSpace > 0) cut = cut.slice(0, lastSpace);
+        (child as TextNode).rawText = `${escapeText(cut.trimEnd())}…`;
+        truncated = true;
+      } else if (child.nodeType === NodeType.ELEMENT_NODE) {
+        walk(child as HTMLElement);
+      }
+    }
+  };
+
+  walk(root);
+  return truncated ? root.toString() : undefined;
 }

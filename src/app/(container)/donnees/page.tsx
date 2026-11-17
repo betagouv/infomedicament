@@ -498,10 +498,10 @@ export default function Page() {
               supposez pas que tous les fichiers sont actualisés en même temps.
             </li>
             <li>
-              <strong>Préparez la bascule des liens ANSM.</strong> Centralisez
+              <strong>Utilisez les liens officiels ANSM.</strong> Centralisez
               l’URL du portail et les identifiants des ressources dans votre
-              configuration. Les liens de démonstration devront être remplacés
-              lors de la publication officielle, puis vérifiés à nouveau.
+              configuration. Les liens de ce guide pointent vers le jeu publié
+              sur data.gouv.fr ; vérifiez-les lors des évolutions du jeu.
             </li>
           </ol>
           <p>
@@ -542,8 +542,8 @@ export default function Page() {
             actualisées.
           </p>
           <p>
-            Ce guide sera repris dans les prochains jours pour actualiser les
-            liens ANSM et compléter les correspondances qui peuvent l’être. Une
+            Ce guide sera complété à mesure que les correspondances restantes
+            seront validées. Une
             date de fermeture précise sera ajoutée lorsqu’elle sera confirmée.
           </p>
         </section>
