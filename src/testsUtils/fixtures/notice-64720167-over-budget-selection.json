@@ -1,0 +1,33 @@
+{
+  "status": "supported",
+  "selections": [
+    {
+      "passage_id": "passage-6",
+      "quote_ids": [
+        "passage-6-quote-6",
+        "passage-6-quote-9",
+        "passage-6-quote-10",
+        "passage-6-quote-11",
+        "passage-6-quote-12",
+        "passage-6-quote-13",
+        "passage-6-quote-14",
+        "passage-6-quote-15",
+        "passage-6-quote-16"
+      ]
+    },
+    {
+      "passage_id": "passage-7",
+      "quote_ids": [
+        "passage-7-quote-6",
+        "passage-7-quote-9",
+        "passage-7-quote-10",
+        "passage-7-quote-11",
+        "passage-7-quote-12",
+        "passage-7-quote-13",
+        "passage-7-quote-14",
+        "passage-7-quote-15",
+        "passage-7-quote-16"
+      ]
+    }
+  ]
+}
