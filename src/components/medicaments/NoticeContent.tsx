@@ -42,7 +42,6 @@ import { Presentation } from "@/types/PresentationTypes";
 import MedicamentContentHeaderBlock from "./blocks/MedicamentContentHeaderBlock";
 import SwitchNoticeAdvancedBlock from "./blocks/SwitchNoticeAdvancedBlock";
 import MarrNotice from "../marr/MarrNotice";
-import { AnchorMenu } from "./advanced/DetailedSubMenu";
 import IndicationsBlock from "./blocks/IndicationsBlock";
 import GenericPrincepsTag from "../tags/GenericPrincepsTag";
 import DesktopTitleBlock from "./blocks/DesktopTitleBlock";
@@ -101,7 +100,6 @@ interface NoticeContentProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
   data: Promise<MedicamentData>;
   onGoToAdvanced: (advanced: boolean) => void;
-  onGoToAdvancedAnchor: (anchor?: AnchorMenu) => void;
 }
 
 function NoticeContent({
@@ -114,7 +112,6 @@ function NoticeContent({
   title,
   data,
   onGoToAdvanced,
-  onGoToAdvancedAnchor,
   ...props
 }: NoticeContentProps) {
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
@@ -212,7 +209,12 @@ function NoticeContent({
           />
           <Suspense fallback={<IndicationsLoading />}>
             <WithMedicamentData data={data}>
-              {({ indications, indicationsBlock, definitions }) => (
+              {({
+                indications,
+                indicationsBlock,
+                indicationsBlockPreview,
+                definitions,
+              }) => (
                 <IndicationsBlock
                   specialite={specialite}
                   title="À quoi sert-il ?"
@@ -220,6 +222,7 @@ function NoticeContent({
                   resizable
                   indications={indications}
                   indicationsBlock={indicationsBlock}
+                  indicationsBlockPreview={indicationsBlockPreview}
                   definitions={definitions}
                 />
               )}
@@ -402,7 +405,7 @@ function NoticeContent({
                       <VideosBlock videos={videos} />
                     </ContentContainer>
                   )}
-                  {marr &&
+                  {marr && specialite &&
                     marr.pdf.some(
                       (document) => document.type === "Patients",
                     ) && (
@@ -417,7 +420,8 @@ function NoticeContent({
                               (document) => document.type === "Patients",
                             ),
                           }}
-                          onGoToAdvanced={onGoToAdvancedAnchor}
+                          CIS={specialite.SpecId}
+                          specName={specialite.SpecDenom01}
                           hiddenTag
                         />
                       </ContentContainer>

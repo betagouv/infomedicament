@@ -1,5 +1,6 @@
 import { getSearchResults, getSynonymSuggestion } from "@/db/utils";
-import { getCachedAdvancedSearchResults } from "@/db/utils/advancedSearch";
+import AdvancedSearchResults from "@/components/search/AdvancedSearchResults";
+import { getCachedAdvancedSearchPage } from "@/db/utils/advancedSearch";
 import SearchPage, {
   SearchResultsContent,
 } from "@/components/search/SearchPage";
@@ -8,8 +9,10 @@ import AutocompleteSearch from "@/components/search/autocomplete/AutocompleteSea
 import SearchResultsLoading from "@/components/search/SearchResultsLoading";
 import {
   advancedSearchParams,
+  parseAdvancedResultOptions,
+  type AdvancedResultOptions,
   parseAdvancedSearch,
-  hasAdvancedSearchRequest,
+  hasAdvancedSearchCriteria,
   getAdvancedSearchDraft,
   type AdvancedSearchCriteria,
 } from "@/utils/advancedSearch";
@@ -23,7 +26,8 @@ export async function generateMetadata(props: {
   const hasQuery = Object.keys((await props.searchParams) ?? {}).length > 0;
   return {
     title: "Recherche",
-    description: "Recherchez un médicament par nom, substance active et / ou indication et accédez à sa notice, son RCP et ses informations.",
+    description:
+      "Recherchez un médicament par nom, substance active et / ou indication et accédez à sa notice, son RCP et ses informations.",
     ...(hasQuery && { robots: { index: false, follow: true } }),
   };
 }
@@ -55,10 +59,14 @@ async function SearchResults(props: {
   });
   let search = searchParams.get("s")?.trim() ?? "";
   let advancedCriteria;
+  let resultOptions: AdvancedResultOptions | undefined;
   try {
     advancedCriteria = parseAdvancedSearch(searchParams);
     // Advanced UI searches use only the visible criteria, including legacy URLs with s.
-    if (advancedCriteria) search = "";
+    if (advancedCriteria) {
+      search = "";
+      resultOptions = parseAdvancedResultOptions(searchParams);
+    }
     if (search.length > 200)
       throw new Error("La recherche est limitée à 200 caractères.");
   } catch (error) {
@@ -73,7 +81,7 @@ async function SearchResults(props: {
     );
   }
   const hasSearchRequest = advancedCriteria
-    ? hasAdvancedSearchRequest(searchParams, advancedCriteria)
+    ? hasAdvancedSearchCriteria(advancedCriteria)
     : Boolean(search);
   return (
     <SearchPage
@@ -92,6 +100,7 @@ async function SearchResults(props: {
           search={search}
           advancedCriteria={advancedCriteria}
           hasSearchRequest={hasSearchRequest}
+          resultOptions={resultOptions}
         />
       </Suspense>
     </SearchPage>
@@ -102,16 +111,33 @@ async function Results({
   search,
   advancedCriteria,
   hasSearchRequest,
+  resultOptions,
 }: {
   search: string;
   advancedCriteria?: AdvancedSearchCriteria;
   hasSearchRequest: boolean;
+  resultOptions?: AdvancedResultOptions;
 }) {
+  if (hasSearchRequest && advancedCriteria && resultOptions) {
+    const data = await getCachedAdvancedSearchPage(
+      "",
+      advancedCriteria,
+      resultOptions,
+    );
+    return (
+      <>
+        <AdvancedSearchResults
+          data={data}
+          criteria={advancedCriteria}
+          options={resultOptions}
+        />
+        <RatingToaster pageId="Recherche avancée" />
+      </>
+    );
+  }
   const [results, synonymTerms] = hasSearchRequest
     ? await Promise.all([
-        advancedCriteria
-          ? getCachedAdvancedSearchResults(search, advancedCriteria)
-          : getSearchResults(search),
+        getSearchResults(search),
         search && !advancedCriteria
           ? getSynonymSuggestion(search)
           : Promise.resolve([]),

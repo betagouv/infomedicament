@@ -1,8 +1,10 @@
+import type { SpecialiteProcedure } from "@/types/SpecialiteTypes";
 import { authorizationStatusLabels } from "@/types/SpecialiteTypes";
 import { presentationCommercialStatusLabels } from "@/types/PresentationTypes";
 
 export type MatchMode = "contains" | "startsWith";
 export type AdvancedSearchCriteria = {
+  procedure: string;
   specialty: string;
   substance: string;
   holder: string;
@@ -18,6 +20,7 @@ export type AdvancedSearchCriteria = {
   documentTo: string;
 };
 export const initialAdvancedCriteria: AdvancedSearchCriteria = {
+  procedure: "",
   specialty: "",
   substance: "",
   holder: "",
@@ -32,19 +35,84 @@ export const initialAdvancedCriteria: AdvancedSearchCriteria = {
   documentFrom: "",
   documentTo: "",
 };
+// Legacy array API default. The UI uses server-side pages of 50.
 export const MAX_ADVANCED_SEARCH_RESULTS = 500;
+export const ADVANCED_PAGE_SIZE = 50;
+export const procedures: SpecialiteProcedure[] = [
+  "NATIONALE",
+  "CENTRALISEE",
+  "RECONNAISSANCE_MUTUELLE",
+  "DECENTRALISEE",
+  "IMPORTATION_PARALLELE",
+  "HOMEOPATHIQUE_NATIONALE",
+  "PHYTOTHERAPIE_NATIONALE",
+  "PHYTOTHERAPIE_DECENTRALISEE",
+  "NON_COMMUNIQUEE",
+];
 
-// Opening the mode is distinct from submitting an unrestricted search.
-// Criteria URLs remain directly shareable without a submission marker.
-export function hasAdvancedSearchRequest(
+export type AdvancedResultOptions = {
+  page: number;
+  substances: string[];
+  atcs: string[];
+  indications: string[];
+  descending: boolean;
+};
+export function parseAdvancedResultOptions(
   params: URLSearchParams,
+): AdvancedResultOptions {
+  const page = params.get("page") ?? "1";
+  if (params.getAll("page").length > 1 || !/^[1-9]\d{0,6}$/.test(page))
+    throw new Error("Numéro de page invalide.");
+  const read = (key: string) => {
+    const values = params.getAll(key);
+    if (
+      values.length > 100 ||
+      values.some((value) => !value || value.length > 200)
+    )
+      throw new Error("Filtre de résultats invalide.");
+    return [...new Set(values)];
+  };
+  const atcs = read("filterAtc");
+  const indications = read("filterIndication");
+  if (
+    atcs.some((value) => !/^[A-Z][0-9]{2}$/.test(value)) ||
+    indications.some((value) => !/^[0-9]+$/.test(value))
+  )
+    throw new Error("Filtre de résultats invalide.");
+  if (
+    params.getAll("order").length > 1 ||
+    (params.has("order") && !["asc", "desc"].includes(params.get("order")!))
+  )
+    throw new Error("Ordre de tri invalide.");
+  return {
+    page: Number(page),
+    substances: read("filterSubstance"),
+    atcs,
+    indications,
+    descending: params.get("order") === "desc",
+  };
+}
+export function advancedResultParams(
+  criteria: AdvancedSearchCriteria,
+  options: AdvancedResultOptions,
+): URLSearchParams {
+  const params = advancedSearchParams("", criteria);
+  if (options.page > 1) params.set("page", String(options.page));
+  if (options.descending) params.set("order", "desc");
+  for (const value of options.substances)
+    params.append("filterSubstance", value);
+  for (const value of options.atcs) params.append("filterAtc", value);
+  for (const value of options.indications)
+    params.append("filterIndication", value);
+  return params;
+}
+
+// Only populated criteria launch a search; navigation options do not.
+export function hasAdvancedSearchCriteria(
   criteria: AdvancedSearchCriteria,
 ): boolean {
-  return (
-    params.get("submitted") === "1" ||
-    Object.entries(criteria).some(
-      ([key, value]) => !key.endsWith("Match") && Boolean(value),
-    )
+  return Object.entries(criteria).some(
+    ([key, value]) => !key.endsWith("Match") && Boolean(value.trim()),
   );
 }
 export const authorizationStatuses = authorizationStatusLabels;
@@ -95,6 +163,11 @@ export function parseAdvancedSearch(
       throw new Error("Mode de correspondance invalide.");
     Object.assign(criteria, { [key]: value });
   }
+  if (
+    criteria.procedure &&
+    !procedures.includes(criteria.procedure as SpecialiteProcedure)
+  )
+    throw new Error("Type de procédure invalide.");
   if (
     criteria.authorizationStatus &&
     !authorizationStatuses.includes(criteria.authorizationStatus)

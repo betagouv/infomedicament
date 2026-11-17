@@ -42,21 +42,6 @@ const IndicationBlock = styled.div<{
   }
 `;
 
-const IndicationBlockContent = styled.div<{
-  $isExpanded: boolean;
-}>`
-  ${({ $isExpanded }) =>
-    !$isExpanded &&
-    css`
-      height: 200px;
-      overflow: hidden;
-
-      @media (max-width: 48em) {
-        height: 120px;
-      }
-    `}
-`;
-
 const IndicationTitle = styled.h2<{
   $small?: boolean;
 }>`
@@ -85,6 +70,8 @@ interface IndicationsBlockProps extends HTMLAttributes<HTMLDivElement> {
   specialite?: DetailedSpecialite;
   indications?: ShortIndication[];
   indicationsBlock?: string;
+  /** Truncated indicationsBlock shown while collapsed (only when resizable). */
+  indicationsBlockPreview?: string;
   definitions?: Definition[];
   title?: string;
   resizable?: boolean;
@@ -95,6 +82,7 @@ function IndicationsBlock({
   specialite,
   indications,
   indicationsBlock,
+  indicationsBlockPreview,
   definitions,
   title,
   resizable = false,
@@ -102,6 +90,7 @@ function IndicationsBlock({
   ...props
 }: IndicationsBlockProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const isCollapsible = resizable && !!indicationsBlockPreview;
 
   return (
     specialite && (
@@ -135,19 +124,15 @@ function IndicationsBlock({
             </span>
           ) : indicationsBlock ? (
             <div>
-              <IndicationBlockContent $isExpanded={!resizable || isExpanded}>
-                <DocumentHtml
-                  contentHtml={indicationsBlock}
-                  definitions={definitions}
-                />
-              </IndicationBlockContent>
-              {resizable && !isExpanded && (
-                <span aria-hidden="true">
-                  ...
-                  <br />
-                </span>
-              )}
-              {resizable && (
+              <DocumentHtml
+                contentHtml={
+                  isCollapsible && !isExpanded
+                    ? indicationsBlockPreview
+                    : indicationsBlock
+                }
+                definitions={definitions}
+              />
+              {isCollapsible && (
                 <button
                   type="button"
                   aria-expanded={isExpanded}

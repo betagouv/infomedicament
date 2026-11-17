@@ -11,6 +11,12 @@ import RatingToaster from "@/components/rating/RatingToaster";
 import { Suspense } from "react";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { withStaticParamFallback } from "@/utils/staticParams";
+import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
+import { getDefinition, withDefinitions } from "@/utils/glossary";
+import { Definition } from "@/types/GlossaireTypes";
+
+// Glossary words linked to their definition in the articles
+const ARTICLES_GLOSSARY_WORDS = ["Posologie"];
 
 export async function generateStaticParams() {
   const articles = await getArticles();
@@ -64,7 +70,13 @@ async function ResolvedArticlePage({
 }
 
 async function ArticlePageContent({ slug }: { slug: string }) {
-  const { title, source, content, image } = await getArticle(slug);
+  const [{ title, source, content, image }, glossaryDefinitions] = await Promise.all([
+    getArticle(slug),
+    getHighlightedGlossaryDefinitions(),
+  ]);
+  const definitions = ARTICLES_GLOSSARY_WORDS
+    .map((word) => getDefinition(glossaryDefinitions, word))
+    .filter((definition): definition is Definition => definition !== undefined);
   return (
     <ContentContainer frContainer>
       <Breadcrumb
@@ -123,6 +135,8 @@ async function ArticlePageContent({ slug }: { slug: string }) {
           <MDXRemote
             source={content}
             components={{
+              p: (props) => <p>{withDefinitions(props.children, definitions)}</p>,
+              li: (props) => <li>{withDefinitions(props.children, definitions)}</li>,
               blockquote: (props) => (
                 <div className={fr.cx("fr-callout")}>
                   <p>{props.children}</p>

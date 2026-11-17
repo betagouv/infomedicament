@@ -25,6 +25,7 @@ export type SearchFilter = {
 export type SortType = "alphabetic" | "score";
 
 export type SearchResultItem = ResumeSpecialite & {
+  officialAtcs?: { code: string; label: string }[];
   advancedDetails?: {
     authorizationStatus: string | null;
     authorizationDate: string | null;

@@ -7,7 +7,7 @@ import RatingToaster from "@/components/rating/RatingToaster";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
 import { Metadata } from "next";
 
-const PAGE_LABEL: string = "Liste des articles";
+const PAGE_LABEL: string = "Vos questions";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -37,7 +37,7 @@ export default async function Page() {
       />
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
-          <h1>Vos questions</h1>
+          <h1>{PAGE_LABEL}</h1>
           {categories.map((category) => (
             <Fragment key={category}>
               <h2 className={fr.cx("fr-h4", "fr-mb-1w")}>{category}</h2>

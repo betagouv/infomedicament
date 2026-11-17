@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getIndicationsBlock } from "./noticeHtml";
+import { getIndicationsBlock, truncateHtml } from "./noticeHtml";
 
 describe("getIndicationsBlock", () => {
   it("preserves the content after a marked indication heading without the heading", () => {
@@ -33,5 +33,24 @@ describe("getIndicationsBlock", () => {
 
   it("returns undefined when no element is marked as an indication", () => {
     expect(getIndicationsBlock("<h2>Une autre section</h2>")).toBeUndefined();
+  });
+});
+
+describe("truncateHtml", () => {
+  it("returns undefined when the text fits", () => {
+    expect(truncateHtml("<p>Court texte.</p>", 50)).toBeUndefined();
+  });
+
+  it("cuts on a word boundary and drops the following elements", () => {
+    const html =
+      '<p data-block-id="a">Ce médicament est indiqué dans les douleurs.</p><p>Suite</p>';
+    expect(truncateHtml(html, 30)).toBe(
+      '<p data-block-id="a">Ce médicament est indiqué…</p>',
+    );
+  });
+
+  it("keeps inline markup and escapes the cut text", () => {
+    const html = "<p>A &amp; B <strong>très long texte ici</strong> fin</p>";
+    expect(truncateHtml(html, 15)).toBe("<p>A &amp; B <strong>très…</strong></p>");
   });
 });

@@ -10,9 +10,13 @@ import {
   initialAdvancedCriteria as defaultCriteria,
   authorizationStatuses,
   marketingStatuses,
+  hasAdvancedSearchCriteria,
+  procedures,
   type AdvancedSearchCriteria as Criteria,
   type MatchMode,
 } from "@/utils/advancedSearch";
+
+import { getProcedureLibLong } from "@/utils/specialites";
 
 const Container = styled.section<{ $advanced: boolean }>`
   margin: ${({ $advanced }) => ($advanced ? "1rem" : "0")} 0 1.5rem;
@@ -186,7 +190,7 @@ export default function AdvancedSearchPanel({
   isSearching = false,
 }: {
   initialCriteria?: Criteria;
-  onSearch: (criteria: Criteria | null, submitted?: boolean) => void;
+  onSearch: (criteria: Criteria | null) => void;
   isSearching?: boolean;
 }) {
   const panelId = useId();
@@ -194,9 +198,11 @@ export default function AdvancedSearchPanel({
   const isAdvancedMode = Boolean(initialCriteria);
   const [draft, setDraft] = useState(initialCriteria ?? defaultCriteria);
   const [dateErrors, setDateErrors] = useState<DateKey[]>([]);
+  const [emptyCriteriaError, setEmptyCriteriaError] = useState(false);
 
   function update<Key extends keyof Criteria>(key: Key, value: Criteria[Key]) {
     setDraft((current) => ({ ...current, [key]: value }));
+    setEmptyCriteriaError(false);
     if (key.startsWith("authorization") || key.startsWith("document")) {
       setDateErrors((current) =>
         current.filter((prefix) => !key.startsWith(prefix)),
@@ -206,6 +212,10 @@ export default function AdvancedSearchPanel({
 
   function prepare(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!hasAdvancedSearchCriteria(draft)) {
+      setEmptyCriteriaError(true);
+      return;
+    }
     const errors = (["authorization", "document"] as const).filter(
       (key) =>
         draft[`${key}From`] &&
@@ -219,11 +229,13 @@ export default function AdvancedSearchPanel({
       trimmed[key] = trimmed[key].trim();
     });
     setDraft(trimmed);
-    onSearch(trimmed, true);
+    setEmptyCriteriaError(false);
+    onSearch(trimmed);
   }
 
   function reset() {
     setDraft(defaultCriteria);
+    setEmptyCriteriaError(false);
     setDateErrors([]);
     onSearch(defaultCriteria);
   }
@@ -301,6 +313,20 @@ export default function AdvancedSearchPanel({
                 <option key={status}>{status}</option>
               ))}
             </Select>
+            <Select
+              label="Type de procédure"
+              nativeSelectProps={{
+                value: draft.procedure,
+                onChange: (event) => update("procedure", event.target.value),
+              }}
+            >
+              <option value="">Toutes les procédures</option>
+              {procedures.map((procedure) => (
+                <option key={procedure} value={procedure}>
+                  {getProcedureLibLong(procedure)}
+                </option>
+              ))}
+            </Select>
             <DateCriterion
               label="Autorisation octroyée"
               from={draft.authorizationFrom}
@@ -350,6 +376,11 @@ export default function AdvancedSearchPanel({
             Effacer les critères avancés
           </Button>
         </Actions>
+        {emptyCriteriaError && (
+          <p role="alert" className={fr.cx("fr-error-text")}>
+            Renseignez au moins un critère de recherche.
+          </p>
+        )}
         {dateErrors.length > 0 && (
           <p role="alert" className={fr.cx("fr-error-text")}>
             Vérifiez les périodes : la date de début doit précéder la date de
