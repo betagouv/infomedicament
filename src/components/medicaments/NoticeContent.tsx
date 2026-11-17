@@ -209,7 +209,12 @@ function NoticeContent({
           />
           <Suspense fallback={<IndicationsLoading />}>
             <WithMedicamentData data={data}>
-              {({ indications, indicationsBlock, definitions }) => (
+              {({
+                indications,
+                indicationsBlock,
+                indicationsBlockPreview,
+                definitions,
+              }) => (
                 <IndicationsBlock
                   specialite={specialite}
                   title="À quoi sert-il ?"
@@ -217,6 +222,7 @@ function NoticeContent({
                   resizable
                   indications={indications}
                   indicationsBlock={indicationsBlock}
+                  indicationsBlockPreview={indicationsBlockPreview}
                   definitions={definitions}
                 />
               )}
