@@ -2,17 +2,15 @@
 
 import { fr } from "@codegouvfr/react-dsfr";
 import Button from "@codegouvfr/react-dsfr/Button";
-import { HTMLAttributes, ReactNode, useCallback, useEffect, useRef } from "react";
+import { HTMLAttributes, MouseEvent, ReactNode, useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { NoticeChunkHit } from "@/app/(container)/medicaments/[slug]/notice-search/route";
+import { RcpNoticeHtmlContainer } from "../blocks/GenericBlocks";
+import type { NoticeSearchResult, NoticeSourceTarget } from "@/types/NoticeSearch";
 
 const Container = styled.div`
-  position: sticky;
-  top: 8px;
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
   background-color: var(--background-alt-blue-france);
-  z-index: 5;
   filter: drop-shadow(var(--raised-shadow));
 `;
 
@@ -20,162 +18,128 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
 `;
 
-const QuestionLabel = styled.span`
-  font-weight: bold;
-  font-size: 14px;
-`;
-
-const debugLog = process.env.NODE_ENV === "development"
-  ? (...args: unknown[]) => console.log(...args)
-  : () => {};
-const debugWarn = process.env.NODE_ENV === "development"
-  ? (...args: unknown[]) => console.warn(...args)
-  : () => {};
-
-export function highlightTextInElement(el: HTMLElement, quote: string): HTMLElement | null {
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-  const textNodes: string[] | undefined = process.env.NODE_ENV === "development" ? [] : undefined;
-  let node: Text | null;
-  while ((node = walker.nextNode() as Text | null)) {
-    const content = node.textContent ?? "";
-    if (textNodes) textNodes.push(JSON.stringify(content.slice(0, 80)));
-    const idx = content.indexOf(quote);
-    if (idx !== -1) {
-      debugLog("[highlight] quote found in text node:", JSON.stringify(content.slice(0, 120)));
-      const range = document.createRange();
-      range.setStart(node, idx);
-      range.setEnd(node, idx + quote.length);
-      const mark = document.createElement("mark");
-      mark.className = "notice-highlight-quote";
-      range.surroundContents(mark);
-      return mark;
-    }
+const Excerpts = styled.div`
+  max-height: 55vh;
+  overflow: auto;
+  overscroll-behavior: contain;
+  article + article {
+    border-top: 1px solid var(--border-default-grey);
+    margin-top: 1rem;
+    padding-top: 1rem;
   }
-  debugWarn("[highlight] quote not found in block. Quote:", JSON.stringify(quote));
-  debugWarn("[highlight] text nodes searched:", textNodes);
-  return null;
-}
+  table {
+    width: max-content;
+    max-width: 100%;
+  }
+  blockquote {
+    margin: 0.5rem 0 1rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--border-open-blue-france);
+  }
+  blockquote p:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const messages = {
+  insufficient_evidence: "Nous n’avons pas identifié de passage répondant suffisamment précisément à votre question. Vous pouvez consulter la notice complète ci-dessous.",
+  unavailable: "La notice n’est pas disponible pour cette recherche.",
+  error: "La recherche dans la notice n’a pas pu aboutir. Veuillez réessayer ou consulter la notice complète ci-dessous.",
+};
 
 interface NoticeChunkResultsBoxProps extends HTMLAttributes<HTMLDivElement> {
-  hits: NoticeChunkHit[];
+  result: NoticeSearchResult | null;
   loading: boolean;
   questionLabel?: ReactNode;
   onClose: () => void;
 }
 
-function NoticeChunkResultsBox({
-  hits,
+export default function NoticeChunkResultsBox({
+  result,
   loading,
   questionLabel,
   onClose,
   ...props
 }: NoticeChunkResultsBoxProps) {
-  const highlightedEls = useRef<Element[]>([]);
-
+  const highlighted = useRef<HTMLElement[]>([]);
   const clearHighlights = useCallback(() => {
-    highlightedEls.current.forEach((el) => {
-      if (el.tagName === "MARK") {
-        el.replaceWith(...el.childNodes);
-      } else {
-        el.classList.remove("notice-highlight");
-      }
-    });
-    highlightedEls.current = [];
+    highlighted.current.forEach((element) => element.classList.remove("notice-highlight"));
+    highlighted.current = [];
   }, []);
 
-  const highlightAndScroll = useCallback((hit: NoticeChunkHit) => {
-    debugLog("[highlight] hit received:", { block_id: hit.block_id, quote: hit.quote, section_anchor: hit.section_anchor, sub_header: hit.sub_header });
+  const showSource = useCallback((target: NoticeSourceTarget = {}, scroll = true) => {
     clearHighlights();
-
-    // Prefer direct block highlight over section-level anchor
-    if (hit.block_id) {
-      const blockEl = document.querySelector<HTMLElement>(`[data-block-id="${hit.block_id}"]`);
-      debugLog("[highlight] block element found:", !!blockEl, blockEl?.textContent?.slice(0, 80));
-      if (blockEl) {
-        // Try sentence-level highlight within the block first
-        if (hit.quote) {
-          const mark = highlightTextInElement(blockEl, hit.quote);
-          if (mark) {
-            debugLog("[highlight] sentence highlight inserted, scrolling to mark");
-            highlightedEls.current.push(mark);
-            mark.scrollIntoView({ behavior: "smooth", block: "center" });
-            return;
-          }
-        }
-        debugLog("[highlight] falling back to block-level highlight");
-        blockEl.classList.add("notice-highlight");
-        highlightedEls.current.push(blockEl);
-        blockEl.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
-      debugWarn("[highlight] block_id present but element not found in DOM:", hit.block_id);
+    const notice = document.getElementById("noticeContainer");
+    if (!notice) return;
+    // Search only the full leaflet, never a copied excerpt. Avoid interpolating selectors.
+    const targets = Array.from(notice.querySelectorAll<HTMLElement>("[id], [name], [data-block-id]"));
+    const element = (target.blockId ? targets.find((element) => element.dataset.blockId === target.blockId) : undefined)
+      ?? targets.find((element) => target.anchor && (element.id === target.anchor || element.getAttribute("name") === target.anchor));
+    if (element) {
+      element.classList.add("notice-highlight");
+      highlighted.current.push(element);
     }
-
-    debugLog("[highlight] falling back to section anchor:", hit.section_anchor);
-    const sectionEl = document.getElementById(hit.section_anchor);
-    if (!sectionEl) {
-      debugWarn("[highlight] section element not found:", hit.section_anchor);
-      return;
-    }
-
-    // Section anchor is on the <h3>; content lives in the next sibling div
-    const contentEl = (sectionEl.nextElementSibling ?? sectionEl) as HTMLElement;
-    let scrollTarget: HTMLElement = sectionEl as HTMLElement;
-
-    if (hit.sub_header) {
-      let found = false;
-      for (const b of contentEl.querySelectorAll<HTMLElement>("b")) {
-        if (b.textContent?.trim() === hit.sub_header.trim()) {
-          debugLog("[highlight] sub_header <b> matched:", hit.sub_header);
-          b.classList.add("notice-highlight");
-          highlightedEls.current.push(b);
-          scrollTarget = b;
-          found = true;
-          break;
-        }
-      }
-      if (!found) debugWarn("[highlight] sub_header not found as <b>:", hit.sub_header);
-    } else {
-      contentEl.classList.add("notice-highlight");
-      highlightedEls.current.push(contentEl);
-      scrollTarget = contentEl;
-    }
-
-    debugLog("[highlight] scrolling to:", scrollTarget.tagName, scrollTarget.id || scrollTarget.className.slice(0, 40));
-    scrollTarget.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (scroll) (element ?? notice).scrollIntoView({ behavior: "smooth", block: "center" });
   }, [clearHighlights]);
 
-  // Auto-highlight first hit when hits change
-  useEffect(() => {
-    if (hits.length > 0) highlightAndScroll(hits[0]);
-  }, [hits, highlightAndScroll]);
+  const highlightSourceLink = (event: MouseEvent<HTMLAnchorElement>, target: NoticeSourceTarget = {}) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    // Let the browser navigate the fragment and update history like any page link.
+    showSource(target, false);
+  };
 
-  // Clean up highlights on unmount
-  useEffect(() => () => clearHighlights(), [clearHighlights]);
+  useEffect(() => {
+    clearHighlights();
+    if (result?.status === "section") showSource({ anchor: result.sectionAnchor });
+    return clearHighlights;
+  }, [result, clearHighlights, showSource]);
 
   return (
-    <Container className={props.className} {...props}>
+    <Container {...props} aria-busy={loading}>
       <div className={fr.cx("fr-p-1w")}>
         <Header>
-          <QuestionLabel>{questionLabel ?? "Recherche"}</QuestionLabel>
-          <Button
-            iconId="fr-icon-close-line"
-            onClick={onClose}
-            priority="tertiary no outline"
-            title="Fermer"
-          />
+          <strong className={fr.cx("fr-text--sm")}>{questionLabel ?? "Recherche dans la notice"}</strong>
+          <Button iconId="fr-icon-close-line" onClick={onClose} priority="tertiary no outline" title="Fermer" />
         </Header>
-        {hits[0]?.answer && (
-          <p className={fr.cx("fr-text--sm", "fr-mb-0")}>{hits[0].answer}</p>
+        {loading && <p role="status">Recherche de passages dans la notice…</p>}
+        {!loading && result?.status === "supported" && (
+          <>
+            <Excerpts tabIndex={0} role="region" aria-label="Extraits de la notice">
+              {result.passages.map((passage, index) => (
+                <article key={passage.id} aria-label={passage.headingPath.join(" — ") || "Extrait de la notice"}>
+                  {passage.quotes.map((quote, quoteIndex) => (
+                    <div key={quote.id}>
+                      {(quoteIndex === 0 || JSON.stringify(passage.quotes[quoteIndex - 1].headingPath) !== JSON.stringify(quote.headingPath)) && (
+                        <p className={fr.cx("fr-text--sm", "fr-mb-1w")}>
+                          {quote.headingPath.length
+                            ? <>Dans la rubrique « {quote.headingPath.at(-1)} », la notice indique :</>
+                            : "La notice indique :"}
+                        </p>
+                      )}
+                      <blockquote>
+                        <RcpNoticeHtmlContainer dangerouslySetInnerHTML={{ __html: quote.html }} />
+                      </blockquote>
+                    </div>
+                  ))}
+                  <a
+                    className={fr.cx("fr-link", "fr-text--sm")}
+                    href={`#${encodeURIComponent(passage.target.anchor || "noticeContainer")}`}
+                    onClick={(event) => highlightSourceLink(event, passage.target)}
+                  >
+                    Source [{index + 1}] — Voir dans la notice
+                  </a>
+                </article>
+              ))}
+            </Excerpts>
+          </>
         )}
-        {!loading && hits.length === 0 && (
-          <span className={fr.cx("fr-text--sm")}>Aucun résultat trouvé dans cette notice. Essayez de consulter le RCP dans la version détaillée de la notice.</span>
+        {!loading && result && result.status in messages && (
+          <p role="status" className={fr.cx("fr-text--sm")}>{messages[result.status as keyof typeof messages]}</p>
         )}
       </div>
     </Container>
   );
 }
-
-export default NoticeChunkResultsBox;
