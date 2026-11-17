@@ -81,9 +81,11 @@ function ShareButtons({
                 type="button"
                 disabled={disabled || !pageName}
                 onClick={() => {
-                  navigator.clipboard.writeText(window.location.href).then(function () {
-                    setIsCopied(true);
-                  });
+                  navigator.clipboard
+                    .writeText(window.location.href)
+                    .then(function () {
+                      setIsCopied(true);
+                    });
                   trackEvent("Partage", "Copie");
                 }}
                 className={fr.cx("fr-btn--copy", "fr-btn")}

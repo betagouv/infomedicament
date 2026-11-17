@@ -185,8 +185,8 @@ it("names the substance filters with the title of the substances page, and the c
 
 it("resets filter selections when an equally sized result list replaces the search", () => {
   const first = [
-    { ...result(1), composants: "included" },
-    { ...result(2), composants: "excluded" },
+    { ...result(1), composants: "included", subsIds: ["1"] },
+    { ...result(2), composants: "excluded", subsIds: ["2"] },
   ];
   const { rerender } = render(
     <SearchResultsList resultsList={first} search="first" />,

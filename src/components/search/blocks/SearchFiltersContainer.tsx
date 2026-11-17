@@ -207,8 +207,8 @@ function SearchFiltersContainer({
         )}
       </FiltersTitleContainer>
       <SearchSortBlock
-          sortType={sortType}
-          isSortAsc={isSortAsc}
+        sortType={sortType}
+        isSortAsc={isSortAsc}
         advanced={advanced}
         className={fr.cx("fr-hidden-md")}
         onUpdateSortType={setSortType}

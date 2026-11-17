@@ -22,7 +22,11 @@ vi.mock("@/components/generic/GoTopButton", () => ({ default: () => null }));
 
 function render(component: React.ReactNode) {
   return renderComponent(component, {
-    wrapper: ({ children }) => <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 0 }}>{children}</SWRConfig>,
+    wrapper: ({ children }) => (
+      <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 0 }}>
+        {children}
+      </SWRConfig>
+    ),
   });
 }
 
@@ -80,8 +84,17 @@ describe("RcpBlock", () => {
 
 it("does not replace the current RCP with a slower response for the previous medicine", async () => {
   let resolveFirst!: (value: RcpData) => void;
-  const first = new Promise<RcpData>((resolve) => { resolveFirst = resolve; });
-  getRCP.mockImplementation((id: string) => id === "123" ? first : Promise.resolve({ codeCIS: 456, contentHtml: "<p>Second medicine RCP</p>" }));
+  const first = new Promise<RcpData>((resolve) => {
+    resolveFirst = resolve;
+  });
+  getRCP.mockImplementation((id: string) =>
+    id === "123"
+      ? first
+      : Promise.resolve({
+          codeCIS: 456,
+          contentHtml: "<p>Second medicine RCP</p>",
+        }),
+  );
   const { rerender } = render(<RcpBlock specialite={specialite} />);
   rerender(<RcpBlock specialite={{ ...specialite, SpecId: "456" }} />);
   expect(await screen.findByText("Second medicine RCP")).not.toBeNull();

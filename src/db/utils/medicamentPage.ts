@@ -84,10 +84,12 @@ async function fetchMedicamentData(
     composantsPromise,
   ]);
 
-  const preparedNotice = notice ? {
-    ...notice,
-    contentHtml: prepareGlossaryHtml(notice.contentHtml, definitions),
-  } : undefined;
+  const preparedNotice = notice
+    ? {
+        ...notice,
+        contentHtml: prepareGlossaryHtml(notice.contentHtml, definitions),
+      }
+    : undefined;
   const indicationsBlock = preparedNotice
     ? getIndicationsBlock(preparedNotice.contentHtml)
     : undefined;

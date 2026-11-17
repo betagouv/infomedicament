@@ -45,10 +45,14 @@ interface SearchResultsListProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 // Counts and labels come from results; only selected identities are stored.
-function useSelectedFilters(available: SearchFilter[], source: SearchResultItem[]) {
-  const [selection, setSelection] = useState<{ source: SearchResultItem[]; ids: Set<string> }>(
-    () => ({ source, ids: new Set() }),
-  );
+function useSelectedFilters(
+  available: SearchFilter[],
+  source: SearchResultItem[],
+) {
+  const [selection, setSelection] = useState<{
+    source: SearchResultItem[];
+    ids: Set<string>;
+  }>(() => ({ source, ids: new Set() }));
   const filters = useMemo(() => {
     function apply(items: SearchFilter[], parent = ""): SearchFilter[] {
       return items.map((item) => {
@@ -56,24 +60,29 @@ function useSelectedFilters(available: SearchFilter[], source: SearchResultItem[
         return {
           ...item,
           selected: selection.source === source && selection.ids.has(identity),
-          ...(item.children ? { children: apply(item.children, identity) } : {}),
+          ...(item.children
+            ? { children: apply(item.children, identity) }
+            : {}),
         };
       });
     }
     return apply(available);
   }, [available, source, selection]);
-  const update = useCallback((items: SearchFilter[]) => {
-    const ids = new Set<string>();
-    function collect(items: SearchFilter[], parent = "") {
-      items.forEach((item) => {
-        const identity = JSON.stringify([parent, item.id, item.name]);
-        if (item.selected) ids.add(identity);
-        if (item.children) collect(item.children, identity);
-      });
-    }
-    collect(items);
-    setSelection({ source, ids });
-  }, [source]);
+  const update = useCallback(
+    (items: SearchFilter[]) => {
+      const ids = new Set<string>();
+      function collect(items: SearchFilter[], parent = "") {
+        items.forEach((item) => {
+          const identity = JSON.stringify([parent, item.id, item.name]);
+          if (item.selected) ids.add(identity);
+          if (item.children) collect(item.children, identity);
+        });
+      }
+      collect(items);
+      setSelection({ source, ids });
+    },
+    [source],
+  );
   return [filters, update] as const;
 }
 
@@ -182,11 +191,24 @@ function SearchResultsList({
         });
       }
     });
-    return { substances: newSubsFilters, atcs: newATCFilters, indications: newIndicationsFilters };
+    return {
+      substances: newSubsFilters,
+      atcs: newATCFilters,
+      indications: newIndicationsFilters,
+    };
   }, [resultsList]);
-  const [allSubsFilters, setAllSubsFilters] = useSelectedFilters(availableFilters.substances, resultsList);
-  const [allAtcFilters, setAllAtcFilters] = useSelectedFilters(availableFilters.atcs, resultsList);
-  const [allIndicationsFilters, setAllIndicationsFilters] = useSelectedFilters(availableFilters.indications, resultsList);
+  const [allSubsFilters, setAllSubsFilters] = useSelectedFilters(
+    availableFilters.substances,
+    resultsList,
+  );
+  const [allAtcFilters, setAllAtcFilters] = useSelectedFilters(
+    availableFilters.atcs,
+    resultsList,
+  );
+  const [allIndicationsFilters, setAllIndicationsFilters] = useSelectedFilters(
+    availableFilters.indications,
+    resultsList,
+  );
 
   //Update the results list after filters updates
   const filteredResultsList = useMemo(() => {

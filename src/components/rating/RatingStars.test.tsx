@@ -51,7 +51,10 @@ describe("RatingStars", () => {
     );
     fireEvent.click(screen.getByRole("radio", { name: /3 Stars/i }));
     rerender(<RatingStars readOnly={true} onSaveRating={onSaveRating} />);
-    expect((screen.getByRole("radio", { name: /4 Stars/i }) as HTMLInputElement).disabled).toBe(true);
+    expect(
+      (screen.getByRole("radio", { name: /4 Stars/i }) as HTMLInputElement)
+        .disabled,
+    ).toBe(true);
 
     rerender(<RatingStars readOnly={false} onSaveRating={onSaveRating} />);
     fireEvent.click(screen.getByRole("radio", { name: /4 Stars/i }));

@@ -42,7 +42,8 @@ function PageDefinitionContent({
   const PAGINATION_LENGTH = 10;
   const [pagination, setPagination] = useState({ list: dataList, page: 1 });
   const currentPage = pagination.list === dataList ? pagination.page : 1;
-  const setCurrentPage = (page: number) => setPagination({ list: dataList, page });
+  const setCurrentPage = (page: number) =>
+    setPagination({ list: dataList, page });
 
   return (
     <div

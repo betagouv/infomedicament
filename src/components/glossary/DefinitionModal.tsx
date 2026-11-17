@@ -25,8 +25,15 @@ export default function DefinitionModal({
   }, [selection]);
 
   return (
-    <modal.Component title={selection?.definition.nom ?? "Définition"} topAnchor={false}>
-      <div dangerouslySetInnerHTML={{ __html: selection?.definition.definition ?? "" }} />
+    <modal.Component
+      title={selection?.definition.nom ?? "Définition"}
+      topAnchor={false}
+    >
+      <div
+        dangerouslySetInnerHTML={{
+          __html: selection?.definition.definition ?? "",
+        }}
+      />
     </modal.Component>
   );
 }
