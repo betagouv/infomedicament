@@ -6,7 +6,7 @@ import {
 } from "./generics";
 import { getComposants } from "./composants";
 import { getFicheInfos } from "./ficheInfos";
-import { getPresentationsDetails } from "./presentation";
+import { getPresentationsDetails, getPresentations } from "./presentation";
 import { getElements, getElementsList } from "./elements";
 
 const mocks = vi.hoisted(() => ({
@@ -16,7 +16,9 @@ const mocks = vi.hoisted(() => ({
 
 // Next.js compiles the cache directives; plain Vitest exercises lookup results
 // without simulating the production cache or asserting deduplication.
-vi.mock("@/db/pdbmMySQL", () => ({ pdbmMySQL: {} }));
+vi.mock("@/db/pdbmMySQL", () => ({ pdbmMySQL: {
+  selectFrom: () => { const query = { where: () => query, selectAll: () => query, execute: async () => [] }; return query; },
+} }));
 vi.mock("./safety", () => ({
   getImportantInformationEvents: async () => [],
   getReinforcedSurveillanceEvents: async () => [],
@@ -179,4 +181,18 @@ describe("medicine element reuse", () => {
     ).toEqual(["123", "456"]);
     expect(mocks.queries).toHaveBeenCalledExactlyOnceWith("ansm_element");
   });
+});
+
+
+it("retains old, undated, unknown and abrogated presentations, with commercialised presentations first", async () => {
+  mocks.tables.ansm_presentation = [
+    {cis: "123", cip: "001", denomination: "Stopped", statut_commercialisation: "ARRETEE", date_arret_commercialisation: new Date("2007-03-08"), statut: "ACTIVE"},
+    {cis: "123", cip: "002", denomination: "Unknown", statut_commercialisation: "NON_COMMUNIQUEE", statut: "ACTIVE"},
+    {cis: "123", cip: "003", denomination: "Commercialised", statut_commercialisation: "COMMERCIALISEE", statut: "ACTIVE"},
+    {cis: "123", cip: "004", denomination: "Abrogated without event date", statut_commercialisation: "COMMERCIALISEE", statut: "ABROGEE"},
+    {cis: "123", cip: "005", denomination: "Stopped without date", statut_commercialisation: "ARRETEE", statut: "ACTIVE"},
+  ];
+  const presentations = await getPresentations("123");
+  expect(presentations.map(p => p.cip13)).toEqual(["003", "004", "001", "002", "005"]);
+  expect(presentations[1].administrativeStatus).toBe("abrogated");
 });

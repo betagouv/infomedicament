@@ -2,12 +2,15 @@ import "server-cli-only";
 import { sql, type Kysely } from "kysely";
 import defaultDatabase from "@/db";
 import type { Database } from "@/db/types";
-import type { SearchResultItem } from "@/types/SearchTypes";
+import type { SearchFilter, SearchResultItem } from "@/types/SearchTypes";
 import type { ResumeSpecialite } from "@/types/SpecialiteTypes";
 import {
   type AdvancedSearchCriteria,
   type MatchMode,
   MAX_ADVANCED_SEARCH_RESULTS,
+  ADVANCED_PAGE_SIZE,
+  hasAdvancedSearchCriteria,
+  type AdvancedResultOptions,
 } from "@/utils/advancedSearch";
 import { normalizeString } from "@/utils/alphabeticNav";
 import {
@@ -49,12 +52,12 @@ function textMatches(
   return sql<boolean>`${normalized(column)} like ${`${mode === "contains" ? "%" : ""}${escaped}%`}`;
 }
 
-export async function getAdvancedSearchResults(
+export function advancedSearchQuery(
   search: string,
   criteria: AdvancedSearchCriteria,
-  database: Kysely<Database> = defaultDatabase,
-): Promise<SearchResultItem[]> {
-  const db = database;
+  db: Kysely<Database> = defaultDatabase,
+  options?: AdvancedResultOptions,
+) {
   let query = db
     .selectFrom("ansm_specialite as s")
     .selectAll("s")
@@ -62,6 +65,25 @@ export async function getAdvancedSearchResults(
       sql<string | null>`to_char(s.date_amm, 'YYYY-MM-DD')`.as(
         "authorizationDate",
       ),
+    );
+  if (!search.trim() && !hasAdvancedSearchCriteria(criteria))
+    query = query.where(sql<boolean>`false`);
+  if (criteria.procedure)
+    query =
+      criteria.procedure === "NON_COMMUNIQUEE"
+        ? query.where("s.procedure", "is", null)
+        : query.where(sql<boolean>`s.procedure = ${criteria.procedure}`);
+  if (options?.substances.length)
+    query = query.where(
+      sql<boolean>`exists (select 1 from ansm_composant c where c.cis = s.cis and c.substance = any(${options.substances}::text[]))`,
+    );
+  if (options?.atcs.length)
+    query = query.where(
+      sql<boolean>`exists (select 1 from ansm_specialite_atc a join ansm_atc atc on atc.code = a.code_atc where a.cis = s.cis and left(atc.libelle_abr, 3) = any(${options.atcs}::text[]))`,
+    );
+  if (options?.indications.length)
+    query = query.where(
+      sql<boolean>`s.cis in (select unnest(i."CIS") from indications i where i.id::text = any(${options.indications}::text[]))`,
     );
   if (criteria.specialty)
     query = query.where(
@@ -119,11 +141,21 @@ export async function getAdvancedSearchResults(
         ${textMatches("atc.libelle_abr", literalSearch)} or ${textMatches("atc.libelle_court", literalSearch)} or ${textMatches("atc.libelle_long", literalSearch)}
     )`);
   }
-  // No availability or marketing predicate by default: historical rows are included.
-  const rows = await query
-    .orderBy("s.denomination")
-    .orderBy("s.cis")
-    .limit(MAX_ADVANCED_SEARCH_RESULTS)
+  return query;
+}
+
+export async function getAdvancedSearchResults(
+  search: string,
+  criteria: AdvancedSearchCriteria,
+  database: Kysely<Database> = defaultDatabase,
+  options?: AdvancedResultOptions,
+): Promise<SearchResultItem[]> {
+  const db = database;
+  const rows = await advancedSearchQuery(search, criteria, db, options)
+    .orderBy("s.denomination", options?.descending ? "desc" : "asc")
+    .orderBy("s.cis", options?.descending ? "desc" : "asc")
+    .limit(options ? ADVANCED_PAGE_SIZE : MAX_ADVANCED_SEARCH_RESULTS)
+    .offset(options ? (options.page - 1) * ADVANCED_PAGE_SIZE : 0)
     .execute();
   if (!rows.length) return [];
   const ids = rows.map((row) => row.cis);
@@ -152,7 +184,12 @@ export async function getAdvancedSearchResults(
       .selectFrom("ansm_specialite_atc as a")
       .innerJoin("ansm_atc as atc", "atc.code", "a.code_atc")
       .where("a.cis", "in", ids)
-      .select(["a.cis", "atc.libelle_abr"])
+      .select([
+        "a.cis",
+        "atc.libelle_abr",
+        "atc.libelle_long",
+        "atc.libelle_court",
+      ])
       .execute(),
     db
       .selectFrom("ansm_specialite_evenement")
@@ -249,6 +286,14 @@ export async function getAdvancedSearchResults(
       score: 0,
       matchReasons: [],
       authorizationStatus: statutAmmToDisplayStatus(rows[index].statut_amm),
+      officialAtcs: atcs
+        .filter((a) => a.cis === row.cis)
+        .map((a) => ({
+          code: a.libelle_abr ?? "",
+          label: a.libelle_long ?? a.libelle_court ?? "Libellé non renseigné",
+        }))
+        .filter((a) => a.code)
+        .sort((a, b) => a.code.localeCompare(b.code)),
       availability: row.disponibilite,
       isHistorical: row.disponibilite === "INDISPONIBLE",
       advancedDetails: {
@@ -269,4 +314,136 @@ export async function getCachedAdvancedSearchResults(
   "use cache: remote";
 
   return getAdvancedSearchResults(search, criteria);
+}
+
+export type AdvancedSearchPage = {
+  results: SearchResultItem[];
+  total: number;
+  page: number;
+  facets: {
+    substances: SearchFilter[];
+    atcs: SearchFilter[];
+    indications: SearchFilter[];
+  };
+};
+
+export async function getAdvancedSearchPage(
+  search: string,
+  criteria: AdvancedSearchCriteria,
+  options: AdvancedResultOptions,
+  db: Kysely<Database> = defaultDatabase,
+): Promise<AdvancedSearchPage> {
+  // Facets span the complete matching catalogue, before side-filter selections.
+  const matchingIds = advancedSearchQuery(search, criteria, db)
+    .clearSelect()
+    .select("s.cis");
+  const countQuery = advancedSearchQuery(search, criteria, db, options)
+    .clearSelect()
+    .select(sql<string>`count(*)`.as("total"));
+  const [count, substances, atcs, indications] = await Promise.all([
+    countQuery.executeTakeFirstOrThrow(),
+    db
+      .selectFrom("ansm_composant as c")
+      .where("c.cis", "in", matchingIds)
+      .where("c.substance", "is not", null)
+      .where("c.substance", "!=", "")
+      .select([
+        "c.substance as name",
+        sql<number>`count(distinct c.cis)::int`.as("count"),
+      ])
+      .groupBy("c.substance")
+      .execute(),
+    db
+      .selectFrom("ansm_specialite_atc as a")
+      .innerJoin("ansm_atc as atc", "atc.code", "a.code_atc")
+      .where("a.cis", "in", matchingIds)
+      .where("atc.libelle_abr", "is not", null)
+      .select([
+        sql<string>`case when grouping(left(atc.libelle_abr, 1)) = 0 then left(atc.libelle_abr, 1) else left(atc.libelle_abr, 3) end`.as(
+          "code",
+        ),
+        sql<number>`count(distinct a.cis)::int`.as("count"),
+      ])
+      .groupBy(
+        sql`grouping sets ((left(atc.libelle_abr, 1)), (left(atc.libelle_abr, 3)))`,
+      )
+      .execute(),
+    db
+      .selectFrom("indications as i")
+      .where(sql<boolean>`i."CIS" && array(${matchingIds})::varchar[]`)
+      .select([
+        "i.id",
+        "i.nom as name",
+        sql<number>`(select count(distinct cis)::int from unnest(i."CIS") cis where cis in (${matchingIds}))`.as(
+          "count",
+        ),
+      ])
+      .execute(),
+  ]);
+  const total = Number(count.total);
+  const page = Math.min(
+    options.page,
+    Math.max(1, Math.ceil(total / ADVANCED_PAGE_SIZE)),
+  );
+  const [results, atcLabels, atcParents] = await Promise.all([
+    getAdvancedSearchResults(search, criteria, db, { ...options, page }),
+    db
+      .selectFrom("ref_atc_friendly_niveau_2")
+      .select(["code", "libelle"])
+      .execute(),
+    db
+      .selectFrom("ref_atc_friendly_niveau_1")
+      .select(["code", "libelle"])
+      .execute(),
+  ]);
+  const atcChildren = atcs
+    .filter((row) => /^[A-Z][0-9]{2}$/.test(row.code))
+    .map((row) => ({
+      id: row.code,
+      name: `${row.code} — ${atcLabels.find((a) => a.code === row.code)?.libelle ?? row.code}`,
+      count: row.count,
+      selected: options.atcs.includes(row.code),
+    }));
+  return {
+    total,
+    page,
+    results,
+    facets: {
+      substances: substances.map((row) => ({
+        id: row.name!,
+        name: row.name!,
+        count: row.count,
+        selected: options.substances.includes(row.name!),
+      })),
+      atcs: atcs
+        .filter((row) => /^[A-Z]$/.test(row.code))
+        .map((row) => {
+          const children = atcChildren.filter((child) =>
+            child.id.startsWith(row.code),
+          );
+          return {
+            id: row.code,
+            name: `${row.code} — ${atcParents.find((a) => a.code === row.code)?.libelle ?? row.code}`,
+            count: row.count,
+            selected: children.some((child) => child.selected),
+            children,
+          };
+        }),
+      indications: indications.map((row) => ({
+        id: String(row.id),
+        name: row.name,
+        count: row.count,
+        selected: options.indications.includes(String(row.id)),
+      })),
+    },
+  };
+}
+
+export async function getCachedAdvancedSearchPage(
+  search: string,
+  criteria: AdvancedSearchCriteria,
+  options: AdvancedResultOptions,
+) {
+  "use cache: remote";
+  return getAdvancedSearchPage(search, criteria, options);
 }
