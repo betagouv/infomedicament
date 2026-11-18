@@ -254,4 +254,20 @@ describe("Autocomplete suggestions", () => {
     expect(await getAutocompleteSuggestions("  ")).toEqual([]);
     expect(mockExecute).not.toHaveBeenCalled();
   });
+
+  it("keeps only matched name variants and ranks an exact dosage before its completion", async () => {
+    mockExecute.mockResolvedValueOnce([
+      { match_type: "name", group_name: "ALPHA", match_label: "ALPHA 10 mg", token: "alpha 10 mg", spec_id: "10", sml: 0.95 },
+      { match_type: "name", group_name: "ALPHA", match_label: "ALPHA 100 mg", token: "alpha 100 mg", spec_id: "100", sml: 0.8 },
+    ]).mockResolvedValueOnce([
+      { ...makeGroup("ALPHA"), specId: "100", specName: "ALPHA 100 mg" },
+      { ...makeGroup("ALPHA"), specId: "500", specName: "ALPHA 500 mg" },
+      { ...makeGroup("ALPHA"), specId: "10", specName: "ALPHA 10 mg" },
+    ]);
+    const sections = await getAutocompleteSuggestions("alpha 10");
+    expect(sections[0].items.map((s) => s.href)).toEqual([
+      "/medicaments/alpha-10-mg-10", "/medicaments/alpha-100-mg-100",
+    ]);
+    expect(sections[0].items[0].matchReasons).toEqual([{ type: "name", label: "ALPHA 10 mg" }]);
+  });
 });
