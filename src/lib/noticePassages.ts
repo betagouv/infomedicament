@@ -118,16 +118,23 @@ function sentenceHtml(element: HTMLElement, start: number, end: number): string 
 function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
   const root = parse(html);
   const quotes: NoticeQuote[] = [];
-  const connectedGroups: { html: string; headingPath: string[]; supersedes: string[] }[] = [];
+  const connectedGroups: { html: string; headingPath: string[]; supersedes: string[]; sourceRange: { start: number; end: number } }[] = [];
   const headings: { level: number; text: string }[] = [];
   let previousParagraph: HTMLElement | undefined;
-  const add = (quoteHtml: string, headingPath = headings.map((heading) => heading.text)) => {
+  let position = 0;
+  let previousParagraphStart: number | undefined;
+  const add = (quoteHtml: string, headingPath = headings.map((heading) => heading.text), sourceRange?: { start: number; end: number }) => {
+    const range = sourceRange ?? { start: position, end: position + 1 };
+    if (!sourceRange) position += 1;
     if (!parse(quoteHtml).textContent.trim()) return;
-    quotes.push({
+    const quote: NoticeQuote = {
       id: `${passageId}-quote-${quotes.length + 1}`,
       html: quoteHtml,
       headingPath,
-    });
+      sourceRange: range,
+    };
+    quotes.push(quote);
+    return quote;
   };
 
   for (const node of root.childNodes.flatMap(flowNodes)) {
@@ -136,6 +143,7 @@ function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
         const paragraph = parse(`<p>${node.toString()}</p>`).firstChild as HTMLElement;
         add(paragraph.toString());
         previousParagraph = undefined;
+        previousParagraphStart = undefined;
       }
       continue;
     }
@@ -144,14 +152,22 @@ function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
       while (headings.length && headings[headings.length - 1].level >= level) headings.pop();
       headings.push({ level, text: node.textContent.trim() });
       previousParagraph = undefined;
+      previousParagraphStart = undefined;
+      position += 1;
     } else if (node.tagName === "UL") {
       // A list's preceding paragraph often supplies a negation or condition.
       const leadIn = previousParagraph?.toString() ?? "";
       const firstFragment = quotes.length;
+      const fragments: (NoticeQuote | undefined)[] = [];
+      const fragmentRanges: { start: number; end: number }[] = [];
       for (const item of node.children) {
         const list = node.clone() as HTMLElement;
         list.set_content(item.toString());
-        add(leadIn + list.toString());
+        const start = previousParagraphStart ?? position;
+        const fragment = add(leadIn + list.toString());
+        if (fragment) fragment.sourceRange!.start = start;
+        fragments.push(fragment);
+        fragmentRanges.push({ start, end: position });
       }
       // Offer connected bullets as one source unit as well. In particular,
       // "Cette dose..." cannot be understood independently of the previous dose.
@@ -163,34 +179,42 @@ function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
         if (end - start > 1) {
           const list = node.clone() as HTMLElement;
           list.set_content(items.slice(start, end).map((item) => item.toString()).join(""));
-          const supersedes = quotes.slice(firstFragment + start, firstFragment + end).map((quote) => quote.id);
+          const supersedes = fragments.slice(start, end).flatMap((quote) => quote ? [quote.id] : []);
           const introduction = quotes.slice(0, firstFragment).findLast((quote) => quote.html === leadIn);
           if (introduction) supersedes.push(introduction.id);
-          connectedGroups.push({ html: leadIn + list.toString(), headingPath: headings.map((heading) => heading.text), supersedes });
+          connectedGroups.push({
+            html: leadIn + list.toString(), headingPath: headings.map((heading) => heading.text), supersedes,
+            sourceRange: { start: fragmentRanges[start].start, end: fragmentRanges[end - 1].end },
+          });
         }
         start = end;
       }
       previousParagraph = undefined;
+      previousParagraphStart = undefined;
     } else if (node.tagName === "P" && !node.querySelector("img")) {
       const text = node.textContent;
+      const paragraphStart = position;
       for (const sentence of sentenceSegmenter.segment(text)) {
         const start = sentence.index + sentence.segment.length - sentence.segment.trimStart().length;
         const end = sentence.index + sentence.segment.trimEnd().length;
         if (end > start) add(sentenceHtml(node, start, end));
       }
       previousParagraph = node;
+      previousParagraphStart = position > paragraphStart ? paragraphStart : undefined;
     } else {
       // Keep tables whole, with captions and population/header cells. Their
       // surrounding prose remains separately selectable instead of making every
       // table quote include the entire preceding paragraph. Ordered instructions
       // still retain their introduction and complete sequence.
-      add((node.tagName === "OL" ? previousParagraph?.toString() ?? "" : "") + node.toString());
+      const quote = add((node.tagName === "OL" ? previousParagraph?.toString() ?? "" : "") + node.toString());
+      if (quote && node.tagName === "OL" && previousParagraphStart !== undefined) quote.sourceRange!.start = previousParagraphStart;
       previousParagraph = undefined;
+      previousParagraphStart = undefined;
     }
   }
   connectedGroups.forEach((group) => {
-    add(group.html, group.headingPath);
-    quotes[quotes.length - 1].supersedes = group.supersedes;
+    const quote = add(group.html, group.headingPath, group.sourceRange);
+    if (quote) quote.supersedes = group.supersedes;
   });
   const positions = new Map(quotes.map((quote, index) => [quote.id, index]));
   const sourcePosition = (quote: NoticeQuote) => quote.supersedes?.length

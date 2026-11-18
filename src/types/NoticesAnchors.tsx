@@ -1,9 +1,7 @@
-import { JSX } from "react";
-
 export type QuestionAnchors = {
   id: string;
   highlightClass: string;
-  question: JSX.Element;
+  question: string;
   headerId?: string;
   keywords?: string[];
   queryText?: string;

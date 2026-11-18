@@ -65,7 +65,6 @@ export default function MedicamentContentLoading({
             <QuestionsBox
               currentQuestion=""
               updateCurrentQuestion={noop}
-              onSearch={noop}
               disabled
             />
           </ContentContainer>
@@ -79,7 +78,6 @@ export default function MedicamentContentLoading({
             <QuestionsBox
               currentQuestion=""
               updateCurrentQuestion={noop}
-              onSearch={noop}
               disabled
             />
           </ContentContainer>

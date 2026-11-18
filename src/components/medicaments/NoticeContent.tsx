@@ -25,7 +25,6 @@ import NoticeChunkResultsBox from "./notice/NoticeChunkResultsBox";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { questionsList } from "@/data/pages/notices_anchors";
 import { useNoticeSearch } from "@/hooks/useNoticeSearch";
-import { QuestionAnchors } from "@/types/NoticesAnchors";
 import NoticeBlock from "./notice/NoticeBlock";
 import PregnancyMentionTag from "../tags/PregnancyMentionTag";
 import PregnancyPlanTag from "../tags/PregnancyPlanTag";
@@ -115,41 +114,20 @@ function NoticeContent({
   ...props
 }: NoticeContentProps) {
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
-  const [queryLabel, setQueryLabel] = useState("");
-  const [activeQuestion, setActiveQuestion] = useState<QuestionAnchors | null>(null);
   const {
     result: noticeResult,
     loading: hitsLoading,
     search,
-    navigateToSection,
     close,
   } = useNoticeSearch(specialite ? getSpecSlug(specialite.SpecId, specialite.SpecDenom01) : undefined);
 
   const updateCurrentQuestion = (questionId: string) => {
-    const question = questionsList[questionId];
     setCurrentQuestion(questionId);
-    setActiveQuestion(question);
-    setQueryLabel("");
-    const anchorEl = question.headerId ? document.getElementById(question.headerId) : null;
-    if (anchorEl && question.headerId) {
-      navigateToSection(question.headerId);
-    } else if (question.queryText) {
-      void search(question.queryText);
-    } else {
-      close();
-    }
-  };
-  const handleSearch = (query: string) => {
-    setCurrentQuestion("");
-    setActiveQuestion(null);
-    setQueryLabel(query);
-    void search(query);
+    void search(questionId);
   };
   const onCloseResults = () => {
     close();
-    setActiveQuestion(null);
     setCurrentQuestion("");
-    setQueryLabel("");
   };
   return (
     <NoticeContentContainer
@@ -223,7 +201,6 @@ function NoticeContent({
             <QuestionsBox
               currentQuestion={currentQuestion}
               updateCurrentQuestion={updateCurrentQuestion}
-              onSearch={handleSearch}
             />
           </ContentContainer>
           {(hitsLoading || noticeResult !== null) && (
@@ -231,7 +208,7 @@ function NoticeContent({
               className={fr.cx("fr-hidden-md", "fr-mb-2w", "fr-px-1w")}
               result={noticeResult}
               loading={hitsLoading}
-              questionLabel={activeQuestion?.question ?? (queryLabel || undefined)}
+              questionLabel={questionsList[currentQuestion]?.question}
               onClose={onCloseResults}
             />
           )}
@@ -444,7 +421,6 @@ function NoticeContent({
           <QuestionsBox
             currentQuestion={currentQuestion}
             updateCurrentQuestion={updateCurrentQuestion}
-            onSearch={handleSearch}
           />
         </ContentContainer>
         {(hitsLoading || noticeResult !== null) && (
@@ -457,7 +433,7 @@ function NoticeContent({
             )}
             result={noticeResult}
             loading={hitsLoading}
-            questionLabel={activeQuestion?.question ?? (queryLabel || undefined)}
+            questionLabel={questionsList[currentQuestion]?.question}
             onClose={onCloseResults}
           />
         )}

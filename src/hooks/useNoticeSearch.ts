@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { NoticeSearchResponse, NoticeSearchResult } from "@/types/NoticeSearch";
+import type { NoticeSearchResponse } from "@/types/NoticeSearch";
 
 export function useNoticeSearch(slug?: string) {
-  const [result, setResult] = useState<NoticeSearchResult | null>(null);
+  const [result, setResult] = useState<NoticeSearchResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const request = useRef<AbortController | null>(null);
   const sequence = useRef(0);
@@ -28,13 +28,7 @@ export function useNoticeSearch(slug?: string) {
     setLoading(false);
   }, [cancel]);
 
-  const navigateToSection = useCallback((sectionAnchor: string) => {
-    cancel();
-    setLoading(false);
-    setResult({ status: "section", passages: [], sectionAnchor });
-  }, [cancel]);
-
-  const search = useCallback(async (question: string) => {
+  const search = useCallback(async (questionId: string) => {
     cancel();
     if (!slug) return;
     const controller = new AbortController();
@@ -43,7 +37,7 @@ export function useNoticeSearch(slug?: string) {
     setResult(null);
     setLoading(true);
     try {
-      const response = await fetch(`/medicaments/${slug}/notice-search?q=${encodeURIComponent(question)}`, {
+      const response = await fetch(`/medicaments/${slug}/notice-search?question=${encodeURIComponent(questionId)}`, {
         signal: controller.signal,
       });
       if (!response.ok) throw new Error("Notice search failed");
@@ -62,5 +56,5 @@ export function useNoticeSearch(slug?: string) {
     }
   }, [slug, cancel]);
 
-  return { result, loading, search, navigateToSection, close };
+  return { result, loading, search, close };
 }

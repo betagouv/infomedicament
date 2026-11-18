@@ -12,10 +12,23 @@ import {
 } from "react";
 import styled from "styled-components";
 import { RcpNoticeHtmlContainer } from "../blocks/GenericBlocks";
-import type {
-  NoticeSearchResult,
-  NoticeSourceTarget,
-} from "@/types/NoticeSearch";
+import type { NoticeQuote, NoticeSearchResponse, NoticeSourceTarget } from "@/types/NoticeSearch";
+
+function groupAdjacentQuotes(quotes: NoticeQuote[]): NoticeQuote[][] {
+  const groups: NoticeQuote[][] = [];
+  for (const quote of quotes) {
+    const group = groups.at(-1);
+    const previous = group?.at(-1);
+    if (group && previous?.sourceRange && quote.sourceRange
+      && quote.sourceRange.start <= previous.sourceRange.end
+      && JSON.stringify(previous.headingPath) === JSON.stringify(quote.headingPath)) {
+      group.push(quote);
+    } else {
+      groups.push([quote]);
+    }
+  }
+  return groups;
+}
 
 const Container = styled.div`
   border: var(--border-open-blue-france) 1px solid;
@@ -63,7 +76,7 @@ const messages = {
 };
 
 interface NoticeChunkResultsBoxProps extends HTMLAttributes<HTMLDivElement> {
-  result: NoticeSearchResult | null;
+  result: NoticeSearchResponse | null;
   loading: boolean;
   questionLabel?: ReactNode;
   onClose: () => void;
@@ -84,39 +97,19 @@ export default function NoticeChunkResultsBox({
     highlighted.current = [];
   }, []);
 
-  const showSource = useCallback(
-    (target: NoticeSourceTarget = {}, scroll = true) => {
-      clearHighlights();
-      const notice = document.getElementById("noticeContainer");
-      if (!notice) return;
-      // Search only the full leaflet, never a copied excerpt. Avoid interpolating selectors.
-      const targets = Array.from(
-        notice.querySelectorAll<HTMLElement>("[id], [name], [data-block-id]"),
-      );
-      const element =
-        (target.blockId
-          ? targets.find(
-              (element) => element.dataset.blockId === target.blockId,
-            )
-          : undefined) ??
-        targets.find(
-          (element) =>
-            target.anchor &&
-            (element.id === target.anchor ||
-              element.getAttribute("name") === target.anchor),
-        );
-      if (element) {
-        element.classList.add("notice-highlight");
-        highlighted.current.push(element);
-      }
-      if (scroll)
-        (element ?? notice).scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-    },
-    [clearHighlights],
-  );
+  const highlightSource = useCallback((target: NoticeSourceTarget = {}) => {
+    clearHighlights();
+    const notice = document.getElementById("noticeContainer");
+    if (!notice) return;
+    // Search only the full leaflet, never a copied excerpt. Avoid interpolating selectors.
+    const targets = Array.from(notice.querySelectorAll<HTMLElement>("[id], [name], [data-block-id]"));
+    const element = (target.blockId ? targets.find((element) => element.dataset.blockId === target.blockId) : undefined)
+      ?? targets.find((element) => target.anchor && (element.id === target.anchor || element.getAttribute("name") === target.anchor));
+    if (element) {
+      element.classList.add("notice-highlight");
+      highlighted.current.push(element);
+    }
+  }, [clearHighlights]);
 
   const highlightSourceLink = (
     event: MouseEvent<HTMLAnchorElement>,
@@ -131,15 +124,13 @@ export default function NoticeChunkResultsBox({
     )
       return;
     // Let the browser navigate the fragment and update history like any page link.
-    showSource(target, false);
+    highlightSource(target);
   };
 
   useEffect(() => {
     clearHighlights();
-    if (result?.status === "section")
-      showSource({ anchor: result.sectionAnchor });
     return clearHighlights;
-  }, [result, clearHighlights, showSource]);
+  }, [result, clearHighlights]);
 
   return (
     <Container {...props} aria-busy={loading}>
@@ -164,33 +155,18 @@ export default function NoticeChunkResultsBox({
               aria-label="Extraits de la notice"
             >
               {result.passages.map((passage, index) => (
-                <article
-                  key={passage.id}
-                  aria-label={
-                    passage.headingPath.join(" — ") || "Extrait de la notice"
-                  }
-                >
-                  {passage.quotes.map((quote, quoteIndex) => (
-                    <div key={quote.id}>
-                      {(quoteIndex === 0 ||
-                        JSON.stringify(
-                          passage.quotes[quoteIndex - 1].headingPath,
-                        ) !== JSON.stringify(quote.headingPath)) && (
+                <article key={passage.id} aria-label={passage.headingPath.join(" — ") || "Extrait de la notice"}>
+                  {groupAdjacentQuotes(passage.quotes).map((group, groupIndex, groups) => (
+                    <div key={group[0].id}>
+                      {(groupIndex === 0 || JSON.stringify(groups[groupIndex - 1][0].headingPath) !== JSON.stringify(group[0].headingPath)) && (
                         <p className={fr.cx("fr-text--sm", "fr-mb-1w")}>
-                          {quote.headingPath.length ? (
-                            <>
-                              Dans la rubrique « {quote.headingPath.at(-1)} »,
-                              la notice indique :
-                            </>
-                          ) : (
-                            "La notice indique :"
-                          )}
+                          {group[0].headingPath.length
+                            ? <>Dans la rubrique « {group[0].headingPath.at(-1)} », la notice indique :</>
+                            : "La notice indique :"}
                         </p>
                       )}
                       <blockquote>
-                        <RcpNoticeHtmlContainer
-                          dangerouslySetInnerHTML={{ __html: quote.html }}
-                        />
+                        <RcpNoticeHtmlContainer dangerouslySetInnerHTML={{ __html: group.map((quote) => quote.html).join("") }} />
                       </blockquote>
                     </div>
                   ))}

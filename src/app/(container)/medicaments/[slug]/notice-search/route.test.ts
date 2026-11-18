@@ -11,7 +11,7 @@ import { parse } from "node-html-parser";
 
 const html = '<h2 id="taking">Utilisation</h2><p>Restriction générale.</p><h3 id="children">Enfants</h3><p>Instructions pédiatriques complètes.</p><h2>Avertissements</h2><p>Autre restriction.</p>';
 const fetchMock = vi.fn();
-const run = (q = "Combien pour mon enfant ?") => GET(new NextRequest(`http://localhost/medicaments/test-69636399/notice-search?q=${encodeURIComponent(q)}`), { params: Promise.resolve({ slug: "test-69636399" }) });
+const run = (questionId = "pediatrie") => GET(new NextRequest(`http://localhost/medicaments/test-69636399/notice-search?question=${encodeURIComponent(questionId)}`), { params: Promise.resolve({ slug: "test-69636399" }) });
 function modelResponse(content: unknown, finish_reason = "stop") {
   fetchMock.mockImplementation(async () => new Response(JSON.stringify({ choices: [{ finish_reason, message: { content: JSON.stringify(content) } }] }), { status: 200 }));
 }
@@ -25,13 +25,54 @@ beforeEach(() => {
 afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
 describe("notice selection endpoint", () => {
+  it.each([
+    ["description", "Ann3bQuestceque"],
+    ["commentPrendre", "Ann3bCommentPrendre"],
+    ["effetsIndesirables", "Ann3bEffetsIndesirables"],
+    ["conservation", "Ann3bConservation"],
+    ["contenu", "Ann3bEmballage"],
+  ])("returns the %s section as an answer without calling Albert", async (questionId, anchor) => {
+    vi.mocked(getNotice).mockResolvedValue({ codeCIS: 60234100, title: "NOTICE", dateNotif: "", contentHtml:
+      `<h2 id="${anchor}">Rubrique officielle</h2><p>Premier paragraphe.</p><p>Second paragraphe.</p><h2 id="other">Autre rubrique</h2><p>À exclure.</p>` });
+    const body = await (await run(questionId)).json();
+    expect(body.status).toBe("supported");
+    expect(body.passages[0].target.anchor).toBe(anchor);
+    expect(body.passages[0].quotes[0].html).toContain("Premier paragraphe.");
+    expect(body.passages[0].quotes[0].html).toContain("Second paragraphe.");
+    expect(body.passages[0].quotes[0].html).not.toContain("À exclure.");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("uses the predefined fallback query when the expected section anchor is absent", async () => {
+    modelResponse({ status: "insufficient_evidence", selections: [] });
+    expect((await run("contenu")).status).toBe(200);
+    const request = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(JSON.parse(request.messages[1].content).question).toBe("Quelle est la composition de ce médicament ?");
+  });
+
+  it("quotes the composition subsection instead of the unrelated packaging and manufacturer details", async () => {
+    vi.mocked(getNotice).mockResolvedValue({ codeCIS: 60234100, title: "NOTICE", dateNotif: "", contentHtml:
+      '<h2 id="Ann3bEmballage">Contenu et autres informations</h2><h3 id="composition">Ce que contient ce médicament</h3><p>Composition officielle.</p><h3>Fabricant</h3><p>Adresse du fabricant.</p>' });
+    const body = await (await run("contenu")).json();
+    expect(body.passages[0].target.anchor).toBe("composition");
+    expect(body.passages[0].quotes[0].html).toContain("Composition officielle.");
+    expect(body.passages[0].quotes[0].html).not.toContain("Adresse du fabricant.");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects custom questions instead of forwarding them to Albert", async () => {
+    const response = await GET(new NextRequest("http://localhost/medicaments/test-69636399/notice-search?q=Question%20personnalis%C3%A9e"), { params: Promise.resolve({ slug: "test-69636399" }) });
+    expect(response.status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect((await run("__proto__")).status).toBe(400);
+  });
   it("returns the CIS 60234100 dosage table without attaching its long introduction", async () => {
     const source = readFileSync("src/testsUtils/fixtures/notice-60234100.html", "utf8");
     vi.mocked(getNotice).mockResolvedValue({ codeCIS: 60234100, title: "NOTICE", dateNotif: "", contentHtml: source });
     const dosage = prepareNoticePassages(source).passages.find((passage) => passage.target.anchor === "Ann3bCommentPrendre")!;
     const table = dosage.quotes.find((quote) => quote.html.includes("<table"))!;
     modelResponse({ status: "supported", selections: [{ passage_id: dosage.id, quote_ids: [table.id] }] });
-    const response = await GET(new NextRequest("http://localhost/medicaments/test-60234100/notice-search?q=Combien%20en%20prendre%20%3F"), { params: Promise.resolve({ slug: "test-60234100" }) });
+    const response = await GET(new NextRequest("http://localhost/medicaments/test-60234100/notice-search?question=combienPrendre"), { params: Promise.resolve({ slug: "test-60234100" }) });
     const body = await response.json();
     expect(body.status).toBe("supported");
     const visible = body.passages[0].quotes[0].html;
@@ -50,7 +91,7 @@ describe("notice selection endpoint", () => {
     modelResponse({ status: "supported", selections: [{ passage_id: "passage-6", quote_ids: [
       compact.id, "passage-6-quote-12",
     ] }] });
-    const response = await GET(new NextRequest("http://localhost/medicaments/test-64720167/notice-search?q=Combien%20en%20prendre%20%3F"), { params: Promise.resolve({ slug: "test-64720167" }) });
+    const response = await GET(new NextRequest("http://localhost/medicaments/test-64720167/notice-search?question=combienPrendre"), { params: Promise.resolve({ slug: "test-64720167" }) });
     const body = await response.json();
     expect(body.status).toBe("supported");
     const visible = body.passages.flatMap((passage: { quotes: { html: string }[] }) => passage.quotes.map((quote) => quote.html)).join(" ");
@@ -151,7 +192,7 @@ describe("notice selection endpoint", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("rejects whitespace-only questions", async () => {
+  it("rejects unknown preset questions", async () => {
     expect((await run("  ")).status).toBe(400);
     expect(fetchMock).not.toHaveBeenCalled();
   });

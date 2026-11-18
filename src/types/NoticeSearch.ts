@@ -17,14 +17,10 @@ export interface NoticeQuote {
   headingPath: string[];
   /** Source fragments represented by this connected quotation. */
   supersedes?: string[];
+  /** Half-open positions in this passage; omitted source material creates a gap. */
+  sourceRange?: { start: number; end: number };
 }
 
 export type NoticeSearchResponse =
   | { status: "supported"; sourceVersion: string; passages: NoticePassage[] }
   | { status: "insufficient_evidence" | "unavailable" | "error"; passages: [] };
-
-export type NoticeSearchResult = NoticeSearchResponse | {
-  status: "section";
-  passages: [];
-  sectionAnchor: string;
-};

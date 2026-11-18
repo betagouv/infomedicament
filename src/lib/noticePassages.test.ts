@@ -73,6 +73,14 @@ describe("context-preserving leaflet passages", () => {
 });
 
 describe("short source quotations", () => {
+  it("records adjacency across paragraphs without hiding skipped sentences, images or headings", () => {
+    const { passages } = prepareNoticePassages('<h2>Utilisation</h2><p>Première phrase. Phrase intermédiaire.</p><p>Paragraphe suivant.</p><img src="/diagram.png" alt="Schéma"><p>Après le schéma.</p>');
+    const quotes = passages[0].quotes;
+    expect(quotes[0].sourceRange!.end).toBe(quotes[1].sourceRange!.start);
+    expect(quotes[1].sourceRange!.end).toBe(quotes[2].sourceRange!.start);
+    expect(quotes[0].sourceRange!.end).toBeLessThan(quotes[2].sourceRange!.start);
+    expect(quotes[2].sourceRange!.end).toBeLessThan(quotes[3].sourceRange!.start);
+  });
   it("can select the full CIS 60234100 dosage table independently of its introduction", () => {
     const { passages } = prepareNoticePassages(readFileSync("src/testsUtils/fixtures/notice-60234100.html", "utf8"));
     const dosage = passages.find((passage) => passage.target.anchor === "Ann3bCommentPrendre")!;
