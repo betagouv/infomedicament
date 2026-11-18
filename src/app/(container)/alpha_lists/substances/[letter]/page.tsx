@@ -27,7 +27,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page(props: {
   params: Promise<{ letter: string }>;
 }) {
-  const { letter } = await props.params;
+  const { letter: rawLetter } = await props.params;
+  const letter = decodeURIComponent(rawLetter);
   return <CachedSubstancesList letter={letter} />;
 }
 

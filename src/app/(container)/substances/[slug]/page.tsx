@@ -1,43 +1,51 @@
 import { Suspense } from "react";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { fr } from "@codegouvfr/react-dsfr";
-import type { Substance } from "@/types/SubstanceTypes";
-import { notFound } from "next/navigation";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { Metadata } from "next";
-import { getSubstances, getSubstanceDefinition } from "@/db/utils/substances";
+import { getSubstanceDefinition, getSubstancesNames, getSubstancesTitles } from "@/db/utils/substances";
 import SubstanceDefinitionContent from "@/components/definition/SubstanceDefinitionContent";
 import { getArticlesFromSubstances } from "@/db/utils/articles";
-import { getResumeSpecsGroupsWithCIS, getSubstanceSpecialitesCIS } from "@/db/utils/specialities";
+import { getSubstanceSpecsGroups } from "@/db/utils/specialities";
 import { getResumeSpecsGroupsATCLabels } from "@/db/utils/atc";
-import { getSubstanceIdsFromSlug, getSubstanceSlug } from "@/utils/substances";
+import { getSubstanceIdsFromSlug, getSubstanceSlug, getSubstancesPageNames, hasAllSubstances } from "@/utils/substances";
+import { Substance } from "@/types/SubstanceTypes";
+import { notFound } from "next/navigation";
 import { formatFrenchList } from "@/displayUtils";
+import { getNormalizeLetter } from "@/utils/alphabeticNav";
 
 
 export async function generateMetadata(
   props: { params: Promise<{ slug: string }> },
 ): Promise<Metadata> {
 
-  const ids = getSubstanceIdsFromSlug((await props.params).slug);//NomId
-  const substances: Substance[] = await getSubstances(ids);
-  if (substances.length === 0 || substances.length < ids.length) {
+  const subsIds = getSubstanceIdsFromSlug((await props.params).slug);
+  const substances: Substance[] = await getSubstancesNames(subsIds) ?? [];
+  if (!hasAllSubstances(subsIds, substances)) {
     return {
-      title: `Substance ${ids.join(", ")}`,
+      title: `Substance ${formatFrenchList(subsIds)}`,
     };
   }
 
-  const definitionsRaw = await getSubstanceDefinition(ids, substances.map((subs) => subs.SubsId.trim()));
-  const definitionString = definitionsRaw.map(d => `${d.SA} : ${d.Definition}`).join(" - ")
+  const [definitionsRaw, allSpecsGroups, titles] = await Promise.all([
+    getSubstanceDefinition(subsIds),
+    getSubstanceSpecsGroups(subsIds),
+    getSubstancesTitles(subsIds),
+  ]);
+  const definitionString = definitionsRaw.map(d => `${d.SA} : ${d.Definition}`).join(" - ");
+  // Title: the stored titles (resume_substances.title), computed if not seeded
+  const { title } = getSubstancesPageNames(subsIds, substances, allSpecsGroups, titles);
 
   return {
-    title: formatFrenchList(substances.map((s) => s.NomLib)),
+    title,
     // Fallback when no definition is available for these substances
     description: definitionString
-      || `Retrouvez les médicaments contenant ${substances.length > 1 ? "les substances" : "la substance"} ${formatFrenchList(substances.map((s) => s.NomLib))}.`,
+      || `Retrouvez les médicaments contenant ${subsIds.length > 1 ? "les substances" : "la substance"} ${title}.`,
     alternates: {
-      canonical: `/substances/${getSubstanceSlug(substances)}`,
+      // Titles of the substances pages (resume_substances), followed by the SubsIds
+      canonical: `/substances/${getSubstanceSlug(subsIds.map((SubsId) => ({ SubsId, title: titles.get(SubsId) })))}`,
     },
   };
 }
@@ -53,26 +61,35 @@ async function ResolvedSubstancePage({ params }: { params: Promise<{ slug: strin
 
 async function CachedSubstancePage({ slug }: { slug: string }) {
   "use cache: remote";
-  const ids = getSubstanceIdsFromSlug(slug);//NomId
 
-  const substances: Substance[] = await getSubstances(ids);
-  if (substances.length === 0 || substances.length < ids.length) return notFound();
+  const subsIds = getSubstanceIdsFromSlug(slug);
+  const substances: Substance[] = await getSubstancesNames(subsIds) ?? [];
+  if (!hasAllSubstances(subsIds, substances)) notFound();
 
-  const subsIds = substances.map((s) => s.SubsId.trim());
-
-  const [articles, definitions, CISList] = await Promise.all([
-    getArticlesFromSubstances(ids),
-    getSubstanceDefinition(ids, subsIds),
-    getSubstanceSpecialitesCIS(ids),
+  const [articles, definitions, allSpecsGroups, titles] = await Promise.all([
+    getArticlesFromSubstances(subsIds),
+    getSubstanceDefinition(subsIds),
+    getSubstanceSpecsGroups(subsIds),
+    getSubstancesTitles(subsIds),
   ]);
 
-  const definition = definitions.map((d) => ({ title: d.SA, desc: d.Definition }));
-
-  const allSpecsGroups = await getResumeSpecsGroupsWithCIS(CISList);
   const dataList = allSpecsGroups.length > 0
     ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
     : [];
 
+  // Title: the stored titles (resume_substances.title), computed if not seeded
+  const { title, subtitle, titleDetails } = getSubstancesPageNames(subsIds, substances, allSpecsGroups, titles);
+  // Definition title: no title with a single substance, otherwise the name of its substance in the page title
+  const definition = definitions
+    // Only the definitions with a text
+    .filter((d) => d.Definition.trim().length > 0)
+    .map((d) => ({
+      title: subsIds.length > 1
+        ? titleDetails.find((detail) => detail.subsId === d.SubsId.trim())?.name ?? d.SA
+        : "Définition",
+      desc: d.Definition,
+    }));
+  
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
@@ -83,23 +100,25 @@ async function CachedSubstancePage({ slug }: { slug: string }) {
               {
                 label: "Listes des substances",
                 linkProps: {
-                  href: `/substances/${substances[0].NomLib.slice(0, 1)}`,
+                  // Letter of the substances list: without accent and uppercase, as the letters of the lists (e.g. "é" -> "E")
+                  href: `/substances/${getNormalizeLetter(title.slice(0, 1))}`,
                 },
               },
             ]}
-            currentPageLabel={substances.map((s) => s.NomLib).join(", ")}
+            currentPageLabel={title}
           />
         </div>
       </div>
       <SubstanceDefinitionContent
-        ids={ids}
-        substances={substances}
+        subsIds={subsIds}
         articles={articles}
         definition={definition}
         dataList={dataList}
+        title={title}
+        subtitle={subtitle}
       />
       <RatingToaster
-        pageId={substances.map((s) => s.NomLib).join(", ")}
+        pageId={title}
       />
     </ContentContainer>
   );

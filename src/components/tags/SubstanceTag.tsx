@@ -15,6 +15,7 @@ interface SubstanceTagProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function SubstanceTag({ composants, fromMedicament }: SubstanceTagProps) {
+  const substances = displaySimpleComposants(composants);
   const onTrackEvent = () => {
     if (fromMedicament) trackEvent("Page médicament", "Tag Substance");
   };
@@ -22,15 +23,13 @@ function SubstanceTag({ composants, fromMedicament }: SubstanceTagProps) {
   return (
     <Tag
       linkProps={{
-        href: `/substances/${getSubstanceSlug(displaySimpleComposants(composants))}`,
+        href: `/substances/${getSubstanceSlug(substances)}`,
         className: cx("fr-tag--custom-alt-substance"),
         target: "_blank",
         onClick: () => onTrackEvent(),
       }}
     >
-      {displaySimpleComposants(composants)
-        .map((s) => s.NomLib.trim())
-        .join(", ")}
+      {substances.map((s) => s.NomLib.trim()).join(", ")}
     </Tag>
   );
 }

@@ -22,10 +22,10 @@ const frenchListFormat = new Intl.ListFormat("fr", { style: "long", type: "conju
 export const formatFrenchList = (items: string[]): string =>
   frenchListFormat.format(items);
 
-export function displaySimpleComposants(
-  composants: CompositionComponent[],
-): Substance[] {
-  const groups = new Map<number, CompositionComponent[]>();
+export function displaySimpleComposants<T extends CompositionComponent>(
+  composants: T[],
+): T[] {
+  const groups = new Map<number, T[]>();
   for (const composant of composants) {
     if (groups.has(composant.CompNum)) {
       groups.get(composant.CompNum)?.push(composant);
@@ -35,7 +35,7 @@ export function displaySimpleComposants(
   }
 
   return Array.from(groups.values())
-    .map((composants: CompositionComponent[]) =>
+    .map((composants: T[]) =>
       composants.filter(
         (composant) => composant.NatuId === CompositionNature.Fraction,
       ).length

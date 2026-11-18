@@ -4,10 +4,10 @@ import { ATCError } from "@/utils/atc";
 import { ATC, ATC1, ATCLabels, ATCSubstances } from "@/types/ATCTypes";
 import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import db from "@/db/";
-import { RefAtcFriendlyNiveau1, RefAtcFriendlyNiveau2 } from "../types";
+import { RefAtcFriendlyNiveau1, RefAtcFriendlyNiveau2, ResumeSubstance } from "../types";
 import type { Substance } from "@/types/SubstanceTypes";
 import { getComposantsList } from "./composants";
-import { getSubstancesResume } from "./substances";
+import { getResumeSubstancesByNomId } from "./substances";
 import { VISIBLE_SPECIALITE_AVAILABILITIES } from "./specialiteCatalog";
 
 export async function getAtcCode(CIS: string): Promise<string | undefined> {
@@ -90,13 +90,22 @@ export async function getSubstancesByAtc(atc2: ATC): Promise<Substance[]> {
   const components = await getComposantsList(visibleRows.map((row) => row.cis));
 
   return components
-    .map(({ SubsId, NomId, NomLib }) => ({ SubsId, NomId, NomLib }))
+    .map(({ SubsId, NomId, NomLib, isCanonical }) => ({ SubsId, NomId, NomLib, isCanonical }))
     .filter(
       (substance, index, all) =>
         all.findIndex((candidate) => candidate.NomId === substance.NomId) ===
         index,
     )
     .sort((left, right) => left.NomLib.localeCompare(right.NomLib, "fr"));
+}
+
+// Loads the resume_substances displayed on an ATC2 page.
+export async function getResumeSubstancesByAtc(atc2: ATC): Promise<ResumeSubstance[]> {
+  "use cache: remote";
+  const substances = await getSubstancesByAtc(atc2);
+  const nomIds = [...new Set(substances.map((s) => s.NomId.trim()))];
+  if (nomIds.length === 0) return [];
+  return getResumeSubstancesByNomId(nomIds);
 }
 
 export async function getAtcMenuItems(): Promise<
@@ -338,43 +347,26 @@ export async function getAtc1DefinitionData(
   );
 
   if (substancesWithCIS.length === 0) {
-    return atc1.children.map((atc2) => ({
-      atc: atc2,
-      substances: [],
-    }));
+    return atc1.children.map((atc2) => ({ atc: atc2, substances: [] }));
   }
 
-  // Group substances by ATC2
-  const atc2ToSubstances = new Map<string, Substance[]>();
-  for (const [atc2Code, cisList] of atc2ToCIS) {
-    const substances = substancesWithCIS
-      .filter((substance) => cisList.has(substance.SpecId))
-      .map(({ SubsId, NomId, NomLib }) => ({ SubsId, NomId, NomLib }));
-
-    atc2ToSubstances.set(atc2Code, substances);
-  }
-
-  // Apply the same summary lookup as the ATC2 destination pages.
-  const allSubstanceIDs = [
-    ...new Set(substancesWithCIS.map((s) => s.NomId.trim())),
-  ];
-
-  const allResumes = await getSubstancesResume(allSubstanceIDs);
-
-  // Build result
-  const allATC: ATCSubstances[] = atc1.children.map((atc2) => {
-    const substances = atc2ToSubstances.get(atc2.code) ?? [];
-    const substanceIDs = new Set(substances.map((s) => s.NomId.trim()));
-
+  // Fetch the resume_substances rows for all substances at once (same source the ATC2 page counts from)
+  const allNomIds = [...new Set(substancesWithCIS.map((s) => s.NomId.trim()))];
+  const allResumeSubstances = await getResumeSubstancesByNomId(allNomIds);
+  return atc1.children.map((atc2) => {
+    const cisSet = atc2ToCIS.get(atc2.code) ?? new Set<string>();
+    const substancesNomIds = new Set(
+      substancesWithCIS
+        .filter((s) => s.SpecId && cisSet.has(s.SpecId))
+        .map((s) => s.NomId.trim()),
+    );
     return {
       atc: atc2,
-      substances: allResumes.filter((substance) =>
-        substanceIDs.has(substance.NomId.trim()),
+      substances: allResumeSubstances.filter((substance) =>
+        substancesNomIds.has(substance.NomId.trim()),
       ),
     };
   });
-
-  return allATC;
 }
 
 async function getAtc1LabelRows() {

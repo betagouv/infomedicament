@@ -47,6 +47,7 @@ function SearchFilterBlockContent({
                   label: (
                     <SearchFilterLabel
                       name={filter.name}
+                      secondaryName={filter.secondaryName}
                       count={filter.count}
                     />
                   ),
@@ -66,6 +67,7 @@ function SearchFilterBlockContent({
                       label: (
                         <SearchFilterLabel
                           name={childrenFilter.name}
+                          secondaryName={childrenFilter.secondaryName}
                           count={childrenFilter.count}
                         />
                       ),

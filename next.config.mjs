@@ -89,12 +89,13 @@ const nextConfig = {
         destination: "/alpha_lists/indications/A",
       },
       {
-        source: "/substances/:letter([A-Za-z0-9\\(\\[])",
+        // "(" and "[" also encoded ("%28", "%5B"), e.g. by the crawlers
+        source: "/substances/:letter([A-Za-z0-9\\(\\[]|%28|%5[Bb])",
         destination: "/alpha_lists/substances/:letter",
       },
       {
         source: "/substances",
-        destination: "/alpha_lists/substances/%28",
+        destination: "/alpha_lists/substances/A",
       },
       {
         source: "/generiques/:letter([A-Za-z])",

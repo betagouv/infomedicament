@@ -1,12 +1,21 @@
 import type { Kysely } from "kysely";
 import { sql } from "kysely";
 
+// Substances names of a group: only the names displayed on its medicaments (subsNamesIds),
+// resume_substances having one row per substance name
+export function getGroupSubstancesNames(
+  subsNamesIds: string[],
+  namesByNomId: Map<string, string>,
+): string[] {
+  return [...new Set(subsNamesIds.flatMap((nomId) => namesByNomId.get(nomId.trim()) ?? []))];
+}
+
 export async function seed(db: Kysely<any>): Promise<void> {
   // Load all reference data from PostgreSQL into memory for fast lookups
   console.log("Loading reference data from PostgreSQL...");
 
   // NB: you must run updateResumeData.ts in order for those tables to be
-  // up-to-date when recieving a new BDPM mysql dump. 
+  // up-to-date when receiving a new BDPM mysql dump.
   const groups = await db
     .selectFrom("resume_medicaments")
     .selectAll()
@@ -15,6 +24,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   const substances = await db
     .selectFrom("resume_substances")
     .select(["NomId", "NomLib"])
+    .where("specialites", ">", 0)
     .execute();
 
   const indications = await db
@@ -50,7 +60,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   }
 
   // Build lookup maps
-  const substanceMap = new Map(substances.map((s) => [s.NomId.trim(), s.NomLib]));
+  const substancesNamesByNomId = new Map(substances.map((s) => [s.NomId.trim(), s.NomLib]));
   const indicationsMap = new Map(indications.map((p) => [p.idIndication, p.nomIndication.trim()]));
 
   // Build ATC label map: code → labels (may have both friendly and technical labels)
@@ -117,13 +127,10 @@ export async function seed(db: Kysely<any>): Promise<void> {
         }
       }
 
-      // 2. Index substance names
-      const subsIds: string[] = (group.subsIds as string[]) ?? [];
-      for (const subsId of subsIds) {
-        const nomLib = substanceMap.get(subsId.trim());
-        if (nomLib) {
-          await addIndex("substance", gn, nomLib, nomLib, null);
-        }
+      // 2. Index substance names, as displayed on the medicaments of the group
+      const subsNamesIds: string[] = (group.subsNamesIds as string[]) ?? [];
+      for (const nomLib of getGroupSubstancesNames(subsNamesIds, substancesNamesByNomId)) {
+        await addIndex("substance", gn, nomLib, nomLib, null);
       }
 
       // 3. Index indication names

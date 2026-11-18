@@ -8,6 +8,7 @@ import SearchResultsPagination from "./blocks/SearchResultsPagination";
 import SearchFiltersContainer from "./blocks/SearchFiltersContainer";
 import SearchSortBlock from "./blocks/SearchSortBlock";
 import SearchFiltersSubMenu from "./blocks/SearchFiltersSubMenu";
+import { cleanSubstanceName } from "@/utils/substances";
 
 const SearchResultsListContainer = styled.div`
   & .display-inline {
@@ -67,12 +68,16 @@ function SearchResultsList({
     resultsList.forEach((result) => {
       if (result.composants) {
         const indexSubs = newSubsFilters.findIndex(
-          (filter: SearchFilter) => result.composants.trim() === filter.id,
+          (filter: SearchFilter) => result.subsIds.join() === filter.id,
         );
         if (indexSubs === -1) {
           newSubsFilters.push({
-            id: result.composants.trim(),
-            name: result.composants.trim(),
+            id: result.subsIds.join(),
+            name: result.subsTitle ? result.subsTitle : result.composants,
+            // Composants only if different from the title of the substances page
+            secondaryName: result.subsTitle && result.subsTitle.trim() !== cleanSubstanceName(result.composants)
+              ? result.composants
+              : undefined,
             count: 1,
             selected: false,
           });
@@ -169,9 +174,9 @@ function SearchResultsList({
     const newResultsList = resultsList
       .filter((result) => {
         if (subsFilters.length > 0) {
-          //Filter on composants only if there is composants
+          //Filter on the substance set only if there is one
           const findComposant = subsFilters.find(
-            (filter: SearchFilter) => filter.id === result.composants.trim(),
+            (filter: SearchFilter) => filter.id === result.subsIds.join(),
           );
           if (!findComposant) return false;
         }

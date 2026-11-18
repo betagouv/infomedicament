@@ -1,6 +1,5 @@
 import { MetadataRoute } from "next";
 import { getAllSpecialites } from "@/db/utils/specialities";
-import { getAllSubsWithSpecialites } from "@/db/utils/substances";
 import { getAtc } from "@/db/utils/atc";
 import { getLetters } from "@/db/utils/letters";
 import { getArticles } from "@/db/utils/articles";
@@ -11,6 +10,8 @@ import { getGenericSlug } from "@/utils/generics";
 import { getSpecSlug } from "@/utils/specialites";
 import { getIndicationSlug } from "@/utils/indications";
 import { getAtcSlug } from "@/utils/atc";
+import { getSlug } from "@/utils/slug";
+import { getAllSubstancesTitles } from "@/db/utils/substances";
 import { getSubstanceSlug } from "@/utils/substances";
 
 
@@ -59,7 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     genericGroups,
   ] = await Promise.all([
     getAllSpecialites(),
-    getAllSubsWithSpecialites(),
+    getAllSubstancesTitles(),
     getAllIndications(),
     getAtc(),
     getArticles(),
@@ -87,8 +88,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${BASE_URL}/articles/${a.slug}`,
   }));
 
-  const substanceEntries: MetadataRoute.Sitemap = substances.map((s) => ({
-    url: `${BASE_URL}/substances/${getSubstanceSlug([s])}`,
+  // One URL per substance, the canonical URL of its page
+  const substanceEntries: MetadataRoute.Sitemap = substances.map((substance) => ({
+    url: `${BASE_URL}/substances/${getSubstanceSlug([substance])}`,
   }));
 
   const indicationsEntries: MetadataRoute.Sitemap = indications.map((i) => ({

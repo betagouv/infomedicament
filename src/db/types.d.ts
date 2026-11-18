@@ -140,18 +140,21 @@ interface ResumeSubstancesTable {
   NomId: string;
   NomLib: string;
   specialites: number;
+  type: "CANONIQUE" | "SYNONYME" | null; // ansm_substance_nom.type
+  title: string | null; // Title of the substance page
 }
 
 interface ResumeMedicamentsTable {
   groupName: string;
   composants: string;
-  specialites: string[][];//SpecId, SpecDenom01, StatutBdm, ProcId, Surveillance Renforcée
+  subsIds: string[];
+  subsNamesIds: string[];
+  specialites: string[][];//SpecId, SpecDenom01, StatutBdm, ProcId, Surveillance Renforcée, composants (substances names), subsIds (joined by ","), subsNamesIds (joined by ",")
   indicationsIds: number[];
   atc1Code?: string;
   atc2Code?: string;
   atc5Code?: string;
   CISList: string[];
-  subsIds: string[];
   indicationsIdsNames: string[][];//idIndication, nomIndication
 }
 
@@ -161,6 +164,8 @@ interface ResumeSpecialitesTable {
   groupName: string;
   composants: string;
   subsIds: string[];
+  // Title of the substances page of subsIds
+  subsTitle: string | null;
   indicationsIds: number[];
   indicationsIdsNames: string[][]; //idIndication, nomIndication
   atc1Code?: string;

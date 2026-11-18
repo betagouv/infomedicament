@@ -104,7 +104,7 @@ export default function ClientHeader({
               },
               {
                 text: "Toutes les substances actives",
-                linkProps: { href: "/substances/(", prefetch: false },
+                linkProps: { href: "/substances/[", prefetch: false },
               },
               {
                 text: "Toutes les indications",
