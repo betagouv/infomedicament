@@ -1,67 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
-import { answerNoticeQuestion } from "@/lib/albert";
+import { CHAT_MODEL, NOTICE_SELECTION_VERSION, selectNoticePassages } from "@/lib/albert";
+import { prepareNoticePassages, resolveNoticeSelection } from "@/lib/noticePassages";
 import { getNotice } from "@/db/utils/notice";
 import { getIdFromSlug } from "@/utils/slug";
+import type { NoticeSearchResponse } from "@/types/NoticeSearch";
 
-export interface NoticeChunkHit {
-  section_anchor: string;
-  section_title: string;
-  sub_header: string | null;
-  answer?: string;
-  block_id?: string;
-  quote?: string;
-}
-
-type LLMResult = {
-  answer: string;
-  section_anchor: string;
-  sub_header: string;
-  block_id: string;
-  quote: string;
-};
-
-async function getCachedAnswer(
-  CIS: string,
-  q: string,
-): Promise<LLMResult | undefined> {
+async function getCachedSelection(
+  contentHtml: string,
+  question: string,
+  model: string,
+  selectionVersion: string,
+): Promise<NoticeSearchResponse> {
   "use cache: remote";
-
-  const notice = await getNotice(CIS);
-  if (!notice?.contentHtml) return undefined;
-
-  return answerNoticeQuestion(notice.contentHtml, q);
+  // Arguments include the exact source and selection configuration in the cache key.
+  void selectionVersion;
+  const { passages, sourceVersion } = prepareNoticePassages(contentHtml);
+  if (passages.length === 0) return { status: "unavailable", passages: [] };
+  const selection = await selectNoticePassages(passages, question, model);
+  const selected = resolveNoticeSelection(passages, selection);
+  return selected.length
+    ? { status: "supported", sourceVersion, passages: selected }
+    : { status: "insufficient_evidence", passages: [] };
 }
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ slug: string }> },
 ) {
+  const question = req.nextUrl.searchParams.get("q")?.trim();
+  if (!question) return NextResponse.json({ error: "Missing q" }, { status: 400 });
   const CIS = getIdFromSlug((await params).slug);
-  const q = req.nextUrl.searchParams.get("q");
-  if (!q) return NextResponse.json({ error: "Missing q" }, { status: 400 });
-
-  let result: LLMResult | undefined;
   try {
-    result = await getCachedAnswer(CIS, q.trim());
-  } catch (err) {
-    console.error("[notice-search] LLM error", err);
-    return NextResponse.json({ hits: [] });
+    const notice = await getNotice(CIS);
+    if (!notice?.contentHtml) return NextResponse.json({ status: "unavailable", passages: [] });
+    return NextResponse.json(await getCachedSelection(notice.contentHtml, question, CHAT_MODEL, NOTICE_SELECTION_VERSION));
+  } catch {
+    console.error("[notice-search] Passage selection failed");
+    return NextResponse.json({ status: "error", passages: [] }, { status: 502 });
   }
-
-  if (!result?.answer) return NextResponse.json({ hits: [] });
-
-  const stripBold = (s: string) => s.replace(/\*\*/g, "").trim();
-
-  return NextResponse.json({
-    hits: [
-      {
-        section_anchor: result.section_anchor,
-        section_title: "",
-        sub_header: result.sub_header ? stripBold(result.sub_header) : null,
-        answer: stripBold(result.answer),
-        block_id: result.block_id || undefined,
-        quote: result.quote || undefined,
-      },
-    ],
-  });
 }
