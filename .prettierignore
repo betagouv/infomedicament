@@ -1,2 +1,6 @@
 # Keep the externally supplied site verification file unchanged.
 public/google*.html
+
+# Preserve the original leaflet HTML used by quote-extraction regressions.
+src/testsUtils/fixtures/notice-60234100.html
+src/testsUtils/fixtures/notice-64720167.html

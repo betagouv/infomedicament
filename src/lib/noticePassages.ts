@@ -4,7 +4,11 @@ import { createHash } from "node:crypto";
 import { HTMLElement, Node, TextNode, parse } from "node-html-parser";
 import sanitizeHtml from "sanitize-html";
 import { z } from "zod";
-import type { NoticePassage, NoticeQuote, NoticeSourceTarget } from "@/types/NoticeSearch";
+import type {
+  NoticePassage,
+  NoticeQuote,
+  NoticeSourceTarget,
+} from "@/types/NoticeSearch";
 import { getDocumentBlockAnchor } from "@/utils/documentSourceAnchors";
 
 interface Section {
@@ -16,51 +20,79 @@ interface Section {
 }
 
 const selectionSchema = z.discriminatedUnion("status", [
-  z.object({
-    status: z.literal("supported"),
-    selections: z.array(z.object({
-      passage_id: z.string().min(1),
-      quote_ids: z.array(z.string().min(1)).min(1),
-    }).strict()).min(1),
-  }).strict(),
-  z.object({
-    status: z.literal("insufficient_evidence"),
-    selections: z.array(z.never()).length(0),
-  }).strict(),
+  z
+    .object({
+      status: z.literal("supported"),
+      selections: z
+        .array(
+          z
+            .object({
+              passage_id: z.string().min(1),
+              quote_ids: z.array(z.string().min(1)).min(1),
+            })
+            .strict(),
+        )
+        .min(1),
+    })
+    .strict(),
+  z
+    .object({
+      status: z.literal("insufficient_evidence"),
+      selections: z.array(z.never()).length(0),
+    })
+    .strict(),
 ]);
 
 export type NoticeSelection = z.infer<typeof selectionSchema>;
 
 // Derive generation constraints from the same schema used to validate responses.
-export const noticeSelectionJsonSchema = z.toJSONSchema(selectionSchema, { target: "draft-7" });
+export const noticeSelectionJsonSchema = z.toJSONSchema(selectionSchema, {
+  target: "draft-7",
+});
 
 const sentenceSegmenter = new Intl.Segmenter("fr", { granularity: "sentence" });
 
 function headingLevel(element: HTMLElement): number | undefined {
   const heading = /^H([1-6])$/.exec(element.tagName);
   if (heading) return Number(heading[1]);
-  const legacy = /\bAmmNoticeTitre([1-6])\b/.exec(element.getAttribute("class") ?? "");
+  const legacy = /\bAmmNoticeTitre([1-6])\b/.exec(
+    element.getAttribute("class") ?? "",
+  );
   return legacy ? Number(legacy[1]) + 1 : undefined;
 }
 
 // Flatten layout wrappers, never medical structures such as tables, lists or figures.
 function flowNodes(node: Node): Node[] {
-  if (node instanceof HTMLElement && /^(HTML|BODY|MAIN|ARTICLE|SECTION|DIV)$/.test(node.tagName)) {
+  if (
+    node instanceof HTMLElement &&
+    /^(HTML|BODY|MAIN|ARTICLE|SECTION|DIV)$/.test(node.tagName)
+  ) {
     return node.childNodes.flatMap(flowNodes);
   }
   return [node];
 }
 
-function sourceTarget(nodes: Node[], firstAnchors: Map<string, HTMLElement>): NoticeSourceTarget {
+function sourceTarget(
+  nodes: Node[],
+  firstAnchors: Map<string, HTMLElement>,
+): NoticeSourceTarget {
   for (const node of nodes) {
     if (!(node instanceof HTMLElement)) continue;
-    const anchorElement = node.hasAttribute("id") || node.hasAttribute("name") ? node : node.querySelector("[id], [name]");
-    const anchor = anchorElement?.getAttribute("id") ?? anchorElement?.getAttribute("name");
+    const anchorElement =
+      node.hasAttribute("id") || node.hasAttribute("name")
+        ? node
+        : node.querySelector("[id], [name]");
+    const anchor =
+      anchorElement?.getAttribute("id") ?? anchorElement?.getAttribute("name");
     const blockId = node.getAttribute("data-block-id");
-    if (anchor || blockId) return {
-      anchor: blockId && (!anchor || firstAnchors.get(anchor) !== anchorElement) ? getDocumentBlockAnchor(blockId) : anchor,
-      blockId,
-    };
+    if (anchor || blockId)
+      return {
+        anchor:
+          blockId && (!anchor || firstAnchors.get(anchor) !== anchorElement)
+            ? getDocumentBlockAnchor(blockId)
+            : anchor,
+        blockId,
+      };
   }
   return {};
 }
@@ -81,7 +113,10 @@ function safeExcerpt(nodes: Node[]): string {
     transformTags: {
       p: (tagName, attribs) => {
         const legacy = /\bAmmNoticeTitre([1-6])\b/.exec(attribs.class ?? "");
-        return { tagName: legacy ? `h${Math.min(6, Number(legacy[1]) + 1)}` : tagName, attribs };
+        return {
+          tagName: legacy ? `h${Math.min(6, Number(legacy[1]) + 1)}` : tagName,
+          attribs,
+        };
       },
     },
   });
@@ -90,7 +125,11 @@ function safeExcerpt(nodes: Node[]): string {
 /** Keep inline formatting while slicing only at server-issued sentence boundaries.
  * Offsets count decoded text, so entities and words spanning tags remain intact.
  */
-function sentenceHtml(element: HTMLElement, start: number, end: number): string {
+function sentenceHtml(
+  element: HTMLElement,
+  start: number,
+  end: number,
+): string {
   let offset = 0;
   function slice(node: Node): string {
     if (node instanceof TextNode) {
@@ -98,10 +137,17 @@ function sentenceHtml(element: HTMLElement, start: number, end: number): string 
       const from = Math.max(0, start - offset);
       const to = Math.min(text.length, end - offset);
       offset += text.length;
-      return to > from ? text.slice(from, to).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
+      return to > from
+        ? text
+            .slice(from, to)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+        : "";
     }
     if (!(node instanceof HTMLElement)) return "";
-    if (node.tagName === "BR") return offset > start && offset < end ? "<br>" : "";
+    if (node.tagName === "BR")
+      return offset > start && offset < end ? "<br>" : "";
     const content = node.childNodes.map(slice).join("");
     if (!content) return "";
     const copy = node.clone() as HTMLElement;
@@ -111,19 +157,29 @@ function sentenceHtml(element: HTMLElement, start: number, end: number): string 
   return slice(element);
 }
 
-/** The model sees whole sections but may select only these exact source units.
+/** The model sees all source units in context but may select only these quotes.
  * Lists retain their lead-in and tables stay atomic: neither a bare bullet nor
  * an unlabeled table cell can become a purported standalone answer.
  */
 function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
   const root = parse(html);
   const quotes: NoticeQuote[] = [];
-  const connectedGroups: { html: string; headingPath: string[]; supersedes: string[]; sourceRange: { start: number; end: number } }[] = [];
+  const connectedGroups: {
+    html: string;
+    headingPath: string[];
+    supersedes: string[];
+    sourceRange: { start: number; end: number };
+    listSource: NonNullable<NoticeQuote["listSource"]>;
+  }[] = [];
   const headings: { level: number; text: string }[] = [];
   let previousParagraph: HTMLElement | undefined;
   let position = 0;
   let previousParagraphStart: number | undefined;
-  const add = (quoteHtml: string, headingPath = headings.map((heading) => heading.text), sourceRange?: { start: number; end: number }) => {
+  const add = (
+    quoteHtml: string,
+    headingPath = headings.map((heading) => heading.text),
+    sourceRange?: { start: number; end: number },
+  ) => {
     const range = sourceRange ?? { start: position, end: position + 1 };
     if (!sourceRange) position += 1;
     if (!parse(quoteHtml).textContent.trim()) return;
@@ -140,7 +196,8 @@ function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
   for (const node of root.childNodes.flatMap(flowNodes)) {
     if (!(node instanceof HTMLElement)) {
       if (node instanceof TextNode && node.textContent.trim()) {
-        const paragraph = parse(`<p>${node.toString()}</p>`).firstChild as HTMLElement;
+        const paragraph = parse(`<p>${node.toString()}</p>`)
+          .firstChild as HTMLElement;
         add(paragraph.toString());
         previousParagraph = undefined;
         previousParagraphStart = undefined;
@@ -149,7 +206,8 @@ function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
     }
     const level = headingLevel(node);
     if (level !== undefined) {
-      while (headings.length && headings[headings.length - 1].level >= level) headings.pop();
+      while (headings.length && headings[headings.length - 1].level >= level)
+        headings.pop();
       headings.push({ level, text: node.textContent.trim() });
       previousParagraph = undefined;
       previousParagraphStart = undefined;
@@ -157,15 +215,48 @@ function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
     } else if (node.tagName === "UL") {
       // A list's preceding paragraph often supplies a negation or condition.
       const leadIn = previousParagraph?.toString() ?? "";
+      const listId = `${passageId}-list-${position}`;
+      const firstItem = node.children[0];
+      const introductoryItemHtml =
+        node.children.length > 1 && firstItem.textContent.trim().endsWith(":")
+          ? firstItem.toString()
+          : undefined;
+      const introductionIds =
+        previousParagraphStart === undefined
+          ? []
+          : quotes
+              .filter(
+                (quote) =>
+                  quote.sourceRange &&
+                  quote.sourceRange.start >= previousParagraphStart! &&
+                  quote.sourceRange.end <= position,
+              )
+              .map((quote) => quote.id);
       const firstFragment = quotes.length;
       const fragments: (NoticeQuote | undefined)[] = [];
       const fragmentRanges: { start: number; end: number }[] = [];
-      for (const item of node.children) {
+      for (const [itemIndex, item] of node.children.entries()) {
         const list = node.clone() as HTMLElement;
-        list.set_content(item.toString());
+        list.set_content(
+          (itemIndex > 0 ? (introductoryItemHtml ?? "") : "") + item.toString(),
+        );
         const start = previousParagraphStart ?? position;
         const fragment = add(leadIn + list.toString());
-        if (fragment) fragment.sourceRange!.start = start;
+        if (fragment) {
+          fragment.sourceRange!.start = start;
+          fragment.listSource = {
+            id: listId,
+            itemStart: itemIndex,
+            itemEnd: itemIndex + 1,
+            introductionIds: [
+              ...introductionIds,
+              ...(itemIndex > 0 && introductoryItemHtml && fragments[0]
+                ? [fragments[0].id]
+                : []),
+            ],
+            introductoryItemHtml,
+          };
+        }
         fragments.push(fragment);
         fragmentRanges.push({ start, end: position });
       }
@@ -173,18 +264,51 @@ function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
       // "Cette dose..." cannot be understood independently of the previous dose.
       // Keep existing IDs stable by appending these alternatives after the scan.
       const items = node.children;
-      for (let start = 0; start < items.length;) {
+      for (let start = 0; start < items.length; ) {
         let end = start + 1;
-        while (end < items.length && /^(?:ce(?:tte|t|s)?\b|cela\b|ceci\b|dans ce cas\b|elles?\b|ils?\b)/iu.test(items[end].textContent.trim())) end += 1;
+        while (
+          end < items.length &&
+          /^(?:ce(?:tte|t|s)?\b|cela\b|ceci\b|dans ce cas\b|elles?\b|ils?\b)/iu.test(
+            items[end].textContent.trim(),
+          )
+        )
+          end += 1;
         if (end - start > 1) {
           const list = node.clone() as HTMLElement;
-          list.set_content(items.slice(start, end).map((item) => item.toString()).join(""));
-          const supersedes = fragments.slice(start, end).flatMap((quote) => quote ? [quote.id] : []);
-          const introduction = quotes.slice(0, firstFragment).findLast((quote) => quote.html === leadIn);
+          list.set_content(
+            (start > 0 ? (introductoryItemHtml ?? "") : "") +
+              items
+                .slice(start, end)
+                .map((item) => item.toString())
+                .join(""),
+          );
+          const supersedes = fragments
+            .slice(start, end)
+            .flatMap((quote) => (quote ? [quote.id] : []));
+          const introduction = quotes
+            .slice(0, firstFragment)
+            .findLast((quote) => quote.html === leadIn);
           if (introduction) supersedes.push(introduction.id);
           connectedGroups.push({
-            html: leadIn + list.toString(), headingPath: headings.map((heading) => heading.text), supersedes,
-            sourceRange: { start: fragmentRanges[start].start, end: fragmentRanges[end - 1].end },
+            html: leadIn + list.toString(),
+            headingPath: headings.map((heading) => heading.text),
+            supersedes,
+            sourceRange: {
+              start: fragmentRanges[start].start,
+              end: fragmentRanges[end - 1].end,
+            },
+            listSource: {
+              id: listId,
+              itemStart: start,
+              itemEnd: end,
+              introductionIds: [
+                ...introductionIds,
+                ...(start > 0 && introductoryItemHtml && fragments[0]
+                  ? [fragments[0].id]
+                  : []),
+              ],
+              introductoryItemHtml,
+            },
           });
         }
         start = end;
@@ -195,38 +319,94 @@ function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
       const text = node.textContent;
       const paragraphStart = position;
       for (const sentence of sentenceSegmenter.segment(text)) {
-        const start = sentence.index + sentence.segment.length - sentence.segment.trimStart().length;
+        const start =
+          sentence.index +
+          sentence.segment.length -
+          sentence.segment.trimStart().length;
         const end = sentence.index + sentence.segment.trimEnd().length;
         if (end > start) add(sentenceHtml(node, start, end));
       }
       previousParagraph = node;
-      previousParagraphStart = position > paragraphStart ? paragraphStart : undefined;
+      previousParagraphStart =
+        position > paragraphStart ? paragraphStart : undefined;
     } else {
       // Keep tables whole, with captions and population/header cells. Their
       // surrounding prose remains separately selectable instead of making every
       // table quote include the entire preceding paragraph. Ordered instructions
       // still retain their introduction and complete sequence.
-      const quote = add((node.tagName === "OL" ? previousParagraph?.toString() ?? "" : "") + node.toString());
-      if (quote && node.tagName === "OL" && previousParagraphStart !== undefined) quote.sourceRange!.start = previousParagraphStart;
+      const quote = add(
+        (node.tagName === "OL" ? (previousParagraph?.toString() ?? "") : "") +
+          node.toString(),
+      );
+      if (
+        quote &&
+        node.tagName === "OL" &&
+        previousParagraphStart !== undefined
+      )
+        quote.sourceRange!.start = previousParagraphStart;
       previousParagraph = undefined;
       previousParagraphStart = undefined;
     }
   }
   connectedGroups.forEach((group) => {
     const quote = add(group.html, group.headingPath, group.sourceRange);
-    if (quote) quote.supersedes = group.supersedes;
+    if (quote) {
+      quote.supersedes = group.supersedes;
+      quote.listSource = group.listSource;
+    }
   });
   const positions = new Map(quotes.map((quote, index) => [quote.id, index]));
-  const sourcePosition = (quote: NoticeQuote) => quote.supersedes?.length
-    ? Math.min(...quote.supersedes.map((id) => positions.get(id)!))
-    : positions.get(quote.id)!;
-  return quotes.sort((left, right) => sourcePosition(left) - sourcePosition(right));
+  const sourcePosition = (quote: NoticeQuote) =>
+    quote.supersedes?.length
+      ? Math.min(...quote.supersedes.map((id) => positions.get(id)!))
+      : positions.get(quote.id)!;
+  return quotes.sort(
+    (left, right) => sourcePosition(left) - sourcePosition(right),
+  );
 }
 
 /** Present a connected answer block instead of its dependent fragments. */
-export function getSelectableNoticeQuotes(passage: NoticePassage): NoticeQuote[] {
-  const superseded = new Set(passage.quotes.flatMap((quote) => quote.supersedes ?? []));
+export function getSelectableNoticeQuotes(
+  passage: NoticePassage,
+): NoticeQuote[] {
+  const superseded = new Set(
+    passage.quotes.flatMap((quote) => quote.supersedes ?? []),
+  );
   return passage.quotes.filter((quote) => !superseded.has(quote.id));
+}
+
+/** Send readable source quotes once across overlapping passages. The full
+ * passage HTML stays on the server; headings retain each quote's context.
+ */
+export function prepareNoticeSelectionInput(
+  passages: NoticePassage[],
+  question: string,
+) {
+  const seen = new Set<string>();
+  const compactPassages = passages
+    .map((passage) => ({
+      id: passage.id,
+      headingPath: passage.headingPath,
+      quotes: getSelectableNoticeQuotes(passage).flatMap((quote) => {
+        const key = JSON.stringify([quote.headingPath, quote.html]);
+        if (seen.has(key)) return [];
+        seen.add(key);
+        return [
+          {
+            id: quote.id,
+            html: quote.html,
+            ...(JSON.stringify(quote.headingPath) ===
+            JSON.stringify(passage.headingPath)
+              ? {}
+              : {
+                  headingPath: quote.headingPath,
+                }),
+          },
+        ];
+      }),
+    }))
+    .filter((passage) => passage.quotes.length > 0);
+  return { question, passages: compactPassages };
 }
 
 /** Sections include their whole subtree, never isolated sentences. Ancestor
@@ -241,7 +421,8 @@ export function prepareNoticePassages(contentHtml: string): {
   for (const element of root.querySelectorAll("[id], [name]")) {
     for (const attribute of ["id", "name"]) {
       const anchor = element.getAttribute(attribute);
-      if (anchor && !firstAnchors.has(anchor)) firstAnchors.set(anchor, element);
+      if (anchor && !firstAnchors.has(anchor))
+        firstAnchors.set(anchor, element);
     }
   }
   const documentSection: Section = { level: 0, intro: [], nodes: [] };
@@ -251,9 +432,16 @@ export function prepareNoticePassages(contentHtml: string): {
   for (const node of root.childNodes.flatMap(flowNodes)) {
     const level = node instanceof HTMLElement ? headingLevel(node) : undefined;
     if (level !== undefined) {
-      while (stack.length > 1 && stack[stack.length - 1].level >= level) stack.pop();
+      while (stack.length > 1 && stack[stack.length - 1].level >= level)
+        stack.pop();
       const parent = stack[stack.length - 1];
-      const section: Section = { level, heading: node as HTMLElement, parent, intro: [], nodes: [] };
+      const section: Section = {
+        level,
+        heading: node as HTMLElement,
+        parent,
+        intro: [],
+        nodes: [],
+      };
       sections.push(section);
       stack.push(section);
     } else {
@@ -264,21 +452,39 @@ export function prepareNoticePassages(contentHtml: string): {
 
   const passages: NoticePassage[] = [];
   for (const section of sections) {
-    const ownContent = section === documentSection ? section.intro : section.nodes.filter((node) => node !== section.heading);
-    if (!ownContent.some((node) => node.textContent.trim() || (node instanceof HTMLElement && (node.tagName === "IMG" || node.querySelector("img"))))) continue;
+    const ownContent =
+      section === documentSection
+        ? section.intro
+        : section.nodes.filter((node) => node !== section.heading);
+    if (
+      !ownContent.some(
+        (node) =>
+          node.textContent.trim() ||
+          (node instanceof HTMLElement &&
+            (node.tagName === "IMG" || node.querySelector("img"))),
+      )
+    )
+      continue;
     const ancestors: Section[] = [];
-    for (let parent = section.parent; parent; parent = parent.parent) ancestors.unshift(parent);
+    for (let parent = section.parent; parent; parent = parent.parent)
+      ancestors.unshift(parent);
     const prefix = ancestors.flatMap((parent) => [
-      ...(parent.heading ? [parent.heading] : []), ...parent.intro,
+      ...(parent.heading ? [parent.heading] : []),
+      ...parent.intro,
     ]);
     const nodes = section === documentSection ? ownContent : section.nodes;
     const id = `passage-${passages.length + 1}`;
     const html = safeExcerpt([...prefix, ...nodes]);
     passages.push({
       id,
-      headingPath: [...ancestors, section].flatMap((item) => item.heading ? [item.heading.textContent.trim()] : []),
+      headingPath: [...ancestors, section].flatMap((item) =>
+        item.heading ? [item.heading.textContent.trim()] : [],
+      ),
       html,
-      target: sourceTarget(section.heading ? [section.heading, ...nodes] : nodes, firstAnchors),
+      target: sourceTarget(
+        section.heading ? [section.heading, ...nodes] : nodes,
+        firstAnchors,
+      ),
       quotes: prepareQuotes(html, id),
     });
   }
@@ -293,8 +499,62 @@ export function parseNoticeSelection(value: unknown): NoticeSelection {
   return selectionSchema.parse(value);
 }
 
+/** Only merge items proven to come from the same source list. Identical prose
+ * in separate lists must keep its own condition and population context.
+ */
+function mergeSelectedListQuotes(quotes: NoticeQuote[]): NoticeQuote[] {
+  const coveredIntroductions = new Set(
+    quotes.flatMap((quote) => quote.listSource?.introductionIds ?? []),
+  );
+  const emittedLists = new Set<string>();
+  return quotes.flatMap((quote) => {
+    if (coveredIntroductions.has(quote.id)) return [];
+    const source = quote.listSource;
+    if (!source) return [quote];
+    if (emittedLists.has(source.id)) return [];
+    emittedLists.add(source.id);
+    const selected = quotes
+      .filter((candidate) => candidate.listSource?.id === source.id)
+      .sort((a, b) => a.listSource!.itemStart - b.listSource!.itemStart);
+    if (selected.length === 1) return [quote];
+    const root = parse(selected[0].html);
+    const list = root.children.find((element) => element.tagName === "UL")!;
+    const items = selected.flatMap((item) =>
+      parse(item.html)
+        .children.find((element) => element.tagName === "UL")!
+        .children.filter(
+          (_child, index) =>
+            !(
+              index === 0 &&
+              item.listSource!.itemStart > 0 &&
+              item.listSource!.introductoryItemHtml
+            ),
+        )
+        .map((child) => child.toString()),
+    );
+    list.set_content(
+      (selected[0].listSource!.itemStart > 0
+        ? (source.introductoryItemHtml ?? "")
+        : "") + items.join(""),
+    );
+    return [
+      {
+        ...quote,
+        html: root.toString(),
+        sourceRange: quote.sourceRange && {
+          start: Math.min(...selected.map((item) => item.sourceRange!.start)),
+          end: Math.max(...selected.map((item) => item.sourceRange!.end)),
+        },
+      },
+    ];
+  });
+}
+
 /** Reject the entire selection if any source ID is invalid. No model text is rendered. */
-export function resolveNoticeSelection(passages: NoticePassage[], selection: NoticeSelection): NoticePassage[] {
+export function resolveNoticeSelection(
+  passages: NoticePassage[],
+  selection: NoticeSelection,
+): NoticePassage[] {
   if (selection.status === "insufficient_evidence") return [];
   const selectedIds = new Map<string, Set<string>>();
   for (const item of selection.selections) {
@@ -302,7 +562,8 @@ export function resolveNoticeSelection(passages: NoticePassage[], selection: Not
     if (!passage) throw new Error("Unknown notice passage");
     const ids = selectedIds.get(passage.id) ?? new Set<string>();
     for (const id of item.quote_ids) {
-      if (!passage.quotes.some((quote) => quote.id === id)) throw new Error("Unknown notice quote");
+      if (!passage.quotes.some((quote) => quote.id === id))
+        throw new Error("Unknown notice quote");
       ids.add(id);
     }
     selectedIds.set(passage.id, ids);
@@ -322,8 +583,18 @@ export function resolveNoticeSelection(passages: NoticePassage[], selection: Not
   });
   // A connected source block already contains its exact fragments. Removing
   // those duplicate copies loses no text or condition from the selected answer.
-  const superseded = new Set(selected.flatMap((passage) => passage.quotes.flatMap((quote) => quote.supersedes ?? [])));
-  const compact = selected.map((passage) => ({ ...passage, quotes: passage.quotes.filter((quote) => !superseded.has(quote.id)) }))
+  const superseded = new Set(
+    selected.flatMap((passage) =>
+      passage.quotes.flatMap((quote) => quote.supersedes ?? []),
+    ),
+  );
+  const compact = selected
+    .map((passage) => ({
+      ...passage,
+      quotes: mergeSelectedListQuotes(
+        passage.quotes.filter((quote) => !superseded.has(quote.id)),
+      ),
+    }))
     .filter((passage) => passage.quotes.length > 0);
   return compact;
 }

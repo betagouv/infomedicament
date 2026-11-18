@@ -88,7 +88,7 @@ export const questionsList: QuestionsListFormat = {
       "Enceinte",
     ],
     queryText:
-      "Grossesse, allaitement et fertilité — peut-on prendre ce médicament ?",
+      "Peut-on prendre ce médicament si on est enceinte ? Peut-on allaiter pendant le traitement ?",
     unique: false,
     tracking: "Grossesse et allaitement",
     icon: "grossesse_et_allaitement.svg",
@@ -158,9 +158,7 @@ export const questionsList: QuestionsListFormat = {
     question: "Composition",
     headerId: "Ann3bEmballage",
     queryText: "Quelle est la composition de ce médicament ?",
-    keywords: [
-      "Ce que contient",
-    ],
+    keywords: ["Ce que contient"],
     unique: true,
     tracking: "Composition",
     icon: "composition.svg",

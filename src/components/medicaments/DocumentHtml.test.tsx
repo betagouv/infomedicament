@@ -16,10 +16,22 @@ const definition = {
 
 describe("DocumentHtml", () => {
   it("materializes the unique source anchors without changing the first legacy anchor", () => {
-    const { container } = render(<DocumentHtml contentHtml={'<h2 id="legacy" data-block-id="first">Première rubrique</h2><p>Premier texte.</p><h2 id="legacy" data-block-id="second">Deuxième rubrique</h2><p>Deuxième texte.</p><h2 data-block-id="third">Sans ancre</h2><p>Troisième texte.</p>'} />);
-    expect(container.querySelector('[data-block-id="first"]')?.id).toBe("legacy");
-    expect(container.querySelector('[data-block-id="second"]')?.id).toBe("notice-block-second");
-    expect(container.querySelector('[data-block-id="third"]')?.id).toBe("notice-block-third");
+    const { container } = render(
+      <DocumentHtml
+        contentHtml={
+          '<h2 id="legacy" data-block-id="first">Première rubrique</h2><p>Premier texte.</p><h2 id="legacy" data-block-id="second">Deuxième rubrique</h2><p>Deuxième texte.</p><h2 data-block-id="third">Sans ancre</h2><p>Troisième texte.</p>'
+        }
+      />,
+    );
+    expect(container.querySelector('[data-block-id="first"]')?.id).toBe(
+      "legacy",
+    );
+    expect(container.querySelector('[data-block-id="second"]')?.id).toBe(
+      "notice-block-second",
+    );
+    expect(container.querySelector('[data-block-id="third"]')?.id).toBe(
+      "notice-block-third",
+    );
     expect(container.querySelectorAll("#legacy")).toHaveLength(1);
   });
   it("opens a definition modal through delegated pointer and keyboard events", async () => {

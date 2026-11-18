@@ -119,7 +119,11 @@ function NoticeContent({
     loading: hitsLoading,
     search,
     close,
-  } = useNoticeSearch(specialite ? getSpecSlug(specialite.SpecId, specialite.SpecDenom01) : undefined);
+  } = useNoticeSearch(
+    specialite
+      ? getSpecSlug(specialite.SpecId, specialite.SpecDenom01)
+      : undefined,
+  );
 
   const updateCurrentQuestion = (questionId: string) => {
     setCurrentQuestion(questionId);

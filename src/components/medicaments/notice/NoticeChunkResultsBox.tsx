@@ -10,18 +10,26 @@ import {
   useEffect,
   useRef,
 } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { RcpNoticeHtmlContainer } from "../blocks/GenericBlocks";
-import type { NoticeQuote, NoticeSearchResponse, NoticeSourceTarget } from "@/types/NoticeSearch";
+import type {
+  NoticeQuote,
+  NoticeSearchResponse,
+  NoticeSourceTarget,
+} from "@/types/NoticeSearch";
 
 function groupAdjacentQuotes(quotes: NoticeQuote[]): NoticeQuote[][] {
   const groups: NoticeQuote[][] = [];
   for (const quote of quotes) {
     const group = groups.at(-1);
     const previous = group?.at(-1);
-    if (group && previous?.sourceRange && quote.sourceRange
-      && quote.sourceRange.start <= previous.sourceRange.end
-      && JSON.stringify(previous.headingPath) === JSON.stringify(quote.headingPath)) {
+    if (
+      group &&
+      previous?.sourceRange &&
+      quote.sourceRange &&
+      quote.sourceRange.start <= previous.sourceRange.end &&
+      JSON.stringify(previous.headingPath) === JSON.stringify(quote.headingPath)
+    ) {
       group.push(quote);
     } else {
       groups.push([quote]);
@@ -42,6 +50,30 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+`;
+
+const spin = keyframes`
+  to { transform: rotate(360deg); }
+`;
+
+const LoadingStatus = styled.p`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const LoadingSpinner = styled.span`
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  border: 2px solid var(--border-default-grey);
+  border-top-color: var(--text-action-high-blue-france);
+  border-radius: 50%;
+  animation: ${spin} 0.8s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 `;
 
 const Excerpts = styled.div`
@@ -97,19 +129,34 @@ export default function NoticeChunkResultsBox({
     highlighted.current = [];
   }, []);
 
-  const highlightSource = useCallback((target: NoticeSourceTarget = {}) => {
-    clearHighlights();
-    const notice = document.getElementById("noticeContainer");
-    if (!notice) return;
-    // Search only the full leaflet, never a copied excerpt. Avoid interpolating selectors.
-    const targets = Array.from(notice.querySelectorAll<HTMLElement>("[id], [name], [data-block-id]"));
-    const element = (target.blockId ? targets.find((element) => element.dataset.blockId === target.blockId) : undefined)
-      ?? targets.find((element) => target.anchor && (element.id === target.anchor || element.getAttribute("name") === target.anchor));
-    if (element) {
-      element.classList.add("notice-highlight");
-      highlighted.current.push(element);
-    }
-  }, [clearHighlights]);
+  const highlightSource = useCallback(
+    (target: NoticeSourceTarget = {}) => {
+      clearHighlights();
+      const notice = document.getElementById("noticeContainer");
+      if (!notice) return;
+      // Search only the full leaflet, never a copied excerpt. Avoid interpolating selectors.
+      const targets = Array.from(
+        notice.querySelectorAll<HTMLElement>("[id], [name], [data-block-id]"),
+      );
+      const element =
+        (target.blockId
+          ? targets.find(
+              (element) => element.dataset.blockId === target.blockId,
+            )
+          : undefined) ??
+        targets.find(
+          (element) =>
+            target.anchor &&
+            (element.id === target.anchor ||
+              element.getAttribute("name") === target.anchor),
+        );
+      if (element) {
+        element.classList.add("notice-highlight");
+        highlighted.current.push(element);
+      }
+    },
+    [clearHighlights],
+  );
 
   const highlightSourceLink = (
     event: MouseEvent<HTMLAnchorElement>,
@@ -146,7 +193,12 @@ export default function NoticeChunkResultsBox({
             title="Fermer"
           />
         </Header>
-        {loading && <p role="status">Recherche de passages dans la notice…</p>}
+        {loading && (
+          <LoadingStatus role="status">
+            <LoadingSpinner aria-hidden="true" />
+            Recherche de passages dans la notice…
+          </LoadingStatus>
+        )}
         {!loading && result?.status === "supported" && (
           <>
             <Excerpts
@@ -155,21 +207,40 @@ export default function NoticeChunkResultsBox({
               aria-label="Extraits de la notice"
             >
               {result.passages.map((passage, index) => (
-                <article key={passage.id} aria-label={passage.headingPath.join(" — ") || "Extrait de la notice"}>
-                  {groupAdjacentQuotes(passage.quotes).map((group, groupIndex, groups) => (
-                    <div key={group[0].id}>
-                      {(groupIndex === 0 || JSON.stringify(groups[groupIndex - 1][0].headingPath) !== JSON.stringify(group[0].headingPath)) && (
-                        <p className={fr.cx("fr-text--sm", "fr-mb-1w")}>
-                          {group[0].headingPath.length
-                            ? <>Dans la rubrique « {group[0].headingPath.at(-1)} », la notice indique :</>
-                            : "La notice indique :"}
-                        </p>
-                      )}
-                      <blockquote>
-                        <RcpNoticeHtmlContainer dangerouslySetInnerHTML={{ __html: group.map((quote) => quote.html).join("") }} />
-                      </blockquote>
-                    </div>
-                  ))}
+                <article
+                  key={passage.id}
+                  aria-label={
+                    passage.headingPath.join(" — ") || "Extrait de la notice"
+                  }
+                >
+                  {groupAdjacentQuotes(passage.quotes).map(
+                    (group, groupIndex, groups) => (
+                      <div key={group[0].id}>
+                        {(groupIndex === 0 ||
+                          JSON.stringify(
+                            groups[groupIndex - 1][0].headingPath,
+                          ) !== JSON.stringify(group[0].headingPath)) && (
+                          <p className={fr.cx("fr-text--sm", "fr-mb-1w")}>
+                            {group[0].headingPath.length ? (
+                              <>
+                                Dans la rubrique « {group[0].headingPath.at(-1)}{" "}
+                                », la notice indique :
+                              </>
+                            ) : (
+                              "La notice indique :"
+                            )}
+                          </p>
+                        )}
+                        <blockquote>
+                          <RcpNoticeHtmlContainer
+                            dangerouslySetInnerHTML={{
+                              __html: group.map((quote) => quote.html).join(""),
+                            }}
+                          />
+                        </blockquote>
+                      </div>
+                    ),
+                  )}
                   <a
                     className={fr.cx("fr-link", "fr-text--sm")}
                     href={`#${encodeURIComponent(passage.target.anchor || "noticeContainer")}`}

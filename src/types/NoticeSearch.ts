@@ -19,6 +19,14 @@ export interface NoticeQuote {
   supersedes?: string[];
   /** Half-open positions in this passage; omitted source material creates a gap. */
   sourceRange?: { start: number; end: number };
+  /** Source identity lets selected bullets share their original introduction. */
+  listSource?: {
+    id: string;
+    itemStart: number;
+    itemEnd: number;
+    introductionIds: string[];
+    introductoryItemHtml?: string;
+  };
 }
 
 export type NoticeSearchResponse =
