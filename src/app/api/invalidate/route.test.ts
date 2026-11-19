@@ -27,7 +27,12 @@ describe("POST /api/invalidate", () => {
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it.each([undefined, "Bearer wrong", "Basic test-import-secret", "test-import-secret"])(
+  it.each([
+    undefined,
+    "Bearer wrong",
+    "Basic test-import-secret",
+    "test-import-secret",
+  ])(
     "rejects unauthorized requests (%s) without invalidating caches",
     async (authorization) => {
       const response = await POST(request(authorization));
@@ -39,7 +44,9 @@ describe("POST /api/invalidate", () => {
   );
 
   it("does not accept secrets in query parameters", async () => {
-    const response = await POST(request(undefined, "?token=test-import-secret"));
+    const response = await POST(
+      request(undefined, "?token=test-import-secret"),
+    );
     expect(response.status).toBe(401);
     expect(revalidatePath).not.toHaveBeenCalled();
   });

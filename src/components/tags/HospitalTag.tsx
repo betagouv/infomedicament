@@ -10,11 +10,7 @@ interface HospitalTagProps extends HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
-function HospitalTag({ 
-  hideIcon,
-  className
-}: HospitalTagProps) {
-
+function HospitalTag({ hideIcon, className }: HospitalTagProps) {
   return (
     <Tag
       iconId={!hideIcon ? "fr-icon-hospital-fill" : undefined}

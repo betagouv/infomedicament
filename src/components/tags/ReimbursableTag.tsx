@@ -10,11 +10,7 @@ interface ReimbursableTagProps extends HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
-function ReimbursableTag({ 
-  hideIcon,
-  className
-}: ReimbursableTagProps) {
-
+function ReimbursableTag({ hideIcon, className }: ReimbursableTagProps) {
   return (
     <Tag
       iconId={!hideIcon ? "fr-icon-money-euro-circle-fill" : undefined}

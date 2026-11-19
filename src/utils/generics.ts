@@ -1,12 +1,19 @@
 import type { GenericGroup } from "@/db/utils/generics";
-import { formatFrenchList, formatSpecName, groupGeneNameToDCI } from "@/displayUtils";
+import {
+  formatFrenchList,
+  formatSpecName,
+  groupGeneNameToDCI,
+} from "@/displayUtils";
 import { getSlug } from "@/utils/slug";
 
 /**
  * Builds the generic group page slug: slugified DCI part of the group name
  * followed by the group code, e.g. "cimetidine-200-mg-2" (see getSlug).
  */
-export function getGenericSlug(codeGroupe: number | string, name: string): string {
+export function getGenericSlug(
+  codeGroupe: number | string,
+  name: string,
+): string {
   return getSlug(codeGroupe, groupGeneNameToDCI(name));
 }
 
@@ -18,7 +25,9 @@ export function getGenericSlug(codeGroupe: number | string, name: string): strin
 export function getGenericGroupDescription(group: GenericGroup): string {
   const { princeps, generiques } = group;
 
-  const princepsNames = formatFrenchList(princeps.map((p) => formatSpecName(p.SpecDenom01.trim())));
+  const princepsNames = formatFrenchList(
+    princeps.map((p) => formatSpecName(p.SpecDenom01.trim())),
+  );
 
   const princepsPart =
     princeps.length > 1

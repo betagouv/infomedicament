@@ -4,17 +4,18 @@ Procédure pour envoyer de nouvelles notices / RCP vers S3 (dossier de staging),
 puis les synchroniser et les importer en base via le projet **dataeng**.
 
 > **Conventions de pattern** :
+>
 > - `N` — notices
 > - `R` — RCP
 
 ## Vue d'ensemble
 
-| Étape | Où | Objectif |
-|-------|-----|----------|
-| 1 | Local (rclone) | Envoyer les fichiers dans le dossier de staging S3 |
-| 2 | Projet dataeng | Synchroniser depuis S3 |
-| 3 | Projet dataeng | Importer en base locale |
-| 4 | Scalingo | Importer en base distante |
+| Étape | Où             | Objectif                                           |
+| ----- | -------------- | -------------------------------------------------- |
+| 1     | Local (rclone) | Envoyer les fichiers dans le dossier de staging S3 |
+| 2     | Projet dataeng | Synchroniser depuis S3                             |
+| 3     | Projet dataeng | Importer en base locale                            |
+| 4     | Scalingo       | Importer en base distante                          |
 
 ---
 

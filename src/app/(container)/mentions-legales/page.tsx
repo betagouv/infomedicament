@@ -38,7 +38,9 @@ export default async function Page() {
             .
           </p>
           <h2>Directeur de publication</h2>
-          <p>Nicolas Delemer - Directeur des Systèmes d&apos;Information, ANSM</p>
+          <p>
+            Nicolas Delemer - Directeur des Systèmes d&apos;Information, ANSM
+          </p>
           <h2>Code source</h2>
           <p>
             Le code source du site est{" "}
@@ -56,9 +58,9 @@ export default async function Page() {
           <p>
             Le site est protégé par un certificat électronique, matérialisé pour
             la grande majorité des navigateurs par un cadenas. Cette protection
-            participe à la confidentialité des échanges. En aucun cas les services
-            associés à la plateforme ne seront à l’origine d’envoi de courriels
-            pour demander la saisie d’informations personnelles.
+            participe à la confidentialité des échanges. En aucun cas les
+            services associés à la plateforme ne seront à l’origine d’envoi de
+            courriels pour demander la saisie d’informations personnelles.
           </p>
         </div>
       </div>

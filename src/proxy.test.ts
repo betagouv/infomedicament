@@ -87,7 +87,8 @@ describe("proxy rate limiting configuration", () => {
     if (originalRateLimit === undefined) delete process.env.RATE_LIMIT;
     else process.env.RATE_LIMIT = originalRateLimit;
 
-    if (originalRateLimitEnabled === undefined) delete process.env.RATE_LIMIT_ENABLED;
+    if (originalRateLimitEnabled === undefined)
+      delete process.env.RATE_LIMIT_ENABLED;
     else process.env.RATE_LIMIT_ENABLED = originalRateLimitEnabled;
   });
 
@@ -95,8 +96,14 @@ describe("proxy rate limiting configuration", () => {
     process.env.RATE_LIMIT = "1";
     const headers = { "x-forwarded-for": "rate-limit-override" };
 
-    expect(proxy(new NextRequest("http://localhost/medicaments/123", { headers })).status).toBe(200);
-    expect(proxy(new NextRequest("http://localhost/medicaments/123", { headers })).status).toBe(429);
+    expect(
+      proxy(new NextRequest("http://localhost/medicaments/123", { headers }))
+        .status,
+    ).toBe(200);
+    expect(
+      proxy(new NextRequest("http://localhost/medicaments/123", { headers }))
+        .status,
+    ).toBe(429);
   });
 
   it("allows disabling the global rate limit", () => {
@@ -104,8 +111,13 @@ describe("proxy rate limiting configuration", () => {
     process.env.RATE_LIMIT_ENABLED = "false";
     const headers = { "x-forwarded-for": "rate-limit-disabled" };
 
-    expect(proxy(new NextRequest("http://localhost/medicaments/123", { headers })).status).toBe(200);
-    const response = proxy(new NextRequest("http://localhost/medicaments/123", { headers }));
+    expect(
+      proxy(new NextRequest("http://localhost/medicaments/123", { headers }))
+        .status,
+    ).toBe(200);
+    const response = proxy(
+      new NextRequest("http://localhost/medicaments/123", { headers }),
+    );
 
     expect(response.status).toBe(200);
     expect(response.headers.has("X-RateLimit-Remaining")).toBe(false);
@@ -118,8 +130,12 @@ describe("proxy rate limiting configuration", () => {
       "x-forwarded-for": "fetch-rate-limit",
     };
 
-    expect(proxy(new NextRequest("http://localhost/api/data", { headers })).status).toBe(200);
-    expect(proxy(new NextRequest("http://localhost/api/data", { headers })).status).toBe(429);
+    expect(
+      proxy(new NextRequest("http://localhost/api/data", { headers })).status,
+    ).toBe(200);
+    expect(
+      proxy(new NextRequest("http://localhost/api/data", { headers })).status,
+    ).toBe(429);
   });
 
   it("does not count RSC fetches against the page navigation limit", () => {
@@ -135,17 +151,29 @@ describe("proxy rate limiting configuration", () => {
     };
 
     for (let index = 0; index < 6; index++) {
-      expect(proxy(new NextRequest(`http://localhost/articles?_rsc=${index}`, {
-        headers: fetchHeaders,
-      })).status).toBe(200);
+      expect(
+        proxy(
+          new NextRequest(`http://localhost/articles?_rsc=${index}`, {
+            headers: fetchHeaders,
+          }),
+        ).status,
+      ).toBe(200);
     }
 
-    expect(proxy(new NextRequest("http://localhost/articles", {
-      headers: documentHeaders,
-    })).status).toBe(200);
-    expect(proxy(new NextRequest("http://localhost/articles", {
-      headers: documentHeaders,
-    })).status).toBe(429);
+    expect(
+      proxy(
+        new NextRequest("http://localhost/articles", {
+          headers: documentHeaders,
+        }),
+      ).status,
+    ).toBe(200);
+    expect(
+      proxy(
+        new NextRequest("http://localhost/articles", {
+          headers: documentHeaders,
+        }),
+      ).status,
+    ).toBe(429);
   });
 
   it("keeps API and page navigation quotas separate", () => {
@@ -156,49 +184,91 @@ describe("proxy rate limiting configuration", () => {
       "x-forwarded-for": ip,
     };
 
-    expect(proxy(new NextRequest("http://localhost/rechercher/autocomplete?s=para", {
-      headers: fetchHeaders,
-    })).status).toBe(200);
-    expect(proxy(new NextRequest("http://localhost/rechercher/autocomplete?s=parac", {
-      headers: fetchHeaders,
-    })).status).toBe(429);
-    expect(proxy(new NextRequest("http://localhost/articles", {
-      headers: {
-        "sec-fetch-dest": "document",
-        "x-forwarded-for": ip,
-      },
-    })).status).toBe(200);
+    expect(
+      proxy(
+        new NextRequest("http://localhost/rechercher/autocomplete?s=para", {
+          headers: fetchHeaders,
+        }),
+      ).status,
+    ).toBe(200);
+    expect(
+      proxy(
+        new NextRequest("http://localhost/rechercher/autocomplete?s=parac", {
+          headers: fetchHeaders,
+        }),
+      ).status,
+    ).toBe(429);
+    expect(
+      proxy(
+        new NextRequest("http://localhost/articles", {
+          headers: {
+            "sec-fetch-dest": "document",
+            "x-forwarded-for": ip,
+          },
+        }),
+      ).status,
+    ).toBe(200);
   });
 
   it("counts the advanced search endpoint against the API quota", () => {
     process.env.RATE_LIMIT = "1";
-    const headers = { "sec-fetch-dest": "empty", "x-forwarded-for": "advanced-search-api-quota" };
-    expect(proxy(new NextRequest("http://localhost/rechercher/advanced/results?holder=Exemple", { headers })).status).toBe(200);
-    expect(proxy(new NextRequest("http://localhost/rechercher/advanced/results?holder=Autre", { headers })).status).toBe(429);
-    expect(proxy(new NextRequest("http://localhost/rechercher", { headers: { ...headers, "sec-fetch-dest": "document" } })).status).toBe(200);
+    const headers = {
+      "sec-fetch-dest": "empty",
+      "x-forwarded-for": "advanced-search-api-quota",
+    };
+    expect(
+      proxy(
+        new NextRequest(
+          "http://localhost/rechercher/advanced/results?holder=Exemple",
+          { headers },
+        ),
+      ).status,
+    ).toBe(200);
+    expect(
+      proxy(
+        new NextRequest(
+          "http://localhost/rechercher/advanced/results?holder=Autre",
+          { headers },
+        ),
+      ).status,
+    ).toBe(429);
+    expect(
+      proxy(
+        new NextRequest("http://localhost/rechercher", {
+          headers: { ...headers, "sec-fetch-dest": "document" },
+        }),
+      ).status,
+    ).toBe(200);
   });
 
   it("does not count rating requests against the page navigation limit", () => {
     process.env.RATE_LIMIT = "1";
     const ip = "separate-rating-page-limits";
-    const ratingRequest = () => proxy(new NextRequest("http://localhost/rating", {
-      method: "POST",
-      headers: {
-        "sec-fetch-dest": "empty",
-        "x-forwarded-for": ip,
-      },
-    }));
+    const ratingRequest = () =>
+      proxy(
+        new NextRequest("http://localhost/rating", {
+          method: "POST",
+          headers: {
+            "sec-fetch-dest": "empty",
+            "x-forwarded-for": ip,
+          },
+        }),
+      );
 
     for (let index = 0; index < 4; index++) {
       expect(ratingRequest().status).toBe(200);
     }
     expect(ratingRequest().status).toBe(429);
-    expect(proxy(new NextRequest("http://localhost/articles", {
-      headers: {
-        "sec-fetch-dest": "document",
-        "x-forwarded-for": ip,
-      },
-    })).status).toBe(200);
+    expect(
+      proxy(
+        new NextRequest("http://localhost/articles", {
+          headers: {
+            "sec-fetch-dest": "document",
+            "x-forwarded-for": ip,
+          },
+        }),
+      ).status,
+    ).toBe(200);
   });
 
   it("does not count static requests against the application rate limit", () => {
@@ -208,8 +278,12 @@ describe("proxy rate limiting configuration", () => {
       "x-forwarded-for": "static-rate-limit",
     };
 
-    expect(proxy(new NextRequest("http://localhost/styles.css", { headers })).status).toBe(200);
-    expect(proxy(new NextRequest("http://localhost/styles.css", { headers })).status).toBe(200);
+    expect(
+      proxy(new NextRequest("http://localhost/styles.css", { headers })).status,
+    ).toBe(200);
+    expect(
+      proxy(new NextRequest("http://localhost/styles.css", { headers })).status,
+    ).toBe(200);
     expect(logger.info).not.toHaveBeenCalled();
     expect(logger.warn).not.toHaveBeenCalled();
   });

@@ -20,9 +20,9 @@ export async function generateStaticParams() {
   );
 }
 
-export async function generateMetadata(
-  props: { params: Promise<{ slug: string }> },
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await props.params;
   const CIS = getNumericIdFromSlug(slug);
 

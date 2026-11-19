@@ -36,7 +36,9 @@ describe("DocumentHtml", () => {
       />,
     );
 
-    const term = screen.getByText("pharmacovigilance").closest<HTMLElement>("[data-definition]");
+    const term = screen
+      .getByText("pharmacovigilance")
+      .closest<HTMLElement>("[data-definition]");
     expect(term).not.toBeNull();
     await waitFor(() => expect(term?.getAttribute("role")).toBe("button"));
     expect(term?.getAttribute("tabindex")).toBe("0");

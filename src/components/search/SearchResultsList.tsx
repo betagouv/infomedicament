@@ -75,9 +75,11 @@ function SearchResultsList({
             id: result.subsIds.join(),
             name: result.subsTitle ? result.subsTitle : result.composants,
             // Composants only if different from the title of the substances page
-            secondaryName: result.subsTitle && result.subsTitle.trim() !== cleanSubstanceName(result.composants)
-              ? result.composants
-              : undefined,
+            secondaryName:
+              result.subsTitle &&
+              result.subsTitle.trim() !== cleanSubstanceName(result.composants)
+                ? result.composants
+                : undefined,
             count: 1,
             selected: false,
           });

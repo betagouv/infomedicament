@@ -9,10 +9,7 @@ interface PrescriptionTagProps extends HTMLAttributes<HTMLDivElement> {
   hideIcon?: boolean;
 }
 
-function PrescriptionTag({ 
-  hideIcon,
-}: PrescriptionTagProps) {
-
+function PrescriptionTag({ hideIcon }: PrescriptionTagProps) {
   return (
     <Tag
       iconId={!hideIcon ? "fr-icon-file-text-fill" : undefined}

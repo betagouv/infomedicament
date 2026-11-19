@@ -1,6 +1,24 @@
 import { describe, it, expect } from "vitest";
-import { filterSpecsGroupsByCIS, formatIndicationsDetails, formatSpecialitesResume, getProcedureLibLong, getSpecSlug, isAIP, isAlerteSecurite, isCentralisee, isCommercialisee, isHomeopathie, isHospitalDelivrance, isSurveillanceRenforcee } from "./specialites";
-import { DelivranceCondition, DetailedSpecialite, ResumeSpecGroup, SpecialiteStat } from "@/types/SpecialiteTypes";
+import {
+  filterSpecsGroupsByCIS,
+  formatIndicationsDetails,
+  formatSpecialitesResume,
+  getProcedureLibLong,
+  getSpecSlug,
+  isAIP,
+  isAlerteSecurite,
+  isCentralisee,
+  isCommercialisee,
+  isHomeopathie,
+  isHospitalDelivrance,
+  isSurveillanceRenforcee,
+} from "./specialites";
+import {
+  DelivranceCondition,
+  DetailedSpecialite,
+  ResumeSpecGroup,
+  SpecialiteStat,
+} from "@/types/SpecialiteTypes";
 import type { SafetyEvent } from "@/types/FicheInfoTypes";
 import { ShortIndication } from "@/types/IndicationsTypes";
 import { ResumeSpecialiteDB } from "@/db/types";
@@ -16,14 +34,13 @@ const detailedSpec: DetailedSpecialite = {
   Een: "Latex caoutchouc naturel, Sorbitol",
   statutAutorisation: "Valide",
   statutComm: "Commercialisée",
-  titulairesList: 'JANSSEN BIOLOGICS BV',
+  titulairesList: "JANSSEN BIOLOGICS BV",
   genericGroupCode: null,
   genericGroupName: null,
   referenceSpecialite: null,
-}
+};
 
 describe("utils specialities", () => {
-
   it("isCentralisee", async () => {
     //Centralisée
     detailedSpec.ProcId = "CENTRALISEE";
@@ -31,7 +48,7 @@ describe("utils specialities", () => {
     //Not centralisée
     detailedSpec.ProcId = "IMPORTATION_PARALLELE";
     expect(isCentralisee(detailedSpec)).toBe(false);
-  })
+  });
 
   it("isCommercialisee", async () => {
     //Commercialisée
@@ -39,7 +56,7 @@ describe("utils specialities", () => {
     //Not Commercialisée
     detailedSpec.StatutBdm = 2;
     expect(isCommercialisee(detailedSpec)).toBe(false);
-  })
+  });
 
   it("isAIP", async () => {
     //AIP
@@ -48,7 +65,7 @@ describe("utils specialities", () => {
     //Not AIP
     detailedSpec.ProcId = "CENTRALISEE";
     expect(isAIP(detailedSpec)).toBe(false);
-  })
+  });
 
   it("isAlerteSecurite", async () => {
     //Not Alerte Sécurité
@@ -56,7 +73,7 @@ describe("utils specialities", () => {
     //Alerte Sécurité
     detailedSpec.StatutBdm = 3;
     expect(isAlerteSecurite(detailedSpec)).toBe(true);
-  })
+  });
 
   it("isHomeopathie", async () => {
     //Not Homéopathie
@@ -65,13 +82,17 @@ describe("utils specialities", () => {
     //Homéopathie
     detailedSpec.ProcId = "HOMEOPATHIQUE_NATIONALE";
     expect(isHomeopathie(detailedSpec)).toBe(true);
-  })
+  });
 
   it("formats textual procedures", () => {
     expect(getProcedureLibLong("NATIONALE")).toBe("Procédure nationale");
     expect(getProcedureLibLong("CENTRALISEE")).toBe("Procédure centralisée");
-    expect(getProcedureLibLong("IMPORTATION_PARALLELE")).toBe("Autorisation d'Importation Parallèle");
-    expect(getProcedureLibLong("HOMEOPATHIQUE_NATIONALE")).toBe("Enregistrement homéopathique en procédure nationale");
+    expect(getProcedureLibLong("IMPORTATION_PARALLELE")).toBe(
+      "Autorisation d'Importation Parallèle",
+    );
+    expect(getProcedureLibLong("HOMEOPATHIQUE_NATIONALE")).toBe(
+      "Enregistrement homéopathique en procédure nationale",
+    );
   });
 
   it("isSurveillanceRenforcee", async () => {
@@ -79,16 +100,25 @@ describe("utils specialities", () => {
       specialiteId: "60035714",
       code,
       sequence: 1,
-      typeLabel: code === 83 ? "Médicament soumis à une surveillance renforcée" : "Autre",
+      typeLabel:
+        code === 83
+          ? "Médicament soumis à une surveillance renforcée"
+          : "Autre",
       eventDate: new Date("2021-10-01"),
       expiryDate: new Date(expiryDate),
       comment: "Commentaire 1",
       modifiedAt: null,
     });
     const now = new Date("2026-01-01");
-    const eventsSurveillance = [event(84, "2029-10-01"), event(83, "2029-10-01")];
+    const eventsSurveillance = [
+      event(84, "2029-10-01"),
+      event(83, "2029-10-01"),
+    ];
     const eventsNotSurveillance = [event(84, "2029-10-01")];
-    const eventsNotSurveillanceBis = [event(84, "2029-10-01"), event(83, "2025-10-01")];
+    const eventsNotSurveillanceBis = [
+      event(84, "2029-10-01"),
+      event(83, "2025-10-01"),
+    ];
     //Surveillance Renforcée
     expect(isSurveillanceRenforcee(eventsSurveillance, now)).toBe(true);
     //Not Surveillance Renforcé : zéro event
@@ -101,10 +131,10 @@ describe("utils specialities", () => {
     //GroupName : ACECLOFENAC ACCORD
     const indicationssList: string[][] = [
       ["99", "Arthrose"],
-      ["76","Polyarthrite rhumatoïde"],
-      ["225","Inflammation"],
-      ["213","Douleur"],
-      ["236","Rhumatismes inflammatoires"]
+      ["76", "Polyarthrite rhumatoïde"],
+      ["225", "Inflammation"],
+      ["213", "Douleur"],
+      ["236", "Rhumatismes inflammatoires"],
     ];
     const expectedIndicationsList: ShortIndication[] = [
       {
@@ -128,90 +158,105 @@ describe("utils specialities", () => {
         nomIndication: "Rhumatismes inflammatoires",
       },
     ];
-    expect(formatIndicationsDetails(indicationssList)).toStrictEqual(expectedIndicationsList);
+    expect(formatIndicationsDetails(indicationssList)).toStrictEqual(
+      expectedIndicationsList,
+    );
   });
 
   it("formatSpecialitesResume", async () => {
-    const specs:ResumeSpecialiteDB[] = [{
-      ProcId: "10",
-      StatutBdm: 1,
-      atc1Code: "N",
-      atc2Code: "N03",
-      atc5Code: "N03AG01",
-      composants: "sodium (valproate de)",
-      groupName: "DEPAKINE",
-      indicationsIds: [36, 162],
-      indicationsIdsNames: [
-        ['36', 'Epilepsie'],
-        ['162', 'Convulsions']
-      ],
-      isAlertPediatricContraindication: false,
-      isAlertPregnancyMention: true,
-      isAlertPregnancyPlan: true,
-      isSurveillanceRenforcee: true,
-      specId: "67623734",
-      specName: "DEPAKINE 200 mg, comprimé gastro-résistant",
-      subsIds: ['05562'],
-      subsTitle: null,
-    }]
+    const specs: ResumeSpecialiteDB[] = [
+      {
+        ProcId: "10",
+        StatutBdm: 1,
+        atc1Code: "N",
+        atc2Code: "N03",
+        atc5Code: "N03AG01",
+        composants: "sodium (valproate de)",
+        groupName: "DEPAKINE",
+        indicationsIds: [36, 162],
+        indicationsIdsNames: [
+          ["36", "Epilepsie"],
+          ["162", "Convulsions"],
+        ],
+        isAlertPediatricContraindication: false,
+        isAlertPregnancyMention: true,
+        isAlertPregnancyPlan: true,
+        isSurveillanceRenforcee: true,
+        specId: "67623734",
+        specName: "DEPAKINE 200 mg, comprimé gastro-résistant",
+        subsIds: ["05562"],
+        subsTitle: null,
+      },
+    ];
     const formattedSpecs = formatSpecialitesResume(specs);
-    const expectedIndicationsDetails = [{
-      idIndication: 36,
-      nomIndication: "Epilepsie",
-    },
-    {
-      idIndication: 162,
-      nomIndication: "Convulsions",
-    }];
-    
-    expect(formattedSpecs[0].indicationsDetails).toStrictEqual(expectedIndicationsDetails);
-  });
+    const expectedIndicationsDetails = [
+      {
+        idIndication: 36,
+        nomIndication: "Epilepsie",
+      },
+      {
+        idIndication: 162,
+        nomIndication: "Convulsions",
+      },
+    ];
 
+    expect(formattedSpecs[0].indicationsDetails).toStrictEqual(
+      expectedIndicationsDetails,
+    );
+  });
 });
 
 describe("utils specialities - delivrance", () => {
-
   it("isHospitalDelivrance", async () => {
     //Usage hospitalier
-    const delivrances_1: DelivranceCondition[] = [{
-      shortLabel: "liste I",
-      code: 120,
-      longLabel: "liste I",
-    },
-    {
-      shortLabel:"nécessitant surveillance particulière pendant traitement",
-      code: 13,
-      longLabel: "médicament nécessitant une surveillance particulière pendant le traitement",
-    },
-    {
-      shortLabel: "médecins compétents en CANCEROLOGIE",
-      code: 211,
-      longLabel: "prescription réservée aux médecins compétents en CANCEROLOGIE",
-    },
-    {
-      shortLabel: "spécialistes et services ONCOLOGIE MEDICALE",
-      code: 15,
-      longLabel: "prescription réservée aux spécialistes et services ONCOLOGIE MEDICALE",
-    },
-    {
-      shortLabel: "réservé à l'usage HOSPITALIER",
-      code: 3,
-      longLabel: "réservé à l'usage HOSPITALIER",
-    }];
+    const delivrances_1: DelivranceCondition[] = [
+      {
+        shortLabel: "liste I",
+        code: 120,
+        longLabel: "liste I",
+      },
+      {
+        shortLabel: "nécessitant surveillance particulière pendant traitement",
+        code: 13,
+        longLabel:
+          "médicament nécessitant une surveillance particulière pendant le traitement",
+      },
+      {
+        shortLabel: "médecins compétents en CANCEROLOGIE",
+        code: 211,
+        longLabel:
+          "prescription réservée aux médecins compétents en CANCEROLOGIE",
+      },
+      {
+        shortLabel: "spécialistes et services ONCOLOGIE MEDICALE",
+        code: 15,
+        longLabel:
+          "prescription réservée aux spécialistes et services ONCOLOGIE MEDICALE",
+      },
+      {
+        shortLabel: "réservé à l'usage HOSPITALIER",
+        code: 3,
+        longLabel: "réservé à l'usage HOSPITALIER",
+      },
+    ];
     expect(isHospitalDelivrance(delivrances_1)).toBe(true);
 
     //Not "Usage hospitalier"
-    const delivrances_2: DelivranceCondition[] = [{
-      shortLabel: "hors ETS : prescr. par médecins, sages-femmes et centres habilités art L.2212-2",
-      code: 199,
-      longLabel: "hors établissement de santé : prescription réservée aux médecins, sages-femmes et centres habilités conformément à l'article L.2212-2 du code de la santé publique",
-    },
-    {
-      shortLabel: "liste I",
-      code: 120,
-      longLabel: "liste I",
-    }];
-    
+    const delivrances_2: DelivranceCondition[] = [
+      {
+        shortLabel:
+          "hors ETS : prescr. par médecins, sages-femmes et centres habilités art L.2212-2",
+        code: 199,
+        longLabel:
+          "hors établissement de santé : prescription réservée aux médecins, sages-femmes et centres habilités conformément à l'article L.2212-2 du code de la santé publique",
+      },
+      {
+        shortLabel: "liste I",
+        code: 120,
+        longLabel: "liste I",
+      },
+    ];
+
     expect(isHospitalDelivrance(delivrances_2)).toBe(false);
   });
 });
@@ -223,12 +268,30 @@ describe("filterSpecsGroupsByCIS", () => {
     subsIds: ["04913"],
     subsNamesIds: ["04913"],
     specialites: [
-      ["65070886", "FUCIDINE 250 mg, comprimé pelliculé", "1", "NATIONALE", "false"],
+      [
+        "65070886",
+        "FUCIDINE 250 mg, comprimé pelliculé",
+        "1",
+        "NATIONALE",
+        "false",
+      ],
       ["60330586", "FUCIDINE 2 POUR CENT, crème", "1", "NATIONALE", "false"],
     ],
     shortSpecialites: [
-      { SpecId: "65070886", SpecDenom01: "FUCIDINE 250 mg, comprimé pelliculé", StatutBdm: "1", ProcId: "NATIONALE", isSurveillanceRenforcee: false },
-      { SpecId: "60330586", SpecDenom01: "FUCIDINE 2 POUR CENT, crème", StatutBdm: "1", ProcId: "NATIONALE", isSurveillanceRenforcee: false },
+      {
+        SpecId: "65070886",
+        SpecDenom01: "FUCIDINE 250 mg, comprimé pelliculé",
+        StatutBdm: "1",
+        ProcId: "NATIONALE",
+        isSurveillanceRenforcee: false,
+      },
+      {
+        SpecId: "60330586",
+        SpecDenom01: "FUCIDINE 2 POUR CENT, crème",
+        StatutBdm: "1",
+        ProcId: "NATIONALE",
+        isSurveillanceRenforcee: false,
+      },
     ],
     indicationsIds: [],
     atc1Code: "D",
@@ -243,7 +306,9 @@ describe("filterSpecsGroupsByCIS", () => {
 
     expect(group.CISList).toEqual(["60330586"]);
     expect(group.specialites.map((spec) => spec[0])).toEqual(["60330586"]);
-    expect(group.shortSpecialites.map((spec) => spec.SpecId)).toEqual(["60330586"]);
+    expect(group.shortSpecialites.map((spec) => spec.SpecId)).toEqual([
+      "60330586",
+    ]);
   });
 
   it("removes the medicaments groups without specialite of the CIS list", () => {
@@ -258,8 +323,26 @@ describe("filterSpecsGroupsByCIS", () => {
       subsIds: ["00420", "02202"],
       subsNamesIds: ["00420", "02202"],
       specialites: [
-        ["60166467", "CLARADOL 500 mg CAFEINE, comprimé", "1", "NATIONALE", "false", "caféine, paracétamol", "00420,02202", "00420,02202"],
-        ["67458001", "CLARADOL 500 mg, comprimé sécable", "1", "NATIONALE", "false", "paracétamol", "02202", "02202"],
+        [
+          "60166467",
+          "CLARADOL 500 mg CAFEINE, comprimé",
+          "1",
+          "NATIONALE",
+          "false",
+          "caféine, paracétamol",
+          "00420,02202",
+          "00420,02202",
+        ],
+        [
+          "67458001",
+          "CLARADOL 500 mg, comprimé sécable",
+          "1",
+          "NATIONALE",
+          "false",
+          "paracétamol",
+          "02202",
+          "02202",
+        ],
       ],
       shortSpecialites: [],
       CISList: ["60166467", "67458001"],
@@ -272,7 +355,9 @@ describe("filterSpecsGroupsByCIS", () => {
   });
 
   it("keeps a medicamentgroup unchanged when all its specialites are in the CIS list", () => {
-    expect(filterSpecsGroupsByCIS([fucidine], ["65070886", "60330586"])).toEqual([fucidine]);
+    expect(
+      filterSpecsGroupsByCIS([fucidine], ["65070886", "60330586"]),
+    ).toEqual([fucidine]);
   });
 });
 
@@ -287,15 +372,21 @@ describe("specialities slugs", () => {
     expect(getSpecSlug("67613291", "IZALGI 500 mg/25 mg, gélule")).toBe(
       "izalgi-500-mg-25-mg-gelule-67613291",
     );
-    expect(getSpecSlug("64976070", "TRIZIVIR 300 mg / 150 mg / 300 mg, comprimé pelliculé")).toBe(
-      "trizivir-300-mg-150-mg-300-mg-comprime-pellicule-64976070",
-    );
+    expect(
+      getSpecSlug(
+        "64976070",
+        "TRIZIVIR 300 mg / 150 mg / 300 mg, comprimé pelliculé",
+      ),
+    ).toBe("trizivir-300-mg-150-mg-300-mg-comprime-pellicule-64976070");
   });
 
   it("replaces parentheses with dashes", () => {
-    expect(getSpecSlug("69174918", "COMIRNATY, dispersion injectable(vaccin à ARNm)")).toBe(
-      "comirnaty-dispersion-injectable-vaccin-a-arnm-69174918",
-    );
+    expect(
+      getSpecSlug(
+        "69174918",
+        "COMIRNATY, dispersion injectable(vaccin à ARNm)",
+      ),
+    ).toBe("comirnaty-dispersion-injectable-vaccin-a-arnm-69174918");
   });
 
   it("keeps decimal commas as separators", () => {
@@ -305,9 +396,12 @@ describe("specialities slugs", () => {
   });
 
   it("replaces periods with dashes", () => {
-    expect(getSpecSlug("1", "COMIRNATY OMICRON XBB.1.5, dispersion injectable.Vaccin")).toBe(
-      "comirnaty-omicron-xbb-1-5-dispersion-injectable-vaccin-1",
-    );
+    expect(
+      getSpecSlug(
+        "1",
+        "COMIRNATY OMICRON XBB.1.5, dispersion injectable.Vaccin",
+      ),
+    ).toBe("comirnaty-omicron-xbb-1-5-dispersion-injectable-vaccin-1");
     expect(getSpecSlug("2", "DUTASTERIDE BIOGARAN 0.5 mg, capsule molle")).toBe(
       "dutasteride-biogaran-0-5-mg-capsule-molle-2",
     );

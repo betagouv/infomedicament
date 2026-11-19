@@ -46,7 +46,9 @@ describe("NoticeBlock", () => {
       marginBottom: "0px",
       textDecoration: "underline",
     });
-    expect(getComputedStyle(screen.getByText("Holder address")).marginBottom).toBe("0px");
+    expect(
+      getComputedStyle(screen.getByText("Holder address")).marginBottom,
+    ).toBe("0px");
     expect(getComputedStyle(screen.getByText("Composition"))).toMatchObject({
       display: "block",
       fontSize: "1rem",

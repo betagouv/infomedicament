@@ -21,15 +21,30 @@ describe("utils/glossary - withDefinitions", () => {
   });
 
   it("links each occurrence of the word in a text", () => {
-    render(<p>{withDefinitions("Posologie : respecter la posologie et les posologies.", [posologie])}</p>);
+    render(
+      <p>
+        {withDefinitions(
+          "Posologie : respecter la posologie et les posologies.",
+          [posologie],
+        )}
+      </p>,
+    );
     const links = screen.getAllByRole("button");
 
-    expect(links.map((link) => link.textContent)).toEqual(["Posologie", "posologie", "posologies"]);
-    expect(links[0].closest("p")?.textContent).toBe("Posologie : respecter la posologie et les posologies.");
+    expect(links.map((link) => link.textContent)).toEqual([
+      "Posologie",
+      "posologie",
+      "posologies",
+    ]);
+    expect(links[0].closest("p")?.textContent).toBe(
+      "Posologie : respecter la posologie et les posologies.",
+    );
   });
 
   it("links the plural of the word", () => {
-    render(<p>{withDefinitions("Les posologies sont différentes.", [posologie])}</p>);
+    render(
+      <p>{withDefinitions("Les posologies sont différentes.", [posologie])}</p>,
+    );
 
     expect(screen.getByRole("button").textContent).toBe("posologies");
   });
@@ -41,7 +56,14 @@ describe("utils/glossary - withDefinitions", () => {
   });
 
   it("keeps the nested elements unchanged", () => {
-    render(<p>{withDefinitions(["Vérifier la posologie ", <strong key="strong">posologie</strong>], [posologie])}</p>);
+    render(
+      <p>
+        {withDefinitions(
+          ["Vérifier la posologie ", <strong key="strong">posologie</strong>],
+          [posologie],
+        )}
+      </p>,
+    );
 
     expect(screen.getAllByRole("button")).toHaveLength(1);
     expect(screen.getByText("posologie", { selector: "strong" })).toBeTruthy();
@@ -56,10 +78,17 @@ describe("utils/glossary - withDefinitions", () => {
 
 describe("utils/glossary - withDefinition", () => {
   it("links each occurrence of the word", () => {
-    render(<p>{withDefinition("Posologie : respecter la posologie.", posologie)}</p>);
+    render(
+      <p>{withDefinition("Posologie : respecter la posologie.", posologie)}</p>,
+    );
     const links = screen.getAllByRole("button");
 
-    expect(links.map((link) => link.textContent)).toEqual(["Posologie", "posologie"]);
-    expect(links[0].closest("p")?.textContent).toBe("Posologie : respecter la posologie.");
+    expect(links.map((link) => link.textContent)).toEqual([
+      "Posologie",
+      "posologie",
+    ]);
+    expect(links[0].closest("p")?.textContent).toBe(
+      "Posologie : respecter la posologie.",
+    );
   });
 });

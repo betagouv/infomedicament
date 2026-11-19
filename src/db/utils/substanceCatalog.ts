@@ -140,7 +140,11 @@ export function toCompositionComponents(
 export function compositionMatchesSubstanceSet(
   components: Pick<
     AnsmComposant,
-    "numero_element" | "numero_composant" | "ordre" | "code_substance" | "nature"
+    | "numero_element"
+    | "numero_composant"
+    | "ordre"
+    | "code_substance"
+    | "nature"
   >[],
   substanceCodes: string[],
 ): boolean {
@@ -154,11 +158,20 @@ export function compositionMatchesSubstanceSet(
   const displayedCodes = [...rowsByComponent.values()].flatMap((rows) => {
     const fractions = rows.filter((row) => row.nature === "Fraction active");
     const displayed = fractions.length > 0 ? fractions : rows;
-    return [...new Set(displayed.flatMap((row) => row.code_substance ? [row.code_substance.trim()] : []))];
+    return [
+      ...new Set(
+        displayed.flatMap((row) =>
+          row.code_substance ? [row.code_substance.trim()] : [],
+        ),
+      ),
+    ];
   });
 
   const sortedCodes = (codes: string[]) => [...codes].sort().join(",");
-  return sortedCodes(displayedCodes) === sortedCodes(substanceCodes.map((code) => code.trim()));
+  return (
+    sortedCodes(displayedCodes) ===
+    sortedCodes(substanceCodes.map((code) => code.trim()))
+  );
 }
 
 /**
@@ -168,7 +181,11 @@ export function compositionMatchesSubstanceSet(
 export function hasExactlyOneComponent(
   components: Pick<
     AnsmComposant,
-    "numero_element" | "numero_composant" | "ordre" | "code_substance" | "nature"
+    | "numero_element"
+    | "numero_composant"
+    | "ordre"
+    | "code_substance"
+    | "nature"
   >[],
 ): boolean {
   const codes = (nature: AnsmComposant["nature"]) =>

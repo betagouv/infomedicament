@@ -4,29 +4,30 @@ import { sql } from "kysely";
 export async function seed(db: Kysely<any>): Promise<void> {
   console.log("Loading data for interactions_search...");
 
-  const [substances, substMapping, medicaments, pureClassesResult] = await Promise.all([
-    db
-      .selectFrom("triam_groupe_substance")
-      .select(["code_groupe_subst", "nom_groupe_subst"])
-      .execute(),
-    db
-      .selectFrom("triam_subst_groupesubst")
-      .select(["code_groupe_subst", "subs_id"])
-      .execute(),
-    db
-      .selectFrom("resume_medicaments")
-      .select(["groupName", "subsIds"])
-      .execute(),
-    sql<{ num_classe: number; nom: string }>`
+  const [substances, substMapping, medicaments, pureClassesResult] =
+    await Promise.all([
+      db
+        .selectFrom("triam_groupe_substance")
+        .select(["code_groupe_subst", "nom_groupe_subst"])
+        .execute(),
+      db
+        .selectFrom("triam_subst_groupesubst")
+        .select(["code_groupe_subst", "subs_id"])
+        .execute(),
+      db
+        .selectFrom("resume_medicaments")
+        .select(["groupName", "subsIds"])
+        .execute(),
+      sql<{ num_classe: number; nom: string }>`
       SELECT num_classe, nom FROM triam_classes
       WHERE num_classe::text NOT IN (SELECT DISTINCT code_groupe_subst FROM triam_subst_groupesubst)
     `.execute(db),
-  ]);
+    ]);
   const pureClasses = pureClassesResult.rows;
 
   if (substances.length === 0) {
     throw new Error(
-      "No rows in triam_groupe_substance — run the triam import first"
+      "No rows in triam_groupe_substance — run the triam import first",
     );
   }
 
@@ -40,11 +41,11 @@ export async function seed(db: Kysely<any>): Promise<void> {
 
   // code_groupe_subst -> substance name (for medicament labels)
   const nameByTriamCode = new Map(
-    substances.map((s) => [s.code_groupe_subst, s.nom_groupe_subst])
+    substances.map((s) => [s.code_groupe_subst, s.nom_groupe_subst]),
   );
 
   console.log(
-    `Found ${substances.length} substances, ${medicaments.length} medicaments, ${pureClasses.length} pure classes`
+    `Found ${substances.length} substances, ${medicaments.length} medicaments, ${pureClasses.length} pure classes`,
   );
 
   await db.transaction().execute(async (trx) => {
@@ -78,7 +79,12 @@ export async function seed(db: Kysely<any>): Promise<void> {
           : m.groupName;
       await trx
         .insertInto("interactions_search")
-        .values({ label, type: "medicament", subst_ids: triamCodes, class_ids: [] })
+        .values({
+          label,
+          type: "medicament",
+          subst_ids: triamCodes,
+          class_ids: [],
+        })
         .execute();
     }
     console.log(`Inserted ${medicaments.length} medicaments.`);

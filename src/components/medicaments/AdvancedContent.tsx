@@ -4,12 +4,15 @@ import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import type { CompositionComponent } from "@/types/SubstanceTypes";
 import { HTMLAttributes, useState } from "react";
-import styled, { css } from 'styled-components';
+import styled, { css } from "styled-components";
 import DetailedSubMenu, { AnchorMenu } from "./advanced/DetailedSubMenu";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
 import { Marr } from "@/types/MarrTypes";
 import { PediatricsInfo } from "@/types/PediatricTypes";
-import { DelivranceCondition, DetailedSpecialite } from "@/types/SpecialiteTypes";
+import {
+  DelivranceCondition,
+  DetailedSpecialite,
+} from "@/types/SpecialiteTypes";
 import { Presentation } from "@/types/PresentationTypes";
 import MedicamentContentHeaderBlock from "./blocks/MedicamentContentHeaderBlock";
 import { FicheInfos } from "@/types/FicheInfoTypes";
@@ -27,7 +30,7 @@ import { AnsmStock } from "@/types/StockTypes";
 const AdvancedContentContainer = styled.div`
   @media (max-width: 48em) {
     margin-top: 0rem;
-    .fr-mb-4w{
+    .fr-mb-4w {
       margin-bottom: 1rem !important;
     }
   }
@@ -38,10 +41,12 @@ const AdvancedContentContainer = styled.div`
   }
 `;
 
-const DetailedNoticeContainer = styled.div<{ $visible: boolean; }> `
-  ${props => !props.$visible && css`
-    display: none;
-  `}
+const DetailedNoticeContainer = styled.div<{ $visible: boolean }>`
+  ${(props) =>
+    !props.$visible &&
+    css`
+      display: none;
+    `}
 `;
 
 interface AdvancedContentProps extends HTMLAttributes<HTMLDivElement> {
@@ -88,12 +93,24 @@ function AdvancedContent({
   onGoToAdvanced,
   ...props
 }: AdvancedContentProps) {
-
-  const [currentPart, setCurrentPart] = useState<DetailsNoticePartsEnum>(DetailsNoticePartsEnum.INFORMATIONS_GENERALES);
+  const [currentPart, setCurrentPart] = useState<DetailsNoticePartsEnum>(
+    DetailsNoticePartsEnum.INFORMATIONS_GENERALES,
+  );
 
   return (
-    <AdvancedContentContainer {...props} className={["mobile-display-contents", fr.cx("fr-grid-row", "fr-grid-row--gutters")].join(" ",)}>
-      <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-md-5")].join(" ",)}>
+    <AdvancedContentContainer
+      {...props}
+      className={[
+        "mobile-display-contents",
+        fr.cx("fr-grid-row", "fr-grid-row--gutters"),
+      ].join(" ")}
+    >
+      <ContentContainer
+        className={[
+          "mobile-display-contents",
+          fr.cx("fr-col-12", "fr-col-md-5"),
+        ].join(" ")}
+      >
         <DesktopTitleBlock
           title={title}
           isAdvanced={true}
@@ -106,13 +123,18 @@ function AdvancedContent({
         />
         <DetailedSubMenu
           updateVisiblePart={setCurrentPart}
-          isMarr={(marr && marr.pdf.length > 0)}
+          isMarr={marr && marr.pdf.length > 0}
           isInfosImportantes={displayInfosImportantes(ficheInfos)}
           isStock={stocks.length > 0}
           anchor={advancedAnchor}
         />
       </ContentContainer>
-      <ContentContainer className={["mobile-display-contents", fr.cx("fr-col-12", "fr-col-md-7")].join(" ",)}>
+      <ContentContainer
+        className={[
+          "mobile-display-contents",
+          fr.cx("fr-col-12", "fr-col-md-7"),
+        ].join(" ")}
+      >
         <MedicamentContentHeaderBlock
           specialite={specialite}
           ficheInfos={ficheInfos}
@@ -121,8 +143,13 @@ function AdvancedContent({
           isPregnancyMentionAlert={isPregnancyMentionAlert}
           pediatrics={pediatrics}
         />
-        <DetailedNoticeContainer id="informations-generales" $visible={currentPart === DetailsNoticePartsEnum.INFORMATIONS_GENERALES}>
-          <GeneralInformations 
+        <DetailedNoticeContainer
+          id="informations-generales"
+          $visible={
+            currentPart === DetailsNoticePartsEnum.INFORMATIONS_GENERALES
+          }
+        >
+          <GeneralInformations
             specialite={specialite}
             atcCode={atcCode}
             composants={composants}
@@ -141,13 +168,22 @@ function AdvancedContent({
             stocks={stocks}
           />
         </DetailedNoticeContainer>
-        <DetailedNoticeContainer id="rcp-denomiation" $visible={currentPart === DetailsNoticePartsEnum.RCP}>
-          <ContentContainer whiteContainer className={fr.cx("fr-mb-2w", "fr-p-2w")}>
+        <DetailedNoticeContainer
+          id="rcp-denomiation"
+          $visible={currentPart === DetailsNoticePartsEnum.RCP}
+        >
+          <ContentContainer
+            whiteContainer
+            className={fr.cx("fr-mb-2w", "fr-p-2w")}
+          >
             <RcpBlock specialite={specialite} />
           </ContentContainer>
         </DetailedNoticeContainer>
-        <DetailedNoticeContainer id="document-has" $visible={currentPart === DetailsNoticePartsEnum.HAS}>
-          <DocumentHas 
+        <DetailedNoticeContainer
+          id="document-has"
+          $visible={currentPart === DetailsNoticePartsEnum.HAS}
+        >
+          <DocumentHas
             ficheInfos={ficheInfos}
             genericSpecialite={specialite}
             isGeneric={isGeneric}
@@ -157,6 +193,6 @@ function AdvancedContent({
       </ContentContainer>
     </AdvancedContentContainer>
   );
-};
+}
 
 export default AdvancedContent;

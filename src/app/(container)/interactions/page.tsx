@@ -27,13 +27,17 @@ export default function Page() {
               Source ANSM
             </Link>
           </p>
-          <p><i>Dernière date de mise à jour : 07/06/2024</i></p>
-          <p>Demandez toujours conseil à votre médecin avant de prendre un médicament.</p>
+          <p>
+            <i>Dernière date de mise à jour : 07/06/2024</i>
+          </p>
+          <p>
+            Demandez toujours conseil à votre médecin avant de prendre un
+            médicament.
+          </p>
 
           <InteractionsBlock />
-
         </div>
       </div>
     </ContentContainer>
-  )
+  );
 }

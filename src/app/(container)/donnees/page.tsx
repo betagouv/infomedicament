@@ -543,8 +543,8 @@ export default function Page() {
           </p>
           <p>
             Ce guide sera complété à mesure que les correspondances restantes
-            seront validées. Une
-            date de fermeture précise sera ajoutée lorsqu’elle sera confirmée.
+            seront validées. Une date de fermeture précise sera ajoutée
+            lorsqu’elle sera confirmée.
           </p>
         </section>
 

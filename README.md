@@ -66,6 +66,17 @@ _NB: certains tests d'intégration nécessitent un accès aux bases de données 
 npm test
 ```
 
+### Formater le code
+
+```bash
+npm run format
+npm run format:check
+```
+
+Prettier formate les fichiers pris en charge du dépôt et respecte `.gitignore`
+et `.prettierignore`. La CI vérifie le formatage à chaque pull request vers `main`
+et à chaque push sur `main`.
+
 ### Charger les données issue de la BDPM
 
 Info Médicament fonctionne avec les données
@@ -186,8 +197,8 @@ La branche "production" est protégée et nécessite de faire une pull request p
 
 On utilise différents types de tests.
 
-- des tests unitaires (*.test.ts)
-- des tests d'integration (*.integration.test.ts) qui nécessitent d'avoir une copie locale des données de staging
-- des tests d'UI (snapshots) (*.ui.test.tsx) qui stockent l'état attendu de certaines pages et nous prévient en cas de régressions
+- des tests unitaires (\*.test.ts)
+- des tests d'integration (\*.integration.test.ts) qui nécessitent d'avoir une copie locale des données de staging
+- des tests d'UI (snapshots) (\*.ui.test.tsx) qui stockent l'état attendu de certaines pages et nous prévient en cas de régressions
 
 Chacuns de ces types de tests peuvent être exécutés séparemments (voir les commandes dédiées dans le package.json)

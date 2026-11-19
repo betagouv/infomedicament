@@ -8,9 +8,10 @@ import { PHASE_PRODUCTION_BUILD } from "next/constants";
 const db = new Kysely<Database>({
   dialect: new PostgresDialect({
     pool: new Pool({
-      ...(process.env.DATABASE_URL ?? process.env.APP_DB_URL
+      ...((process.env.DATABASE_URL ?? process.env.APP_DB_URL)
         ? {
-            connectionString: process.env.DATABASE_URL ?? process.env.APP_DB_URL,
+            connectionString:
+              process.env.DATABASE_URL ?? process.env.APP_DB_URL,
           }
         : {
             // .devcontainer config

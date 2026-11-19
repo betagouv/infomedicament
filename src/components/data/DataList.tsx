@@ -7,11 +7,21 @@ import { ResumeGeneric, ResumeIndication, ResumeSubstance } from "@/db/types";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 
 function getCurrentDataList(
-  dataList: ResumeSubstance[] | ResumeIndication [] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[],
+  dataList:
+    | ResumeSubstance[]
+    | ResumeIndication[]
+    | ResumeSpecGroup[]
+    | AdvancedATCClass[]
+    | ResumeGeneric[],
   paginationLength: number,
   currentPage: number,
-){
-  if(dataList && dataList.length > 0 && paginationLength && paginationLength > 0) {
+) {
+  if (
+    dataList &&
+    dataList.length > 0 &&
+    paginationLength &&
+    paginationLength > 0
+  ) {
     const list = dataList.slice(
       (currentPage - 1) * paginationLength,
       currentPage * paginationLength,
@@ -22,7 +32,12 @@ function getCurrentDataList(
 }
 
 interface DataListProps extends HTMLAttributes<HTMLDivElement> {
-  dataList: ResumeSubstance[] | ResumeIndication[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[];
+  dataList:
+    | ResumeSubstance[]
+    | ResumeIndication[]
+    | ResumeSpecGroup[]
+    | AdvancedATCClass[]
+    | ResumeGeneric[];
   type: DataTypeEnum;
   paginationLength: number;
   currentPage: number;
@@ -36,43 +51,48 @@ function DataList({
   currentPage,
   isGeneric,
 }: DataListProps) {
-
-  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumeIndication[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[]>([]);
+  const [currentDataList, setCurrentDataList] = useState<
+    | ResumeSubstance[]
+    | ResumeIndication[]
+    | ResumeSpecGroup[]
+    | AdvancedATCClass[]
+    | ResumeGeneric[]
+  >([]);
   const [currentType, setCurrentType] = useState<DataTypeEnum>();
 
   useEffect(() => {
-    if(type) 
-      setCurrentType(type);
-    else 
-      setCurrentType(undefined);
+    if (type) setCurrentType(type);
+    else setCurrentType(undefined);
   }, [type, setCurrentType]);
 
   useEffect(() => {
     const list = getCurrentDataList(dataList, paginationLength, currentPage);
     setCurrentDataList(list);
   }, [dataList, paginationLength, currentPage, setCurrentDataList]);
-  
+
   return (
     <>
-      {currentType && currentDataList && currentDataList.map((data, index) => {
-        return ( 
-          (!isGeneric && type === DataTypeEnum.MEDICAMENT)
-          ? (
-            <DataBlockAccordion
-              key={index}
-              item={data as ResumeSpecGroup}
-            />
+      {currentType &&
+        currentDataList &&
+        currentDataList.map((data, index) => {
+          return !isGeneric && type === DataTypeEnum.MEDICAMENT ? (
+            <DataBlockAccordion key={index} item={data as ResumeSpecGroup} />
           ) : (
             <DataBlockGeneric
               key={index}
               type={currentType}
-              item={data as ResumeSubstance | ResumeIndication | AdvancedATCClass | ResumeGeneric}
+              item={
+                data as
+                  | ResumeSubstance
+                  | ResumeIndication
+                  | AdvancedATCClass
+                  | ResumeGeneric
+              }
             />
-          )
-        )
-      })}
+          );
+        })}
     </>
   );
-};
+}
 
 export default DataList;

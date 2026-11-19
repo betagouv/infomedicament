@@ -17,7 +17,7 @@ describe("getVideosFromCIS", () => {
 
   it("returns an empty array for a CIS with no linked video", async () => {
     //FAMOTIDINE EG 20 mg, comprimé pelliculé
-    const videos = await getVideosFromCIS("60005856"); 
+    const videos = await getVideosFromCIS("60005856");
     expect(videos).toEqual([]);
   });
 });

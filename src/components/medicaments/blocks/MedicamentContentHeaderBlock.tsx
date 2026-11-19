@@ -5,7 +5,13 @@ import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes } from "react";
 import Link from "next/link";
 import { DetailedSpecialite } from "@/types/SpecialiteTypes";
-import { getSpecSlug, isAIP, isAlerteSecurite, getAvailabilityWarning, isHomeopathie } from "@/utils/specialites";
+import {
+  getSpecSlug,
+  isAIP,
+  isAlerteSecurite,
+  getAvailabilityWarning,
+  isHomeopathie,
+} from "@/utils/specialites";
 import Alert from "@codegouvfr/react-dsfr/Alert";
 import Image from "next/image";
 import { FicheInfos } from "@/types/FicheInfoTypes";
@@ -15,7 +21,8 @@ import { getDefinition } from "@/utils/glossary";
 import { PediatricsInfo } from "@/types/PediatricTypes";
 import { PregnancyAlert } from "@/types/PregancyTypes";
 
-interface MedicamentContentHeaderBlockProps extends HTMLAttributes<HTMLDivElement> {
+interface MedicamentContentHeaderBlockProps
+  extends HTMLAttributes<HTMLDivElement> {
   specialite?: DetailedSpecialite;
   ficheInfos?: FicheInfos;
   definitions?: Definition[];
@@ -35,7 +42,6 @@ function MedicamentContentHeaderBlock({
 }: MedicamentContentHeaderBlockProps) {
   const availabilityWarning = specialite && getAvailabilityWarning(specialite);
 
-
   return (
     <div {...props}>
       {pregnancyPlanAlert && (
@@ -46,17 +52,21 @@ function MedicamentContentHeaderBlock({
             description={
               <p>
                 Ce médicament est concerné par un{" "}
-                <Link 
+                <Link
                   href="https://ansm.sante.fr/dossiers-thematiques/medicaments-et-grossesse/les-programmes-de-prevention-des-grossesses"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   plan de prévention grossesse
-                </Link>.<br />
-                Il peut présenter des risques pour le fœtus (malformations, effets toxiques).<br />
-                Lisez attentivement la notice et parlez-en à un professionnel de santé avant toute utilisation.
+                </Link>
+                .<br />
+                Il peut présenter des risques pour le fœtus (malformations,
+                effets toxiques).
                 <br />
-                <Link 
+                Lisez attentivement la notice et parlez-en à un professionnel de
+                santé avant toute utilisation.
+                <br />
+                <Link
                   href={pregnancyPlanAlert.link}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -68,15 +78,19 @@ function MedicamentContentHeaderBlock({
           />
         </ContentContainer>
       )}
-      {(!pregnancyPlanAlert && isPregnancyMentionAlert) && (
+      {!pregnancyPlanAlert && isPregnancyMentionAlert && (
         <ContentContainer whiteContainer className={fr.cx("fr-mb-2w")}>
           <Alert
             severity={"warning"}
             title={"Mention contre-indication grossesse"}
             description={
               <p>
-                Ce médicament peut présenter des précautions d’usage pendant la grossesse ou l’allaitement. Il peut être autorisé, déconseillé ou contre-indiqué selon les cas.<br />
-                Lisez la notice et demandez l’avis d’un professionnel de santé avant toute prise.
+                Ce médicament peut présenter des précautions d’usage pendant la
+                grossesse ou l’allaitement. Il peut être autorisé, déconseillé
+                ou contre-indiqué selon les cas.
+                <br />
+                Lisez la notice et demandez l’avis d’un professionnel de santé
+                avant toute prise.
               </p>
             }
           />
@@ -91,9 +105,9 @@ function MedicamentContentHeaderBlock({
           />
         </ContentContainer>
       )}
-      {(specialite && isAlerteSecurite(specialite)) && (
+      {specialite && isAlerteSecurite(specialite) && (
         <ContentContainer whiteContainer className={fr.cx("fr-mb-2w")}>
-          <Alert 
+          <Alert
             severity="error"
             title="Attention ce médicament fait l’objet d’un retrait ou d’une suspension d’autorisation 
               ou d’utilisation pour des raisons de santé publique."
@@ -104,14 +118,14 @@ function MedicamentContentHeaderBlock({
           />
         </ContentContainer>
       )}
-      {(ficheInfos && ficheInfos.isSurveillanceRenforcee) && (
+      {ficheInfos && ficheInfos.isSurveillanceRenforcee && (
         <ContentContainer whiteContainer className={fr.cx("fr-mb-2w")}>
-          <Alert 
+          <Alert
             severity="warning"
             title="Médicament sous surveillance renforcée"
             className={fr.cx("fr-pb-2w", "fr-pt-2w")}
             description={
-              <div style={{display: "flex"}}>
+              <div style={{ display: "flex" }}>
                 <Image
                   src="/icons/surveillance_renforcee.png"
                   alt="Médicament sous surveillance renforcée"
@@ -120,14 +134,16 @@ function MedicamentContentHeaderBlock({
                   className={fr.cx("fr-mr-1w", "fr-mt-1v")}
                 />
                 <div>
-                  Ce médicament fait l'objet d'une surveillance renforcée. Pour plus d'informations,&nbsp;
+                  Ce médicament fait l'objet d'une surveillance renforcée. Pour
+                  plus d'informations,&nbsp;
                   <Link
                     href="https://ansm.sante.fr/qui-sommes-nous/nos-missions/assurer-la-securite-des-produits-de-sante/p/surveiller-les-medicaments#title"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     cliquez ici
-                  </Link>.
+                  </Link>
+                  .
                 </div>
               </div>
             }
@@ -145,8 +161,12 @@ function MedicamentContentHeaderBlock({
           />
         </ContentContainer>
       )}
-      {(specialite && isAIP(specialite)) && (
-        <ContentContainer whiteContainer className={fr.cx("fr-mb-4w", "fr-p-4w")} style={{display: "flex"}}>
+      {specialite && isAIP(specialite) && (
+        <ContentContainer
+          whiteContainer
+          className={fr.cx("fr-mb-4w", "fr-p-4w")}
+          style={{ display: "flex" }}
+        >
           <Image
             src="/icons/aip.png"
             alt="AIP"
@@ -155,10 +175,12 @@ function MedicamentContentHeaderBlock({
             className={fr.cx("fr-mr-1w", "fr-mt-1v")}
           />
           <div>
-            Ce médicament est mis sur le marché en France en tant qu'importation parallèle
+            Ce médicament est mis sur le marché en France en tant qu'importation
+            parallèle
             {specialite.referenceSpecialite && (
               <>
-                {" "}du médicament{" "}
+                {" "}
+                du médicament{" "}
                 <Link
                   href={`/medicaments/${getSpecSlug(specialite.referenceSpecialite.cis, specialite.referenceSpecialite.name)}`}
                   aria-description="Lien vers le médicament"
@@ -167,34 +189,48 @@ function MedicamentContentHeaderBlock({
                 </Link>
               </>
             )}
-            .<br/>
+            .<br />
             L'importateur est{" "}
-            {specialite.titulairesList 
-              ? (<span>{specialite.titulairesList}</span>)
-              : "Inconnu"
-            }.
+            {specialite.titulairesList ? (
+              <span>{specialite.titulairesList}</span>
+            ) : (
+              "Inconnu"
+            )}
+            .
           </div>
         </ContentContainer>
       )}
-      {(specialite && isHomeopathie(specialite)) && (
-        <ContentContainer whiteContainer className={fr.cx("fr-mb-2w", "fr-p-4w")}>
+      {specialite && isHomeopathie(specialite) && (
+        <ContentContainer
+          whiteContainer
+          className={fr.cx("fr-mb-2w", "fr-p-4w")}
+        >
           Ce médicament est un médicament homéopathique à nom commun soumis à{" "}
           <WithDefinition
-            definition={definitions && getDefinition(definitions, "Enregistrement des médicaments homéopathiques")}
+            definition={
+              definitions &&
+              getDefinition(
+                definitions,
+                "Enregistrement des médicaments homéopathiques",
+              )
+            }
             word="enregistrement"
-          />.
-          <br/><br/>
-          Aucune indication thérapeutique, aucune posologie et aucune notice ne sont attribuées
-            aux médicaments homéopathiques à nom commun. 
-          En effet, pour ces médicaments, il revient aux professionnels de santé d'en déterminer l'indication 
-          (pathologies ou symptômes) et la posologie. 
-          L'indication et la posologie sont ainsi adaptées à chaque patient en prenant en 
-          compte les données de l'usage traditionnel homéopathique. Ces médicaments peuvent 
-          être délivrés par le pharmacien sans prescription médicale. 
+          />
+          .
+          <br />
+          <br />
+          Aucune indication thérapeutique, aucune posologie et aucune notice ne
+          sont attribuées aux médicaments homéopathiques à nom commun. En effet,
+          pour ces médicaments, il revient aux professionnels de santé d'en
+          déterminer l'indication (pathologies ou symptômes) et la posologie.
+          L'indication et la posologie sont ainsi adaptées à chaque patient en
+          prenant en compte les données de l'usage traditionnel homéopathique.
+          Ces médicaments peuvent être délivrés par le pharmacien sans
+          prescription médicale.
         </ContentContainer>
       )}
     </div>
   );
-};
+}
 
 export default MedicamentContentHeaderBlock;

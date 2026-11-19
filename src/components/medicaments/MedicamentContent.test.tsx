@@ -112,6 +112,8 @@ describe("medicine loading", () => {
 
     fireEvent.click(screen.getAllByLabelText("Version détaillée")[0]);
 
-    expect(mockPush).toHaveBeenCalledWith("/medicaments/doliprane-1000-mg-comprime-60234100/details");
+    expect(mockPush).toHaveBeenCalledWith(
+      "/medicaments/doliprane-1000-mg-comprime-60234100/details",
+    );
   });
 });

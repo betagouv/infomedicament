@@ -4,7 +4,11 @@ import { ATCError } from "@/utils/atc";
 import { ATC, ATC1, ATCLabels, ATCSubstances } from "@/types/ATCTypes";
 import { ResumeSpecGroup, ResumeSpecialite } from "@/types/SpecialiteTypes";
 import db from "@/db/";
-import { RefAtcFriendlyNiveau1, RefAtcFriendlyNiveau2, ResumeSubstance } from "../types";
+import {
+  RefAtcFriendlyNiveau1,
+  RefAtcFriendlyNiveau2,
+  ResumeSubstance,
+} from "../types";
 import type { Substance } from "@/types/SubstanceTypes";
 import { getComposantsList } from "./composants";
 import { getResumeSubstancesByNomId } from "./substances";
@@ -90,7 +94,12 @@ export async function getSubstancesByAtc(atc2: ATC): Promise<Substance[]> {
   const components = await getComposantsList(visibleRows.map((row) => row.cis));
 
   return components
-    .map(({ SubsId, NomId, NomLib, isCanonical }) => ({ SubsId, NomId, NomLib, isCanonical }))
+    .map(({ SubsId, NomId, NomLib, isCanonical }) => ({
+      SubsId,
+      NomId,
+      NomLib,
+      isCanonical,
+    }))
     .filter(
       (substance, index, all) =>
         all.findIndex((candidate) => candidate.NomId === substance.NomId) ===
@@ -100,7 +109,9 @@ export async function getSubstancesByAtc(atc2: ATC): Promise<Substance[]> {
 }
 
 // Loads the resume_substances displayed on an ATC2 page.
-export async function getResumeSubstancesByAtc(atc2: ATC): Promise<ResumeSubstance[]> {
+export async function getResumeSubstancesByAtc(
+  atc2: ATC,
+): Promise<ResumeSubstance[]> {
   "use cache: remote";
   const substances = await getSubstancesByAtc(atc2);
   const nomIds = [...new Set(substances.map((s) => s.NomId.trim()))];

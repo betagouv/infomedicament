@@ -24,30 +24,28 @@ interface MarrNoticeProps extends HTMLAttributes<HTMLDivElement> {
   hiddenTag?: boolean;
 }
 
-function MarrNotice({
-  marr,
-  CIS,
-  specName,
-  hiddenTag,
-}: MarrNoticeProps) {
-
+function MarrNotice({ marr, CIS, specName, hiddenTag }: MarrNoticeProps) {
   return (
-    marr && marr.pdf.length > 0 && (
+    marr &&
+    marr.pdf.length > 0 && (
       <>
         <MarrTitle className={fr.cx("fr-h6", "fr-mb-1w")}>
           Documents associés
         </MarrTitle>
         <div className={fr.cx("fr-text--sm", "fr-mb-1w")}>
-          Mesures additionnelles de réduction du risque (MARR)<br/>
-          Consultez les documents ci-dessous pour bien utiliser ce médicament&nbsp;:
+          Mesures additionnelles de réduction du risque (MARR)
+          <br />
+          Consultez les documents ci-dessous pour bien utiliser ce
+          médicament&nbsp;:
         </div>
-        <MarrResumeList 
-          marr={marr}
-          hiddenTag={hiddenTag}
-        />
+        <MarrResumeList marr={marr} hiddenTag={hiddenTag} />
         <div>
-          <Link 
-            className={fr.cx("fr-icon-arrow-right-line", "fr-link--icon-left", "fr-text--sm")} 
+          <Link
+            className={fr.cx(
+              "fr-icon-arrow-right-line",
+              "fr-link--icon-left",
+              "fr-text--sm",
+            )}
             href={marr.ansmUrl}
             target="_blank"
             rel="noopener noreferrer"
@@ -56,8 +54,12 @@ function MarrNotice({
           </Link>
         </div>
         <div>
-          <Link 
-            className={fr.cx("fr-icon-arrow-right-line", "fr-link--icon-left", "fr-text--sm")} 
+          <Link
+            className={fr.cx(
+              "fr-icon-arrow-right-line",
+              "fr-link--icon-left",
+              "fr-text--sm",
+            )}
             href={`/medicaments/${getSpecSlug(CIS, specName)}/details#${infosGeneralesMenuMarr.href}`}
           >
             Voir les documents pour les professionnels de santé
@@ -66,6 +68,6 @@ function MarrNotice({
       </>
     )
   );
-};
+}
 
 export default MarrNotice;

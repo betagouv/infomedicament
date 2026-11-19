@@ -8,17 +8,17 @@ import Image from "next/image";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { Metadata } from "next";
 
-const PAGE_LABEL:string = "À propos";
+const PAGE_LABEL: string = "À propos";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: PAGE_LABEL,
-    description: "Découvrez Info Médicament, le service public d’information sur les médicaments : sources, données, fonctionnement et objectifs du site.",
-  }
+    description:
+      "Découvrez Info Médicament, le service public d’information sur les médicaments : sources, données, fonctionnement et objectifs du site.",
+  };
 }
 
 export default async function Page() {
-
   return (
     <>
       <ContentContainer frContainer>
@@ -27,13 +27,8 @@ export default async function Page() {
           segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
           currentPageLabel={PAGE_LABEL}
         />
-        <h1 className={fr.cx("fr-h2")}>
-          {PAGE_LABEL}
-        </h1>
-        <ShareButtons 
-          pageName={PAGE_LABEL}
-          className={fr.cx("fr-mb-3w")}
-        />
+        <h1 className={fr.cx("fr-h2")}>{PAGE_LABEL}</h1>
+        <ShareButtons pageName={PAGE_LABEL} className={fr.cx("fr-mb-3w")} />
         <div
           className={fr.cx(
             "fr-col-md-8",
@@ -111,14 +106,14 @@ export default async function Page() {
                     </Link>
                   </b>{" "}
                   est un service public gratuit proposé par l’État qui vise à
-                  améliorer l’accès à des informations fiables et compréhensibles
-                  sur les médicaments.
+                  améliorer l’accès à des informations fiables et
+                  compréhensibles sur les médicaments.
                 </p>
                 <p>
-                  Ce service répond à plusieurs enjeux cruciaux : la lutte contre
-                  la désinformation, la réduction du mésusage des médicaments et
-                  la responsabilisation des patient·es dans la gestion de leur
-                  santé.
+                  Ce service répond à plusieurs enjeux cruciaux : la lutte
+                  contre la désinformation, la réduction du mésusage des
+                  médicaments et la responsabilisation des patient·es dans la
+                  gestion de leur santé.
                 </p>
                 <p>
                   <b>
@@ -133,71 +128,75 @@ export default async function Page() {
                 </p>
                 <p>
                   Les données d’Info Médicament proviennent de la{" "}
-                  <Link 
+                  <Link
                     href="https://base-donnees-publique.medicaments.gouv.fr/"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     Base de données publique des médicaments
-                  </Link>, elle même alimentée par les données de la Haute autorité de santé (HAS), la Caisse nationale d'assurance maladie des travailleurs salariés (CNAMTS), le Comité Economique des Produits de Santé (CEPS) et l'Agence nationale de sécurité des médicaments et des produits de santé (ANSM).
+                  </Link>
+                  , elle même alimentée par les données de la Haute autorité de
+                  santé (HAS), la Caisse nationale d'assurance maladie des
+                  travailleurs salariés (CNAMTS), le Comité Economique des
+                  Produits de Santé (CEPS) et l'Agence nationale de sécurité des
+                  médicaments et des produits de santé (ANSM).
                 </p>
               </div>
               <div className={fr.cx("fr-col-md-8", "fr-mt-4w")}>
                 <h2 className={fr.cx("fr-h5")}>L&apos;équipe</h2>
                 <ul>
                   <li>
-                    <Link 
+                    <Link
                       href="https://ansm.sante.fr/"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       ANSM
-                    </Link>&nbsp;:{" "}
+                    </Link>
+                    &nbsp;:{" "}
                     <Link href="https://infomedicament.beta.gouv.fr">
                       Info Médicament
                     </Link>{" "}
-                    est porté par l’Agence Nationale de Sécurité du Médicament et
-                    des produits de santé.
+                    est porté par l’Agence Nationale de Sécurité du Médicament
+                    et des produits de santé.
                   </li>
                   <li>
-                    <Link 
+                    <Link
                       href="https://beta.gouv.fr"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       BETA.GOUV.FR
-                    </Link>&nbsp;:{" "}
+                    </Link>
+                    &nbsp;:{" "}
                     <Link href="https://infomedicament.beta.gouv.fr">
                       Info Médicament
                     </Link>{" "}
                     est une start-up d’État du programme{" "}
-                    <Link 
+                    <Link
                       href="https://beta.gouv.fr"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       Beta.gouv.fr
                     </Link>
-                    &nbsp;:{" "}de la
-                    Direction interministérielle du numérique (
-                      <Link 
-                        href="https://www.numerique.gouv.fr/numerique-etat/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        DINUM
-                      </Link>
-                    ), qui accompagne les administrations dans la construction de
-                    services numériques.
+                    &nbsp;: de la Direction interministérielle du numérique (
+                    <Link
+                      href="https://www.numerique.gouv.fr/numerique-etat/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      DINUM
+                    </Link>
+                    ), qui accompagne les administrations dans la construction
+                    de services numériques.
                   </li>
                 </ul>
               </div>
             </div>
           </div>
         </div>
-        <RatingToaster
-          pageId={PAGE_LABEL}
-        />
+        <RatingToaster pageId={PAGE_LABEL} />
       </ContentContainer>
     </>
   );

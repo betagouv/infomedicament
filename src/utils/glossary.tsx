@@ -2,7 +2,10 @@ import React from "react";
 import WithDefinition from "@/components/glossary/WithDefinition";
 import { Definition } from "@/types/GlossaireTypes";
 
-export function getDefinition(definitions: Definition[], definitionName: string): Definition | undefined {
+export function getDefinition(
+  definitions: Definition[],
+  definitionName: string,
+): Definition | undefined {
   return definitions.find((definition) => definition.nom === definitionName);
 }
 
@@ -41,9 +44,13 @@ export function withDefinitions(
     let elements: (React.JSX.Element | string)[] = [child];
     definitions.forEach((definition) => {
       elements = elements.flatMap((element) =>
-        typeof element === "string" ? withDefinition(element, definition) : [element],
+        typeof element === "string"
+          ? withDefinition(element, definition)
+          : [element],
       );
     });
-    return elements.map((element, index) => <React.Fragment key={index}>{element}</React.Fragment>);
+    return elements.map((element, index) => (
+      <React.Fragment key={index}>{element}</React.Fragment>
+    ));
   });
 }

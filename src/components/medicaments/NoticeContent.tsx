@@ -405,7 +405,8 @@ function NoticeContent({
                       <VideosBlock videos={videos} />
                     </ContentContainer>
                   )}
-                  {marr && specialite &&
+                  {marr &&
+                    specialite &&
                     marr.pdf.some(
                       (document) => document.type === "Patients",
                     ) && (

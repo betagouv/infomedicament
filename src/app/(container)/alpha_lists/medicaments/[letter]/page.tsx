@@ -21,8 +21,9 @@ const PAGE_LABEL: string = "Liste des médicaments";
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: PAGE_LABEL,
-    description: "Retrouvez les médicaments classés par ordre alphabétique pour accéder rapidement aux informations recherchées.",
-  }
+    description:
+      "Retrouvez les médicaments classés par ordre alphabétique pour accéder rapidement aux informations recherchées.",
+  };
 }
 
 export default async function Page(props: {

@@ -16,7 +16,9 @@ export interface ExportFilters {
   atc2Codes?: string[];
 }
 
-export async function getSpecialitesExport(filters: ExportFilters): Promise<ExportSpecs[]> {
+export async function getSpecialitesExport(
+  filters: ExportFilters,
+): Promise<ExportSpecs[]> {
   const subsIds = filters.subsIds ?? [];
   const atc2Codes = filters.atc2Codes ?? [];
 
@@ -27,10 +29,12 @@ export async function getSpecialitesExport(filters: ExportFilters): Promise<Expo
   const specialites: ExportSpecs[] = await db
     .selectFrom("resume_specialites")
     .selectAll()
-    .where((eb) => eb.or([
-      ...(subsIds.length > 0 ? [eb("subsIds", "&&", Array(subsIds))] : []),
-      ...(atc2Codes.length > 0 ? [eb("atc2Code", "in", atc2Codes)] : []),
-    ]))
+    .where((eb) =>
+      eb.or([
+        ...(subsIds.length > 0 ? [eb("subsIds", "&&", Array(subsIds))] : []),
+        ...(atc2Codes.length > 0 ? [eb("atc2Code", "in", atc2Codes)] : []),
+      ]),
+    )
     .orderBy("specName")
     .execute();
   if (specialites.length === 0) return specialites;
@@ -52,7 +56,9 @@ export async function getSpecialitesExport(filters: ExportFilters): Promise<Expo
     .select(["cis", "statut_amm"])
     .where("cis", "in", specIds)
     .execute();
-  const statusByCIS = new Map(statutsAMM.map((s) => [s.cis.trim(), s.statut_amm]));
+  const statusByCIS = new Map(
+    statutsAMM.map((s) => [s.cis.trim(), s.statut_amm]),
+  );
   for (const spec of specialites) {
     spec.ammActiveFrance = statusByCIS.get(spec.specId.trim()) === "ACTIVE";
   }
@@ -64,12 +70,20 @@ export async function getSpecialitesExport(filters: ExportFilters): Promise<Expo
     .select(["codeCIS", "content_html"])
     .where("codeCIS", "in", codesCIS)
     .execute();
-  const contentHtmlByCIS = new Map(rcpRows.map((r) => [String(r.codeCIS), r.content_html]));
+  const contentHtmlByCIS = new Map(
+    rcpRows.map((r) => [String(r.codeCIS), r.content_html]),
+  );
   for (const spec of specialites) {
-    const contentHtml = contentHtmlByCIS.get(String(Number(spec.specId.trim())));
+    const contentHtml = contentHtmlByCIS.get(
+      String(Number(spec.specId.trim())),
+    );
     if (!contentHtml) continue;
     for (const key of RCP_EXPORT_FIELD_KEYS) {
-      spec[key] = getRcpSectionText(contentHtml, RCP_ANCHOR_BY_FIELD_KEY[key], RCP_SECTION_NUMBER_BY_FIELD_KEY[key]);
+      spec[key] = getRcpSectionText(
+        contentHtml,
+        RCP_ANCHOR_BY_FIELD_KEY[key],
+        RCP_SECTION_NUMBER_BY_FIELD_KEY[key],
+      );
     }
   }
 

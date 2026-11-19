@@ -21,7 +21,9 @@ describe("SwitchNoticeAdvancedBlock", () => {
 
     render(<SwitchNoticeAdvancedBlock {...props} />);
     await waitFor(() => {
-      expect((screen.getByRole("checkbox") as HTMLInputElement).disabled).toBe(false);
+      expect((screen.getByRole("checkbox") as HTMLInputElement).disabled).toBe(
+        false,
+      );
     });
   });
 });

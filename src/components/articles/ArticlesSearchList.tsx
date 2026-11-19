@@ -1,8 +1,11 @@
 "use client";
 
 import { HTMLAttributes, useEffect, useState } from "react";
-import styled from 'styled-components';
-import { ArticleCardResume, ArticleTrackingFromType } from "@/types/ArticlesTypes";
+import styled from "styled-components";
+import {
+  ArticleCardResume,
+  ArticleTrackingFromType,
+} from "@/types/ArticlesTypes";
 import ArticlesResumeList from "./ArticlesResumeList";
 
 const ArticleSearchListContainer = styled.div`
@@ -24,24 +27,22 @@ function ArticlesSearchList({
   articles,
   trackingFrom,
 }: ArticlesSearchListProps) {
-
   const [articlesList, setArticlesList] = useState<ArticleCardResume[]>([]);
 
   useEffect(() => {
-    if(articles)
-      setArticlesList(articles);
-  },[articles, setArticlesList]);  
+    if (articles) setArticlesList(articles);
+  }, [articles, setArticlesList]);
 
   return (
     articlesList.length > 0 && (
       <ArticleSearchListContainer>
-        <ArticlesResumeList 
-          articles={articlesList} 
+        <ArticlesResumeList
+          articles={articlesList}
           trackingFrom={trackingFrom}
         />
       </ArticleSearchListContainer>
     )
   );
-};
+}
 
 export default ArticlesSearchList;

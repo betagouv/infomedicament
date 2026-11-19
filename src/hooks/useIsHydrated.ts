@@ -5,9 +5,5 @@ const getClientSnapshot = () => true;
 const getServerSnapshot = () => false;
 
 export function useIsHydrated(): boolean {
-  return useSyncExternalStore(
-    subscribe,
-    getClientSnapshot,
-    getServerSnapshot,
-  );
+  return useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
 }

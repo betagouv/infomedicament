@@ -33,7 +33,6 @@ services:
     networks:
       - dev-network
 
-
   # This is the container for the legacy BDPM MySQL database.
   db-mysql:
     image: mysql:9

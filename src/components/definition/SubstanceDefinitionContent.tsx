@@ -6,7 +6,8 @@ import { ArticleCardResume } from "@/types/ArticlesTypes";
 import PageDefinitionContent from "./PageDefinitionContent";
 import { ResumeSpecGroup } from "@/types/SpecialiteTypes";
 
-interface SubstanceDefinitionContentProps extends HTMLAttributes<HTMLDivElement> {
+interface SubstanceDefinitionContentProps
+  extends HTMLAttributes<HTMLDivElement> {
   subsIds: string[];
   articles: ArticleCardResume[];
   definition: string | { title: string; desc: string }[];
@@ -15,15 +16,14 @@ interface SubstanceDefinitionContentProps extends HTMLAttributes<HTMLDivElement>
   subtitle?: string;
 }
 
-function SubstanceDefinitionContent({ 
-  subsIds, 
-  articles, 
-  definition, 
+function SubstanceDefinitionContent({
+  subsIds,
+  articles,
+  definition,
   dataList,
   title,
-  subtitle
+  subtitle,
 }: SubstanceDefinitionContentProps) {
-
   const listTitle = `${dataList.length} ${dataList.length > 1 ? "médicaments" : "médicament"} contenant ${
     subsIds.length < 2
       ? `uniquement la substance « ${title} »`
@@ -36,7 +36,9 @@ function SubstanceDefinitionContent({
       subtitle={subtitle}
       definition={definition}
       definitionType={`Substance${subsIds.length > 1 ? "s" : ""} active${subsIds.length > 1 ? "s" : ""}`}
-      definitionDisclaimer={"Les définitions proposées sont fournies à titre informatif. Elles n'ont pas de valeur d'avis médical ou d’indication clinique. En cas de doute ou pour toute décision liée à votre santé, consultez un professionnel de santé."}
+      definitionDisclaimer={
+        "Les définitions proposées sont fournies à titre informatif. Elles n'ont pas de valeur d'avis médical ou d’indication clinique. En cas de doute ou pour toute décision liée à votre santé, consultez un professionnel de santé."
+      }
       listTitle={listTitle}
       dataList={dataList}
       dataType={DataTypeEnum.MEDICAMENT}
@@ -44,6 +46,6 @@ function SubstanceDefinitionContent({
       articleTrackingFrom="Page substance"
     />
   );
-};
+}
 
 export default SubstanceDefinitionContent;

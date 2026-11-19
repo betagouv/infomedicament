@@ -15,7 +15,12 @@ interface PageListContentProps extends HTMLAttributes<HTMLDivElement> {
   description?: string;
   letters: string[];
   urlPrefix: string;
-  dataList: ResumeSubstance[] |  ResumeIndication[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[];
+  dataList:
+    | ResumeSubstance[]
+    | ResumeIndication[]
+    | ResumeSpecGroup[]
+    | AdvancedATCClass[]
+    | ResumeGeneric[];
   type: DataTypeEnum;
   currentLetter: string;
   isGeneric?: boolean;
@@ -30,30 +35,34 @@ function PageListContent({
   type,
   currentLetter,
   isGeneric,
-}: PageListContentProps ) {
-
-  const PAGINATION_LENGTH:number = 10;
+}: PageListContentProps) {
+  const PAGINATION_LENGTH: number = 10;
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [currentDataList, setCurrentDataList] = useState<ResumeSubstance[] | ResumeIndication[] | ResumeSpecGroup[] | AdvancedATCClass[] | ResumeGeneric[]>([]);
+  const [currentDataList, setCurrentDataList] = useState<
+    | ResumeSubstance[]
+    | ResumeIndication[]
+    | ResumeSpecGroup[]
+    | AdvancedATCClass[]
+    | ResumeGeneric[]
+  >([]);
 
   useEffect(() => {
     setCurrentDataList(dataList);
   }, [dataList, setCurrentDataList]);
-  
+
   return (
     <div className={fr.cx("fr-grid-row")}>
       <div className={fr.cx("fr-col-md-8")}>
-        <h1 className={[description ? fr.cx("fr-mb-4w") : fr.cx("fr-mb-8w"), fr.cx("fr-h1")].join(" ")}>{title}</h1>
-        {description && (
-          <div
-            className={fr.cx("fr-mb-4w")}
-          >
-            {description}
-          </div>
-        )}
-        {isGeneric && (
-          <GenericAccordion className={fr.cx("fr-mb-4w")} />
-        )}
+        <h1
+          className={[
+            description ? fr.cx("fr-mb-4w") : fr.cx("fr-mb-8w"),
+            fr.cx("fr-h1"),
+          ].join(" ")}
+        >
+          {title}
+        </h1>
+        {description && <div className={fr.cx("fr-mb-4w")}>{description}</div>}
+        {isGeneric && <GenericAccordion className={fr.cx("fr-mb-4w")} />}
         <AlphabeticNav
           letters={letters}
           urlPrefix={urlPrefix}
@@ -61,15 +70,15 @@ function PageListContent({
         />
       </div>
       <div className={fr.cx("fr-col-md-8")}>
-        <DataList 
+        <DataList
           dataList={currentDataList}
           type={type}
           paginationLength={PAGINATION_LENGTH}
           currentPage={currentPage}
-          isGeneric={isGeneric || false}
+          isGeneric={isGeneric || false}
         />
       </div>
-      <DataListPagination 
+      <DataListPagination
         dataLength={dataList.length}
         paginationLength={PAGINATION_LENGTH}
         updateCurrentPage={setCurrentPage}

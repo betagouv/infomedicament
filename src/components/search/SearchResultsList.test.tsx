@@ -42,7 +42,8 @@ describe("search result rendering", () => {
     container.innerHTML = html;
     expect(container.querySelector("h1")?.textContent).toContain("1 résultat");
     expect(
-      container.querySelector('a[href="/medicaments/test-1-comprime-1"]')?.textContent,
+      container.querySelector('a[href="/medicaments/test-1-comprime-1"]')
+        ?.textContent,
     ).toContain("Test 1, comprimé");
   });
 
@@ -104,12 +105,18 @@ it("preserves the selected substance and matching medicines when changing sort",
       .getAllByRole("link")
       .map((link) => link.getAttribute("href"))
       .filter((href) => href?.startsWith("/medicaments/"));
-  expect(medicineLinks()).toEqual(["/medicaments/test-2-comprime-2", "/medicaments/test-1-comprime-1"]);
+  expect(medicineLinks()).toEqual([
+    "/medicaments/test-2-comprime-2",
+    "/medicaments/test-1-comprime-1",
+  ]);
 
   fireEvent.click(
     screen.getAllByRole("button", { name: "ordre alphabétique" }).at(-1)!,
   );
-  expect(medicineLinks()).toEqual(["/medicaments/test-1-comprime-1", "/medicaments/test-2-comprime-2"]);
+  expect(medicineLinks()).toEqual([
+    "/medicaments/test-1-comprime-1",
+    "/medicaments/test-2-comprime-2",
+  ]);
   expect(
     substanceFilters().every((input) => (input as HTMLInputElement).checked),
   ).toBe(true);
@@ -120,7 +127,10 @@ it("preserves the selected substance and matching medicines when changing sort",
   fireEvent.click(
     screen.getAllByRole("button", { name: "pertinence" }).at(-1)!,
   );
-  expect(medicineLinks()).toEqual(["/medicaments/test-2-comprime-2", "/medicaments/test-1-comprime-1"]);
+  expect(medicineLinks()).toEqual([
+    "/medicaments/test-2-comprime-2",
+    "/medicaments/test-1-comprime-1",
+  ]);
   expect(
     substanceFilters().every((input) => (input as HTMLInputElement).checked),
   ).toBe(true);
@@ -129,19 +139,46 @@ it("preserves the selected substance and matching medicines when changing sort",
 it("names the substance filters with the title of the substances page, and the composants only if different", () => {
   const results = [
     // Title different from the composants
-    { ...result(1), composants: "cétylpyridinium (chlorure de)", subsTitle: "chlorure de cétylpyridinium", subsIds: ["00628"] },
+    {
+      ...result(1),
+      composants: "cétylpyridinium (chlorure de)",
+      subsTitle: "chlorure de cétylpyridinium",
+      subsIds: ["00628"],
+    },
     // Title same as the composants
-    { ...result(2), composants: "paracétamol", subsTitle: "paracétamol", subsIds: ["02202"] },
+    {
+      ...result(2),
+      composants: "paracétamol",
+      subsTitle: "paracétamol",
+      subsIds: ["02202"],
+    },
     // Title same as the cleaned composants (HTML entity and double spaces)
-    { ...result(3), composants: "codant pour l&rsquo;arylsulfatase  A", subsTitle: "codant pour l’arylsulfatase A", subsIds: ["12345"] },
+    {
+      ...result(3),
+      composants: "codant pour l&rsquo;arylsulfatase  A",
+      subsTitle: "codant pour l’arylsulfatase A",
+      subsIds: ["12345"],
+    },
     // No title
-    { ...result(4), composants: "caféine", subsTitle: null, subsIds: ["00420"] },
+    {
+      ...result(4),
+      composants: "caféine",
+      subsTitle: null,
+      subsIds: ["00420"],
+    },
   ];
   render(<SearchResultsList resultsList={results} search="test" />);
-  const substanceFilter = (name: RegExp) => screen.queryAllByRole("checkbox", { name });
+  const substanceFilter = (name: RegExp) =>
+    screen.queryAllByRole("checkbox", { name });
 
-  expect(substanceFilter(/^chlorure de cétylpyridinium \(cétylpyridinium \(chlorure de\)\)/)).not.toHaveLength(0);
+  expect(
+    substanceFilter(
+      /^chlorure de cétylpyridinium \(cétylpyridinium \(chlorure de\)\)/,
+    ),
+  ).not.toHaveLength(0);
   expect(substanceFilter(/^paracétamol \(1\)$/)).not.toHaveLength(0);
-  expect(substanceFilter(/^codant pour l’arylsulfatase A \(1\)$/)).not.toHaveLength(0);
+  expect(
+    substanceFilter(/^codant pour l’arylsulfatase A \(1\)$/),
+  ).not.toHaveLength(0);
   expect(substanceFilter(/^caféine \(1\)$/)).not.toHaveLength(0);
 });

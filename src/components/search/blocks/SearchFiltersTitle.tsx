@@ -2,7 +2,7 @@
 
 import { fr } from "@codegouvfr/react-dsfr";
 import { HTMLAttributes } from "react";
-import styled from 'styled-components';
+import styled from "styled-components";
 
 const TitleContainer = styled.div`
   display: inline-flex;
@@ -21,22 +21,19 @@ function SearchFiltersTitle({
   selectedFiltersCount,
   ...props
 }: SearchFiltersTitleProps) {
-
   const filtersCount = selectedFiltersCount ?? 0;
 
   return (
     <TitleContainer {...props}>
       <Title className={fr.cx("fr-h6")}>
-        <span 
+        <span
           className={["fr-icon--custom-filters", fr.cx("fr-mr-1w")].join(" ")}
         />
         Filtres
-        {filtersCount > 0 && 
-          <span>{` (${filtersCount})`}</span>
-        }
+        {filtersCount > 0 && <span>{` (${filtersCount})`}</span>}
       </Title>
     </TitleContainer>
   );
-};
+}
 
 export default SearchFiltersTitle;

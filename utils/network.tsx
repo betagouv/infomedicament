@@ -1,4 +1,4 @@
-export const fetchJSON = async <Data = any>(url: string): Promise<Data> => {
+export const fetchJSON = async <Data = any,>(url: string): Promise<Data> => {
   const res = await fetch(url);
   if (res.status !== 200) {
     console.error(`failed to load data for ${url}`);

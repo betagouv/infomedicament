@@ -51,16 +51,25 @@ export function filterSpecsGroupsByCIS(
 ): ResumeSpecGroup[] {
   return specsGroups
     .map((group) => {
-      const specialites = group.specialites.filter((spec) => CISList.includes(spec[0].trim()));
+      const specialites = group.specialites.filter((spec) =>
+        CISList.includes(spec[0].trim()),
+      );
       const filteredGroup = {
         ...group,
         CISList: group.CISList.filter((cis) => CISList.includes(cis.trim())),
         specialites: specialites,
-        shortSpecialites: group.shortSpecialites.filter((spec) => CISList.includes(spec.SpecId.trim())),
+        shortSpecialites: group.shortSpecialites.filter((spec) =>
+          CISList.includes(spec.SpecId.trim()),
+        ),
       };
       // The group substances come from its first specialite
       const firstSpec = specialites[0];
-      if (!firstSpec || firstSpec[0] === group.specialites[0][0] || firstSpec[5] === undefined) return filteredGroup;
+      if (
+        !firstSpec ||
+        firstSpec[0] === group.specialites[0][0] ||
+        firstSpec[5] === undefined
+      )
+        return filteredGroup;
       return {
         ...filteredGroup,
         composants: firstSpec[5],
@@ -253,7 +262,9 @@ export function getSpecSlug(cis: string, name: string): string {
   return getSlug(cis, name);
 }
 
-export type SpecialiteWithGenericGroup = DetailedSpecialite & { genericGroupCode: number };
+export type SpecialiteWithGenericGroup = DetailedSpecialite & {
+  genericGroupCode: number;
+};
 
 export function hasGenericGroup(
   specialite: DetailedSpecialite,

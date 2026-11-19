@@ -31,17 +31,22 @@ export function buildIndications(
 
   const classesByPathology = new Map<number, Set<number>>();
   for (const link of source.classPathologies) {
-    const values = classesByPathology.get(link.pathologyCode) ?? new Set<number>();
+    const values =
+      classesByPathology.get(link.pathologyCode) ?? new Set<number>();
     values.add(link.classCode);
     classesByPathology.set(link.pathologyCode, values);
   }
 
   const rows: IndicationRefreshRow[] = source.pathologies.map((pathology) => {
-    const definition = source.definitions.find((row) => row.code_patho === pathology.code);
-    const cis = [...(classesByPathology.get(pathology.code) ?? [])]
-      .flatMap((classCode) => [...(cisByClass.get(classCode) ?? [])]);
-    const current = existing.find((row) =>
-      row.codePatho === pathology.code && row.nom === pathology.nom.trim(),
+    const definition = source.definitions.find(
+      (row) => row.code_patho === pathology.code,
+    );
+    const cis = [...(classesByPathology.get(pathology.code) ?? [])].flatMap(
+      (classCode) => [...(cisByClass.get(classCode) ?? [])],
+    );
+    const current = existing.find(
+      (row) =>
+        row.codePatho === pathology.code && row.nom === pathology.nom.trim(),
     );
 
     return {
@@ -55,13 +60,14 @@ export function buildIndications(
   });
 
   for (const clinicalClass of source.clinicalClasses) {
-    const definition = source.definitions.find((row) =>
-      row.code_classe_clinique === clinicalClass.code,
+    const definition = source.definitions.find(
+      (row) => row.code_classe_clinique === clinicalClass.code,
     );
     if (definition?.code_patho) continue;
 
-    const current = existing.find((row) =>
-      row.codePatho == null && row.codeClasseClinique === clinicalClass.code,
+    const current = existing.find(
+      (row) =>
+        row.codePatho == null && row.codeClasseClinique === clinicalClass.code,
     );
     rows.push({
       ...(current ? { id: current.id } : {}),

@@ -67,9 +67,7 @@ export default async function MedicamentPage({
         <Breadcrumb
           segments={breadcrumb}
           currentPageLabel={
-            specialite
-              ? formatSpecName(specialite.SpecDenom01).trim()
-              : ""
+            specialite ? formatSpecName(specialite.SpecDenom01).trim() : ""
           }
           className={fr.cx("fr-mb-2w")}
         />

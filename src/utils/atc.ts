@@ -1,6 +1,5 @@
 import { getIdFromSlug, getSlug } from "@/utils/slug";
 
-
 export class ATCError extends Error {
   constructor(code: string) {
     super(`ATC code not found: ${code}`);
@@ -8,12 +7,12 @@ export class ATCError extends Error {
 }
 
 //From ATC Code
-export function getAtc1Code (atcCode:string): string {
+export function getAtc1Code(atcCode: string): string {
   return atcCode.slice(0, 1);
 }
 
 //From ATC Code
-export function getAtc2Code (atcCode:string): string {
+export function getAtc2Code(atcCode: string): string {
   return atcCode.slice(0, 3);
 }
 

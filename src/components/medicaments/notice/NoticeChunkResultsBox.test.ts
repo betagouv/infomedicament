@@ -37,7 +37,9 @@ describe("highlightTextInElement", () => {
   });
 
   it("finds text in a nested element", () => {
-    const el = makeDiv("<p>Consulter un médecin si les symptômes persistent.</p>");
+    const el = makeDiv(
+      "<p>Consulter un médecin si les symptômes persistent.</p>",
+    );
     const mark = highlightTextInElement(el, "symptômes persistent");
     expect(mark).not.toBeNull();
     expect(mark?.textContent).toBe("symptômes persistent");

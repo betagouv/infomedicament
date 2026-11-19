@@ -39,7 +39,10 @@ export function getIndicationsBlock(contentHtml: string): string | undefined {
 }
 
 function escapeText(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 /**
@@ -47,7 +50,10 @@ function escapeText(text: string): string {
  * boundary), keeping the markup of what remains. Returns undefined when the
  * text already fits, so callers can tell nothing was cut.
  */
-export function truncateHtml(html: string, maxChars: number): string | undefined {
+export function truncateHtml(
+  html: string,
+  maxChars: number,
+): string | undefined {
   if (!html) return undefined;
 
   const root = parse(html);

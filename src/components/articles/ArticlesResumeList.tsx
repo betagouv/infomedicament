@@ -3,8 +3,11 @@
 import { HTMLAttributes } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import { useIsDark } from "@codegouvfr/react-dsfr/useIsDark";
-import styled, { css } from 'styled-components';
-import { ArticleCardResume, ArticleTrackingFromType } from "@/types/ArticlesTypes";
+import styled, { css } from "styled-components";
+import {
+  ArticleCardResume,
+  ArticleTrackingFromType,
+} from "@/types/ArticlesTypes";
 import Link from "next/link";
 import { trackEvent } from "@/services/tracking";
 
@@ -20,8 +23,10 @@ const ArticleBlockContainer = styled.div<{ $isDark: boolean }>`
   border-radius: 8px;
   padding: 0.5rem;
   margin-bottom: 1rem;
-  ${props => css`
-    background-color: ${props.$isDark ? 'var(--background-default-grey)' : '#FFF'};
+  ${(props) => css`
+    background-color: ${props.$isDark
+      ? "var(--background-default-grey)"
+      : "#FFF"};
   `}
   @media (max-width: 48em) {
     margin-right: 1rem;
@@ -45,20 +50,17 @@ function ArticlesResumeList({
   articles,
   trackingFrom,
 }: ArticlesResumeListProps) {
-
   const { isDark } = useIsDark();
 
   return (
     articles.length > 0 && (
       <div>
-        <ArticlesTitle className={fr.cx("fr-h6")}>
-          En savoir plus
-        </ArticlesTitle>
+        <ArticlesTitle className={fr.cx("fr-h6")}>En savoir plus</ArticlesTitle>
         <ArticlesListContainer>
-          {articles.map((article:ArticleCardResume, index) => {
+          {articles.map((article: ArticleCardResume, index) => {
             return (
               <ArticleBlockContainer $isDark={isDark} key={index}>
-                <Link 
+                <Link
                   className={fr.cx("fr-text--sm", "fr-link")}
                   href={`/articles/${article.slug}`}
                   target="_blank"
@@ -73,6 +75,6 @@ function ArticlesResumeList({
       </div>
     )
   );
-};
+}
 
 export default ArticlesResumeList;

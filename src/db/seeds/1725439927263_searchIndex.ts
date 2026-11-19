@@ -7,7 +7,11 @@ export function getGroupSubstancesNames(
   subsNamesIds: string[],
   namesByNomId: Map<string, string>,
 ): string[] {
-  return [...new Set(subsNamesIds.flatMap((nomId) => namesByNomId.get(nomId.trim()) ?? []))];
+  return [
+    ...new Set(
+      subsNamesIds.flatMap((nomId) => namesByNomId.get(nomId.trim()) ?? []),
+    ),
+  ];
 }
 
 export async function seed(db: Kysely<any>): Promise<void> {
@@ -51,17 +55,23 @@ export async function seed(db: Kysely<any>): Promise<void> {
 
   console.log(
     `Loaded ${groups.length} groups, ${substances.length} substances, ` +
-    `${indications.length} indications, ${atcRows.length} ATC codes, ` +
-    `${atcFriendly1.length + atcFriendly2.length} friendly ATC labels`
+      `${indications.length} indications, ${atcRows.length} ATC codes, ` +
+      `${atcFriendly1.length + atcFriendly2.length} friendly ATC labels`,
   );
 
   if (groups.length === 0 || substances.length === 0) {
-    throw new Error("No groups found in resume_medicaments or in resume_substances — run updateResumeData first");
+    throw new Error(
+      "No groups found in resume_medicaments or in resume_substances — run updateResumeData first",
+    );
   }
 
   // Build lookup maps
-  const substancesNamesByNomId = new Map(substances.map((s) => [s.NomId.trim(), s.NomLib]));
-  const indicationsMap = new Map(indications.map((p) => [p.idIndication, p.nomIndication.trim()]));
+  const substancesNamesByNomId = new Map(
+    substances.map((s) => [s.NomId.trim(), s.NomLib]),
+  );
+  const indicationsMap = new Map(
+    indications.map((p) => [p.idIndication, p.nomIndication.trim()]),
+  );
 
   // Build ATC label map: code → labels (may have both friendly and technical labels)
   const atcLabelMap = new Map<string, Set<string>>();
@@ -129,7 +139,10 @@ export async function seed(db: Kysely<any>): Promise<void> {
 
       // 2. Index substance names, as displayed on the medicaments of the group
       const subsNamesIds: string[] = (group.subsNamesIds as string[]) ?? [];
-      for (const nomLib of getGroupSubstancesNames(subsNamesIds, substancesNamesByNomId)) {
+      for (const nomLib of getGroupSubstancesNames(
+        subsNamesIds,
+        substancesNamesByNomId,
+      )) {
         await addIndex("substance", gn, nomLib, nomLib, null);
       }
 
