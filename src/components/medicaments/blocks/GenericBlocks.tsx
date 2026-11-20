@@ -110,6 +110,18 @@ export const RcpNoticeHtmlContainer = styled.div.attrs({
     max-width: 100%;
   }
 
+  table {
+    figure {
+      margin: 0;
+    }
+
+    /* A percentage max-width gives image-only cells a zero minimum width.
+       Keep the image's declared size; the DSFR wrapper handles table overflow. */
+    img {
+      max-width: none;
+    }
+  }
+
   @media (min-width: 48em) {
     h1 {
       font-size: 1.5rem !important;
