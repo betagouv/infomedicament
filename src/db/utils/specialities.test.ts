@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   row: vi.fn(),
   composants: vi.fn(),
   presentations: vi.fn(),
+  marketingPresentations: vi.fn(),
   delivrance: vi.fn(),
 }));
 vi.mock("./composants", () => ({ getComposants: mocks.composants }));
@@ -34,7 +35,9 @@ vi.mock("@/db", () => ({
         execute: () =>
           table === "ansm_specialite_delivrance"
             ? mocks.delivrance()
-            : Promise.resolve([]),
+            : table === "ansm_presentation"
+              ? mocks.marketingPresentations()
+              : Promise.resolve([]),
       };
       return query;
     },
@@ -46,6 +49,7 @@ describe("specialty assembly", () => {
     vi.resetAllMocks();
     mocks.row.mockResolvedValue({ cis: "123" });
     mocks.presentations.mockResolvedValue([{ cip13: "456" }]);
+    mocks.marketingPresentations.mockResolvedValue([]);
     mocks.delivrance.mockResolvedValue([{ code: 3 }]);
   });
 
@@ -64,11 +68,25 @@ describe("specialty assembly", () => {
     });
     resolveComponents([]);
     expect(await loading).toEqual({
-      specialite: { cis: "123" },
+      specialite: { cis: "123", marketingStatus: "unknown" },
       composants: [],
       presentations: [{ cip13: "456" }],
       delivrance: [{ code: 3 }],
     });
+  });
+
+  it("passes presentation-level marketing evidence to the medicine header", async () => {
+    mocks.composants.mockResolvedValue([]);
+    mocks.marketingPresentations.mockResolvedValue([
+      {
+        statut_commercialisation: "ARRETEE",
+        date_commercialisation: new Date("2010-01-01"),
+        date_arret_commercialisation: new Date("2020-01-01"),
+      },
+    ]);
+    expect((await getSpecialite("123")).specialite?.marketingStatus).toBe(
+      "stopped",
+    );
   });
 
   it("returns empty related data without queries for an unavailable specialty", async () => {

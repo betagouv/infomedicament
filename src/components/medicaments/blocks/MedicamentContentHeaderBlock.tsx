@@ -154,7 +154,12 @@ function MedicamentContentHeaderBlock({
       {availabilityWarning && (
         <ContentContainer whiteContainer className={fr.cx("fr-mb-2w")}>
           <Alert
-            description="Si vous prenez actuellement ce médicament, il vous est recommandé d'en parler avec votre médecin ou avec votre pharmacien qui pourra vous orienter vers un autre traitement."
+            description={
+              specialite.marketingStatus === "stopped" ||
+              specialite.marketingStatus === "stopping"
+                ? "Si vous prenez actuellement ce médicament, il vous est recommandé d'en parler avec votre médecin ou avec votre pharmacien qui pourra vous orienter vers un autre traitement."
+                : false
+            }
             severity={availabilityWarning.severity}
             title={availabilityWarning.title}
             small
