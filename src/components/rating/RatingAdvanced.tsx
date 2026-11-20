@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes, useState } from "react";
 import { fr } from "@codegouvfr/react-dsfr";
 import Button from "@codegouvfr/react-dsfr/Button";
 import { RadioButtons } from "@codegouvfr/react-dsfr/RadioButtons";
@@ -22,12 +22,6 @@ function RatingAdvanced({
 }: RatingAdvancedProps) {
   const [question1, setQuestion1] = useState<string>("");
   const [question2, setQuestion2] = useState<string>("");
-
-  const [isReadOnly, setIsReadOnly] = useState<boolean>(false);
-
-  useEffect(() => {
-    readOnly && setIsReadOnly(readOnly);
-  }, [readOnly]);
 
   function onClickSave() {
     const newRating: AdvancedRating = {
@@ -70,7 +64,7 @@ function RatingAdvanced({
           }))}
         />
       </div>
-      {!isReadOnly && (
+      {!readOnly && (
         <div>
           <Button
             onClick={onClickSave}

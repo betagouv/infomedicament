@@ -1,7 +1,7 @@
 "use client";
 
 import { fr } from "@codegouvfr/react-dsfr";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment } from "react";
 import Link from "next/link";
 import { getNormalizeLetter } from "@/utils/alphabeticNav";
 
@@ -14,15 +14,9 @@ function AlphabeticNav({
   urlPrefix: string;
   currentLetter: string;
 }) {
-  const [currentLetters, setCurrentLetters] = useState<string[]>([]);
-
-  useEffect(() => {
-    setCurrentLetters(letters);
-  }, [letters, setCurrentLetters]);
-
   return (
     <p className={fr.cx("fr-text--lg")}>
-      {currentLetters
+      {letters
         .map((letter) => letter && getNormalizeLetter(letter))
         .map(
           (letter) =>

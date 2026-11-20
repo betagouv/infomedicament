@@ -1,13 +1,7 @@
 "use client";
 
 import { fr } from "@codegouvfr/react-dsfr";
-import {
-  HTMLAttributes,
-  PropsWithChildren,
-  ReactNode,
-  useEffect,
-  useState,
-} from "react";
+import { HTMLAttributes, PropsWithChildren } from "react";
 import styled, { css } from "styled-components";
 
 interface TagContainerProps extends HTMLAttributes<HTMLDivElement> {
@@ -35,16 +29,11 @@ function TagContainer({
   category,
   hideSeparator,
   inLine,
+  children,
   ...props
 }: PropsWithChildren<TagContainerProps>) {
-  const [currentChildren, setCurrentChildren] = useState<ReactNode>();
-
-  useEffect(() => {
-    if (props.children) setCurrentChildren(props.children);
-  }, [props, setCurrentChildren]);
-
   return (
-    currentChildren && (
+    children && (
       <div {...props}>
         <ContentContainer $inLine={inLine}>
           {category && (
@@ -52,7 +41,7 @@ function TagContainer({
               {category}
             </CategoryContainer>
           )}
-          {currentChildren}
+          {children}
         </ContentContainer>
         {!hideSeparator && <hr className={fr.cx("fr-pb-1w", "fr-mt-1w")} />}
       </div>

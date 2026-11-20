@@ -3,7 +3,6 @@ import { DsfrProvider } from "@codegouvfr/react-dsfr/next-appdir/DsfrProvider";
 import { Footer } from "@codegouvfr/react-dsfr/Footer";
 import { Notice } from "@codegouvfr/react-dsfr/Notice";
 import { headerFooterDisplayItem } from "@codegouvfr/react-dsfr/Display";
-import GlossaryModals from "@/components/glossary/GlossaryModals";
 import GlossaryContextProvider from "@/components/glossary/GlossaryContextProvider";
 import GreetingModal from "@/components/GreetingModal";
 import InfoMedicamentHeader from "@/components/InfoMedicamentHeader";
@@ -88,7 +87,6 @@ export default function ContainerLayout({
             },
           ]}
         />
-        <GlossaryModals />
         <Suspense fallback={null}>
           <GreetingWithData />
         </Suspense>

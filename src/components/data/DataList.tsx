@@ -1,5 +1,5 @@
 "use client";
-import { HTMLAttributes, useEffect, useState } from "react";
+import { HTMLAttributes } from "react";
 import { AdvancedATCClass, DataTypeEnum } from "@/types/DataTypes";
 import DataBlockGeneric from "./DataBlockGeneric";
 import DataBlockAccordion from "./DataBlockAccordion";
@@ -51,36 +51,23 @@ function DataList({
   currentPage,
   isGeneric,
 }: DataListProps) {
-  const [currentDataList, setCurrentDataList] = useState<
-    | ResumeSubstance[]
-    | ResumeIndication[]
-    | ResumeSpecGroup[]
-    | AdvancedATCClass[]
-    | ResumeGeneric[]
-  >([]);
-  const [currentType, setCurrentType] = useState<DataTypeEnum>();
-
-  useEffect(() => {
-    if (type) setCurrentType(type);
-    else setCurrentType(undefined);
-  }, [type, setCurrentType]);
-
-  useEffect(() => {
-    const list = getCurrentDataList(dataList, paginationLength, currentPage);
-    setCurrentDataList(list);
-  }, [dataList, paginationLength, currentPage, setCurrentDataList]);
+  const dataListForPage = getCurrentDataList(
+    dataList,
+    paginationLength,
+    currentPage,
+  );
 
   return (
     <>
-      {currentType &&
-        currentDataList &&
-        currentDataList.map((data, index) => {
+      {type &&
+        dataListForPage &&
+        dataListForPage.map((data, index) => {
           return !isGeneric && type === DataTypeEnum.MEDICAMENT ? (
             <DataBlockAccordion key={index} item={data as ResumeSpecGroup} />
           ) : (
             <DataBlockGeneric
               key={index}
-              type={currentType}
+              type={type}
               item={
                 data as
                   | ResumeSubstance

@@ -6,7 +6,6 @@ import {
   MouseEvent,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useRef,
 } from "react";
@@ -32,7 +31,7 @@ export default function DocumentHtml({
   ...props
 }: DocumentHtmlProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { getDefinitionModalAndUpdateGlossary } = useContext(GlossaryContext);
+  const { openDefinition: showDefinition } = useContext(GlossaryContext);
   const definitionsByName = useMemo(
     () =>
       new Map(
@@ -40,28 +39,6 @@ export default function DocumentHtml({
       ),
     [definitions],
   );
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    container
-      .querySelectorAll<HTMLElement>("[data-definition]")
-      .forEach((element) => {
-        const name = element.dataset.definition;
-        const definition = name ? definitionsByName.get(name) : undefined;
-        if (!definition) return;
-
-        element.tabIndex = 0;
-        element.setAttribute("role", "button");
-        element.setAttribute("aria-haspopup", "dialog");
-        element.setAttribute(
-          "aria-label",
-          `Voir la définition de ${element.textContent?.trim() || name}`,
-        );
-        getDefinitionModalAndUpdateGlossary(definition);
-      });
-  }, [contentHtml, definitionsByName, getDefinitionModalAndUpdateGlossary]);
 
   const openDefinition = useCallback(
     (element: HTMLElement) => {
@@ -71,9 +48,9 @@ export default function DocumentHtml({
       const definition = name ? definitionsByName.get(name) : undefined;
       if (!definition) return;
 
-      getDefinitionModalAndUpdateGlossary(definition).open();
+      showDefinition(definition, element);
     },
-    [definitionsByName, getDefinitionModalAndUpdateGlossary],
+    [definitionsByName, showDefinition],
   );
 
   const handleClick = useCallback(

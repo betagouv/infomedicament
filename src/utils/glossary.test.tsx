@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { withDefinition, withDefinitions } from "./glossary";
+import { GlossaryContext } from "@/components/glossary/GlossaryContextProvider";
 import { Definition } from "@/types/GlossaireTypes";
 
 const posologie: Definition = {
@@ -12,11 +13,18 @@ const posologie: Definition = {
 
 describe("utils/glossary - withDefinitions", () => {
   it("links the word to its definition, whatever the case", () => {
-    render(<p>{withDefinitions("Respecter la Posologie.", [posologie])}</p>);
+    const openDefinition = vi.fn();
+    render(
+      <GlossaryContext.Provider value={{ openDefinition }}>
+        <p>{withDefinitions("Respecter la Posologie.", [posologie])}</p>
+      </GlossaryContext.Provider>,
+    );
     const link = screen.getByRole("button");
 
     expect(link.textContent).toBe("Posologie");
-    expect(link.getAttribute("href")).toBe("#Definition-Posologie");
+    expect(link.getAttribute("aria-haspopup")).toBe("dialog");
+    fireEvent.click(link);
+    expect(openDefinition).toHaveBeenCalledWith(posologie, link);
     expect(link.closest("p")?.textContent).toBe("Respecter la Posologie.");
   });
 

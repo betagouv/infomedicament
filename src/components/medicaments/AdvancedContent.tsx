@@ -3,7 +3,7 @@
 import ContentContainer from "../generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import type { CompositionComponent } from "@/types/SubstanceTypes";
-import { HTMLAttributes, useState } from "react";
+import { HTMLAttributes, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import DetailedSubMenu, { AnchorMenu } from "./advanced/DetailedSubMenu";
 import { DetailsNoticePartsEnum } from "@/types/NoticeTypes";
@@ -71,6 +71,10 @@ interface AdvancedContentProps extends HTMLAttributes<HTMLDivElement> {
   onGoToAdvanced: (advanced: boolean) => void;
 }
 
+const defaultNavigation: AnchorMenu = {
+  menuPart: DetailsNoticePartsEnum.INFORMATIONS_GENERALES,
+};
+
 function AdvancedContent({
   atcCode,
   specialite,
@@ -93,13 +97,50 @@ function AdvancedContent({
   onGoToAdvanced,
   ...props
 }: AdvancedContentProps) {
-  const [currentPart, setCurrentPart] = useState<DetailsNoticePartsEnum>(
-    DetailsNoticePartsEnum.INFORMATIONS_GENERALES,
-  );
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [selection, setSelection] = useState({
+    source: advancedAnchor,
+    navigation: advancedAnchor ?? defaultNavigation,
+  });
+  const navigation =
+    selection.source === advancedAnchor
+      ? selection.navigation
+      : (advancedAnchor ?? defaultNavigation);
+  const currentPart = navigation.menuPart;
+  const onNavigate = (navigation: AnchorMenu) =>
+    setSelection({ source: advancedAnchor, navigation });
+  const setCurrentPart = (menuPart: DetailsNoticePartsEnum) =>
+    onNavigate({ menuPart });
+
+  // Scrolling must follow the commit that makes the requested section visible.
+  useEffect(() => {
+    if (navigation.anchor) {
+      const anchor = navigation.anchor;
+      const scrollToAnchor = () => {
+        const element = document.getElementById(anchor);
+        if (!element || !containerRef.current?.contains(element)) return false;
+        element.scrollIntoView({ block: "start" });
+        return true;
+      };
+      if (scrollToAnchor() || !containerRef.current) return;
+      // RCP HTML can arrive after the section becomes visible.
+      const observer = new MutationObserver(() => {
+        if (scrollToAnchor()) observer.disconnect();
+      });
+      observer.observe(containerRef.current, {
+        childList: true,
+        subtree: true,
+      });
+      return () => observer.disconnect();
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [navigation]);
 
   return (
     <AdvancedContentContainer
       {...props}
+      ref={containerRef}
       className={[
         "mobile-display-contents",
         fr.cx("fr-grid-row", "fr-grid-row--gutters"),
@@ -122,11 +163,11 @@ function AdvancedContent({
           className={fr.cx("fr-mb-2w", "fr-hidden-md")}
         />
         <DetailedSubMenu
-          updateVisiblePart={setCurrentPart}
+          onNavigate={onNavigate}
+          navigation={navigation}
           isMarr={marr && marr.pdf.length > 0}
           isInfosImportantes={displayInfosImportantes(ficheInfos)}
           isStock={stocks.length > 0}
-          anchor={advancedAnchor}
         />
       </ContentContainer>
       <ContentContainer

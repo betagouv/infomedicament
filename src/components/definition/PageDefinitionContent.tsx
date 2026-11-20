@@ -40,7 +40,10 @@ function PageDefinitionContent({
   articleTrackingFrom,
 }: PageDefinitionContentProps) {
   const PAGINATION_LENGTH = 10;
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pagination, setPagination] = useState({ list: dataList, page: 1 });
+  const currentPage = pagination.list === dataList ? pagination.page : 1;
+  const setCurrentPage = (page: number) =>
+    setPagination({ list: dataList, page });
 
   return (
     <div
@@ -76,6 +79,7 @@ function PageDefinitionContent({
       <DataListPagination
         dataLength={dataList.length}
         paginationLength={PAGINATION_LENGTH}
+        currentPage={currentPage}
         updateCurrentPage={setCurrentPage}
       />
     </div>
