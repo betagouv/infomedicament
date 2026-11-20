@@ -84,7 +84,7 @@ describe("GeneralInformations composition", () => {
 });
 
 describe("GeneralInformations presentations", () => {
-  it("shows formatted CIP codes and the free-price fallback without a CEPS row", () => {
+  it("shows formatted CIP codes and missing pricing information without a CEPS row", () => {
     const presentation: Presentation = {
       cis: "60928110",
       cip13: "3400949004751",
@@ -126,7 +126,9 @@ describe("GeneralInformations presentations", () => {
     );
 
     expect(screen.getByText("Code CIP : 34009 490 047 5 1")).not.toBeNull();
-    expect(screen.getByText("Prix libre - non remboursable")).not.toBeNull();
+    expect(
+      screen.getByText("Prix non disponible · Remboursement non renseigné"),
+    ).not.toBeNull();
     expect(
       screen.getByText(
         "Cette présentation n'est pas agréée aux collectivités.",
@@ -159,6 +161,7 @@ describe("GeneralInformations presentations", () => {
             ...presentation,
             cip13: "3400949004782",
             commercialStatus: "suspended",
+            commercialisationEndDate: new Date("2024-11-10"),
           },
           {
             ...presentation,
@@ -166,7 +169,22 @@ describe("GeneralInformations presentations", () => {
             commercialStatus: "stopped",
             commercialisationEndDate: new Date("2024-12-12"),
           },
-        ]}
+          {
+            ...presentation,
+            cip13: "3400949004799",
+            commercialStatus: "withdrawn",
+          },
+        ].map((pres) => ({
+          ...pres,
+          commercialStatus:
+            pres.commercialStatus as Presentation["commercialStatus"],
+          ...(pres.commercialStatus !== "commercialised" && {
+            retailPrice: 1234.56,
+            reimbursementRate: "65%",
+            priceExcludingDispensingFee: 1233.54,
+            dispensingFee: 1.02,
+          }),
+        }))}
         ficheInfos={ficheInfos}
         delivrance={[]}
         definitions={[]}
@@ -196,7 +214,7 @@ describe("GeneralInformations presentations", () => {
         .getByText("Code CIP : 34009 490 047 5 1")
         .compareDocumentPosition(toggle) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
-    expect(within(panel!).getAllByRole("listitem")).toHaveLength(3);
+    expect(within(panel!).getAllByRole("listitem")).toHaveLength(4);
     expect(
       within(panel!).queryByText(/Déclaration de commercialisation/),
     ).toBeNull();
@@ -204,10 +222,21 @@ describe("GeneralInformations presentations", () => {
     fireEvent.click(toggle);
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
     expect(
-      within(panel!).getAllByText("Prix libre - non remboursable")[0],
+      within(panel!).queryByText(
+        /Prix|Remboursable|Remboursement|Honoraire|€/i,
+      ),
+    ).toBeNull();
+    expect(
+      within(panel!).getByText("Commercialisation non communiquée"),
     ).not.toBeNull();
     expect(
-      within(panel!).getByText("Commercialisation arrêtée : 12/12/2024"),
+      within(panel!).getByText("Commercialisation suspendue le 10/11/2024"),
+    ).not.toBeNull();
+    expect(
+      within(panel!).getByText("Arrêt (autorisation retirée)"),
+    ).not.toBeNull();
+    expect(
+      within(panel!).getByText("Commercialisation arrêtée le 12/12/2024"),
     ).not.toBeNull();
 
     fireEvent.click(toggle);

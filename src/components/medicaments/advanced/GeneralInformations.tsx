@@ -163,37 +163,40 @@ function PresentationDetailsList({
             <span className={fr.cx("fr-mr-2w")}>
               <b>{getPresentationName(pres)}</b>
             </span>
-            <span>{getPresentationFullPriceText(pres)}</span>
+            {pres.commercialStatus === "commercialised" && (
+              <span>{getPresentationFullPriceText(pres)}</span>
+            )}
           </div>
-          {(pres.priceExcludingDispensingFee || pres.dispensingFee) && (
-            <div className={fr.cx("fr-mb-0")}>
-              {pres.priceExcludingDispensingFee && (
-                <span className={fr.cx("fr-mr-2w")}>
-                  Prix hors honoraire de dispensation :{" "}
-                  {Intl.NumberFormat("fr-FR", {
-                    style: "currency",
-                    currency: "EUR",
-                  }).format(pres.priceExcludingDispensingFee)}{" "}
-                </span>
-              )}
-              {pres.dispensingFee && (
-                <span>
-                  <WithDefinition
-                    definition={
-                      definitions &&
-                      getDefinition(definitions, "Honoraire de dispensation")
-                    }
-                    word="Honoraire de dispensation"
-                  />
-                  {" : "}
-                  {Intl.NumberFormat("fr-FR", {
-                    style: "currency",
-                    currency: "EUR",
-                  }).format(pres.dispensingFee)}{" "}
-                </span>
-              )}
-            </div>
-          )}
+          {pres.commercialStatus === "commercialised" &&
+            (pres.priceExcludingDispensingFee || pres.dispensingFee) && (
+              <div className={fr.cx("fr-mb-0")}>
+                {pres.priceExcludingDispensingFee && (
+                  <span className={fr.cx("fr-mr-2w")}>
+                    Prix hors honoraire de dispensation :{" "}
+                    {Intl.NumberFormat("fr-FR", {
+                      style: "currency",
+                      currency: "EUR",
+                    }).format(pres.priceExcludingDispensingFee)}{" "}
+                  </span>
+                )}
+                {pres.dispensingFee && (
+                  <span>
+                    <WithDefinition
+                      definition={
+                        definitions &&
+                        getDefinition(definitions, "Honoraire de dispensation")
+                      }
+                      word="Honoraire de dispensation"
+                    />
+                    {" : "}
+                    {Intl.NumberFormat("fr-FR", {
+                      style: "currency",
+                      currency: "EUR",
+                    }).format(pres.dispensingFee)}{" "}
+                  </span>
+                )}
+              </div>
+            )}
           {(pres.cip13 ||
             (pres.commercialStatus === "commercialised" &&
               pres.commercialisationDate)) && (
@@ -226,7 +229,7 @@ function PresentationDetailsList({
               <Badge severity="warning">
                 {getPresentationNonCommercializedStatusLabel(pres)}
                 {pres.commercialisationEndDate &&
-                  ` : ${dateShortFormat(pres.commercialisationEndDate)}`}
+                  ` le ${dateShortFormat(pres.commercialisationEndDate)}`}
               </Badge>
             </div>
           )}
