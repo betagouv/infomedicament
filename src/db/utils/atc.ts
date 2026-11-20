@@ -33,7 +33,6 @@ export async function getAtcCode(CIS: string): Promise<string | undefined> {
   return result?.code ?? undefined;
 }
 
-
 /** Fetch exact descendant memberships once across all requested ATC classes. */
 async function getCISCodesForAtcs(
   atcs: ATC[],
