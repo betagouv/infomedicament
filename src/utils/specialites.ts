@@ -97,26 +97,54 @@ export function isCommercialisee(
   return true;
 }
 
-// Summary rows only contain the legacy status; status 2 retains the pending
-// unavailability warning until catalogue availability is supplied.
+// Legacy status 2 conflates limited availability and completed withdrawal.
+// Only presentation-level evidence can establish an upcoming or completed stop.
 export function getAvailabilityWarning(
   specialite: Specialite | ShortSpecialite | ResumeSpecialite,
 ) {
-  if (specialite.availability === "INDISPONIBLE") {
+  const info = {
+    severity: "info" as const,
+    color: "var(--text-action-high-blue-france)",
+  };
+  if (specialite.marketingStatus === "stopped") {
     return {
       title: "Ce médicament n'est plus disponible sur le marché.",
       severity: "error" as const,
       color: "var(--text-default-error)",
     };
   }
-  if (
-    specialite.availability === "PARTIELLE" ||
-    (specialite.availability == null && !isCommercialisee(specialite))
-  ) {
+  if (specialite.marketingStatus === "stopping") {
     return {
       title: "Ce médicament ne sera bientôt plus disponible sur le marché.",
-      severity: "info" as const,
-      color: "var(--text-action-high-blue-france)",
+      ...info,
+    };
+  }
+  if (specialite.marketingStatus === "not-marketed") {
+    return {
+      title: "Ce médicament n'est pas commercialisé actuellement.",
+      ...info,
+    };
+  }
+  if (specialite.availability === "INDISPONIBLE") {
+    return {
+      title:
+        "statutAutorisation" in specialite &&
+        specialite.statutAutorisation === "Valide"
+          ? "Ce médicament dispose d'une autorisation, mais n'est pas disponible actuellement."
+          : "Ce médicament n'est pas disponible actuellement.",
+      ...info,
+    };
+  }
+  if (specialite.availability === "PARTIELLE") {
+    return {
+      title: "La disponibilité de ce médicament est limitée.",
+      ...info,
+    };
+  }
+  if (specialite.availability == null && !isCommercialisee(specialite)) {
+    return {
+      title: "La disponibilité de ce médicament est limitée ou interrompue.",
+      ...info,
     };
   }
   return null;
