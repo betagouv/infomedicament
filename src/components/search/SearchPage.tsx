@@ -70,11 +70,13 @@ function SearchPage({
           </div>
         </div>
       )}
-      <AdvancedSearchPanel
-        initialCriteria={advancedCriteria}
-        onSearch={(criteria) => navigate("", criteria)}
-        isSearching={isSearching}
-      />
+      {advancedCriteria && (
+        <AdvancedSearchPanel
+          initialCriteria={advancedCriteria}
+          onSearch={(criteria) => navigate("", criteria)}
+          isSearching={isSearching}
+        />
+      )}
       {isSearching && <p role="status">Recherche en cours…</p>}
       {searchError && (
         <p role="alert" className={fr.cx("fr-error-text")}>

@@ -18,8 +18,8 @@ import {
 
 import { getProcedureLibLong } from "@/utils/specialites";
 
-const Container = styled.section<{ $advanced: boolean }>`
-  margin: ${({ $advanced }) => ($advanced ? "1rem" : "0")} 0 1.5rem;
+const Container = styled.section`
+  margin: 2rem 0 1.5rem;
 `;
 const Panel = styled.form`
   background: var(--background-alt-grey);
@@ -189,14 +189,12 @@ export default function AdvancedSearchPanel({
   onSearch,
   isSearching = false,
 }: {
-  initialCriteria?: Criteria;
-  onSearch: (criteria: Criteria | null) => void;
+  initialCriteria: Criteria;
+  onSearch: (criteria: Criteria) => void;
   isSearching?: boolean;
 }) {
-  const panelId = useId();
   const titleId = useId();
-  const isAdvancedMode = Boolean(initialCriteria);
-  const [draft, setDraft] = useState(initialCriteria ?? defaultCriteria);
+  const [draft, setDraft] = useState(initialCriteria);
   const [dateErrors, setDateErrors] = useState<DateKey[]>([]);
   const [emptyCriteriaError, setEmptyCriteriaError] = useState(false);
 
@@ -241,31 +239,11 @@ export default function AdvancedSearchPanel({
   }
 
   return (
-    <Container $advanced={isAdvancedMode} aria-label="Recherche avancée">
-      <Button
-        priority="tertiary"
-        size="small"
-        iconId={
-          isAdvancedMode ? "fr-icon-search-line" : "fr-icon-equalizer-line"
-        }
-        onClick={() => onSearch(isAdvancedMode ? null : defaultCriteria)}
-        disabled={isSearching}
-        nativeButtonProps={{
-          "aria-expanded": isAdvancedMode,
-          "aria-controls": panelId,
-        }}
-      >
-        {isAdvancedMode ? "Recherche simple" : "Recherche avancée"}
-      </Button>
-      <Panel
-        id={panelId}
-        hidden={!isAdvancedMode}
-        onSubmit={prepare}
-        aria-labelledby={titleId}
-      >
-        <h2 id={titleId} className={fr.cx("fr-h6", "fr-mb-1w")}>
-          Recherche avancée
-        </h2>
+    <Container aria-labelledby={titleId}>
+      <h1 id={titleId} className={fr.cx("fr-h4", "fr-mb-2w")}>
+        Recherche pour les professionnels
+      </h1>
+      <Panel onSubmit={prepare} aria-labelledby={titleId}>
         <p className={fr.cx("fr-text--sm", "fr-mb-2w")}>
           Les critères se combinent : une spécialité devra correspondre à chacun
           des critères renseignés.
@@ -373,7 +351,7 @@ export default function AdvancedSearchPanel({
             onClick={reset}
             disabled={isSearching}
           >
-            Effacer les critères avancés
+            Effacer les critères
           </Button>
         </Actions>
         {emptyCriteriaError && (

@@ -58,21 +58,30 @@ export default async function Page() {
               </p>
             ) : null}
             <AutocompleteSearch inputName="s" />
-            <p className={fr.cx("fr-text--sm", "fr-mt-1w", "fr-mb-2w")}>
-              <Button
-                priority="tertiary"
-                size="small"
-                iconId="fr-icon-equalizer-line"
-                linkProps={{ href: "/rechercher?advanced=1" }}
-              >
-                Recherche avancée
-              </Button>
-            </p>
             <p className="fr-text--sm">
               Cherchez un <b>médicament</b>, une <b>substance active</b> (ex :
               paracétamol), une <b>indication</b> (ex : diabète), ou une{" "}
               <b>classe de médicaments</b> (ex : antibiotiques).
             </p>
+            <section
+              aria-label="Recherche pour les professionnels"
+              className={fr.cx("fr-mt-4w", "fr-pt-3w")}
+              style={{ borderTop: "1px solid var(--border-default-grey)" }}
+            >
+              <p className={fr.cx("fr-text--sm", "fr-mb-2w")}>
+                Vous êtes un professionnel ? Recherchez des spécialités en
+                combinant des critères : substance active, laboratoire,
+                autorisation ou documents de référence.
+              </p>
+              <Button
+                priority="secondary"
+                iconId="fr-icon-arrow-right-line"
+                iconPosition="right"
+                linkProps={{ href: "/rechercher?advanced=1" }}
+              >
+                Recherche pour les professionnels
+              </Button>
+            </section>
           </div>
           <div
             className={fr.cx(
