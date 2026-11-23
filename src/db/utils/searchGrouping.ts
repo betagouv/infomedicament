@@ -53,7 +53,22 @@ export function groupMatches(matches: SearchIndexMatch[]) {
       );
     }
   }
-  return { groupMap, specNameSml };
+  // Names belong to a particular spécialité; other match types describe its
+  // family. Never let a name match pull unmatched sibling strengths back in.
+  const matchesByGroup = new Map<string, SearchIndexMatch[]>();
+  for (const match of matches) {
+    const group = matchesByGroup.get(match.group_name) ?? [];
+    group.push(match);
+    matchesByGroup.set(match.group_name, group);
+  }
+  const getMatchesForSpec = (specId: string, groupName: string) =>
+    (matchesByGroup.get(groupName) ?? []).filter(
+      (match) =>
+        match.match_type !== "name" ||
+        !match.spec_id ||
+        match.spec_id === specId,
+    );
+  return { groupMap, specNameSml, getMatchesForSpec };
 }
 
 // Both projections use the same candidate pool before their own ranking.

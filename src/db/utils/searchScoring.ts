@@ -1,4 +1,5 @@
 import { MatchReason } from "@/types/SearchTypes";
+import { normalizeString } from "@/utils/alphabeticNav";
 
 export function computeSortScore(
   query: string,
@@ -12,7 +13,10 @@ export function computeSortScore(
   const substanceLabel =
     matchReasons.find((r) => r.type === "substance")?.label ?? "";
 
-  if (hasName && specName.toLowerCase().startsWith(query.toLowerCase()))
+  if (
+    hasName &&
+    normalizeString(specName).startsWith(normalizeString(query).trim())
+  )
     return 6 + baseSmlScore; // spécialité name starts with query
   if (hasName) return 4 + baseSmlScore; // name contains query
   if (hasSubstance && !composants.includes(",")) return 3 + baseSmlScore; // single substance

@@ -389,6 +389,34 @@ describe("Search Engine (per-spécialité ranking)", () => {
     expect(results[0].specId).toBe("CIS1000");
     expect(results[1].specId).toBe("CIS500");
   });
+
+  it("does not return an unmatched sibling or attach its name match reasons", async () => {
+    mockExecute.mockResolvedValueOnce([
+      {
+        match_type: "name",
+        group_name: "DOLIPRANE",
+        match_label: "DOLIPRANE 500 mg",
+        token: "doliprane 500 mg",
+        spec_id: "CIS500",
+        sml: 1,
+      },
+    ]);
+    mockExecute.mockResolvedValueOnce([
+      {
+        ...makeGroup("DOLIPRANE"),
+        specId: "CIS1000",
+        specName: "DOLIPRANE 1000 mg",
+      },
+      {
+        ...makeGroup("DOLIPRANE"),
+        specId: "CIS500",
+        specName: "DOLIPRANE 500 mg",
+      },
+    ]);
+    expect(
+      (await getSearchResults("doliprane 500")).map((r) => r.specId),
+    ).toEqual(["CIS500"]);
+  });
 });
 
 describe("Search Engine (synonyms)", () => {
