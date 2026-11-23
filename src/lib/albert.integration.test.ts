@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { parse } from "node-html-parser";
 import { loadEnvConfig } from "@next/env";
 import nock from "nock";
 import { expect, it, vi } from "vitest";
@@ -31,7 +32,7 @@ it.runIf(process.env.ALBERT_LIVE_TEST === "1")(
       );
       const quotes = resolveNoticeSelection(passages, answer)
         .flatMap((passage) => passage.quotes)
-        .map((quote) => quote.html)
+        .map((quote) => parse(quote.html).textContent.replace(/\s+/gu, " "))
         .join("\n");
       expect(answer.status).toBe("supported");
       expect(quotes).toContain(

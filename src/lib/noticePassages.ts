@@ -370,7 +370,12 @@ function prepareQuotes(
     } else if (node.tagName === "P" && !node.querySelector("img")) {
       const text = node.textContent;
       const paragraphStart = position;
-      for (const sentence of sentenceSegmenter.segment(text)) {
+      // HTML formatting line breaks are not sentence boundaries. Replace each
+      // whitespace character with one space so offsets still address the exact
+      // original text used by sentenceHtml and source highlighting.
+      for (const sentence of sentenceSegmenter.segment(
+        text.replace(/\s/gu, " "),
+      )) {
         const start =
           sentence.index +
           sentence.segment.length -

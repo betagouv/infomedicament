@@ -1,5 +1,6 @@
 import { afterEach, describe, it, expect, vi } from "vitest";
 import { readFileSync } from "node:fs";
+import { parse } from "node-html-parser";
 
 vi.mock("server-only", () => ({}));
 
@@ -24,11 +25,14 @@ describe("schema-constrained selection", () => {
     const warning = input.passages
       .flatMap((passage) => passage.quotes.map((quote) => ({ passage, quote })))
       .find(({ quote }) =>
-        quote.html.includes(
-          "En cas de sevrage récent d’un alcoolisme chronique",
-        ),
+        parse(quote.html)
+          .textContent.replace(/\s+/gu, " ")
+          .includes("En cas de sevrage récent d’un alcoolisme chronique"),
       )!;
-    expect(warning.quote.html).toContain(
+    expect(warning).toBeDefined();
+    expect(
+      parse(warning.quote.html).textContent.replace(/\s+/gu, " "),
+    ).toContain(
       "la consommation de boissons alcoolisées pendant le traitement est déconseillée.",
     );
     const answer = {

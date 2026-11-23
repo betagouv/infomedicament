@@ -23,6 +23,30 @@ const leaflet = `<div><h1>NOTICE — Médicament de test</h1>
 const prepare = () => prepareNoticePassages(leaflet);
 
 describe("context-preserving leaflet passages", () => {
+  it("keeps a formatted sentence and its population condition together across line breaks", () => {
+    const text =
+      "\n  Cette présentation est réservée\n    à l’enfant de 6 à 20 kg.\n  Une autre phrase.\n";
+    const { passages } = prepareNoticePassages(
+      `<h2>Enfants</h2><p data-block-id="population"><strong>${text}</strong></p>`,
+    );
+    const quotes = passages[0].quotes;
+    expect(
+      quotes.map((quote) =>
+        parse(quote.html).textContent.replace(/\s+/gu, " ").trim(),
+      ),
+    ).toEqual([
+      "Cette présentation est réservée à l’enfant de 6 à 20 kg.",
+      "Une autre phrase.",
+    ]);
+    expect(quotes[0].sources).toEqual([
+      {
+        anchor: "notice-block-population",
+        blockId: "population",
+        start: text.indexOf("Cette"),
+        end: text.indexOf("kg.") + 3,
+      },
+    ]);
+  });
   it("shows the repeated CIS 64793681 child weight restriction only once across numbered sections", () => {
     const { passages } = prepareNoticePassages(
       readFileSync("src/testsUtils/fixtures/notice-64793681.html", "utf8"),
@@ -33,7 +57,7 @@ describe("context-preserving leaflet passages", () => {
         quote_ids: passage.quotes
           .filter(
             (quote) =>
-              parse(quote.html).textContent.trim() ===
+              parse(quote.html).textContent.replace(/\s+/gu, " ").trim() ===
               "Cette présentation est réservée à l’enfant de 6 à 20 kg (soit environ de 3 mois à 7 ans).",
           )
           .map((quote) => quote.id),
