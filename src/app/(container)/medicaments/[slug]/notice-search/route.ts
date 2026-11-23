@@ -57,6 +57,7 @@ async function getCachedSelection(
                 id: `${answer.id}-section`,
                 html: answer.html,
                 headingPath: answer.headingPath,
+                target: answer.target,
               },
             ],
           },
@@ -73,7 +74,11 @@ async function getCachedSelection(
   );
   const selected = resolveNoticeSelection(passages, selection);
   return selected.length
-    ? { status: "supported", sourceVersion, passages: selected }
+    ? {
+        status: "supported",
+        sourceVersion,
+        passages: selected,
+      }
     : { status: "insufficient_evidence", passages: [] };
 }
 

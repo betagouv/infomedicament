@@ -109,7 +109,8 @@ export const questionsList: QuestionsListFormat = {
       "Aliments",
       "Aliment",
     ],
-    queryText: "Interactions avec l'alcool, les aliments et les boissons",
+    queryText:
+      "Quelles sont les recommandations et précautions concernant l'alcool, les aliments ou les boissons pendant le traitement ? Traite chaque sujet indépendamment : une information sur un seul de ces sujets suffit.",
     unique: false,
     tracking: "Alcool et nourriture",
     icon: "alcool_et_nourriture.svg",

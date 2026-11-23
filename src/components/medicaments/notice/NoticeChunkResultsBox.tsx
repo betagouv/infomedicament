@@ -12,31 +12,11 @@ import {
 } from "react";
 import styled, { keyframes } from "styled-components";
 import { RcpNoticeHtmlContainer } from "../blocks/GenericBlocks";
-import type {
-  NoticeQuote,
-  NoticeSearchResponse,
-  NoticeSourceTarget,
-} from "@/types/NoticeSearch";
-
-function groupAdjacentQuotes(quotes: NoticeQuote[]): NoticeQuote[][] {
-  const groups: NoticeQuote[][] = [];
-  for (const quote of quotes) {
-    const group = groups.at(-1);
-    const previous = group?.at(-1);
-    if (
-      group &&
-      previous?.sourceRange &&
-      quote.sourceRange &&
-      quote.sourceRange.start <= previous.sourceRange.end &&
-      JSON.stringify(previous.headingPath) === JSON.stringify(quote.headingPath)
-    ) {
-      group.push(quote);
-    } else {
-      groups.push([quote]);
-    }
-  }
-  return groups;
-}
+import type { NoticeSearchResponse } from "@/types/NoticeSearch";
+import {
+  clearNoticeQuoteHighlights,
+  highlightNoticeQuote,
+} from "@/utils/noticeQuoteSource";
 
 const Container = styled.div`
   border: var(--border-open-blue-france) 1px solid;
@@ -123,56 +103,9 @@ export default function NoticeChunkResultsBox({
 }: NoticeChunkResultsBoxProps) {
   const highlighted = useRef<HTMLElement[]>([]);
   const clearHighlights = useCallback(() => {
-    highlighted.current.forEach((element) =>
-      element.classList.remove("notice-highlight"),
-    );
+    clearNoticeQuoteHighlights(highlighted.current);
     highlighted.current = [];
   }, []);
-
-  const highlightSource = useCallback(
-    (target: NoticeSourceTarget = {}) => {
-      clearHighlights();
-      const notice = document.getElementById("noticeContainer");
-      if (!notice) return;
-      // Search only the full leaflet, never a copied excerpt. Avoid interpolating selectors.
-      const targets = Array.from(
-        notice.querySelectorAll<HTMLElement>("[id], [name], [data-block-id]"),
-      );
-      const element =
-        (target.blockId
-          ? targets.find(
-              (element) => element.dataset.blockId === target.blockId,
-            )
-          : undefined) ??
-        targets.find(
-          (element) =>
-            target.anchor &&
-            (element.id === target.anchor ||
-              element.getAttribute("name") === target.anchor),
-        );
-      if (element) {
-        element.classList.add("notice-highlight");
-        highlighted.current.push(element);
-      }
-    },
-    [clearHighlights],
-  );
-
-  const highlightSourceLink = (
-    event: MouseEvent<HTMLAnchorElement>,
-    target: NoticeSourceTarget = {},
-  ) => {
-    if (
-      event.button !== 0 ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey
-    )
-      return;
-    // Let the browser navigate the fragment and update history like any page link.
-    highlightSource(target);
-  };
 
   useEffect(() => {
     clearHighlights();
@@ -206,52 +139,57 @@ export default function NoticeChunkResultsBox({
               role="region"
               aria-label="Extraits de la notice"
             >
-              {result.passages.map((passage, index) => (
-                <article
-                  key={passage.id}
-                  aria-label={
-                    passage.headingPath.join(" — ") || "Extrait de la notice"
-                  }
-                >
-                  {groupAdjacentQuotes(passage.quotes).map(
-                    (group, groupIndex, groups) => (
-                      <div key={group[0].id}>
-                        {(groupIndex === 0 ||
-                          JSON.stringify(
-                            groups[groupIndex - 1][0].headingPath,
-                          ) !== JSON.stringify(group[0].headingPath)) && (
-                          <p className={fr.cx("fr-text--sm", "fr-mb-1w")}>
-                            {group[0].headingPath.length ? (
-                              <>
-                                Dans la rubrique « {group[0].headingPath.at(-1)}{" "}
-                                », la notice indique :
-                              </>
-                            ) : (
-                              "La notice indique :"
-                            )}
-                          </p>
-                        )}
-                        <blockquote>
-                          <RcpNoticeHtmlContainer
-                            dangerouslySetInnerHTML={{
-                              __html: group.map((quote) => quote.html).join(""),
-                            }}
-                          />
-                        </blockquote>
-                      </div>
-                    ),
-                  )}
-                  <a
-                    className={fr.cx("fr-link", "fr-text--sm")}
-                    href={`#${encodeURIComponent(passage.target.anchor || "noticeContainer")}`}
-                    onClick={(event) =>
-                      highlightSourceLink(event, passage.target)
-                    }
-                  >
-                    Source [{index + 1}] — Voir dans la notice
-                  </a>
-                </article>
-              ))}
+              {result.passages
+                .flatMap((passage) =>
+                  passage.quotes.map((quote) => ({ passage, quote })),
+                )
+                .map(({ passage, quote }, index) => {
+                  const target = quote.target ?? passage.target;
+                  const fragment = `#${encodeURIComponent(target.anchor || "noticeContainer")}`;
+                  return (
+                    <article
+                      key={quote.id}
+                      aria-label={
+                        quote.headingPath.join(" — ") || "Extrait de la notice"
+                      }
+                    >
+                      <blockquote>
+                        <RcpNoticeHtmlContainer
+                          dangerouslySetInnerHTML={{ __html: quote.html }}
+                        />
+                      </blockquote>
+                      <a
+                        className={fr.cx("fr-link", "fr-text--sm")}
+                        href={fragment}
+                        onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+                          if (
+                            event.button !== 0 ||
+                            event.metaKey ||
+                            event.ctrlKey ||
+                            event.shiftKey ||
+                            event.altKey
+                          )
+                            return;
+                          const notice =
+                            document.getElementById("noticeContainer");
+                          if (!notice) return;
+                          clearHighlights();
+                          const { highlights, scrollTarget } =
+                            highlightNoticeQuote(notice, quote, target);
+                          highlighted.current = highlights;
+                          if (scrollTarget) {
+                            event.preventDefault();
+                            if (window.location.hash !== fragment)
+                              window.history.pushState(null, "", fragment);
+                            scrollTarget.scrollIntoView({ block: "center" });
+                          }
+                        }}
+                      >
+                        Source [{index + 1}] — Voir dans la notice
+                      </a>
+                    </article>
+                  );
+                })}
             </Excerpts>
           </>
         )}

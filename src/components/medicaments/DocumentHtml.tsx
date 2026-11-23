@@ -13,7 +13,11 @@ import {
 import { GlossaryContext } from "@/components/glossary/GlossaryContextProvider";
 import { Definition } from "@/types/GlossaireTypes";
 import { RcpNoticeHtmlContainer } from "./blocks/GenericBlocks";
-import { getDocumentBlockAnchor } from "@/utils/documentSourceAnchors";
+import {
+  documentSourceSelector,
+  getDocumentBlockAnchor,
+  getDocumentSourceAnchor,
+} from "@/utils/documentSourceAnchors";
 
 interface DocumentHtmlProps extends HTMLAttributes<HTMLDivElement> {
   contentHtml: string;
@@ -47,14 +51,27 @@ export default function DocumentHtml({
     if (!container) return;
     const seenAnchors = new Set<string>();
     const addedAnchors = new Map<string, HTMLElement>();
+    const sourceIndexes = new Map(
+      Array.from(
+        container.querySelectorAll<HTMLElement>(documentSourceSelector),
+      ).map((element, index) => [element, index] as const),
+    );
     container
-      .querySelectorAll<HTMLElement>("[id], [name], [data-block-id]")
+      .querySelectorAll<HTMLElement>(
+        `[id], [name], [data-block-id], ${documentSourceSelector}`,
+      )
       .forEach((element) => {
         const anchor =
           element.getAttribute("id") ?? element.getAttribute("name");
         const blockId = element.dataset.blockId;
-        if (blockId && (!anchor || seenAnchors.has(anchor))) {
-          const id = getDocumentBlockAnchor(blockId);
+        const sourceIndex = sourceIndexes.get(element);
+        if (
+          (blockId || sourceIndex !== undefined) &&
+          (!anchor || seenAnchors.has(anchor))
+        ) {
+          const id = blockId
+            ? getDocumentBlockAnchor(blockId)
+            : getDocumentSourceAnchor(sourceIndex!);
           element.id = id;
           addedAnchors.set(id, element);
         }

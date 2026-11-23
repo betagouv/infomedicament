@@ -146,7 +146,7 @@ describe("notice selection endpoint", () => {
     expect(parse(visible).structuredText.trim().split(/\s+/u).length).toBe(45);
     expect(visible).toContain("Adulte et enfant à partir de 50 kg");
     expect(visible).not.toContain("La posologie dépend du poids");
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("returns the selected connected CIS 64720167 answer directly", async () => {
@@ -198,14 +198,17 @@ describe("notice selection endpoint", () => {
     expect(visible).not.toContain("prévention de l’asthme d’effort");
     expect(visible).not.toContain("En cas de crise d'asthme sévère");
     expect(body.passages[0].quotes).toHaveLength(2);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it("returns server-resolved excerpts with context, never an answer written by the model", async () => {
+  it("returns only server-resolved excerpts", async () => {
     modelResponse({
       status: "supported",
       selections: [
-        { passage_id: "passage-2", quote_ids: ["passage-2-quote-2"] },
+        {
+          passage_id: "passage-2",
+          quote_ids: ["passage-2-quote-2"],
+        },
         { passage_id: "passage-3", quote_ids: ["passage-3-quote-1"] },
       ],
     });
@@ -225,7 +228,9 @@ describe("notice selection endpoint", () => {
       "Utilisation",
       "Enfants",
     ]);
+    expect(body).not.toHaveProperty("blocks");
     expect(body).not.toHaveProperty("answer");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
     const request = JSON.parse(fetchMock.mock.calls[0][1].body);
     expect(request.messages[0].role).toBe("system");
     const input = JSON.parse(request.messages[1].content);
@@ -278,7 +283,7 @@ describe("notice selection endpoint", () => {
     const body = await response.json();
     expect(body.status).toBe("supported");
     expect(body.passages[0].quotes).toHaveLength(5);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("deduplicates repeated source identifiers", async () => {
@@ -296,7 +301,7 @@ describe("notice selection endpoint", () => {
     const body = await response.json();
     expect(body.status).toBe("supported");
     expect(body.passages[0].quotes).toHaveLength(1);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("does not reject a verified selection because of its length", async () => {
@@ -315,7 +320,7 @@ describe("notice selection endpoint", () => {
     expect(response.status).toBe(200);
     expect(body.status).toBe("supported");
     expect(body.passages[0].quotes.length).toBeGreaterThan(2);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it.each([

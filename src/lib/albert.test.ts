@@ -6,14 +6,58 @@ vi.mock("server-only", () => ({}));
 import { parseAlbertJson, selectNoticePassages } from "./albert";
 import {
   getSelectableNoticeQuotes,
-  noticeSelectionJsonSchema,
   prepareNoticePassages,
+  prepareNoticeSelectionInput,
   resolveNoticeSelection,
 } from "./noticePassages";
+
+import { noticeSelectionJsonSchema } from "./noticePassages";
 
 afterEach(() => vi.restoreAllMocks());
 
 describe("schema-constrained selection", () => {
+  it("keeps and resolves the CIS 64793681 alcohol warning for the combined question", async () => {
+    const { passages } = prepareNoticePassages(
+      readFileSync("src/testsUtils/fixtures/notice-64793681.html", "utf8"),
+    );
+    const input = prepareNoticeSelectionInput(passages, "Alcool et nourriture");
+    const warning = input.passages
+      .flatMap((passage) => passage.quotes.map((quote) => ({ passage, quote })))
+      .find(({ quote }) =>
+        quote.html.includes(
+          "En cas de sevrage récent d’un alcoolisme chronique",
+        ),
+      )!;
+    expect(warning.quote.html).toContain(
+      "la consommation de boissons alcoolisées pendant le traitement est déconseillée.",
+    );
+    const answer = {
+      status: "supported",
+      selections: [
+        {
+          passage_id: warning.passage.id,
+          quote_ids: [warning.quote.id],
+        },
+      ],
+    };
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          choices: [
+            {
+              finish_reason: "stop",
+              message: { content: JSON.stringify(answer) },
+            },
+          ],
+        }),
+      ),
+    );
+    const result = await selectNoticePassages(passages, "Alcool et nourriture");
+    expect(resolveNoticeSelection(passages, result)[0].quotes[0].html).toBe(
+      warning.quote.html,
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
   it("allows the 1,682-token pregnancy selection that exceeded the old output budget", async () => {
     const selection = {
       status: "supported",
@@ -60,61 +104,40 @@ describe("schema-constrained selection", () => {
     ).toEqual(selection);
   });
 
-  it("reviews a draft using only the retrieved source candidates", async () => {
+  it("returns only citation identifiers in a single request", async () => {
     const { passages } = prepareNoticePassages(
-      "<h2>Précautions</h2><p>Condition essentielle.</p><p>Information hors sujet.</p><p>Non retenue initialement.</p>",
+      "<h2>Précautions</h2><p>Condition essentielle.</p><p>Autre information.</p>",
     );
-    const draft = {
+    const answer = {
       status: "supported",
       selections: [
         {
           passage_id: "passage-1",
-          quote_ids: ["passage-1-quote-1", "passage-1-quote-2"],
+          quote_ids: ["passage-1-quote-1"],
         },
       ],
     };
-    const reviewed = {
-      status: "supported",
-      selections: [
-        { passage_id: "passage-1", quote_ids: ["passage-1-quote-1"] },
-      ],
-    };
-    const response = (selection: unknown) =>
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(
         JSON.stringify({
           choices: [
             {
               finish_reason: "stop",
-              message: { content: JSON.stringify(selection) },
+              message: { content: JSON.stringify(answer) },
             },
           ],
         }),
-      );
-    const fetchMock = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(response(draft))
-      .mockResolvedValueOnce(response(reviewed));
-    expect(await selectNoticePassages(passages, "Question")).toEqual(reviewed);
-    const reviewRequest = JSON.parse(
-      fetchMock.mock.calls[1][1]!.body as string,
+      ),
     );
-    const input = JSON.parse(reviewRequest.messages[1].content);
-    expect(
-      input.passages[0].quotes.map((quote: { id: string }) => quote.id),
-    ).toEqual(draft.selections[0].quote_ids);
-    expect(input.passages[0].quotes[0].html).toBe(
-      "<p>Condition essentielle.</p>",
-    );
-    expect(reviewRequest.response_format.json_schema.schema).toEqual(
-      noticeSelectionJsonSchema,
-    );
+    expect(await selectNoticePassages(passages, "Question")).toEqual(answer);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it("rejects a review that introduces a quote outside the retrieved candidates", async () => {
+  it("rejects unknown quote IDs without another model request", async () => {
     const { passages } = prepareNoticePassages(
-      "<h2>Précautions</h2><p>Condition.</p><p>Autre information.</p>",
+      "<h2>Précautions</h2><p>Condition.</p>",
     );
-    const response = (quoteId: string) =>
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(
         JSON.stringify({
           choices: [
@@ -124,51 +147,22 @@ describe("schema-constrained selection", () => {
                 content: JSON.stringify({
                   status: "supported",
                   selections: [
-                    { passage_id: "passage-1", quote_ids: [quoteId] },
+                    {
+                      passage_id: "passage-1",
+                      quote_ids: ["invented"],
+                    },
                   ],
                 }),
               },
             },
           ],
         }),
-      );
-    vi.spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(response("passage-1-quote-1"))
-      .mockResolvedValueOnce(response("passage-1-quote-2"));
+      ),
+    );
     await expect(selectNoticePassages(passages, "Question")).rejects.toThrow(
       "Unknown notice quote",
     );
-  });
-
-  it("abstains when the review cannot retain a supported answer instead of showing the draft", async () => {
-    const { passages } = prepareNoticePassages(
-      "<h2>Précautions</h2><p>Condition.</p>",
-    );
-    const response = (value: unknown) =>
-      new Response(
-        JSON.stringify({
-          choices: [
-            {
-              finish_reason: "stop",
-              message: { content: JSON.stringify(value) },
-            },
-          ],
-        }),
-      );
-    const insufficient = { status: "insufficient_evidence", selections: [] };
-    vi.spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(
-        response({
-          status: "supported",
-          selections: [
-            { passage_id: "passage-1", quote_ids: ["passage-1-quote-1"] },
-          ],
-        }),
-      )
-      .mockResolvedValueOnce(response(insufficient));
-    expect(await selectNoticePassages(passages, "Question")).toEqual(
-      insufficient,
-    );
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("rejects a truncated selection even when its JSON is complete", async () => {

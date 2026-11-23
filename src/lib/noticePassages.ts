@@ -7,9 +7,14 @@ import { z } from "zod";
 import type {
   NoticePassage,
   NoticeQuote,
+  NoticeQuoteSource,
   NoticeSourceTarget,
 } from "@/types/NoticeSearch";
-import { getDocumentBlockAnchor } from "@/utils/documentSourceAnchors";
+import {
+  documentSourceSelector,
+  getDocumentBlockAnchor,
+  getDocumentSourceAnchor,
+} from "@/utils/documentSourceAnchors";
 
 interface Section {
   level: number;
@@ -97,11 +102,12 @@ function sourceTarget(
   return {};
 }
 
-function safeExcerpt(nodes: Node[]): string {
+function safeExcerpt(nodes: Node[], preserveSources = false): string {
   return sanitizeHtml(nodes.map((node) => node.toString()).join(""), {
     allowedTags: [...sanitizeHtml.defaults.allowedTags, "img", "sup", "sub"],
     // Excerpts must not duplicate source anchors or interactive glossary attributes.
     allowedAttributes: {
+      "*": preserveSources ? ["data-notice-source"] : [],
       a: ["href", "title"],
       th: ["colspan", "rowspan", "scope", "abbr"],
       td: ["colspan", "rowspan"],
@@ -161,7 +167,14 @@ function sentenceHtml(
  * Lists retain their lead-in and tables stay atomic: neither a bare bullet nor
  * an unlabeled table cell can become a purported standalone answer.
  */
-function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
+function prepareQuotes(
+  html: string,
+  passageId: string,
+  sourceBlocks: Map<
+    string,
+    { element: HTMLElement; target: NoticeSourceTarget }
+  >,
+): NoticeQuote[] {
   const root = parse(html);
   const quotes: NoticeQuote[] = [];
   const connectedGroups: {
@@ -183,11 +196,42 @@ function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
     const range = sourceRange ?? { start: position, end: position + 1 };
     if (!sourceRange) position += 1;
     if (!parse(quoteHtml).textContent.trim()) return;
+    const excerpt = parse(quoteHtml);
+    const sources: NoticeQuoteSource[] = [];
+    let primaryTarget: NoticeSourceTarget | undefined;
+    let primaryIsContent = false;
+    for (const element of excerpt.querySelectorAll("[data-notice-source]")) {
+      if (!["P", "LI", "TABLE", "OL"].includes(element.tagName)) continue;
+      let parent = element.parentNode;
+      let nested = false;
+      while (parent && parent !== excerpt) {
+        if (
+          parent instanceof HTMLElement &&
+          ["LI", "TABLE", "OL"].includes(parent.tagName)
+        )
+          nested = true;
+        parent = parent.parentNode;
+      }
+      if (nested) continue;
+      const source = sourceBlocks.get(
+        element.getAttribute("data-notice-source")!,
+      );
+      if (!source) continue;
+      const text = element.textContent;
+      const start = source.element.textContent.indexOf(text);
+      if (start < 0 || !text.trim()) continue;
+      sources.push({ ...source.target, start, end: start + text.length });
+      if (!primaryTarget || (!primaryIsContent && element.tagName !== "P")) {
+        primaryTarget = source.target;
+        primaryIsContent = element.tagName !== "P";
+      }
+    }
     const quote: NoticeQuote = {
       id: `${passageId}-quote-${quotes.length + 1}`,
-      html: quoteHtml,
+      html: safeExcerpt(excerpt.childNodes),
       headingPath,
       sourceRange: range,
+      ...(sources.length ? { sources, target: primaryTarget } : {}),
     };
     quotes.push(quote);
     return quote;
@@ -215,7 +259,9 @@ function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
     } else if (node.tagName === "UL") {
       // A list's preceding paragraph often supplies a negation or condition.
       const leadIn = previousParagraph?.toString() ?? "";
-      const listId = `${passageId}-list-${position}`;
+      const listId = node.hasAttribute("data-notice-source")
+        ? `source-list-${node.getAttribute("data-notice-source")}`
+        : `${passageId}-list-${position}`;
       const firstItem = node.children[0];
       const introductoryItemHtml =
         node.children.length > 1 && firstItem.textContent.trim().endsWith(":")
@@ -254,7 +300,9 @@ function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
                 ? [fragments[0].id]
                 : []),
             ],
-            introductoryItemHtml,
+            introductoryItemHtml: introductoryItemHtml
+              ? safeExcerpt(parse(introductoryItemHtml).childNodes)
+              : undefined,
           };
         }
         fragments.push(fragment);
@@ -287,7 +335,9 @@ function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
             .flatMap((quote) => (quote ? [quote.id] : []));
           const introduction = quotes
             .slice(0, firstFragment)
-            .findLast((quote) => quote.html === leadIn);
+            .findLast(
+              (quote) => quote.html === safeExcerpt(parse(leadIn).childNodes),
+            );
           if (introduction) supersedes.push(introduction.id);
           connectedGroups.push({
             html: leadIn + list.toString(),
@@ -307,7 +357,9 @@ function prepareQuotes(html: string, passageId: string): NoticeQuote[] {
                   ? [fragments[0].id]
                   : []),
               ],
-              introductoryItemHtml,
+              introductoryItemHtml: introductoryItemHtml
+                ? safeExcerpt(parse(introductoryItemHtml).childNodes)
+                : undefined,
             },
           });
         }
@@ -425,6 +477,33 @@ export function prepareNoticePassages(contentHtml: string): {
         firstAnchors.set(anchor, element);
     }
   }
+  const sourceBlocks = new Map<
+    string,
+    { element: HTMLElement; target: NoticeSourceTarget }
+  >();
+  root.querySelectorAll(documentSourceSelector).forEach((element, index) => {
+    const key = String(index);
+    const ownAnchor =
+      element.getAttribute("id") ?? element.getAttribute("name");
+    const blockId = element.getAttribute("data-block-id");
+    const target = {
+      anchor:
+        ownAnchor && firstAnchors.get(ownAnchor) === element
+          ? ownAnchor
+          : blockId
+            ? getDocumentBlockAnchor(blockId)
+            : getDocumentSourceAnchor(index),
+      blockId,
+    };
+    sourceBlocks.set(key, {
+      element,
+      target: {
+        ...target,
+        anchor: target.anchor ?? getDocumentSourceAnchor(index),
+      },
+    });
+    element.setAttribute("data-notice-source", key);
+  });
   const documentSection: Section = { level: 0, intro: [], nodes: [] };
   const sections = [documentSection];
   const stack = [documentSection];
@@ -485,7 +564,11 @@ export function prepareNoticePassages(contentHtml: string): {
         section.heading ? [section.heading, ...nodes] : nodes,
         firstAnchors,
       ),
-      quotes: prepareQuotes(html, id),
+      quotes: prepareQuotes(
+        safeExcerpt([...prefix, ...nodes], true),
+        id,
+        sourceBlocks,
+      ),
     });
   }
 
@@ -519,6 +602,7 @@ function mergeSelectedListQuotes(quotes: NoticeQuote[]): NoticeQuote[] {
     if (selected.length === 1) return [quote];
     const root = parse(selected[0].html);
     const list = root.children.find((element) => element.tagName === "UL")!;
+    const emittedItems = new Set<number>();
     const items = selected.flatMap((item) =>
       parse(item.html)
         .children.find((element) => element.tagName === "UL")!
@@ -530,7 +614,12 @@ function mergeSelectedListQuotes(quotes: NoticeQuote[]): NoticeQuote[] {
               item.listSource!.introductoryItemHtml
             ),
         )
-        .map((child) => child.toString()),
+        .flatMap((child, index) => {
+          const sourceIndex = item.listSource!.itemStart + index;
+          if (emittedItems.has(sourceIndex)) return [];
+          emittedItems.add(sourceIndex);
+          return [child.toString()];
+        }),
     );
     list.set_content(
       (selected[0].listSource!.itemStart > 0
@@ -541,6 +630,7 @@ function mergeSelectedListQuotes(quotes: NoticeQuote[]): NoticeQuote[] {
       {
         ...quote,
         html: root.toString(),
+        sources: selected.flatMap((item) => item.sources ?? []),
         sourceRange: quote.sourceRange && {
           start: Math.min(...selected.map((item) => item.sourceRange!.start)),
           end: Math.max(...selected.map((item) => item.sourceRange!.end)),
@@ -588,11 +678,56 @@ export function resolveNoticeSelection(
       passage.quotes.flatMap((quote) => quote.supersedes ?? []),
     ),
   );
+  // Merge shared source lists across overlapping parent/child passages as well.
+  const merged = mergeSelectedListQuotes(
+    selected.flatMap((passage) =>
+      passage.quotes.filter((quote) => !superseded.has(quote.id)),
+    ),
+  );
+  const candidates = merged.map((quote) => ({
+    quote,
+    text: parse(quote.html).textContent.replace(/\s+/gu, " ").trim(),
+    // Numbered top-level leaflet sections do not change the population scope.
+    // Keep every local heading (e.g. adults/children) when comparing duplicates.
+    scope: quote.headingPath.filter(
+      (heading, index) => index !== 0 || !/^[1-6]\.\s/u.test(heading),
+    ),
+  }));
+  const retained = new Set(
+    candidates
+      .filter(
+        (candidate, index) =>
+          !candidates.some((other, otherIndex) => {
+            if (index === otherIndex) return false;
+            const sameContext =
+              JSON.stringify(candidate.scope) === JSON.stringify(other.scope);
+            const sameSource =
+              candidate.quote.sources?.length &&
+              candidate.quote.sources.every((source) =>
+                other.quote.sources?.some(
+                  (cover) =>
+                    cover.anchor === source.anchor &&
+                    cover.start <= source.start &&
+                    cover.end >= source.end,
+                ),
+              );
+            // Remove only proven coverage, never a semantic guess about a warning.
+            return (
+              (sameContext || sameSource) &&
+              other.text.includes(candidate.text) &&
+              (other.text.length > candidate.text.length || otherIndex < index)
+            );
+          }),
+      )
+      .map(({ quote }) => quote.id),
+  );
   const compact = selected
     .map((passage) => ({
       ...passage,
-      quotes: mergeSelectedListQuotes(
-        passage.quotes.filter((quote) => !superseded.has(quote.id)),
+      quotes: merged.filter(
+        (quote) =>
+          retained.has(quote.id) &&
+          passage.quotes.some((original) => original.id === quote.id),
       ),
     }))
     .filter((passage) => passage.quotes.length > 0);

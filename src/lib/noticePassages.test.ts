@@ -23,6 +23,108 @@ const leaflet = `<div><h1>NOTICE — Médicament de test</h1>
 const prepare = () => prepareNoticePassages(leaflet);
 
 describe("context-preserving leaflet passages", () => {
+  it("shows the repeated CIS 64793681 child weight restriction only once across numbered sections", () => {
+    const { passages } = prepareNoticePassages(
+      readFileSync("src/testsUtils/fixtures/notice-64793681.html", "utf8"),
+    );
+    const selections = passages
+      .map((passage) => ({
+        passage_id: passage.id,
+        quote_ids: passage.quotes
+          .filter(
+            (quote) =>
+              parse(quote.html).textContent.trim() ===
+              "Cette présentation est réservée à l’enfant de 6 à 20 kg (soit environ de 3 mois à 7 ans).",
+          )
+          .map((quote) => quote.id),
+      }))
+      .filter((selection) => selection.quote_ids.length);
+    expect(selections.length).toBeGreaterThan(1);
+    expect(
+      resolveNoticeSelection(passages, {
+        status: "supported",
+        selections,
+      }).flatMap((passage) => passage.quotes),
+    ).toHaveLength(1);
+  });
+
+  it("preserves identical instructions for different population headings", () => {
+    const { passages } = prepareNoticePassages(
+      "<h2>3. Comment prendre ?</h2><h3>Adultes</h3><p>Une prise par jour.</p><h3>Enfants</h3><p>Une prise par jour.</p>",
+    );
+    const selections = passages
+      .map((passage) => ({
+        passage_id: passage.id,
+        quote_ids: passage.quotes
+          .filter((quote) => quote.html.includes("Une prise par jour"))
+          .map((quote) => quote.id),
+      }))
+      .filter((selection) => selection.quote_ids.length);
+    const resolved = resolveNoticeSelection(passages, {
+      status: "supported",
+      selections,
+    });
+    expect(resolved.flatMap((passage) => passage.quotes)).toHaveLength(2);
+  });
+  it("tracks an exact sentence and its original block, including formatted and decoded text", () => {
+    const { passages } = prepareNoticePassages(
+      '<h2 id="section">Section</h2><p data-block-id="paragraph">Avant. Condition <strong>exacte &amp; complète</strong>. Après.</p>',
+    );
+    const quote = passages[0].quotes.find((quote) =>
+      quote.html.includes("exacte"),
+    )!;
+    expect(quote.target).toEqual({
+      anchor: "notice-block-paragraph",
+      blockId: "paragraph",
+    });
+    expect(quote.sources).toEqual([
+      {
+        anchor: "notice-block-paragraph",
+        blockId: "paragraph",
+        start: 7,
+        end: 35,
+      },
+    ]);
+    expect(quote.html).not.toContain("data-notice-source");
+  });
+
+  it("removes a repeated sentence contained in another selected quotation without losing its extra warning", () => {
+    const { passages } = prepareNoticePassages(
+      "<h2>Alcool</h2><ul><li>Boire est déconseillé. Le risque est majoré en cas de sevrage.</li></ul><p>Boire est déconseillé.</p>",
+    );
+    const resolved = resolveNoticeSelection(passages, {
+      status: "supported",
+      selections: passages.map((passage) => ({
+        passage_id: passage.id,
+        quote_ids: passage.quotes.map((quote) => quote.id),
+      })),
+    });
+    const visible = resolved
+      .flatMap((passage) => passage.quotes)
+      .map((quote) => quote.html)
+      .join("");
+    expect(visible.match(/Boire est déconseillé/g)).toHaveLength(1);
+    expect(visible).toContain("Le risque est majoré en cas de sevrage.");
+  });
+
+  it("deduplicates the same source across parent and child selections", () => {
+    const { passages } = prepareNoticePassages(
+      "<h2>Utilisation</h2><p>Condition générale.</p><h3>Enfants</h3><p>Réservé aux enfants.</p><p>Autre condition.</p>",
+    );
+    const selections = passages
+      .map((passage) => ({
+        passage_id: passage.id,
+        quote_ids: passage.quotes
+          .filter((quote) => quote.html.includes("enfants"))
+          .map((quote) => quote.id),
+      }))
+      .filter((selection) => selection.quote_ids.length);
+    const resolved = resolveNoticeSelection(passages, {
+      status: "supported",
+      selections,
+    });
+    expect(resolved.flatMap((passage) => passage.quotes)).toHaveLength(1);
+  });
   it("keeps ancestor introductions, the full pediatric table, notes and lists together", () => {
     const { passages } = prepare();
     const child = passages.find(
@@ -294,6 +396,31 @@ describe("short source quotations", () => {
 });
 
 describe("selection validation", () => {
+  it("does not repeat overlapping source-list items selected through different passages", () => {
+    const { passages } = prepareNoticePassages(
+      "<h2>Prise</h2><p>Condition générale.</p><h3>Enfants</h3><p>Instructions :</p><ul><li>Une prise.</li><li>Cette prise peut être renouvelée.</li></ul>",
+    );
+    const parent = passages[0];
+    const child = passages[1];
+    const connected = parent.quotes.find((quote) => quote.supersedes?.length)!;
+    const fragment = child.quotes.find(
+      (quote) =>
+        quote.html.includes("<li>Une prise.</li>") && !quote.supersedes,
+    )!;
+    const resolved = resolveNoticeSelection(passages, {
+      status: "supported",
+      selections: [
+        { passage_id: parent.id, quote_ids: [connected.id] },
+        { passage_id: child.id, quote_ids: [fragment.id] },
+      ],
+    });
+    const visible = resolved
+      .flatMap((passage) => passage.quotes)
+      .map((quote) => quote.html)
+      .join("");
+    expect(visible.match(/<li>Une prise\.<\/li>/g)).toHaveLength(1);
+    expect(visible).toContain("Cette prise peut être renouvelée.");
+  });
   it("shows one introduction for selected bullets from the same list without adding unselected bullets", () => {
     const { passages } = prepareNoticePassages(
       "<h2>Précautions</h2><p>Avant de prendre ce médicament, prévenez votre médecin :</p><ul><li>Condition A.</li><li>Condition non sélectionnée.</li><li>Condition B.</li></ul>",
