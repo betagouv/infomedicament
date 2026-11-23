@@ -59,9 +59,14 @@ export function expandQuery(
     // Substitute the alias rather than dropping the rest of the query. A
     // synonym must not bypass an added strength, unit, or other required word.
     const aliasWords = normalize(syn.alias).split(/\s+/).filter(Boolean);
-    const remainingWords = normalize(normalizedQuery).split(/\s+/).filter((word) =>
-      !aliasWords.some((alias) => alias === word || stemMatches(alias, word)),
-    );
+    const remainingWords = normalize(normalizedQuery)
+      .split(/\s+/)
+      .filter(
+        (word) =>
+          !aliasWords.some(
+            (alias) => alias === word || stemMatches(alias, word),
+          ),
+      );
     const term = [normalize(syn.canonical), ...remainingWords].join(" ").trim();
     if (term && !seen.has(term)) {
       seen.add(term);
