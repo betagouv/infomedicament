@@ -24,6 +24,7 @@ import {
   mapDetailedSpecialite,
   VISIBLE_SPECIALITE_AVAILABILITIES,
 } from "./specialiteCatalog";
+import { getMedicineMarketingStatus } from "@/utils/medicineMarketing";
 import { getEenLabel } from "./specialiteEen";
 import { getGenericGroupMembership } from "./generics";
 import { getCisMatchingSubstanceSet } from "./substances";
@@ -80,6 +81,7 @@ export async function getDetailedSpecialite(
     importedReference,
     statusEvent,
     excipientsEffetNotoire,
+    marketingPresentations,
   ] = await Promise.all([
     db
       .selectFrom("ansm_specialite_titulaire")
@@ -106,6 +108,15 @@ export async function getDetailedSpecialite(
           .executeTakeFirst()
       : Promise.resolve(undefined),
     row.een === "PRESENTS" ? getEenLabel(CIS) : Promise.resolve(null),
+    db
+      .selectFrom("ansm_presentation")
+      .where("cis", "=", CIS)
+      .select([
+        "statut_commercialisation",
+        "date_commercialisation",
+        "date_arret_commercialisation",
+      ])
+      .execute(),
   ]);
 
   const titulaireNames = titulaires
@@ -130,7 +141,7 @@ export async function getDetailedSpecialite(
           }
         : null;
 
-  return mapDetailedSpecialite(
+  const specialite = mapDetailedSpecialite(
     row,
     titulaireNames.length > 0 ? [...new Set(titulaireNames)].join(", ") : null,
     genericGroupMembership?.codeGroupe ?? null,
@@ -139,6 +150,10 @@ export async function getDetailedSpecialite(
     statusEvent?.date_evenement ?? null,
     excipientsEffetNotoire,
   );
+  return {
+    ...specialite,
+    marketingStatus: getMedicineMarketingStatus(marketingPresentations),
+  };
 }
 
 export async function getSpecialite(CIS: string): Promise<{

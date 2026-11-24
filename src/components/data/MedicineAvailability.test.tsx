@@ -31,13 +31,13 @@ const specialite: DetailedSpecialite = {
 it.each([
   [
     "INDISPONIBLE",
-    "Ce médicament n'est plus disponible sur le marché.",
-    "error",
-    "var(--text-default-error)",
+    "Ce médicament n'est pas disponible actuellement.",
+    "info",
+    "var(--text-action-high-blue-france)",
   ],
   [
     "PARTIELLE",
-    "Ce médicament ne sera bientôt plus disponible sur le marché.",
+    "La disponibilité de ce médicament est limitée.",
     "info",
     "var(--text-action-high-blue-france)",
   ],
@@ -84,4 +84,55 @@ it("preserves legacy summary warnings and does not confuse safety alerts with un
   expect(
     getAvailabilityWarning({ ...specialite, availability: null, StatutBdm: 1 }),
   ).toBeNull();
+});
+
+it("does not describe ambiguous legacy data as an upcoming withdrawal", () => {
+  expect(getAvailabilityWarning(specialite)?.title).toBe(
+    "La disponibilité de ce médicament est limitée ou interrompue.",
+  );
+});
+
+it.each([
+  ["stopping", "Ce médicament ne sera bientôt plus disponible sur le marché."],
+  ["stopped", "Ce médicament n'est plus disponible sur le marché."],
+  ["not-marketed", "Ce médicament n'est pas commercialisé actuellement."],
+  ["unknown", "Ce médicament n'est pas disponible actuellement."],
+] as const)(
+  "distinguishes %s from other unavailable medicines",
+  (marketingStatus, title) => {
+    const medicine = {
+      ...specialite,
+      availability: "INDISPONIBLE" as const,
+      marketingStatus,
+    };
+    render(
+      <>
+        <DataBlockGenericIcons specialite={medicine} />
+        <MedicamentContentHeaderBlock
+          specialite={medicine}
+          pregnancyPlanAlert={undefined}
+          isPregnancyMentionAlert={false}
+          pediatrics={undefined}
+        />
+      </>,
+    );
+    expect(screen.getAllByText(title)).toHaveLength(2);
+    expect(
+      Boolean(
+        screen.queryByText(/qui pourra vous orienter vers un autre traitement/),
+      ),
+    ).toBe(marketingStatus === "stopped" || marketingStatus === "stopping");
+  },
+);
+
+it("distinguishes an already authorized medicine from one with unknown authorization", () => {
+  expect(
+    getAvailabilityWarning({
+      ...specialite,
+      availability: "INDISPONIBLE",
+      statutAutorisation: "Valide",
+    } as DetailedSpecialite)?.title,
+  ).toBe(
+    "Ce médicament dispose d'une autorisation, mais n'est pas disponible actuellement.",
+  );
 });
