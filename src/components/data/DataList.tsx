@@ -42,6 +42,7 @@ interface DataListProps extends HTMLAttributes<HTMLDivElement> {
   paginationLength: number;
   currentPage: number;
   isGeneric?: boolean;
+  withoutPagination?: boolean;
 }
 
 function DataList({
@@ -50,12 +51,15 @@ function DataList({
   paginationLength,
   currentPage,
   isGeneric,
+  withoutPagination,
 }: DataListProps) {
-  const dataListForPage = getCurrentDataList(
-    dataList,
-    paginationLength,
-    currentPage,
-  );
+  const dataListForPage = withoutPagination
+    ? dataList
+    : getCurrentDataList(
+        dataList,
+        paginationLength,
+        currentPage,
+      );
 
   return (
     <>

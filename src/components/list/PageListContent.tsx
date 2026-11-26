@@ -13,7 +13,7 @@ import GenericAccordion from "../GenericAccordion";
 interface PageListContentProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
   description?: string;
-  letters: string[];
+  letters?: string[];
   urlPrefix: string;
   dataList:
     | ResumeSubstance[]
@@ -22,8 +22,9 @@ interface PageListContentProps extends HTMLAttributes<HTMLDivElement> {
     | AdvancedATCClass[]
     | ResumeGeneric[];
   type: DataTypeEnum;
-  currentLetter: string;
+  currentLetter?: string;
   isGeneric?: boolean;
+  withoutPagination?: boolean;
 }
 
 function PageListContent({
@@ -35,6 +36,7 @@ function PageListContent({
   type,
   currentLetter,
   isGeneric,
+  withoutPagination,
 }: PageListContentProps) {
   const PAGINATION_LENGTH: number = 10;
   const [pagination, setPagination] = useState({ list: dataList, page: 1 });
@@ -55,11 +57,13 @@ function PageListContent({
         </h1>
         {description && <div className={fr.cx("fr-mb-4w")}>{description}</div>}
         {isGeneric && <GenericAccordion className={fr.cx("fr-mb-4w")} />}
-        <AlphabeticNav
-          letters={letters}
-          urlPrefix={urlPrefix}
-          currentLetter={currentLetter}
-        />
+        {letters && (
+          <AlphabeticNav
+            letters={letters}
+            urlPrefix={urlPrefix}
+            currentLetter={currentLetter}
+          />
+        )}
       </div>
       <div className={fr.cx("fr-col-md-8")}>
         <DataList
@@ -68,14 +72,17 @@ function PageListContent({
           paginationLength={PAGINATION_LENGTH}
           currentPage={currentPage}
           isGeneric={isGeneric || false}
+          withoutPagination={withoutPagination}
         />
       </div>
-      <DataListPagination
-        dataLength={dataList.length}
-        paginationLength={PAGINATION_LENGTH}
-        currentPage={currentPage}
-        updateCurrentPage={setCurrentPage}
-      />
+      {!withoutPagination && (
+        <DataListPagination
+          dataLength={dataList.length}
+          paginationLength={PAGINATION_LENGTH}
+          currentPage={currentPage}
+          updateCurrentPage={setCurrentPage}
+        />
+      )}
     </div>
   );
 }

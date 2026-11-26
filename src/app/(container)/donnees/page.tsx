@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import BreadcrumbJsonLd from "@/components/generic/BreadcrumbJsonLd";
 import { fr } from "@codegouvfr/react-dsfr";
 import ContentContainer from "@/components/generic/ContentContainer";
 import {
@@ -14,10 +15,11 @@ import {
 } from "./sources";
 import styles from "./page.module.scss";
 
-const title = "Réutiliser les données : migrer depuis la BDPM";
+const PAGE_LABEL: string = "Réutiliser les données : migrer depuis la BDPM";
+const BREADCRUMB_LABEL: string = "Réutiliser les données";
 
 export const metadata: Metadata = {
-  title,
+  title: PAGE_LABEL,
   description:
     "Retrouvez les sources ANSM et HAS, les correspondances avec les anciens fichiers BDPM et les données encore en cours de publication.",
 };
@@ -245,12 +247,14 @@ const mappings: Mapping[] = [
 export default function Page() {
   return (
     <ContentContainer frContainer>
+      {/* Structured data of the breadcrumb: from the URL of the page */}
+      <BreadcrumbJsonLd path="/donnees" name={BREADCRUMB_LABEL} />
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
-        currentPageLabel="Réutiliser les données"
+        currentPageLabel={BREADCRUMB_LABEL}
       />
       <article className={styles.article}>
-        <h1>{title}</h1>
+        <h1>{PAGE_LABEL}</h1>
         <p className={fr.cx("fr-text--lead")}>
           Vous utilisez les fichiers téléchargeables de la Base de données
           publique des médicaments (BDPM) ? Sa fermeture est prévue dans les

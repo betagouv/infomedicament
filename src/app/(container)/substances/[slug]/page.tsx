@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import BreadcrumbJsonLd from "@/components/generic/BreadcrumbJsonLd";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { Metadata } from "next";
@@ -125,6 +126,8 @@ async function CachedSubstancePage({ slug }: { slug: string }) {
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
+          {/* Structured data of the breadcrumb: from the URL of the page */}
+          <BreadcrumbJsonLd path={`/substances/${getSubstanceSlug(subsIds.map((SubsId) => ({ SubsId, title: titles.get(SubsId) })))}`} name={title} />
           <Breadcrumb
             segments={[
               { label: "Accueil", linkProps: { href: "/" } },

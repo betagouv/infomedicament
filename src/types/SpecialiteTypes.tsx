@@ -115,7 +115,10 @@ export type RcpData = {
 export type NoticeData = {
   codeCIS: number;
   title?: string;
+  // Displayed date, e.g. "Notice mise à jour le 25/08/2025"
   dateNotif?: string;
+  // Date of the notice, ISO (YYYY-MM-DD), e.g. "2025-08-25"
+  isoDateNotif?: string;
   contentHtml: string;
 };
 export type GroupeGenerique = {

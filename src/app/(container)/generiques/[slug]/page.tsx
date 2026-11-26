@@ -4,6 +4,7 @@ import Badge from "@codegouvfr/react-dsfr/Badge";
 import { groupGeneNameToDCI } from "@/db/utils";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import BreadcrumbJsonLd from "@/components/generic/BreadcrumbJsonLd";
 import { formatSpecName } from "@/displayUtils";
 import { getAtc2, getAtcCode } from "@/db/utils/atc";
 import { notFound } from "next/navigation";
@@ -90,6 +91,8 @@ async function CachedGenericPage({ slug }: { slug: string }) {
   return (
     <>
       <ContentContainer frContainer>
+        {/* Structured data of the breadcrumb: from the URL of the page */}
+        <BreadcrumbJsonLd path={`/generiques/${getGenericSlug(group.codeGroupe, group.libelle)}`} name={pageLabel} />
         <Breadcrumb
           segments={[
             { label: "Accueil", linkProps: { href: "/" } },

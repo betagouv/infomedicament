@@ -3,18 +3,23 @@ import Link from "next/link";
 import Card from "@codegouvfr/react-dsfr/Card";
 import ContentContainer from "@/components/generic/ContentContainer";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import BreadcrumbJsonLd from "@/components/generic/BreadcrumbJsonLd";
+import JsonLd from "@/components/generic/JsonLd";
+import { getAboutPageStructuredData } from "@/utils/structuredData/aboutPage";
+import { getBaseUrl } from "@/utils/baseUrl";
 import ShareButtons from "@/components/generic/ShareButtons";
 import Image from "next/image";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { Metadata } from "next";
 
 const PAGE_LABEL: string = "À propos";
+const PAGE_DESCRIPTION: string =
+  "Découvrez Info Médicament, le service public d’information sur les médicaments : sources, données, fonctionnement et objectifs du site.";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: PAGE_LABEL,
-    description:
-      "Découvrez Info Médicament, le service public d’information sur les médicaments : sources, données, fonctionnement et objectifs du site.",
+    description: PAGE_DESCRIPTION,
   };
 }
 
@@ -23,6 +28,9 @@ export default async function Page() {
     <>
       <ContentContainer frContainer>
         {" "}
+        {/* Structured data: the page about Info Médicament, and its breadcrumb (from the URL of the page) */}
+        <JsonLd data={getAboutPageStructuredData({ path: "/a-propos", name: PAGE_LABEL, description: PAGE_DESCRIPTION }, getBaseUrl())} />
+        <BreadcrumbJsonLd path="/a-propos" name={PAGE_LABEL} />
         <Breadcrumb
           segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
           currentPageLabel={PAGE_LABEL}

@@ -4,8 +4,16 @@ import "server-only";
 import db from "@/db/";
 import slugify from "slugify";
 import { SearchArticlesFilters, SearchResultItem } from "@/types/SearchTypes";
-import { Article, ArticleCardResume } from "@/types/ArticlesTypes";
+import { Article, ArticleCardResume, ArticleLinkedEntity } from "@/types/ArticlesTypes";
 import type { RefArticles } from "@/db/types";
+import { getAtc } from "@/db/utils/atc";
+import { getSubstancesTitles } from "@/db/utils/substances";
+import { VISIBLE_SPECIALITE_AVAILABILITIES } from "@/db/utils/specialiteCatalog";
+import { formatSpecName } from "@/displayUtils";
+import { getAtcSlug } from "@/utils/atc";
+import { getIndicationSlug } from "@/utils/indications";
+import { getSpecSlug } from "@/utils/specialites";
+import { getSubstanceSlug } from "@/utils/substances";
 
 export async function getArticles(): Promise<Article[]> {
   "use cache: remote";
@@ -21,6 +29,10 @@ export async function getArticles(): Promise<Article[]> {
       "metadescription",
       "homepage",
       "image",
+      "substances",
+      "specialites",
+      "pathologies",
+      "atc_classe",
     ])
     .execute();
 
@@ -35,6 +47,10 @@ export async function getArticles(): Promise<Article[]> {
       canonicalUrl: row.lien as string,
       description: row.metadescription as string,
       ...(row.image ? { image: row.image as string } : {}),
+      substances: parseArticleIds(row.substances),
+      specialites: parseArticleIds(row.specialites),
+      pathologies: parseArticleIds(row.pathologies),
+      atc: parseArticleIds(row.atc_classe),
     };
   });
 }
@@ -179,4 +195,63 @@ async function getArticleFilterRows() {
       "pathologies",
     ])
     .execute();
+}
+
+/**
+ * Pages of the site linked to the article (structured data):
+ * - about: its subjects, the indications (pathologies) and the ATC classes
+ * - mentions: the substances and the medicaments (can be many)
+ * Only the existing pages: substances with a title, visible medicaments, known indications and ATC classes
+ */
+export async function getArticleLinkedEntities(
+  article: Pick<Article, "substances" | "specialites" | "pathologies" | "atc">,
+): Promise<{ about: ArticleLinkedEntity[], mentions: ArticleLinkedEntity[] }> {
+  "use cache: remote";
+  const subsIds = [...new Set(article.substances)];
+  const cisList = [...new Set(article.specialites)];
+  const codesPatho = [...new Set(article.pathologies)].map(Number).filter(Number.isInteger);
+  const atcCodes = [...new Set(article.atc)];
+
+  const [indications, atc1List, titles, specialites] = await Promise.all([
+    codesPatho.length > 0
+      ? db.selectFrom("indications").where("codePatho", "in", codesPatho).select(["id", "codePatho", "nom"]).execute()
+      : [],
+    atcCodes.length > 0 ? getAtc() : [],
+    getSubstancesTitles(subsIds),
+    cisList.length > 0
+      ? db
+        .selectFrom("ansm_specialite")
+        .where("cis", "in", cisList)
+        .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
+        .select(["cis", "denomination"])
+        .execute()
+      : [],
+  ]);
+
+  const atcList = atc1List.flatMap((atc1) => [atc1, ...atc1.children]);
+  const about: ArticleLinkedEntity[] = [
+    ...codesPatho.flatMap((codePatho) => {
+      const indication = indications.find((row) => Number(row.codePatho) === codePatho);
+      return indication
+        ? [{ type: "MedicalCondition" as const, name: indication.nom, path: `/indications/${getIndicationSlug(indication.id, indication.nom)}` }]
+        : [];
+    }),
+    ...atcCodes.flatMap((code) => {
+      const atc = atcList.find((row) => row.code === code);
+      return atc ? [{ type: "DrugClass" as const, name: atc.label, path: `/atc/${getAtcSlug(atc.code, atc.label)}` }] : [];
+    }),
+  ];
+  const mentions: ArticleLinkedEntity[] = [
+    ...subsIds.flatMap((SubsId) => {
+      const title = titles.get(SubsId);
+      return title ? [{ type: "Drug" as const, name: title, path: `/substances/${getSubstanceSlug([{ SubsId, title }])}` }] : [];
+    }),
+    ...cisList.flatMap((cis) => {
+      const specialite = specialites.find((row) => row.cis === cis);
+      return specialite?.denomination
+        ? [{ type: "Drug" as const, name: formatSpecName(specialite.denomination), path: `/medicaments/${getSpecSlug(cis, specialite.denomination)}` }]
+        : [];
+    }),
+  ];
+  return { about, mentions };
 }
