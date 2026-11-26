@@ -1,3 +1,4 @@
+import type { MedicineMarketingStatus } from "@/utils/medicineMarketing";
 import { ResumeSpecGroupDB, ResumeSpecialiteDB } from "@/db/types";
 import { PediatricsInfo } from "./PediatricTypes";
 import { ShortIndication } from "./IndicationsTypes";
@@ -25,6 +26,7 @@ export type MedicineAvailability =
 
 export type Specialite = {
   availability?: MedicineAvailability | null;
+  marketingStatus?: MedicineMarketingStatus;
   SpecId: string;
   SpecDenom01: string;
   ProcId: SpecialiteProcedure;
@@ -52,6 +54,7 @@ export type SpecialiteAlerts = {
 
 export type ShortSpecialite = {
   availability?: MedicineAvailability | null;
+  marketingStatus?: MedicineMarketingStatus;
   SpecId: string;
   SpecDenom01: string;
   StatutBdm: string;
@@ -70,6 +73,7 @@ export type ResumeSpecGroup = ResumeSpecGroupDB & {
 
 export type ResumeSpecialite = ResumeSpecialiteDB & {
   availability?: MedicineAvailability | null;
+  marketingStatus?: MedicineMarketingStatus;
   atc1Label?: string;
   atc2Label?: string;
   indicationsDetails?: ShortIndication[];
