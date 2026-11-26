@@ -105,10 +105,6 @@ const nextConfig = {
         source: "/generiques",
         destination: "/alpha_lists/generiques/A",
       },
-      {
-        source: "/atc",
-        destination: "/atc/A",
-      },
     ];
   },
   async headers() {

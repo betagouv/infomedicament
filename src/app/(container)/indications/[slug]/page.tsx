@@ -1,6 +1,12 @@
 import { notFound } from "next/navigation";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import BreadcrumbJsonLd from "@/components/generic/BreadcrumbJsonLd";
+import JsonLd from "@/components/generic/JsonLd";
+import { getMedicalConditionStructuredData } from "@/utils/structuredData/medicalCondition";
+import { getBaseUrl } from "@/utils/baseUrl";
+import { formatSpecName } from "@/displayUtils";
+import { getSpecSlug } from "@/utils/specialites";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { getIndications } from "@/db/utils/indications";
@@ -77,11 +83,41 @@ async function CachedIndicationPage({ slug }: { slug: string }) {
     allSpecsGroups.length > 0
       ? await getResumeSpecsGroupsATCLabels(allSpecsGroups)
       : [];
+  // Structured data of the indication (MedicalCondition): its medicaments (first specialité of each group) and articles
+  const medicalConditionStructuredData = getMedicalConditionStructuredData(
+    {
+      path: `/indications/${getIndicationSlug(indication.id, indication.nom)}`,
+      name: indication.nom,
+      definition: indication.definition,
+      treatments: dataList.flatMap((group) => {
+        const [specId, specName] = group.specialites[0] ?? [];
+        return specId && specName
+          ? [
+              {
+                name: formatSpecName(specName),
+                path: `/medicaments/${getSpecSlug(specId, specName)}`,
+              },
+            ]
+          : [];
+      }),
+      articles: articles.map((article) => ({
+        name: article.title,
+        path: `/articles/${article.slug}`,
+      })),
+    },
+    getBaseUrl(),
+  );
 
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12")}>
+          <JsonLd data={medicalConditionStructuredData} />
+          {/* Structured data of the breadcrumb: from the URL of the page */}
+          <BreadcrumbJsonLd
+            path={`/indications/${getIndicationSlug(indication.id, indication.nom)}`}
+            name={indication.nom}
+          />
           <Breadcrumb
             segments={[
               { label: "Accueil", linkProps: { href: "/" } },

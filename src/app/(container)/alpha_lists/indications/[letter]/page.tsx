@@ -1,4 +1,5 @@
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import BreadcrumbJsonLd from "@/components/generic/BreadcrumbJsonLd";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import PageListContent from "@/components/list/PageListContent";
@@ -45,6 +46,11 @@ async function CachedIndicationsList({ letter }: { letter: string }) {
 
   return (
     <ContentContainer frContainer>
+      {/* Structured data of the breadcrumb: from the URL of the page */}
+      <BreadcrumbJsonLd
+        path={`/indications/${encodeURIComponent(letter)}`}
+        name={`${PAGE_LABEL} : ${letter}`}
+      />
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
         currentPageLabel={PAGE_LABEL}

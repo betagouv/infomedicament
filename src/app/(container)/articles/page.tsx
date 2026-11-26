@@ -2,6 +2,7 @@ import { getArticles } from "@/db/utils/articles";
 import { fr } from "@codegouvfr/react-dsfr";
 import { Fragment } from "react";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import BreadcrumbJsonLd from "@/components/generic/BreadcrumbJsonLd";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
@@ -32,6 +33,8 @@ export default async function Page() {
 
   return (
     <ContentContainer frContainer>
+      {/* Structured data of the breadcrumb: from the URL of the page */}
+      <BreadcrumbJsonLd path="/articles" name={PAGE_LABEL} />
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
         currentPageLabel={PAGE_LABEL}

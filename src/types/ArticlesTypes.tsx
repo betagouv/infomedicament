@@ -29,4 +29,17 @@ export type Article = {
   canonicalUrl: string;
   description: string;
   image?: string;
+  // Linked pages: SubsIds, CIS, codePatho of the indications, ATC codes
+  substances: string[];
+  specialites: string[];
+  pathologies: string[];
+  atc: string[];
+};
+
+// Page of the site linked to an article (structured data "about" / "mentions")
+export type ArticleLinkedEntity = {
+  type: "Drug" | "MedicalCondition" | "DrugClass";
+  name: string;
+  // Path of the page on the site, e.g. "/substances/paracetamol-02202"
+  path: string;
 };

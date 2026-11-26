@@ -12,7 +12,7 @@ function AlphabeticNav({
 }: {
   letters: string[];
   urlPrefix: string;
-  currentLetter: string;
+  currentLetter?: string;
 }) {
   return (
     <p className={fr.cx("fr-text--lg")}>

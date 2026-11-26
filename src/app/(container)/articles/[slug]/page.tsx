@@ -1,7 +1,8 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { fr } from "@codegouvfr/react-dsfr";
-import { getArticles } from "@/db/utils/articles";
+import { getArticleLinkedEntities, getArticles } from "@/db/utils/articles";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import BreadcrumbJsonLd from "@/components/generic/BreadcrumbJsonLd";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Metadata } from "next";
@@ -14,6 +15,13 @@ import { withStaticParamFallback } from "@/utils/staticParams";
 import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
 import { getDefinition, withDefinitions } from "@/utils/glossary";
 import { Definition } from "@/types/GlossaireTypes";
+import JsonLd from "@/components/generic/JsonLd";
+import {
+  getArticleCoverPath,
+  getArticleStructuredData,
+} from "@/utils/structuredData/article";
+import { getPublicImageSize } from "@/utils/publicImageSize";
+import { getBaseUrl } from "@/utils/baseUrl";
 
 // Glossary words linked to their definition in the articles
 const ARTICLES_GLOSSARY_WORDS = ["Posologie"];
@@ -70,13 +78,34 @@ async function ResolvedArticlePage({
 }
 
 async function ArticlePageContent({ slug }: { slug: string }) {
-  const [{ title, source, content, image }, glossaryDefinitions] =
-    await Promise.all([getArticle(slug), getHighlightedGlossaryDefinitions()]);
+  const [article, glossaryDefinitions] = await Promise.all([
+    getArticle(slug),
+    getHighlightedGlossaryDefinitions(),
+  ]);
+  const { title, source, content, image } = article;
+  // Structured data: cover size and pages of the site linked to the article
+  // Only the ids: cache key of getArticleLinkedEntities
+  const { about, mentions } = await getArticleLinkedEntities({
+    substances: article.substances,
+    specialites: article.specialites,
+    pathologies: article.pathologies,
+    atc: article.atc,
+  });
+  const structuredData = getArticleStructuredData(article, getBaseUrl(), {
+    imageSize: image
+      ? getPublicImageSize(getArticleCoverPath(image))
+      : undefined,
+    about,
+    mentions,
+  });
   const definitions = ARTICLES_GLOSSARY_WORDS.map((word) =>
     getDefinition(glossaryDefinitions, word),
   ).filter((definition): definition is Definition => definition !== undefined);
   return (
     <ContentContainer frContainer>
+      <JsonLd data={structuredData} />
+      {/* Structured data of the breadcrumb: from the URL of the page */}
+      <BreadcrumbJsonLd path={`/articles/${article.slug}`} name={title} />
       <Breadcrumb
         segments={[
           { label: "Accueil", linkProps: { href: "/" } },
@@ -122,7 +151,7 @@ async function ArticlePageContent({ slug }: { slug: string }) {
                 alt="Image décorative"
                 fill
                 style={{ objectFit: "cover" }}
-                src={`/img/article_covers/${image}.webp`}
+                src={getArticleCoverPath(image)}
               />
             </div>
           </div>

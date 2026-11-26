@@ -70,10 +70,15 @@ function getDisplayData(
   }
   if (type === DataTypeEnum.ATCCLASS) {
     const atc = item as AdvancedATCClass;
+    const { nbSubstances, nbSubclasses } = atc.class;
     return {
       link: `/atc/${getAtcSlug(atc.class.code, atc.class.label)}`,
       name: formatSpecName(atc.class.label),
-      details: `${atc.class.nbSubstances} ${atc.class.nbSubstances > 1 ? "substances actives" : "substance active"}`,
+      // List of the classes: number of subclasses, otherwise (subclasses of a class): number of substances
+      details:
+        nbSubclasses !== undefined
+          ? `${nbSubclasses} ${nbSubclasses > 1 ? "sous-classes de médicament" : "sous-classe de médicament"}`
+          : `${nbSubstances} ${nbSubstances > 1 ? "substances actives" : "substance active"}`,
       subClasses: atc.subclasses,
     };
   }

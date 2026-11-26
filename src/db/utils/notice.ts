@@ -20,6 +20,7 @@ export async function getNotice(CIS: string): Promise<NoticeData | undefined> {
     codeCIS: noticeRaw.codeCIS,
     title: noticeRaw.title,
     dateNotif: formatNoticeDateNotif(noticeRaw.dateNotif),
+    isoDateNotif: noticeRaw.dateNotif ?? undefined,
     contentHtml: noticeRaw.content_html ?? "",
   };
 }

@@ -11,6 +11,9 @@ import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
 import { withStaticParamFallback } from "@/utils/staticParams";
 import { Metadata } from "next";
+import JsonLd from "@/components/generic/JsonLd";
+import { getGlossaryStructuredData } from "@/utils/structuredData/glossary";
+import { getBaseUrl } from "@/utils/baseUrl";
 
 export async function generateStaticParams() {
   const letters = await getGlossaryLetters();
@@ -46,6 +49,17 @@ async function CachedGlossaryPage({ letter }: { letter: string }) {
 
   return (
     <ContentContainer frContainer>
+      {/* Structured data: the glossary with the terms of the page */}
+      <JsonLd
+        data={getGlossaryStructuredData(
+          letter,
+          definitions.map((definition) => ({
+            name: definition.nom as string,
+            definition: definition.definition,
+          })),
+          getBaseUrl(),
+        )}
+      />
       <div className={fr.cx("fr-grid-row", "fr-mb-3w")}>
         <div className={fr.cx("fr-col-md-8")}>
           <h1>{PAGE_LABEL}</h1>

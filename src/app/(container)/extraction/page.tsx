@@ -1,4 +1,5 @@
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import BreadcrumbJsonLd from "@/components/generic/BreadcrumbJsonLd";
 import { fr } from "@codegouvfr/react-dsfr";
 import ContentContainer from "@/components/generic/ContentContainer";
 import ExportBlock from "@/components/export/ExportBlock";
@@ -32,6 +33,8 @@ export default async function Page() {
 
   return (
     <ContentContainer frContainer>
+      {/* Structured data of the breadcrumb: from the URL of the page */}
+      <BreadcrumbJsonLd path="/extraction" name={PAGE_LABEL} />
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
         currentPageLabel={PAGE_LABEL}

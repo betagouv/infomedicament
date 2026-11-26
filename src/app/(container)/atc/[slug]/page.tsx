@@ -9,6 +9,11 @@ import {
 } from "@/db/utils/atc";
 import { ATC, ATC1, ATCSubstances } from "@/types/ATCTypes";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
+import BreadcrumbJsonLd from "@/components/generic/BreadcrumbJsonLd";
+import JsonLd from "@/components/generic/JsonLd";
+import { getDrugClassStructuredData } from "@/utils/structuredData/drugClass";
+import { getSubstanceSlug } from "@/utils/substances";
+import { getBaseUrl } from "@/utils/baseUrl";
 import { notFound } from "next/navigation";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
@@ -109,10 +114,55 @@ async function CachedATCPage({ slug }: { slug: string }) {
 
   if (!currentAtc || !atc1) notFound();
 
+  const atc2Data = atc2 ? await fetchATC2Data(atc2) : undefined;
+  const atc1Data = atc2 ? undefined : await fetchATC1Data(atc1);
+  // Structured data of the class (DrugClass): its substances (level 2) and its articles
+  const drugClassStructuredData = getDrugClassStructuredData(
+    {
+      path: `/atc/${getAtcSlug(currentAtc.code, currentAtc.label)}`,
+      name: currentAtc.label,
+      code: currentAtc.code,
+      description: currentAtc.description,
+      drugs: (atc2Data?.dataList ?? [])
+        .filter(
+          (substance, index, all) =>
+            all.findIndex(
+              (other) => other.SubsId.trim() === substance.SubsId.trim(),
+            ) === index,
+        )
+        .map((substance) => ({
+          name: substance.title ?? substance.NomLib,
+          path: `/substances/${getSubstanceSlug([substance])}`,
+        })),
+      articles: (atc2Data ?? atc1Data)!.articles.map((article) => ({
+        name: article.title,
+        path: `/articles/${article.slug}`,
+      })),
+    },
+    getBaseUrl(),
+  );
+
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12")}>
+          <JsonLd data={drugClassStructuredData} />
+          {/* Structured data of the breadcrumb: from the URL of the page */}
+          <BreadcrumbJsonLd
+            path={`/atc/${getAtcSlug(currentAtc.code, currentAtc.label)}`}
+            name={currentAtc.label}
+            // Class of level 2: its class of level 1 before
+            parents={
+              atc2
+                ? [
+                    {
+                      path: `/atc/${getAtcSlug(atc1.code, atc1.label)}`,
+                      name: atc1.label,
+                    },
+                  ]
+                : []
+            }
+          />
           <Breadcrumb
             segments={[
               {
@@ -135,9 +185,9 @@ async function CachedATCPage({ slug }: { slug: string }) {
         </div>
       </div>
       {atc2 ? (
-        <ATC2DefinitionContent atc={atc2} {...await fetchATC2Data(atc2)} />
+        <ATC2DefinitionContent atc={atc2} {...atc2Data!} />
       ) : (
-        <ATC1DefinitionContent atc={atc1} {...await fetchATC1Data(atc1)} />
+        <ATC1DefinitionContent atc={atc1} {...atc1Data!} />
       )}
       <RatingToaster pageId={currentAtc.label} />
     </ContentContainer>
