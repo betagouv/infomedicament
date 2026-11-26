@@ -6,12 +6,18 @@ import {
   MouseEvent,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
 } from "react";
 import { GlossaryContext } from "@/components/glossary/GlossaryContextProvider";
 import { Definition } from "@/types/GlossaireTypes";
 import { RcpNoticeHtmlContainer } from "./blocks/GenericBlocks";
+import {
+  documentSourceSelector,
+  getDocumentBlockAnchor,
+  getDocumentSourceAnchor,
+} from "@/utils/documentSourceAnchors";
 
 interface DocumentHtmlProps extends HTMLAttributes<HTMLDivElement> {
   contentHtml: string;
@@ -39,6 +45,47 @@ export default function DocumentHtml({
       ),
     [definitions],
   );
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const seenAnchors = new Set<string>();
+    const addedAnchors = new Map<string, HTMLElement>();
+    const sourceIndexes = new Map(
+      Array.from(
+        container.querySelectorAll<HTMLElement>(documentSourceSelector),
+      ).map((element, index) => [element, index] as const),
+    );
+    container
+      .querySelectorAll<HTMLElement>(
+        `[id], [name], [data-block-id], ${documentSourceSelector}`,
+      )
+      .forEach((element) => {
+        const anchor =
+          element.getAttribute("id") ?? element.getAttribute("name");
+        const blockId = element.dataset.blockId;
+        const sourceIndex = sourceIndexes.get(element);
+        if (
+          (blockId || sourceIndex !== undefined) &&
+          (!anchor || seenAnchors.has(anchor))
+        ) {
+          const id = blockId
+            ? getDocumentBlockAnchor(blockId)
+            : getDocumentSourceAnchor(sourceIndex!);
+          element.id = id;
+          addedAnchors.set(id, element);
+        }
+        for (const attribute of ["id", "name"]) {
+          const value = element.getAttribute(attribute);
+          if (value) seenAnchors.add(value);
+        }
+      });
+    // Copied links/new tabs may target anchors added after initial HTML parsing.
+    addedAnchors.forEach((element, id) => {
+      if (window.location.hash === `#${encodeURIComponent(id)}`)
+        element.scrollIntoView({ block: "start" });
+    });
+  }, [contentHtml]);
 
   const openDefinition = useCallback(
     (element: HTMLElement) => {

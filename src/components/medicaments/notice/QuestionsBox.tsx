@@ -1,8 +1,7 @@
 "use client";
 
 import { fr } from "@codegouvfr/react-dsfr";
-import Button from "@codegouvfr/react-dsfr/Button";
-import { HTMLAttributes, useState } from "react";
+import { HTMLAttributes } from "react";
 import styled from "styled-components";
 import { questionsList, questionKeys } from "@/data/pages/notices_anchors";
 import { QuestionAnchors } from "@/types/NoticesAnchors";
@@ -30,7 +29,7 @@ const QuestionsRow = styled.div`
 
 const QuestionButton = styled.button`
   cursor: pointer;
-  align-self: stretch;
+  align-self: start;
   border: none;
   background: transparent;
   color: inherit;
@@ -70,46 +69,23 @@ const QuestionLink = styled.span`
   }
 `;
 
-const SearchRow = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  width: 100%;
-  & input {
-    min-width: 0;
-  }
-  & button {
-    flex-shrink: 0;
-  }
-`;
-
 interface QuestionsBoxProps extends HTMLAttributes<HTMLDivElement> {
   currentQuestion: string | undefined;
   updateCurrentQuestion: (question: string) => void;
-  onSearch: (query: string) => void;
   disabled?: boolean;
 }
 
 function QuestionsBox({
   currentQuestion,
   updateCurrentQuestion,
-  onSearch,
   disabled = false,
   ...props
 }: QuestionsBoxProps) {
-  const [searchValue, setSearchValue] = useState("");
-
   const onClick = (anchorData: QuestionAnchors) => {
     updateCurrentQuestion(anchorData.id);
     trackEvent("Boîte questions", anchorData.tracking);
   };
 
-  const handleSearch = () => {
-    const trimmed = searchValue.trim();
-    if (trimmed) onSearch(trimmed);
-  };
-
-  //href on the question is the first element of the anchors list
   return (
     <QuestionsBoxContainer
       {...props}
@@ -121,6 +97,7 @@ function QuestionsBox({
             type="button"
             disabled={disabled}
             aria-pressed={currentQuestion === key}
+            aria-label={questionsList[key].question}
             key={index}
             onClick={() => onClick(questionsList[key])}
           >
@@ -132,7 +109,7 @@ function QuestionsBox({
             >
               <Image
                 src={`/icons/${questionsList[key].icon}`}
-                alt={`Icone ${questionsList[key].id}`}
+                alt={questionsList[key].question}
                 width={70}
                 height={70}
               />
@@ -144,27 +121,6 @@ function QuestionsBox({
           </QuestionButton>
         ))}
       </QuestionsRow>
-      <SearchRow className={[fr.cx("fr-mt-2w")].join(" ")}>
-        <input
-          aria-label="Rechercher dans la notice"
-          disabled={disabled}
-          className={fr.cx("fr-input")}
-          placeholder="Posez votre question..."
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleSearch();
-          }}
-        />
-        <Button
-          disabled={disabled}
-          iconId="fr-icon-search-line"
-          onClick={handleSearch}
-          priority="tertiary"
-          size="small"
-          title="Rechercher"
-        />
-      </SearchRow>
     </QuestionsBoxContainer>
   );
 }

@@ -24,8 +24,7 @@ import QuestionsBox from "./notice/QuestionsBox";
 import NoticeChunkResultsBox from "./notice/NoticeChunkResultsBox";
 import Badge from "@codegouvfr/react-dsfr/Badge";
 import { questionsList } from "@/data/pages/notices_anchors";
-import { NoticeChunkHit } from "@/app/(container)/medicaments/[slug]/notice-search/route";
-import { QuestionAnchors } from "@/types/NoticesAnchors";
+import { useNoticeSearch } from "@/hooks/useNoticeSearch";
 import NoticeBlock from "./notice/NoticeBlock";
 import PregnancyMentionTag from "../tags/PregnancyMentionTag";
 import PregnancyPlanTag from "../tags/PregnancyPlanTag";
@@ -115,59 +114,24 @@ function NoticeContent({
   ...props
 }: NoticeContentProps) {
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
-  const [noticeHits, setNoticeHits] = useState<NoticeChunkHit[] | null>(null);
-  const [hitsLoading, setHitsLoading] = useState<boolean>(false);
-  const [activeQuestion, setActiveQuestion] = useState<QuestionAnchors | null>(
-    null,
+  const {
+    result: noticeResult,
+    loading: hitsLoading,
+    search,
+    close,
+  } = useNoticeSearch(
+    specialite
+      ? getSpecSlug(specialite.SpecId, specialite.SpecDenom01)
+      : undefined,
   );
 
-  const updateCurrentQuestion = async (questionId: string) => {
-    const question = questionsList[questionId];
+  const updateCurrentQuestion = (questionId: string) => {
     setCurrentQuestion(questionId);
-    const anchorEl = question.headerId
-      ? document.getElementById(question.headerId)
-      : null;
-    if (anchorEl) {
-      setActiveQuestion(question);
-      setNoticeHits([
-        {
-          section_anchor: question.headerId!,
-          section_title: "",
-          sub_header: null,
-        },
-      ]);
-      return;
-    }
-    setActiveQuestion(question);
-    setHitsLoading(true);
-    setNoticeHits(null);
-    if (question.queryText && specialite) {
-      const res = await fetch(
-        `/medicaments/${getSpecSlug(specialite.SpecId, specialite.SpecDenom01)}/notice-search?q=${encodeURIComponent(question.queryText)}`,
-      );
-      const data = await res.json();
-      setNoticeHits(data.hits ?? []);
-    }
-    setHitsLoading(false);
-  };
-  const handleSearch = async (query: string) => {
-    if (!specialite) return;
-    setCurrentQuestion("");
-    setActiveQuestion(null);
-    setHitsLoading(true);
-    setNoticeHits(null);
-    const res = await fetch(
-      `/medicaments/${getSpecSlug(specialite.SpecId, specialite.SpecDenom01)}/notice-search?q=${encodeURIComponent(query)}`,
-    );
-    const data = await res.json();
-    setNoticeHits(data.hits ?? []);
-    setHitsLoading(false);
+    void search(questionId);
   };
   const onCloseResults = () => {
-    setNoticeHits(null);
-    setActiveQuestion(null);
+    close();
     setCurrentQuestion("");
-    setHitsLoading(false);
   };
   return (
     <NoticeContentContainer
@@ -241,15 +205,14 @@ function NoticeContent({
             <QuestionsBox
               currentQuestion={currentQuestion}
               updateCurrentQuestion={updateCurrentQuestion}
-              onSearch={handleSearch}
             />
           </ContentContainer>
-          {(hitsLoading || noticeHits !== null) && (
+          {(hitsLoading || noticeResult !== null) && (
             <NoticeChunkResultsBox
               className={fr.cx("fr-hidden-md", "fr-mb-2w", "fr-px-1w")}
-              hits={noticeHits ?? []}
+              result={noticeResult}
               loading={hitsLoading}
-              questionLabel={activeQuestion?.question}
+              questionLabel={questionsList[currentQuestion]?.question}
               onClose={onCloseResults}
             />
           )}
@@ -462,10 +425,9 @@ function NoticeContent({
           <QuestionsBox
             currentQuestion={currentQuestion}
             updateCurrentQuestion={updateCurrentQuestion}
-            onSearch={handleSearch}
           />
         </ContentContainer>
-        {(hitsLoading || noticeHits !== null) && (
+        {(hitsLoading || noticeResult !== null) && (
           <NoticeChunkResultsBox
             className={fr.cx(
               "fr-hidden",
@@ -473,9 +435,9 @@ function NoticeContent({
               "fr-mb-2w",
               "fr-px-1w",
             )}
-            hits={noticeHits ?? []}
+            result={noticeResult}
             loading={hitsLoading}
-            questionLabel={activeQuestion?.question}
+            questionLabel={questionsList[currentQuestion]?.question}
             onClose={onCloseResults}
           />
         )}

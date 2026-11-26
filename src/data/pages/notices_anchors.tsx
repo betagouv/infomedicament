@@ -4,7 +4,7 @@ export const questionsList: QuestionsListFormat = {
   description: {
     id: "description",
     highlightClass: "anchor-1",
-    question: <>À quoi sert-il ?</>,
+    question: "À quoi sert-il ?",
     headerId: "Ann3bQuestceque",
     queryText: "À quoi sert ce médicament ?",
     unique: true,
@@ -14,7 +14,7 @@ export const questionsList: QuestionsListFormat = {
   commentPrendre: {
     id: "commentPrendre",
     highlightClass: "anchor-2",
-    question: <>Comment le prendre ?</>,
+    question: "Comment le prendre ?",
     headerId: "Ann3bCommentPrendre",
     queryText: "Comment prendre ce médicament, mode d'administration ?",
     unique: false,
@@ -24,7 +24,7 @@ export const questionsList: QuestionsListFormat = {
   combienPrendre: {
     id: "combienPrendre",
     highlightClass: "anchor-3",
-    question: <>Combien en prendre ?</>,
+    question: "Combien en prendre ?",
     queryText: "Quelle est la posologie, la dose à prendre ?",
     unique: false,
     tracking: "Combien en prendre ?",
@@ -33,7 +33,7 @@ export const questionsList: QuestionsListFormat = {
   duree: {
     id: "duree",
     highlightClass: "anchor-6",
-    question: <>Durée du traitement</>,
+    question: "Durée du traitement",
     queryText: "Quelle est la durée du traitement ?",
     unique: false,
     tracking: "Durée du traitement",
@@ -42,7 +42,7 @@ export const questionsList: QuestionsListFormat = {
   allergies: {
     id: "allergies",
     highlightClass: "anchor-7",
-    question: <>Allergies</>,
+    question: "Allergies",
     queryText: "Quelles sont les contre-indications et allergies ?",
     unique: false,
     tracking: "Allergies",
@@ -51,7 +51,7 @@ export const questionsList: QuestionsListFormat = {
   interactions: {
     id: "interactions",
     highlightClass: "anchor-10",
-    question: <>Interactions médicaments</>,
+    question: "Interactions médicaments",
     queryText: "Quelles sont les interactions avec d'autres médicaments ?",
     unique: false,
     tracking: "Interactions médicaments",
@@ -60,7 +60,7 @@ export const questionsList: QuestionsListFormat = {
   pediatrie: {
     id: "pediatrie",
     highlightClass: "anchor-4",
-    question: <>Enfants</>,
+    question: "Enfants",
     keywords: [
       "Enfants et adolescents",
       "enfant",
@@ -78,7 +78,7 @@ export const questionsList: QuestionsListFormat = {
   grossesse: {
     id: "grossesse",
     highlightClass: "anchor-5",
-    question: <>Grossesse et allaitement</>,
+    question: "Grossesse et allaitement",
     keywords: [
       "Grossesse, allaitement et fertilité",
       "Grossesse et allaitement",
@@ -88,7 +88,7 @@ export const questionsList: QuestionsListFormat = {
       "Enceinte",
     ],
     queryText:
-      "Grossesse, allaitement et fertilité — peut-on prendre ce médicament ?",
+      "Peut-on prendre ce médicament si on est enceinte ? Peut-on allaiter pendant le traitement ?",
     unique: false,
     tracking: "Grossesse et allaitement",
     icon: "grossesse_et_allaitement.svg",
@@ -96,7 +96,7 @@ export const questionsList: QuestionsListFormat = {
   boireManger: {
     id: "boireManger",
     highlightClass: "anchor-8",
-    question: <>Alcool et nourriture</>,
+    question: "Alcool et nourriture",
     keywords: [
       "alcoolisées",
       "alcoolisée",
@@ -109,7 +109,8 @@ export const questionsList: QuestionsListFormat = {
       "Aliments",
       "Aliment",
     ],
-    queryText: "Interactions avec l'alcool, les aliments et les boissons",
+    queryText:
+      "Quelles sont les recommandations et précautions concernant l'alcool, les aliments ou les boissons pendant le traitement ? Traite chaque sujet indépendamment : une information sur un seul de ces sujets suffit.",
     unique: false,
     tracking: "Alcool et nourriture",
     icon: "alcool_et_nourriture.svg",
@@ -117,7 +118,7 @@ export const questionsList: QuestionsListFormat = {
   conduite: {
     id: "conduite",
     highlightClass: "anchor-9",
-    question: <>Conduite</>,
+    question: "Conduite",
     keywords: [
       "Conduite de véhicules et utilisation de machines",
       "Conduire",
@@ -135,7 +136,7 @@ export const questionsList: QuestionsListFormat = {
   effetsIndesirables: {
     id: "effetsIndesirables",
     highlightClass: "anchor-11",
-    question: <>Effets indésirables</>,
+    question: "Effets indésirables",
     headerId: "Ann3bEffetsIndesirables",
     queryText: "Quels sont les effets indésirables ?",
     unique: true,
@@ -145,7 +146,7 @@ export const questionsList: QuestionsListFormat = {
   conservation: {
     id: "conservation",
     highlightClass: "anchor-12",
-    question: <>Conservation</>,
+    question: "Conservation",
     headerId: "Ann3bConservation",
     queryText: "Comment conserver ce médicament ?",
     unique: true,
@@ -155,8 +156,9 @@ export const questionsList: QuestionsListFormat = {
   contenu: {
     id: "contenu",
     highlightClass: "anchor-13",
-    question: <>Composition</>,
+    question: "Composition",
     headerId: "Ann3bEmballage",
+    queryText: "Quelle est la composition de ce médicament ?",
     keywords: ["Ce que contient"],
     unique: true,
     tracking: "Composition",

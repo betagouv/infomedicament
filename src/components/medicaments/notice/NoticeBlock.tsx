@@ -18,7 +18,16 @@ const NoticeBlockContainer = styled.div`
   }
   .notice-highlight-quote {
     background-color: var(--yellow-tournesol-950-100);
+    color: inherit;
     border-radius: 2px;
+  }
+
+  :root[data-fr-theme="dark"] & {
+    .notice-highlight,
+    .notice-highlight-quote {
+      background-color: var(--yellow-tournesol-sun-407-moon-922);
+      color: #161616;
+    }
   }
 `;
 

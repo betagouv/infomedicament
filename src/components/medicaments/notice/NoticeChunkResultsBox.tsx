@@ -4,21 +4,24 @@ import { fr } from "@codegouvfr/react-dsfr";
 import Button from "@codegouvfr/react-dsfr/Button";
 import {
   HTMLAttributes,
+  MouseEvent,
   ReactNode,
   useCallback,
   useEffect,
   useRef,
 } from "react";
-import styled from "styled-components";
-import { NoticeChunkHit } from "@/app/(container)/medicaments/[slug]/notice-search/route";
+import styled, { keyframes } from "styled-components";
+import { RcpNoticeHtmlContainer } from "../blocks/GenericBlocks";
+import type { NoticeSearchResponse } from "@/types/NoticeSearch";
+import {
+  clearNoticeQuoteHighlights,
+  highlightNoticeQuote,
+} from "@/utils/noticeQuoteSource";
 
 const Container = styled.div`
-  position: sticky;
-  top: 8px;
   border: var(--border-open-blue-france) 1px solid;
   border-radius: 8px;
   background-color: var(--background-alt-blue-france);
-  z-index: 5;
   filter: drop-shadow(var(--raised-shadow));
 `;
 
@@ -26,184 +29,96 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
 `;
 
-const QuestionLabel = styled.span`
-  font-weight: bold;
-  font-size: 14px;
+const spin = keyframes`
+  to { transform: rotate(360deg); }
 `;
 
-const debugLog =
-  process.env.NODE_ENV === "development"
-    ? (...args: unknown[]) => console.log(...args)
-    : () => {};
-const debugWarn =
-  process.env.NODE_ENV === "development"
-    ? (...args: unknown[]) => console.warn(...args)
-    : () => {};
+const LoadingStatus = styled.p`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
 
-export function highlightTextInElement(
-  el: HTMLElement,
-  quote: string,
-): HTMLElement | null {
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-  const textNodes: string[] | undefined =
-    process.env.NODE_ENV === "development" ? [] : undefined;
-  let node: Text | null;
-  while ((node = walker.nextNode() as Text | null)) {
-    const content = node.textContent ?? "";
-    if (textNodes) textNodes.push(JSON.stringify(content.slice(0, 80)));
-    const idx = content.indexOf(quote);
-    if (idx !== -1) {
-      debugLog(
-        "[highlight] quote found in text node:",
-        JSON.stringify(content.slice(0, 120)),
-      );
-      const range = document.createRange();
-      range.setStart(node, idx);
-      range.setEnd(node, idx + quote.length);
-      const mark = document.createElement("mark");
-      mark.className = "notice-highlight-quote";
-      range.surroundContents(mark);
-      return mark;
-    }
+const LoadingSpinner = styled.span`
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  border: 2px solid var(--border-default-grey);
+  border-top-color: var(--text-action-high-blue-france);
+  border-radius: 50%;
+  animation: ${spin} 0.8s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
-  debugWarn(
-    "[highlight] quote not found in block. Quote:",
-    JSON.stringify(quote),
-  );
-  debugWarn("[highlight] text nodes searched:", textNodes);
-  return null;
-}
+`;
+
+const Excerpts = styled.div`
+  max-height: 55vh;
+  overflow: auto;
+  overscroll-behavior: contain;
+  article + article {
+    border-top: 1px solid var(--border-default-grey);
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+  table {
+    width: max-content;
+    max-width: 100%;
+  }
+  blockquote {
+    margin: 0.5rem 0 1rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--border-open-blue-france);
+  }
+  blockquote p:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const messages = {
+  insufficient_evidence:
+    "Nous n’avons pas identifié de passage répondant suffisamment précisément à votre question. Vous pouvez consulter la notice complète ci-dessous.",
+  unavailable: "La notice n’est pas disponible pour cette recherche.",
+  error:
+    "La recherche dans la notice n’a pas pu aboutir. Veuillez réessayer ou consulter la notice complète ci-dessous.",
+};
 
 interface NoticeChunkResultsBoxProps extends HTMLAttributes<HTMLDivElement> {
-  hits: NoticeChunkHit[];
+  result: NoticeSearchResponse | null;
   loading: boolean;
   questionLabel?: ReactNode;
   onClose: () => void;
 }
 
-function NoticeChunkResultsBox({
-  hits,
+export default function NoticeChunkResultsBox({
+  result,
   loading,
   questionLabel,
   onClose,
   ...props
 }: NoticeChunkResultsBoxProps) {
-  const highlightedEls = useRef<Element[]>([]);
-
+  const highlighted = useRef<HTMLElement[]>([]);
   const clearHighlights = useCallback(() => {
-    highlightedEls.current.forEach((el) => {
-      if (el.tagName === "MARK") {
-        el.replaceWith(...el.childNodes);
-      } else {
-        el.classList.remove("notice-highlight");
-      }
-    });
-    highlightedEls.current = [];
+    clearNoticeQuoteHighlights(highlighted.current);
+    highlighted.current = [];
   }, []);
 
-  const highlightAndScroll = useCallback(
-    (hit: NoticeChunkHit) => {
-      debugLog("[highlight] hit received:", {
-        block_id: hit.block_id,
-        quote: hit.quote,
-        section_anchor: hit.section_anchor,
-        sub_header: hit.sub_header,
-      });
-      clearHighlights();
-
-      // Prefer direct block highlight over section-level anchor
-      if (hit.block_id) {
-        const blockEl = document.querySelector<HTMLElement>(
-          `[data-block-id="${hit.block_id}"]`,
-        );
-        debugLog(
-          "[highlight] block element found:",
-          !!blockEl,
-          blockEl?.textContent?.slice(0, 80),
-        );
-        if (blockEl) {
-          // Try sentence-level highlight within the block first
-          if (hit.quote) {
-            const mark = highlightTextInElement(blockEl, hit.quote);
-            if (mark) {
-              debugLog(
-                "[highlight] sentence highlight inserted, scrolling to mark",
-              );
-              highlightedEls.current.push(mark);
-              mark.scrollIntoView({ behavior: "smooth", block: "center" });
-              return;
-            }
-          }
-          debugLog("[highlight] falling back to block-level highlight");
-          blockEl.classList.add("notice-highlight");
-          highlightedEls.current.push(blockEl);
-          blockEl.scrollIntoView({ behavior: "smooth", block: "center" });
-          return;
-        }
-        debugWarn(
-          "[highlight] block_id present but element not found in DOM:",
-          hit.block_id,
-        );
-      }
-
-      debugLog(
-        "[highlight] falling back to section anchor:",
-        hit.section_anchor,
-      );
-      const sectionEl = document.getElementById(hit.section_anchor);
-      if (!sectionEl) {
-        debugWarn("[highlight] section element not found:", hit.section_anchor);
-        return;
-      }
-
-      // Section anchor is on the <h3>; content lives in the next sibling div
-      const contentEl = (sectionEl.nextElementSibling ??
-        sectionEl) as HTMLElement;
-      let scrollTarget: HTMLElement = sectionEl as HTMLElement;
-
-      if (hit.sub_header) {
-        let found = false;
-        for (const b of contentEl.querySelectorAll<HTMLElement>("b")) {
-          if (b.textContent?.trim() === hit.sub_header.trim()) {
-            debugLog("[highlight] sub_header <b> matched:", hit.sub_header);
-            b.classList.add("notice-highlight");
-            highlightedEls.current.push(b);
-            scrollTarget = b;
-            found = true;
-            break;
-          }
-        }
-        if (!found)
-          debugWarn("[highlight] sub_header not found as <b>:", hit.sub_header);
-      } else {
-        contentEl.classList.add("notice-highlight");
-        highlightedEls.current.push(contentEl);
-        scrollTarget = contentEl;
-      }
-
-      debugLog(
-        "[highlight] scrolling to:",
-        scrollTarget.tagName,
-        scrollTarget.id || scrollTarget.className.slice(0, 40),
-      );
-      scrollTarget.scrollIntoView({ behavior: "smooth", block: "start" });
-    },
-    [clearHighlights],
-  );
-
-  // Synchronize highlights with results; clear them before updates and on unmount.
   useEffect(() => {
-    if (hits.length > 0) highlightAndScroll(hits[0]);
+    clearHighlights();
     return clearHighlights;
-  }, [hits, highlightAndScroll, clearHighlights]);
+  }, [result, clearHighlights]);
 
   return (
-    <Container className={props.className} {...props}>
+    <Container {...props} aria-busy={loading}>
       <div className={fr.cx("fr-p-1w")}>
         <Header>
-          <QuestionLabel>{questionLabel ?? "Recherche"}</QuestionLabel>
+          <strong className={fr.cx("fr-text--sm")}>
+            {questionLabel ?? "Recherche dans la notice"}
+          </strong>
           <Button
             iconId="fr-icon-close-line"
             onClick={onClose}
@@ -211,18 +126,79 @@ function NoticeChunkResultsBox({
             title="Fermer"
           />
         </Header>
-        {hits[0]?.answer && (
-          <p className={fr.cx("fr-text--sm", "fr-mb-0")}>{hits[0].answer}</p>
+        {loading && (
+          <LoadingStatus role="status">
+            <LoadingSpinner aria-hidden="true" />
+            Recherche de passages dans la notice…
+          </LoadingStatus>
         )}
-        {!loading && hits.length === 0 && (
-          <span className={fr.cx("fr-text--sm")}>
-            Aucun résultat trouvé dans cette notice. Essayez de consulter le RCP
-            dans la version détaillée de la notice.
-          </span>
+        {!loading && result?.status === "supported" && (
+          <>
+            <Excerpts
+              tabIndex={0}
+              role="region"
+              aria-label="Extraits de la notice"
+            >
+              {result.passages
+                .flatMap((passage) =>
+                  passage.quotes.map((quote) => ({ passage, quote })),
+                )
+                .map(({ passage, quote }, index) => {
+                  const target = quote.target ?? passage.target;
+                  const fragment = `#${encodeURIComponent(target.anchor || "noticeContainer")}`;
+                  return (
+                    <article
+                      key={quote.id}
+                      aria-label={
+                        quote.headingPath.join(" — ") || "Extrait de la notice"
+                      }
+                    >
+                      <blockquote>
+                        <RcpNoticeHtmlContainer
+                          dangerouslySetInnerHTML={{ __html: quote.html }}
+                        />
+                      </blockquote>
+                      <a
+                        className={fr.cx("fr-link", "fr-text--sm")}
+                        href={fragment}
+                        onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+                          if (
+                            event.button !== 0 ||
+                            event.metaKey ||
+                            event.ctrlKey ||
+                            event.shiftKey ||
+                            event.altKey
+                          )
+                            return;
+                          const notice =
+                            document.getElementById("noticeContainer");
+                          if (!notice) return;
+                          clearHighlights();
+                          const { highlights, scrollTarget } =
+                            highlightNoticeQuote(notice, quote, target);
+                          highlighted.current = highlights;
+                          if (scrollTarget) {
+                            event.preventDefault();
+                            if (window.location.hash !== fragment)
+                              window.history.pushState(null, "", fragment);
+                            scrollTarget.scrollIntoView({ block: "center" });
+                          }
+                        }}
+                      >
+                        Source [{index + 1}] — Voir dans la notice
+                      </a>
+                    </article>
+                  );
+                })}
+            </Excerpts>
+          </>
+        )}
+        {!loading && result && result.status in messages && (
+          <p role="status" className={fr.cx("fr-text--sm")}>
+            {messages[result.status as keyof typeof messages]}
+          </p>
         )}
       </div>
     </Container>
   );
 }
-
-export default NoticeChunkResultsBox;
