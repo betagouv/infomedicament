@@ -17,12 +17,28 @@ describe("db utils articles - getArticleLinkedEntities", () => {
     });
 
     expect(about).toEqual([
-      { type: "MedicalCondition", name: "Migraine", path: expect.stringMatching(/^\/indications\/migraine-\d+$/) },
-      { type: "DrugClass", name: expect.any(String), path: expect.stringMatching(/^\/atc\/.+-n02$/) },
+      {
+        type: "MedicalCondition",
+        name: "Migraine",
+        path: expect.stringMatching(/^\/indications\/migraine-\d+$/),
+      },
+      {
+        type: "DrugClass",
+        name: expect.any(String),
+        path: expect.stringMatching(/^\/atc\/.+-n02$/),
+      },
     ]);
     expect(mentions).toEqual([
-      { type: "Drug", name: "paracétamol", path: "/substances/paracetamol-02202" },
-      { type: "Drug", name: expect.stringMatching(/^Doliprane 1000/i), path: expect.stringMatching(/^\/medicaments\/.+-60234100$/) },
+      {
+        type: "Drug",
+        name: "paracétamol",
+        path: "/substances/paracetamol-02202",
+      },
+      {
+        type: "Drug",
+        name: expect.stringMatching(/^Doliprane 1000/i),
+        path: expect.stringMatching(/^\/medicaments\/.+-60234100$/),
+      },
     ]);
   });
 });

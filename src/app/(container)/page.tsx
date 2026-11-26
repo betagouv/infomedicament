@@ -9,7 +9,10 @@ import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
 import { Metadata } from "next";
 import Link from "next/link";
 import JsonLd from "@/components/generic/JsonLd";
-import { getWebSiteStructuredData, SITE_DESCRIPTION } from "@/utils/structuredData/website";
+import {
+  getWebSiteStructuredData,
+  SITE_DESCRIPTION,
+} from "@/utils/structuredData/website";
 import { getBaseUrl } from "@/utils/baseUrl";
 
 export async function generateMetadata(): Promise<Metadata> {

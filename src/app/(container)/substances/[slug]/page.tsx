@@ -127,7 +127,10 @@ async function CachedSubstancePage({ slug }: { slug: string }) {
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
           {/* Structured data of the breadcrumb: from the URL of the page */}
-          <BreadcrumbJsonLd path={`/substances/${getSubstanceSlug(subsIds.map((SubsId) => ({ SubsId, title: titles.get(SubsId) })))}`} name={title} />
+          <BreadcrumbJsonLd
+            path={`/substances/${getSubstanceSlug(subsIds.map((SubsId) => ({ SubsId, title: titles.get(SubsId) })))}`}
+            name={title}
+          />
           <Breadcrumb
             segments={[
               { label: "Accueil", linkProps: { href: "/" } },

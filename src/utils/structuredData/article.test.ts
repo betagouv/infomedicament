@@ -11,7 +11,8 @@ const PUBLISHER = {
   parentOrganization: {
     "@type": "GovernmentOrganization",
     name: "ANSM",
-    alternateName: "Agence nationale de sécurité du médicament et des produits de santé",
+    alternateName:
+      "Agence nationale de sécurité du médicament et des produits de santé",
     url: "https://ansm.sante.fr",
   },
 };
@@ -22,9 +23,11 @@ const article = {
   description: "Ce qu'il faut savoir avant de prendre un médicament enceinte.",
   category: "Grossesse et allaitement",
   source: "ANSM",
-  canonicalUrl: "https://ansm.sante.fr/dossiers-thematiques/medicaments-et-grossesse",
+  canonicalUrl:
+    "https://ansm.sante.fr/dossiers-thematiques/medicaments-et-grossesse",
   image: "grossesse",
-  content: "# Les précautions\n\nDemandez **conseil** à votre [pharmacien](https://www.sante.fr).",
+  content:
+    "# Les précautions\n\nDemandez **conseil** à votre [pharmacien](https://www.sante.fr).",
 };
 
 describe("utils/structuredData - getArticleStructuredData", () => {
@@ -33,7 +36,8 @@ describe("utils/structuredData - getArticleStructuredData", () => {
       "@context": "https://schema.org",
       "@type": "Article",
       headline: "Les médicaments et la grossesse",
-      description: "Ce qu'il faut savoir avant de prendre un médicament enceinte.",
+      description:
+        "Ce qu'il faut savoir avant de prendre un médicament enceinte.",
       url: `${BASE_URL}/articles/les-medicaments-et-la-grossesse`,
       mainEntityOfPage: {
         "@type": "MedicalWebPage",
@@ -68,10 +72,15 @@ describe("utils/structuredData - getArticleStructuredData", () => {
   });
 
   it("has Info Médicament as author of the articles based on an external source", () => {
-    const data = getArticleStructuredData({ ...article, source: "Santé.fr" }, BASE_URL);
+    const data = getArticleStructuredData(
+      { ...article, source: "Santé.fr" },
+      BASE_URL,
+    );
 
     expect(data.author).toEqual(PUBLISHER);
-    expect(data.isBasedOn).toMatchObject({ publisher: { "@type": "Organization", name: "Santé.fr" } });
+    expect(data.isBasedOn).toMatchObject({
+      publisher: { "@type": "Organization", name: "Santé.fr" },
+    });
   });
 
   it("omits the empty description, image and category", () => {
@@ -86,7 +95,9 @@ describe("utils/structuredData - getArticleStructuredData", () => {
   });
 
   it("describes the cover with its size if known", () => {
-    const data = getArticleStructuredData(article, BASE_URL, { imageSize: { width: 1176, height: 662 } });
+    const data = getArticleStructuredData(article, BASE_URL, {
+      imageSize: { width: 1176, height: 662 },
+    });
 
     expect(data.image).toEqual({
       "@type": "ImageObject",
@@ -99,18 +110,44 @@ describe("utils/structuredData - getArticleStructuredData", () => {
   it("links the pages of the site about the article and mentioned in the article", () => {
     const data = getArticleStructuredData(article, BASE_URL, {
       about: [
-        { type: "MedicalCondition", name: "Migraine", path: "/indications/migraine-67" },
-        { type: "DrugClass", name: "Antalgiques", path: "/atc/antalgiques-n02" },
+        {
+          type: "MedicalCondition",
+          name: "Migraine",
+          path: "/indications/migraine-67",
+        },
+        {
+          type: "DrugClass",
+          name: "Antalgiques",
+          path: "/atc/antalgiques-n02",
+        },
       ],
-      mentions: [{ type: "Drug", name: "paracétamol", path: "/substances/paracetamol-02202" }],
+      mentions: [
+        {
+          type: "Drug",
+          name: "paracétamol",
+          path: "/substances/paracetamol-02202",
+        },
+      ],
     });
 
     expect(data.about).toEqual([
-      { "@type": "MedicalCondition", name: "Migraine", url: `${BASE_URL}/indications/migraine-67` },
-      { "@type": "DrugClass", name: "Antalgiques", url: `${BASE_URL}/atc/antalgiques-n02` },
+      {
+        "@type": "MedicalCondition",
+        name: "Migraine",
+        url: `${BASE_URL}/indications/migraine-67`,
+      },
+      {
+        "@type": "DrugClass",
+        name: "Antalgiques",
+        url: `${BASE_URL}/atc/antalgiques-n02`,
+      },
     ]);
     expect(data.mentions).toEqual([
-      { "@type": "Drug", name: "paracétamol", url: `${BASE_URL}/substances/paracetamol-02202` },
+      {
+        "@type": "Drug",
+        name: "paracétamol",
+        url: `${BASE_URL}/substances/paracetamol-02202`,
+      },
     ]);
   });
 
@@ -129,8 +166,16 @@ describe("utils/structuredData - getArticleStructuredData", () => {
   it("identifies the mentioned medicaments as their Drug, the same entity as on their page", () => {
     const data = getArticleStructuredData(article, BASE_URL, {
       mentions: [
-        { type: "Drug", name: "Doliprane 1000 mg, comprimé", path: "/medicaments/doliprane-1000-mg-comprime-60234100" },
-        { type: "Drug", name: "paracétamol", path: "/substances/paracetamol-02202" },
+        {
+          type: "Drug",
+          name: "Doliprane 1000 mg, comprimé",
+          path: "/medicaments/doliprane-1000-mg-comprime-60234100",
+        },
+        {
+          type: "Drug",
+          name: "paracétamol",
+          path: "/substances/paracetamol-02202",
+        },
       ],
     });
 
@@ -141,12 +186,19 @@ describe("utils/structuredData - getArticleStructuredData", () => {
         name: "Doliprane 1000 mg, comprimé",
         url: `${BASE_URL}/medicaments/doliprane-1000-mg-comprime-60234100`,
       },
-      { "@type": "Drug", name: "paracétamol", url: `${BASE_URL}/substances/paracetamol-02202` },
+      {
+        "@type": "Drug",
+        name: "paracétamol",
+        url: `${BASE_URL}/substances/paracetamol-02202`,
+      },
     ]);
   });
 
   it("omits about and mentions without linked page", () => {
-    const data = getArticleStructuredData(article, BASE_URL, { about: [], mentions: [] });
+    const data = getArticleStructuredData(article, BASE_URL, {
+      about: [],
+      mentions: [],
+    });
 
     expect(data).not.toHaveProperty("about");
     expect(data).not.toHaveProperty("mentions");
@@ -172,8 +224,11 @@ describe("utils/structuredData - countWords", () => {
   });
 
   it("does not count the HTML tags and the scripts", () => {
-    expect(countWords('Trier ses médicaments <script src="https://example.com/iframe.js">var a = 1;</script> <div>ici</div>'))
-      .toBe(4);
+    expect(
+      countWords(
+        'Trier ses médicaments <script src="https://example.com/iframe.js">var a = 1;</script> <div>ici</div>',
+      ),
+    ).toBe(4);
   });
 
   it("counts a French elision as one word", () => {

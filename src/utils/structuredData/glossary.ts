@@ -5,10 +5,12 @@ import { htmlToText, StructuredData } from "./index";
 const GLOSSARY_NAME = "Glossaire";
 
 // Identifier of the glossary: the same on all its pages (one page by letter)
-export const getGlossaryId = (baseUrl: string): string => `${baseUrl}/glossaire#glossaire`;
+export const getGlossaryId = (baseUrl: string): string =>
+  `${baseUrl}/glossaire#glossaire`;
 
 // Anchor of a term on its glossary page (id of its title)
-export const getGlossaryTermAnchor = (name: string): string => slugify(name, { lower: true, strict: true });
+export const getGlossaryTermAnchor = (name: string): string =>
+  slugify(name, { lower: true, strict: true });
 
 /**
  * Glossary page of a letter: https://schema.org/DefinedTermSet
@@ -17,7 +19,7 @@ export const getGlossaryTermAnchor = (name: string): string => slugify(name, { l
  */
 export function getGlossaryStructuredData(
   letter: string,
-  definitions: { name: string, definition: string }[],
+  definitions: { name: string; definition: string }[],
   baseUrl: string,
 ): StructuredData {
   const glossaryId = getGlossaryId(baseUrl);

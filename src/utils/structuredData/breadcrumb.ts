@@ -1,7 +1,7 @@
 import { SITE_NAME, StructuredData } from "./index";
 
 // Page of the breadcrumb: name and path on the site
-export type BreadcrumbPage = { name: string, path: string };
+export type BreadcrumbPage = { name: string; path: string };
 
 // Sections of the URLs, named as in the menu of the site (ClientHeader)
 const BREADCRUMB_SECTIONS: BreadcrumbPage[] = [
@@ -26,7 +26,9 @@ export function getBreadcrumbStructuredData(
   baseUrl: string,
   parents: BreadcrumbPage[] = [],
 ): StructuredData {
-  const section = BREADCRUMB_SECTIONS.find((section) => page.path.startsWith(`${section.path}/`));
+  const section = BREADCRUMB_SECTIONS.find((section) =>
+    page.path.startsWith(`${section.path}/`),
+  );
   const items: BreadcrumbPage[] = [
     { name: SITE_NAME, path: "/" },
     ...(section ? [section] : []),

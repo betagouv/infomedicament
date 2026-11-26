@@ -1,12 +1,20 @@
 import type { Article, ArticleLinkedEntity } from "@/types/ArticlesTypes";
-import { getPublisher, getWebSiteId, htmlToText, SITE_DOMAIN, SPATIAL_COVERAGE, StructuredData } from "./index";
+import {
+  getPublisher,
+  getWebSiteId,
+  htmlToText,
+  SITE_DOMAIN,
+  SPATIAL_COVERAGE,
+  StructuredData,
+} from "./index";
 import { getDrugId } from "./drug";
 
 // Source of the articles written by Info Médicament (ref_articles.source)
 const SITE_SOURCE = SITE_DOMAIN;
 
 // Path of the cover of an article (public folder)
-export const getArticleCoverPath = (image: string): string => `/img/article_covers/${image}.webp`;
+export const getArticleCoverPath = (image: string): string =>
+  `/img/article_covers/${image}.webp`;
 
 // Number of words of the text of a Markdown content (articles): without the Markdown syntax, the HTML tags and the URLs
 export function countWords(markdown: string): number {
@@ -25,11 +33,16 @@ export function countWords(markdown: string): number {
 export const MAX_MENTIONS = 20;
 
 // Medicaments: with the identifier of their Drug, the same entity as on their page (and its subjectOf)
-const toEntity = (entity: ArticleLinkedEntity, baseUrl: string): StructuredData => {
+const toEntity = (
+  entity: ArticleLinkedEntity,
+  baseUrl: string,
+): StructuredData => {
   const url = `${baseUrl}${entity.path}`;
   return {
     "@type": entity.type,
-    ...(entity.type === "Drug" && entity.path.startsWith("/medicaments/") ? { "@id": getDrugId(url) } : {}),
+    ...(entity.type === "Drug" && entity.path.startsWith("/medicaments/")
+      ? { "@id": getDrugId(url) }
+      : {}),
     name: entity.name,
     url,
   };
@@ -42,25 +55,39 @@ const toEntity = (entity: ArticleLinkedEntity, baseUrl: string): StructuredData 
  * options.about / options.mentions: pages of the site linked to the article (see getArticleLinkedEntities)
  */
 export function getArticleStructuredData(
-  article: Pick<Article, "slug" | "title" | "description" | "category" | "source" | "canonicalUrl" | "image" | "content">,
+  article: Pick<
+    Article,
+    | "slug"
+    | "title"
+    | "description"
+    | "category"
+    | "source"
+    | "canonicalUrl"
+    | "image"
+    | "content"
+  >,
   baseUrl: string,
   options: {
-    imageSize?: { width: number, height: number },
-    about?: ArticleLinkedEntity[],
-    mentions?: ArticleLinkedEntity[],
+    imageSize?: { width: number; height: number };
+    about?: ArticleLinkedEntity[];
+    mentions?: ArticleLinkedEntity[];
   } = {},
 ): StructuredData {
   const url = `${baseUrl}/articles/${article.slug}`;
   const publisher = getPublisher(baseUrl);
   const source = article.source?.trim();
   const sourceUrl = article.canonicalUrl?.trim();
-  const imageUrl = article.image ? `${baseUrl}${getArticleCoverPath(article.image)}` : undefined;
+  const imageUrl = article.image
+    ? `${baseUrl}${getArticleCoverPath(article.image)}`
+    : undefined;
   const wordCount = article.content ? countWords(article.content) : 0;
   return {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: article.title,
-    ...(article.description?.trim() ? { description: article.description.trim() } : {}),
+    ...(article.description?.trim()
+      ? { description: article.description.trim() }
+      : {}),
     url,
     // Medical information page for the general public, part of the site (later: lastReviewed, reviewedBy)
     mainEntityOfPage: {
@@ -70,9 +97,15 @@ export function getArticleStructuredData(
       isPartOf: { "@id": getWebSiteId(baseUrl) },
     },
     ...(imageUrl
-      ? { image: options.imageSize ? { "@type": "ImageObject", url: imageUrl, ...options.imageSize } : imageUrl }
+      ? {
+          image: options.imageSize
+            ? { "@type": "ImageObject", url: imageUrl, ...options.imageSize }
+            : imageUrl,
+        }
       : {}),
-    ...(article.category?.trim() ? { articleSection: article.category.trim() } : {}),
+    ...(article.category?.trim()
+      ? { articleSection: article.category.trim() }
+      : {}),
     ...(wordCount > 0 ? { wordCount } : {}),
     inLanguage: "fr-FR",
     // The content applies to France (medicaments, rules)
@@ -84,17 +117,25 @@ export function getArticleStructuredData(
     // External page the article is based on, with the organization of the source (e.g. "ANSM", "Santé.fr")
     ...(sourceUrl
       ? {
-        isBasedOn: {
-          "@type": "WebPage",
-          url: sourceUrl,
-          ...(source && source !== SITE_SOURCE ? { publisher: { "@type": "Organization", name: source } } : {}),
-        },
-      }
+          isBasedOn: {
+            "@type": "WebPage",
+            url: sourceUrl,
+            ...(source && source !== SITE_SOURCE
+              ? { publisher: { "@type": "Organization", name: source } }
+              : {}),
+          },
+        }
       : {}),
     // Subjects of the article (indications, ATC classes) and substances / medicaments mentioned
-    ...(options.about?.length ? { about: options.about.map((entity) => toEntity(entity, baseUrl)) } : {}),
+    ...(options.about?.length
+      ? { about: options.about.map((entity) => toEntity(entity, baseUrl)) }
+      : {}),
     ...(options.mentions?.length
-      ? { mentions: options.mentions.slice(0, MAX_MENTIONS).map((entity) => toEntity(entity, baseUrl)) }
+      ? {
+          mentions: options.mentions
+            .slice(0, MAX_MENTIONS)
+            .map((entity) => toEntity(entity, baseUrl)),
+        }
       : {}),
   };
 }

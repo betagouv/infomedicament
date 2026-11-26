@@ -55,11 +55,7 @@ function DataList({
 }: DataListProps) {
   const dataListForPage = withoutPagination
     ? dataList
-    : getCurrentDataList(
-        dataList,
-        paginationLength,
-        currentPage,
-      );
+    : getCurrentDataList(dataList, paginationLength, currentPage);
 
   return (
     <>

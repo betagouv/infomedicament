@@ -5,7 +5,9 @@ const BASE_URL = "https://infomedicament.beta.gouv.fr";
 
 describe("utils/structuredData - getWebSiteStructuredData", () => {
   it("describes the site, its sections and its search", () => {
-    expect(getWebSiteStructuredData(BASE_URL, "2026-11-20T03:12:00.000Z")).toEqual({
+    expect(
+      getWebSiteStructuredData(BASE_URL, "2026-11-20T03:12:00.000Z"),
+    ).toEqual({
       "@context": "https://schema.org",
       "@type": "WebSite",
       "@id": `${BASE_URL}/#website`,
@@ -22,11 +24,31 @@ describe("utils/structuredData - getWebSiteStructuredData", () => {
       spatialCoverage: { "@type": "Country", name: "France" },
       isAccessibleForFree: true,
       about: [
-        { "@type": "Thing", name: "Médicaments", url: `${BASE_URL}/medicaments` },
-        { "@type": "Thing", name: "Substances actives", url: `${BASE_URL}/substances` },
-        { "@type": "Thing", name: "Indications", url: `${BASE_URL}/indications` },
-        { "@type": "Thing", name: "Classes de médicaments (ATC)", url: `${BASE_URL}/atc` },
-        { "@type": "Thing", name: "Médicaments génériques", url: `${BASE_URL}/generiques` },
+        {
+          "@type": "Thing",
+          name: "Médicaments",
+          url: `${BASE_URL}/medicaments`,
+        },
+        {
+          "@type": "Thing",
+          name: "Substances actives",
+          url: `${BASE_URL}/substances`,
+        },
+        {
+          "@type": "Thing",
+          name: "Indications",
+          url: `${BASE_URL}/indications`,
+        },
+        {
+          "@type": "Thing",
+          name: "Classes de médicaments (ATC)",
+          url: `${BASE_URL}/atc`,
+        },
+        {
+          "@type": "Thing",
+          name: "Médicaments génériques",
+          url: `${BASE_URL}/generiques`,
+        },
       ],
       publisher: {
         "@type": "Organization",
@@ -37,7 +59,8 @@ describe("utils/structuredData - getWebSiteStructuredData", () => {
         parentOrganization: {
           "@type": "GovernmentOrganization",
           name: "ANSM",
-          alternateName: "Agence nationale de sécurité du médicament et des produits de santé",
+          alternateName:
+            "Agence nationale de sécurité du médicament et des produits de santé",
           url: "https://ansm.sante.fr",
         },
       },
@@ -53,7 +76,11 @@ describe("utils/structuredData - getWebSiteStructuredData", () => {
   });
 
   it("omits the date of modification if unknown", () => {
-    expect(getWebSiteStructuredData(BASE_URL, null)).not.toHaveProperty("dateModified");
-    expect(getWebSiteStructuredData(BASE_URL)).not.toHaveProperty("dateModified");
+    expect(getWebSiteStructuredData(BASE_URL, null)).not.toHaveProperty(
+      "dateModified",
+    );
+    expect(getWebSiteStructuredData(BASE_URL)).not.toHaveProperty(
+      "dateModified",
+    );
   });
 });

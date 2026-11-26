@@ -7,22 +7,27 @@ export const MAX_TREATMENTS = 20;
 
 export type MedicalConditionData = {
   // Canonical path and name of the indication page
-  path: string,
-  name: string,
+  path: string;
+  name: string;
   // Definition of the indication (text or HTML)
-  definition?: string | null,
+  definition?: string | null;
   // Medicaments of the page (name and path of their page)
-  treatments: BreadcrumbPage[],
+  treatments: BreadcrumbPage[];
   // Articles about the indication (title and path)
-  articles: BreadcrumbPage[],
+  articles: BreadcrumbPage[];
 };
 
 /**
  * Indication page: https://schema.org/MedicalCondition
  */
-export function getMedicalConditionStructuredData(condition: MedicalConditionData, baseUrl: string): StructuredData {
+export function getMedicalConditionStructuredData(
+  condition: MedicalConditionData,
+  baseUrl: string,
+): StructuredData {
   const url = `${baseUrl}${condition.path}`;
-  const description = condition.definition ? htmlToText(condition.definition) : "";
+  const description = condition.definition
+    ? htmlToText(condition.definition)
+    : "";
   return {
     "@context": "https://schema.org",
     "@type": "MedicalCondition",
@@ -30,24 +35,35 @@ export function getMedicalConditionStructuredData(condition: MedicalConditionDat
     name: condition.name,
     ...(description ? { description } : {}),
     url,
-    mainEntityOfPage: { "@type": "MedicalWebPage", "@id": url, isPartOf: { "@id": getWebSiteId(baseUrl) } },
+    mainEntityOfPage: {
+      "@type": "MedicalWebPage",
+      "@id": url,
+      isPartOf: { "@id": getWebSiteId(baseUrl) },
+    },
     // Medicaments of the page, identified as their Drug (the same entity as on their page)
     ...(condition.treatments.length
       ? {
-        possibleTreatment: condition.treatments.slice(0, MAX_TREATMENTS).map((treatment) => {
-          const treatmentUrl = `${baseUrl}${treatment.path}`;
-          return { "@type": "Drug", "@id": getDrugId(treatmentUrl), name: treatment.name, url: treatmentUrl };
-        }),
-      }
+          possibleTreatment: condition.treatments
+            .slice(0, MAX_TREATMENTS)
+            .map((treatment) => {
+              const treatmentUrl = `${baseUrl}${treatment.path}`;
+              return {
+                "@type": "Drug",
+                "@id": getDrugId(treatmentUrl),
+                name: treatment.name,
+                url: treatmentUrl,
+              };
+            }),
+        }
       : {}),
     ...(condition.articles.length
       ? {
-        subjectOf: condition.articles.map((article) => ({
-          "@type": "Article",
-          headline: article.name,
-          url: `${baseUrl}${article.path}`,
-        })),
-      }
+          subjectOf: condition.articles.map((article) => ({
+            "@type": "Article",
+            headline: article.name,
+            url: `${baseUrl}${article.path}`,
+          })),
+        }
       : {}),
   };
 }

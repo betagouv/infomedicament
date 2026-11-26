@@ -29,7 +29,16 @@ export default async function Page() {
       <ContentContainer frContainer>
         {" "}
         {/* Structured data: the page about Info Médicament, and its breadcrumb (from the URL of the page) */}
-        <JsonLd data={getAboutPageStructuredData({ path: "/a-propos", name: PAGE_LABEL, description: PAGE_DESCRIPTION }, getBaseUrl())} />
+        <JsonLd
+          data={getAboutPageStructuredData(
+            {
+              path: "/a-propos",
+              name: PAGE_LABEL,
+              description: PAGE_DESCRIPTION,
+            },
+            getBaseUrl(),
+          )}
+        />
         <BreadcrumbJsonLd path="/a-propos" name={PAGE_LABEL} />
         <Breadcrumb
           segments={[{ label: "Accueil", linkProps: { href: "/" } }]}

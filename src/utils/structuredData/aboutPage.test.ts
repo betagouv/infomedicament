@@ -5,7 +5,14 @@ const BASE_URL = "https://infomedicament.beta.gouv.fr";
 
 describe("utils/structuredData - getAboutPageStructuredData", () => {
   it("describes the page about Info Médicament, part of the site", () => {
-    const data = getAboutPageStructuredData({ path: "/a-propos", name: "À propos", description: "Découvrez Info Médicament." }, BASE_URL);
+    const data = getAboutPageStructuredData(
+      {
+        path: "/a-propos",
+        name: "À propos",
+        description: "Découvrez Info Médicament.",
+      },
+      BASE_URL,
+    );
 
     expect(data).toMatchObject({
       "@context": "https://schema.org",
@@ -16,7 +23,11 @@ describe("utils/structuredData - getAboutPageStructuredData", () => {
       description: "Découvrez Info Médicament.",
       inLanguage: "fr-FR",
       isPartOf: { "@id": `${BASE_URL}/#website` },
-      about: { "@type": "Organization", "@id": `${BASE_URL}/#organization`, name: "Info Médicament" },
+      about: {
+        "@type": "Organization",
+        "@id": `${BASE_URL}/#organization`,
+        name: "Info Médicament",
+      },
     });
   });
 });

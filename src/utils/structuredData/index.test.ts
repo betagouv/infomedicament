@@ -6,6 +6,8 @@ describe("utils/structuredData - toJsonLd", () => {
     const jsonLd = toJsonLd({ headline: "</script><script>alert(1)</script>" });
 
     expect(jsonLd).not.toContain("<");
-    expect(JSON.parse(jsonLd)).toEqual({ headline: "</script><script>alert(1)</script>" });
+    expect(JSON.parse(jsonLd)).toEqual({
+      headline: "</script><script>alert(1)</script>",
+    });
   });
 });

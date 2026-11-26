@@ -53,7 +53,10 @@ async function CachedGlossaryPage({ letter }: { letter: string }) {
       <JsonLd
         data={getGlossaryStructuredData(
           letter,
-          definitions.map((definition) => ({ name: definition.nom as string, definition: definition.definition })),
+          definitions.map((definition) => ({
+            name: definition.nom as string,
+            definition: definition.definition,
+          })),
           getBaseUrl(),
         )}
       />

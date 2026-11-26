@@ -1,5 +1,8 @@
 import JsonLd from "@/components/generic/JsonLd";
-import { BreadcrumbPage, getBreadcrumbStructuredData } from "@/utils/structuredData/breadcrumb";
+import {
+  BreadcrumbPage,
+  getBreadcrumbStructuredData,
+} from "@/utils/structuredData/breadcrumb";
 import { getBaseUrl } from "@/utils/baseUrl";
 
 // Structured data (BreadcrumbList) of the page, from its URL (not the DSFR Breadcrumb displayed):
@@ -9,5 +12,9 @@ export default function BreadcrumbJsonLd({
   name,
   parents,
 }: BreadcrumbPage & { parents?: BreadcrumbPage[] }) {
-  return <JsonLd data={getBreadcrumbStructuredData({ path, name }, getBaseUrl(), parents)} />;
+  return (
+    <JsonLd
+      data={getBreadcrumbStructuredData({ path, name }, getBaseUrl(), parents)}
+    />
+  );
 }

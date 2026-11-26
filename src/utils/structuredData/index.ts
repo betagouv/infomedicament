@@ -11,10 +11,13 @@ export const SITE_DOMAIN = "infomedicament.beta.gouv.fr";
 export const SITE_LOGO = "/img/logo.svg";
 
 // Country of the medicaments and of the rules described on the site
-export const SPATIAL_COVERAGE: StructuredData = { "@type": "Country", name: "France" };
+export const SPATIAL_COVERAGE: StructuredData = {
+  "@type": "Country",
+  name: "France",
+};
 
 // Sections of the site (medicaments data): name and path of their list
-export const SITE_SECTIONS: { name: string, path: string }[] = [
+export const SITE_SECTIONS: { name: string; path: string }[] = [
   { name: "Médicaments", path: "/medicaments" },
   { name: "Substances actives", path: "/substances" },
   { name: "Indications", path: "/indications" },
@@ -25,13 +28,15 @@ export const SITE_SECTIONS: { name: string, path: string }[] = [
 // Identifiers of the site (WebSite on the homepage) and of Info Médicament (Organization),
 // the same on all the pages so the search engines know they are the same entities
 export const getWebSiteId = (baseUrl: string): string => `${baseUrl}/#website`;
-export const getOrganizationId = (baseUrl: string): string => `${baseUrl}/#organization`;
+export const getOrganizationId = (baseUrl: string): string =>
+  `${baseUrl}/#organization`;
 
 // ANSM, parent organization of Info Médicament and authority of the medicaments
 export const ANSM: StructuredData = {
   "@type": "GovernmentOrganization",
   name: "ANSM",
-  alternateName: "Agence nationale de sécurité du médicament et des produits de santé",
+  alternateName:
+    "Agence nationale de sécurité du médicament et des produits de santé",
   url: "https://ansm.sante.fr",
 };
 

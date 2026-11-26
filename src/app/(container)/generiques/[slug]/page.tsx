@@ -92,7 +92,10 @@ async function CachedGenericPage({ slug }: { slug: string }) {
     <>
       <ContentContainer frContainer>
         {/* Structured data of the breadcrumb: from the URL of the page */}
-        <BreadcrumbJsonLd path={`/generiques/${getGenericSlug(group.codeGroupe, group.libelle)}`} name={pageLabel} />
+        <BreadcrumbJsonLd
+          path={`/generiques/${getGenericSlug(group.codeGroupe, group.libelle)}`}
+          name={pageLabel}
+        />
         <Breadcrumb
           segments={[
             { label: "Accueil", linkProps: { href: "/" } },

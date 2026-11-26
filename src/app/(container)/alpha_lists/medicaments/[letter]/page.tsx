@@ -48,7 +48,10 @@ async function CachedMedicamentsList({ letter }: { letter: string }) {
   return (
     <ContentContainer frContainer>
       {/* Structured data of the breadcrumb: from the URL of the page */}
-      <BreadcrumbJsonLd path={`/medicaments/${encodeURIComponent(letter)}`} name={`${PAGE_LABEL} : ${letter}`} />
+      <BreadcrumbJsonLd
+        path={`/medicaments/${encodeURIComponent(letter)}`}
+        name={`${PAGE_LABEL} : ${letter}`}
+      />
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
         currentPageLabel={PAGE_LABEL}

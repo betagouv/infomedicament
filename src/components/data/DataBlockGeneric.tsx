@@ -75,9 +75,10 @@ function getDisplayData(
       link: `/atc/${getAtcSlug(atc.class.code, atc.class.label)}`,
       name: formatSpecName(atc.class.label),
       // List of the classes: number of subclasses, otherwise (subclasses of a class): number of substances
-      details: nbSubclasses !== undefined
-        ? `${nbSubclasses} ${nbSubclasses > 1 ? "sous-classes de médicament" : "sous-classe de médicament"}`
-        : `${nbSubstances} ${nbSubstances > 1 ? "substances actives" : "substance active"}`,
+      details:
+        nbSubclasses !== undefined
+          ? `${nbSubclasses} ${nbSubclasses > 1 ? "sous-classes de médicament" : "sous-classe de médicament"}`
+          : `${nbSubstances} ${nbSubstances > 1 ? "substances actives" : "substance active"}`,
       subClasses: atc.subclasses,
     };
   }

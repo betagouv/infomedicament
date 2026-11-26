@@ -8,7 +8,10 @@ export enum DataTypeEnum {
 }
 
 // nbSubclasses: number of subclasses with substances, displayed instead of nbSubstances if defined (list of the classes)
-export type AdvancedATC1 = ATC1 & { nbSubstances: number, nbSubclasses?: number };
+export type AdvancedATC1 = ATC1 & {
+  nbSubstances: number;
+  nbSubclasses?: number;
+};
 export type AdvancedATC = ATC & { nbSubstances: number };
 
 export type AdvancedATCClass = {

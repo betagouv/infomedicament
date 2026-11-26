@@ -117,19 +117,30 @@ async function CachedATCPage({ slug }: { slug: string }) {
   const atc2Data = atc2 ? await fetchATC2Data(atc2) : undefined;
   const atc1Data = atc2 ? undefined : await fetchATC1Data(atc1);
   // Structured data of the class (DrugClass): its substances (level 2) and its articles
-  const drugClassStructuredData = getDrugClassStructuredData({
-    path: `/atc/${getAtcSlug(currentAtc.code, currentAtc.label)}`,
-    name: currentAtc.label,
-    code: currentAtc.code,
-    description: currentAtc.description,
-    drugs: (atc2Data?.dataList ?? [])
-      .filter((substance, index, all) => all.findIndex((other) => other.SubsId.trim() === substance.SubsId.trim()) === index)
-      .map((substance) => ({
-        name: substance.title ?? substance.NomLib,
-        path: `/substances/${getSubstanceSlug([substance])}`,
+  const drugClassStructuredData = getDrugClassStructuredData(
+    {
+      path: `/atc/${getAtcSlug(currentAtc.code, currentAtc.label)}`,
+      name: currentAtc.label,
+      code: currentAtc.code,
+      description: currentAtc.description,
+      drugs: (atc2Data?.dataList ?? [])
+        .filter(
+          (substance, index, all) =>
+            all.findIndex(
+              (other) => other.SubsId.trim() === substance.SubsId.trim(),
+            ) === index,
+        )
+        .map((substance) => ({
+          name: substance.title ?? substance.NomLib,
+          path: `/substances/${getSubstanceSlug([substance])}`,
+        })),
+      articles: (atc2Data ?? atc1Data)!.articles.map((article) => ({
+        name: article.title,
+        path: `/articles/${article.slug}`,
       })),
-    articles: (atc2Data ?? atc1Data)!.articles.map((article) => ({ name: article.title, path: `/articles/${article.slug}` })),
-  }, getBaseUrl());
+    },
+    getBaseUrl(),
+  );
 
   return (
     <ContentContainer frContainer>
@@ -141,7 +152,16 @@ async function CachedATCPage({ slug }: { slug: string }) {
             path={`/atc/${getAtcSlug(currentAtc.code, currentAtc.label)}`}
             name={currentAtc.label}
             // Class of level 2: its class of level 1 before
-            parents={atc2 ? [{ path: `/atc/${getAtcSlug(atc1.code, atc1.label)}`, name: atc1.label }] : []}
+            parents={
+              atc2
+                ? [
+                    {
+                      path: `/atc/${getAtcSlug(atc1.code, atc1.label)}`,
+                      name: atc1.label,
+                    },
+                  ]
+                : []
+            }
           />
           <Breadcrumb
             segments={[

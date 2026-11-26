@@ -4,7 +4,11 @@ import "server-only";
 import db from "@/db/";
 import slugify from "slugify";
 import { SearchArticlesFilters, SearchResultItem } from "@/types/SearchTypes";
-import { Article, ArticleCardResume, ArticleLinkedEntity } from "@/types/ArticlesTypes";
+import {
+  Article,
+  ArticleCardResume,
+  ArticleLinkedEntity,
+} from "@/types/ArticlesTypes";
 import type { RefArticles } from "@/db/types";
 import { getAtc } from "@/db/utils/atc";
 import { getSubstancesTitles } from "@/db/utils/substances";
@@ -205,51 +209,87 @@ async function getArticleFilterRows() {
  */
 export async function getArticleLinkedEntities(
   article: Pick<Article, "substances" | "specialites" | "pathologies" | "atc">,
-): Promise<{ about: ArticleLinkedEntity[], mentions: ArticleLinkedEntity[] }> {
+): Promise<{ about: ArticleLinkedEntity[]; mentions: ArticleLinkedEntity[] }> {
   "use cache: remote";
   const subsIds = [...new Set(article.substances)];
   const cisList = [...new Set(article.specialites)];
-  const codesPatho = [...new Set(article.pathologies)].map(Number).filter(Number.isInteger);
+  const codesPatho = [...new Set(article.pathologies)]
+    .map(Number)
+    .filter(Number.isInteger);
   const atcCodes = [...new Set(article.atc)];
 
   const [indications, atc1List, titles, specialites] = await Promise.all([
     codesPatho.length > 0
-      ? db.selectFrom("indications").where("codePatho", "in", codesPatho).select(["id", "codePatho", "nom"]).execute()
+      ? db
+          .selectFrom("indications")
+          .where("codePatho", "in", codesPatho)
+          .select(["id", "codePatho", "nom"])
+          .execute()
       : [],
     atcCodes.length > 0 ? getAtc() : [],
     getSubstancesTitles(subsIds),
     cisList.length > 0
       ? db
-        .selectFrom("ansm_specialite")
-        .where("cis", "in", cisList)
-        .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
-        .select(["cis", "denomination"])
-        .execute()
+          .selectFrom("ansm_specialite")
+          .where("cis", "in", cisList)
+          .where("disponibilite", "in", VISIBLE_SPECIALITE_AVAILABILITIES)
+          .select(["cis", "denomination"])
+          .execute()
       : [],
   ]);
 
   const atcList = atc1List.flatMap((atc1) => [atc1, ...atc1.children]);
   const about: ArticleLinkedEntity[] = [
     ...codesPatho.flatMap((codePatho) => {
-      const indication = indications.find((row) => Number(row.codePatho) === codePatho);
+      const indication = indications.find(
+        (row) => Number(row.codePatho) === codePatho,
+      );
       return indication
-        ? [{ type: "MedicalCondition" as const, name: indication.nom, path: `/indications/${getIndicationSlug(indication.id, indication.nom)}` }]
+        ? [
+            {
+              type: "MedicalCondition" as const,
+              name: indication.nom,
+              path: `/indications/${getIndicationSlug(indication.id, indication.nom)}`,
+            },
+          ]
         : [];
     }),
     ...atcCodes.flatMap((code) => {
       const atc = atcList.find((row) => row.code === code);
-      return atc ? [{ type: "DrugClass" as const, name: atc.label, path: `/atc/${getAtcSlug(atc.code, atc.label)}` }] : [];
+      return atc
+        ? [
+            {
+              type: "DrugClass" as const,
+              name: atc.label,
+              path: `/atc/${getAtcSlug(atc.code, atc.label)}`,
+            },
+          ]
+        : [];
     }),
   ];
   const mentions: ArticleLinkedEntity[] = [
     ...subsIds.flatMap((SubsId) => {
       const title = titles.get(SubsId);
-      return title ? [{ type: "Drug" as const, name: title, path: `/substances/${getSubstanceSlug([{ SubsId, title }])}` }] : [];
+      return title
+        ? [
+            {
+              type: "Drug" as const,
+              name: title,
+              path: `/substances/${getSubstanceSlug([{ SubsId, title }])}`,
+            },
+          ]
+        : [];
     }),
     ...cisList.flatMap((cis) => {
       const specialite = specialites.find((row) => row.cis === cis);
       return specialite?.denomination
-        ? [{ type: "Drug" as const, name: formatSpecName(specialite.denomination), path: `/medicaments/${getSpecSlug(cis, specialite.denomination)}` }]
+        ? [
+            {
+              type: "Drug" as const,
+              name: formatSpecName(specialite.denomination),
+              path: `/medicaments/${getSpecSlug(cis, specialite.denomination)}`,
+            },
+          ]
         : [];
     }),
   ];

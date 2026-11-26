@@ -10,7 +10,12 @@ const drugClass = {
   code: "N02",
   description: "Médicaments contre la douleur.",
   drugs: [{ name: "paracétamol", path: "/substances/paracetamol-02202" }],
-  articles: [{ name: "Paracétamol ou ibuprofène : quelles différences ?", path: "/articles/paracetamol-ou-ibuprofene" }],
+  articles: [
+    {
+      name: "Paracétamol ou ibuprofène : quelles différences ?",
+      path: "/articles/paracetamol-ou-ibuprofene",
+    },
+  ],
 };
 
 describe("utils/structuredData - getDrugClassStructuredData", () => {
@@ -23,22 +28,44 @@ describe("utils/structuredData - getDrugClassStructuredData", () => {
       description: "Médicaments contre la douleur.",
       url: URL,
       code: { "@type": "MedicalCode", codeValue: "N02", codingSystem: "ATC" },
-      mainEntityOfPage: { "@type": "MedicalWebPage", "@id": URL, isPartOf: { "@id": `${BASE_URL}/#website` } },
-      drug: [{ "@type": "Drug", name: "paracétamol", url: `${BASE_URL}/substances/paracetamol-02202` }],
+      mainEntityOfPage: {
+        "@type": "MedicalWebPage",
+        "@id": URL,
+        isPartOf: { "@id": `${BASE_URL}/#website` },
+      },
+      drug: [
+        {
+          "@type": "Drug",
+          name: "paracétamol",
+          url: `${BASE_URL}/substances/paracetamol-02202`,
+        },
+      ],
       subjectOf: [
-        { "@type": "Article", headline: "Paracétamol ou ibuprofène : quelles différences ?", url: `${BASE_URL}/articles/paracetamol-ou-ibuprofene` },
+        {
+          "@type": "Article",
+          headline: "Paracétamol ou ibuprofène : quelles différences ?",
+          url: `${BASE_URL}/articles/paracetamol-ou-ibuprofene`,
+        },
       ],
     });
   });
 
   it("keeps only the first substances", () => {
-    const drugs = Array.from({ length: MAX_CLASS_DRUGS + 5 }, (_, index) => ({ name: `S${index}`, path: `/substances/s-${index}` }));
+    const drugs = Array.from({ length: MAX_CLASS_DRUGS + 5 }, (_, index) => ({
+      name: `S${index}`,
+      path: `/substances/s-${index}`,
+    }));
 
-    expect(getDrugClassStructuredData({ ...drugClass, drugs }, BASE_URL).drug).toHaveLength(MAX_CLASS_DRUGS);
+    expect(
+      getDrugClassStructuredData({ ...drugClass, drugs }, BASE_URL).drug,
+    ).toHaveLength(MAX_CLASS_DRUGS);
   });
 
   it("omits the empty description, substances (class of level 1) and articles", () => {
-    const data = getDrugClassStructuredData({ ...drugClass, description: "", drugs: [], articles: [] }, BASE_URL);
+    const data = getDrugClassStructuredData(
+      { ...drugClass, description: "", drugs: [], articles: [] },
+      BASE_URL,
+    );
 
     expect(data).not.toHaveProperty("description");
     expect(data).not.toHaveProperty("drug");

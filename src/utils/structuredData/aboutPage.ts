@@ -5,7 +5,7 @@ import { getPublisher, getWebSiteId, StructuredData } from "./index";
  * About Info Médicament (Organization, service of the ANSM), part of the site
  */
 export function getAboutPageStructuredData(
-  page: { path: string, name: string, description: string },
+  page: { path: string; name: string; description: string },
   baseUrl: string,
 ): StructuredData {
   const url = `${baseUrl}${page.path}`;

@@ -16,7 +16,10 @@ import { getHighlightedGlossaryDefinitions } from "@/db/utils/glossary";
 import { getDefinition, withDefinitions } from "@/utils/glossary";
 import { Definition } from "@/types/GlossaireTypes";
 import JsonLd from "@/components/generic/JsonLd";
-import { getArticleCoverPath, getArticleStructuredData } from "@/utils/structuredData/article";
+import {
+  getArticleCoverPath,
+  getArticleStructuredData,
+} from "@/utils/structuredData/article";
 import { getPublicImageSize } from "@/utils/publicImageSize";
 import { getBaseUrl } from "@/utils/baseUrl";
 
@@ -75,8 +78,10 @@ async function ResolvedArticlePage({
 }
 
 async function ArticlePageContent({ slug }: { slug: string }) {
-  const [article, glossaryDefinitions] =
-    await Promise.all([getArticle(slug), getHighlightedGlossaryDefinitions()]);
+  const [article, glossaryDefinitions] = await Promise.all([
+    getArticle(slug),
+    getHighlightedGlossaryDefinitions(),
+  ]);
   const { title, source, content, image } = article;
   // Structured data: cover size and pages of the site linked to the article
   // Only the ids: cache key of getArticleLinkedEntities
@@ -87,7 +92,9 @@ async function ArticlePageContent({ slug }: { slug: string }) {
     atc: article.atc,
   });
   const structuredData = getArticleStructuredData(article, getBaseUrl(), {
-    imageSize: image ? getPublicImageSize(getArticleCoverPath(image)) : undefined,
+    imageSize: image
+      ? getPublicImageSize(getArticleCoverPath(image))
+      : undefined,
     about,
     mentions,
   });

@@ -1,4 +1,12 @@
-import { getPublisher, getWebSiteId, SITE_DOMAIN, SITE_NAME, SITE_SECTIONS, SPATIAL_COVERAGE, StructuredData } from "./index";
+import {
+  getPublisher,
+  getWebSiteId,
+  SITE_DOMAIN,
+  SITE_NAME,
+  SITE_SECTIONS,
+  SPATIAL_COVERAGE,
+  StructuredData,
+} from "./index";
 
 // Description of the site (meta description of the homepage)
 export const SITE_DESCRIPTION =
@@ -13,7 +21,10 @@ const SEARCH_PARAM = "s";
  * dateModified: date of the last update of the data (last successful pipeline run), omitted if unknown
  * potentialAction: search of the site (SearchAction)
  */
-export function getWebSiteStructuredData(baseUrl: string, dateModified?: string | null): StructuredData {
+export function getWebSiteStructuredData(
+  baseUrl: string,
+  dateModified?: string | null,
+): StructuredData {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -32,7 +43,11 @@ export function getWebSiteStructuredData(baseUrl: string, dateModified?: string 
     // The content applies to France (medicaments, rules)
     spatialCoverage: SPATIAL_COVERAGE,
     isAccessibleForFree: true,
-    about: SITE_SECTIONS.map(({ name, path }) => ({ "@type": "Thing", name, url: `${baseUrl}${path}` })),
+    about: SITE_SECTIONS.map(({ name, path }) => ({
+      "@type": "Thing",
+      name,
+      url: `${baseUrl}${path}`,
+    })),
     publisher: getPublisher(baseUrl),
     potentialAction: {
       "@type": "SearchAction",

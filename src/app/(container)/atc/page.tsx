@@ -21,13 +21,20 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page() {
   "use cache: remote";
 
-  const atcList = (await getAtc()).sort((a, b) => a.label.localeCompare(b.label, "fr"));
+  const atcList = (await getAtc()).sort((a, b) =>
+    a.label.localeCompare(b.label, "fr"),
+  );
   // Number of subclasses of each class, as on the class page: the subclasses with substances
   const dataList: AdvancedATCClass[] = await Promise.all(
     atcList.map(async (atc1) => {
-      const subclasses = (await getAtc1DefinitionData(atc1)).filter(({ substances }) => substances.length > 0);
+      const subclasses = (await getAtc1DefinitionData(atc1)).filter(
+        ({ substances }) => substances.length > 0,
+      );
       // nbSubstances not displayed when nbSubclasses is defined
-      return { class: { ...atc1, nbSubstances: 0, nbSubclasses: subclasses.length }, subclasses: [] };
+      return {
+        class: { ...atc1, nbSubstances: 0, nbSubclasses: subclasses.length },
+        subclasses: [],
+      };
     }),
   );
 

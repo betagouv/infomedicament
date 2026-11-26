@@ -7,8 +7,16 @@ const BASE_URL = "https://infomedicament.beta.gouv.fr";
 describe("utils/structuredData - getGlossaryStructuredData", () => {
   it("describes the glossary with the terms of the page, each with its anchor", () => {
     const definitions = [
-      { name: "Abrogation", definition: "Décision du Directeur Général de l'ANSM rendant définitivement inactive l'autorisation." },
-      { name: "Accès direct ou libre accès (médicament en)", definition: "<p>Médicaments placés <strong>devant</strong> le comptoir.</p>" },
+      {
+        name: "Abrogation",
+        definition:
+          "Décision du Directeur Général de l'ANSM rendant définitivement inactive l'autorisation.",
+      },
+      {
+        name: "Accès direct ou libre accès (médicament en)",
+        definition:
+          "<p>Médicaments placés <strong>devant</strong> le comptoir.</p>",
+      },
     ];
 
     expect(getGlossaryStructuredData("A", definitions, BASE_URL)).toEqual({
@@ -22,7 +30,8 @@ describe("utils/structuredData - getGlossaryStructuredData", () => {
         {
           "@type": "DefinedTerm",
           name: "Abrogation",
-          description: "Décision du Directeur Général de l'ANSM rendant définitivement inactive l'autorisation.",
+          description:
+            "Décision du Directeur Général de l'ANSM rendant définitivement inactive l'autorisation.",
           url: `${BASE_URL}/glossaire/A#abrogation`,
           inDefinedTermSet: { "@id": `${BASE_URL}/glossaire#glossaire` },
         },
@@ -38,7 +47,14 @@ describe("utils/structuredData - getGlossaryStructuredData", () => {
   });
 
   it("ignores the terms without name and omits the empty definitions", () => {
-    const data = getGlossaryStructuredData("B", [{ name: " ", definition: "x" }, { name: "Bioéquivalence", definition: "" }], BASE_URL);
+    const data = getGlossaryStructuredData(
+      "B",
+      [
+        { name: " ", definition: "x" },
+        { name: "Bioéquivalence", definition: "" },
+      ],
+      BASE_URL,
+    );
 
     expect(data.hasDefinedTerm).toEqual([
       {
@@ -53,12 +69,19 @@ describe("utils/structuredData - getGlossaryStructuredData", () => {
 
 describe("utils/structuredData - htmlToText", () => {
   it("removes the tags, decodes the entities and collapses the spaces", () => {
-    expect(htmlToText("<p>Premier&nbsp;point</p><ul><li>l&rsquo;un</li><li>l&#39;autre &amp; plus</li></ul>"))
-      .toBe("Premier point l’un l'autre & plus");
+    expect(
+      htmlToText(
+        "<p>Premier&nbsp;point</p><ul><li>l&rsquo;un</li><li>l&#39;autre &amp; plus</li></ul>",
+      ),
+    ).toBe("Premier point l’un l'autre & plus");
   });
 
   it("removes the scripts and the nested tags, with an HTML parser", () => {
-    expect(htmlToText("Texte <script>alert(1)</script><scr<script>ipt>alert(2)</script> fin")).not.toContain("<script");
+    expect(
+      htmlToText(
+        "Texte <script>alert(1)</script><scr<script>ipt>alert(2)</script> fin",
+      ),
+    ).not.toContain("<script");
     expect(htmlToText("Texte <script>alert(1)</script> fin")).toBe("Texte fin");
   });
 });
