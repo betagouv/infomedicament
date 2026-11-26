@@ -1,3 +1,5 @@
+import { parse } from "node-html-parser";
+
 // Structured data (JSON-LD) of the pages, see https://schema.org
 export type StructuredData = Record<string, unknown>;
 
@@ -43,29 +45,12 @@ export const getPublisher = (baseUrl: string): StructuredData => ({
   parentOrganization: ANSM,
 });
 
-const HTML_ENTITIES: Record<string, string> = {
-  "&nbsp;": " ",
-  "&amp;": "&",
-  "&lt;": "<",
-  "&gt;": ">",
-  "&quot;": "\"",
-  "&#39;": "'",
-  "&apos;": "'",
-  "&rsquo;": "’",
-  "&lsquo;": "‘",
-  "&laquo;": "«",
-  "&raquo;": "»",
-};
-
-// Text of an HTML content (definition, notice section): without the tags, entities decoded, spaces collapsed
+// Text of an HTML content (definition, notice section, article): parsed with an HTML parser (not regexps),
+// without the scripts and styles, the tags removed, entities decoded, spaces collapsed
 export function htmlToText(html: string): string {
-  return html
-    .replace(/<br\s*\/?>/gi, " ")
-    .replace(/<\/(p|li|div)>/gi, " ")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&[a-z]+;|&#\d+;/gi, (entity) => HTML_ENTITIES[entity.toLowerCase()] ?? entity)
-    .replace(/\s+/g, " ")
-    .trim();
+  const root = parse(html);
+  root.querySelectorAll("script, style").forEach((element) => element.remove());
+  return root.structuredText.replace(/\s+/g, " ").trim();
 }
 
 // JSON-LD content of a <script type="application/ld+json">: "<" escaped so the content cannot close the script

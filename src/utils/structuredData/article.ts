@@ -1,5 +1,5 @@
 import type { Article, ArticleLinkedEntity } from "@/types/ArticlesTypes";
-import { getPublisher, getWebSiteId, SITE_DOMAIN, SPATIAL_COVERAGE, StructuredData } from "./index";
+import { getPublisher, getWebSiteId, htmlToText, SITE_DOMAIN, SPATIAL_COVERAGE, StructuredData } from "./index";
 import { getDrugId } from "./drug";
 
 // Source of the articles written by Info Médicament (ref_articles.source)
@@ -10,16 +10,13 @@ export const getArticleCoverPath = (image: string): string => `/img/article_cove
 
 // Number of words of the text of a Markdown content (articles): without the Markdown syntax, the HTML tags and the URLs
 export function countWords(markdown: string): number {
-  const text = markdown
-    // HTML tags with their content for the scripts and styles (e.g. embedded widget)
-    .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, " ")
-    .replace(/<[^>]+>/g, " ")
+  // HTML tags removed by an HTML parser, with the scripts and styles (e.g. embedded widget)
+  const text = htmlToText(markdown)
     // Images and links: only their text
     .replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1")
     .replace(/https?:\/\/\S+/g, " ")
-    // Markdown syntax (titles, quotes, emphasis, lists, tables...)
-    .replace(/[#>*_`|~]/g, " ")
-    .replace(/^\s*[-+]\s/gm, " ");
+    // Markdown syntax (titles, quotes, emphasis, lists, tables...): the list markers alone are not words
+    .replace(/[#>*_`|~]/g, " ");
   return text.split(/\s+/).filter((word) => /[\p{L}\p{N}]/u.test(word)).length;
 }
 

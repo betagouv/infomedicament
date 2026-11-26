@@ -56,4 +56,9 @@ describe("utils/structuredData - htmlToText", () => {
     expect(htmlToText("<p>Premier&nbsp;point</p><ul><li>l&rsquo;un</li><li>l&#39;autre &amp; plus</li></ul>"))
       .toBe("Premier point l’un l'autre & plus");
   });
+
+  it("removes the scripts and the nested tags, with an HTML parser", () => {
+    expect(htmlToText("Texte <script>alert(1)</script><scr<script>ipt>alert(2)</script> fin")).not.toContain("<script");
+    expect(htmlToText("Texte <script>alert(1)</script> fin")).toBe("Texte fin");
+  });
 });
