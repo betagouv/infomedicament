@@ -21,9 +21,12 @@ export async function generateStaticParams() {
 }
 const PAGE_LABEL: string = "Glossaire";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ letter: string }>;
+}): Promise<Metadata> {
+  const { letter } = await props.params;
   return {
-    title: PAGE_LABEL,
+    title: `${PAGE_LABEL} — Lettre ${letter}`,
     description:
       "Retrouvez les définitions des termes médicaux et pharmaceutiques pour mieux comprendre l’information sur les médicaments.",
   };

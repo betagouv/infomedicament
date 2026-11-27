@@ -17,9 +17,12 @@ export async function generateStaticParams() {
 }
 const PAGE_LABEL: string = "Liste des groupes génériques";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ letter: string }>;
+}): Promise<Metadata> {
+  const { letter } = await props.params;
   return {
-    title: PAGE_LABEL,
+    title: `${PAGE_LABEL} — Lettre ${letter}`,
     description:
       "Retrouvez les groupes génériques classés par ordre alphabétique : leurs spécialités et leur équivalence avec les médicaments de référence.",
   };

@@ -17,9 +17,12 @@ export async function generateStaticParams() {
 }
 const PAGE_LABEL: string = "Liste des substances";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ letter: string }>;
+}): Promise<Metadata> {
+  const { letter } = await props.params;
   return {
-    title: PAGE_LABEL,
+    title: `${PAGE_LABEL} — Lettre ${decodeURIComponent(letter)}`,
     description:
       "Retrouvez les substances classées par ordre alphabétique pour accéder rapidement aux informations recherchées.",
   };
