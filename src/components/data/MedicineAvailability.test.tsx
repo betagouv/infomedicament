@@ -56,7 +56,11 @@ it.each([
         />
       </>,
     );
-    expect(screen.getAllByText(title)).toHaveLength(2);
+    expect(
+      screen
+        .getAllByText(title)
+        .filter((element) => !element.closest('[aria-hidden="true"]')),
+    ).toHaveLength(2);
     expect(
       (container.querySelector(".fr-icon-close-circle-line") as HTMLElement)
         .style.color,
@@ -116,7 +120,11 @@ it.each([
         />
       </>,
     );
-    expect(screen.getAllByText(title)).toHaveLength(2);
+    expect(
+      screen
+        .getAllByText(title)
+        .filter((element) => !element.closest('[aria-hidden="true"]')),
+    ).toHaveLength(2);
     expect(
       Boolean(
         screen.queryByText(/qui pourra vous orienter vers un autre traitement/),

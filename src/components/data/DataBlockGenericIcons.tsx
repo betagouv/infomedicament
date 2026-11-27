@@ -34,19 +34,27 @@ function DataBlockGenericIcons({
           kind="hover"
         >
           <b
+            aria-hidden="true"
             className={fr.cx("fr-ml-1v", "fr-text--sm")}
             style={{ color: "#89BA12" }}
           >
             AIP
           </b>
+          <span className={fr.cx("fr-sr-only")}>
+            Ce médicament est en Autorisation d&apos;Importation parallèle.
+          </span>
         </Tooltip>
       )}
       {availabilityWarning && (
         <Tooltip title={availabilityWarning.title} kind="hover">
           <i
+            aria-hidden="true"
             className={fr.cx("fr-icon-close-circle-line", "fr-ml-1v")}
             style={{ color: availabilityWarning.color }}
           />
+          <span className={fr.cx("fr-sr-only")}>
+            {availabilityWarning.title}
+          </span>
         </Tooltip>
       )}
       {isAlerteSecurite(specialite) && (
@@ -55,9 +63,14 @@ function DataBlockGenericIcons({
           kind="hover"
         >
           <i
+            aria-hidden="true"
             className={fr.cx("fr-icon-alert-line", "fr-ml-1v")}
             style={{ color: "var(--red-marianne-main-472)" }}
           />
+          <span className={fr.cx("fr-sr-only")}>
+            Alerte de sécurité sanitaire sur ce médicament, veuillez consulter
+            la notice pour en savoir plus.
+          </span>
         </Tooltip>
       )}
       {isSurveillanceRenforcee && (
@@ -66,19 +79,28 @@ function DataBlockGenericIcons({
           kind="hover"
         >
           <i
+            aria-hidden="true"
             className={fr.cx("fr-icon-information-line", "fr-ml-1v")}
             style={{ color: "var(--warning-425-625)" }}
           />
+          <span className={fr.cx("fr-sr-only")}>
+            Ce médicament fait l&apos;objet d&apos;une information importante ou
+            il est sous surveillance renforcée.
+          </span>
         </Tooltip>
       )}
       {withAlerts && (specialite as ResumeSpecialite).isAlertPregnancyPlan && (
         <Tooltip title="Plan de prévention grossesse" kind="hover">
           <i
+            aria-hidden="true"
             className={[
               "fr-icon--custom-pregnancy-alert",
               fr.cx("fr-ml-1v"),
             ].join(" ")}
           />
+          <span className={fr.cx("fr-sr-only")}>
+            Plan de prévention grossesse
+          </span>
         </Tooltip>
       )}
       {withAlerts &&
@@ -86,11 +108,15 @@ function DataBlockGenericIcons({
         !(specialite as ResumeSpecialite).isAlertPregnancyPlan && (
           <Tooltip title="Mention contre-indication grossesse" kind="hover">
             <i
+              aria-hidden="true"
               className={[
                 "fr-icon--custom-pregnancy-alert",
                 fr.cx("fr-ml-1v"),
               ].join(" ")}
             />
+            <span className={fr.cx("fr-sr-only")}>
+              Mention contre-indication grossesse
+            </span>
           </Tooltip>
         )}
       {withAlerts &&
@@ -100,11 +126,15 @@ function DataBlockGenericIcons({
             kind="hover"
           >
             <i
+              aria-hidden="true"
               className={[
                 "fr-icon--custom-pediatric-alert",
                 fr.cx("fr-ml-1v"),
               ].join(" ")}
             />
+            <span className={fr.cx("fr-sr-only")}>
+              Contre-indication chez l&apos;enfant selon l&apos;âge
+            </span>
           </Tooltip>
         )}
     </div>
