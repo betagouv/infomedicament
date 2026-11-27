@@ -153,7 +153,7 @@ export function AutocompleteSearchInput({
   const listboxId = `${id}-listbox`;
 
   return (
-    <div style={{ position: "relative", width: "100%" }}>
+    <div id="search" style={{ position: "relative", width: "100%" }}>
       <input
         id={id}
         role={disableSuggestions ? undefined : "combobox"}
