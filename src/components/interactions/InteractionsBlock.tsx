@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useOptimistic, useTransition } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { interactionSelectionKey } from "@/utils/interactionSelection";
 import { fr } from "@codegouvfr/react-dsfr";
 import styled from "styled-components";
 import Button from "@codegouvfr/react-dsfr/Button";
@@ -170,37 +172,46 @@ const NIVEAUX: NiveauLegend[] = [
   },
 ];
 
-export default function InteractionsBlock() {
-  const [slot1, setSlot1] = useState<InteractionsSearchEntry | null>(null);
-  const [slot2, setSlot2] = useState<InteractionsSearchEntry | null>(null);
-  const [results, setResults] = useState<InteractionResult[] | null>(null);
-  const [loading, setLoading] = useState(false);
+type Props = {
+  slot1: InteractionsSearchEntry | null;
+  slot2: InteractionsSearchEntry | null;
+  results: InteractionResult[] | null;
+};
 
-  async function handleVerifier() {
-    if (!slot1 || !slot2) return;
-    setLoading(true);
-    try {
-      const res = await fetch("/interactions/lookup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          substIds1: slot1.subst_ids,
-          classIds1: slot1.class_ids,
-          substIds2: slot2.subst_ids,
-          classIds2: slot2.class_ids,
-        }),
-      });
-      const data: InteractionResult[] = await res.json();
-      setResults(data);
-    } finally {
-      setLoading(false);
+export default function InteractionsBlock(props: Props) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [loading, startTransition] = useTransition();
+  const [{ slot1, slot2, results }, setSelection] = useOptimistic(props);
+
+  function navigate(next: Props, verified = false) {
+    const params = new URLSearchParams(searchParams.toString());
+    for (const [name, entry] of [
+      ["medicament1", next.slot1],
+      ["medicament2", next.slot2],
+    ] as const) {
+      if (entry) params.set(name, interactionSelectionKey(entry));
+      else params.delete(name);
     }
+    if (verified) params.set("verifier", "1");
+    else params.delete("verifier");
+    const query = params.toString();
+    startTransition(() => {
+      setSelection(next);
+      router.push(
+        `${pathname}${query ? `?${query}` : ""}${window.location.hash}`,
+        { scroll: false },
+      );
+    });
+  }
+
+  function handleVerifier() {
+    if (slot1 && slot2) navigate({ slot1, slot2, results }, true);
   }
 
   function handleClear() {
-    setSlot1(null);
-    setSlot2(null);
-    setResults(null);
+    navigate({ slot1: null, slot2: null, results: null });
   }
 
   return (
@@ -210,12 +221,10 @@ export default function InteractionsBlock() {
           id="interaction-slot-1"
           value={slot1}
           onSelect={(e) => {
-            setSlot1(e);
-            setResults(null);
+            navigate({ slot1: e, slot2, results: null });
           }}
           onClear={() => {
-            setSlot1(null);
-            setResults(null);
+            navigate({ slot1: null, slot2, results: null });
           }}
         />
         <PlusSign aria-hidden>+</PlusSign>
@@ -223,12 +232,10 @@ export default function InteractionsBlock() {
           id="interaction-slot-2"
           value={slot2}
           onSelect={(e) => {
-            setSlot2(e);
-            setResults(null);
+            navigate({ slot1, slot2: e, results: null });
           }}
           onClear={() => {
-            setSlot2(null);
-            setResults(null);
+            navigate({ slot1, slot2: null, results: null });
           }}
         />
       </InputRow>
@@ -239,7 +246,7 @@ export default function InteractionsBlock() {
           disabled={!slot1 || !slot2 || loading}
           onClick={handleVerifier}
         >
-          {loading ? "Vérification…" : "Vérifier"}
+          {loading ? "Chargement…" : "Vérifier"}
         </Button>
         {(slot1 || slot2) && (
           <button
@@ -251,6 +258,16 @@ export default function InteractionsBlock() {
           </button>
         )}
       </ActionRow>
+
+      <p role="status" className={fr.cx("fr-sr-only")}>
+        {loading
+          ? "Chargement…"
+          : results !== null
+            ? results.length === 0
+              ? "Vérification terminée : aucune interaction connue."
+              : `Vérification terminée : ${results.length} interaction(s) trouvée(s).`
+            : ""}
+      </p>
 
       {results !== null && (
         <ResultBlock>
