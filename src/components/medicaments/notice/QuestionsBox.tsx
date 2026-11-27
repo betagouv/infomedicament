@@ -109,7 +109,7 @@ function QuestionsBox({
             >
               <Image
                 src={`/icons/${questionsList[key].icon}`}
-                alt={questionsList[key].question}
+                alt=""
                 width={70}
                 height={70}
               />
