@@ -446,6 +446,7 @@ function NoticeContent({
             <div className={fr.cx("fr-mb-4w")}>
               <div style={{ display: "flex" }}>
                 <span
+                  aria-hidden="true"
                   className={[
                     "fr-icon--custom-notice",
                     fr.cx("fr-mr-1w", "fr-hidden", "fr-unhidden-md"),
