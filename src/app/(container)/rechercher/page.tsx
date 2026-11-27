@@ -23,9 +23,18 @@ export async function generateMetadata(props: {
   searchParams?: Promise<Record<string, string | string[]>>;
 }): Promise<Metadata> {
   // Result pages (any query param) are not indexed, but their links are followed.
-  const hasQuery = Object.keys((await props.searchParams) ?? {}).length > 0;
+  const params = (await props.searchParams) ?? {};
+  const hasQuery = Object.keys(params).length > 0;
+  const firstValue = (value: string | string[] | undefined) =>
+    Array.isArray(value) ? value[0] : value;
+  const search = firstValue(params.s)?.trim();
+  const isAdvanced = firstValue(params.advanced) === "1";
   return {
-    title: "Recherche",
+    title: isAdvanced
+      ? "Recherche avancée"
+      : search
+        ? `Recherche : ${search}`
+        : "Recherche",
     description:
       "Recherchez un médicament par nom, substance active et / ou indication et accédez à sa notice, son RCP et ses informations.",
     ...(hasQuery && { robots: { index: false, follow: true } }),
