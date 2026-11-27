@@ -1,11 +1,10 @@
-import Link from "next/link";
 import { Metadata } from "next";
 import React from "react";
-import { getHtmlAttributes } from "@codegouvfr/react-dsfr/next-appdir/getHtmlAttributes";
-import { DsfrHead } from "@codegouvfr/react-dsfr/next-appdir/DsfrHead";
-
-import { defaultColorScheme } from "@/app/defaultColorScheme";
-import { StartDsfr } from "@/app/StartDsfr";
+import { DsfrProvider } from "@/dsfr-bootstrap";
+import {
+  getHtmlAttributes,
+  DsfrHead,
+} from "../dsfr-bootstrap/server-only-index";
 
 import "@/customIcons/customIcons.css";
 import ThemeProvider from "@/components/ThemeProvider";
@@ -30,11 +29,9 @@ export default function RootLayout({
 }>) {
   const lang = "fr";
   return (
-    <html {...getHtmlAttributes({ defaultColorScheme, lang })}>
+    <html {...getHtmlAttributes({ lang })}>
       <head>
-        <StartDsfr />
         <DsfrHead
-          Link={Link}
           preloadFonts={[
             "Marianne-Regular",
             "Marianne-Regular_Italic",
@@ -44,9 +41,11 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <StyledComponentsRegistry>
-          <ThemeProvider>{children}</ThemeProvider>
-        </StyledComponentsRegistry>
+        <DsfrProvider lang={lang}>
+          <StyledComponentsRegistry>
+            <ThemeProvider>{children}</ThemeProvider>
+          </StyledComponentsRegistry>
+        </DsfrProvider>
       </body>
     </html>
   );

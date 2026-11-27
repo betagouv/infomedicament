@@ -1,3 +1,4 @@
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 import { Suspense } from "react";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { fr } from "@codegouvfr/react-dsfr";
@@ -67,9 +68,12 @@ export async function generateMetadata(props: {
 
 export default function Page(props: { params: Promise<{ slug: string }> }) {
   return (
-    <Suspense fallback={<PageLoadingFallback />}>
-      <ResolvedSubstancePage params={props.params} />
-    </Suspense>
+    <>
+      <StartDsfrOnHydration />
+      <Suspense fallback={<PageLoadingFallback />}>
+        <ResolvedSubstancePage params={props.params} />
+      </Suspense>
+    </>
   );
 }
 

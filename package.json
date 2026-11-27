@@ -9,8 +9,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "predev": "only-include-used-icons",
-    "prebuild": "only-include-used-icons && kysely migrate:latest",
+    "predev": "react-dsfr optimize-css",
+    "prebuild": "react-dsfr optimize-css && kysely migrate:latest",
     "test": "npm run test:unit",
     "test:unit": "vitest --exclude '**/*.integration.test.ts' --exclude '**/*.ui.test.tsx'",
     "test:integration": "vitest run 'integration.test.ts'",
@@ -30,7 +30,7 @@
     "db:seed-interactions": "npx tsx scripts/seedInteractionsSearch.ts"
   },
   "dependencies": {
-    "@codegouvfr/react-dsfr": "^1.16.0",
+    "@codegouvfr/react-dsfr": "1.36.1",
     "@gouvfr/dsfr-chart": "^1.0.0",
     "@sentry/nextjs": "^10.43.0",
     "@socialgouv/matomo-next": "^1.9.2",
@@ -40,13 +40,13 @@
     "jszip": "^3.10.1",
     "kysely": "^0.28.11",
     "mysql2": "^3.10.2",
-    "next": "16.4.0",
+    "next": "16.4.6",
     "next-mdx-remote": "^6.0.0",
     "node-html-parser": "^7.0.1",
     "pg": "^8.12.0",
     "pino": "^9.14.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "react-spinners": "^0.17.0",
     "react-toastify": "^11.0.5",
     "redis": "^5.12.1",
@@ -69,8 +69,8 @@
     "@testing-library/react": "^16.0.1",
     "@types/node": "^22",
     "@types/pg": "^8.11.6",
-    "@types/react": "19.2.14",
-    "@types/react-dom": "19.2.3",
+    "@types/react": "19.3.3",
+    "@types/react-dom": "19.3.0",
     "@types/sanitize-html": "^2.13.0",
     "@vitejs/plugin-react": "^4.3.1",
     "artillery": "2.0.34",
@@ -87,9 +87,5 @@
   },
   "resolutions": {
     "styled-components": "^5"
-  },
-  "overrides": {
-    "@types/react": "19.2.14",
-    "@types/react-dom": "19.2.3"
   }
 }

@@ -1,9 +1,18 @@
+import {
+  Children,
+  isValidElement,
+  Suspense,
+  type ReactElement,
+  type JSX,
+} from "react";
 import { beforeEach, expect, it, vi } from "vitest";
 import Page from "./page";
 import { getSearchResults, getSynonymSuggestion } from "@/db/utils";
 import { getCachedAdvancedSearchPage } from "@/db/utils/advancedSearch";
 import SearchPage from "@/components/search/SearchPage";
 import { renderServerComponent } from "@/testsUtils/renderServerComponent";
+
+vi.mock("@/dsfr-bootstrap", () => ({ StartDsfrOnHydration: () => null }));
 
 vi.mock("@/db/utils", () => ({
   getSearchResults: vi.fn(),
@@ -76,7 +85,10 @@ it.each<Record<string, string>>([
     facets: { substances: [], atcs: [], indications: [] },
   });
   const page = Page({ searchParams: Promise.resolve(params) });
-  const query = page.props.children;
+  const suspense = Children.toArray(page.props.children).find(
+    (child) => isValidElement(child) && child.type === Suspense,
+  ) as ReactElement<{ children: JSX.Element }>;
+  const query = suspense.props.children;
   const shell = await query.type(query.props);
 
   expect(shell.type).toBe(SearchPage);

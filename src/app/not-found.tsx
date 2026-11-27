@@ -1,9 +1,11 @@
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 import { fr } from "@codegouvfr/react-dsfr";
 import Link from "next/link";
 
 export default function NotFound() {
   return (
     <main className={fr.cx("fr-container", "fr-pt-4w", "fr-pb-8w")}>
+      <StartDsfrOnHydration />
       <div className={fr.cx("fr-grid-row", "fr-grid-row--center", "fr-mb-3w")}>
         <div className={fr.cx("fr-col-md-6", "fr-col-md")}>
           <h1 className={fr.cx("fr-h1")}>Page non trouvée</h1>

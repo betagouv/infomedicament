@@ -1,3 +1,4 @@
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 import { getSearchResults, getSynonymSuggestion } from "@/db/utils";
 import AdvancedSearchResults from "@/components/search/AdvancedSearchResults";
 import { getCachedAdvancedSearchPage } from "@/db/utils/advancedSearch";
@@ -36,15 +37,18 @@ export default function Page(props: {
   searchParams?: Promise<Record<string, string | string[]>>;
 }) {
   return (
-    <Suspense
-      fallback={
-        <SearchPage searchInput={<AutocompleteSearch inputName="s" />}>
-          <SearchResultsLoading />
-        </SearchPage>
-      }
-    >
-      <SearchResults searchParams={props.searchParams} />
-    </Suspense>
+    <>
+      <StartDsfrOnHydration />
+      <Suspense
+        fallback={
+          <SearchPage searchInput={<AutocompleteSearch inputName="s" />}>
+            <SearchResultsLoading />
+          </SearchPage>
+        }
+      >
+        <SearchResults searchParams={props.searchParams} />
+      </Suspense>
+    </>
   );
 }
 
