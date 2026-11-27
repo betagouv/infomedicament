@@ -60,9 +60,7 @@ describe("search result rendering", () => {
     expect(
       screen.getByRole("link", { name: /^Test 1\s*, comprimé$/ }),
     ).not.toBeNull();
-    fireEvent.click(
-      screen.getByRole("button", { name: "Page 2", exact: true }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: "Page 2" }));
     expect(
       screen.getByRole("link", { name: /^Test 51\s*, comprimé$/ }),
     ).not.toBeNull();
@@ -234,19 +232,15 @@ it("resets both the displayed results and active pagination for equal-length rep
   const { rerender } = render(
     <SearchResultsPagination {...props} resultsList={first} />,
   );
-  fireEvent.click(screen.getByRole("button", { name: "Page 2", exact: true }));
+  fireEvent.click(screen.getByRole("button", { name: "Page 2" }));
   expect(
-    screen
-      .getByRole("button", { name: "Page 2", exact: true })
-      .getAttribute("aria-current"),
+    screen.getByRole("button", { name: "Page 2" }).getAttribute("aria-current"),
   ).toBe("true");
   rerender(<SearchResultsPagination {...props} resultsList={second} />);
   expect(
     screen.getByRole("link", { name: /^Test 101\s*, comprimé$/ }),
   ).not.toBeNull();
   expect(
-    screen
-      .getByRole("button", { name: "Page 1", exact: true })
-      .getAttribute("aria-current"),
+    screen.getByRole("button", { name: "Page 1" }).getAttribute("aria-current"),
   ).toBe("true");
 });
