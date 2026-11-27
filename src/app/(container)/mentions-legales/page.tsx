@@ -1,3 +1,4 @@
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 import ContentContainer from "@/components/generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import { Metadata } from "next";
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 export default async function Page() {
   return (
     <ContentContainer frContainer>
+      <StartDsfrOnHydration />
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-md-8")}>
           <h1>{PAGE_LABEL} de Info Médicament</h1>

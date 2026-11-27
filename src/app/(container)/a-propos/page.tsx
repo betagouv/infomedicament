@@ -1,3 +1,4 @@
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 import { fr } from "@codegouvfr/react-dsfr";
 import Link from "next/link";
 import Card from "@codegouvfr/react-dsfr/Card";
@@ -21,6 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page() {
   return (
     <>
+      <StartDsfrOnHydration />
       <ContentContainer frContainer>
         {" "}
         <Breadcrumb

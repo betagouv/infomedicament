@@ -1,3 +1,4 @@
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 import { Metadata } from "next";
 import InteractionsBlock from "@/components/interactions/InteractionsBlock";
 import ContentContainer from "@/components/generic/ContentContainer";
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <ContentContainer frContainer>
+      <StartDsfrOnHydration />
       <div className={fr.cx("fr-grid-row")}>
         <div className={fr.cx("fr-col-12", "fr-col-lg-8", "fr-mt-4w")}>
           <h1 className={fr.cx("fr-h2")}>{PAGE_LABEL}</h1>

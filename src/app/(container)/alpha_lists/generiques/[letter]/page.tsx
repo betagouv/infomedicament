@@ -1,3 +1,4 @@
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
@@ -29,7 +30,12 @@ export default async function Page(props: {
   params: Promise<{ letter: string }>;
 }) {
   const { letter } = await props.params;
-  return <CachedGenericsList letter={letter} />;
+  return (
+    <>
+      <StartDsfrOnHydration />
+      <CachedGenericsList letter={letter} />
+    </>
+  );
 }
 
 async function CachedGenericsList({ letter }: { letter: string }) {

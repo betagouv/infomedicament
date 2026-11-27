@@ -8,6 +8,7 @@ import { getLastSuccessfulPipelineRunDate } from "@/db/utils/pipeline";
 import ArticlesSimpleList from "@/components/articles/ArticlesSimpleList";
 import { Metadata } from "next";
 import Link from "next/link";
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -26,6 +27,7 @@ export default async function Page() {
 
   return (
     <>
+      <StartDsfrOnHydration />
       <div className={fr.cx("fr-container", "fr-pt-4w", "fr-pb-4w")}>
         <div className={fr.cx("fr-grid-row", "fr-grid-row--gutters")}>
           <div className={fr.cx("fr-col-12", "fr-col-lg-9", "fr-col-md-10")}>

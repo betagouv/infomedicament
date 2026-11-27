@@ -1,3 +1,4 @@
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 import {
   getGlossaryLetters,
   getGlossaryDefinitionsByFirstLetter,
@@ -33,7 +34,12 @@ export default async function Page(props: {
   params: Promise<{ letter: string }>;
 }) {
   const { letter } = await props.params;
-  return <CachedGlossaryPage letter={letter} />;
+  return (
+    <>
+      <StartDsfrOnHydration />
+      <CachedGlossaryPage letter={letter} />
+    </>
+  );
 }
 
 async function CachedGlossaryPage({ letter }: { letter: string }) {

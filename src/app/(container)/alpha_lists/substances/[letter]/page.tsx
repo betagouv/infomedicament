@@ -1,3 +1,4 @@
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
@@ -30,7 +31,12 @@ export default async function Page(props: {
 }) {
   const { letter: rawLetter } = await props.params;
   const letter = decodeURIComponent(rawLetter);
-  return <CachedSubstancesList letter={letter} />;
+  return (
+    <>
+      <StartDsfrOnHydration />
+      <CachedSubstancesList letter={letter} />
+    </>
+  );
 }
 
 async function CachedSubstancesList({ letter }: { letter: string }) {

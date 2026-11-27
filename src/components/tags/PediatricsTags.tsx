@@ -2,7 +2,7 @@
 
 import Tag from "@codegouvfr/react-dsfr/Tag";
 import { HTMLAttributes } from "react";
-import type { FrIconClassName } from "@codegouvfr/react-dsfr/src/fr/generatedFromCss/classNames";
+import type { FrIconClassName } from "@codegouvfr/react-dsfr/fr";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 import { fr } from "@codegouvfr/react-dsfr";
 import "./dsfr-custom-tags.css";

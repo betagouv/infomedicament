@@ -1,3 +1,4 @@
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 import { Suspense } from "react";
 import MedicamentPageLoading from "@/components/medicaments/MedicamentPageLoading";
 import { Metadata } from "next";
@@ -46,9 +47,12 @@ export async function generateMetadata(props: {
 
 export default function Page(props: { params: Promise<{ slug: string }> }) {
   return (
-    <Suspense fallback={<MedicamentPageLoading />}>
-      <ResolvedMedicamentPage params={props.params} />
-    </Suspense>
+    <>
+      <StartDsfrOnHydration />
+      <Suspense fallback={<MedicamentPageLoading />}>
+        <ResolvedMedicamentPage params={props.params} />
+      </Suspense>
+    </>
   );
 }
 

@@ -1,3 +1,4 @@
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -245,6 +246,7 @@ const mappings: Mapping[] = [
 export default function Page() {
   return (
     <ContentContainer frContainer>
+      <StartDsfrOnHydration />
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
         currentPageLabel="Réutiliser les données"

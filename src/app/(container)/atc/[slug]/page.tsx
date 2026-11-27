@@ -1,3 +1,4 @@
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 import { Suspense } from "react";
 import PageLoadingFallback from "@/components/generic/PageLoadingFallback";
 import { fr } from "@codegouvfr/react-dsfr";
@@ -84,9 +85,12 @@ async function fetchATC2Data(
 
 export default function Page(props: { params: Promise<{ slug: string }> }) {
   return (
-    <Suspense fallback={<PageLoadingFallback />}>
-      <ResolvedATCPage params={props.params} />
-    </Suspense>
+    <>
+      <StartDsfrOnHydration />
+      <Suspense fallback={<PageLoadingFallback />}>
+        <ResolvedATCPage params={props.params} />
+      </Suspense>
+    </>
   );
 }
 

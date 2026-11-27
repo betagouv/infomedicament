@@ -1,3 +1,4 @@
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import { fr } from "@codegouvfr/react-dsfr";
 import ContentContainer from "@/components/generic/ContentContainer";
@@ -21,7 +22,7 @@ export default async function Page() {
 
   return (
     <ContentContainer frContainer>
-      {" "}
+      <StartDsfrOnHydration />{" "}
       <Breadcrumb
         segments={[{ label: "Accueil", linkProps: { href: "/" } }]}
         currentPageLabel="Statistiques"

@@ -1,3 +1,4 @@
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { fr } from "@codegouvfr/react-dsfr";
 import { getArticles } from "@/db/utils/articles";
@@ -54,9 +55,12 @@ export async function generateMetadata(props: {
 
 export default function Page(props0: { params: Promise<{ slug: string }> }) {
   return (
-    <Suspense fallback={<PageLoadingFallback />}>
-      <ResolvedArticlePage params={props0.params} />
-    </Suspense>
+    <>
+      <StartDsfrOnHydration />
+      <Suspense fallback={<PageLoadingFallback />}>
+        <ResolvedArticlePage params={props0.params} />
+      </Suspense>
+    </>
   );
 }
 

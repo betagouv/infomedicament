@@ -1,3 +1,4 @@
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 import { notFound } from "next/navigation";
 import { fr } from "@codegouvfr/react-dsfr";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
@@ -43,9 +44,12 @@ export async function generateMetadata(props: {
 
 export default function Page(props: { params: Promise<{ slug: string }> }) {
   return (
-    <Suspense fallback={<PageLoadingFallback />}>
-      <ResolvedIndicationPage params={props.params} />
-    </Suspense>
+    <>
+      <StartDsfrOnHydration />
+      <Suspense fallback={<PageLoadingFallback />}>
+        <ResolvedIndicationPage params={props.params} />
+      </Suspense>
+    </>
   );
 }
 

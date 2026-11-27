@@ -1,3 +1,4 @@
+import { StartDsfrOnHydration } from "@/dsfr-bootstrap";
 import Breadcrumb from "@codegouvfr/react-dsfr/Breadcrumb";
 import ContentContainer from "@/components/generic/ContentContainer";
 import RatingToaster from "@/components/rating/RatingToaster";
@@ -30,7 +31,12 @@ export default async function Page(props: {
   params: Promise<{ letter: string }>;
 }) {
   const { letter } = await props.params;
-  return <CachedMedicamentsList letter={letter} />;
+  return (
+    <>
+      <StartDsfrOnHydration />
+      <CachedMedicamentsList letter={letter} />
+    </>
+  );
 }
 
 async function CachedMedicamentsList({ letter }: { letter: string }) {
