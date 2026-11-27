@@ -1,16 +1,17 @@
-import { Metadata } from "next";
-import InteractionsBlock from "@/components/interactions/InteractionsBlock";
+import { Suspense } from "react";
+import InteractionsWithSelection, {
+  interactionsMetadata,
+  type InteractionsPageProps,
+} from "@/components/interactions/InteractionsWithSelection";
 import ContentContainer from "@/components/generic/ContentContainer";
 import { fr } from "@codegouvfr/react-dsfr";
 import Link from "next/link";
 
 const PAGE_LABEL: string = "Interactions médicamenteuses";
 
-export const metadata: Metadata = {
-  title: PAGE_LABEL,
-};
+export const generateMetadata = interactionsMetadata;
 
-export default function Page() {
+export default function Page({ searchParams }: InteractionsPageProps) {
   return (
     <ContentContainer frContainer>
       <div className={fr.cx("fr-grid-row")}>
@@ -35,7 +36,11 @@ export default function Page() {
             médicament.
           </p>
 
-          <InteractionsBlock />
+          <Suspense
+            fallback={<p role="status">Chargement des interactions…</p>}
+          >
+            <InteractionsWithSelection searchParams={searchParams} />
+          </Suspense>
         </div>
       </div>
     </ContentContainer>

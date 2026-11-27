@@ -2,6 +2,22 @@ import "server-cli-only";
 import db from "@/db";
 import { InteractionsSearchEntry } from "@/db/types";
 import { sql } from "kysely";
+import { parseInteractionSelection } from "@/utils/interactionSelection";
+
+export async function getInteractionSelection(
+  value: string | string[] | undefined,
+): Promise<InteractionsSearchEntry | null> {
+  const selection = parseInteractionSelection(value);
+  if (!selection) return null;
+  return (
+    (await db
+      .selectFrom("interactions_search")
+      .select(["id", "label", "type", "subst_ids", "class_ids"])
+      .where("type", "=", selection.type)
+      .where("label", "=", selection.label)
+      .executeTakeFirst()) ?? null
+  );
+}
 
 export async function searchInteractions(
   q: string,
