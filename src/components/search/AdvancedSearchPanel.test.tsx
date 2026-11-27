@@ -12,9 +12,7 @@ it("clears the criteria without submitting the previous draft", () => {
     />,
   );
 
-  fireEvent.click(
-    screen.getByRole("button", { name: "Effacer les critères avancés" }),
-  );
+  fireEvent.click(screen.getByRole("button", { name: "Effacer les critères" }));
 
   expect(onSearch.mock.calls).toEqual([[initialAdvancedCriteria]]);
   expect(
