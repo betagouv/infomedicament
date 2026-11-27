@@ -85,7 +85,7 @@ export default async function Page() {
             <h2 className={fr.cx("fr-h4")}>Vos questions</h2>
             <Image
               src="/img/homepage_illu.svg"
-              alt="Un dessin d'une personne regardant une boîte de médicaments."
+              alt=""
               className={fr.cx(
                 "fr-hidden-xl",
                 "fr-hidden-lg",
@@ -119,7 +119,7 @@ export default async function Page() {
           >
             <Image
               src="/img/homepage_illu.svg"
-              alt="Un dessin d'une personne regardant une boîte de médicaments."
+              alt=""
               style={{ width: "100%", height: "auto" }}
               width={2000}
               height={2000}

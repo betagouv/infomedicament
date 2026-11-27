@@ -27,6 +27,7 @@ function SearchFiltersTitle({
     <TitleContainer {...props}>
       <Title className={fr.cx("fr-h6")}>
         <span
+          aria-hidden="true"
           className={["fr-icon--custom-filters", fr.cx("fr-mr-1w")].join(" ")}
         />
         Filtres

@@ -41,6 +41,7 @@ function MedicamentGeneriqueContainer({
       </ul>
       <div className={"fr-mb-1w"}>
         <span
+          aria-hidden="true"
           className={["fr-icon--custom-molecule", fr.cx("fr-mr-1w")].join(" ")}
         />
         <b>Substance active</b>

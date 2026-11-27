@@ -153,7 +153,7 @@ export function AutocompleteSearchInput({
   const listboxId = `${id}-listbox`;
 
   return (
-    <div style={{ position: "relative", width: "100%" }}>
+    <div id="search" style={{ position: "relative", width: "100%" }}>
       <input
         id={id}
         role={disableSuggestions ? undefined : "combobox"}
@@ -247,7 +247,11 @@ export function AutocompleteSearchInput({
                         cursor: "pointer",
                         backgroundColor:
                           index === activeIndex
-                            ? "var(--background-alt-blue-france, #f0f0fb)"
+                            ? "var(--background-active-blue-france)"
+                            : undefined,
+                        color:
+                          index === activeIndex
+                            ? "var(--text-inverted-blue-france)"
                             : undefined,
                       }}
                     >
@@ -256,7 +260,10 @@ export function AutocompleteSearchInput({
                         <span
                           style={{
                             display: "block",
-                            color: "var(--text-mention-grey, #666)",
+                            color:
+                              index === activeIndex
+                                ? "inherit"
+                                : "var(--text-mention-grey, #666)",
                             fontSize: "0.875rem",
                           }}
                         >

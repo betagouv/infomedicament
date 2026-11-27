@@ -140,6 +140,7 @@ function SearchFiltersSubMenu({
         >
           <span>
             <span
+              aria-hidden="true"
               className={["fr-icon--custom-filters", fr.cx("fr-mr-1w")].join(
                 " ",
               )}
@@ -148,7 +149,10 @@ function SearchFiltersSubMenu({
             {selectedFiltersCount > 0 && <span> ({selectedFiltersCount})</span>}
           </span>
           {isFiltersOpen && (
-            <span className={fr.cx("fr-icon-close-line", "fr-mr-1w")} />
+            <span
+              aria-hidden="true"
+              className={fr.cx("fr-icon-close-line", "fr-mr-1w")}
+            />
           )}
         </Button>
       </SubMenuOpenButton>

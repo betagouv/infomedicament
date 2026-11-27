@@ -128,7 +128,7 @@ function MedicamentContentHeaderBlock({
               <div style={{ display: "flex" }}>
                 <Image
                   src="/icons/surveillance_renforcee.png"
-                  alt="Médicament sous surveillance renforcée"
+                  alt=""
                   width={21}
                   height={19}
                   className={fr.cx("fr-mr-1w", "fr-mt-1v")}
@@ -174,7 +174,7 @@ function MedicamentContentHeaderBlock({
         >
           <Image
             src="/icons/aip.png"
-            alt="AIP"
+            alt=""
             width={32}
             height={17}
             className={fr.cx("fr-mr-1w", "fr-mt-1v")}

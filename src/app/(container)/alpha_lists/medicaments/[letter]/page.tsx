@@ -18,9 +18,12 @@ export async function generateStaticParams() {
 }
 const PAGE_LABEL: string = "Liste des médicaments";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ letter: string }>;
+}): Promise<Metadata> {
+  const { letter } = await props.params;
   return {
-    title: PAGE_LABEL,
+    title: `${PAGE_LABEL} — Lettre ${letter}`,
     description:
       "Retrouvez les médicaments classés par ordre alphabétique pour accéder rapidement aux informations recherchées.",
   };

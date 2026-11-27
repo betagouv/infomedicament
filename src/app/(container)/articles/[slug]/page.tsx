@@ -119,7 +119,7 @@ async function ArticlePageContent({ slug }: { slug: string }) {
               }}
             >
               <Image
-                alt="Image décorative"
+                alt=""
                 fill
                 style={{ objectFit: "cover" }}
                 src={`/img/article_covers/${image}.webp`}

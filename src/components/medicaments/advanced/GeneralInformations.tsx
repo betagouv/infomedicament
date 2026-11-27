@@ -158,6 +158,7 @@ function PresentationDetailsList({
         <li key={`${pres.cip13}-${index}`} className={fr.cx("fr-mb-1w")}>
           <div className={fr.cx("fr-mb-0")}>
             <span
+              aria-hidden="true"
               className={["fr-icon--custom-box", fr.cx("fr-mr-1w")].join(" ")}
             />
             <span className={fr.cx("fr-mr-2w")}>

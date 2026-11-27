@@ -7,6 +7,7 @@ import GlossaryContextProvider from "@/components/glossary/GlossaryContextProvid
 import GreetingModal from "@/components/GreetingModal";
 import InfoMedicamentHeader from "@/components/InfoMedicamentHeader";
 import { getNoticeRcpLastUpdated } from "@/db/utils/specialities";
+import KeyboardSkipLinks from "@/components/KeyboardSkipLinks";
 export default function ContainerLayout({
   children,
 }: Readonly<{
@@ -17,6 +18,7 @@ export default function ContainerLayout({
   return (
     <DsfrProvider lang="fr">
       <GlossaryContextProvider>
+        <KeyboardSkipLinks />
         <Notice
           title={
             <>
@@ -31,7 +33,9 @@ export default function ContainerLayout({
           }
         />
         <InfoMedicamentHeader />
-        <main>{children}</main>
+        <main id="main-content" tabIndex={-1}>
+          {children}
+        </main>
         <Footer
           brandTop={
             <>

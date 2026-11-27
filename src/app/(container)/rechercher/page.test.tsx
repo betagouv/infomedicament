@@ -1,5 +1,5 @@
 import { beforeEach, expect, it, vi } from "vitest";
-import Page from "./page";
+import Page, { generateMetadata } from "./page";
 import { getSearchResults, getSynonymSuggestion } from "@/db/utils";
 import { getCachedAdvancedSearchPage } from "@/db/utils/advancedSearch";
 import SearchPage from "@/components/search/SearchPage";
@@ -22,6 +22,27 @@ vi.mock("@/components/search/SearchPage", () => ({
 vi.mock("@/components/rating/RatingToaster", () => ({ default: () => null }));
 
 beforeEach(() => vi.clearAllMocks());
+
+it.each<[Record<string, string | string[]> | undefined, string]>([
+  [undefined, "Recherche"],
+  [{ s: "  doliprane  " }, "Recherche : doliprane"],
+  [{ s: "   " }, "Recherche"],
+  [{ s: ["paracétamol", "doliprane"] }, "Recherche : paracétamol"],
+  [{ advanced: "1", s: "ancien terme" }, "Recherche avancée"],
+])(
+  "describes the current search in the page title for %j",
+  async (params, title) => {
+    const metadata = await generateMetadata({
+      searchParams: params ? Promise.resolve(params) : undefined,
+    });
+
+    expect(metadata.title).toBe(title);
+    expect(metadata.robots).toEqual(
+      params ? { index: false, follow: true } : undefined,
+    );
+    expect(getSearchResults).not.toHaveBeenCalled();
+  },
+);
 
 it("preserves the advanced draft when a text criterion exceeds the limit", async () => {
   const holder = "x".repeat(201);

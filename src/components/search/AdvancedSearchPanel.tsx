@@ -95,12 +95,14 @@ const textCriteria: { key: TextKey; label: string }[] = [
   { key: "holder", label: "Laboratoire / titulaire" },
 ];
 function TextCriterion({
+  id,
   label,
   value,
   mode,
   onChange,
   onModeChange,
 }: {
+  id?: string;
   label: string;
   value: string;
   mode: MatchMode;
@@ -128,6 +130,7 @@ function TextCriterion({
         <Input
           label={<span className={fr.cx("fr-sr-only")}>{label}</span>}
           nativeInputProps={{
+            id,
             value,
             placeholder: "Indifférent",
             onChange: (event) => onChange(event.target.value),
@@ -276,6 +279,9 @@ export default function AdvancedSearchPanel({
             {textCriteria.map(({ key, label }) => (
               <TextCriterion
                 key={key}
+                id={
+                  isAdvancedMode && key === "specialty" ? "search" : undefined
+                }
                 label={label}
                 value={draft[key]}
                 mode={draft[`${key}Match`]}
