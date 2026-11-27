@@ -168,7 +168,9 @@ test("FI_028–FI_042: composition and presentation details are complete", async
   await expect(presentation).toContainText(
     "1 plaquette aluminium de 7 gélules",
   );
-  await expect(presentation).toContainText("Prix libre - non remboursable");
+  await expect(presentation).toContainText(
+    "Prix non disponible · Remboursement non renseigné",
+  );
   await expect(presentation).toContainText(
     "Déclaration de commercialisation : 06/09/2013",
   );

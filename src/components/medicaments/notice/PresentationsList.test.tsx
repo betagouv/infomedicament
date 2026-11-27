@@ -109,3 +109,28 @@ it("does not show prices for stopped or unknown presentations", async () => {
   expect(screen.queryByText("Stopped packaging")).toBeNull();
   expect(screen.queryByText("Unknown packaging")).toBeNull();
 });
+
+it.each([
+  [null, null, "Prix non disponible", "Remboursement non renseigné"],
+  [2.18, null, "2,18 €", "Remboursement non renseigné"],
+  [null, "65%", "Prix non disponible", "Remboursable à 65 %"],
+])(
+  "shows independent price and reimbursement labels (%s, %s)",
+  async (retailPrice, reimbursementRate, priceLabel, reimbursementLabel) => {
+    const presentation = {
+      cis: "test",
+      cip13: "3400935955838",
+      name: "Boîte de 8 comprimés",
+      commercialStatus: "commercialised",
+      administrativeStatus: "active",
+      pricingKnown: retailPrice !== null || reimbursementRate !== null,
+      retailPrice,
+      reimbursementRate,
+    } as Presentation;
+    render(<PresentationsList presentations={[presentation]} />);
+
+    expect(await screen.findByText(priceLabel)).not.toBeNull();
+    expect(screen.getByText(reimbursementLabel)).not.toBeNull();
+    expect(screen.queryByText(/Prix libre|non remboursable/)).toBeNull();
+  },
+);

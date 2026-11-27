@@ -25,19 +25,6 @@ import {
 } from "./presentations";
 
 describe("presentation identifiers and statuses", () => {
-  it("keeps the approved price fallbacks when historical pricing is missing", () => {
-    const presentation = {
-      pricingKnown: false,
-      commercialStatus: "stopped",
-    } as Presentation;
-    expect(getPresentationPriceText(presentation)).toBe("Prix libre");
-    expect(getPresentationTauxPriseEnChargeText(presentation)).toBe(
-      "Remboursement non renseigné",
-    );
-    expect(getPresentationFullPriceText(presentation)).toBe(
-      "Prix libre - non remboursable",
-    );
-  });
   it("formats the CIP7 only when supplied and always formats the CIP13", () => {
     expect(
       formatPresentationCip({ cip7: "3412559", cip13: "3400934125591" }),
@@ -52,12 +39,12 @@ describe("presentation identifiers and statuses", () => {
       getPresentationNonCommercializedBadgeLabel({
         commercialStatus: "unknown",
       } as Presentation),
-    ).toBe("Commercialisation non renseignée");
+    ).toBe("Commercialisation non communiquée");
     expect(
       getPresentationNonCommercializedStatusLabel({
         commercialStatus: "unknown",
       } as Presentation),
-    ).toBe("Commercialisation non renseignée");
+    ).toBe("Commercialisation non communiquée");
     const stopped = { commercialStatus: "stopped" } as Presentation;
     const suspended = { commercialStatus: "suspended" } as Presentation;
     const withdrawn = { commercialStatus: "withdrawn" } as Presentation;
@@ -717,25 +704,27 @@ describe("utils presentations - text utilities", () => {
 
   it("getPresentationFullPriceText", async () => {
     expect(getPresentationFullPriceText(presentations[0])).toBe(
-      "Prix 2,18 € - remboursé à 65%",
+      "Prix : 2,18 € · Remboursable à 65 %",
     );
     expect(getPresentationFullPriceText(presentations[1])).toBe(
-      "Prix libre - non remboursable",
+      "Prix non disponible · Remboursement non renseigné",
     );
   });
 
   it("getPresentationTauxPriseEnChargeText", async () => {
     expect(getPresentationTauxPriseEnChargeText(presentations[0])).toBe(
-      "remboursé à 65%",
+      "Remboursable à 65 %",
     );
     expect(getPresentationTauxPriseEnChargeText(presentations[1])).toBe(
-      "non remboursable",
+      "Remboursement non renseigné",
     );
   });
 
   it("getPresentationPriceText", async () => {
     expect(getPresentationPriceText(presentations[0])).toBe("2,18 €");
-    expect(getPresentationPriceText(presentations[1])).toBe("Prix libre");
+    expect(getPresentationPriceText(presentations[1])).toBe(
+      "Prix non disponible",
+    );
   });
 });
 
@@ -805,5 +794,56 @@ describe("utils presentations", () => {
   it("isReimbursable", async () => {
     expect(isReimbursable(presentations)).toBe(true);
     expect(isReimbursable([presentations[1]])).toBe(false);
+  });
+});
+
+describe("presentation pricing", () => {
+  it.each([
+    [2.18, "65%", "Prix : 2,18 € · Remboursable à 65 %"],
+    [2.18, null, "Prix : 2,18 € · Remboursement non renseigné"],
+    [null, "65%", "Prix non disponible · Remboursable à 65 %"],
+    [null, null, "Prix non disponible · Remboursement non renseigné"],
+  ])(
+    "preserves independent price and reimbursement data (%s, %s)",
+    (retailPrice, reimbursementRate, expected) => {
+      const presentation = {
+        ...presentations[0],
+        retailPrice,
+        reimbursementRate,
+      };
+      expect(getPresentationFullPriceText(presentation)).toBe(expected);
+    },
+  );
+
+  it.each(["stopped", "suspended", "withdrawn", "unknown"] as const)(
+    "hides all pricing for %s presentations, even with recorded values",
+    (commercialStatus) => {
+      for (const source of presentations) {
+        const presentation = { ...source, commercialStatus };
+        expect(getPresentationFullPriceText(presentation)).toBe("");
+        expect(getPresentationPriceText(presentation)).toBe("");
+        expect(getPresentationTauxPriseEnChargeText(presentation)).toBe("");
+      }
+    },
+  );
+
+  it.each([0, -1, NaN, Infinity])(
+    "does not display an invalid price (%s)",
+    (retailPrice) => {
+      const presentation = { ...presentations[0], retailPrice };
+      expect(getPresentationPriceText(presentation)).toBe(
+        "Prix non disponible",
+      );
+      expect(getPresentationFullPriceText(presentation)).toBe(
+        "Prix non disponible · Remboursable à 65 %",
+      );
+    },
+  );
+
+  it("treats blank reimbursement rates as missing", () => {
+    const presentation = { ...presentations[0], reimbursementRate: "  " };
+    expect(getPresentationTauxPriseEnChargeText(presentation)).toBe(
+      "Remboursement non renseigné",
+    );
   });
 });

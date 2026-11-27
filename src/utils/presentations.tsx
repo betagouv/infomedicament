@@ -461,45 +461,44 @@ export function getAggregatePresentationRecipientsTexts(
   return details;
 }
 
+function hasPresentationPrice(
+  presentation: Presentation,
+): presentation is Presentation & { retailPrice: number } {
+  return (
+    presentation.retailPrice !== null &&
+    Number.isFinite(presentation.retailPrice) &&
+    presentation.retailPrice > 0
+  );
+}
+
 export function getPresentationFullPriceText(
   presentation: Presentation,
 ): string {
-  if (presentation.retailPrice && presentation.reimbursementRate) {
-    const price: string = Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "EUR",
-    }).format(presentation.retailPrice);
-    return `Prix ${price} - remboursé à ${presentation.reimbursementRate}`;
-  } else {
-    return "Prix libre - non remboursable";
-  }
+  if (presentation.commercialStatus !== "commercialised") return "";
+  const price = getPresentationPriceText(presentation);
+  const priceLabel = hasPresentationPrice(presentation)
+    ? `Prix : ${price}`
+    : price;
+  return `${priceLabel} · ${getPresentationTauxPriseEnChargeText(presentation)}`;
 }
 
 export function getPresentationTauxPriseEnChargeText(
   presentation: Presentation,
 ): string {
-  if (
-    presentation.pricingKnown === false &&
-    presentation.commercialStatus !== "commercialised"
-  )
-    return "Remboursement non renseigné";
-  if (presentation.reimbursementRate) {
-    return `remboursé à ${presentation.reimbursementRate}`;
-  } else {
-    return "non remboursable";
-  }
+  if (presentation.commercialStatus !== "commercialised") return "";
+  const rate = presentation.reimbursementRate?.trim().replace(/\s*%/g, " %");
+  return rate ? `Remboursable à ${rate}` : "Remboursement non renseigné";
 }
 
 export function getPresentationPriceText(presentation: Presentation): string {
-  if (presentation.retailPrice) {
-    const price: string = Intl.NumberFormat("fr-FR", {
+  if (presentation.commercialStatus !== "commercialised") return "";
+  if (hasPresentationPrice(presentation)) {
+    return Intl.NumberFormat("fr-FR", {
       style: "currency",
       currency: "EUR",
     }).format(presentation.retailPrice);
-    return price;
-  } else {
-    return "Prix libre";
   }
+  return "Prix non disponible";
 }
 
 export function isAbrogee(presentation: Presentation): boolean {
@@ -557,10 +556,10 @@ export function getPresentationNonCommercializedStatusLabel(
 ): string | null {
   if (isArret(presentation)) return "Commercialisation arrêtée";
   if (presentation.commercialStatus === "suspended")
-    return "Suspension de commercialisation";
+    return "Commercialisation suspendue";
   if (isNotAuthorized(presentation)) return "Arrêt (autorisation retirée)";
   if (presentation.commercialStatus === "unknown")
-    return "Commercialisation non renseignée";
+    return "Commercialisation non communiquée";
   return null;
 }
 
@@ -572,6 +571,6 @@ export function getPresentationNonCommercializedBadgeLabel(
     return "Commercialisation suspendue";
   if (isNotAuthorized(presentation)) return "Arrêt (autorisation retirée)";
   if (presentation.commercialStatus === "unknown")
-    return "Commercialisation non renseignée";
+    return "Commercialisation non communiquée";
   return null;
 }
